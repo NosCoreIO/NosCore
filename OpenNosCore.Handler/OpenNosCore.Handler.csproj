@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Core\OpenNosCore.Core.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Data\OpenNosCore.Data.csproj" />
+    <ProjectReference Include="..\OpenNosCore.GameObject\OpenNosCore.GameObject.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Packets\OpenNosCore.Packets.csproj" />
+  </ItemGroup>
+
+</Project>

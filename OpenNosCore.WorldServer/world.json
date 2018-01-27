@@ -1,0 +1,36 @@
+{
+  "name": "S1-OpenNosCore",
+  "serverGroup": 1,
+  "host": "127.0.0.1",
+  "port": 1337,
+  "master": {
+    "password": "OpenNosCorePassword",
+    "host": "127.0.0.1",
+    "port": 6969
+  },
+  "sessionLimit": 1000,
+  "rates": {
+    "Gold": 1,
+    "Reputation": 1,
+    "Drop": 1,
+    "DropQuantity": 1,
+    "DropRarity": 1,
+    "Xp": 1,
+    "JobXp": 1,
+    "FairyXp": 1,
+    "QuestFairyXp": 1,
+    "QuestJobXp": 1,
+    "QuestXp": 1,
+    "UpgradeChance": 1,
+    "RarifyChance": 1,
+    "MaxInventoryGold": 1000000000,
+    "MaxItemPerSlot": 99
+  },
+  "database": {
+    "host": "localhost",
+    "port": 1433,
+    "username": "root",
+    "password": "",
+    "database": "OpenNosCore"
+  }
+}

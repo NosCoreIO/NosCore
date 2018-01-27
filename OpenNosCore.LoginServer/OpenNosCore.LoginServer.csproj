@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Core\OpenNosCore.Core.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Database\OpenNosCore.Database.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Data\OpenNosCore.Data.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Handler\OpenNosCore.Handler.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Packets\OpenNosCore.Packets.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Database\OpenNosCore.Database.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Packets\OpenNosCore.Packets.csproj" />
+  </ItemGroup>
+
+</Project>
