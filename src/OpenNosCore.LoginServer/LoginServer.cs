@@ -46,7 +46,7 @@ namespace OpenNosCore.Login
 
         private static void initializeConfiguration()
         {
-            _loginConfiguration = new ConfigurationBuilder().AddJsonFile("./login.json", true, true).Build();
+            _loginConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/login.json", true, true).Build();
             Logger.Log.Info($"Login Server Configuration successfully loaded !");
         }
 

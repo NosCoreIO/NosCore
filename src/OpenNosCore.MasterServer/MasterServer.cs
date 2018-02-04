@@ -30,7 +30,7 @@ namespace OpenNosCore.Master
 
         private static void initializeConfiguration()
         {
-            _masterConfiguration = new ConfigurationBuilder().AddJsonFile("./master.json", true, true).Build();
+            _masterConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/master.json", true, true).Build();
             Logger.Log.Info($"Configuration successfully loaded !");
         }
 
