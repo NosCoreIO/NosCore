@@ -24,7 +24,7 @@ namespace OpenNosCore.Master
         {
             // LOGGER
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
         }
 
