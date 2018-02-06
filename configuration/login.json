@@ -1,17 +1,17 @@
 {
-  "region": 0,
-  "masterCommunication": {
-    "password": "OpenNosCorePassword",
-    "host": "127.0.0.1",
-    "port": 6969
+  "MasterCommunication": {
+    "Password": "OpenNosCorePassword",
+    "Host": "127.0.0.1",
+    "Port": 6969
   },
-  "host": "127.0.0.1",
-  "port": 4002,
-  "database": {
-  "host": "localhost",
-  "port": 1433,
-  "username": "root",
-  "password": "",
-  "database": "OpenNosCore"
+  "Host": "127.0.0.1",
+  "Port": 4002,
+  "WebApi": "http://+:5000",
+  "Database": {
+  "Host": "localhost",
+  "Port": 1433,
+  "Username": "root",
+  "Password": "",
+  "Database": "OpenNosCore"
   }
 }

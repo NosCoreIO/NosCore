@@ -36,7 +36,7 @@ namespace OpenNosCore.Master
         {
             var host = new WebHostBuilder()
              .UseKestrel()
-             .UseUrls("http://localhost:5001")
+             .UseUrls($"{(_masterConfiguration["Port"])}")
              .UseStartup<Startup>()
              .Build();
             host.StartAsync();
@@ -44,13 +44,13 @@ namespace OpenNosCore.Master
 
         private static void initializeConfiguration()
         {
-            _masterConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/master.json", true, true).Build();
+            _masterConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/master.json", false, true).Build();
             Logger.Log.Info($"Configuration successfully loaded !");
         }
 
         private static void printHeader()
         {
-            Console.Title = "OpenNosCore - MasterServer - Initializing...";
+            Console.Title = "OpenNosCore - MasterServer";
             string text = "Master SERVER - 0Lucifer0";
             int offset = Console.WindowWidth / 2 + text.Length / 2;
             string separator = new string('=', Console.WindowWidth);
@@ -107,6 +107,7 @@ namespace OpenNosCore.Master
             initializeWebApi();
 
             Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration["Port"])}");
+            Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration["Port"])} - WebApi : {(_masterConfiguration["Port"])}";
             RunMasterServerAsync(Convert.ToInt32(_masterConfiguration["Port"]), _masterConfiguration["Password"]).Wait();
 
         }
