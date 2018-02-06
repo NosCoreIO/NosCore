@@ -7,11 +7,15 @@ using log4net.Config;
 using log4net.Repository;
 using Microsoft.Extensions.Configuration;
 using OpenNosCore.Core.Logger;
+using OpenNosCore.MasterServer;
 using OpenNosCore.Networking;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Owin;
+using System.Web.Http;
+using Microsoft.AspNetCore.Hosting;
 
 namespace OpenNosCore.Master
 {
@@ -26,6 +30,16 @@ namespace OpenNosCore.Master
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
+        }
+
+        private static void initializeWebApi()
+        {
+            var host = new WebHostBuilder()
+             .UseKestrel()
+             .UseUrls("http://localhost:5001")
+             .UseStartup<Startup>()
+             .Build();
+            host.StartAsync();
         }
 
         private static void initializeConfiguration()
@@ -90,6 +104,7 @@ namespace OpenNosCore.Master
             initializeLogger();
             initializeConfiguration();
             initializeMapping();
+            initializeWebApi();
 
             Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration["Port"])}");
             RunMasterServerAsync(Convert.ToInt32(_masterConfiguration["Port"]), _masterConfiguration["Password"]).Wait();

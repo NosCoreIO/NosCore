@@ -25,8 +25,11 @@ using OpenNosCore.Networking;
 using System.Net;
 using OpenNosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
-
-namespace OpenNosCore.Login
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+namespace OpenNosCore.LoginServer
 {
     public class LoginServer
     {
@@ -43,6 +46,17 @@ namespace OpenNosCore.Login
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginServer)));
         }
+
+        private static void initializeWebApi()
+        {
+            var host = new WebHostBuilder()
+             .UseKestrel()
+             .UseUrls("http://localhost:5000")
+             .UseStartup<Startup>()
+             .Build();
+            host.StartAsync();
+        }
+
 
         private static void initializeConfiguration()
         {
@@ -132,6 +146,7 @@ namespace OpenNosCore.Login
             initializeMapping();
             initializeConfiguration();
             initializePackets();
+            initializeWebApi();
             connectMaster();
 
             if (DataAccessHelper.Instance.Initialize(_loginConfiguration["Host"], _loginConfiguration["Database"]))
