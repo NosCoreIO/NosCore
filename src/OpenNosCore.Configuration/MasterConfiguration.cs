@@ -6,6 +6,6 @@ namespace OpenNosCore.Configuration
 {
     public class MasterConfiguration : BaseConfiguration
     {
-
+        public string Password { get; set; }
     }
 }

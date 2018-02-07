@@ -112,7 +112,7 @@ namespace OpenNosCore.Master
 
             Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration.Port)}");
             Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi)}";
-            RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.CommunicationPassword).Wait();
+            RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
 
         }
     }

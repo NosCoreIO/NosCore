@@ -12,6 +12,6 @@ namespace OpenNosCore.Configuration
 
         public string WebApi { get; set; }
 
-        public string CommunicationPassword { get; set; }
+        public MasterCommunicationConfiguration MasterCommunication { get; set; }
     }
 }
