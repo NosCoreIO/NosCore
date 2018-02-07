@@ -16,13 +16,24 @@ using System.Threading.Tasks;
 using Owin;
 using System.Web.Http;
 using Microsoft.AspNetCore.Hosting;
+using OpenNosCore.Configuration;
 
 namespace OpenNosCore.Master
 {
     public class MasterServer
     {
+        private static MasterConfiguration _masterConfiguration = new MasterConfiguration();
 
-        private static IConfigurationRoot _masterConfiguration;
+        private static string _configurationPath = @"..\..\..\configuration";
+
+        private static void initializeConfiguration()
+        {
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            builder.AddJsonFile("master.json", false);
+            builder.Build().Bind(_masterConfiguration);
+            Logger.Log.Info($"Master Server Configuration successfully loaded !");
+        }
 
         private static void initializeLogger()
         {
@@ -36,16 +47,9 @@ namespace OpenNosCore.Master
         {
             var host = new WebHostBuilder()
              .UseKestrel()
-             .UseUrls($"{(_masterConfiguration["Port"])}")
              .UseStartup<Startup>()
              .Build();
             host.StartAsync();
-        }
-
-        private static void initializeConfiguration()
-        {
-            _masterConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/master.json", false, true).Build();
-            Logger.Log.Info($"Configuration successfully loaded !");
         }
 
         private static void printHeader()
@@ -103,12 +107,12 @@ namespace OpenNosCore.Master
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            initializeMapping();
             initializeWebApi();
+            initializeMapping();
 
-            Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration["Port"])}");
-            Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration["Port"])} - WebApi : {(_masterConfiguration["Port"])}";
-            RunMasterServerAsync(Convert.ToInt32(_masterConfiguration["Port"]), _masterConfiguration["Password"]).Wait();
+            Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration.Port)}");
+            Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi)}";
+            RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.CommunicationPassword).Wait();
 
         }
     }

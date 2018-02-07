@@ -26,15 +26,28 @@ using System.Net;
 using OpenNosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using OpenNosCore.Configuration;
+
 namespace OpenNosCore.LoginServer
 {
     public class LoginServer
     {
         private static IEncryptor _encryptor;
 
-        private static IConfigurationRoot _loginConfiguration;
+        private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
+
+        private static string _configurationPath = @"..\..\..\configuration";
 
         private static List<IPacketHandler> _clientPacketDefinitions;
+
+        private static void initializeConfiguration()
+        {
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            builder.AddJsonFile("login.json", false);
+            builder.Build().Bind(_loginConfiguration);
+            Logger.Log.Info($"Login Server Configuration successfully loaded !");
+        }
 
         private static void initializeLogger()
         {
@@ -48,17 +61,9 @@ namespace OpenNosCore.LoginServer
         {
             var host = new WebHostBuilder()
              .UseKestrel()
-             .UseUrls($"{(_loginConfiguration["WebApi"])}")
              .UseStartup<Startup>()
              .Build();
             host.StartAsync();
-        }
-
-
-        private static void initializeConfiguration()
-        {
-            _loginConfiguration = new ConfigurationBuilder().AddJsonFile("../../configuration/login.json", false, true).Build();
-            Logger.Log.Info($"Login Server Configuration successfully loaded !");
         }
 
         private static void initializePackets()
@@ -74,8 +79,7 @@ namespace OpenNosCore.LoginServer
             {
                 try
                 {
-                    var _masterCommunicationConfiguration = _loginConfiguration.GetSection("MasterCommunication");
-                    RunMasterClient(_masterCommunicationConfiguration["Host"], Convert.ToInt32(_masterCommunicationConfiguration["Port"]), _masterCommunicationConfiguration["Password"], new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer }).Wait();
+                    RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer }).Wait();
                     break;
                 }
                 catch
@@ -140,17 +144,17 @@ namespace OpenNosCore.LoginServer
         {
             printHeader();
             initializeLogger();
-            initializeMapping();
             initializeConfiguration();
-            initializePackets();
             initializeWebApi();
+            initializeMapping();
+            initializePackets();
             connectMaster();
 
-            if (DataAccessHelper.Instance.Initialize(_loginConfiguration["Host"], _loginConfiguration["Database"]))
+            if (DataAccessHelper.Instance.Initialize(_loginConfiguration.Database))
             {
-                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration["Port"]), _encryptor, _clientPacketDefinitions).Wait();
-                Logger.Log.Info($"Listening on port {_loginConfiguration["Port"]}");
-                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration["Port"])} - WebApi : {(_loginConfiguration["Port"])}";
+                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();
+                Logger.Log.Info($"Listening on port {_loginConfiguration.Port}");
+                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)} - WebApi : {(_loginConfiguration.WebApi)}";
             }
             else
             {

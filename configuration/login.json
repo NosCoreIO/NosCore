@@ -8,10 +8,10 @@
   "Port": 4002,
   "WebApi": "http://+:5000",
   "Database": {
-  "Host": "localhost",
-  "Port": 1433,
-  "Username": "root",
-  "Password": "",
-  "Database": "OpenNosCore"
+	  "Host": "localhost",
+	  "Port": 1433,
+	  "Username": "root",
+	  "Password": "",
+	  "Database": "OpenNosCore"
   }
 }

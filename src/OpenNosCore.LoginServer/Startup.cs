@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using OpenNosCore.Configuration;
+using OpenNosCore.Core.Logger;
 
 namespace OpenNosCore.LoginServer
 {
     public class Startup
     {
+   
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OpenNosCore.Configuration;
 using OpenNosCore.Core.Logger;
 using System;
 
@@ -41,10 +42,10 @@ namespace OpenNosCore.Database
         }
    
 
-        public bool Initialize(string host, string databaseName)
+        public bool Initialize(DatabaseConfiguration Database)
         {
-            Host = host;
-            DatabaseName = databaseName;
+            Host = Database.Host;
+            DatabaseName = Database.Name;
             using (OpenNosCoreContext context = CreateContext())
             {
                 try

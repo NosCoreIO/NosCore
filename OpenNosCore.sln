@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenNosCore.Handler", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenNosCore.Packets", "src\OpenNosCore.Packets\OpenNosCore.Packets.csproj", "{985361D1-B720-453D-891E-113937E6B003}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenNosCore.Configuration", "src\OpenNosCore.Configuration\OpenNosCore.Configuration.csproj", "{27688E22-468D-47AC-8BB2-AA416859587B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{985361D1-B720-453D-891E-113937E6B003}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{985361D1-B720-453D-891E-113937E6B003}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{985361D1-B720-453D-891E-113937E6B003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27688E22-468D-47AC-8BB2-AA416859587B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27688E22-468D-47AC-8BB2-AA416859587B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27688E22-468D-47AC-8BB2-AA416859587B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27688E22-468D-47AC-8BB2-AA416859587B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -18,10 +18,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
     <PackageReference Include="ServiceStack.Kestrel" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Configuration\OpenNosCore.Configuration.csproj" />
     <ProjectReference Include="..\OpenNosCore.Core\OpenNosCore.Core.csproj" />
     <ProjectReference Include="..\OpenNosCore.Database\OpenNosCore.Database.csproj" />
     <ProjectReference Include="..\OpenNosCore.Data\OpenNosCore.Data.csproj" />
