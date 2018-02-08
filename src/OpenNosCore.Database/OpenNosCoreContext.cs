@@ -3,35 +3,40 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using OpenNosCore.Database.Entities;
+using System.Data.SqlClient;
+using System.IO;
 
 namespace OpenNosCore.Database
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<OpenNosCoreContext>
     {
-        private static IConfigurationRoot _databaseConfiguration;
+        private static string _configurationPath = @"..\..\..\configuration";
+
+        private static SqlConnectionStringBuilder _databaseConfiguration;
 
         public OpenNosCoreContext CreateDbContext(string[] args)
         {
-            _databaseConfiguration = new ConfigurationBuilder().AddJsonFile("./database.json", true, true).Build();
-            return new OpenNosCoreContext(_databaseConfiguration["Host"], _databaseConfiguration["Database"]);
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            builder.AddJsonFile("master.json", false);
+            builder.Build().Bind(_databaseConfiguration);
+            return new OpenNosCoreContext(_databaseConfiguration);
         }
     }
 
     public class OpenNosCoreContext : DbContext
     {
         #region Instantiation
-        private readonly string _host;
-        private readonly string _databaseName;
+        private readonly SqlConnectionStringBuilder _conn;
 
-        public OpenNosCoreContext(string host, string databaseName)
+        public OpenNosCoreContext(SqlConnectionStringBuilder conn)
         {
-            _host = host;
-            _databaseName = databaseName;
+            _conn = conn;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer($"Server=(localdb)\\mssqllocaldb;Database={_databaseName};Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(_conn.ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

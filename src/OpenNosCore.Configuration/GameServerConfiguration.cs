@@ -4,13 +4,9 @@ using System.Text;
 
 namespace OpenNosCore.Configuration
 {
-    public class BaseConfiguration
+    public class GameServerConfiguration : ServerConfiguration
     {
-        public string Host { get; set; }
-
-        public int Port { get; set; }
-
-        public string WebApi { get; set; }
+        public ServerConfiguration WebApi { get; set; }
 
         public MasterCommunicationConfiguration MasterCommunication { get; set; }
     }

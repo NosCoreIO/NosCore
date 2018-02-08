@@ -2,6 +2,7 @@
 using OpenNosCore.Configuration;
 using OpenNosCore.Core.Logger;
 using System;
+using System.Data.SqlClient;
 
 namespace OpenNosCore.Database
 {
@@ -25,8 +26,7 @@ namespace OpenNosCore.Database
 
         #region Members
 
-        private string Host;
-        private string DatabaseName;
+        private SqlConnectionStringBuilder _conn;
 
         #endregion
 
@@ -38,14 +38,13 @@ namespace OpenNosCore.Database
         /// </summary>
         public OpenNosCoreContext CreateContext()
         {
-            return new OpenNosCoreContext(Host, DatabaseName);
+            return new OpenNosCoreContext(_conn);
         }
    
 
-        public bool Initialize(DatabaseConfiguration Database)
+        public bool Initialize(SqlConnectionStringBuilder Database)
         {
-            Host = Database.Host;
-            DatabaseName = Database.Name;
+            _conn = Database;
             using (OpenNosCoreContext context = CreateContext())
             {
                 try

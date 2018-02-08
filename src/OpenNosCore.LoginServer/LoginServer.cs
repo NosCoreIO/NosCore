@@ -154,7 +154,7 @@ namespace OpenNosCore.LoginServer
             {
                 NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();
                 Logger.Log.Info($"Listening on port {_loginConfiguration.Port}");
-                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)} - WebApi : {(_loginConfiguration.WebApi)}";
+                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)} - WebApi : {(_loginConfiguration.WebApi.ToString())}";
             }
             else
             {

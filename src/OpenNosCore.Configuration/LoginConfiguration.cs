@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace OpenNosCore.Configuration
 {
-    public class LoginConfiguration : BaseConfiguration
+    public class LoginConfiguration : GameServerConfiguration
     {
-
-        public DatabaseConfiguration Database { get; set; }
+        public SqlConnectionStringBuilder Database { get; set; }
     }
 }
