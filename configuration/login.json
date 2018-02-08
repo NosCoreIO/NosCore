@@ -6,12 +6,16 @@
   },
   "Host": "127.0.0.1",
   "Port": 4002,
-  "WebApi": "http://+:5000",
+  "WebApi": {
+		"Host": "http://+",
+		"Port": 5000
+  },
   "Database": {
-	  "Host": "localhost",
-	  "Port": 1433,
-	  "Username": "root",
-	  "Password": "",
-	  "Database": "OpenNosCore"
+	  "DataSource" : "localhost",
+      "InitialCatalog" : "OpenNosCore",
+      "IntegratedSecurity" : true,
+      "MultipleActiveResultSets" : false,
+      "UserID" : "",
+      "Password" : ""
   }
 }

@@ -18,7 +18,7 @@ namespace OpenNosCore.Database
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
-            builder.AddJsonFile("master.json", false);
+            builder.AddJsonFile("database.json", false);
             builder.Build().Bind(_databaseConfiguration);
             return new OpenNosCoreContext(_databaseConfiguration);
         }

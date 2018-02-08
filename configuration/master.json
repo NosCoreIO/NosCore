@@ -1,5 +1,8 @@
 {
   "Port": 6969,
   "Password": "OpenNosCorePassword",
-  "WebApi": "http://+:5000"
+  "WebApi": {
+		"Host": "http://+",
+		"Port": 5000
+  }
 }
