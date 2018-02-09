@@ -32,7 +32,7 @@ namespace OpenNosCore.Master
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("master.json", false);
             builder.Build().Bind(_masterConfiguration);
-            Logger.Log.Info($"Master Server Configuration successfully loaded !");
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey("SUCCESSFULLY_LOADED"));
         }
 
         private static void initializeLogger()
@@ -47,6 +47,8 @@ namespace OpenNosCore.Master
         {
             var host = new WebHostBuilder()
              .UseKestrel()
+             .UseUrls(_masterConfiguration.WebApi.ToString())
+             .PreferHostingUrls(true)
              .UseStartup<Startup>()
              .Build();
             host.StartAsync();
@@ -110,7 +112,7 @@ namespace OpenNosCore.Master
             initializeWebApi();
             initializeMapping();
 
-            Logger.Log.Info($"Listening on port {Convert.ToInt32(_masterConfiguration.Port)}");
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _masterConfiguration.Port)));
             Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
             RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
 

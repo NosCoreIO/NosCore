@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenNosCore.Configuration;
+using System;
 
 namespace OpenNosCore.Core
 {
@@ -18,5 +19,7 @@ namespace OpenNosCore.Core
         public string Host { get; set; }
 
         public int ConnectedAccountsLimit { get; set; }
+
+        public ServerConfiguration WebApi { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenNosCore.Configuration;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
@@ -12,9 +13,9 @@ namespace OpenNosCore.Core
         public string Host { get; set; }
         public int Port { get; set; }
 
-        public ConcurrentBag<string> ConnectedAccounts { get; set; }
-
         public int ConnectedAccountsLimit { get; set; }
+
+        public ServerConfiguration WebApi { get; set; }
 
         public WorldServer()
         {

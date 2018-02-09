@@ -79,8 +79,8 @@ namespace OpenNosCore.Networking
                             Host = msg.Host,
                             Port = msg.Port,
                             Id = _id,
-                            ConnectedAccounts = new ConcurrentBag<string>(),
-                            ConnectedAccountsLimit = msg.ConnectedAccountsLimit
+                            ConnectedAccountsLimit = msg.ConnectedAccountsLimit,
+                            WebApi = msg.WebApi
                         };
 
                         MasterClientListSingleton.Instance.WorldServers.Add(serv);

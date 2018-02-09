@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Configuration\OpenNosCore.Configuration.csproj" />
     <ProjectReference Include="..\OpenNosCore.Domain\OpenNosCore.Domain.csproj" />
   </ItemGroup>
 

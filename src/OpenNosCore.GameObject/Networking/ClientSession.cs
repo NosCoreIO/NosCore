@@ -106,6 +106,7 @@ namespace OpenNosCore.GameObject
         {
             Account = account;
             IsAuthenticated = true;
+            ServerManager.Instance.RegisterSession(this);
         }
 
         public void ChangeMap(short? mapId = null, short? mapX = null, short? mapY = null)

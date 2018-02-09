@@ -26,6 +26,7 @@ namespace OpenNosCore.GameObject
                 return instance;
             }
         }
+        public ConcurrentBag<ClientSession> Sessions { get; set; } = new ConcurrentBag<ClientSession>();
 
         private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();
 
@@ -102,7 +103,7 @@ namespace OpenNosCore.GameObject
 
         internal void RegisterSession(ClientSession clientSession)
         {
-            throw new NotImplementedException();
+            Sessions.Add(clientSession);
         }
     }
 }

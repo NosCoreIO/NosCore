@@ -4,8 +4,8 @@ using System.Text;
 
 namespace OpenNosCore.Configuration
 {
-    public class MasterConfiguration : GameServerConfiguration
+    public class MasterConfiguration : WebApiConfiguration
     {
-        public string Password { get; set; }
+
     }
 }

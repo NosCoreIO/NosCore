@@ -1,4 +1,5 @@
-﻿using OpenNosCore.Core;
+﻿using Newtonsoft.Json;
+using OpenNosCore.Core;
 using OpenNosCore.Core.Networking;
 using OpenNosCore.Core.Serializing;
 using OpenNosCore.Data;
@@ -10,6 +11,7 @@ using OpenNosCore.Packets.ServerPackets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 
 namespace OpenNosCore.GameHandler
 {
@@ -26,7 +28,7 @@ namespace OpenNosCore.GameHandler
 
         #region Properties
 
-        private ClientSession  Session { get; }
+        private ClientSession Session { get; }
 
         #endregion
 
@@ -89,7 +91,7 @@ namespace OpenNosCore.GameHandler
                     return;
                 }
 
-                List<WorldServer> servers = null; //MasterServer.Instance.RetrievePacket<List<WorldServer>>(new ServerListRequestPacket());
+                List<WorldServer> servers = WebApiAccess.Instance.Get<List<WorldServer>>("api/channels");
 
                 if (servers.Any())
                 {
@@ -105,7 +107,7 @@ namespace OpenNosCore.GameHandler
                             servergroup = server.Name;
                             worldCount++;
                         }
-                        int currentlyConnectedAccounts = server.ConnectedAccounts.Count();
+                        int currentlyConnectedAccounts = WebApiAccess.Instance.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Count();
                         int channelcolor = (int)Math.Round((double)currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20) + 1;
                         subpacket.Add(new NsTeSTSubPacket()
                         {
@@ -135,16 +137,14 @@ namespace OpenNosCore.GameHandler
                         SubPacket = subpacket,
                         SessionId = newSessionId
                     });
-                }
-                else
-                {
-                    Session.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.CantConnect
-                    });
 
                     return;
                 }
+
+                Session.SendPacket(new FailcPacket
+                {
+                    Type = LoginFailType.CantConnect
+                });
             }
             catch
             {

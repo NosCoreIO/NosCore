@@ -27,6 +27,7 @@ using OpenNosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using OpenNosCore.Configuration;
+using OpenNosCore.Core.Networking;
 
 namespace OpenNosCore.LoginServer
 {
@@ -46,7 +47,7 @@ namespace OpenNosCore.LoginServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(_loginConfiguration);
-            Logger.Log.Info($"Login Server Configuration successfully loaded !");
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey("SUCCESSFULLY_LOADED"));
         }
 
         private static void initializeLogger()
@@ -55,15 +56,6 @@ namespace OpenNosCore.LoginServer
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginServer)));
-        }
-
-        private static void initializeWebApi()
-        {
-            var host = new WebHostBuilder()
-             .UseKestrel()
-             .UseStartup<Startup>()
-             .Build();
-            host.StartAsync();
         }
 
         private static void initializePackets()
@@ -79,12 +71,13 @@ namespace OpenNosCore.LoginServer
             {
                 try
                 {
-                    RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer }).Wait();
+                    WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString());
+                    RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer}).Wait();
                     break;
                 }
                 catch
                 {
-                    Logger.Log.Error("MASTER_SERVER_RETRY");
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey("MASTER_SERVER_RETRY"));
                     Thread.Sleep(5000);
                 }
             }
@@ -145,16 +138,15 @@ namespace OpenNosCore.LoginServer
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            initializeWebApi();
             initializeMapping();
             initializePackets();
             connectMaster();
 
             if (DataAccessHelper.Instance.Initialize(_loginConfiguration.Database))
             {
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _loginConfiguration.Port)));
+                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();
-                Logger.Log.Info($"Listening on port {_loginConfiguration.Port}");
-                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)} - WebApi : {(_loginConfiguration.WebApi.ToString())}";
             }
             else
             {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenNosCore.Configuration;
 using OpenNosCore.Core.Logger;
 
-namespace OpenNosCore.LoginServer
+namespace OpenNosCore.WorldServer
 {
     public class Startup
     {
