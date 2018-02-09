@@ -13,4 +13,14 @@
     <OutputPath>..\..\build\</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenNosCore.Core\OpenNosCore.Core.csproj" />
+    <ProjectReference Include="..\OpenNosCore.Data\OpenNosCore.Data.csproj" />
+  </ItemGroup>
+
 </Project>
