@@ -27,6 +27,7 @@ using OpenNosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using OpenNosCore.Configuration;
+using OpenNosCore.GameObject;
 
 namespace OpenNosCore.WorldServer
 {
@@ -105,6 +106,8 @@ namespace OpenNosCore.WorldServer
         private static void initializeMapping()
         {
             DAOFactory.AccountDAO.RegisterMapping(typeof(AccountDTO)).InitializeMapper();
+            DAOFactory.CharacterDAO.RegisterMapping(typeof(Character)).InitializeMapper();
+            DAOFactory.MapDAO.RegisterMapping(typeof(MapDTO)).InitializeMapper();
         }
 
         public static async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType, ServerConfiguration WebApi, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
