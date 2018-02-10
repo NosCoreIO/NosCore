@@ -47,6 +47,9 @@ namespace OpenNosCore.GameObject
         public bool NoMove {get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
+        public byte Authority { get; set; }
+
+        public byte Equipment { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public double MPLoad()
         {

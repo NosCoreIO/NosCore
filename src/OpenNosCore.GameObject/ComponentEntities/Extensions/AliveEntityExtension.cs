@@ -19,7 +19,7 @@ namespace OpenNosCore.GameObject.ComponentEntities
             };
         }
 
-        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, byte type, string message)
+        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, string message, byte type)
         {
             return new SayPacket()
             {

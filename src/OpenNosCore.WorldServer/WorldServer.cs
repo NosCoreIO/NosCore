@@ -155,9 +155,9 @@ namespace OpenNosCore.WorldServer
             initializeMapping();
             initializePackets();
             connectMaster();
-
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
             {
+                ServerManager.Instance.Initialize();
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _worldConfiguration.Port)));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {(_worldConfiguration.WebApi.ToString())}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();

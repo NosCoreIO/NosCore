@@ -1,4 +1,5 @@
 ﻿using OpenNosCore.Core.Serializing;
+using OpenNosCore.Domain.Character;
 
 namespace OpenNosCore.Packets
 {
@@ -10,13 +11,13 @@ namespace OpenNosCore.Packets
         public byte Authority { get; set; }
 
         [PacketIndex(1)]
-        public byte Gender { get; set; }
+        public GenderType Gender { get; set; }
 
         [PacketIndex(2)]
-        public byte HairStyle { get; set; }
+        public HairStyleType HairStyle { get; set; }
 
         [PacketIndex(3)]
-        public byte HairColor { get; set; }
+        public HairColorType HairColor { get; set; }
 
         [PacketIndex(4)]
         public byte Class { get; set; }

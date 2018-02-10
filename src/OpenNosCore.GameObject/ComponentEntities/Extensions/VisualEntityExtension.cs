@@ -23,6 +23,20 @@ namespace OpenNosCore.GameObject.ComponentEntities
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
                 Direction = visualEntity.Direction,
+                InAliveSubPacket = new InAliveSubPacket()
+                {
+                    HP = visualEntity.Hp,
+                    MP = visualEntity.Mp,
+                },
+                InCharacterSubPacket = new InCharacterSubPacket()
+                {
+                    Authority = visualEntity.Authority,
+                    Class = visualEntity.Class,
+                    Equipment = 0,
+                    Gender = visualEntity.Gender,
+                    HairColor = visualEntity.HairColor,
+                    HairStyle = visualEntity.HairStyle
+                }
             };
         }
 
