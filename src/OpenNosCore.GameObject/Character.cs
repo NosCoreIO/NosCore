@@ -4,10 +4,11 @@ using OpenNosCore.Enum;
 using OpenNosCore.Packets;
 using OpenNosCore.GameObject.Helper;
 using System;
+using OpenNosCore.GameObject.ComponentEntities;
 
 namespace OpenNosCore.GameObject
 {
-    public class Character : CharacterDTO, INamedEntity, IExperiencedEntity
+    public class Character : CharacterDTO, ICharacterEntity
     {
         public AccountDTO Account { get; set; }
 
@@ -61,6 +62,7 @@ namespace OpenNosCore.GameObject
             return (int)((CharacterHelper.Instance.HpData[(byte)Class, Level] + hp) * multiplicator);
         }
 
+        //TODO move to extension
         public AtPacket GenerateAt()
         {
             return new AtPacket()
