@@ -7,13 +7,45 @@ using System;
 
 namespace OpenNosCore.GameObject
 {
-    public class Character : CharacterDTO
+    public class Character : CharacterDTO, INamedEntity, IExperiencedEntity
     {
+        public AccountDTO Account { get; set; }
+
         public bool IsChangingMapInstance { get; set; }
 
         public MapInstance MapInstance { get; set; }
 
         public ClientSession Session { get; set; }
+
+        public byte VisualType {get; set; }
+
+        public short VNum {get; set; }
+
+        public long VisualId { get; set; } = 1;
+
+        public byte? Direction {get; set; }
+
+        public short PositionX {get; set; }
+
+        public short PositionY {get; set; }
+
+        public short? Amount {get; set; }
+
+        public byte Speed {get; set; }
+
+        public byte Morph {get; set; }
+
+        public byte MorphUpgrade {get; set; }
+
+        public byte MorphDesign {get; set; }
+
+        public byte MorphBonus {get; set; }
+
+        public bool NoAttack {get; set; }
+
+        public bool NoMove {get; set; }
+        public bool IsSitting { get; set; }
+        public Guid MapInstanceId { get; set; }
 
         public double MPLoad()
         {
@@ -66,11 +98,6 @@ namespace OpenNosCore.GameObject
                 MorphUpgrade = 0,
                 ArenaWinner = false
             };
-        }
-
-        internal void SetSession(ClientSession clientSession)
-        {
-            throw new NotImplementedException();
         }
     }
 }

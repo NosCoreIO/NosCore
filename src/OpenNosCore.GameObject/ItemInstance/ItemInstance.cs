@@ -1,15 +1,10 @@
 ﻿using OpenNosCore.Data;
 using OpenNosCore.Packets;
 
-namespace OpenNos.GameObject
+namespace OpenNosCore.GameObject
 {
-    public class ItemInstance  : VisualEntityDTO
+    public class ItemInstance
     {
-
-        public ItemInstance()
-        {
-            InItemSubPacket = new InItemSubPacket();
-        }
         public ItemDTO Item { get; set; }
 
         public short Design { get; set; }

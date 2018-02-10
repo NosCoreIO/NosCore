@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenNos.GameObject
+namespace OpenNosCore.GameObject
 {
     public class BoxInstance : SpecialistInstance
     {

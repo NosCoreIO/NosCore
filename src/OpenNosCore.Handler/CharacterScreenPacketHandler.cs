@@ -1,4 +1,4 @@
-﻿using OpenNos.GameObject;
+﻿using OpenNosCore.GameObject;
 using OpenNosCore.Core.Encryption;
 using OpenNosCore.Core.Logger;
 using OpenNosCore.Core.Serializing;

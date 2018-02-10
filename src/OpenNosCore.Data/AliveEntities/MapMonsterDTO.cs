@@ -4,20 +4,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenNosCore.Data
 {
-    public class MapMonster : NonPlayerEntityDTO, IDatabaseObject
+    public class MapMonster : IDatabaseObject
     {
-        private long _mapMonsterId;
+
+        public bool IsDisabled { get; set; }
+
+        public bool IsMoving { get; set; }
+
+        public short MapId { get; set; }
 
         [Key]
-        public long MapMonsterId
-        {
-            get { return _mapMonsterId; }
-            set
-            {
-                _mapMonsterId = value;
-                VisualId = value;
-            }
-        }
+        public int MapMonsterId { get; set; }
+
+        public short MapX { get; set; }
+
+        public short MapY { get; set; }
+
+        public short VNum { get; set; }
+
+        public byte Direction { get; set; }
 
         public void Initialize()
         {

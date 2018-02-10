@@ -8,6 +8,7 @@ using OpenNosCore.Core.Networking;
 using OpenNosCore.Core.Serializing;
 using OpenNosCore.Data;
 using OpenNosCore.Domain.Map;
+using OpenNosCore.GameObject.ComponentEntities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -183,7 +184,7 @@ namespace OpenNosCore.GameObject
 
             // register for servermanager
             ServerManager.Instance.RegisterSession(this);
-            Character.SetSession(this);
+            Character.Session = this;
         }
 
 

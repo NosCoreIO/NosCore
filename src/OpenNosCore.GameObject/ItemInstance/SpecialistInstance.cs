@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenNos.GameObject
+namespace OpenNosCore.GameObject
 {
     public class SpecialistInstance : WearableInstance
     {

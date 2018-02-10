@@ -6,16 +6,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenNosCore.Data
 {
-    public class ItemDTO : VisualEntityDTO, IDatabaseObject
+    public class ItemDTO : IDatabaseObject
     {
-        public ItemDTO()
-        {
-            InOwnableSubPacket = new InOwnableSubPacket();
-        }
-
+      
         public void Initialize()
         {
         }
+
+
 
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }
@@ -95,8 +93,6 @@ namespace OpenNosCore.Data
 
         public bool IsTradable { get; set; }
 
-        public IEnumerable<BCardDTO> BCards { get; set; }
-
         public byte ItemSubType { get; set; }
 
         public ItemType ItemType { get; set; }
@@ -132,7 +128,10 @@ namespace OpenNosCore.Data
         public short Mp { get; set; }
 
         public short MpRegeneration { get; set; }
-        
+
+        [MaxLength(255)]
+        public string Name { get; set; }
+
         public long Price { get; set; }
 
         public short PvpDefence { get; set; }
@@ -156,7 +155,7 @@ namespace OpenNosCore.Data
         public InventoryType Type { get; set; }
 
         [Key]
-        public override short VNum { get; set; }
+        public short VNum { get; set; }
 
         public short WaitDelay { get; set; }
 

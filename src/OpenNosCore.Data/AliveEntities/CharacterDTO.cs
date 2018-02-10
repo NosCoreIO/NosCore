@@ -3,33 +3,13 @@ using OpenNosCore.Domain.Character;
 using OpenNosCore.Packets;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace OpenNosCore.Data
 {
-    public class CharacterDTO : PlayerEntityDTO, IDatabaseObject
+    public class CharacterDTO : IDatabaseObject
     {
-        public CharacterDTO()
-        {
-            VisualType = 1;
-            InCharacterSubPacket = new InCharacterSubPacket();
-        }
-
-        private long _CharacterId;
-
-        [Key]
-        public long CharacterId
-        {
-            get { return _CharacterId; }
-            set
-            {
-                _CharacterId = value;
-                VisualId = value;
-            }
-        }
-
-        public AccountDTO Account { get; set; }
-
         public long AccountId { get; set; }
 
         public int Act4Dead { get; set; }
@@ -38,12 +18,15 @@ namespace OpenNosCore.Data
 
         public int Act4Points { get; set; }
 
-        public byte ArenaWinner { get; set; }
+        public int ArenaWinner { get; set; }
 
         [MaxLength(255)]
         public string Biography { get; set; }
 
         public bool BuffBlocked { get; set; }
+        [Key]
+        public long CharacterId { get; set; }
+        public byte Class { get; set; }
 
         public short Compliment { get; set; }
 
@@ -77,15 +60,27 @@ namespace OpenNosCore.Data
 
         public long HeroXp { get; set; }
 
+        public int Hp { get; set; }
+
+        public bool HpBlocked { get; set; }
+
         public byte JobLevel { get; set; }
 
         public long JobLevelXp { get; set; }
 
+        public byte Level { get; set; }
+
+        public long LevelXp { get; set; }
+
+        public short MapId { get; set; }
+
+        public short MapX { get; set; }
+
+        public short MapY { get; set; }
+
         public int MasterPoints { get; set; }
 
         public int MasterTicket { get; set; }
-
-        public ConcurrentBag<MateDTO> Mate { get; set; }
 
         public byte MaxMateCount { get; set; }
 
@@ -100,12 +95,20 @@ namespace OpenNosCore.Data
 
         public bool MouseAimLock { get; set; }
 
+        public int Mp { get; set; }
+
+        [MaxLength(25)]
+        public string Prefix { get; set; }
+
+        [MaxLength(255)]
+        public string Name { get; set; }
+
         public bool QuickGetUp { get; set; }
 
         public long RagePoint { get; set; }
 
         public long Reput { get; set; }
-
+        
         public byte Slot { get; set; }
 
         public int SpAdditionPoint { get; set; }
@@ -113,7 +116,7 @@ namespace OpenNosCore.Data
         public int SpPoint { get; set; }
 
         public CharacterState State { get; set; }
-
+        
         public int TalentLose { get; set; }
 
         public int TalentSurrender { get; set; }
@@ -122,8 +125,7 @@ namespace OpenNosCore.Data
 
         public bool WhisperBlocked { get; set; }
 
-        public Guid MapInstanceId { get; set; }
-
+      
         public void Initialize()
         {
 
