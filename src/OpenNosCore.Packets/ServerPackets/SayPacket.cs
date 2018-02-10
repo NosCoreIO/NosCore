@@ -19,12 +19,6 @@ namespace OpenNosCore.Packets
         [PacketIndex(3)]
         public string Message { get; set; }
 
-        [PacketIndex(4)]
-        public byte MorphDesign { get; set; }
-
-        [PacketIndex(5, IsOptional = true)]
-        public byte MorphBonus { get; set; }
-
         #endregion
     }
 }

@@ -36,7 +36,7 @@ namespace OpenNosCore.GameObject
         private static IEncryptor _encryptor;
         private Character _character;
         private Random _random;
-   
+
 
         private readonly IList<string> _waitForPacketList = new List<string>();
 
@@ -46,8 +46,8 @@ namespace OpenNosCore.GameObject
 
         // private byte countPacketReceived;
         private long lastPacketReceive;
-        
-        public ClientSession(IEncryptor encryptor, IChannel channel, IEnumerable<IPacketHandler> packetList) : base(encryptor,channel)
+
+        public ClientSession(IEncryptor encryptor, IChannel channel, IEnumerable<IPacketHandler> packetList) : base(encryptor, channel)
         {
             // set last received
             lastPacketReceive = DateTime.Now.Ticks;
@@ -63,7 +63,7 @@ namespace OpenNosCore.GameObject
             // dynamically create packethandler references
             GenerateHandlerReferences(packetList);
         }
-        
+
 
         public AccountDTO Account { get; private set; }
 
@@ -85,15 +85,15 @@ namespace OpenNosCore.GameObject
                 _character = value;
             }
         }
-        
+
         public MapInstance CurrentMapInstance { get; set; }
         public bool HasCurrentMapInstance => CurrentMapInstance != null;
-        
+
 
         public bool IsOnMap => CurrentMapInstance != null;
 
         public int LastKeepAliveIdentity { get; set; }
-        
+
 
         public void Initialize(EncryptionBase encryptor, IEnumerable<IPacketHandler> packetHandler)
         {
@@ -266,7 +266,6 @@ namespace OpenNosCore.GameObject
                 Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
             }
         }
-
         private void handlePackets(byte[] packetData)
         {
             string packetConcatenated = _encryptor.Decrypt(packetData, SessionId);
@@ -387,6 +386,6 @@ namespace OpenNosCore.GameObject
                 }
             }
         }
-        
+
     }
 }

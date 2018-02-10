@@ -11,7 +11,6 @@ namespace OpenNosCore.GameObject.ComponentEntities
         //in 2 {Effect} {IsSitting} -1 {SecondName} 0 -1 0 0 0 0 0 0 0 0
         //in 1 {IsSitting} {GroupId} {HaveFairy} {FairyElement} 0 {FairyMorph} 0 {Morph} {EqRare} {FamilyId} {SecondName} {Reput} {Invisible} {MorphUpgrade} {faction} {MorphUpgrade2} {Level} {FamilyLevel} {ArenaWinner} {Compliment} {Size} {HeroLevel}
 
-
         //Character in packet
         public static InPacket GenerateIn(this ICharacterEntity visualEntity)
         {
@@ -33,10 +32,10 @@ namespace OpenNosCore.GameObject.ComponentEntities
                     Authority = visualEntity.Authority,
                     Class = visualEntity.Class,
                     Equipment = 0,
-                    Gender = visualEntity.Gender,
-                    HairColor = visualEntity.HairColor,
-                    HairStyle = visualEntity.HairStyle
-                }
+                    Gender = (byte)visualEntity.Gender,
+                    HairColor = (byte)visualEntity.HairColor,
+                    HairStyle = (byte)visualEntity.HairStyle
+                },
             };
         }
 

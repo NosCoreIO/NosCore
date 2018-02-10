@@ -9,14 +9,14 @@ namespace OpenNosCore.GameHandler
     {
         #region Members
 
-        private readonly ClientSession  _session;
+        private readonly ClientSession _session;
 
         #endregion
 
         #region Instantiation
         public DefaultPacketHandler()
         { }
-        public DefaultPacketHandler(ClientSession  session)
+        public DefaultPacketHandler(ClientSession session)
         {
             _session = session;
         }
@@ -25,7 +25,7 @@ namespace OpenNosCore.GameHandler
 
         #region Properties
 
-        public ClientSession  Session
+        public ClientSession Session
         {
             get
             {
@@ -62,17 +62,17 @@ namespace OpenNosCore.GameHandler
             //            Session.SendPacket(Session.Character.GenerateTit());
             //            Session.SendPacket(Session.Character.GenerateSpPoint());
             //            Session.SendPacket("rsfi 1 1 0 9 0 9");
-            //            if (Session.Character.Hp <= 0)
-            //            {
-            //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
-            //            }
-            //            else
-            //            {
-            Session.ChangeMap();
-            //            }
+            if (Session.Character.Hp <= 0)
+            {
+                //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
+            }
+            else
+            {
+                Session.ChangeMap();
+            }
             //            Session.SendPacket(Session.Character.GenerateSki());
             //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
-            //            Session.SendPacket(Session.Character.GenerateFd());
+            Session.SendPacket(Session.Character.GenerateFd());
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);

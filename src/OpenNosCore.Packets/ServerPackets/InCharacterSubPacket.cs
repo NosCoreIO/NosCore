@@ -11,13 +11,13 @@ namespace OpenNosCore.Packets
         public byte Authority { get; set; }
 
         [PacketIndex(1)]
-        public GenderType Gender { get; set; }
+        public byte Gender { get; set; }
 
         [PacketIndex(2)]
-        public HairStyleType HairStyle { get; set; }
+        public byte HairStyle { get; set; }
 
         [PacketIndex(3)]
-        public HairColorType HairColor { get; set; }
+        public byte HairColor { get; set; }
 
         [PacketIndex(4)]
         public byte Class { get; set; }
