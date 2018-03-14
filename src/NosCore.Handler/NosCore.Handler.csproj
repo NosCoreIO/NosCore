@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\build\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\build\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
+    <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
+    <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
+    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
+  </ItemGroup>
+
+</Project>
