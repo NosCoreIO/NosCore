@@ -28,6 +28,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using NosCore.GameObject;
+using Microsoft.AspNetCore;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.WorldServer
 {
@@ -58,16 +60,13 @@ namespace NosCore.WorldServer
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
         }
 
-        private static void initializeWebApi()
-        {
-            var host = new WebHostBuilder()
-             .UseKestrel()
-             .UseUrls(_worldConfiguration.WebApi.ToString())
-             .PreferHostingUrls(true)
-             .UseStartup<Startup>()
-             .Build();
-            host.StartAsync();
-        }
+        public static IWebHost BuildWebHost(string[] args) =>
+           WebHost.CreateDefaultBuilder(args)
+               .UseStartup<Startup>()
+               .UseUrls(_worldConfiguration.WebApi.ToString())
+               .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Warning))
+               .PreferHostingUrls(true)
+               .Build();
 
         private static void initializePackets()
         {
@@ -151,7 +150,7 @@ namespace NosCore.WorldServer
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            initializeWebApi();
+            BuildWebHost(args).StartAsync();
             initializeMapping();
             initializePackets();
             connectMaster();
