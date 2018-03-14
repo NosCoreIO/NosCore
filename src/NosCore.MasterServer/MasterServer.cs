@@ -17,6 +17,8 @@ using Owin;
 using System.Web.Http;
 using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
+using Microsoft.AspNetCore;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.Master
 {
@@ -43,16 +45,13 @@ namespace NosCore.Master
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
         }
 
-        private static void initializeWebApi()
-        {
-            var host = new WebHostBuilder()
-             .UseKestrel()
-             .UseUrls(_masterConfiguration.WebApi.ToString())
-             .PreferHostingUrls(true)
-             .UseStartup<Startup>()
-             .Build();
-            host.StartAsync();
-        }
+        public static IWebHost BuildWebHost(string[] args) =>
+           WebHost.CreateDefaultBuilder(args)
+               .UseStartup<Startup>()
+               .UseUrls(_masterConfiguration.WebApi.ToString())
+               .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Warning))
+               .PreferHostingUrls(true)
+               .Build();
 
         private static void printHeader()
         {
@@ -63,10 +62,6 @@ namespace NosCore.Master
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-        private static void initializeMapping()
-        {
-
-        }
 
         public static async Task RunMasterServerAsync(int port, string password)
         {
@@ -109,8 +104,7 @@ namespace NosCore.Master
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            initializeWebApi();
-            initializeMapping();
+            BuildWebHost(args).StartAsync();
 
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _masterConfiguration.Port)));
             Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
