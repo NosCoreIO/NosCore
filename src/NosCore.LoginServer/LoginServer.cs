@@ -33,8 +33,6 @@ namespace NosCore.LoginServer
 {
     public class LoginServer
     {
-        private static IEncryptor _encryptor;
-
         private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
 
         private static string _configurationPath = @"..\..\..\configuration";
@@ -60,7 +58,6 @@ namespace NosCore.LoginServer
 
         private static void initializePackets()
         {
-            _encryptor = new LoginEncryption();
             PacketFactory.Initialize<NoS0575Packet>();
             _clientPacketDefinitions = PacketFinder.GetInstancesOfImplementingTypes<IPacketHandler>(typeof(CharacterScreenPacketHandler)).ToList();
         }
@@ -72,7 +69,7 @@ namespace NosCore.LoginServer
                 try
                 {
                     WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString());
-                    RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer}).Wait();
+                    RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer }).Wait();
                     break;
                 }
                 catch
@@ -146,7 +143,7 @@ namespace NosCore.LoginServer
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _loginConfiguration.Port)));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
-                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();
+                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(), new LoginDecoderFactory(), _clientPacketDefinitions, false).Wait();
             }
             else
             {

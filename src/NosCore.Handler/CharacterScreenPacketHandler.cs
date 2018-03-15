@@ -185,7 +185,7 @@ namespace NosCore.GameHandler
                 return;
             }
 
-            if (account.Password.ToLower() == EncryptionBase.Sha512(characterDeletePacket.Password))
+            if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
             {
                 CharacterDTO character = DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot && s.State == CharacterState.Active);
                 if (character == null)
@@ -222,7 +222,7 @@ namespace NosCore.GameHandler
 
                 if (account != null)
                 {
-                    if (account.Password.ToLower().Equals(EncryptionBase.Sha512(packet.Password).ToLower()))
+                    if (account.Password.ToLower().Equals(EncryptionHelper.Sha512(packet.Password).ToLower()))
                     {
                         AccountDTO accountobject = new AccountDTO
                         {

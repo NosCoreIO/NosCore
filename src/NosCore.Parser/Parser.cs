@@ -18,7 +18,6 @@ namespace NosCore.Parser
 {
     public class Parser
     {
-        private static IEncryptor _encryptor;
 
         private static ParserConfiguration _databaseConfiguration = new ParserConfiguration();
 

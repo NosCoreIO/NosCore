@@ -1,24 +1,18 @@
-﻿
-
+﻿using DotNetty.Buffers;
+using DotNetty.Codecs;
+using DotNetty.Transport.Channels;
+using NosCore.Core.Networking;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace NosCore.Core.Encryption
 {
-    public class WorldEncryption : EncryptionBase
+
+    public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>, IDecoder
     {
-        #region Instantiation
-
-        public WorldEncryption() : base(true)
-        {
-        }
-
-        #endregion
-
-        #region Methods
-
         private static string DecryptPrivate(string str)
         {
             List<byte> receiveData = new List<byte>();
@@ -91,59 +85,7 @@ namespace NosCore.Core.Encryption
             return Encoding.UTF8.GetString(Encoding.Convert(Encoding.Default, Encoding.UTF8, receiveData.ToArray()));
         }
 
-        public override string Decrypt(byte[] str, int sessionId = 0)
-        {
-            string encryptedString = "";
-            int sessionKey = sessionId & 0xFF;
-            byte sessionNumber = unchecked((byte)(sessionId >> 6));
-            sessionNumber &= 0xFF;
-            sessionNumber &= unchecked((byte)0x80000003);
-
-            switch (sessionNumber)
-            {
-                case 0:
-                    encryptedString = (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character - firstbyte))).Aggregate(encryptedString,
-                        (current, highbyte) => current + (char)highbyte);
-                    break;
-
-                case 1:
-                    encryptedString = (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character + firstbyte))).Aggregate(encryptedString,
-                        (current, highbyte) => current + (char)highbyte);
-                    break;
-
-                case 2:
-                    encryptedString =
-                        (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character - firstbyte ^ 0xC3))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
-
-                case 3:
-                    encryptedString =
-                        (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character + firstbyte ^ 0xC3))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
-
-                default:
-                    encryptedString += (char)0xF;
-                    break;
-            }
-
-            string[] temp = encryptedString.Split((char)0xFF);
-            StringBuilder save = new StringBuilder();
-
-            for (int i = 0; i < temp.Length; i++)
-            {
-                save.Append(DecryptPrivate(temp[i]));
-                if (i < temp.Length - 2)
-                {
-                    save.Append((char)0xFF);
-                }
-            }
-
-            return save.ToString();
-        }
-
-        public override string DecryptCustomParameter(byte[] str)
+        public string DecryptCustomParameter(byte[] str)
         {
             try
             {
@@ -215,28 +157,66 @@ namespace NosCore.Core.Encryption
             }
         }
 
-        public override byte[] Encrypt(string str)
+        protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
-            byte[] strBytes = Encoding.Default.GetBytes(str);
-            int bytesLength = strBytes.Length;
-
-            byte[] encryptedData = new byte[bytesLength + (int)Math.Ceiling((decimal)bytesLength / 0x7E) + 1];
-
-            int j = 0;
-            for (int i = 0; i < bytesLength; i++)
+            string encryptedString = "";
+            int sessionId = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
+            byte[] str = message.Array.Take(message.ReadableBytes).ToArray();
+            if (SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()] == 0)
             {
-                if ((i % 0x7E) == 0)
-                {
-                    encryptedData[i + j] = (byte)(bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
-                    j++;
-                }
-                encryptedData[i + j] = (byte)~strBytes[i];
+                output.Add(DecryptCustomParameter(str).ToString());
+                return;
             }
-            encryptedData[encryptedData.Length - 1] = 0xFF;
+            
+          
+            int sessionKey = sessionId & 0xFF;
+            byte sessionNumber = unchecked((byte)(sessionId >> 6));
+            sessionNumber &= 0xFF;
+            sessionNumber &= unchecked((byte)0x80000003);
 
-            return encryptedData;
+            switch (sessionNumber)
+            {
+                case 0:
+                    encryptedString = (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character - firstbyte))).Aggregate(encryptedString,
+                        (current, highbyte) => current + (char)highbyte);
+                    break;
+
+                case 1:
+                    encryptedString = (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character + firstbyte))).Aggregate(encryptedString,
+                        (current, highbyte) => current + (char)highbyte);
+                    break;
+
+                case 2:
+                    encryptedString =
+                        (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character - firstbyte ^ 0xC3))).Aggregate(encryptedString,
+                            (current, highbyte) => current + (char)highbyte);
+                    break;
+
+                case 3:
+                    encryptedString =
+                        (from character in str let firstbyte = unchecked((byte)(sessionKey + 0x40)) select unchecked((byte)(character + firstbyte ^ 0xC3))).Aggregate(encryptedString,
+                            (current, highbyte) => current + (char)highbyte);
+                    break;
+
+                default:
+                    encryptedString += (char)0xF;
+                    break;
+            }
+
+            string[] temp = encryptedString.Split((char)0xFF);
+            StringBuilder save = new StringBuilder();
+
+            for (int i = 0; i < temp.Length; i++)
+            {
+                save.Append(DecryptPrivate(temp[i]));
+                if (i < temp.Length - 2)
+                {
+                    save.Append((char)0xFF);
+                }
+            }
+            
+            output.Add(save.ToString());
         }
-
-        #endregion
     }
+
 }

@@ -9,12 +9,14 @@ using NosCore.Core.Serializing;
 using DotNetty.Codecs;
 using System.Net;
 using NosCore.Core.Logger;
+using DotNetty.Buffers;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Networking
 {
     public class NetworkManager
     {
-        public static async Task RunServerAsync(int port, IEncryptor encryptor, IEnumerable<IPacketHandler> packetList)
+        public static async Task RunServerAsync(int port, EncoderFactory encryptor, DecoderFactory decryptor, IEnumerable<IPacketHandler> packetList, bool isWorldClient)
         {
             MultithreadEventLoopGroup bossGroup = new MultithreadEventLoopGroup(1);
             MultithreadEventLoopGroup workerGroup = new MultithreadEventLoopGroup();
@@ -28,8 +30,10 @@ namespace NosCore.GameObject.Networking
                     .Option(ChannelOption.SoBacklog, 100)
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
+                        SessionFactory.Instance.Sessions[channel.Id.AsLongText()] = 0;
                         IChannelPipeline pipeline = channel.Pipeline;
-                        pipeline.AddLast(new ClientSession(encryptor, channel, packetList));
+                        pipeline.AddLast((MessageToMessageEncoder<string>)encryptor.GetEncoder(), (MessageToMessageDecoder<IByteBuffer>)decryptor.GetDecoder());
+                        pipeline.AddLast(new ClientSession(channel, packetList, isWorldClient));
                     }));
 
                 IChannel bootstrapChannel = await bootstrap.BindAsync(port);
