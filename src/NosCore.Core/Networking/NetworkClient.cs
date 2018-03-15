@@ -16,7 +16,6 @@ namespace NosCore.Core.Networking
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
         private readonly IChannel _channel;
-        private readonly IEncryptor _encryptor;
 
         #region Members
 
@@ -25,17 +24,16 @@ namespace NosCore.Core.Networking
         public string AccountName { get; set; }
 
         public bool IsAuthenticated { get; set; }
-
+        
         public int SessionId { get; set; }
 
         public AuthorityType Authority { get; set; }
 
         public long ClientId { get; set; }
 
-        public NetworkClient(IEncryptor encryptor, IChannel channel)
+        public NetworkClient(IChannel channel)
         {
             _channel = channel;
-            _encryptor = encryptor;
 
         }
 
@@ -47,6 +45,7 @@ namespace NosCore.Core.Networking
   
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
             Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey("CLIENT_DISCONNECTED")));
         }
 
@@ -91,10 +90,7 @@ namespace NosCore.Core.Networking
             {
                 return;
             }
-            IByteBuffer buffer = _channel.Allocator.Buffer();
-            byte[] data = _encryptor.Encrypt(PacketFactory.Serialize(packet));
-            buffer.WriteBytes(data);
-            _channel.WriteAndFlushAsync(buffer);
+            _channel.WriteAndFlushAsync(PacketFactory.Serialize(packet));
             _channel.Flush();
         }
 

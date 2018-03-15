@@ -35,8 +35,6 @@ namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        private static IEncryptor _encryptor;
-
         private static WorldConfiguration _worldConfiguration = new WorldConfiguration();
 
         private static string _configurationPath = @"..\..\..\configuration";
@@ -70,7 +68,6 @@ namespace NosCore.WorldServer
 
         private static void initializePackets()
         {
-            _encryptor = new WorldEncryption();
             PacketFactory.Initialize<NoS0575Packet>();
             _clientPacketDefinitions = PacketFinder.GetInstancesOfImplementingTypes<IPacketHandler>(typeof(DefaultPacketHandler)).ToList();
         }
@@ -159,7 +156,7 @@ namespace NosCore.WorldServer
                 ServerManager.Instance.Initialize();
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _worldConfiguration.Port)));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {(_worldConfiguration.WebApi.ToString())}";
-                NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), _encryptor, _clientPacketDefinitions).Wait();
+                NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), _clientPacketDefinitions, true).Wait();
             }
             else
             {

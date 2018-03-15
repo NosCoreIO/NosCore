@@ -38,7 +38,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
-                Password = EncryptionBase.Sha512("test")
+                Password = EncryptionHelper.Sha512("test")
             };
             DAOFactory.AccountDAO.InsertOrUpdate(ref acc1);
 
@@ -46,7 +46,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.User,
                 Name = "test",
-                Password = EncryptionBase.Sha512("test")
+                Password = EncryptionHelper.Sha512("test")
             };
             DAOFactory.AccountDAO.InsertOrUpdate(ref acc2);
         }

@@ -22,44 +22,33 @@ namespace NosCore.GameObject
     {
         public override void ChannelRead(IChannelHandlerContext contex, object msg)
         {
-            if (!(msg is IByteBuffer buff))
+            if (!(msg is string buff))
             {
                 return;
             }
-            byte[] data = new byte[buff.ReadableBytes];
-            buff.GetBytes(buff.ReaderIndex, data);
-            handlePackets(data);
+            handlePackets(buff, contex);
         }
 
         public bool HealthStop = false;
 
-        private static IEncryptor _encryptor;
         private Character _character;
         private Random _random;
-
+        private bool _isWorldClient;
 
         private readonly IList<string> _waitForPacketList = new List<string>();
 
         private IDictionary<string, HandlerMethodReference> _handlerMethods;
         private int? _waitForPacketsAmount;
-        bool firstPacketReceived;
 
         // private byte countPacketReceived;
         private long lastPacketReceive;
 
-        public ClientSession(IEncryptor encryptor, IChannel channel, IEnumerable<IPacketHandler> packetList) : base(encryptor, channel)
+        public ClientSession(IChannel channel, IEnumerable<IPacketHandler> packetList, bool isWorldClient) : base(channel)
         {
             // set last received
             lastPacketReceive = DateTime.Now.Ticks;
-
-            // lag mode
             _random = new Random((int)ClientId);
-
-            // absolutely new instantiated Client has no SessionId
-            SessionId = 0;
-
-            _encryptor = encryptor;
-
+            _isWorldClient = isWorldClient;
             // dynamically create packethandler references
             GenerateHandlerReferences(packetList);
         }
@@ -95,10 +84,8 @@ namespace NosCore.GameObject
         public int LastKeepAliveIdentity { get; set; }
 
 
-        public void Initialize(EncryptionBase encryptor, IEnumerable<IPacketHandler> packetHandler)
+        public void Initialize(IEnumerable<IPacketHandler> packetHandler)
         {
-            _encryptor = encryptor;
-
             // dynamically create packethandler references
             GenerateHandlerReferences(packetHandler);
         }
@@ -257,7 +244,7 @@ namespace NosCore.GameObject
                 catch (DivideByZeroException ex)
                 {
                     // disconnect if something unexpected happens
-                    Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), SessionId, ex));
+                    Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), ex));
                     Disconnect();
                 }
             }
@@ -266,17 +253,12 @@ namespace NosCore.GameObject
                 Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
             }
         }
-        private void handlePackets(byte[] packetData)
-        {
-            string packetConcatenated = _encryptor.Decrypt(packetData, SessionId);
-
-            // determine first packet
-            if (_encryptor.HasCustomParameter && !firstPacketReceived)
+        private void handlePackets(string packetConcatenated, IChannelHandlerContext contex)
+        { 
+            //determine first packet
+            if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] == 0)
             {
-                firstPacketReceived = true;
-                string SessionPacket = _encryptor.DecryptCustomParameter(packetData);
-
-                string[] SessionParts = SessionPacket.Split(' ');
+                string[] SessionParts = packetConcatenated.Split(' ');
                 if (SessionParts.Length == 0)
                 {
                     return;
@@ -296,7 +278,10 @@ namespace NosCore.GameObject
                 {
                     return;
                 }
+               
                 SessionId = sessid;
+                SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] = SessionId;
+
                 Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey("CLIENT_ARRIVED"), SessionId);
 
                 if (!_waitForPacketsAmount.HasValue)
@@ -311,7 +296,7 @@ namespace NosCore.GameObject
                 string packetstring = packet.Replace('^', ' ');
                 string[] packetsplit = packetstring.Split(' ');
 
-                if (_encryptor.HasCustomParameter)
+                if (_isWorldClient)
                 {
                     // keep alive
                     string nextKeepAliveRaw = packetsplit[0];
