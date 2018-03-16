@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using NosCore.Database.Entities;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 
 namespace NosCore.Database
@@ -11,11 +12,10 @@ namespace NosCore.Database
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
         private static string _configurationPath = @"..\..\..\configuration";
-
-        private static SqlConnectionStringBuilder _databaseConfiguration;
-
+        
         public NosCoreContext CreateDbContext(string[] args)
         {
+            SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("database.json", false);

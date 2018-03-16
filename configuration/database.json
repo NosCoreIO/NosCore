@@ -1,7 +1,8 @@
 {
-  "host": "localhost",
-  "port": 1433,
-  "username": "root",
-  "password": "",
-  "database": "OpenNosCore"
+  "DataSource": "localhost",
+  "IntegratedSecurity": true,
+  "InitialCatalog": "NosCore",
+  "UserID": "",
+  "Password": "",
+  "PersistSecurityInfo": true,
 }
