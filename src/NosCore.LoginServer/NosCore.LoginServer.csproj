@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
