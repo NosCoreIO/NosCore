@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-	<PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+	<PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
   </ItemGroup>
 
   <ItemGroup>
