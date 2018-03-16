@@ -1,5 +1,5 @@
 # NosCore #
-https://travis-ci.org/NosCoreIO/NosCore.svg?branch=MASTER
+![alt text](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)
 
 ## Achtung! ##
 We are not responsible of any damages caused by bad usage of our source. Please before asking questions or installing this source read this readme and also do a research, google is your friend. If you mess up when installing our source because you didnt follow it, we will laugh at you. A lot.
