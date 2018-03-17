@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Packets", "src\NosC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Configuration", "src\NosCore.Configuration\NosCore.Configuration.csproj", "{27688E22-468D-47AC-8BB2-AA416859587B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.Test", "test\NosCore.Test\NosCore.Test.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Test", "test\NosCore.Test\NosCore.Test.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
