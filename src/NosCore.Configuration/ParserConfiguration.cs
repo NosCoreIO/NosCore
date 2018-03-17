@@ -8,5 +8,7 @@ namespace NosCore.Configuration
     public class ParserConfiguration
     {
         public SqlConnectionStringBuilder Database { get; set; }
+
+        public string Lang { get; set; }
     }
 }
