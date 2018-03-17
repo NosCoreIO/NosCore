@@ -161,7 +161,7 @@ namespace NosCore.Core.Encryption
         {
             string encryptedString = "";
             int sessionId = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
-            byte[] str = message.Array.Take(message.ReadableBytes).ToArray();
+            byte[] str = message.Array.Skip(message.ArrayOffset).Take(message.ReadableBytes).ToArray();
             if (SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()] == 0)
             {
                 output.Add(DecryptCustomParameter(str).ToString());

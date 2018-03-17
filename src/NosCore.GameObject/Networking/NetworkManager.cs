@@ -27,13 +27,13 @@ namespace NosCore.GameObject.Networking
                 bootstrap
                     .Group(bossGroup, workerGroup)
                     .Channel<TcpServerSocketChannel>()
-                    .Option(ChannelOption.SoBacklog, 100)
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
                         SessionFactory.Instance.Sessions[channel.Id.AsLongText()] = 0;
                         IChannelPipeline pipeline = channel.Pipeline;
-                        pipeline.AddLast((MessageToMessageEncoder<string>)encryptor.GetEncoder(), (MessageToMessageDecoder<IByteBuffer>)decryptor.GetDecoder());
+                        pipeline.AddLast((MessageToMessageDecoder<IByteBuffer>)decryptor.GetDecoder());
                         pipeline.AddLast(new ClientSession(channel, packetList, isWorldClient));
+                        pipeline.AddLast((MessageToMessageEncoder<string>)encryptor.GetEncoder());
                     }));
 
                 IChannel bootstrapChannel = await bootstrap.BindAsync(port);

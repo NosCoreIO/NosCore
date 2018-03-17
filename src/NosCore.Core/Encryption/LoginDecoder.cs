@@ -17,7 +17,7 @@ namespace NosCore.Core.Encryption
             {
                 StringBuilder decryptedPacket = new StringBuilder();
 
-                foreach (byte character in message.Array.Take(message.ReadableBytes))
+                foreach (byte character in message.Array.Skip(message.ArrayOffset).Take(message.ReadableBytes))
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar(character - 15 ^ 195) : Convert.ToChar(256 - (15 - character) ^ 195));
                 }
