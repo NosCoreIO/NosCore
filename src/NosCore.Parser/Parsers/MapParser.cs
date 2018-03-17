@@ -11,12 +11,16 @@ namespace NosCore.Parser
     {
         private readonly string _fileMapIdDat = $"\\MapIDData.dat";
         private readonly string _folderMap = $"\\map";
+        //TODO : ADD LANGUAGE CONFIGURATION
+        private readonly string _fileMapIdLang = $"\\_code_fr_MapIDData.txt";
         private readonly Dictionary<int, string> _dictionaryId = new Dictionary<int, string>();
+        private readonly Dictionary<string, string> dictionaryIdLang = new Dictionary<string, string>();
         private readonly Dictionary<int, int> _dictionaryMusic = new Dictionary<int, int>();
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
             string fileMapIdDat = $"{folder + _fileMapIdDat}";
+            string fileMapIdLang = $"{folder + _fileMapIdLang}";
             string folderMap = $"{folder + _folderMap}";
             List<MapDTO> maps = new List<MapDTO>();
             Dictionary<int, string> dictionaryId = new Dictionary<int, string>();
@@ -45,6 +49,19 @@ namespace NosCore.Parser
                 mapIdStream.Close();
             }
 
+            using (StreamReader mapIdLangStream = new StreamReader(fileMapIdLang, Encoding.GetEncoding(1252)))
+            {
+                while ((line = mapIdLangStream.ReadLine()) != null)
+                {
+                    string[] linesave = line.Split('\t');
+                    if (linesave.Length <= 1 || dictionaryIdLang.ContainsKey(linesave[0]))
+                    {
+                        continue;
+                    }
+                    dictionaryIdLang.Add(linesave[0], linesave[1]);
+                }
+                mapIdLangStream.Close();
+            }
 
             foreach (string[] linesave in packetList.Where(o => o[0].Equals("at")))
             {
@@ -63,10 +80,10 @@ namespace NosCore.Parser
             {
                 string name = string.Empty;
                 int music = 0;
-
-                if (dictionaryId.ContainsKey(int.Parse(file.Name)))
+                
+                if (dictionaryId.ContainsKey(int.Parse(file.Name)) && dictionaryIdLang.ContainsKey(dictionaryId[int.Parse(file.Name)]))
                 {
-                    name = dictionaryId[int.Parse(file.Name)];
+                    name = dictionaryIdLang[dictionaryId[int.Parse(file.Name)]];
                 }
                 if (dictionaryMusic.ContainsKey(int.Parse(file.Name)))
                 {

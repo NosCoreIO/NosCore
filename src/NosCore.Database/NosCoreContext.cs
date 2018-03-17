@@ -1,10 +1,9 @@
-
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using NosCore.Database.Entities;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.IO;
 
 namespace NosCore.Database
@@ -12,7 +11,7 @@ namespace NosCore.Database
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
         private static string _configurationPath = @"..\..\..\configuration";
-        
+
         public NosCoreContext CreateDbContext(string[] args)
         {
             SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
