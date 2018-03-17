@@ -1,6 +1,6 @@
 {
   "MasterCommunication": {
-    "Password": "OpenNosCorePassword",
+    "Password": "NosCorePassword",
     "Host": "127.0.0.1",
     "Port": 6969,
 	 "WebApi": {
@@ -12,7 +12,7 @@
   "Port": 4002,
   "Database": {
 	  "DataSource" : "localhost",
-      "InitialCatalog" : "OpenNosCore",
+      "InitialCatalog" : "NosCore",
       "IntegratedSecurity" : true,
       "MultipleActiveResultSets" : false,
       "UserID" : "",

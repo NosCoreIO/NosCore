@@ -1,6 +1,6 @@
 {
   "Port": 6969,
-  "Password": "OpenNosCorePassword",
+  "Password": "NosCorePassword",
   "WebApi": {
 		"Host": "http://+",
 		"Port": 5000
