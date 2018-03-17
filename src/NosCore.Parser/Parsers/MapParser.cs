@@ -12,7 +12,7 @@ namespace NosCore.Parser
         private readonly string _fileMapIdDat = $"\\MapIDData.dat";
         private readonly string _folderMap = $"\\map";
         //TODO : ADD LANGUAGE CONFIGURATION
-        private readonly string _fileMapIdLang = $"\\_code_fr_MapIDData.txt";
+        private readonly string _fileMapIdLang = $"\\_code_en_MapIDData.txt";
         private readonly Dictionary<int, string> _dictionaryId = new Dictionary<int, string>();
         private readonly Dictionary<string, string> dictionaryIdLang = new Dictionary<string, string>();
         private readonly Dictionary<int, int> _dictionaryMusic = new Dictionary<int, int>();
