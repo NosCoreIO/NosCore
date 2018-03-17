@@ -24,7 +24,7 @@ namespace NosCore.Parser
             ParserConfiguration config_lang = new ParserConfiguration();;
             Object json = JObject.Parse(File.ReadAllText(_configurationPath+"/parser.json"));
             Newtonsoft.Json.JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
-            string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";;
+            string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";
             string fileMapIdDat = $"{folder + _fileMapIdDat}";
             string fileMapIdLang = $"{folder + _fileMapIdLang}";
             string folderMap = $"{folder + _folderMap}";
