@@ -20,10 +20,11 @@ namespace NosCore.Parser
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
+            string _configurationPath = @"..\..\configuration";
             ParserConfiguration config_lang = new ParserConfiguration();;
-            Object json = JObject.Parse(File.ReadAllText("C:/Users/Administrateur/Desktop/NosCore-master/configuration/parser.json"));
+            Object json = JObject.Parse(File.ReadAllText(_configurationPath+"/parser.json"));
             Newtonsoft.Json.JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
-            string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";
+            string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";;
             string fileMapIdDat = $"{folder + _fileMapIdDat}";
             string fileMapIdLang = $"{folder + _fileMapIdLang}";
             string folderMap = $"{folder + _folderMap}";
