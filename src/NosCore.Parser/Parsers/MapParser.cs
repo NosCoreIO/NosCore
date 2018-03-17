@@ -1,5 +1,8 @@
-﻿using NosCore.Core.Logger;
+﻿using Newtonsoft.Json.Linq;
+using NosCore.Configuration;
+using NosCore.Core.Logger;
 using NosCore.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,14 +14,17 @@ namespace NosCore.Parser
     {
         private readonly string _fileMapIdDat = $"\\MapIDData.dat";
         private readonly string _folderMap = $"\\map";
-        //TODO : ADD LANGUAGE CONFIGURATION
-        private readonly string _fileMapIdLang = $"\\_code_en_MapIDData.txt";
         private readonly Dictionary<int, string> _dictionaryId = new Dictionary<int, string>();
         private readonly Dictionary<string, string> dictionaryIdLang = new Dictionary<string, string>();
         private readonly Dictionary<int, int> _dictionaryMusic = new Dictionary<int, int>();
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
+            string _configurationPath = @"..\..\configuration";
+            ParserConfiguration config_lang = new ParserConfiguration();;
+            Object json = JObject.Parse(File.ReadAllText(_configurationPath+"/parser.json"));
+            Newtonsoft.Json.JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
+            string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";
             string fileMapIdDat = $"{folder + _fileMapIdDat}";
             string fileMapIdLang = $"{folder + _fileMapIdLang}";
             string folderMap = $"{folder + _folderMap}";
