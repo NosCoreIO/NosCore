@@ -60,7 +60,7 @@ namespace NosCore.GameHandler
             JsonConvert.PopulateObject(Convert.ToString(json), handler_config);
             */
 
-            //if (Convert.ToString(handler_config.SceneOnCreate) == "true" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
+            //if (Convert.ToString(handler_config.SceneOnCreate) == "True" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
             {
                 //Session.SendPacket("scene 40");
             }
