@@ -1,7 +1,12 @@
-﻿using NosCore.Core.Serializing;
+﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using NosCore.Configuration;
+using NosCore.Core.Serializing;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities;
 using NosCore.Packets.ClientPackets;
+using System;
+using System.IO;
 
 namespace NosCore.GameHandler
 {
@@ -10,7 +15,7 @@ namespace NosCore.GameHandler
         #region Members
 
         private readonly ClientSession _session;
-
+       
         #endregion
 
         #region Instantiation
@@ -47,14 +52,23 @@ namespace NosCore.GameHandler
 
             Session.CurrentMapInstance = Session.Character.MapInstance;
 
-            //if (ConfigurationManager.AppSettings["SceneOnCreate"].ToLower() == "true" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
+            /*
+             * That works but it's not beautiful
+            string _configurationPath = @"..\..\configuration";
+            WorldConfiguration handler_config = new WorldConfiguration();
+            Object json = JObject.Parse(File.ReadAllText(_configurationPath + "/handler.json"));
+            JsonConvert.PopulateObject(Convert.ToString(json), handler_config);
+            */
+
+            //if (Convert.ToString(handler_config.SceneOnCreate) == "true" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
             {
                 //Session.SendPacket("scene 40");
             }
-            //if (ConfigurationManager.AppSettings["WorldInformation"].ToLower() == "true")
+            //if (Convert.ToString(handler_config.WorldInformation) == "True")
             {
                 Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", 10));
-                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/0Lucifer0/NosCore/", 11));
+                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
+                Session.SendPacket(Session.Character.GenerateSay($"Patreon : https://patreon.com/NosCore", 11));
                 Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", 10));
             }
             //            Session.Character.LoadSpeed();
