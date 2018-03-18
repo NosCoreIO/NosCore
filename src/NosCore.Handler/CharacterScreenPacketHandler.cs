@@ -184,7 +184,6 @@ namespace NosCore.GameHandler
             {
                 return;
             }
-
             if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
             {
                 CharacterDTO character = DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot && s.State == CharacterState.Active);
