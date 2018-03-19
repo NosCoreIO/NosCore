@@ -54,7 +54,7 @@ namespace NosCore.GameHandler
             //if (ConfigurationManager.AppSettings["WorldInformation"].ToLower() == "true")
             {
                 Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", 10));
-                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/0Lucifer0/NosCore/", 11));
+                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
                 Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", 10));
             }
             //            Session.Character.LoadSpeed();
