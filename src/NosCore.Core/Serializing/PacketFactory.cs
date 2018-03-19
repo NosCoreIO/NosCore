@@ -154,7 +154,7 @@ namespace NosCore.Core.Serializing
                 {
                     int currentIndex = packetBasePropertyInfo.Key.Index + (includesKeepAliveIdentity ? 2 : 1); // adding 2 because we need to skip incrementing number and packet header
 
-                    if (currentIndex < matches.Count)
+                    if (currentIndex < matches.Count + (includesKeepAliveIdentity ? 1 : 0))
                     {
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
                         {
@@ -354,6 +354,10 @@ namespace NosCore.Core.Serializing
                     return System.Enum.Parse(packetPropertyType.GenericTypeArguments[0], currentValue);
                 }
                 return Convert.ChangeType(currentValue, packetPropertyType.GenericTypeArguments[0]);
+            }
+            if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue))
+            {
+                throw new NullReferenceException();
             }
             return Convert.ChangeType(currentValue, packetPropertyType); // cast to specified type
         }
