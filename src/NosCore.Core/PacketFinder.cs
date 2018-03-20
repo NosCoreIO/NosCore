@@ -11,7 +11,7 @@ namespace NosCore.Core
             {
                 if (typeof(T).IsAssignableFrom(t))
                 {
-                    yield return (T)Activator.CreateInstance(t);
+                    yield return (T)t.CreateInstance();
                 }
             }
         }
