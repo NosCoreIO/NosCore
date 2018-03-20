@@ -10,7 +10,6 @@ namespace NosCore.Core.Serializing
 {
     public static class PacketFactory
     {
-        internal delegate T ObjectActivator<out T>();
 
         #region Members
 
@@ -26,17 +25,6 @@ namespace NosCore.Core.Serializing
 
         #region Methods
 
-        private static ObjectActivator<T> GetActivator<T>(ConstructorInfo ctor)
-        {
-            Type type = ctor.DeclaringType;
-            ParameterInfo[] paramsInfo = ctor.GetParameters();
-            Expression[] argsExp = new Expression[paramsInfo.Length];
-            NewExpression newExp = Expression.New(ctor, argsExp);
-            LambdaExpression lambda = Expression.Lambda(typeof(ObjectActivator<T>), newExp);
-            ObjectActivator<T> compiled = (ObjectActivator<T>)lambda.Compile();
-            return compiled;
-        }
-
         /// <summary>
         ///     Deserializes a string into a PacketDefinition
         /// </summary>
@@ -51,8 +39,7 @@ namespace NosCore.Core.Serializing
             try
             {
                 KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> serializationInformation = GetSerializationInformation(packetType);
-                ObjectActivator<PacketDefinition> activator = GetActivator<PacketDefinition>(packetType.GetConstructors().First());
-                PacketDefinition deserializedPacket = activator();
+                PacketDefinition deserializedPacket = (PacketDefinition)packetType.CreateInstance();
                 SetDeserializationInformations(deserializedPacket, packetContent, serializationInformation.Key.Item2);
                 deserializedPacket = Deserialize(packetContent, deserializedPacket, serializationInformation, includesKeepAliveIdentity);
                 return deserializedPacket;
@@ -178,8 +165,7 @@ namespace NosCore.Core.Serializing
         /// <returns>The string as converted List</returns>
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            ObjectActivator<PacketDefinition> activator = GetActivator<PacketDefinition>(genericListType.GetConstructors().First());
-            IList subpackets = (IList)Convert.ChangeType(activator(), genericListType);
+            IList subpackets = (IList)Convert.ChangeType((IList)genericListType.CreateInstance(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (string currentValue in splittedValues)
@@ -195,8 +181,7 @@ namespace NosCore.Core.Serializing
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo, bool isReturnPacket = false)
         {
             string[] subpacketValues = currentSubValues.Split(isReturnPacket ? '^' : '.');
-            ObjectActivator<object> newSubpacket = GetActivator<object>(packetBasePropertyType.GetConstructors().First());
-
+            object newSubpacket = packetBasePropertyType.CreateInstance();
             foreach (KeyValuePair<PacketIndexAttribute, PropertyInfo> subpacketPropertyInfo in subpacketSerializationInfo.Value)
             {
                 int currentSubIndex = isReturnPacket ? subpacketPropertyInfo.Key.Index + 1 : subpacketPropertyInfo.Key.Index; // return packets do include header
@@ -230,7 +215,7 @@ namespace NosCore.Core.Serializing
             // split into single values
             List<string> splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
-            IList subpackets = (IList)Convert.ChangeType(GetActivator<object>(packetBasePropertyType.GetConstructors().First()), packetBasePropertyType);
+            IList subpackets = (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance(), packetBasePropertyType);
 
             Type subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo = GetSerializationInformation(subPacketType);
