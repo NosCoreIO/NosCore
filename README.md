@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/319565884454731795/426854667755192333/N.png"/>
+</p>
+
 # NosCore #
 [![Travis build status](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.org/NosCoreIO/NosCore)
 
