@@ -1,11 +1,9 @@
-﻿
-using NosCore.Database;
-using NosCore.Enum;
+﻿using NosCore.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class AccountDTO : IDatabaseObject
+    public class AccountDTO : IDTO
     {
         [Key]
         public long AccountId { get; set; }
@@ -25,10 +23,5 @@ namespace NosCore.Data
         public long Money { get; set; }
 
         public long BankMoney { get; set; }
-
-        public void Initialize()
-        {
-          
-        }
     }
 }

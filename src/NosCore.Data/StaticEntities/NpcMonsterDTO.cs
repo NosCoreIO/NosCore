@@ -1,11 +1,10 @@
-﻿using NosCore.Database;
-using NosCore.Domain.Map;
+﻿using NosCore.Domain.Map;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class NpcMonsterDTO : IDatabaseObject
+    public class NpcMonsterDTO : IDTO
     {
         public byte AmountRequired { get; set; }
 
@@ -65,7 +64,7 @@ namespace NosCore.Data
 
         public short MagicDefence { get; set; }
 
-        public virtual ICollection<MapMonster> MapMonster { get; set; }
+        public virtual ICollection<MapMonsterDTO> MapMonster { get; set; }
 
         public virtual ICollection<MapNpcDTO> MapNpc { get; set; }
 

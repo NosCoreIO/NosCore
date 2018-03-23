@@ -20,7 +20,7 @@ namespace NosCore.GameObject
             MapInstanceType = type;
             Map = map;
             MapInstanceId = guid;
-            _monsters = new ConcurrentDictionary<long, MapMonster>();
+            _monsters = new ConcurrentDictionary<long, MapMonsterDTO>();
             _npcs = new ConcurrentDictionary<long, MapNpcDTO>();
         }
 
@@ -28,7 +28,7 @@ namespace NosCore.GameObject
 
         #region Members
 
-        private readonly ConcurrentDictionary<long, MapMonster> _monsters;
+        private readonly ConcurrentDictionary<long, MapMonsterDTO> _monsters;
 
         private readonly ConcurrentDictionary<long, MapNpcDTO> _npcs;
 
@@ -50,7 +50,7 @@ namespace NosCore.GameObject
 
         public MapInstanceType MapInstanceType { get; set; }
 
-        public List<MapMonster> Monsters
+        public List<MapMonsterDTO> Monsters
         {
             get { return _monsters.Select(s => s.Value).ToList(); }
         }

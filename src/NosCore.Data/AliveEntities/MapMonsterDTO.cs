@@ -1,10 +1,9 @@
-﻿
-using NosCore.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 
 namespace NosCore.Data
 {
-    public class MapMonster : IDatabaseObject
+    public class MapMonsterDTO : IDTO
     {
 
         public bool IsDisabled { get; set; }
@@ -23,10 +22,5 @@ namespace NosCore.Data
         public short VNum { get; set; }
 
         public byte Direction { get; set; }
-
-        public void Initialize()
-        {
-            
-        }
     }
 }

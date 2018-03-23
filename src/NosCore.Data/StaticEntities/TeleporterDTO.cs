@@ -1,16 +1,9 @@
-﻿using NosCore.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using AutoMapper;
 
 namespace NosCore.Data
 {
-    public class TeleporterDTO : IDatabaseObject
+    public class TeleporterDTO : IDTO
     {
-        public void Initialize()
-        {
-            
-        }
+
     }
 }

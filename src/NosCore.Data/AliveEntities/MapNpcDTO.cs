@@ -1,14 +1,9 @@
-﻿using NosCore.Database;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace NosCore.Data
 {
-    public class MapNpcDTO : IDatabaseObject
+    public class MapNpcDTO : IDTO
     {  
         public short Dialog { get; set; }
 

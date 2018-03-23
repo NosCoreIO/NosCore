@@ -1,11 +1,11 @@
-﻿using NosCore.Database;
+﻿using AutoMapper;
 using NosCore.Domain.Buff;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class CardDTO : IDatabaseObject
+    public class CardDTO : IDTO
     {
         [Key]
         public short CardId { get; set; }
@@ -30,10 +30,5 @@ namespace NosCore.Data
         public byte Propability { get; set; }
 
         public ICollection<BCardDTO> BCards { get; set; }
-        
-        public void Initialize()
-        {
-            
-        }
     }
 }

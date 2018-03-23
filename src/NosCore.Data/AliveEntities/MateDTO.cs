@@ -1,10 +1,8 @@
-﻿
-using NosCore.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class MateDTO : IDatabaseObject
+    public class MateDTO : IDTO
     {
         public byte Attack { get; set; }
 

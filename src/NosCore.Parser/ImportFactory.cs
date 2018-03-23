@@ -4,6 +4,7 @@ using NosCore.Data;
 using NosCore.Core.Encryption;
 using NosCore.Enum;
 using System.Text;
+using NosCore.DAL;
 
 namespace NosCore.Parser
 {

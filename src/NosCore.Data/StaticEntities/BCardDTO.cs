@@ -1,10 +1,10 @@
-﻿using NosCore.Database;
+﻿using AutoMapper;
 using NosCore.Domain.Buff;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class BCardDTO : IDatabaseObject
+    public class BCardDTO : IDTO
     {
         [Key]
         public short BCardId { get; set; }
@@ -40,10 +40,5 @@ namespace NosCore.Data
         public bool IsLevelScaled { get; set; }
 
         public bool IsLevelDivided { get; set; }
-        public void Initialize()
-        {
-            
-        }
-
     }
 }

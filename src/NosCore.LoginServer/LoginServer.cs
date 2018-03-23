@@ -28,6 +28,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
+using NosCore.DAL;
+using AutoMapper;
+using NosCore.GameObject;
 
 namespace NosCore.LoginServer
 {
@@ -59,7 +62,7 @@ namespace NosCore.LoginServer
         private static void initializePackets()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            _clientPacketDefinitions = PacketFinder.GetInstancesOfImplementingTypes<IPacketHandler>(typeof(CharacterScreenPacketHandler)).ToList();
+            _clientPacketDefinitions = typeof(CharacterScreenPacketHandler).Assembly.GetInstancesOfImplementingTypes<IPacketHandler>().ToList();
         }
 
         private static void connectMaster()
@@ -90,10 +93,6 @@ namespace NosCore.LoginServer
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-        private static void initializeMapping()
-        {
-            DAOFactory.AccountDAO.RegisterMapping(typeof(AccountDTO)).InitializeMapper();
-        }
 
         public static async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
         {
@@ -129,13 +128,43 @@ namespace NosCore.LoginServer
 
         }
 
+        private static void initializeMapping()
+        {
+            MapperConfiguration config = new MapperConfiguration(cfg =>
+            {
+                foreach (Type type in typeof(CharacterDTO).Assembly.GetTypes().Where(t => typeof(IDTO).IsAssignableFrom(t)))
+                {
+                    int index = type.Name.LastIndexOf("DTO");
+                    if (index >= 0)
+                    {
+                        string name = type.Name.Substring(0, index);
+                        Type typefound = typeof(Character).Assembly.GetTypes().SingleOrDefault(t =>
+                        {
+                            return t.Name.Equals(name);
+                        });
+                        Type entitytypefound = typeof(Database.Entities.Account).Assembly.GetTypes().SingleOrDefault(t =>
+                        {
+                            return t.Name.Equals(name);
+                        });
+                        if (entitytypefound != null)
+                        {
+                            cfg.CreateMap(type, entitytypefound).ReverseMap();
+                            if(typefound != null)
+                            {
+                                cfg.CreateMap(entitytypefound, type).As(typefound);
+                            }
+                        }
+                    }
+                }
+            });
+            DAOFactory.RegisterMapping(config.CreateMapper());
+        }
 
         public static void Main(string[] args)
         {
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            initializeMapping();
             initializePackets();
             connectMaster();
 

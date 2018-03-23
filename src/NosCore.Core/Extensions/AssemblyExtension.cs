@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace NosCore.Core
 {
-    public static class PacketFinder
+    public static class AssemblyExtension
     {
-        public static IEnumerable<T> GetInstancesOfImplementingTypes<T>(Type type)
+        public static IEnumerable<T> GetInstancesOfImplementingTypes<T>(this Assembly assembly)
         {
-            foreach (Type t in type.Assembly.GetTypes())
+            foreach (Type t in assembly.GetTypes())
             {
                 if (typeof(T).IsAssignableFrom(t))
                 {

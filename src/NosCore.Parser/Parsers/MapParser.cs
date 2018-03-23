@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using NosCore.Configuration;
 using NosCore.Core.Logger;
+using NosCore.DAL;
 using NosCore.Data;
 using System;
 using System.Collections.Generic;

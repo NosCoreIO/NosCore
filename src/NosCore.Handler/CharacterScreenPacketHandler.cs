@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NosCore.DAL;
 
 namespace NosCore.GameHandler
 {
@@ -231,7 +232,6 @@ namespace NosCore.GameHandler
                             Password = account.Password.ToLower(),
                             Authority = account.Authority
                         };
-                        accountobject.Initialize();
                         Session.InitializeAccount(accountobject);
                         //Send Account Connected
                     }
