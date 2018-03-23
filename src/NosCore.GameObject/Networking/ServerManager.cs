@@ -1,4 +1,5 @@
 ﻿using NosCore.Core.Logger;
+using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Domain.Map;
 using System;

@@ -1,15 +1,9 @@
-﻿
-
-using NosCore.Database;
+﻿using AutoMapper;
 
 namespace NosCore.Data
 {
-    public class QuestRewardDTO : IDatabaseObject
+    public class QuestRewardDTO : IDTO
     {
-        public void Initialize()
-        {
-
-        }
 
         public long QuestRewardId { get; set; }
 

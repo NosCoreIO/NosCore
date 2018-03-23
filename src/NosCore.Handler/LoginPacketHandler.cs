@@ -2,6 +2,7 @@
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Domain.Interaction;
 using NosCore.GameObject;

@@ -13,6 +13,8 @@ using NosCore.Database;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using NosCore.Configuration;
+using NosCore.DAL;
+using AutoMapper;
 
 namespace NosCore.Parser
 {
@@ -49,21 +51,10 @@ namespace NosCore.Parser
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-
-        private static void initializeMapping()
-        {
-            DAOFactory.AccountDAO.RegisterMapping(typeof(AccountDTO)).InitializeMapper();
-            DAOFactory.MapDAO.RegisterMapping(typeof(MapDTO)).InitializeMapper();
-            DAOFactory.CardDAO.RegisterMapping(typeof(CardDTO)).InitializeMapper();
-            DAOFactory.MapNpcDAO.RegisterMapping(typeof(MapNpcDTO)).InitializeMapper();
-            DAOFactory.ItemDAO.RegisterMapping(typeof(ItemDTO)).InitializeMapper();
-        }
-
         public static void Main(string[] args)
         {
             printHeader();
             initializeLogger();
-            initializeMapping();
             initializeConfiguration();
             if (DataAccessHelper.Instance.Initialize(_databaseConfiguration.Database))
             {

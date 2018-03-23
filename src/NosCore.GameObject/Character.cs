@@ -5,6 +5,7 @@ using NosCore.Packets;
 using NosCore.GameObject.Helper;
 using System;
 using NosCore.GameObject.ComponentEntities;
+using AutoMapper;
 
 namespace NosCore.GameObject
 {
@@ -24,36 +25,36 @@ namespace NosCore.GameObject
 
         public byte VisualType { get; set; } = 1;
 
-        public short VNum {get; set; }
+        public short VNum { get; set; }
 
         public long VisualId { get; set; }
 
-        public byte? Direction {get; set; }
+        public byte? Direction { get; set; }
 
-        public short PositionX {get; set; }
+        public short PositionX { get; set; }
 
-        public short PositionY {get; set; }
+        public short PositionY { get; set; }
 
-        public short? Amount {get; set; }
+        public short? Amount { get; set; }
 
-        public byte Speed {get; set; }
+        public byte Speed { get; set; }
 
-        public byte Morph {get; set; }
+        public byte Morph { get; set; }
 
-        public byte MorphUpgrade {get; set; }
+        public byte MorphUpgrade { get; set; }
 
-        public byte MorphDesign {get; set; }
+        public byte MorphDesign { get; set; }
 
-        public byte MorphBonus {get; set; }
+        public byte MorphBonus { get; set; }
 
-        public bool NoAttack {get; set; }
+        public bool NoAttack { get; set; }
 
-        public bool NoMove {get; set; }
+        public bool NoMove { get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
         public byte Authority { get; set; }
 
-       
+
 
         public byte Equipment { get; set; }
         public FdPacket GenerateFd()

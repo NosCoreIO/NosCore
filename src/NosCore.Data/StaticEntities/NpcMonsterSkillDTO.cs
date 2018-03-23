@@ -1,12 +1,6 @@
-﻿using NosCore.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-
-namespace NosCore.Data
+﻿namespace NosCore.Data
 {
-    public class NpcMonsterSkillDTO : IDatabaseObject
+    public class NpcMonsterSkillDTO : IDTO
     {
         public void Initialize()
         {

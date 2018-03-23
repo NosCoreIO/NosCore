@@ -1,12 +1,9 @@
-﻿using NosCore.Database;
-using NosCore.Domain.Items;
-using NosCore.Packets;
-using System.Collections.Generic;
+﻿using NosCore.Domain.Items;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class ItemDTO : IDatabaseObject
+    public class ItemDTO : IDTO
     {
       
         public void Initialize()

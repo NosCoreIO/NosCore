@@ -9,61 +9,55 @@ using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Domain;
 using NosCore.Core.Logger;
+using NosCore.Database;
+using NosCore.Data;
 
-namespace NosCore.Database
+namespace NosCore.DAL
 {
-    public class GenericDAO<TEntity, TDTO> : IGenericDAO<TEntity, TDTO> where TEntity : class
+    public class GenericDAO<TEntity, TDTO> where TEntity : class
     {
-        protected readonly IDictionary<Type, Type> Mappings = new Dictionary<Type, Type>();
-        protected IMapper Mapper;
+        private readonly IMapper _mapper;
 
-        public PropertyInfo PrimaryKey { get; set; }
+        private readonly PropertyInfo _primaryKey;
 
-        public virtual void InitializeMapper()
-        {
-            MapperConfiguration config = new MapperConfiguration(cfg =>
-            {
-                foreach (KeyValuePair<Type, Type> entry in Mappings)
-                {
-                    // GameObject -> Entity
-                    cfg.CreateMap(typeof(TDTO), entry.Value);
-
-                    // Entity -> GameObject
-                    cfg.CreateMap(entry.Value, typeof(TDTO))
-                        .AfterMap((src, dest) => ((IDatabaseObject)dest).Initialize()).As(entry.Key);
-                }
-            });
-
-            Mapper = config.CreateMapper();
-        }
-
-        public virtual IMappingBaseDAO RegisterMapping(Type gameObjectType)
+        public GenericDAO(IMapper mapper)
         {
             try
             {
                 Type targetType = typeof(TEntity);
-                Mappings.Add(gameObjectType, targetType);
+                if (mapper == null)
+                {
+                    MapperConfiguration config = new MapperConfiguration(cfg =>
+                    {
+                        cfg.CreateMap(typeof(TDTO), targetType).ReverseMap();
+                    });
 
-                foreach (PropertyInfo pi in gameObjectType.GetProperties())
+                    _mapper = config.CreateMapper();
+                }
+                else
+                {
+                    _mapper = mapper;
+                }
+
+                foreach (PropertyInfo pi in typeof(TDTO).GetProperties())
                 {
                     object[] attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
                     if (attrs.Length != 1)
                     {
                         continue;
                     }
-                    PrimaryKey = pi;
+                    _primaryKey = pi;
                     break;
                 }
-                if (PrimaryKey != null)
+                if (_primaryKey != null)
                 {
-                    return this;
+                    return;
                 }
                 throw new KeyNotFoundException();
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                return null;
             }
         }
 
@@ -111,7 +105,7 @@ namespace NosCore.Database
                     DbSet<TEntity> dbset = context.Set<TEntity>();
                     IEnumerable<TEntity> entities = Enumerable.Empty<TEntity>();
                     TEntity ent = dbset.FirstOrDefault(predicate);
-                    return Mapper.Map<TDTO>(ent);
+                    return _mapper.Map<TDTO>(ent);
                 }
             }
             catch (Exception e)
@@ -127,10 +121,10 @@ namespace NosCore.Database
             {
                 using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
                 {
-                    TEntity entity = Mapper.Map<TEntity>(dto);
+                    TEntity entity = _mapper.Map<TEntity>(dto);
                     DbSet<TEntity> dbset = context.Set<TEntity>();
 
-                    object value = PrimaryKey.GetValue(dto, null);
+                    object value = _primaryKey.GetValue(dto, null);
                     TEntity entityfound = null;
                     if (value is object[])
                     {
@@ -142,7 +136,7 @@ namespace NosCore.Database
                     }
                     if (entityfound != null)
                     {
-                        Mapper.Map(entity, entityfound);
+                        _mapper.Map(entity, entityfound);
 
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                         context.SaveChanges();
@@ -153,7 +147,7 @@ namespace NosCore.Database
                         dbset.Add(entity);
                     }
                     context.SaveChanges();
-                    dto = Mapper.Map<TDTO>(entity);
+                    dto = _mapper.Map<TDTO>(entity);
 
                     return SaveResult.Saved;
                 }
@@ -177,8 +171,8 @@ namespace NosCore.Database
                     List<TEntity> entitytoadd = new List<TEntity>();
                     foreach (TDTO dto in dtos)
                     {
-                        TEntity entity = Mapper.Map<TEntity>(dto);
-                        object value = PrimaryKey.GetValue(dto, null);
+                        TEntity entity = _mapper.Map<TEntity>(dto);
+                        object value = _primaryKey.GetValue(dto, null);
 
                         TEntity entityfound = null;
                         if (value is object[])
@@ -192,7 +186,7 @@ namespace NosCore.Database
 
                         if (entityfound != null)
                         {
-                            Mapper.Map(entity, entityfound);
+                            _mapper.Map(entity, entityfound);
 
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
 
@@ -218,7 +212,6 @@ namespace NosCore.Database
             }
         }
 
-
         public IEnumerable<TDTO> LoadAll()
         {
             using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
@@ -226,7 +219,7 @@ namespace NosCore.Database
                 DbSet<TEntity> dbset = context.Set<TEntity>();
                 foreach (TEntity t in dbset)
                 {
-                    yield return Mapper.Map<TDTO>(t);
+                    yield return _mapper.Map<TDTO>(t);
                 }
             }
         }
@@ -248,7 +241,7 @@ namespace NosCore.Database
                 }
                 foreach (TEntity t in entities)
                 {
-                    yield return Mapper.Map<TDTO>(t);
+                    yield return _mapper.Map<TDTO>(t);
                 }
             }
         }

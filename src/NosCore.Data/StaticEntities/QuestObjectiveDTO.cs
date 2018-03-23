@@ -1,10 +1,8 @@
-﻿
-using NosCore.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class QuestObjectiveDTO : IDatabaseObject
+    public class QuestObjectiveDTO : IDTO
     {
         public void Initialize()
         {

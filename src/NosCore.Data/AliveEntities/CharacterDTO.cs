@@ -1,14 +1,9 @@
-﻿using NosCore.Database;
-using NosCore.Domain.Character;
-using NosCore.Packets;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using NosCore.Domain.Character;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class CharacterDTO : IDatabaseObject
+    public class CharacterDTO : IDTO
     {
         public long AccountId { get; set; }
 
@@ -124,12 +119,6 @@ namespace NosCore.Data
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
-
-      
-        public void Initialize()
-        {
-
-        }
 
     }
 }

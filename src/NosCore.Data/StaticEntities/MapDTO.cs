@@ -1,10 +1,9 @@
-﻿using NosCore.Database;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace NosCore.Data
 {
-    public class MapDTO : IDatabaseObject
+    public class MapDTO : IDTO
     {
         [Key]
         public short MapId { get; set; }
@@ -17,9 +16,5 @@ namespace NosCore.Data
         public int Music { get; set; }
 
         public bool ShopAllowed { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }

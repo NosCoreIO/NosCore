@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core.Logger;
+using NosCore.Database;
 using System;
 using System.Data.SqlClient;
 
-namespace NosCore.Database
+namespace NosCore.DAL
 {
     public class DataAccessHelper
     {

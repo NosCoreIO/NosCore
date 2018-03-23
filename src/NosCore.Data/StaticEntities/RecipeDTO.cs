@@ -1,16 +1,9 @@
-﻿using NosCore.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using AutoMapper;
 
 namespace NosCore.Data
 {
-    public class RecipeDTO : IDatabaseObject
+    public class RecipeDTO : IDTO
     {
-        public void Initialize()
-        {
-            
-        }
+
     }
 }
