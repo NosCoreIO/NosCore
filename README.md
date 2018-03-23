@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.discordapp.com/attachments/319565884454731795/426854667755192333/N.png"/>
+  <img src="https://cdn.discordapp.com/attachments/319565884454731795/426855616141852673/N4.png"/>
 </p>
 
 # NosCore #
