@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Owin.Security.OAuth;
+using NosCore.DAL;
+using NosCore.Data;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.MasterServer
 {
@@ -12,10 +16,26 @@ namespace NosCore.MasterServer
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" });
+            });
+
+            services.AddAuthentication(config => {
+                config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+            });
+
+            services.AddMvc(o =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                o.Filters.Add(new AuthorizeFilter(policy));
             });
         }
 
@@ -27,7 +47,7 @@ namespace NosCore.MasterServer
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API");
             });
-
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

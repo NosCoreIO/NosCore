@@ -14,7 +14,7 @@ using NosCore.Domain.Family;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Items;
 using NosCore.Domain.Map;
-using NosCore.Enum;
+using NosCore.Domain;
 using System;
 
 namespace NosCore.Database.Migrations

@@ -23,11 +23,14 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.2.4" />
     <PackageReference Include="Microsoft.AspNet.WebApi.OwinSelfHost" Version="5.2.4" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Owin.Security.OAuth" Version="4.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.3.0" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
   </ItemGroup>
@@ -35,6 +38,9 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
+    <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
+    <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
+    <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>
 
 </Project>

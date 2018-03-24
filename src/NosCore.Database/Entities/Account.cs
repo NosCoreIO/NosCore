@@ -1,4 +1,4 @@
-using NosCore.Enum;
+using NosCore.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

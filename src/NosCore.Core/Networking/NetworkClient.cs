@@ -9,7 +9,7 @@ using NosCore.Core.Handling;
 using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
 using System.Reflection;
-using NosCore.Enum;
+using NosCore.Domain;
 
 namespace NosCore.Core.Networking
 {

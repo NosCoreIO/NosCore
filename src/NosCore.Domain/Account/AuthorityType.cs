@@ -1,4 +1,4 @@
-﻿namespace NosCore.Enum
+﻿namespace NosCore.Domain
 {
     public enum AuthorityType : short
     {
