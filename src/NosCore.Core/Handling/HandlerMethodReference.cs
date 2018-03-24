@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NosCore.Core.Serializing;
-using NosCore.Enum;
+using NosCore.Domain;
 
 namespace NosCore.Core.Handling
 {

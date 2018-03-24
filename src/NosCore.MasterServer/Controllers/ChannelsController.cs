@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Networking;
 using NosCore.Core;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using NosCore.Networking;
+using NosCore.Domain;
 
 namespace NosCore.MasterServer
 {
@@ -13,6 +13,7 @@ namespace NosCore.MasterServer
     {
         // GET api/channels
         [HttpGet]
+        [AllowAnonymous]
         public List<WorldServer> Get()
         {
             return MasterClientListSingleton.Instance.WorldServers;

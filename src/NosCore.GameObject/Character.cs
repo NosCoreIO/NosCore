@@ -1,6 +1,6 @@
 ﻿using NosCore.Core.Logger;
 using NosCore.Data;
-using NosCore.Enum;
+using NosCore.Domain;
 using NosCore.Packets;
 using NosCore.GameObject.Helper;
 using System;

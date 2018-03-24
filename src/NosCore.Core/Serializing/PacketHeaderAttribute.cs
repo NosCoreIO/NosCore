@@ -1,4 +1,4 @@
-﻿using NosCore.Enum;
+﻿using NosCore.Domain;
 using System;
 
 namespace NosCore.Core.Serializing

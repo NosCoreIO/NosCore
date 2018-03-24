@@ -2,7 +2,7 @@
 using System.IO;
 using NosCore.Data;
 using NosCore.Core.Encryption;
-using NosCore.Enum;
+using NosCore.Domain;
 using System.Text;
 using NosCore.DAL;
 
