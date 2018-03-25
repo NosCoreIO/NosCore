@@ -48,7 +48,7 @@ namespace NosCore.LoginServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(_loginConfiguration);
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey("SUCCESSFULLY_LOADED"));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
         private static void initializeLogger()
@@ -77,7 +77,7 @@ namespace NosCore.LoginServer
                 }
                 catch
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey("MASTER_SERVER_RETRY"));
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
                     Thread.Sleep(5000);
                 }
             }
@@ -170,7 +170,7 @@ namespace NosCore.LoginServer
 
             if (DataAccessHelper.Instance.Initialize(_loginConfiguration.Database))
             {
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _loginConfiguration.Port)));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), _loginConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(), new LoginDecoderFactory(), _clientPacketDefinitions, false).Wait();
             }

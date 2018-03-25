@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Reflection;
 using System.Resources;
 
@@ -30,11 +31,11 @@ namespace NosCore.Core.Logger
 
         #region Methods
 
-        public string GetMessageFromKey(string message)
+        public string GetMessageFromKey(LanguageKey messageKey)
         {
-            string resourceMessage = _manager != null && message != null ? _manager.GetString(message, _resourceCulture) : string.Empty;
+            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetString(messageKey.ToString(), _resourceCulture) : string.Empty;
 
-            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{message}>";
+            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }
 
         #endregion

@@ -49,7 +49,7 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(_worldConfiguration);
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey("SUCCESSFULLY_LOADED"));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
         private static void initializeLogger()
@@ -85,7 +85,7 @@ namespace NosCore.WorldServer
                 }
                 catch
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey("MASTER_SERVER_RETRY"));
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
                     Thread.Sleep(5000);
                 }
             }
@@ -181,7 +181,7 @@ namespace NosCore.WorldServer
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
             {
                 ServerManager.Instance.Initialize();
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _worldConfiguration.Port)));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), _worldConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {(_worldConfiguration.WebApi.ToString())}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), _clientPacketDefinitions, true).Wait();
             }

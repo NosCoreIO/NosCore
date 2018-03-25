@@ -140,7 +140,7 @@ namespace NosCore.Parser
                 DAOFactory.CardDAO.InsertOrUpdate(_cards);
                 DAOFactory.BcardDAO.InsertOrUpdate(Bcards);
 
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey("CARDS_PARSED"), _counter));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED), _counter));
                 npcIdStream.Close();
             }
         }

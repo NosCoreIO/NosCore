@@ -29,7 +29,7 @@ namespace NosCore.Networking
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
             MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
-            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(string.Format("UNREGISTRED_FROM_MASTER", _id.ToString()))));
+            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER), _id.ToString()));
         }
 
         public override Task WriteAsync(IChannelHandlerContext context, object message)
@@ -47,7 +47,7 @@ namespace NosCore.Networking
             }
             catch (Exception ex)
             {
-                Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey("UNRECOGNIZED_MASTER_PACKET"), ex));
+                Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace NosCore.Networking
                 if (msg.Password == Password)
                 {
                     IsAuthenticated = true;
-                    Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(string.Format("AUTHENTICATED_SUCCESS", _id.ToString()))));
+                    Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
 
                     if (MasterClientListSingleton.Instance.WorldServers == null)
                     {
@@ -92,14 +92,14 @@ namespace NosCore.Networking
                 else
                 {
                     contex.CloseAsync();
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey("AUTHENTICATED_ERROR")));
+                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR)));
                 }
             }
         }
 
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
-            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey("REGISTRED_FROM_MASTER")));
+            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER)));
         }
 
         private Type GetType(string name)

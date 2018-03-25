@@ -48,10 +48,10 @@ namespace NosCore.WorldServer.Controllers
                 }
                 else
                 {
-                    return BadRequest(LogLanguage.Instance.GetMessageFromKey("AUTH_INCORRECT"));
+                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
                 }
             }
-            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey("AUTH_ERROR")));
+            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
         }
 
         [AllowAnonymous]
@@ -81,10 +81,10 @@ namespace NosCore.WorldServer.Controllers
                 }
                 else
                 {
-                    return BadRequest(LogLanguage.Instance.GetMessageFromKey("AUTH_INCORRECT"));
+                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
                 }
             }
-            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey("AUTH_ERROR")));
+            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
         }
     }
 }
