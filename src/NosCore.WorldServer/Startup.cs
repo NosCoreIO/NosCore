@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using NosCore.Configuration;
-using NosCore.Core.Logger;
+using Microsoft.IdentityModel.Tokens;
+using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Reflection;
+using System.Text;
 
 namespace NosCore.WorldServer
 {
@@ -18,6 +21,8 @@ namespace NosCore.WorldServer
                 c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" });
             });
 
+            var keyByteArray = Encoding.ASCII.GetBytes("f9a32479-4549-4cf2-ba47-daa00c3f2afe");
+            var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
 
             services.AddAuthentication(config =>
             {
@@ -27,9 +32,23 @@ namespace NosCore.WorldServer
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = signinKey,
+                    ValidAudience = "Audience",
+                    ValidIssuer = "Issuer",
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                };
             });
 
-            services.AddMvc();
+            services.AddMvc(o =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                o.Filters.Add(new AuthorizeFilter(policy));
+            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices(); ;
         }
 
         public void Configure(IApplicationBuilder app)

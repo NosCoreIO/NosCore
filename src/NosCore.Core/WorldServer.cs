@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NosCore.Core
 {
-    public class WorldServer 
+    public class WorldServerInfo 
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -17,7 +17,7 @@ namespace NosCore.Core
 
         public ServerConfiguration WebApi { get; set; }
 
-        public WorldServer()
+        public WorldServerInfo()
         {
 
         }

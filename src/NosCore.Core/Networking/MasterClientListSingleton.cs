@@ -21,6 +21,6 @@ namespace NosCore.Networking
             }
         }
 
-        public List<WorldServer> WorldServers { get; set; }
+        public List<WorldServerInfo> WorldServers { get; set; }
     }
 }

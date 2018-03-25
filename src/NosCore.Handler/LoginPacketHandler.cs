@@ -92,7 +92,7 @@ namespace NosCore.GameHandler
                     return;
                 }
 
-                List<WorldServer> servers = WebApiAccess.Instance.Get<List<WorldServer>>("api/channels");
+                List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
 
                 if (servers.Any())
                 {
@@ -100,7 +100,7 @@ namespace NosCore.GameHandler
                     int i = 1;
                     string servergroup = string.Empty;
                     int worldCount = 1;
-                    foreach (WorldServer server in servers.OrderBy(s => s.Name))
+                    foreach (WorldServerInfo server in servers.OrderBy(s => s.Name))
                     {
                         if (server.Name != servergroup)
                         {

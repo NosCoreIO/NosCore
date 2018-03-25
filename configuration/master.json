@@ -4,5 +4,11 @@
   "WebApi": {
 		"Host": "http://+",
 		"Port": 5000
+  },
+"Database": {
+	  "DataSource" : "localhost",
+      "InitialCatalog" : "NosCore",
+      "IntegratedSecurity" : true,
+      "MultipleActiveResultSets" : false,
   }
 }

@@ -60,7 +60,7 @@ namespace NosCore.Networking
 
                     if (MasterClientListSingleton.Instance.WorldServers == null)
                     {
-                        MasterClientListSingleton.Instance.WorldServers = new List<WorldServer>();
+                        MasterClientListSingleton.Instance.WorldServers = new List<WorldServerInfo>();
                     }
                     try
                     {
@@ -73,7 +73,7 @@ namespace NosCore.Networking
                     ServerType servtype = (ServerType)System.Enum.Parse(typeof(ServerType), msg.ClientType.ToString());
                     if (servtype == ServerType.WorldServer)
                     {
-                        WorldServer serv = new WorldServer
+                        WorldServerInfo serv = new WorldServerInfo
                         {
                             Name = msg.ClientName,
                             Host = msg.Host,
