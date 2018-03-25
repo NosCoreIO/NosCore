@@ -14,7 +14,7 @@ namespace NosCore.WorldServer
         [AllowAnonymous]
         public IEnumerable<string> Get()
         {
-            return ServerManager.Instance.Sessions.Select(s=>s.Account.Name);
+            return ServerManager.Instance.Sessions.Select(s=>s.Value.Account.Name);
         }
     }
 }

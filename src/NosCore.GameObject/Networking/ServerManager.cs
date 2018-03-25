@@ -27,7 +27,7 @@ namespace NosCore.GameObject
                 return instance;
             }
         }
-        public ConcurrentBag<ClientSession> Sessions { get; set; } = new ConcurrentBag<ClientSession>();
+        public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } = new ConcurrentDictionary<int, ClientSession>();
 
         private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();
 
@@ -104,7 +104,12 @@ namespace NosCore.GameObject
 
         internal void RegisterSession(ClientSession clientSession)
         {
-            Sessions.Add(clientSession);
+            Sessions.TryAdd(clientSession.SessionId, clientSession);
+        }
+
+        internal void UnregisterSession(ClientSession clientSession)
+        {
+           Sessions.TryRemove(clientSession.SessionId, out ClientSession clientSessionuseless);
         }
     }
 }

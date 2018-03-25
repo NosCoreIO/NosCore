@@ -11,6 +11,7 @@ using NosCore.Core.Logger;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using NosCore.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -33,7 +34,7 @@ namespace NosCore.WorldServer.Controllers
                           new Claim(ClaimTypes.NameIdentifier, UserName),
                           new Claim(ClaimTypes.Role, account.Authority.ToString()),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes("f9a32479-4549-4cf2-ba47-daa00c3f2afe");//TODO autogenerate
+                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
                     var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -59,15 +60,15 @@ namespace NosCore.WorldServer.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (ServerToken == "something")//TODO add in configurations
+                if (ServerToken == "NosCorePassword")//TODO replace by configured one
                 {
                     var claims = new ClaimsIdentity(new[]
                     {
                           new Claim(ClaimTypes.NameIdentifier, "Server"),
                           new Claim(ClaimTypes.Role, AuthorityType.GameMaster.ToString()),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes("f9a32479-4549-4cf2-ba47-daa00c3f2afe");//TODO autogenerate
-                    var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
+                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
+                    var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
                     {
