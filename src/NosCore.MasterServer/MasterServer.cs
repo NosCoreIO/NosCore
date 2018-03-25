@@ -35,7 +35,7 @@ namespace NosCore.Master
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("master.json", false);
             builder.Build().Bind(_masterConfiguration);
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey("SUCCESSFULLY_LOADED"));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
         private static void initializeLogger()
@@ -89,7 +89,7 @@ namespace NosCore.Master
 
                 IChannel bootstrapChannel = await bootstrap.BindAsync(port);
 
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey("MASTER_SERVER_LISTENING")));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING)));
                 Console.ReadLine();
 
                 await bootstrapChannel.CloseAsync();
@@ -109,7 +109,7 @@ namespace NosCore.Master
             {
                 BuildWebHost(args).StartAsync();
 
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _masterConfiguration.Port)));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), _masterConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
                 RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
             }
