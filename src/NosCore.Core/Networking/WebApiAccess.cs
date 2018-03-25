@@ -46,7 +46,7 @@ namespace NosCore.Core.Networking
                 if (_token == null)
                 {
                     var values = new Dictionary<string, string>();
-                    values.Add("ServerToken", "something");
+                    values.Add("ServerToken", "NosCorePassword");//TODO replace by configured one
                     var content = new FormUrlEncodedContent(values);
 
                     response = client.PostAsync("api/token/connectserver", content).Result;

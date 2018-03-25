@@ -42,12 +42,7 @@ namespace NosCore.Core.Networking
         #region Methods
 
         private static volatile IChannelGroup _group;
-  
-        public override void ChannelUnregistered(IChannelHandlerContext context)
-        {
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
-            Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey("CLIENT_DISCONNECTED")));
-        }
+
 
         public override void ChannelRegistered(IChannelHandlerContext context)
         {

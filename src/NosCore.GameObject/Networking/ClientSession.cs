@@ -53,6 +53,12 @@ namespace NosCore.GameObject
             GenerateHandlerReferences(packetList);
         }
 
+        public override void ChannelUnregistered(IChannelHandlerContext context)
+        {
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
+            ServerManager.Instance.UnregisterSession(this);
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey("CLIENT_DISCONNECTED")));
+        }
 
         public AccountDTO Account { get; private set; }
 
@@ -170,7 +176,6 @@ namespace NosCore.GameObject
             HasSelectedCharacter = true;
 
             // register for servermanager
-            ServerManager.Instance.RegisterSession(this);
             Character.Session = this;
         }
 
