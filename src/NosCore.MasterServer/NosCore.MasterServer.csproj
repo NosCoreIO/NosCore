@@ -41,6 +41,7 @@
     <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
+    <ProjectReference Include="..\NosCore.WebApi\NosCore.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

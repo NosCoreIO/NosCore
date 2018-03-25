@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Owin.Security.OAuth;
-using NosCore.DAL;
-using NosCore.Data;
+using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
-using System;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NosCore.MasterServer
 {
@@ -20,14 +20,24 @@ namespace NosCore.MasterServer
             {
                 c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" });
             });
-
-            services.AddAuthentication(config => {
+            var keyByteArray = Encoding.ASCII.GetBytes("f9a32479-4549-4cf2-ba47-daa00c3f2afe");
+            var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
+            services.AddAuthentication(config =>
+            {
                 config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(cfg =>
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = signinKey,
+                    ValidAudience = "Audience",
+                    ValidIssuer = "Issuer",
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                };
             });
 
             services.AddMvc(o =>
@@ -36,7 +46,7 @@ namespace NosCore.MasterServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            });
+            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
         }
 
         public void Configure(IApplicationBuilder app)

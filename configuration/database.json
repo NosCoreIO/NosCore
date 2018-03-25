@@ -1,8 +1,6 @@
 {
-  "DataSource": "localhost",
-  "IntegratedSecurity": true,
-  "InitialCatalog": "NosCore",
-  "UserID": "",
-  "Password": "",
-  "PersistSecurityInfo": true,
+  "DataSource" : "localhost",
+  "InitialCatalog" : "NosCore",
+  "IntegratedSecurity" : true,
+  "MultipleActiveResultSets" : false,
 }

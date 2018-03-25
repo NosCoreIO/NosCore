@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Logging;
+using NosCore.DAL;
 
 namespace NosCore.Master
 {
@@ -104,12 +105,14 @@ namespace NosCore.Master
             printHeader();
             initializeLogger();
             initializeConfiguration();
-            BuildWebHost(args).StartAsync();
+            if (DataAccessHelper.Instance.Initialize(_masterConfiguration.Database))
+            {
+                BuildWebHost(args).StartAsync();
 
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _masterConfiguration.Port)));
-            Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
-            RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
-
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(string.Format("LISTENING_PORT", _masterConfiguration.Port)));
+                Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
+                RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
+            }
         }
     }
 }
