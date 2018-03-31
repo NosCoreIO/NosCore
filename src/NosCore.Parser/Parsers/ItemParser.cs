@@ -583,11 +583,11 @@ namespace NosCore.Parser
                                 {
                                     case EquipmentType.Amulet:
                                         item.LevelMinimum = Convert.ToByte(currentLine[2]);
-                                        if (item.VNum > 4055 && item.VNum < 4061 || item.VNum > 4172 && item.VNum < 4176)
+                                        if ((item.VNum > 4055 && item.VNum < 4061) || (item.VNum > 4172 && item.VNum < 4176))
                                         {
                                             item.ItemValidTime = 10800;
                                         }
-                                        else if (item.VNum > 4045 && item.VNum < 4056 || item.VNum == 967 || item.VNum == 968)
+                                        else if ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967 || item.VNum == 968)
                                         {
                                             // (item.VNum > 8104 && item.VNum < 8115) <= disaled for now
                                             // because doesn't work!
@@ -947,7 +947,7 @@ namespace NosCore.Parser
                                         break;
 
                                     default:
-                                        if (item.VNum > 5891 && item.VNum < 5900 || item.VNum > 9100 && item.VNum < 9109)
+                                        if ((item.VNum > 5891 && item.VNum < 5900) || (item.VNum > 9100 && item.VNum < 9109))
                                         {
                                             item.Effect = 69; // imagined number as for I = √(-1), complex z = a + bi
                                         }
@@ -1191,7 +1191,7 @@ namespace NosCore.Parser
                             item.Height = Convert.ToByte(currentLine[10]);
                         }
 
-                        if (item.EquipmentSlot != EquipmentType.Boots && item.EquipmentSlot != EquipmentType.Gloves || item.Type != 0)
+                        if ((item.EquipmentSlot != EquipmentType.Boots && item.EquipmentSlot != EquipmentType.Gloves) || item.Type != 0)
                         {
                             continue;
                         }
@@ -1205,23 +1205,23 @@ namespace NosCore.Parser
                     {
                         for (int i = 0; i < 5; i++)
                         {
-                            byte type = (byte) int.Parse(currentLine[2 + 5 * i]);
+                            byte type = (byte) int.Parse(currentLine[2 + (5 * i)]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
                             }
 
-                            int first = int.Parse(currentLine[3 + 5 * i]);
+                            int first = int.Parse(currentLine[3 + (5 * i)]);
                             BCardDTO itemCard = new BCardDTO
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
-                                SubType = (byte) ((int.Parse(currentLine[5 + 5 * i]) + 1) * 10 + 1),
+                                SubType = (byte) (((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = (first % 4) == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
-                                SecondData = (short) (int.Parse(currentLine[4 + 5 * i]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[6 + 5 * i]) / 4),
+                                SecondData = (short) (int.Parse(currentLine[4 + (5 * i)]) / 4),
+                                ThirdData = (short) (int.Parse(currentLine[6 + (5 * i)]) / 4),
                             };
                             _itemCards.Add(itemCard);
                         }

@@ -87,7 +87,7 @@ namespace NosCore.Parser
             {
                 string name = string.Empty;
                 int music = 0;
-                
+
                 if (dictionaryId.ContainsKey(int.Parse(file.Name)) && dictionaryIdLang.ContainsKey(dictionaryId[int.Parse(file.Name)]))
                 {
                     name = dictionaryIdLang[dictionaryId[int.Parse(file.Name)]];

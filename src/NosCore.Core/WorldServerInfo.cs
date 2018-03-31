@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NosCore.Core
 {
-    public class WorldServerInfo 
+    public class WorldServerInfo
     {
         public int Id { get; set; }
         public string Name { get; set; }

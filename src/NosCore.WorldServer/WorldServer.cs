@@ -80,7 +80,7 @@ namespace NosCore.WorldServer
             {
                 try
                 {
-                    RunMasterClient(_worldConfiguration.MasterCommunication.Host, Convert.ToInt32(_worldConfiguration.MasterCommunication.Port), _worldConfiguration.MasterCommunication.Password, new MasterClient() { Name = "WorldServer", Type = ServerType.WorldServer, WebApi = _worldConfiguration.WebApi }, connectedAccountLimit: _worldConfiguration.ConnectedAccountLimit, clientPort: _worldConfiguration.Port, serverGroup: _worldConfiguration.ServerGroup, serverHost: _worldConfiguration.Host, WebApi: _worldConfiguration.WebApi).Wait();
+                    RunMasterClient(_worldConfiguration.MasterCommunication.Host, Convert.ToInt32(_worldConfiguration.MasterCommunication.Port), _worldConfiguration.MasterCommunication.Password, new MasterClient() { Name = "WorldServer", Type = ServerType.WorldServer, WebApi = _worldConfiguration.WebApi }, WebApi: _worldConfiguration.WebApi, connectedAccountLimit: _worldConfiguration.ConnectedAccountLimit, clientPort: _worldConfiguration.Port, serverGroup: _worldConfiguration.ServerGroup, serverHost: _worldConfiguration.Host).Wait();
                     break;
                 }
                 catch
@@ -95,7 +95,7 @@ namespace NosCore.WorldServer
         {
             Console.Title = "NosCore - WorldServer";
             const string text = "WORLD SERVER - 0Lucifer0";
-            int offset = Console.WindowWidth / 2 + text.Length / 2;
+            int offset = (Console.WindowWidth / 2) + (text.Length / 2);
             string separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -119,7 +119,7 @@ namespace NosCore.WorldServer
                     pipeline.AddLast(new StringEncoder(), new StringDecoder());
                     pipeline.AddLast(new MasterClientSession(password));
                 }));
-            var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
+            var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port)).ConfigureAwait(false);
 
             await connection.WriteAndFlushAsync(new Channel()
             {
@@ -131,7 +131,7 @@ namespace NosCore.WorldServer
                 ServerGroup = serverGroup,
                 Host = serverHost,
                 WebApi = WebApi
-            });
+            }).ConfigureAwait(false);
         }
 
         private static void InitializeMapping()

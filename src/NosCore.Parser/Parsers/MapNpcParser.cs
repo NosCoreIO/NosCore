@@ -15,7 +15,7 @@ namespace NosCore.Parser
 
         public void InsertMapNpcs(List<string[]> packetList)
         {
-          
+
         }
     }
 }

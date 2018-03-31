@@ -23,6 +23,7 @@ namespace NosCore.GameObject
                 return instance ?? (instance = new ServerManager());
             }
         }
+
         public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } = new ConcurrentDictionary<int, ClientSession>();
 
         private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();

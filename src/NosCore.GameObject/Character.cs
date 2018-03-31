@@ -15,6 +15,7 @@ namespace NosCore.GameObject
         {
             VisualId = CharacterId;
         }
+
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
@@ -65,6 +66,7 @@ namespace NosCore.GameObject
                 DignityIcon = Math.Abs(GetDignityIco())
             };
         }
+
         public int GetDignityIco()
         {
             int icoDignity = 1;
@@ -249,12 +251,14 @@ namespace NosCore.GameObject
             }
             return Reput <= 5000000 ? 26 : 27;
         }
+
         public double MPLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
             return (int)((CharacterHelper.Instance.MpData[(byte)Class, Level] + mp) * multiplicator);
         }
+
         public double HPLoad()
         {
             const double multiplicator = 1.0;
