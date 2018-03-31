@@ -8,7 +8,6 @@ using NosCore.Domain.Character;
 using NosCore.Domain.Items;
 using NosCore.Packets;
 using NosCore.Packets.ClientPackets;
-using NosCore.GameObject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -223,7 +222,7 @@ namespace NosCore.GameHandler
 
                 if (account != null)
                 {
-                    if (account.Password.ToLower().Equals(EncryptionHelper.Sha512(packet.Password).ToLower()))
+                    if (account.Password.Equals(EncryptionHelper.Sha512(packet.Password), StringComparison.OrdinalIgnoreCase))
                     {
                         AccountDTO accountobject = new AccountDTO
                         {

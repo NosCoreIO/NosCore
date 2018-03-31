@@ -14,7 +14,7 @@ using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Networking
 {
-    public class NetworkManager
+    public static class NetworkManager
     {
         public static async Task RunServerAsync(int port, EncoderFactory encryptor, DecoderFactory decryptor, IEnumerable<IPacketHandler> packetList, bool isWorldClient)
         {

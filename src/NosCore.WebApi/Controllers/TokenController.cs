@@ -20,7 +20,7 @@ namespace NosCore.WorldServer.Controllers
     {
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Post(string UserName, string Password)
+        public IActionResult Post(string UserName, string Password)
         {
             if (ModelState.IsValid)
             {
@@ -56,7 +56,7 @@ namespace NosCore.WorldServer.Controllers
 
         [AllowAnonymous]
         [HttpPost("ConnectServer")]
-        public async Task<IActionResult> ConnectServer(string ServerToken)
+        public IActionResult ConnectServer(string ServerToken)
         {
             if (ModelState.IsValid)
             {

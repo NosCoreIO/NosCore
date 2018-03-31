@@ -49,7 +49,7 @@ namespace NosCore.Core.Networking
             IChannelGroup g = _group;
             if (g == null)
             {
-                lock (this)
+                lock (_channel)
                 {
                     if (_group == null)
                     {
@@ -63,11 +63,11 @@ namespace NosCore.Core.Networking
             g.Add(context.Channel);
         }
 
-        public override void ExceptionCaught(IChannelHandlerContext ctx, Exception e)
+        public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
-            Console.WriteLine("{0}", e.StackTrace);
+            Console.WriteLine("{0}", exception.StackTrace);
 
-            ctx.CloseAsync();
+            context.CloseAsync();
         }
 
 

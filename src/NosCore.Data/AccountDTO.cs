@@ -20,8 +20,10 @@ namespace NosCore.Data
 
         public string VerificationToken { get; set; }
 
-        public long Money { get; set; }
-
         public long BankMoney { get; set; }
+
+        public long ItemShopMoney { get; set; }
+
+        public RegionType RegionType { get; set; }
     }
 }

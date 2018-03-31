@@ -51,7 +51,7 @@ namespace NosCore.GameHandler
                 }
 
 
-                AccountDTO acc = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name.ToUpper() == loginPacket.Name.ToUpper());
+                AccountDTO acc = DAOFactory.AccountDAO.FirstOrDefault(s => string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (acc != null && acc.Name != loginPacket.Name)
                 {
@@ -63,7 +63,7 @@ namespace NosCore.GameHandler
                     return;
                 }
 
-                if (acc == null || acc.Password.ToUpper() != loginPacket.Password.ToUpper())
+                if (acc == null || !string.Equals(acc.Password, loginPacket.Password, StringComparison.OrdinalIgnoreCase))
                 {
                     Session.SendPacket(new FailcPacket
                     {

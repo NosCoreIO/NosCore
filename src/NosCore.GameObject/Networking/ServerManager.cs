@@ -35,7 +35,7 @@ namespace NosCore.GameObject
 
         public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
         {
-            MapDTO map = _maps.FirstOrDefault(m => m.MapId.Equals(mapId));
+            MapDTO map = _maps.Find(m => m.MapId.Equals(mapId));
             if (map == null)
             {
                 return null;

@@ -34,7 +34,7 @@ using NosCore.GameObject;
 
 namespace NosCore.LoginServer
 {
-    public class LoginServer
+    public static class LoginServer
     {
         private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
 
