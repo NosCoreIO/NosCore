@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace NosCore.DAL
 {
-    public class DAOFactory
+    public static class DAOFactory
     {
         private static GenericDAO<Account,AccountDTO> _accountDAO;
         private static GenericDAO<Character, CharacterDTO> _characterDAO;

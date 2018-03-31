@@ -23,7 +23,7 @@ using NosCore.DAL;
 
 namespace NosCore.Master
 {
-    public class MasterServer
+    public static class MasterServer
     {
         private static MasterConfiguration _masterConfiguration = new MasterConfiguration();
 

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace NosCore.Core
 {
-    public class DelegateBuilder
+    public static class DelegateBuilder
     {
         #region Methods
 

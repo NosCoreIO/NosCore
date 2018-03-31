@@ -18,7 +18,7 @@ using AutoMapper;
 
 namespace NosCore.Parser
 {
-    public class Parser
+    public static class Parser
     {
 
         private static ParserConfiguration _databaseConfiguration = new ParserConfiguration();

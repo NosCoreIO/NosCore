@@ -4,7 +4,7 @@ using log4net;
 
 namespace NosCore.Core.Logger
 {
-    public class Logger
+    public static class Logger
     {
         #region Properties
 

@@ -20,13 +20,13 @@ namespace NosCore.GameObject
 
     public class ClientSession : NetworkClient
     {
-        public override void ChannelRead(IChannelHandlerContext contex, object msg)
+        public override void ChannelRead(IChannelHandlerContext context, object message)
         {
-            if (!(msg is string buff))
+            if (!(message is string buff))
             {
                 return;
             }
-            handlePackets(buff, contex);
+            handlePackets(buff, context);
         }
 
         public bool HealthStop = false;
@@ -217,8 +217,8 @@ namespace NosCore.GameObject
                 }
                 try
                 {
-                    if (!HasSelectedCharacter && !(methodReference.ParentHandler is ICharacterScreenPacketHandler) &&
-                        !(methodReference.ParentHandler is ILoginPacketHandler))
+                    if (!HasSelectedCharacter && !(methodReference.ParentHandler is ICharacterScreenPacketHandler)
+                        && !(methodReference.ParentHandler is ILoginPacketHandler))
                     {
                         return;
                     }

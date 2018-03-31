@@ -26,12 +26,12 @@ namespace NosCore.Networking
             Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
         }
 
-        protected override void ChannelRead0(IChannelHandlerContext ctx, string toDeserialize)
+        protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
         {
-            Channel msg;
+            Channel msgChannel;
             try
             {
-                msg = JsonConvert.DeserializeObject<Channel>(toDeserialize);
+                msgChannel = JsonConvert.DeserializeObject<Channel>(msg);
             }
             catch (Exception ex)
             {

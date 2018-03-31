@@ -38,12 +38,15 @@ namespace NosCore.Networking
             return base.WriteAsync(context, ByteBufferUtil.EncodeString(context.Allocator, textWriter, Encoding.Default));
         }
 
-        protected override void ChannelRead0(IChannelHandlerContext contex, string toDeserialize)
+        protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
         {
-            Channel msg;
+            if (msg == null)
+                throw new ArgumentNullException(nameof(msg));
+
+            Channel msgChannel;
             try
             {
-                msg = JsonConvert.DeserializeObject<Channel>(toDeserialize);
+                msgChannel = JsonConvert.DeserializeObject<Channel>(msg);
             }
             catch (Exception ex)
             {
@@ -53,7 +56,7 @@ namespace NosCore.Networking
 
             if (!IsAuthenticated)
             {
-                if (msg.Password == Password)
+                if (msgChannel.Password == Password)
                 {
                     IsAuthenticated = true;
                     Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
@@ -70,28 +73,28 @@ namespace NosCore.Networking
                     {
                         _id = 0;
                     }
-                    ServerType servtype = (ServerType)System.Enum.Parse(typeof(ServerType), msg.ClientType.ToString());
+                    ServerType servtype = (ServerType)System.Enum.Parse(typeof(ServerType), msgChannel.ClientType.ToString());
                     if (servtype == ServerType.WorldServer)
                     {
                         WorldServerInfo serv = new WorldServerInfo
                         {
-                            Name = msg.ClientName,
-                            Host = msg.Host,
-                            Port = msg.Port,
+                            Name = msgChannel.ClientName,
+                            Host = msgChannel.Host,
+                            Port = msgChannel.Port,
                             Id = _id,
-                            ConnectedAccountsLimit = msg.ConnectedAccountsLimit,
-                            WebApi = msg.WebApi
+                            ConnectedAccountsLimit = msgChannel.ConnectedAccountsLimit,
+                            WebApi = msgChannel.WebApi
                         };
 
                         MasterClientListSingleton.Instance.WorldServers.Add(serv);
-                        WriteAsync(contex, msg);
+                        WriteAsync(ctx, msgChannel);
 
                     }
-                    contex.Flush();
+                    ctx.Flush();
                 }
                 else
                 {
-                    contex.CloseAsync();
+                    ctx.CloseAsync();
                     Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR)));
                 }
             }

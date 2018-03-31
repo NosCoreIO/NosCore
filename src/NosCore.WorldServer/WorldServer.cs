@@ -35,7 +35,7 @@ using AutoMapper;
 
 namespace NosCore.WorldServer
 {
-    public class WorldServer
+    public static class WorldServer
     {
         private static WorldConfiguration _worldConfiguration = new WorldConfiguration();
 

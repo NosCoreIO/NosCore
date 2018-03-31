@@ -45,8 +45,10 @@ namespace NosCore.Core.Networking
                 client.BaseAddress = webApi == null ? _baseAddress : new Uri(webApi.ToString());
                 if (_token == null)
                 {
-                    var values = new Dictionary<string, string>();
-                    values.Add("ServerToken", "NosCorePassword");//TODO replace by configured one
+                    var values = new Dictionary<string, string>
+                    {
+                        { "ServerToken", "NosCorePassword" }//TODO replace by configured one
+                    };
                     var content = new FormUrlEncodedContent(values);
 
                     response = client.PostAsync("api/token/connectserver", content).Result;

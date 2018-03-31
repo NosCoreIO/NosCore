@@ -2,19 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using NosCore.Database;
-using NosCore.Domain;
-using NosCore.Domain.Buff;
-using NosCore.Domain.Character;
-using NosCore.Domain.Family;
-using NosCore.Domain.Interaction;
-using NosCore.Domain.Items;
-using NosCore.Domain.Map;
-using NosCore.Domain;
 using System;
 
 namespace NosCore.Database.Migrations
