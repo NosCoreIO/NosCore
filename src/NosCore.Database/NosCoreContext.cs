@@ -10,7 +10,7 @@ namespace NosCore.Database
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
-        private static string _configurationPath = @"..\..\..\configuration";
+        private const string _configurationPath = @"..\..\..\configuration";
 
         public NosCoreContext CreateDbContext(string[] args)
         {
@@ -147,7 +147,6 @@ namespace NosCore.Database
                 .HasValue<SpecialistInstance>("SpecialistInstance")
                 .HasValue<UsableInstance>("UsableInstance")
                 .HasValue<BoxInstance>("BoxInstance");
-            
             modelBuilder.Entity<ItemInstance>()
                 .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
                 .IsUnique();

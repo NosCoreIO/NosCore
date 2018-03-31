@@ -88,7 +88,6 @@ namespace NosCore.Networking
 
                         MasterClientListSingleton.Instance.WorldServers.Add(serv);
                         WriteAsync(ctx, msgChannel);
-
                     }
                     ctx.Flush();
                 }
@@ -103,20 +102,6 @@ namespace NosCore.Networking
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
             Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER)));
-        }
-
-        private Type GetType(string name)
-        {
-            Type type = null;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = assembly.GetType(name);
-                if (type != null)
-                {
-                    break;
-                }
-            }
-            return type;
         }
     }
 }

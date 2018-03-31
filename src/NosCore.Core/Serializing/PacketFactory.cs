@@ -10,7 +10,6 @@ namespace NosCore.Core.Serializing
 {
     public static class PacketFactory
     {
-
         #region Members
 
         private static Dictionary<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> _packetSerializationInformations;
@@ -41,8 +40,7 @@ namespace NosCore.Core.Serializing
                 KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> serializationInformation = GetSerializationInformation(packetType);
                 PacketDefinition deserializedPacket = (PacketDefinition)packetType.CreateInstance();
                 SetDeserializationInformations(deserializedPacket, packetContent, serializationInformation.Key.Item2);
-                deserializedPacket = Deserialize(packetContent, deserializedPacket, serializationInformation, includesKeepAliveIdentity);
-                return deserializedPacket;
+                return Deserialize(packetContent, deserializedPacket, serializationInformation, includesKeepAliveIdentity);
             }
             catch (Exception e)
             {
@@ -280,7 +278,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (packetPropertyType.BaseType != null && packetPropertyType.BaseType.Equals(typeof(System.Enum)))
+            if (packetPropertyType.BaseType?.Equals(typeof(System.Enum)) == true)
             {
                 object convertedValue = null;
                 try
@@ -301,7 +299,7 @@ namespace NosCore.Core.Serializing
             {
                 return currentValue != "0";
             }
-            if (packetPropertyType.BaseType != null && packetPropertyType.BaseType.Equals(typeof(PacketDefinition))) // subpacket
+            if (packetPropertyType.BaseType?.Equals(typeof(PacketDefinition)) == true) // subpacket
             {
                 KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo = GetSerializationInformation(packetPropertyType);
                 return DeserializeSubpacket(currentValue, packetPropertyType, subpacketSerializationInfo, packetIndexAttribute?.IsReturnPacket ?? false);
@@ -455,7 +453,7 @@ namespace NosCore.Core.Serializing
         {
             if (propertyType != null)
             {
-                if (packetIndexAttribute != null && packetIndexAttribute.IsOptional && string.IsNullOrEmpty(Convert.ToString(value)))
+                if (packetIndexAttribute?.IsOptional == true && string.IsNullOrEmpty(Convert.ToString(value)))
                 {
                     return string.Empty;
                 }
@@ -480,7 +478,7 @@ namespace NosCore.Core.Serializing
                     // bool is 0 or 1 not True or False
                     return Convert.ToBoolean(value) ? " 1" : " 0";
                 }
-                if (propertyType.BaseType != null && propertyType.BaseType.Equals(typeof(PacketDefinition)))
+                if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) == true)
                 {
                     KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo = GetSerializationInformation(propertyType);
                     return SerializeSubpacket(value, subpacketSerializationInfo, packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false);

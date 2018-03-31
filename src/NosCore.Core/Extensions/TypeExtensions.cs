@@ -25,10 +25,14 @@ namespace NosCore.Core
         public static Delegate GetConstructorDelegate(this Type type, Type delegateType)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             if (delegateType == null)
-                throw new ArgumentNullException("delegateType");
+            {
+                throw new ArgumentNullException(nameof(delegateType));
+            }
 
             Type[] genericArguments = delegateType.GetGenericArguments();
             Type[] argTypes = genericArguments.Length > 1 ? genericArguments.Take(genericArguments.Length - 1).ToArray() : Type.EmptyTypes;

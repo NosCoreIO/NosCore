@@ -77,6 +77,5 @@ namespace NosCore.Core.Networking
                 throw;
             }
         }
-
     }
 }

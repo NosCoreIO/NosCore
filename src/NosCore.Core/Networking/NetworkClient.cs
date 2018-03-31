@@ -24,7 +24,6 @@ namespace NosCore.Core.Networking
         public string AccountName { get; set; }
 
         public bool IsAuthenticated { get; set; }
-        
         public int SessionId { get; set; }
 
         public AuthorityType Authority { get; set; }
@@ -34,7 +33,6 @@ namespace NosCore.Core.Networking
         public NetworkClient(IChannel channel)
         {
             _channel = channel;
-
         }
 
         #endregion
@@ -42,7 +40,6 @@ namespace NosCore.Core.Networking
         #region Methods
 
         private static volatile IChannelGroup _group;
-
 
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
@@ -70,14 +67,11 @@ namespace NosCore.Core.Networking
             context.CloseAsync();
         }
 
-
         public void Disconnect()
         {
             Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION)));
             _channel.DisconnectAsync();
         }
-
-
 
         public void SendPacket(PacketDefinition packet)
         {

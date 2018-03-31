@@ -16,7 +16,7 @@ namespace NosCore.Parser
         private static int _counter = 0;
         private static CardDTO _card = new CardDTO();
         private static bool _itemAreaBegin = false;
-        private static List<CardDTO> _cards = new List<CardDTO>();
+        private static readonly List<CardDTO> _cards = new List<CardDTO>();
         private static readonly string FileCardDat = $"\\Card.dat";
         private static readonly List<BCardDTO> Bcards = new List<BCardDTO>();
 
@@ -24,19 +24,19 @@ namespace NosCore.Parser
         {
             for (int i = 0; i < 3; i++)
             {
-                if (currentLine[2 + i * 6] == "-1" || currentLine[2 + i * 6] == "0")
+                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
                 {
                     continue;
                 }
-                int first = int.Parse(currentLine[i * 6 + 6]);
+                int first = int.Parse(currentLine[(i * 6) + 6]);
                 BCardDTO bcard = new BCardDTO
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte)((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + (i * 6)]),
+                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
+                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = Math.Abs(first % 4) == 2,
                 };
@@ -48,19 +48,19 @@ namespace NosCore.Parser
         {
             for (int i = 0; i < 2; i++)
             {
-                if (currentLine[2 + i * 6] == "-1" || currentLine[2 + i * 6] == "0")
+                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
                 {
                     continue;
                 }
-                int first = int.Parse(currentLine[i * 6 + 6]);
+                int first = int.Parse(currentLine[(i * 6) + 6]);
                 BCardDTO bcard = new BCardDTO
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte)((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + (i * 6)]),
+                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
+                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = (first % 4) == 2,
                 };
@@ -72,8 +72,6 @@ namespace NosCore.Parser
         {
             _card.TimeoutBuff = short.Parse(currentLine[2]);
             _card.TimeoutBuffChance = byte.Parse(currentLine[3]);
-
-            
             // investigate
             if (DAOFactory.CardDAO.FirstOrDefault(s => s.CardId == _card.CardId) == null)
             {
@@ -81,7 +79,6 @@ namespace NosCore.Parser
                 _counter++;
             }
             _itemAreaBegin = false;
-            
         }
 
         public void InsertCards()
@@ -144,6 +141,5 @@ namespace NosCore.Parser
                 npcIdStream.Close();
             }
         }
-
     }
 }

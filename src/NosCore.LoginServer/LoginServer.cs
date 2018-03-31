@@ -7,7 +7,6 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
 using NosCore.Data;
-using NosCore.Database;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.Collections.Generic;
@@ -25,7 +24,6 @@ using NosCore.Networking;
 using System.Net;
 using NosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
 using NosCore.DAL;
@@ -36,13 +34,13 @@ namespace NosCore.LoginServer
 {
     public static class LoginServer
     {
-        private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
+        private static readonly LoginConfiguration _loginConfiguration = new LoginConfiguration();
 
-        private static string _configurationPath = @"..\..\..\configuration";
+        private const string _configurationPath = @"..\..\..\configuration";
 
         private static List<IPacketHandler> _clientPacketDefinitions;
 
-        private static void initializeConfiguration()
+        private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
@@ -51,7 +49,7 @@ namespace NosCore.LoginServer
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
-        private static void initializeLogger()
+        private static void InitializeLogger()
         {
             // LOGGER
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -59,13 +57,13 @@ namespace NosCore.LoginServer
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginServer)));
         }
 
-        private static void initializePackets()
+        private static void InitializePackets()
         {
             PacketFactory.Initialize<NoS0575Packet>();
             _clientPacketDefinitions = typeof(CharacterScreenPacketHandler).Assembly.GetInstancesOfImplementingTypes<IPacketHandler>().ToList();
         }
 
-        private static void connectMaster()
+        private static void ConnectMaster()
         {
             while (true)
             {
@@ -83,16 +81,14 @@ namespace NosCore.LoginServer
             }
         }
 
-
-        private static void printHeader()
+        private static void PrintHeader()
         {
             Console.Title = "NosCore - LoginServer";
-            string text = "LOGIN SERVER - 0Lucifer0";
+            const string text = "LOGIN SERVER - 0Lucifer0";
             int offset = Console.WindowWidth / 2 + text.Length / 2;
             string separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
-
 
         public static async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
         {
@@ -125,48 +121,15 @@ namespace NosCore.LoginServer
                 ServerGroup = serverGroup,
                 Host = serverHost
             });
-
-        }
-
-        private static void initializeMapping()
-        {
-            MapperConfiguration config = new MapperConfiguration(cfg =>
-            {
-                foreach (Type type in typeof(CharacterDTO).Assembly.GetTypes().Where(t => typeof(IDTO).IsAssignableFrom(t)))
-                {
-                    int index = type.Name.LastIndexOf("DTO");
-                    if (index >= 0)
-                    {
-                        string name = type.Name.Substring(0, index);
-                        Type typefound = typeof(Character).Assembly.GetTypes().SingleOrDefault(t =>
-                        {
-                            return t.Name.Equals(name);
-                        });
-                        Type entitytypefound = typeof(Database.Entities.Account).Assembly.GetTypes().SingleOrDefault(t =>
-                        {
-                            return t.Name.Equals(name);
-                        });
-                        if (entitytypefound != null)
-                        {
-                            cfg.CreateMap(type, entitytypefound).ReverseMap();
-                            if(typefound != null)
-                            {
-                                cfg.CreateMap(entitytypefound, type).As(typefound);
-                            }
-                        }
-                    }
-                }
-            });
-            DAOFactory.RegisterMapping(config.CreateMapper());
         }
 
         public static void Main(string[] args)
         {
-            printHeader();
-            initializeLogger();
-            initializeConfiguration();
-            initializePackets();
-            connectMaster();
+            PrintHeader();
+            InitializeLogger();
+            InitializeConfiguration();
+            InitializePackets();
+            ConnectMaster();
 
             if (DataAccessHelper.Instance.Initialize(_loginConfiguration.Database))
             {

@@ -59,7 +59,7 @@ namespace NosCore.Core
                 return Expression.Convert(paramsOfDelegate[i], callParamType.ParameterType);
             }
 
-            if (queueMissingParams.Any())
+            if (queueMissingParams.Count > 0)
             {
                 return Expression.Constant(queueMissingParams.Dequeue());
             }

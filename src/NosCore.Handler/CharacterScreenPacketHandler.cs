@@ -243,13 +243,11 @@ namespace NosCore.GameHandler
                 }
                 else
                 {
-
                     Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
             }
-
 
             if (Session.Account == null)
             {
@@ -281,8 +279,8 @@ namespace NosCore.GameHandler
                 {
                     if (mates.Count > i)
                     {
-                        petlist.Add(mates.ElementAt(i).Skin);
-                        petlist.Add(mates.ElementAt(i).VNum);
+                        petlist.Add(mates[i].Skin);
+                        petlist.Add(mates[i].VNum);
                     }
                     else
                     {
@@ -318,12 +316,11 @@ namespace NosCore.GameHandler
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = (equipment[(byte)EquipmentType.Hat] != null && equipment[(byte)EquipmentType.Hat].Item.IsColored ? equipment[(byte)EquipmentType.Hat].Design : 0),
+                    Design = (equipment[(byte)EquipmentType.Hat]?.Item.IsColored == true ? equipment[(byte)EquipmentType.Hat].Design : 0),
                     Unknown3 = 0
                 });
             }
             Session.SendPacket(new ClistEndPacket());
-
         }
 
         public void SelectCharacter(SelectPacket selectPacket)
@@ -352,7 +349,6 @@ namespace NosCore.GameHandler
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
-              
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
                     Session.Character.Hp = (int)Session.Character.HPLoad();
@@ -362,15 +358,13 @@ namespace NosCore.GameHandler
                     Session.Character.Mp = (int)Session.Character.MPLoad();
                 }
                
-                Session.SendPacket(new OKPacket());
-                
+                Session.SendPacket(new OKPacket());                
             }
             catch (Exception ex)
             {
                 Logger.Log.Error("Select character failed.", ex);
             }
         }
-
 
         #endregion
     }

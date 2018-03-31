@@ -17,11 +17,7 @@ namespace NosCore.DAL
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new DataAccessHelper();
-                }
-                return instance;
+                return instance ?? (instance = new DataAccessHelper());
             }
         }
 
@@ -33,7 +29,6 @@ namespace NosCore.DAL
 
         #region Methods
 
-
         /// <summary>
         /// Creates new instance of database context.
         /// </summary>
@@ -41,7 +36,6 @@ namespace NosCore.DAL
         {
             return new NosCoreContext(_conn);
         }
-   
 
         public bool Initialize(SqlConnectionStringBuilder Database)
         {

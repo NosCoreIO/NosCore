@@ -26,8 +26,7 @@ namespace NosCore.WorldServer.Controllers
             {
                 AccountDTO account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == UserName);
 
-
-                if (account != null && account.Password.ToLower().Equals(EncryptionHelper.Sha512(Password)))
+                if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(Password)) == true)
                 {
                     var claims = new ClaimsIdentity(new[]
                     {
@@ -65,7 +64,7 @@ namespace NosCore.WorldServer.Controllers
                     var claims = new ClaimsIdentity(new[]
                     {
                           new Claim(ClaimTypes.NameIdentifier, "Server"),
-                          new Claim(ClaimTypes.Role, AuthorityType.GameMaster.ToString()),
+                          new Claim(ClaimTypes.Role, nameof(AuthorityType.GameMaster)),
                     });
                     var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
                     var signinKey = new SymmetricSecurityKey(keyByteArray);

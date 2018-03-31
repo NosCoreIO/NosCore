@@ -17,7 +17,6 @@ using System.Reflection;
 
 namespace NosCore.GameObject
 {
-
     public class ClientSession : NetworkClient
     {
         public override void ChannelRead(IChannelHandlerContext context, object message)
@@ -26,14 +25,14 @@ namespace NosCore.GameObject
             {
                 return;
             }
-            handlePackets(buff, context);
+            HandlePackets(buff, context);
         }
 
         public bool HealthStop = false;
 
         private Character _character;
-        private Random _random;
-        private bool _isWorldClient;
+        private readonly Random _random;
+        private readonly bool _isWorldClient;
 
         private readonly IList<string> _waitForPacketList = new List<string>();
 
@@ -41,7 +40,7 @@ namespace NosCore.GameObject
         private int? _waitForPacketsAmount;
 
         // private byte countPacketReceived;
-        private long lastPacketReceive;
+        private readonly long lastPacketReceive;
 
         public ClientSession(IChannel channel, IEnumerable<IPacketHandler> packetList, bool isWorldClient) : base(channel)
         {
@@ -83,12 +82,9 @@ namespace NosCore.GameObject
 
         public MapInstance CurrentMapInstance { get; set; }
         public bool HasCurrentMapInstance => CurrentMapInstance != null;
-
-
         public bool IsOnMap => CurrentMapInstance != null;
 
         public int LastKeepAliveIdentity { get; set; }
-
 
         public void Initialize(IEnumerable<IPacketHandler> packetHandler)
         {
@@ -137,8 +133,6 @@ namespace NosCore.GameObject
                 {
                     Character.IsSitting = false;
                 }
-
-
                 Character.MapInstanceId = mapInstanceId;
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
@@ -178,7 +172,6 @@ namespace NosCore.GameObject
             // register for servermanager
             Character.Session = this;
         }
-
 
         private void GenerateHandlerReferences(IEnumerable<IPacketHandler> packetDictionary)
         {
@@ -258,8 +251,9 @@ namespace NosCore.GameObject
                 Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
             }
         }
-        private void handlePackets(string packetConcatenated, IChannelHandlerContext contex)
-        { 
+
+        private void HandlePackets(string packetConcatenated, IChannelHandlerContext contex)
+        {
             //determine first packet
             if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] == 0)
             {
@@ -283,7 +277,6 @@ namespace NosCore.GameObject
                 {
                     return;
                 }
-               
                 SessionId = sessid;
                 SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] = SessionId;
 
@@ -376,6 +369,5 @@ namespace NosCore.GameObject
                 }
             }
         }
-
     }
 }
