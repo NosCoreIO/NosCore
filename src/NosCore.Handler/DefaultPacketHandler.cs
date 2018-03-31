@@ -7,7 +7,6 @@ namespace NosCore.GameHandler
 {
     public class DefaultPacketHandler : IPacketHandler
     {
-
 #region Members
 
         #endregion

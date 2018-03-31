@@ -153,14 +153,6 @@ namespace NosCore.Core.Serializing
             return deserializedPacket;
         }
 
-        /// <summary>
-        ///     Converts for instance -1.12.1.8.-1.-1.-1.-1.-1 to eg. List<byte?> </summary>
-        /// <param name="currentValues">String to convert</param>
-        /// <param name="genericListType">
-        ///     Type
-        ///     of the property to convert
-        /// </param>
-        /// <returns>The string as converted List</returns>
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
             IList subpackets = (IList)Convert.ChangeType((IList)genericListType.CreateInstance(), genericListType);
@@ -191,22 +183,6 @@ namespace NosCore.Core.Serializing
             return newSubpacket;
         }
 
-        /// <summary>
-        ///     Converts a Sublist of Packets, For instance 0.4903.5.0.0 2.340.0.0.0
-        ///     3.720.0.0.0 5.4912.6.0.0 9.227.0.0.0 10.803.0.0.0 to List<EquipSubPacket>
-        /// </summary>
-        /// <param name="currentValue">The value as String</param>
-        /// <param
-        ///     name="packetBasePropertyType">
-        ///     Type of the Property to convert to
-        /// </param>
-        /// <param
-        ///     name="shouldRemoveSeparator">
-        /// </param>
-        /// <param name="packetMatchCollections"></param>
-        /// <param name="currentIndex"></param>
-        /// <param name="includesKeepAliveIdentity"></param>
-        /// <returns></returns>
         private static IList DeserializeSubpackets(string currentValue, Type packetBasePropertyType, bool shouldRemoveSeparator, MatchCollection packetMatchCollections, int? currentIndex,
             bool includesKeepAliveIdentity)
         {
@@ -384,18 +360,7 @@ namespace NosCore.Core.Serializing
                 : GenerateSerializationInformations(serializationType); // generic runtime serialization parameter generation
         }
 
-        /// <summary>
-        ///     Converts for instance List<byte?> to -1.12.1.8.-1.-1.-1.-1.-1
-        /// </summary>
-        /// <param
-        ///     name="listValues">
-        ///     Values in List of simple type.
-        /// </param>
-        /// <param name="propertyType">
-        ///     The
-        ///     simple type.
-        /// </param>
-        /// <returns></returns>
+      
         private static string SerializeSimpleList(IList listValues, Type propertyType)
         {
             string resultListPacket = string.Empty;
@@ -469,7 +434,7 @@ namespace NosCore.Core.Serializing
                 }
 
                 // enum should be casted to number
-                if (propertyType.BaseType != null && propertyType.BaseType.Equals(typeof(System.Enum)))
+                if (propertyType.BaseType?.Equals(typeof(System.Enum)) == true)
                 {
                     return $" {Convert.ToInt16(value)}";
                 }

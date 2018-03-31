@@ -36,11 +36,11 @@ namespace NosCore.GameObject.Networking
                         pipeline.AddLast((MessageToMessageEncoder<string>)encryptor.GetEncoder());
                     }));
 
-                IChannel bootstrapChannel = await bootstrap.BindAsync(port);
+                IChannel bootstrapChannel = await bootstrap.BindAsync(port).ConfigureAwait(false);
 
                 Console.ReadLine();
 
-                await bootstrapChannel.CloseAsync();
+                await bootstrapChannel.CloseAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {

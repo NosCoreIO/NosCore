@@ -13,8 +13,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Owin;
-using System.Web.Http;
 using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using Microsoft.AspNetCore;
@@ -58,7 +56,7 @@ namespace NosCore.Master
         {
             Console.Title = "NosCore - MasterServer";
             const string text = "Master SERVER - 0Lucifer0";
-            int offset = Console.WindowWidth / 2 + text.Length / 2;
+            int offset = (Console.WindowWidth / 2) + (text.Length / 2);
             string separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -82,12 +80,12 @@ namespace NosCore.Master
                         pipeline.AddLast(new MasterServerSession(password));
                     }));
 
-                IChannel bootstrapChannel = await bootstrap.BindAsync(port);
+                IChannel bootstrapChannel = await bootstrap.BindAsync(port).ConfigureAwait(false);
 
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING)));
                 Console.ReadLine();
 
-                await bootstrapChannel.CloseAsync();
+                await bootstrapChannel.CloseAsync().ConfigureAwait(false);
             }
             finally
             {

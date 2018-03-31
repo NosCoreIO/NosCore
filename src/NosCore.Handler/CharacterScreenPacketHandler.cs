@@ -344,7 +344,6 @@ namespace NosCore.GameHandler
 
                 character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = ServerManager.Instance.GetMapInstance(character.MapInstanceId);
-                
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
@@ -357,8 +356,7 @@ namespace NosCore.GameHandler
                 {
                     Session.Character.Mp = (int)Session.Character.MPLoad();
                 }
-               
-                Session.SendPacket(new OKPacket());                
+                Session.SendPacket(new OKPacket());
             }
             catch (Exception ex)
             {

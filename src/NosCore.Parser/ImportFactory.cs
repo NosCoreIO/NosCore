@@ -61,7 +61,7 @@ namespace NosCore.Parser
         {
             _mapNpcParser.InsertMapNpcs(_packetList);
         }
-        
+
         public void ImportMaps()
         {
             _mapParser.InsertOrUpdateMaps(_folder, _packetList);
@@ -71,19 +71,20 @@ namespace NosCore.Parser
         {
 
         }
+
         public void ImportMapType()
         {
-      
+
         }
 
         public void ImportMapTypeMap()
         {
-          
+
         }
 
         public void ImportMonsters()
         {
-         
+
         }
 
         public void ImportNpcMonsterData()
@@ -1303,40 +1304,40 @@ monstercards.Add(itemCard);
         public void ImportRecipe()
         {
         }
-        
+
         public void ImportRespawnMapType()
         {
-        
+
         }
 
         public void ImportShopItems()
         {
-           
+
         }
 
         public void ImportShops()
         {
-          
+
         }
 
         public void ImportShopSkills()
         {
-          
+
         }
 
         public void ImportSkills()
         {
-            
+
         }
 
         public void ImportTeleporters()
         {
-            
+
         }
 
         public void ImportScriptedInstances()
         {
-           
+
         }
 
         internal void ImportItems()

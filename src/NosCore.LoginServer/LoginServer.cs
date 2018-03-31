@@ -85,7 +85,7 @@ namespace NosCore.LoginServer
         {
             Console.Title = "NosCore - LoginServer";
             const string text = "LOGIN SERVER - 0Lucifer0";
-            int offset = Console.WindowWidth / 2 + text.Length / 2;
+            int offset = (Console.WindowWidth / 2) + (text.Length / 2);
             string separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -109,7 +109,7 @@ namespace NosCore.LoginServer
                     pipeline.AddLast(new StringEncoder(), new StringDecoder());
                     pipeline.AddLast(new MasterClientSession(password));
                 }));
-            var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
+            var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port)).ConfigureAwait(false);
 
             await connection.WriteAndFlushAsync(new Channel()
             {
@@ -120,7 +120,7 @@ namespace NosCore.LoginServer
                 Port = clientPort,
                 ServerGroup = serverGroup,
                 Host = serverHost
-            });
+            }).ConfigureAwait(false);
         }
 
         public static void Main(string[] args)
