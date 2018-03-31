@@ -87,6 +87,5 @@ namespace NosCore.DAL
         {
             _mapper = mapper;
         }
-        
     }
 }

@@ -32,11 +32,9 @@ namespace NosCore.GameObject
 
         private readonly ConcurrentDictionary<long, MapNpcDTO> _npcs;
 
-
         #endregion
 
         #region Properties
-
 
         public int DropRate { get; set; }
 

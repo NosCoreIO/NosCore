@@ -27,10 +27,7 @@ namespace NosCore.DAL
                 Type targetType = typeof(TEntity);
                 if (mapper == null)
                 {
-                    MapperConfiguration config = new MapperConfiguration(cfg =>
-                    {
-                        cfg.CreateMap(typeof(TDTO), targetType).ReverseMap();
-                    });
+                    MapperConfiguration config = new MapperConfiguration(cfg => cfg.CreateMap(typeof(TDTO), targetType).ReverseMap());
 
                     _mapper = config.CreateMapper();
                 }
@@ -65,7 +62,6 @@ namespace NosCore.DAL
         {
             using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
             {
-
                 DbSet<TEntity> dbset = context.Set<TEntity>();
 
                 if (dtokey is IEnumerable)
@@ -140,7 +136,6 @@ namespace NosCore.DAL
 
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                         context.SaveChanges();
-
                     }
                     if (value == null || entityfound == null)
                     {
@@ -189,7 +184,6 @@ namespace NosCore.DAL
                             _mapper.Map(entity, entityfound);
 
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
-
                         }
 
                         if (value == null || entityfound == null)
@@ -226,7 +220,6 @@ namespace NosCore.DAL
 
         public IEnumerable<TDTO> Where(Expression<Func<TEntity, bool>> predicate)
         {
-
             using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
             {
                 DbSet<TEntity> dbset = context.Set<TEntity>();

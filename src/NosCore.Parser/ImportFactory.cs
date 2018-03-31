@@ -57,7 +57,6 @@ namespace NosCore.Parser
            _cardParser.InsertCards();
         }
 
-
         public void ImportMapNpcs()
         {
             _mapNpcParser.InsertMapNpcs(_packetList);
@@ -1325,7 +1324,6 @@ monstercards.Add(itemCard);
           
         }
 
-
         public void ImportSkills()
         {
             
@@ -1340,7 +1338,6 @@ monstercards.Add(itemCard);
         {
            
         }
-
 
         internal void ImportItems()
         {

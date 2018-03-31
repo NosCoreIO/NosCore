@@ -20,11 +20,7 @@ namespace NosCore.GameObject
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new ServerManager();
-                }
-                return instance;
+                return instance ?? (instance = new ServerManager());
             }
         }
         public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } = new ConcurrentDictionary<int, ClientSession>();
@@ -45,7 +41,6 @@ namespace NosCore.GameObject
             _mapinstances.TryAdd(guid, mapInstance);
             return mapInstance;
         }
-
 
         public void Initialize()
         {
@@ -83,7 +78,6 @@ namespace NosCore.GameObject
                     Logger.Log.Error(Language.Instance.GetMessageFromKey("NO_MAP"));
                 }
                 Logger.Log.Info(string.Format(Language.Instance.GetMessageFromKey("MAPMONSTERS_LOADED"), monstercount));
-
             }
             catch (Exception ex)
             {
@@ -91,7 +85,6 @@ namespace NosCore.GameObject
             }
         }
 
-       
         public Guid GetBaseMapInstanceIdByMapId(short MapId)
         {
             return _mapinstances.FirstOrDefault(s => s.Value?.Map.MapId == MapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;

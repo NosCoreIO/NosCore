@@ -25,11 +25,11 @@ namespace NosCore.Master
 {
     public static class MasterServer
     {
-        private static MasterConfiguration _masterConfiguration = new MasterConfiguration();
+        private static readonly MasterConfiguration _masterConfiguration = new MasterConfiguration();
 
-        private static string _configurationPath = @"..\..\..\configuration";
+        private const string _configurationPath = @"..\..\..\configuration";
 
-        private static void initializeConfiguration()
+        private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
@@ -38,7 +38,7 @@ namespace NosCore.Master
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
-        private static void initializeLogger()
+        private static void InitializeLogger()
         {
             // LOGGER
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -54,24 +54,19 @@ namespace NosCore.Master
                .PreferHostingUrls(true)
                .Build();
 
-        private static void printHeader()
+        private static void PrintHeader()
         {
             Console.Title = "NosCore - MasterServer";
-            string text = "Master SERVER - 0Lucifer0";
+            const string text = "Master SERVER - 0Lucifer0";
             int offset = Console.WindowWidth / 2 + text.Length / 2;
             string separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-
-        public static async Task RunMasterServerAsync(int port, string password)
-        {
-            MultithreadEventLoopGroup bossGroup = new MultithreadEventLoopGroup(1);
+        public static async Task RunMasterServerAsync(int port, string password)        {            MultithreadEventLoopGroup bossGroup = new MultithreadEventLoopGroup(1);
             MultithreadEventLoopGroup workerGroup = new MultithreadEventLoopGroup();
 
-            try
-            {
-
+            try {
                 ServerBootstrap bootstrap = new ServerBootstrap();
                 bootstrap
                     .Group(bossGroup, workerGroup)
@@ -102,15 +97,15 @@ namespace NosCore.Master
 
         public static void Main(string[] args)
         {
-            printHeader();
-            initializeLogger();
-            initializeConfiguration();
+            PrintHeader();
+            InitializeLogger();
+            InitializeConfiguration();
             if (DataAccessHelper.Instance.Initialize(_masterConfiguration.Database))
             {
                 BuildWebHost(args).StartAsync();
 
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), _masterConfiguration.Port));
-                Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {(_masterConfiguration.WebApi.ToString())}";
+                Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
                 RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
             }
         }

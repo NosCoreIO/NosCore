@@ -21,14 +21,14 @@ namespace NosCore.Parser
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
-            string _configurationPath = @"..\..\configuration";
-            ParserConfiguration config_lang = new ParserConfiguration();;
+            const string _configurationPath = @"..\..\configuration";
+            ParserConfiguration config_lang = new ParserConfiguration();
             Object json = JObject.Parse(File.ReadAllText(_configurationPath+"/parser.json"));
             Newtonsoft.Json.JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
             string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";
-            string fileMapIdDat = $"{folder + _fileMapIdDat}";
-            string fileMapIdLang = $"{folder + _fileMapIdLang}";
-            string folderMap = $"{folder + _folderMap}";
+            string fileMapIdDat = folder + _fileMapIdDat;
+            string fileMapIdLang = folder + _fileMapIdLang;
+            string folderMap = folder + _folderMap;
             List<MapDTO> maps = new List<MapDTO>();
             Dictionary<int, string> dictionaryId = new Dictionary<int, string>();
             Dictionary<int, int> dictionaryMusic = new Dictionary<int, int>();

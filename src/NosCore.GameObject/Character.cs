@@ -54,8 +54,6 @@ namespace NosCore.GameObject
         public Guid MapInstanceId { get; set; }
         public byte Authority { get; set; }
 
-
-
         public byte Equipment { get; set; }
         public FdPacket GenerateFd()
         {
@@ -253,14 +251,14 @@ namespace NosCore.GameObject
         }
         public double MPLoad()
         {
-            int mp = 0;
-            double multiplicator = 1.0;
+            const int mp = 0;
+            const double multiplicator = 1.0;
             return (int)((CharacterHelper.Instance.MpData[(byte)Class, Level] + mp) * multiplicator);
         }
         public double HPLoad()
         {
-            double multiplicator = 1.0;
-            int hp = 0;
+            const double multiplicator = 1.0;
+            const int hp = 0;
 
             return (int)((CharacterHelper.Instance.HpData[(byte)Class, Level] + hp) * multiplicator);
         }

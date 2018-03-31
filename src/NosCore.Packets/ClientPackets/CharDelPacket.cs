@@ -10,6 +10,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(1)]
         public string Password { get; set; }
-
     }
 }

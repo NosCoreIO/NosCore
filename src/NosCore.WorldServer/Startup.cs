@@ -14,21 +14,14 @@ namespace NosCore.WorldServer
 {
     public class Startup
     {
-
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
 
             var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
             var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
 
-            services.AddAuthentication(config =>
-            {
-                config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(cfg =>
             {
                 cfg.RequireHttpsMetadata = false;
@@ -49,17 +42,14 @@ namespace NosCore.WorldServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices(); ;
+            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
         }
 
         public void Configure(IApplicationBuilder app)
         {
             app.UseSwagger();
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API");
-            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseMvc();
         }

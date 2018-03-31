@@ -39,8 +39,7 @@ namespace NosCore.GameHandler
         {
             try
             {
-
-                if (!true)//TODO OldClient
+                if (false)//TODO OldClient
                 {
                     Session.SendPacket(new FailcPacket
                     {
@@ -49,7 +48,6 @@ namespace NosCore.GameHandler
 
                     return;
                 }
-
 
                 AccountDTO acc = DAOFactory.AccountDAO.FirstOrDefault(s => string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
@@ -72,7 +70,7 @@ namespace NosCore.GameHandler
                     return;
                 }
 
-                if (!true)//TODO Banned
+                if (false)//TODO Banned
                 {
                     Session.SendPacket(new FailcPacket
                     {
@@ -82,7 +80,7 @@ namespace NosCore.GameHandler
                     return;
                 }
 
-                if (!true)//TODO AlreadyConnected
+                if (false)//TODO AlreadyConnected
                 {
                     Session.SendPacket(new FailcPacket
                     {
@@ -94,7 +92,7 @@ namespace NosCore.GameHandler
 
                 List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
 
-                if (servers.Any())
+                if (servers.Count > 0)
                 {
                     List<NsTeSTSubPacket> subpacket = new List<NsTeSTSubPacket>();
                     int i = 1;
@@ -120,7 +118,6 @@ namespace NosCore.GameHandler
                             Name = server.Name
                         });
                         i++;
-
                     }
                     int newSessionId = SessionFactory.Instance.GenerateSessionId();
                     subpacket.Add(new NsTeSTSubPacket()
@@ -158,5 +155,4 @@ namespace NosCore.GameHandler
 
         #endregion
     }
-
 }

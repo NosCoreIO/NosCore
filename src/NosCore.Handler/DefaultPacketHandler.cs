@@ -7,9 +7,8 @@ namespace NosCore.GameHandler
 {
     public class DefaultPacketHandler : IPacketHandler
     {
-        #region Members
 
-        private readonly ClientSession _session;
+#region Members
 
         #endregion
 
@@ -18,20 +17,14 @@ namespace NosCore.GameHandler
         { }
         public DefaultPacketHandler(ClientSession session)
         {
-            _session = session;
+            Session = session;
         }
 
         #endregion
 
         #region Properties
 
-        public ClientSession Session
-        {
-            get
-            {
-                return _session;
-            }
-        }
+        public ClientSession Session { get; }
 
         #endregion
 
@@ -195,5 +188,4 @@ namespace NosCore.GameHandler
 
         #endregion
     }
-
 }

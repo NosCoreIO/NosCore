@@ -13,11 +13,7 @@ namespace NosCore.Networking
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new MasterClientListSingleton();
-                }
-                return instance;
+                return instance ?? (instance = new MasterClientListSingleton());
             }
         }
 

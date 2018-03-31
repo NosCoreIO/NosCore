@@ -20,7 +20,6 @@ namespace NosCore.Networking
             Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
         }
 
-
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
             Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
@@ -39,6 +38,5 @@ namespace NosCore.Networking
                 return;
             }
         }
-
     }
 }
