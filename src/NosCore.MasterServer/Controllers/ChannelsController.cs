@@ -4,7 +4,6 @@ using NosCore.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using NosCore.Networking;
-using NosCore.Domain;
 
 namespace NosCore.MasterServer
 {

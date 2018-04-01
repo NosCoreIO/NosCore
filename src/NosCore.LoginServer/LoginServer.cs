@@ -6,7 +6,6 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
-using NosCore.Data;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.Collections.Generic;
@@ -27,7 +26,6 @@ using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
 using NosCore.DAL;
-using AutoMapper;
 using NosCore.GameObject;
 
 namespace NosCore.LoginServer

@@ -16,8 +16,4 @@
     <PackageReference Include="AutoMapper" Version="6.2.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
-  </ItemGroup>
-
 </Project>
