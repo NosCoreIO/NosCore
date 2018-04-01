@@ -4,6 +4,8 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using System;
 using System.Linq;
+using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.DAL
 {

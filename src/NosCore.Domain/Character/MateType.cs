@@ -1,5 +1,5 @@
 ﻿
-namespace NosCore.Domain
+namespace NosCore.Domain.Character
 {
     public enum MateType : byte
     {

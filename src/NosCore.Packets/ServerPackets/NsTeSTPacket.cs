@@ -1,10 +1,7 @@
-﻿using NosCore.Core.Serializing;
-using NosCore.Packets.ServerPackets;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using NosCore.Core.Serializing;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("NsTeST")]
     public class NSTestPacket : PacketDefinition

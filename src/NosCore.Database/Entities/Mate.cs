@@ -1,5 +1,6 @@
 ﻿using NosCore.Domain;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Domain.Character;
 
 namespace NosCore.Database.Entities
 {

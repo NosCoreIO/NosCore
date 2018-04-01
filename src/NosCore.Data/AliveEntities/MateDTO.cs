@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.Data
+namespace NosCore.Data.AliveEntities
 {
     public class MateDTO : IDTO
     {

@@ -1,7 +1,7 @@
 ﻿using NosCore.Core.Serializing;
 using NosCore.Domain.Interaction;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("failc")]
     public class FailcPacket : PacketDefinition

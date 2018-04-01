@@ -1,10 +1,7 @@
 ﻿using NosCore.Configuration;
-using NosCore.Master.Objects;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NosCore.Domain;
 
-namespace NosCore.Core
+namespace NosCore.Core.Client
 {
     public class MasterClient
     {

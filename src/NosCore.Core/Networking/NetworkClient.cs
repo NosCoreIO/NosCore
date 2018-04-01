@@ -10,6 +10,7 @@ using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
 using System.Reflection;
 using NosCore.Domain;
+using NosCore.Domain.Account;
 
 namespace NosCore.Core.Networking
 {

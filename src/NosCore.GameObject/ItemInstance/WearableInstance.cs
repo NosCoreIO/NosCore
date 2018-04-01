@@ -1,9 +1,7 @@
-﻿using NosCore.GameObject;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.ItemInstance
 {
     public class WearableInstance : ItemInstance, IVisualEntity
     {

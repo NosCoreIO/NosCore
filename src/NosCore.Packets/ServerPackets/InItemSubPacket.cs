@@ -1,6 +1,6 @@
 ﻿using NosCore.Core.Serializing;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("in_item_subpacket")]
     public class InItemSubPacket : PacketDefinition

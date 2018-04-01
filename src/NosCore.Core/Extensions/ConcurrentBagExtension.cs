@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace NosCore.Core
+namespace NosCore.Core.Extensions
 {
     public static class ConcurrentBagExtensions
     {

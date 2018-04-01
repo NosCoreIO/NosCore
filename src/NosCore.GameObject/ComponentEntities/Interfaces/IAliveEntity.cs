@@ -1,10 +1,4 @@
-﻿using NosCore.Data;
-using NosCore.Packets;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.GameObject
+﻿namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {

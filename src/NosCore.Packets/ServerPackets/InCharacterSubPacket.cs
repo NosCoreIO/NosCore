@@ -1,7 +1,6 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Character;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("in_character_subpacket")]
     public class InCharacterSubPacket : PacketDefinition

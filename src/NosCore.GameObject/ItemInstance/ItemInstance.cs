@@ -1,7 +1,6 @@
 ﻿using NosCore.Data;
-using NosCore.Packets;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.ItemInstance
 {
     public class ItemInstance
     {

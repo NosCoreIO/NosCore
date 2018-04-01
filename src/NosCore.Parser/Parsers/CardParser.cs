@@ -1,13 +1,13 @@
-﻿using NosCore.Core.Logger;
-using NosCore.DAL;
-using NosCore.Data;
-using NosCore.Domain.Buff;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NosCore.Core.Logger;
+using NosCore.Data.StaticEntities;
+using NosCore.DAL;
+using NosCore.Domain.Buff;
 
-namespace NosCore.Parser
+namespace NosCore.Parser.Parsers
 
 {
     public class CardParser

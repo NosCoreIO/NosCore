@@ -1,6 +1,7 @@
 using NosCore.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Domain.Account;
 
 namespace NosCore.Database.Entities
 {

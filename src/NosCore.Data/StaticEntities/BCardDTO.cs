@@ -1,7 +1,7 @@
-﻿using NosCore.Domain.Buff;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Domain.Buff;
 
-namespace NosCore.Data
+namespace NosCore.Data.StaticEntities
 {
     public class BCardDTO : IDTO
     {

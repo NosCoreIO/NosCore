@@ -1,8 +1,8 @@
-﻿using NosCore.Core.Serializing;
+﻿using System.Collections.Generic;
+using NosCore.Core.Serializing;
 using NosCore.Domain.Character;
-using System.Collections.Generic;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("clist")]
     public class ClistPacket : PacketDefinition

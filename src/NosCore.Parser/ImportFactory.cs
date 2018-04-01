@@ -5,6 +5,8 @@ using NosCore.Core.Encryption;
 using NosCore.Domain;
 using System.Text;
 using NosCore.DAL;
+using NosCore.Domain.Account;
+using NosCore.Parser.Parsers;
 
 namespace NosCore.Parser
 {

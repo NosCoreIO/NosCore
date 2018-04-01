@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Reflection;
-using System.Linq.Expressions;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 
-namespace NosCore.Core
+namespace NosCore.Core.Extensions
 {
     public static class TypeExtension
     {

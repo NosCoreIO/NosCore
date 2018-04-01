@@ -1,14 +1,14 @@
-﻿using NosCore.Core.Logger;
-using NosCore.DAL;
-using NosCore.Data;
-using NosCore.Domain.Map;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Logger;
+using NosCore.Data.StaticEntities;
+using NosCore.DAL;
+using NosCore.Domain.Map;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Networking
 {
     public class ServerManager
     {

@@ -1,9 +1,7 @@
-﻿using NosCore.Packets;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Packets.ServerPackets;
 
-namespace NosCore.GameObject.ComponentEntities
+namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
@@ -67,6 +65,5 @@ namespace NosCore.GameObject.ComponentEntities
                 Amount = visualEntity.Amount
             };
         }
-
     }
 }

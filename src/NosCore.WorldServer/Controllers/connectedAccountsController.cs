@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using NosCore.GameObject;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NosCore.GameObject.Networking;
 
-namespace NosCore.WorldServer
+namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
     public class ConnectedAccountsController : Controller

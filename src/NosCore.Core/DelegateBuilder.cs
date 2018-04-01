@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using NosCore.Core.Extensions;
 
 namespace NosCore.Core
 {

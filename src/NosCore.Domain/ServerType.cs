@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.Master.Objects
+﻿namespace NosCore.Domain
 {
     public enum ServerType
     {

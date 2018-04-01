@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
-using NosCore.Configuration;
-using NosCore.Core.Logger;
-using NosCore.DAL;
-using NosCore.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
+using NosCore.Configuration;
+using NosCore.Core.Logger;
+using NosCore.Data.StaticEntities;
+using NosCore.DAL;
 
-namespace NosCore.Parser
+namespace NosCore.Parser.Parsers
 {
     public class MapParser
     {

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
-namespace NosCore.Data
+namespace NosCore.Data.StaticEntities
 {
     public class MapDTO : IDTO
     {

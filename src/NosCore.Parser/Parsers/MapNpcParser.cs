@@ -1,11 +1,7 @@
-﻿using NosCore.Core.Logger;
-using NosCore.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using NosCore.Data.AliveEntities;
 
-namespace NosCore.Parser
+namespace NosCore.Parser.Parsers
 {
     public class MapNpcParser
     {

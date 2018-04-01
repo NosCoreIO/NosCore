@@ -2,8 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
-namespace NosCore.Data
+namespace NosCore.Data.StaticEntities
 {
     public class QuestDTO : IDTO
     {
