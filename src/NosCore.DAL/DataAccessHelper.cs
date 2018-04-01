@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NosCore.Configuration;
 using NosCore.Core.Logger;
 using NosCore.Database;
 using System;

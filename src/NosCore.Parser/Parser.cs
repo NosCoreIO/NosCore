@@ -11,10 +11,8 @@ using NosCore.Core.Logger;
 using NosCore.Data;
 using NosCore.Database;
 using Microsoft.Extensions.Configuration;
-using System.Data.SqlClient;
 using NosCore.Configuration;
 using NosCore.DAL;
-using AutoMapper;
 
 namespace NosCore.Parser
 {

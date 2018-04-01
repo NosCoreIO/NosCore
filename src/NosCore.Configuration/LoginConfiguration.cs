@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 
 namespace NosCore.Configuration

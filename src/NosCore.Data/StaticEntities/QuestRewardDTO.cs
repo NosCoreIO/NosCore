@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-
-namespace NosCore.Data
+﻿namespace NosCore.Data
 {
     public class QuestRewardDTO : IDTO
     {
-
         public long QuestRewardId { get; set; }
 
         public byte RewardType { get; set; }
@@ -20,6 +17,5 @@ namespace NosCore.Data
         public int Amount { get; set; }
 
         public long QuestId { get; set; }
-
     }
 }

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using NosCore.Core;
+﻿using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.DAL;
@@ -12,7 +11,6 @@ using NosCore.Packets.ServerPackets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 
 namespace NosCore.GameHandler
 {

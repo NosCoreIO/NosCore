@@ -1,11 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
-
 namespace NosCore.Data
 {
     public class MapMonsterDTO : IDTO
     {
-
         public bool IsDisabled { get; set; }
 
         public bool IsMoving { get; set; }

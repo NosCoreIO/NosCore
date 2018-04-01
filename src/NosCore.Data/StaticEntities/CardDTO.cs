@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using NosCore.Domain.Buff;
+﻿using NosCore.Domain.Buff;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

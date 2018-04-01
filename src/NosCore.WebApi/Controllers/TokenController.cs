@@ -11,7 +11,6 @@ using NosCore.Core.Logger;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using NosCore.Domain;
-using Microsoft.Extensions.Configuration;
 
 namespace NosCore.WorldServer.Controllers
 {

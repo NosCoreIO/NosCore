@@ -5,7 +5,6 @@ using NosCore.Packets;
 using NosCore.GameObject.Helper;
 using System;
 using NosCore.GameObject.ComponentEntities;
-using AutoMapper;
 
 namespace NosCore.GameObject
 {

@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-namespace NosCore.Data
+﻿namespace NosCore.Data
 {
     public class TeleporterDTO : IDTO
     {
