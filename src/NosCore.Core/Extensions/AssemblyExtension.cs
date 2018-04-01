@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace NosCore.Core
+namespace NosCore.Core.Extensions
 {
     public static class AssemblyExtension
     {

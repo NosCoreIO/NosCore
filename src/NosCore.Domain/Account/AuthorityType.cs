@@ -1,4 +1,4 @@
-﻿namespace NosCore.Domain
+﻿namespace NosCore.Domain.Account
 {
     public enum AuthorityType : short
     {

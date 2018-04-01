@@ -1,7 +1,6 @@
-﻿using NosCore.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace NosCore.Networking
+namespace NosCore.Core.Networking
 {
     public class MasterClientListSingleton
     {

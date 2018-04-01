@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NosCore.GameObject
+﻿namespace NosCore.GameObject.ItemInstance
 {
     public class SpecialistInstance : WearableInstance
     {

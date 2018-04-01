@@ -5,12 +5,9 @@ namespace NosCore.Data
 {
     public class ItemDTO : IDTO
     {
-      
         public void Initialize()
         {
         }
-
-
 
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }

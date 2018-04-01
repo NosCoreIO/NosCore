@@ -1,6 +1,6 @@
 ﻿using NosCore.Core.Networking;
 
-namespace NosCore.Core.Serializing
+namespace NosCore.Core.Serializing.HandlerSerialization
 {
     public interface IClientPacket
     {

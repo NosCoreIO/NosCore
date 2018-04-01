@@ -1,25 +1,24 @@
-﻿using DotNetty.Codecs;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
+using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using log4net;
 using log4net.Config;
 using log4net.Repository;
-using Microsoft.Extensions.Configuration;
-using NosCore.Core.Logger;
-using NosCore.MasterServer;
-using NosCore.Networking;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using NosCore.Configuration;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NosCore.Configuration;
+using NosCore.Core.Logger;
+using NosCore.Core.Networking;
 using NosCore.DAL;
 
-namespace NosCore.Master
+namespace NosCore.MasterServer
 {
     public static class MasterServer
     {

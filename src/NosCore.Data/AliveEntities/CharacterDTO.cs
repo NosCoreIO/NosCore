@@ -1,7 +1,7 @@
-﻿using NosCore.Domain.Character;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Domain.Character;
 
-namespace NosCore.Data
+namespace NosCore.Data.AliveEntities
 {
     public class CharacterDTO : IDTO
     {
@@ -103,7 +103,7 @@ namespace NosCore.Data
         public long RagePoint { get; set; }
 
         public long Reput { get; set; }
-        
+
         public byte Slot { get; set; }
 
         public int SpAdditionPoint { get; set; }
@@ -111,7 +111,7 @@ namespace NosCore.Data
         public int SpPoint { get; set; }
 
         public CharacterState State { get; set; }
-        
+
         public int TalentLose { get; set; }
 
         public int TalentSurrender { get; set; }
@@ -119,6 +119,5 @@ namespace NosCore.Data
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
-
     }
 }

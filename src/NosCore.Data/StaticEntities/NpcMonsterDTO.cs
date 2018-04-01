@@ -1,8 +1,9 @@
-﻿using NosCore.Domain.Map;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.AliveEntities;
+using NosCore.Domain.Map;
 
-namespace NosCore.Data
+namespace NosCore.Data.StaticEntities
 {
     public class NpcMonsterDTO : IDTO
     {
@@ -112,7 +113,7 @@ namespace NosCore.Data
 
         public void Initialize()
         {
-            
+
         }
     }
 }

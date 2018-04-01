@@ -1,5 +1,4 @@
-﻿using NosCore.GameHandler;
-using log4net;
+﻿using log4net;
 using log4net.Config;
 using log4net.Repository;
 using NosCore.Core;
@@ -19,14 +18,17 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
-using NosCore.Networking;
 using System.Net;
-using NosCore.Master.Objects;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
+using NosCore.Core.Client;
+using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
+using NosCore.Core.Serializing.HandlerSerialization;
 using NosCore.DAL;
+using NosCore.Domain;
 using NosCore.GameObject;
+using NosCore.Handler;
 
 namespace NosCore.LoginServer
 {

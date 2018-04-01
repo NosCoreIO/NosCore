@@ -1,8 +1,8 @@
-﻿using NosCore.Core.Serializing;
-using NosCore.GameObject;
+﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 
-namespace NosCore.GameHandler
+namespace NosCore.Handler
 {
     public class UselessPacketHandler : IPacketHandler
     {

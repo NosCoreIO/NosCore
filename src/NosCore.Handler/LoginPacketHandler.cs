@@ -1,18 +1,17 @@
-﻿using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
-using NosCore.DAL;
-using NosCore.Data;
-using NosCore.Domain.Interaction;
-using NosCore.GameObject;
-using NosCore.Packets;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.Data;
+using NosCore.DAL;
+using NosCore.Domain.Interaction;
+using NosCore.GameObject.Networking;
+using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 
-namespace NosCore.GameHandler
+namespace NosCore.Handler
 {
     public class LoginPacketHandler : ILoginPacketHandler
     {

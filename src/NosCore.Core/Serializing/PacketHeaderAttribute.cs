@@ -1,5 +1,6 @@
 ﻿using NosCore.Domain;
 using System;
+using NosCore.Domain.Account;
 
 namespace NosCore.Core.Serializing
 {

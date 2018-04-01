@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Encryption;
-using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System.Text;
+using NosCore.WebApi.Controllers;
 
 namespace NosCore.WorldServer
 {

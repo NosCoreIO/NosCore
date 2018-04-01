@@ -1,21 +1,19 @@
-﻿using DotNetty.Buffers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using DotNetty.Transport.Channels;
 using NosCore.Core;
-using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Core.Serializing.HandlerSerialization;
 using NosCore.Data;
 using NosCore.Domain.Map;
-using NosCore.GameObject.ComponentEntities;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using NosCore.GameObject.ComponentEntities.Extensions;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Networking
 {
     public class ClientSession : NetworkClient
     {

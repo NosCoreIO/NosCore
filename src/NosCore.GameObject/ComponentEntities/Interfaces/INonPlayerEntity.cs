@@ -1,6 +1,4 @@
-﻿using NosCore.Packets;
-
-namespace NosCore.GameObject
+﻿namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface INonPlayableEntity
     {

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Data;
-using Microsoft.AspNetCore.Authorization;
-using NosCore.DAL;
-using NosCore.Core.Encryption;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using NosCore.Core.Logger;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using NosCore.Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using NosCore.Core.Encryption;
+using NosCore.Core.Logger;
+using NosCore.Data;
+using NosCore.DAL;
+using NosCore.Domain.Account;
 
-namespace NosCore.WorldServer.Controllers
+namespace NosCore.WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class TokenController : Controller

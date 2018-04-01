@@ -1,20 +1,23 @@
-﻿using NosCore.GameObject;
-using NosCore.Core.Encryption;
-using NosCore.Core.Logger;
-using NosCore.Core.Serializing;
-using NosCore.Data;
-using NosCore.Domain;
-using NosCore.Domain.Character;
-using NosCore.Domain.Items;
-using NosCore.Packets;
-using NosCore.Packets.ClientPackets;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NosCore.Core.Encryption;
+using NosCore.Core.Logger;
+using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.Data;
+using NosCore.Data.AliveEntities;
 using NosCore.DAL;
+using NosCore.Domain;
+using NosCore.Domain.Character;
+using NosCore.Domain.Items;
+using NosCore.GameObject;
+using NosCore.GameObject.ItemInstance;
+using NosCore.GameObject.Networking;
+using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 
-namespace NosCore.GameHandler
+namespace NosCore.Handler
 {
     public class CharacterScreenPacketHandler : ICharacterScreenPacketHandler
     {

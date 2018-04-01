@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using NosCore.Networking;
+using NosCore.Core.Networking;
 
-namespace NosCore.MasterServer
+namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     public class ChannelsController : Controller

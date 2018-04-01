@@ -1,6 +1,6 @@
 ﻿using NosCore.Core.Serializing;
 
-namespace NosCore.Packets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("in_non_player_subpacket")]
     public class InNonPlayerSubPacket : PacketDefinition

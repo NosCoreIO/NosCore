@@ -1,9 +1,9 @@
-﻿using NosCore.Core.Serializing;
-using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities;
+﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 
-namespace NosCore.GameHandler
+namespace NosCore.Handler
 {
     public class DefaultPacketHandler : IPacketHandler
     {
