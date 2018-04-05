@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Packets", "src\NosC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Configuration", "src\NosCore.Configuration\NosCore.Configuration.csproj", "{27688E22-468D-47AC-8BB2-AA416859587B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Tests", "test\NosCore.Tests\NosCore.Test.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Tests", "test\NosCore.Tests\NosCore.Tests.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.DAL", "src\NosCore.DAL\NosCore.DAL.csproj", "{11290915-C5EE-4979-B113-23980B40AFB9}"
 EndProject
