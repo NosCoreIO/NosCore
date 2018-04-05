@@ -31,7 +31,7 @@ namespace NosCore.WebApi.Controllers
                           new Claim(ClaimTypes.Role, account.Authority.ToString()),
                     });
                     var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
-                    var signinKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(keyByteArray);
+                    var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
                     {
