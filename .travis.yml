@@ -5,3 +5,7 @@ install:
 - dotnet restore
 script:
 - dotnet build
+before_install:
+- sudo apt-get install nunit-console
+after_script:
+- nunit-console build/netcoreapp2.0/NosCore.Test.dll
