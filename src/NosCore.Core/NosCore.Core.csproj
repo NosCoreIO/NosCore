@@ -29,4 +29,10 @@
     <ProjectReference Include="..\NosCore.Domain\NosCore.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Ressource\LocalizedResources.en.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
