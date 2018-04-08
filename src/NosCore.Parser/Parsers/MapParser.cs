@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core.Logger;
 using NosCore.Data.StaticEntities;
@@ -24,7 +25,7 @@ namespace NosCore.Parser.Parsers
             const string _configurationPath = @"..\..\configuration";
             ParserConfiguration config_lang = new ParserConfiguration();
             Object json = JObject.Parse(File.ReadAllText(_configurationPath+"/parser.json"));
-            Newtonsoft.Json.JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
+            JsonConvert.PopulateObject(Convert.ToString(json), config_lang);
             string _fileMapIdLang = $"\\_code_{config_lang.Lang}_MapIDData.txt";
             string fileMapIdDat = folder + _fileMapIdDat;
             string fileMapIdLang = folder + _fileMapIdLang;
@@ -114,7 +115,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapDTO> mapDtos = maps;
             DAOFactory.MapDAO.InsertOrUpdate(mapDtos);
-            Logger.Log.Info(string.Format(Language.Instance.GetMessageFromKey("MAPS_PARSED"), i));
+            Logger.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED), i));
         }
     }
 }

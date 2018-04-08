@@ -80,13 +80,13 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             default:
-                                item.Type = (InventoryType) System.Enum.Parse(typeof(InventoryType), currentLine[2]);
+                                item.Type = (InventoryType) Enum.Parse(typeof(InventoryType), currentLine[2]);
                                 break;
                         }
 
-                        item.ItemType = currentLine[3] != "-1" ? (ItemType) System.Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}") : ItemType.Weapon;
+                        item.ItemType = currentLine[3] != "-1" ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}") : ItemType.Weapon;
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
-                        item.EquipmentSlot = (EquipmentType) System.Enum.Parse(typeof(EquipmentType), currentLine[5] != "-1" ? currentLine[5] : "0");
+                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType), currentLine[5] != "-1" ? currentLine[5] : "0");
 
                         switch (item.VNum)
                         {
