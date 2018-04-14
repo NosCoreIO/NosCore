@@ -1,6 +1,6 @@
 ﻿language: csharp
 mono: none
-dotnet: 2.1.300-preview1-008174
+dotnet: 2.1.300-preview2-008530
 install:
 - dotnet restore
 script:

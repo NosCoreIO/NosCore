@@ -30,8 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Ressource\LocalizedResources.en.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+    <EmbeddedResource Update="Resource\LocalizedResources.fr.resx">
+      <Generator>ResXResourceManager</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resource\LocalizedResources.it.resx">
+      <Generator>ResXResourceManager</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resource\LocalizedResources.resx">
+      <Generator>ResXResourceManager</Generator>
     </EmbeddedResource>
   </ItemGroup>
 

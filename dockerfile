@@ -1,40 +1,31 @@
-FROM buildpack-deps:stretch-scm
+FROM microsoft/dotnet:2.1-runtime-deps-alpine
 
-# Install .NET CLI dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libc6 \
-        libgcc1 \
-        libgssapi-krb5-2 \
-        libicu57 \
-        liblttng-ust0 \
-        libssl1.0.2 \
-        libstdc++6 \
-        zlib1g \
-    && rm -rf /var/lib/apt/lists/*
+# Disable the invariant mode (set in base image)
+RUN apk add --no-cache icu-libs
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8
 
 # Install .NET Core SDK
 ENV DOTNET_SDK_VERSION 2.1.300-preview2-008530
-ENV ASPNETCORE_VERSION 2.1.0-preview2-final
 
-RUN curl -SL --output dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz \
-    && dotnet_sha512='034863bdb94a4e752d286eeac10638a012c4bae94a9bff46ee96fb7ea733554f0083d989ecf983274fcbe5c27974e16a7287c3bcca98626380b12e811fdd9174' \
-    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
+RUN apk add --no-cache --virtual .build-deps \
+        openssl \
+    && wget -O dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-alpine.3.6-x64.tar.gz \
+    && dotnet_sha512='2b52ab97ed874a6251ac14376049a94a10c70c2b867e38500143ba37bd8517760df72a027c6865ead1faa6504718c1384942d4bbc7842093afbe123e83f2997c' \
+    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
     && mkdir -p /usr/share/dotnet \
-    && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
+    && tar -C /usr/share/dotnet -xzf dotnet.tar.gz \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
     && rm dotnet.tar.gz \
-    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+    && apk del .build-deps
 
-FROM microsoft/dotnet:2.1-runtime-deps-stretch-slim
+# Enable correct mode for dotnet watch (only mode supported in a container)
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true \ 
+    # Skip extraction of XML docs - generally not useful within an image/container - helps perfomance
+    NUGET_XMLDOC_MODE=skip
 
-RUN curl -SL --output aspnetcore.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/aspnetcore/Runtime/$ASPNETCORE_VERSION/aspnetcore-runtime-$ASPNETCORE_VERSION-linux-x64.tar.gz \
-    && aspnetcore_sha512='4bbc0f25623947048430f5e44a0d3dc444f13fb8fd0058b148f86ef31a0167c35c72accf6c713c92762840bd0059890417e5ebed0c408e5f7d4f25ea2e3844c1' \
-    && echo "$aspnetcore_sha512  aspnetcore.tar.gz" | sha512sum -c - \
-    && mkdir -p /usr/share/dotnet \
-    && tar -zxf aspnetcore.tar.gz -C /usr/share/dotnet \
-    && rm aspnetcore.tar.gz \
-&& ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-	
 WORKDIR /app
 
 COPY . .
