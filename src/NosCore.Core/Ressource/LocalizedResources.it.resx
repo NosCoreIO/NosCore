@@ -117,82 +117,119 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>L'account con il SessionId {0} ha loggato.</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>Au moins un fichier est manquant. Vérifiez que tout soit bien présent.</value>
+    <value>Manca almeno un file richiesto</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Autentificazione errata.</value>
+  </data>
+  <data name="AUTHENTICATED_SUCCES" xml:space="preserve">
+    <value>Autentificazione avvennuta con successo!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Cartes analysées !</value>
+    <value>[0] Bcard Caricate!</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Personaggio non inizializzato.</value>
+    <comment>revisionare</comment>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Connessione persa.</value>
   </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
-    <value>La base de données a été initialisée !</value>
+    <value>Il Database è stato avviato!</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>Il database non sembra aggiornato. Per favore considera di aggiornare il tuo database.</value>
   </data>
   <data name="DONE" xml:space="preserve">
-    <value>L'analyse des fichiers est terminée !</value>
+    <value>Parsing Completato!</value>
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
-    <value>Entre le répertoire des fichiers pour commencer l'importation</value>
+    <value>Immetti la directory dei file da sincronizzare</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>L'ID è errato!</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>la password è errata!</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>{0} Objets analysés !</value>
+    <value>{0} Items sincronizzati !</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
-    <value>Vous-vous analyser les comptes ?</value>
+    <value>Vuoi sincronizzare gli Account?</value>
   </data>
   <data name="PARSE_ALL" xml:space="preserve">
-    <value>Voulez-vous tout analyser ?</value>
+    <value>Vuoi sincronizzare TUTTO?</value>
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
-    <value>Voulez-vous analysé les Bcard ?</value>
+    <value>Vuoi sincronizzare le Bcard?</value>
   </data>
   <data name="PARSE_ITEMS" xml:space="preserve">
-    <value>Voulez-vous analyser les objets ?</value>
+    <value>Vuoi sincronizzare gli Items?</value>
   </data>
   <data name="PARSE_MAPNPCS" xml:space="preserve">
-    <value>Voulez-vous analyser les cartes-pnj ?</value>
+    <value>Vuoi sincronizzare gli NPC nella Mappa?</value>
   </data>
   <data name="PARSE_MAPS" xml:space="preserve">
-    <value>Voulez-vous analyser les cartes ?</value>
+    <value>Vuoi sincronizzare le Mappe</value>
   </data>
   <data name="PARSE_MAPTYPES" xml:space="preserve">
-    <value>Voulez-vous anlysez les types de cartes ?</value>
+    <value>Vuoi sincronizzare i Tipi-Mappe delle mappe?</value>
   </data>
   <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les monstres ?</value>
+    <value>Vuoi sincronizzare le entità Mostri?</value>
   </data>
   <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
-    <value>Voulez-vous analyser NpcMonsterData ?</value>
+    <value>Vuoi sincronizzare i dati delle entità Npc-Mostri?</value>
   </data>
   <data name="PARSE_NPCMONSTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les pnj ?</value>
+    <value>Vuoi sinronizzare le entità Npc?</value>
   </data>
   <data name="PARSE_PORTALS" xml:space="preserve">
-    <value>Voulez-vous analyser les portails ?</value>
+    <value>Vuoi sincronizzare Portals?</value>
   </data>
   <data name="PARSE_QUESTS" xml:space="preserve">
-    <value>Voulez-vous analyser les quêtes ?</value>
+    <value>Vuoi sincronizzare le Quest?</value>
   </data>
   <data name="PARSE_RECIPES" xml:space="preserve">
-    <value>Voulez-vous analyser les recettes ?</value>
+    <value>Vuoi sincronizzare le Ricette?</value>
   </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins d'objets ?</value>
+    <value>Vuoi sincronizzare ShopItems?</value>
   </data>
   <data name="PARSE_SHOPS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins ?</value>
+    <value>Vuoi sincronizzare Shops?</value>
   </data>
   <data name="PARSE_SHOPSKILLS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins de compétences ?</value>
+    <value>Vuoi sincronizzare ShopSkills?</value>
   </data>
   <data name="PARSE_SKILLS" xml:space="preserve">
-    <value>Voulez-vous analyser les compétences ?</value>
+    <value>Vuoi sincronizzare le Skills?</value>
   </data>
   <data name="PARSE_TELEPORTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les téléporteurs ?</value>
+    <value>Vuoi sincronizzare i Teleporters?</value>
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>Voulez-vous analyser les espaces temps ?</value>
+    <value>Vuoi sincronizzare TimeSpaces?</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Registrato sul MasterServer</value>
+    <comment>revisionare</comment>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>L'émulateur à bien été chargé.</value>
+    <value>Caricato con successo!</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Pacchetto Master non riconosciuto</value>
+    <comment>revisionare</comment>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Non registrato dal MasterServer</value>
+    <comment>revisionare</comment>
   </data>
 </root>
