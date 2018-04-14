@@ -57,6 +57,15 @@ namespace NosCore.DAL
             }
         }
 
+        public void EnsureDeleted(SqlConnectionStringBuilder Database)
+        {
+            _conn = Database;
+            using (NosCoreContext context = CreateContext())
+            {
+                context.Database.EnsureDeleted();
+            }
+        }
+
         #endregion
     }
 }

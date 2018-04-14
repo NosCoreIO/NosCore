@@ -1,6 +1,4 @@
-﻿
-
-namespace NosCore.Domain.Buff
+﻿namespace NosCore.Domain.Buff
 {
     public class BCardType
     {
@@ -1078,7 +1076,6 @@ namespace NosCore.Domain.Buff
             StealGoodEffect = 41,
             StealGoodEffectNegated = 42
         }
-
 
         public enum SPSL : byte
         {

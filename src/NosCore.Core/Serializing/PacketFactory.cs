@@ -363,7 +363,6 @@ namespace NosCore.Core.Serializing
                 : GenerateSerializationInformations(serializationType); // generic runtime serialization parameter generation
         }
 
-
         private static string SerializeSimpleList(IList listValues, Type propertyType)
         {
             string resultListPacket = string.Empty;
