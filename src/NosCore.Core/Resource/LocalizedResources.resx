@@ -127,7 +127,7 @@
     <value>Authenticated Error.</value>
     <comment>check</comment>
   </data>
-  <data name="AUTHENTICATED_SUCCES" xml:space="preserve">
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authenticated Success!</value>
     <comment>check</comment>
   </data>

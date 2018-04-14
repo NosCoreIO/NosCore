@@ -12,7 +12,7 @@ namespace NosCore.Core.Logger
         private LogLanguage()
         {
             _resourceCulture = new CultureInfo("en-en"); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
-            if (Assembly.GetEntryAssembly() != null)
+            if (Assembly.GetExecutingAssembly() != null)
             {
                 _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());
             }
@@ -31,15 +31,16 @@ namespace NosCore.Core.Logger
 
         #region Methods
 
-        public string GetMessageFromKey(LanguageKey messageKey)
+        public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
         {
-            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetString(messageKey.ToString(), _resourceCulture) : string.Empty;
+            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetString(messageKey.ToString(), culture != null ? new CultureInfo(culture) : _resourceCulture) : string.Empty;
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }
-        public ResourceSet GetRessourceSet()
+
+        public ResourceSet GetRessourceSet(string culture = null)
         {
-            return _manager?.GetResourceSet(_resourceCulture, false, false);
+            return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
         }
         #endregion
 

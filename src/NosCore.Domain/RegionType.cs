@@ -2,7 +2,7 @@
 {
     public enum RegionType
     {
-        UK,
+        EN,
         DE,
         FR,
         IT,

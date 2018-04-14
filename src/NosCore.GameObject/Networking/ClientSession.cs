@@ -90,9 +90,9 @@ namespace NosCore.GameObject.Networking
             GenerateHandlerReferences(packetHandler);
         }
 
-        public void InitializeAccount(AccountDTO account)
+        public void InitializeAccount(AccountDTO accountDTO)
         {
-            Account = account;
+            Account = accountDTO;
             IsAuthenticated = true;
             ServerManager.Instance.RegisterSession(this);
         }
