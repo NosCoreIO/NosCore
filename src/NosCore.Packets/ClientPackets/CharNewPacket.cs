@@ -1,5 +1,6 @@
 ﻿using NosCore.Core.Serializing;
 using NosCore.Domain.Character;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -7,9 +8,11 @@ namespace NosCore.Packets.ClientPackets
     public class CharNewPacket : PacketDefinition
     {
         [PacketIndex(0)]
+        [StringLength(15, MinimumLength = 3)]
         public string Name { get; set; }
 
         [PacketIndex(1)]
+        [Range(0, 3)]
         public byte Slot { get; set; }
 
         [PacketIndex(2)]

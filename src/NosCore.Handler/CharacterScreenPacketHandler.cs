@@ -56,11 +56,7 @@ namespace NosCore.Handler
             long accountId = Session.Account.AccountId;
             byte slot = characterCreatePacket.Slot;
             string characterName = characterCreatePacket.Name;
-            if (slot > 2 || DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == accountId && s.Name == characterName && s.Slot == slot && s.State == CharacterState.Active) != null)
-            {
-                return;
-            }
-            if (characterName.Length <= 3 || characterName.Length >= 15)
+            if (DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == accountId && s.Name == characterName && s.Slot == slot && s.State == CharacterState.Active) != null)
             {
                 return;
             }
@@ -70,10 +66,6 @@ namespace NosCore.Handler
                 CharacterDTO character = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null || character.State == CharacterState.Inactive)
                 {
-                    if (characterCreatePacket.Slot > 2)
-                    {
-                        return;
-                    }
                     Random rnd = new Random();
                     Character newCharacter = new Character
                     {
@@ -99,60 +91,6 @@ namespace NosCore.Handler
                     };
                     CharacterDTO chara = newCharacter;
                     SaveResult insertResult = DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
-                    /*  CharacterSkillDTO sk1 = new CharacterSkillDTO { CharacterId = newCharacter.CharacterId, SkillVNum = 200 };
-                      CharacterSkillDTO sk2 = new CharacterSkillDTO { CharacterId = newCharacter.CharacterId, SkillVNum = 201 };
-                      CharacterSkillDTO sk3 = new CharacterSkillDTO { CharacterId = newCharacter.CharacterId, SkillVNum = 209 };
-                      QuicklistEntryDTO qlst1 = new QuicklistEntryDTO
-                      {
-                          CharacterId = newCharacter.CharacterId,
-                          Type = 1,
-                          Slot = 1,
-                          Pos = 1
-                      };
-                      QuicklistEntryDTO qlst2 = new QuicklistEntryDTO
-                      {
-                          CharacterId = newCharacter.CharacterId,
-                          Q2 = 1,
-                          Slot = 2
-                      };
-                      QuicklistEntryDTO qlst3 = new QuicklistEntryDTO
-                      {
-                          CharacterId = newCharacter.CharacterId,
-                          Q2 = 8,
-                          Type = 1,
-                          Slot = 1,
-                          Pos = 16
-                      };
-                      QuicklistEntryDTO qlst4 = new QuicklistEntryDTO
-                      {
-                          CharacterId = newCharacter.CharacterId,
-                          Q2 = 9,
-                          Type = 1,
-                          Slot = 3,
-                          Pos = 1
-                      };
-
-
-
-                      DAOFactory.QuicklistEntryDAO.InsertOrUpdate(ref qlst1);
-                      DAOFactory.QuicklistEntryDAO.InsertOrUpdate(ref qlst2);
-                      DAOFactory.QuicklistEntryDAO.InsertOrUpdate(ref qlst3);
-                      DAOFactory.QuicklistEntryDAO.InsertOrUpdate(ref qlst4);
-                      DAOFactory.CharacterSkillDAO.InsertOrUpdate(ref sk1);
-                      DAOFactory.CharacterSkillDAO.InsertOrUpdate(ref sk2);
-                      DAOFactory.CharacterSkillDAO.InsertOrUpdate(ref sk3);
-
-                      Inventory startupInventory = new Inventory((Character)newCharacter);
-                      startupInventory.AddNewToInventory(1, 1, InventoryType.Wear, 5, 5);
-                      startupInventory.AddNewToInventory(8, 1, InventoryType.Wear, 5, 5);
-                      startupInventory.AddNewToInventory(12, 1, InventoryType.Wear, 5, 5);
-                      startupInventory.AddNewToInventory(2024, 10, InventoryType.Etc);
-                      startupInventory.AddNewToInventory(2081, 1, InventoryType.Etc);
-                      startupInventory.AddNewToInventory(1907, 1, InventoryType.Main);
-                      IEnumerable<ItemInstanceDTO> startupInstanceDtos = startupInventory.Values.ToList();
-                      DAOFactory.IteminstanceDAO.InsertOrUpdate(startupInstanceDtos);
-                      */
-
                     LoadCharacters(null);
                 }
                 else
