@@ -26,7 +26,7 @@ namespace NosCore.Handler
         public CharacterScreenPacketHandler()
         { }
 
-        public CharacterScreenPacketHandler(ClientSession  session)
+        public CharacterScreenPacketHandler(IClientSession  session)
         {
             Session = session;
         }
@@ -35,7 +35,7 @@ namespace NosCore.Handler
 
         #region Properties
 
-        private ClientSession  Session { get; }
+        private IClientSession Session { get; }
 
         #endregion
 
@@ -56,7 +56,7 @@ namespace NosCore.Handler
             long accountId = Session.Account.AccountId;
             byte slot = characterCreatePacket.Slot;
             string characterName = characterCreatePacket.Name;
-            if (DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == accountId && s.Name == characterName && s.Slot == slot && s.State == CharacterState.Active) != null)
+            if (DAOFactory.CharacterDAO.FirstOrDefault(s => s.AccountId == accountId && s.Slot == slot && s.State == CharacterState.Active) != null)
             {
                 return;
             }
@@ -64,7 +64,7 @@ namespace NosCore.Handler
             if (rg.Matches(characterName).Count == 1)
             {
                 CharacterDTO character = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == characterName && s.State == CharacterState.Active);
-                if (character == null || character.State == CharacterState.Inactive)
+                if (character == null)
                 {
                     Random rnd = new Random();
                     Character newCharacter = new Character

@@ -22,12 +22,9 @@ namespace NosCore.Core.Networking
 
         public bool HasSelectedCharacter { get; set; }
 
-        public string AccountName { get; set; }
-
         public bool IsAuthenticated { get; set; }
-        public int SessionId { get; set; }
 
-        public AuthorityType Authority { get; set; }
+        public int SessionId { get; set; }
 
         public long ClientId { get; set; }
 

@@ -15,7 +15,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 
 namespace NosCore.GameObject.Networking
 {
-    public class ClientSession : NetworkClient
+    public class ClientSession : NetworkClient, IClientSession
     {
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {
@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Networking
 
         // private byte countPacketReceived;
         private readonly long lastPacketReceive;
-
+        public ClientSession() : base (null) { }
         public ClientSession(IChannel channel, IEnumerable<IPacketHandler> packetList, bool isWorldClient) : base(channel)
         {
             // set last received
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Networking
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
 
-        public AccountDTO Account { get; private set; }
+        public AccountDTO Account { get; set; }
 
         public Character Character
         {
