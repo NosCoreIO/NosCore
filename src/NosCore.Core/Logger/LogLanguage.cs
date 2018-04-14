@@ -11,10 +11,10 @@ namespace NosCore.Core.Logger
 
         private LogLanguage()
         {
-            _resourceCulture = new CultureInfo("fr-fr"); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
+            _resourceCulture = new CultureInfo("en-en"); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
             if (Assembly.GetEntryAssembly() != null)
             {
-                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Ressource.LocalizedResources", Assembly.GetExecutingAssembly());
+                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());
             }
         }
 
@@ -37,7 +37,10 @@ namespace NosCore.Core.Logger
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }
-
+        public ResourceSet GetRessourceSet()
+        {
+            return _manager?.GetResourceSet(_resourceCulture, false, false);
+        }
         #endregion
 
         #region Members
