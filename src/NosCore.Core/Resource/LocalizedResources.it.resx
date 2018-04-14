@@ -126,7 +126,7 @@
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
     <value>Autentificazione errata.</value>
   </data>
-  <data name="AUTHENTICATED_SUCCES" xml:space="preserve">
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Autentificazione avvennuta con successo!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">

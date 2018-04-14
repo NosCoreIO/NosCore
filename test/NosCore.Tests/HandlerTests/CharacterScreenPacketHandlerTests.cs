@@ -94,7 +94,7 @@ namespace NosCore.Tests.HandlerTests
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
             session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
-            var name = "TestCharacter";
+            const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
                 Name = name
@@ -105,7 +105,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void CreateCharacter()
         {
-            var name = "TestCharacter";
+            const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
                 Name = name
@@ -116,16 +116,15 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void CreateCharacter_With_Packet()
         {
-            var name = "TestCharacter";
+            const string name = "TestCharacter";
             handler.CreateCharacter((CharNewPacket)PacketFactory.Deserialize($"Char_NEW {name} 0 0 0 0", typeof(CharNewPacket)));
             Assert.IsNotNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name));
         }
 
-
         [TestMethod]
         public void InvalidName_Does_Not_Create_Character()
         {
-            var name = "Test Character";
+            const string name = "Test Character";
             handler.CreateCharacter(new CharNewPacket()
             {
                 Name = name,
@@ -136,14 +135,14 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void InvalidSlot_Does_Not_Create_Character()
         {
-            var name = "TestCharacter";
+            const string name = "TestCharacter";
             Assert.IsNull(PacketFactory.Deserialize($"Char_NEW {name} 4 0 0 0", typeof(CharNewPacket)));
         }
 
         [TestMethod]
         public void ExistingName_Does_Not_Create_Character()
         {
-            var name = "TestExistingCharacter";
+            const string name = "TestExistingCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
                 Name = name
@@ -154,7 +153,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void NotEmptySlot_Does_Not_Create_Character()
         {
-            var name = "TestCharacter";
+            const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
                 Name = name,
@@ -162,6 +161,5 @@ namespace NosCore.Tests.HandlerTests
             });
             Assert.IsFalse(DAOFactory.CharacterDAO.Where(s => s.Slot == 1).Skip(1).Any());
         }
-
     }
 }

@@ -28,17 +28,29 @@
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Domain\NosCore.Domain.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resource\LocalizedResources.fr.resx">
-      <Generator>ResXResourceManager</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resource\LocalizedResources.it.resx">
-      <Generator>ResXResourceManager</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resource\LocalizedResources.resx">
-      <Generator>ResXResourceManager</Generator>
-    </EmbeddedResource>
+	  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
-
+	  <ItemGroup>
+	    <Compile Update="Resource\LocalizedResources.Designer.cs">
+	      <DesignTime>True</DesignTime>
+	      <AutoGen>True</AutoGen>
+	      <DependentUpon>LocalizedResources.resx</DependentUpon>
+	    </Compile>
+	  </ItemGroup>
+	  <ItemGroup>
+	    <EmbeddedResource Update="Resource\LocalizedResources.resx">
+	      <Generator>PublicResXFileCodeGenerator</Generator>
+	      <LastGenOutput>LocalizedResources.Designer.cs</LastGenOutput>
+	    </EmbeddedResource>
+	  </ItemGroup>
 </Project>
