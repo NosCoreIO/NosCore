@@ -2,32 +2,31 @@
 mono: none
 dotnet: 2.1.101
 stages:
-  - compile
-  - test
+    - compile
+    - test
 install:
-  - dotnet restore
+    - dotnet restore
 jobs:
   include:
     - stage: compile
-        script: 
+      script: 
             - dotnet build
-        after_success:
+      after_success:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
             - chmod +x send.sh
             - ./send.sh success $WEBHOOK_URL
-            after_failure:
+      after_failure:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
             - chmod +x send.sh
-            - ./send.sh failure $WEBHOOK_URL
+            - ./send.sh failure $WEBHOOK_URL    
     - stage: test
-        script:
-            - dotnet build      
-            - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
-        after_success:
+      script: 
+            - dotnet build
+      after_success:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
             - chmod +x send.sh
             - ./send.sh success $WEBHOOK_URL
-        after_failure:
+      after_failure:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
             - chmod +x send.sh
             - ./send.sh failure $WEBHOOK_URL
