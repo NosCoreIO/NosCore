@@ -24,10 +24,10 @@ jobs:
             - dotnet build
             - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
       after_success:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
-            - chmod +x send.sh
-            - ./send.sh success $WEBHOOK_URL
+            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
+            - chmod +x send-test.sh
+            - ./send-test.sh success $WEBHOOK_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
       after_failure:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
-            - chmod +x send.sh
-            - ./send.sh failure $WEBHOOK_URL
+            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
+            - chmod +x send-test.sh
+            - ./send-test.sh success $WEBHOOK_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
