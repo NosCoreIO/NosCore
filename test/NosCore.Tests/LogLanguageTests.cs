@@ -30,7 +30,7 @@ namespace NosCore.Test
                 string value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
                 if (value == $"#<{val.ToString()}>")
                 {
-                    unfound += $"value {value} not defined\n";
+                    unfound += $"\nvalue {value} not defined";
                 }
             }
             if (!string.IsNullOrEmpty(unfound))
