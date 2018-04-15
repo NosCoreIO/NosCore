@@ -10,10 +10,10 @@ namespace NosCore.Core.Logger
 
         private Language()
         {
-            _resourceCulture = new CultureInfo("fr-fr"); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
+            _resourceCulture = new CultureInfo("en-en");
             if (Assembly.GetEntryAssembly() != null)
             {
-                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Ressource.LocalizedResources", Assembly.GetExecutingAssembly());
+                //_manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Ressource.LocalizedResources", Assembly.GetExecutingAssembly());
             }
         }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NosCore.Core.Logger
 {
-    public enum LanguageKey
+    public enum LogLanguageKey
     {
         UNREGISTRED_FROM_MASTER,
         REGISTRED_ON_MASTER,
@@ -53,6 +53,9 @@ namespace NosCore.Core.Logger
         DONE,
         AT_LEAST_ONE_FILE_MISSING,
         CARDS_PARSED,
-        ITEMS_PARSED
+        ITEMS_PARSED,
+        MAPS_LOADED,
+        NO_MAP,
+        MAPMONSTERS_LOADED
     }
 }

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\..\src\NosCore.Handler\NosCore.Handler.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj" />
   </ItemGroup>
 
 </Project>

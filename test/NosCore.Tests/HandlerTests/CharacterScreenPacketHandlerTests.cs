@@ -35,31 +35,7 @@ namespace NosCore.Tests.HandlerTests
         private CharacterScreenPacketHandler handler;
         private readonly Mock<IClientSession> session = new Mock<IClientSession>();
         private AccountDTO acc;
-        private static void InitializeMapping()
-        {
-            MapperConfiguration config = new MapperConfiguration(cfg =>
-            {
-                foreach (Type type in typeof(CharacterDTO).Assembly.GetTypes().Where(t => typeof(IDTO).IsAssignableFrom(t)))
-                {
-                    int index = type.Name.LastIndexOf("DTO");
-                    if (index >= 0)
-                    {
-                        string name = type.Name.Substring(0, index);
-                        Type typefound = typeof(Character).Assembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
-                        Type entitytypefound = typeof(Database.Entities.Account).Assembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
-                        if (entitytypefound != null)
-                        {
-                            cfg.CreateMap(type, entitytypefound).ReverseMap();
-                            if (typefound != null)
-                            {
-                                cfg.CreateMap(entitytypefound, type).As(typefound);
-                            }
-                        }
-                    }
-                }
-            });
-            DAOFactory.RegisterMapping(config.CreateMapper());
-        }
+
 
         [TestInitialize]
         public void Setup()
@@ -79,7 +55,7 @@ namespace NosCore.Tests.HandlerTests
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Core.Logger.Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenPacketHandlerTests)));
             DataAccessHelper.Instance.Initialize(sqlconnect);
-            InitializeMapping();
+            Mapping.Mapper.InitializeMapping();
             MapDTO map = new MapDTO() { MapId = 1 };
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             acc = new AccountDTO() { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
@@ -160,6 +136,47 @@ namespace NosCore.Tests.HandlerTests
                 Slot = 1
             });
             Assert.IsFalse(DAOFactory.CharacterDAO.Where(s => s.Slot == 1).Skip(1).Any());
+        }
+
+        [TestMethod]
+        public void DeleteCharacter_With_Packet()
+        {
+            const string name = "TestExistingCharacter";
+            handler.DeleteCharacter((CharacterDeletePacket)PacketFactory.Deserialize($"Char_DEL 1 test", typeof(CharacterDeletePacket)));
+            Assert.IsNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+        }
+
+        [TestMethod]
+        public void DeleteCharacter_Invalid_Password()
+        {
+            const string name = "TestExistingCharacter";
+            handler.DeleteCharacter((CharacterDeletePacket)PacketFactory.Deserialize($"Char_DEL 1 testpassword", typeof(CharacterDeletePacket)));
+            Assert.IsNotNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+        }
+
+        [TestMethod]
+        public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
+        {
+            session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
+            const string name = "TestExistingCharacter";
+            handler.DeleteCharacter(new CharacterDeletePacket()
+            {
+                Password = "test",
+                Slot = 1
+            });
+            Assert.IsNotNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+        }
+
+        [TestMethod]
+        public void DeleteCharacter()
+        {
+            const string name = "TestExistingCharacter";
+            handler.DeleteCharacter(new CharacterDeletePacket()
+            {
+                Password = "test",
+                Slot = 1
+            });
+            Assert.IsNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
         }
     }
 }

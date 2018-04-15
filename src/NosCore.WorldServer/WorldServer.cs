@@ -53,7 +53,7 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(_worldConfiguration);
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }
 
         private static void InitializeLogger()
@@ -89,7 +89,7 @@ namespace NosCore.WorldServer
                 }
                 catch
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY));
                     Thread.Sleep(5000);
                 }
             }
@@ -138,45 +138,19 @@ namespace NosCore.WorldServer
             }).ConfigureAwait(false);
         }
 
-        private static void InitializeMapping()
-        {
-            MapperConfiguration config = new MapperConfiguration(cfg =>
-            {
-                foreach (Type type in typeof(CharacterDTO).Assembly.GetTypes().Where(t => typeof(IDTO).IsAssignableFrom(t)))
-                {
-                    int index = type.Name.LastIndexOf("DTO");
-                    if (index >= 0)
-                    {
-                        string name = type.Name.Substring(0, index);
-                        Type typefound = typeof(Character).Assembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
-                        Type entitytypefound = typeof(Database.Entities.Account).Assembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
-                        if (entitytypefound != null)
-                        {
-                            cfg.CreateMap(type, entitytypefound).ReverseMap();
-                            if (typefound != null)
-                            {
-                                cfg.CreateMap(entitytypefound, type).As(typefound);
-                            }
-                        }
-                    }
-                }
-            });
-            DAOFactory.RegisterMapping(config.CreateMapper());
-        }
-
         public static void Main(string[] args)
         {
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
             BuildWebHost(args).StartAsync();
-            InitializeMapping();
+            Mapping.Mapper.InitializeMapping();
             InitializePackets();
             ConnectMaster();
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
             {
                 ServerManager.Instance.Initialize();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), _worldConfiguration.Port));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _worldConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {_worldConfiguration.WebApi}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), _clientPacketDefinitions, true).Wait();
             }
