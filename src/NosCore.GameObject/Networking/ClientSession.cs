@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Networking
         {
             SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
             ServerManager.Instance.UnregisterSession(this);
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED)));
         }
 
         public AccountDTO Account { get; set; }
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Networking
                 if (_character == null || !HasSelectedCharacter)
                 {
                     // cant access an
-                    Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT)));
+                    Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_NOT_INIT)));
                 }
 
                 return _character;
@@ -157,7 +157,7 @@ namespace NosCore.GameObject.Networking
             }
             catch (Exception)
             {
-                Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
+                Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_CHANGE_MAP));
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -278,7 +278,7 @@ namespace NosCore.GameObject.Networking
                 SessionId = sessid;
                 SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] = SessionId;
 
-                Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
+                Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
 
                 if (!_waitForPacketsAmount.HasValue)
                 {
@@ -298,7 +298,7 @@ namespace NosCore.GameObject.Networking
                     string nextKeepAliveRaw = packetsplit[0];
                     if (!int.TryParse(nextKeepAliveRaw, out int nextKeepaliveIdentity) && nextKeepaliveIdentity != (LastKeepAliveIdentity + 1))
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE), ClientId);
+                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE), ClientId);
                         Disconnect();
                         return;
                     }

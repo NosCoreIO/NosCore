@@ -72,13 +72,13 @@ namespace NosCore.GameObject.Networking
                 _maps.AddRange(_mapList.Select(s => s.Value));
                 if (i != 0)
                 {
-                    Logger.Log.Info(string.Format(Language.Instance.GetMessageFromKey("MAPS_LOADED"), i));
+                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED), i));
                 }
                 else
                 {
-                    Logger.Log.Error(Language.Instance.GetMessageFromKey("NO_MAP"));
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
                 }
-                Logger.Log.Info(string.Format(Language.Instance.GetMessageFromKey("MAPMONSTERS_LOADED"), monstercount));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monstercount));
             }
             catch (Exception ex)
             {

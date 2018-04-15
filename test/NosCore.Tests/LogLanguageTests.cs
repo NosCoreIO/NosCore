@@ -25,7 +25,7 @@ namespace NosCore.Test
         public void CheckEveryLanguageValueSet(RegionType type)
         {
             string unfound = string.Empty;
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (LogLanguageKey val in Enum.GetValues(typeof(LogLanguageKey)))
             {
                 string value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
                 if (value == $"#<{val.ToString()}>")
@@ -51,7 +51,7 @@ namespace NosCore.Test
         public void CheckEveryLanguageAreUsefull(RegionType type)
         {
             string unfound = string.Empty;
-            var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s=>s.ToString());
+            var values = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s=>s.ToString());
             foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
             {
                 string resourceKey = entry.Key.ToString();

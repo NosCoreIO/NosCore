@@ -177,14 +177,14 @@ namespace NosCore.Handler
                     }
                     else
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
+                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
                         Session.Disconnect();
                         return;
                     }
                 }
                 else
                 {
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
+                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
@@ -196,7 +196,7 @@ namespace NosCore.Handler
             }
 
             IEnumerable<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
-            Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED), Session.Account.Name);
+            Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED), Session.Account.Name);
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket() { Type = 0 });
