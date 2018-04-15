@@ -22,6 +22,7 @@ jobs:
     - stage: test
       script: 
             - dotnet build
+            - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
       after_success:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
             - chmod +x send.sh
