@@ -26,8 +26,8 @@ jobs:
       after_success:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
             - chmod +x send-test.sh
-            - ./send-test.sh success $WEBHOOK_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
+            - ./send-test.sh success $WEBHOOK_URL $WEBHOOK_DE_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
       after_failure:
             - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
             - chmod +x send-test.sh
-            - ./send-test.sh failure $WEBHOOK_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
+            - ./send-test.sh failure $WEBHOOK_URL $WEBHOOK_DE_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
