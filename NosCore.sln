@@ -32,7 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.DAL", "src\NosCore.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.WebApi", "src\NosCore.WebApi\NosCore.WebApi.csproj", "{5BBF3F46-3445-42EF-B10D-315A74EE0211}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.Mapping", "src\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj", "{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Mapping", "src\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj", "{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.PathFinder", "src\NosCore.PathFinder\NosCore.PathFinder.csproj", "{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,6 +106,10 @@ Global
 		{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
