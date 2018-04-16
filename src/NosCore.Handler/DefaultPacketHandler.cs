@@ -1,7 +1,12 @@
 ﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.Domain.Map;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
+using System;
+using System.Diagnostics;
 
 namespace NosCore.Handler
 {
@@ -183,6 +188,33 @@ namespace NosCore.Handler
             //            {
             //                Session.Character.ConnectAct4();
             //            }
+        }
+
+        /// <summary>
+        /// Walk Packet
+        /// </summary>
+        /// <param name="walkPacket"></param>
+        public void Walk(WalkPacket walkPacket)
+        {
+            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
+            int distance = Maps.GetDistance(Session.Character.PositionX, Session.Character.PositionY,
+               walkPacket.XCoordinate, walkPacket.YCoordinate);
+
+            if ((Session.Character.Speed >= walkPacket.Speed || Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
+            {
+                if (Session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
+                {
+                    Session.Character.MapX = walkPacket.XCoordinate;
+                    Session.Character.MapY = walkPacket.YCoordinate;
+                }
+                Session.Character.PositionX = walkPacket.XCoordinate;
+                Session.Character.PositionY = walkPacket.YCoordinate;
+
+
+                Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateMove());
+                Session.SendPacket(Session.Character.GenerateCond());
+                Session.Character.LastMove = DateTime.Now;
+            }
         }
 
         #endregion

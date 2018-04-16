@@ -41,6 +41,8 @@ namespace NosCore.GameObject
 
         public byte Speed { get; set; }
 
+        public DateTime LastSpeedChange { get; set; }
+
         public byte Morph { get; set; }
 
         public byte MorphUpgrade { get; set; }
@@ -50,6 +52,8 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
 
         public bool NoAttack { get; set; }
+
+        public DateTime LastMove { get; set; }
 
         public bool NoMove { get; set; }
         public bool IsSitting { get; set; }
