@@ -1,4 +1,5 @@
 ﻿using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Packets.ServerPackets;
 using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
@@ -40,5 +41,17 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MorphBonus = aliveEntity.MorphBonus
             };
         }
+
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity)
+        {
+            return new MovePacket
+            {
+                VisualEntityId = aliveEntity.VisualId,
+                MapX = aliveEntity.PositionX,
+                MapY = aliveEntity.PositionY,
+                Speed = aliveEntity.Speed,
+                VisualType = 1
+            };
         }
+    }
 }

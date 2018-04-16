@@ -8,10 +8,11 @@ using System.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.GameObject
 {
-    public class MapInstance
+    public class MapInstance : BroadcastableBase
     {
         #region Instantiation
 
