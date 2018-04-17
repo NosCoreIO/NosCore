@@ -14,7 +14,7 @@ namespace NosCore.Packets.ClientPackets
         public int Argument { get; set; }
 
         [PacketIndex(2)]
-        public long? User { get; set; }
+        public long? VisualEntity { get; set; }
 
         [PacketIndex(3)]
         public int Data { get; set; }
