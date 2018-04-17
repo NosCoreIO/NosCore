@@ -53,5 +53,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualType = 1
             };
         }
+
+        public static EffectPacket GenerateEff(this IAliveEntity aliveEntity, int effectid)
+        {
+            return new EffectPacket
+            {
+                EffectType = 1,
+                VisualEntityId = aliveEntity.VisualId,
+                Id = effectid
+            };
+        }
     }
 }

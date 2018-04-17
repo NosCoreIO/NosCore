@@ -223,7 +223,7 @@ namespace NosCore.Handler
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-
+            
         }
         #endregion
     }
