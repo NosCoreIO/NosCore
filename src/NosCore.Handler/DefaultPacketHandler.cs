@@ -1,4 +1,5 @@
 ﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -223,7 +224,20 @@ namespace NosCore.Handler
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-            
+              // Fix this:
+              // The serialized packet has the wrong format. Packet: 41099 guri Type Argument VisualEntity Data
+              // System.ArgumentOutOfRangeException: Specified argument was out of the range of valid values.
+            if (guriPacket == null)
+            {
+                return;
+            }
+            if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999 && !Session.Character.EmoticonsBlocked)
+            {
+                if (guriPacket.VisualEntity != null && Convert.ToInt64(guriPacket.VisualEntity.Value) == Session.Character.CharacterId)
+                {
+                    Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+                }
+            }
         }
         #endregion
     }
