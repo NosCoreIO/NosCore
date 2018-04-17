@@ -14,10 +14,10 @@ namespace NosCore.Packets.ClientPackets
         public int Argument { get; set; }
 
         [PacketIndex(2)]
-        public long User { get; set; }
+        public long? User { get; set; }
 
         [PacketIndex(3)]
-        public int? Data { get; set; }
+        public int Data { get; set; }
 
         [PacketIndex(4, serializeToEnd: true)]
         public string Value { get; set; }
