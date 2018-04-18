@@ -120,13 +120,14 @@ namespace NosCore.GameObject.Networking
 
         public void ChangeMapInstance(Guid mapInstanceId, int? mapX = null, int? mapY = null)
         {
-            if (Character == null || Character.IsChangingMapInstance)
+            if (Character?.MapInstance == null || Character.IsChangingMapInstance)
             {
                 return;
             }
             try
             {
                 Character.IsChangingMapInstance = true;
+                Character.MapInstance.Sessions.TryRemove(SessionId, out ClientSession sess);
                 if (Character.IsSitting)
                 {
                     Character.IsSitting = false;
@@ -153,6 +154,7 @@ namespace NosCore.GameObject.Networking
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GenerateIn());
+                Character.MapInstance.Sessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)
