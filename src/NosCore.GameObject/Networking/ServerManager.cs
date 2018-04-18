@@ -10,7 +10,7 @@ using NosCore.Domain.Map;
 
 namespace NosCore.GameObject.Networking
 {
-    public class ServerManager
+    public class ServerManager : BroadcastableBase
     {
         private static ServerManager instance;
 
@@ -24,7 +24,6 @@ namespace NosCore.GameObject.Networking
             }
         }
 
-        public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } = new ConcurrentDictionary<int, ClientSession>();
 
         private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();
 

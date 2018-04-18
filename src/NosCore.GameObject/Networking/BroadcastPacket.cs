@@ -1,4 +1,5 @@
-﻿using NosCore.Domain.Interaction;
+﻿using NosCore.Core.Serializing;
+using NosCore.Domain.Interaction;
 
 namespace NosCore.GameObject.Networking
 {
@@ -6,7 +7,7 @@ namespace NosCore.GameObject.Networking
     {
         #region Instantiation
 
-        public BroadcastPacket(ClientSession session, string packet, ReceiverType receiver, string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
+        public BroadcastPacket(ClientSession session, PacketDefinition packet, ReceiverType receiver, string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
         {
             Sender = session;
             Packet = packet;
@@ -21,7 +22,7 @@ namespace NosCore.GameObject.Networking
 
         #region Properties
 
-        public string Packet { get; set; }
+        public PacketDefinition Packet { get; set; }
 
         public ReceiverType Receiver { get; set; }
 

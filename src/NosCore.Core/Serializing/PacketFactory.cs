@@ -132,7 +132,8 @@ namespace NosCore.Core.Serializing
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
                         {
                             // get the value to the end and stop deserialization
-                            string valueToEnd = packetContent.Substring(matches[currentIndex].Index, packetContent.Length - matches[currentIndex].Index);
+                            int index = matches.Count > currentIndex ? matches[currentIndex].Index : packetContent.Length;
+                            string valueToEnd = packetContent.Substring(packetContent.Length, packetContent.Length - index);
                             packetBasePropertyInfo.Value.SetValue(deserializedPacket,
                                 DeserializeValue(packetBasePropertyInfo.Value.PropertyType, valueToEnd, packetBasePropertyInfo.Key, packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(), matches, includesKeepAliveIdentity));
                             break;
@@ -178,7 +179,7 @@ namespace NosCore.Core.Serializing
                 int currentSubIndex = isReturnPacket ? subpacketPropertyInfo.Key.Index + 1 : subpacketPropertyInfo.Key.Index; // return packets do include header
                 string currentSubValue = subpacketValues[currentSubIndex];
 
-                subpacketPropertyInfo.Value.SetValue(newSubpacket, DeserializeValue(subpacketPropertyInfo.Value.PropertyType, currentSubValue,  subpacketPropertyInfo.Key, subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(), null));
+                subpacketPropertyInfo.Value.SetValue(newSubpacket, DeserializeValue(subpacketPropertyInfo.Value.PropertyType, currentSubValue, subpacketPropertyInfo.Key, subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(), null));
             }
 
             return newSubpacket;
@@ -248,7 +249,7 @@ namespace NosCore.Core.Serializing
         private static object DeserializeValue(Type packetPropertyType, string currentValue, PacketIndexAttribute packetIndexAttribute, IEnumerable<ValidationAttribute> validationAttributes, MatchCollection packetMatches,
             bool includesKeepAliveIdentity = false)
         {
-            validationAttributes.ToList().ForEach(s => { if (!s.IsValid(currentValue)) throw new ValidationException(s.ErrorMessage);  });
+            validationAttributes.ToList().ForEach(s => { if (!s.IsValid(currentValue)) throw new ValidationException(s.ErrorMessage); });
             // check for empty value and cast it to null
             if (currentValue == "-1" || currentValue == "-")
             {
@@ -303,9 +304,13 @@ namespace NosCore.Core.Serializing
                 }
                 return Convert.ChangeType(currentValue, packetPropertyType.GenericTypeArguments[0]);
             }
-            if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue))
+            if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue) && !packetIndexAttribute.SerializeToEnd)
             {
                 throw new NullReferenceException();
+            }
+            else if(packetPropertyType == typeof(string) && currentValue == null)
+            {
+                currentValue = string.Empty;
             }
             return Convert.ChangeType(currentValue, packetPropertyType); // cast to specified type
         }
