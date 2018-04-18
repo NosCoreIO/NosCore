@@ -7,27 +7,11 @@ stages:
 install:
     - dotnet restore
 jobs:
-  include:
-    - stage: compile
-      script: 
-            - dotnet build
-      after_success:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
-            - chmod +x send.sh
-            - ./send.sh success $WEBHOOK_URL
-      after_failure:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send.sh
-            - chmod +x send.sh
-            - ./send.sh failure $WEBHOOK_URL    
-    - stage: test
-      script: 
-            - dotnet build
-            - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
-      after_success:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
-            - chmod +x send-test.sh
-            - ./send-test.sh success $WEBHOOK_URL $WEBHOOK_DE_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
-      after_failure:
-            - wget https://raw.githubusercontent.com/NosCoreIO/travis-ci-discord-webhook/master/send-test.sh
-            - chmod +x send-test.sh
-            - ./send-test.sh failure $WEBHOOK_URL $WEBHOOK_DE_URL $WEBHOOK_EN_URL $WEBHOOK_FR_URL $WEBHOOK_IT_URL $WEBHOOK_PL_URL $WEBHOOK_ES_URL $WEBHOOK_CZ_URL $WEBHOOK_TR_URL
+    script: 
+       - dotnet build
+    after_script:
+       - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
+       - pip install --user awscli
+       - export PATH=$PATH:$HOME/.local/bin
+       - eval $(aws ecr get-login --region us-west-2)
+       - eval $(aws lambda invoke --invocation-type Event --function-name noscore-travis --region region --log-type Tail --payload '{"Build_Id":$TRAVIS_COMMIT, "Travis_Branch":"$TRAVIS_BRANCH", "Travis_Commit":"$TRAVIS_COMMIT", "Travis_Pull_Request":$TRAVIS_PULL_REQUEST, "Travis_Repo_Slug":$TRAVIS_REPO_SLUG}')
