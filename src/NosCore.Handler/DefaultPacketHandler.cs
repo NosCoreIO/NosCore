@@ -217,6 +217,14 @@ namespace NosCore.Handler
             }
         }
 
+        /// <summary>
+        /// Guri Packet
+        /// </summary>
+        /// <param name="guriPacket"></param>
+        public void Guri(GuriPacket guriPacket)
+        {
+
+        }
         #endregion
     }
 }
