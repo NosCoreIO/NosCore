@@ -58,7 +58,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new EffectPacket
             {
-                EffectType = 1,
+                EffectType = aliveEntity.VisualType,
                 VisualEntityId = aliveEntity.VisualId,
                 Id = effectid
             };
