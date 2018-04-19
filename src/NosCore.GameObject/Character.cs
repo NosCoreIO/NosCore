@@ -14,7 +14,6 @@ namespace NosCore.GameObject
     {
         public Character()
         {
-            VisualId = CharacterId;
         }
 
         public AccountDTO Account { get; set; }
