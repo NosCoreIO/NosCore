@@ -50,7 +50,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MapX = aliveEntity.PositionX,
                 MapY = aliveEntity.PositionY,
                 Speed = aliveEntity.Speed,
-                VisualType = 1
+                VisualType = aliveEntity.VisualType
             };
         }
 
