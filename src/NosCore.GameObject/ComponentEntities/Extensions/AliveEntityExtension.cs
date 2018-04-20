@@ -50,7 +50,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MapX = aliveEntity.PositionX,
                 MapY = aliveEntity.PositionY,
                 Speed = aliveEntity.Speed,
-                VisualType = 1
+                VisualType = aliveEntity.VisualType
             };
         }
 
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new EffectPacket
             {
-                EffectType = 1,
+                EffectType = aliveEntity.VisualType,
                 VisualEntityId = aliveEntity.VisualId,
                 Id = effectid
             };

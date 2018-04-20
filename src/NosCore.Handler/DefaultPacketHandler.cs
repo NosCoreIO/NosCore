@@ -224,9 +224,6 @@ namespace NosCore.Handler
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-              // Fix this:
-              // The serialized packet has the wrong format. Packet: 41099 guri Type Argument VisualEntity Data
-              // System.ArgumentOutOfRangeException: Specified argument was out of the range of valid values.
             if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999 && !Session.Character.EmoticonsBlocked)
             {
                 if (guriPacket.VisualEntityId != null && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
