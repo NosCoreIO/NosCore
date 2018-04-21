@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 
 namespace NosCore.Core.Logger
 {
@@ -12,7 +13,7 @@ namespace NosCore.Core.Logger
 
         private LogLanguage()
         {
-            _resourceCulture = new CultureInfo("en-en"); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
+            _resourceCulture = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name); //TODO Replace by configuration ConfigurationManager.AppSettings["Language"]
             if (Assembly.GetExecutingAssembly() != null)
             {
                 _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());

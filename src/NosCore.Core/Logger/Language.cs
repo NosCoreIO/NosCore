@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 
 namespace NosCore.Core.Logger
 {
@@ -10,7 +11,7 @@ namespace NosCore.Core.Logger
 
         private Language()
         {
-            _resourceCulture = new CultureInfo("en-en");
+            _resourceCulture = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name);
             if (Assembly.GetEntryAssembly() != null)
             {
                 //_manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Ressource.LocalizedResources", Assembly.GetExecutingAssembly());
