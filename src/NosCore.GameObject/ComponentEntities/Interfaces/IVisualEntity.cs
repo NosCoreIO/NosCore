@@ -8,7 +8,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         short VNum { get; set; }
 
-        long VisualId { get; set; }
+        long VisualId { get; }
 
         byte? Direction { get; set; }
 

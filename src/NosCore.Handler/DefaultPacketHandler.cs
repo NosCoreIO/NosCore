@@ -13,7 +13,7 @@ namespace NosCore.Handler
 {
     public class DefaultPacketHandler : IPacketHandler
     {
-#region Members
+        #region Members
 
         #endregion
 
@@ -55,7 +55,7 @@ namespace NosCore.Handler
                 Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
                 Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", 10));
             }
-            //            Session.Character.LoadSpeed();
+            Session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
             //            Session.SendPacket(Session.Character.GenerateTit());
             //            Session.SendPacket(Session.Character.GenerateSpPoint());
