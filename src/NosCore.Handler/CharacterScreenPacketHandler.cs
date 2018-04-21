@@ -288,7 +288,6 @@ namespace NosCore.Handler
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
-                character.VisualId = character.CharacterId;
                 Session.SetCharacter(character);
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {

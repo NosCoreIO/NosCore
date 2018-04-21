@@ -12,10 +12,6 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDTO, ICharacterEntity
     {
-        public Character()
-        {
-        }
-
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
@@ -28,7 +24,7 @@ namespace NosCore.GameObject
 
         public short VNum { get; set; }
 
-        public long VisualId { get; set; }
+        public long VisualId { get { return CharacterId; } }
 
         public byte? Direction { get; set; }
 
@@ -37,8 +33,31 @@ namespace NosCore.GameObject
         public short PositionY { get; set; }
 
         public short? Amount { get; set; }
+        private byte _speed;
+        public byte Speed
+        {
+            get
+            {
+                //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
+                //    {
+                //        return 0;
+                //    }
 
-        public byte Speed { get; set; }
+                byte bonusSpeed = 0;/*(byte)GetBuff(CardType.Move, (byte)AdditionalTypes.Move.SetMovementNegated)[0];*/
+                if (_speed + bonusSpeed > 59)
+                {
+                    return 59;
+                }
+                return (byte)(_speed + bonusSpeed);
+            }
+
+            set
+            {
+                LastSpeedChange = DateTime.Now;
+                _speed = value > 59 ? (byte)59 : value;
+            }
+        }
+
 
         public DateTime LastSpeedChange { get; set; }
 
@@ -254,6 +273,11 @@ namespace NosCore.GameObject
                 return 25;
             }
             return Reput <= 5000000 ? 26 : 27;
+        }
+
+        public void LoadSpeed()
+        {
+            Speed = CharacterHelper.Instance.SpeedData[(byte)Class];
         }
 
         public double MPLoad()
