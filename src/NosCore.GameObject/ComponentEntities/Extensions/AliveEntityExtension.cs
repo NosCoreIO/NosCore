@@ -64,6 +64,17 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static string GenerateSpk(this IAliveEntity aliveEntity, object message, int type) => $"spk 1 {aliveEntity.VisualId} {type} {aliveEntity.Name} {message}";
+        public static SpkPacket GenerateSpk(this IAliveEntity aliveEntity, object message, int type)
+        {
+            return new SpkPacket
+            {
+
+                Unknow = 1,
+                VisualEntityId = aliveEntity.VisualId,
+                Type = type,
+                VisualEntity = aliveEntity.Name,
+                Message = message
+            };
+        }
     }
 }
