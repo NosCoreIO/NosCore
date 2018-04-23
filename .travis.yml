@@ -22,8 +22,7 @@ install:
 script: 
     - dotnet build
 before_install:
-    - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install openssl; ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/; ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/; fi
-    - if [ "$TestGroup" = "SqlServer" ]; then ./tools/launch-mssql-in-docker.sh ; fi
+    - ./tools/launch-mssql-in-docker.sh
 after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
     - pip install --user awscli
