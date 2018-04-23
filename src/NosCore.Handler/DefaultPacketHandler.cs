@@ -1,4 +1,5 @@
 ﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.Domain.Account;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
@@ -6,6 +7,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 using System;
 using System.Diagnostics;
 
@@ -231,6 +233,26 @@ namespace NosCore.Handler
                     Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
                 }
             }
+        }
+
+        /// <summary>
+        /// say packet
+        /// </summary>
+        /// <param name="sayPacket"></param>
+        public void Say(SayPacket sayPacket)
+        {
+            string message = sayPacket.Message;
+            byte type = sayPacket.Type;
+
+            if (Session.Account.Authority == AuthorityType.Moderator)
+            {
+                type = 12;
+                Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateSay(message.Trim(), 1), ReceiverType.AllExceptMe);
+                message = $"[Support {Session.Character.Name}]: {message}";
+            }
+
+            Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateSay(message.Trim(), type), ReceiverType.AllExceptMe);
+            
         }
         #endregion
     }
