@@ -22,6 +22,7 @@ install:
 script: 
     - dotnet build
 before_install:
+    - chmod +x ./tools/launch-mssql-in-docker.sh
     - ./tools/launch-mssql-in-docker.sh
 after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
