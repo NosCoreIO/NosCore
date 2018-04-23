@@ -23,6 +23,8 @@
         bool NoAttack { get; set; }
 
         bool NoMove { get; set; }
+
+        string Name { get; set; }
         
     }
 }

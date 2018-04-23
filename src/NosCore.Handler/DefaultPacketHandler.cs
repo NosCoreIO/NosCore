@@ -1,4 +1,6 @@
 ﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.DAL;
+using NosCore.Data.AliveEntities;
 using NosCore.Domain.Account;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
@@ -253,6 +255,31 @@ namespace NosCore.Handler
 
             Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateSay(message.Trim(), type), ReceiverType.AllExceptMe);
             
+        }
+
+        /// <summary>
+        /// / packet
+        /// </summary>
+        /// <param name="whisperPacket"></param>
+        public void Whisper(WhisperPacket whisperPacket)
+        {
+            string characterName = whisperPacket.Message.Split(' ')[whisperPacket.Message.StartsWith("GM ", StringComparison.CurrentCulture) ? 1 : 0].Replace("[Support]", string.Empty);
+            string message = string.Empty;
+            string[] packetsplit = whisperPacket.Message.Split(' ');
+            for (int i = packetsplit[0] == "GM" ? 2 : 1; i < packetsplit.Length; i++)
+            {
+                message += packetsplit[i] + " ";
+            }
+            if (message.Length > 60)
+            {
+                message = message.Substring(0, 60);
+            }
+            message = message.Trim();
+            Session.SendPacket(Session.Character.GenerateSpk(message, 5));
+            int? sentChannelId = null;
+                
+            // TO DO: Send Message system
+            // TO DO: "User No Connected"
         }
         #endregion
     }
