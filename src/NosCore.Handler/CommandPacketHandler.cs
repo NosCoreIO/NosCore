@@ -33,7 +33,7 @@ namespace NosCore.Handler
         #region Methods
         public void Speed(SpeedPacket speedPacket)
         {
-            if (speedPacket != null)
+            if (speedPacket.Speed > 0 || speedPacket.Speed < 60)
             {
                 if (speedPacket.Speed >= 60)
                 {
