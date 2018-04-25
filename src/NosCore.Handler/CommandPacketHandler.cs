@@ -29,11 +29,7 @@ namespace NosCore.Handler
         #region Methods
         public void Speed(SpeedPacket speedPacket)
         {
-            if (speedPacket.Speed >= 60)
-            {
-                return;
-            }
-            Session.Character.Speed = speedPacket.Speed;
+            Session.Character.Speed = (speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed);
             Session.SendPacket(Session.Character.GenerateCond());
         }
         #endregion
