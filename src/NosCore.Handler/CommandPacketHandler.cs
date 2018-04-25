@@ -31,6 +31,8 @@ namespace NosCore.Handler
         {
             if (speedPacket.Speed >= 60)
             {
+                Session.Character.Speed = 59;
+                Session.SendPacket(Session.Character.GenerateCond());
                 return;
             }
             Session.Character.Speed = speedPacket.Speed;
