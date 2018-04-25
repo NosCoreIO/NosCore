@@ -41,7 +41,7 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var sqlconnect = new SqlConnectionStringBuilder(@"Server=localhost;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
+            var sqlconnect = new SqlConnectionStringBuilder(@"Server=localhost;User ID=sa;Password=password;");
             DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
             session.Setup(s => s.SendPacket(It.IsAny<PacketDefinition>())).Verifiable();
             session.SetupAllProperties();
