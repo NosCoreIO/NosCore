@@ -8,5 +8,10 @@ namespace NosCore.Packets.CommandPackets
     {
         [PacketIndex(0)]
         public byte Speed { get; set; }
+
+        public string Help()
+        {
+            return "$Speed value";
+        }
     }
 }
