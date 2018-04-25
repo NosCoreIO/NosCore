@@ -195,4 +195,49 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>L'émulateur à bien été chargé.</value>
   </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Déconnecter de master.</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Enregistrer du master.</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Packet méconnu du master.</value>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Authentification avec succès.</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>La base de données n'est pas à jour.</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Client déconnecté.</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Personnage non chargé.</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Erreur lors d'un passage à une map.</value>
+  </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Authentification incorrecte.</value>
+  </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Déconnexion forcée.</value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Client connecté.</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Enrengistrer de master.</value>
+  </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Client arrivé.</value>
+  </data>
 </root>
