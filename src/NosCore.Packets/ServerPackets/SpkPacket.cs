@@ -8,7 +8,7 @@ namespace NosCore.Packets.ServerPackets
         #region Properties
 
         [PacketIndex(0)]
-        public byte Unknow { get; set; }
+        public byte PacketType { get; set; }
 
         [PacketIndex(1)]
         public long VisualEntityId { get; set; }
@@ -17,10 +17,10 @@ namespace NosCore.Packets.ServerPackets
         public int Type { get; set; }
 
         [PacketIndex(3)]
-        public string VisualEntity { get; set; }
+        public string VisualEntityName { get; set; }
 
         [PacketIndex(4)]
-        public object Message { get; set; }
+        public string Message { get; set; }
 
         #endregion
     }

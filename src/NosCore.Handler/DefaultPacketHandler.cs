@@ -278,8 +278,8 @@ namespace NosCore.Handler
             Session.SendPacket(Session.Character.GenerateSpk(message, 5));
             int? sentChannelId = null;
                 
-            // TO DO: Send Message system
-            // TO DO: "User No Connected"
+            // TODO: Send Message system
+            // TODO: "User No Connected"
         }
         #endregion
     }

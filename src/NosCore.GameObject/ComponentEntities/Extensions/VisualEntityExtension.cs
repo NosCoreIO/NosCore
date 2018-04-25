@@ -65,5 +65,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Amount = visualEntity.Amount
             };
         }
+
+        public static SpkPacket GenerateSpk(this INamedEntity visualEntity, string message, int type)
+        {
+            return new SpkPacket
+            {
+
+                PacketType = visualEntity.VisualType,
+                VisualEntityId = visualEntity.VisualId,
+                Type = type,
+                VisualEntityName = visualEntity.Name,
+                Message = message
+            };
+        }
     }
 }
