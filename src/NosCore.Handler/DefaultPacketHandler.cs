@@ -1,4 +1,7 @@
 ﻿using NosCore.Core.Serializing.HandlerSerialization;
+using NosCore.DAL;
+using NosCore.Data.AliveEntities;
+using NosCore.Domain.Account;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
@@ -6,6 +9,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 using System;
 using System.Diagnostics;
 
@@ -231,6 +235,51 @@ namespace NosCore.Handler
                     Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
                 }
             }
+        }
+
+        /// <summary>
+        /// say packet
+        /// </summary>
+        /// <param name="sayPacket"></param>
+        public void Say(SayPacket sayPacket)
+        {
+            string message = sayPacket.Message;
+            byte type = sayPacket.Type;
+
+            if (Session.Account.Authority == AuthorityType.Moderator)
+            {
+                type = 12;
+                Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateSay(message.Trim(), 1), ReceiverType.AllExceptMe);
+                message = $"[Support {Session.Character.Name}]: {message}";
+            }
+
+            Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateSay(message.Trim(), type), ReceiverType.AllExceptMe);
+            
+        }
+
+        /// <summary>
+        /// / packet
+        /// </summary>
+        /// <param name="whisperPacket"></param>
+        public void Whisper(WhisperPacket whisperPacket)
+        {
+            string characterName = whisperPacket.Message.Split(' ')[whisperPacket.Message.StartsWith("GM ", StringComparison.CurrentCulture) ? 1 : 0].Replace("[Support]", string.Empty);
+            string message = string.Empty;
+            string[] packetsplit = whisperPacket.Message.Split(' ');
+            for (int i = packetsplit[0] == "GM" ? 2 : 1; i < packetsplit.Length; i++)
+            {
+                message += packetsplit[i] + " ";
+            }
+            if (message.Length > 60)
+            {
+                message = message.Substring(0, 60);
+            }
+            message = message.Trim();
+            Session.SendPacket(Session.Character.GenerateSpk(message, 5));
+            int? sentChannelId = null;
+                
+            // TODO: Send Message system
+            // TODO: "User No Connected"
         }
         #endregion
     }
