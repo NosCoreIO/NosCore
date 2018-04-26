@@ -117,4 +117,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Účet se SessionID {0} se připojil</value>
+  </data>
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
+    <value>Nejméně jeden z požadovaných souborů chybí</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Chyba při přihlášení</value>
+    <comment>check</comment>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Přihlášení proběhlo úspěšně</value>
+    <comment>check</comment>
+  </data>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>{0} Kart bylo naparsováno</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Charakter se nenačetl</value>
+    <comment>check</comment>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Klient se Odpojil</value>
+  </data>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>Databáze byla Initializována</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>Databáze nemusí být aktuální. Zvažte aktualizaci</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>Parsování dokončeno</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Zadejte složku se soubory, které chcete naparsovat</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Neexistující ID</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Špatné Heslo</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>Bylo naparsováno {0} Itemů</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Chceš naparsovat účty?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Chceš naparsovat vše?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Chceš naparsovat Karty?</value>
+  </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Chceš naparsovat Itemy?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Chceš naparsovat MapNPC?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Chceš naparsovat Mapy?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Chceš naparsovat MapType? Doporučuji použít s MapTypeMap</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Chceš naparsovat Monstra?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Chceš naparsovat NPCMonsterData?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Chceš naparsovat NPCMonsters?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Chceš naparsovat Portály?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Chceš naparsovat Úkoly?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Chceš naparsovat Recepty?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Chceš naparsovat Itemy v Obchodech?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Chceš naparsovat Obchody?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Chceš naparsovat Skilly do Obchodu?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Chceš naparsovat Skilly?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Chceš naparsovat Teleporty?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Chceš naparsovat Časoprostory</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Registrováno na Master Serveru</value>
+    <comment>check</comment>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>Úspeštně načtena!</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Neznámý Master Packet</value>
+    <comment>check</comment>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Neregistrováno na Master Serveru</value>
+    <comment>check</comment>
+  </data>
 </root>
