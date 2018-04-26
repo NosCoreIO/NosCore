@@ -15,7 +15,7 @@ namespace NosCore.Test
     {
         [DataTestMethod]
         [DataRow(RegionType.EN)]
-        [DataRow(RegionType.CZ)]
+        [DataRow(RegionType.CS)]
         [DataRow(RegionType.DE)]
         [DataRow(RegionType.ES)]
         [DataRow(RegionType.FR)]
@@ -41,7 +41,7 @@ namespace NosCore.Test
 
         [DataTestMethod]
         [DataRow(RegionType.EN)]
-        [DataRow(RegionType.CZ)]
+        [DataRow(RegionType.CS)]
         [DataRow(RegionType.DE)]
         [DataRow(RegionType.ES)]
         [DataRow(RegionType.FR)]

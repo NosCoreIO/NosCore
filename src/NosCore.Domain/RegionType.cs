@@ -8,7 +8,7 @@
         IT,
         PL,
         ES,
-        CZ,
+        CS,
         TR
     }
 }
