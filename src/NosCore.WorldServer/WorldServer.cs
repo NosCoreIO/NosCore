@@ -1,55 +1,34 @@
-﻿using log4net;
-using log4net.Config;
-using log4net.Repository;
+﻿using DotNetty.Codecs;
+using DotNetty.Transport.Bootstrapping;
+using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.Client;
 using NosCore.Core.Encryption;
 using NosCore.Core.Logger;
-using NosCore.Core.Serializing;
-using NosCore.Data;
-using NosCore.Database;
-using NosCore.Packets.ClientPackets;
+using NosCore.Core.Networking;
+using NosCore.DAL;
+using NosCore.Domain;
+using NosCore.GameObject.Networking;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using NosCore.GameObject.Networking;
-using System.Threading.Tasks;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Codecs;
-using DotNetty.Transport.Channels.Sockets;
 using System.Net;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
-using NosCore.Configuration;
-using NosCore.GameObject;
-using Microsoft.AspNetCore;
-using Microsoft.Extensions.Logging;
-using NosCore.DAL;
-using AutoMapper;
-using NosCore.Core.Client;
-using NosCore.Core.Extensions;
-using NosCore.Core.Networking;
-using NosCore.Core.Serializing.HandlerSerialization;
-using NosCore.Data.AliveEntities;
-using NosCore.Domain;
-using NosCore.Handler;
-using Autofac;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        private readonly List<IPacketHandler> _clientPacketDefinitions;
-
         private readonly WorldConfiguration _worldConfiguration;
 
-        public WorldServer(WorldConfiguration worldConfiguration, List<IPacketHandler> clientPacketDefinition)
+        public WorldServer(WorldConfiguration worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
-            _clientPacketDefinitions = clientPacketDefinition;
         }
 
         public void Run()
@@ -62,7 +41,7 @@ namespace NosCore.WorldServer
                 ServerManager.Instance.Initialize();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _worldConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {_worldConfiguration.WebApi}";
-                NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), _clientPacketDefinitions, true).Wait();
+                NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), true).Wait();
             }
             else
             {

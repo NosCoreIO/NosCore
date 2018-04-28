@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NosCore.Core.Encryption;
 using NosCore.Core.Logger;
-using NosCore.Core.Serializing.HandlerSerialization;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
@@ -16,17 +15,18 @@ using NosCore.GameObject.ItemInstance;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Core;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class CharacterScreenPacketHandler : ICharacterScreenPacketHandler
+    public class CharacterScreenPacketController : PacketController
     {
         #region Instantiation
 
-        public CharacterScreenPacketHandler()
+        public CharacterScreenPacketController()
         { }
 
-        public CharacterScreenPacketHandler(IClientSession  session)
+        public CharacterScreenPacketController(IClientSession  session)
         {
             Session = session;
         }
