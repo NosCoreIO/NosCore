@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using DotNetty.Transport.Channels;
-using NosCore.Core;
 using NosCore.Core.Handling;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
-using NosCore.Core.Serializing.HandlerSerialization;
 using NosCore.Data;
 using NosCore.Domain.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,14 +36,12 @@ namespace NosCore.GameObject.Networking
         // private byte countPacketReceived;
         private readonly long lastPacketReceive;
         public ClientSession() : base (null) { }
-        public ClientSession(IChannel channel, IEnumerable<IPacketHandler> packetList, bool isWorldClient) : base(channel)
+        public ClientSession(IChannel channel, bool isWorldClient) : base(channel)
         {
             // set last received
             lastPacketReceive = DateTime.Now.Ticks;
             _random = new Random((int)ClientId);
             _isWorldClient = isWorldClient;
-            // dynamically create packethandler references
-            GenerateHandlerReferences(packetList);
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
@@ -83,12 +77,6 @@ namespace NosCore.GameObject.Networking
         public bool IsOnMap => CurrentMapInstance != null;
 
         public int LastKeepAliveIdentity { get; set; }
-
-        public void Initialize(IEnumerable<IPacketHandler> packetHandler)
-        {
-            // dynamically create packethandler references
-            GenerateHandlerReferences(packetHandler);
-        }
 
         public void InitializeAccount(AccountDTO accountDTO)
         {
@@ -173,83 +161,61 @@ namespace NosCore.GameObject.Networking
             Character.Session = this;
         }
 
-        private void GenerateHandlerReferences(IEnumerable<IPacketHandler> packetDictionary)
-        {
-            // iterate thru each type in the given assembly
-            foreach (IPacketHandler handlerType in packetDictionary)
-            {
-                IPacketHandler handler = (IPacketHandler)Activator.CreateInstance(handlerType.GetType(), this);
-
-                // include PacketDefinition
-                foreach (MethodInfo methodInfo in handlerType.GetType().GetMethods().Where(x => x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
-                {
-                    HandlerMethodReference methodReference = new HandlerMethodReference(DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo), handler, methodInfo.GetParameters().FirstOrDefault()?.ParameterType);
-                    HandlerMethods.Add(methodReference.Identification, methodReference);
-                }
-            }
-        }
-
-        public IDictionary<string, HandlerMethodReference> HandlerMethods
-        {
-            get { return _handlerMethods ?? (_handlerMethods = new Dictionary<string, HandlerMethodReference>()); }
-
-            set { _handlerMethods = value; }
-        }
 
         private void TriggerHandler(string packetHeader, string packet, bool force)
         {
-            HandlerMethodReference methodReference = HandlerMethods.ContainsKey(packetHeader) ? HandlerMethods[packetHeader] : null;
-            if (methodReference != null)
-            {
-                if (methodReference.PacketHeaderAttribute != null && !force && methodReference.PacketHeaderAttribute.Amount > 1 && !_waitForPacketsAmount.HasValue)
-                {
-                    // we need to wait for more
-                    _waitForPacketsAmount = methodReference.PacketHeaderAttribute.Amount;
-                    _waitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
-                    return;
-                }
-                try
-                {
-                    if (!HasSelectedCharacter && !(methodReference.ParentHandler is ICharacterScreenPacketHandler)
-                        && !(methodReference.ParentHandler is ILoginPacketHandler))
-                    {
-                        return;
-                    }
-                    // call actual handler method
-                    if (methodReference.PacketDefinitionParameterType != null)
-                    {
-                        //check for the correct authority
-                        if (IsAuthenticated && (byte)methodReference.Authority > (byte)Account.Authority)
-                        {
-                            return;
-                        }
-                        object deserializedPacket = PacketFactory.Deserialize(packet, methodReference.PacketDefinitionParameterType, IsAuthenticated);
+            //HandlerMethodReference methodReference = HandlerMethods.ContainsKey(packetHeader) ? HandlerMethods[packetHeader] : null;
+            //if (methodReference != null)
+            //{
+            //    if (methodReference.PacketHeaderAttribute != null && !force && methodReference.PacketHeaderAttribute.Amount > 1 && !_waitForPacketsAmount.HasValue)
+            //    {
+            //        // we need to wait for more
+            //        _waitForPacketsAmount = methodReference.PacketHeaderAttribute.Amount;
+            //        _waitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
+            //        return;
+            //    }
+            //    try
+            //    {
+            //        if (!HasSelectedCharacter && !(methodReference.ParentHandler is ICharacterScreenPacketHandler)
+            //            && !(methodReference.ParentHandler is ILoginPacketHandler))
+            //        {
+            //            return;
+            //        }
+            //        // call actual handler method
+            //        if (methodReference.PacketDefinitionParameterType != null)
+            //        {
+            //            //check for the correct authority
+            //            if (IsAuthenticated && (byte)methodReference.Authority > (byte)Account.Authority)
+            //            {
+            //                return;
+            //            }
+            //            object deserializedPacket = PacketFactory.Deserialize(packet, methodReference.PacketDefinitionParameterType, IsAuthenticated);
 
-                        if (deserializedPacket != null)
-                        {
-                            methodReference.HandlerMethod(methodReference.ParentHandler, deserializedPacket);
-                        }
-                        else
-                        {
-                            Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
-                        }
-                    }
-                    else
-                    {
-                        methodReference.HandlerMethod(methodReference.ParentHandler, packet);
-                    }
-                }
-                catch (DivideByZeroException ex)
-                {
-                    // disconnect if something unexpected happens
-                    Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), ex));
-                    Disconnect();
-                }
-            }
-            else
-            {
-                Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
-            }
+            //            if (deserializedPacket != null)
+            //            {
+            //                methodReference.HandlerMethod(methodReference.ParentHandler, deserializedPacket);
+            //            }
+            //            else
+            //            {
+            //                Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
+            //            }
+            //        }
+            //        else
+            //        {
+            //            methodReference.HandlerMethod(methodReference.ParentHandler, packet);
+            //        }
+            //    }
+            //    catch (DivideByZeroException ex)
+            //    {
+            //        // disconnect if something unexpected happens
+            //        Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), ex));
+            //        Disconnect();
+            //    }
+            //}
+            //else
+            //{
+            //    Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
+            //}
         }
 
         private void HandlePackets(string packetConcatenated, IChannelHandlerContext contex)

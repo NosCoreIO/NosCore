@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing.HandlerSerialization;
-using NosCore.Data;
 using NosCore.DAL;
+using NosCore.Data;
 using NosCore.Domain.Interaction;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class LoginPacketHandler : ILoginPacketHandler
+    public class LoginPacketController : PacketController
     {
         #region Instantiation
-        public LoginPacketHandler()
+        public LoginPacketController()
         { }
-        public LoginPacketHandler(ClientSession session)
+        public LoginPacketController(ClientSession session, LoginConfiguration loginConfiguration)
         {
             Session = session;
         }

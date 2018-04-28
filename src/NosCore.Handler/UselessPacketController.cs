@@ -1,10 +1,10 @@
-﻿using NosCore.Core.Serializing.HandlerSerialization;
+﻿using NosCore.Core;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class UselessPacketHandler : IPacketHandler
+    public class UselessPacketController : PacketController
     {
         #region Members
 
@@ -13,9 +13,9 @@ namespace NosCore.Handler
         #endregion
 
         #region Instantiation
-        public UselessPacketHandler()
+        public UselessPacketController()
         { }
-        public UselessPacketHandler(ClientSession  session)
+        public UselessPacketController(ClientSession  session)
         {
             _session = session;
         }
@@ -24,13 +24,7 @@ namespace NosCore.Handler
 
         #region Properties
 
-        public ClientSession  Session
-        {
-            get
-            {
-                return _session;
-            }
-        }
+        public ClientSession Session => _session;
 
         #endregion
 

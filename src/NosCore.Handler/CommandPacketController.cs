@@ -2,18 +2,18 @@
 using NosCore.GameObject.Networking;
 using NosCore.Packets.CommandPackets;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class CommandPacketHandler
+    public class CommandPacketController
     {
         #region Members
 
         #endregion
 
         #region Instantiation
-        public CommandPacketHandler()
+        public CommandPacketController()
         { }
-        public CommandPacketHandler(ClientSession session)
+        public CommandPacketController(ClientSession session)
         {
             Session = session;
         }
