@@ -7,6 +7,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 using System;
 using System.Diagnostics;
 
@@ -33,9 +34,9 @@ namespace NosCore.Controllers
 
             Session.CurrentMapInstance = Session.Character.MapInstance;
 
-            //if (ConfigurationManager.AppSettings["SceneOnCreate"].ToLower() == "true" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
+            if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                //Session.SendPacket("scene 40");
+                Session.SendPacket(new ScenePacket() { SceneId = 40 });
             }
             if (_worldConfiguration.WorldInformation)
             {
@@ -45,7 +46,7 @@ namespace NosCore.Controllers
             }
             Session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
-            //            Session.SendPacket(Session.Character.GenerateTit());
+            Session.SendPacket(Session.Character.GenerateTit());
             //            Session.SendPacket(Session.Character.GenerateSpPoint());
             //            Session.SendPacket("rsfi 1 1 0 9 0 9");
             if (Session.Character.Hp <= 0)

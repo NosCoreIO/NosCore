@@ -7,6 +7,7 @@ using NosCore.Domain.Account;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
+using NosCore.Domain.Character;
 
 namespace NosCore.GameObject
 {
@@ -34,6 +35,7 @@ namespace NosCore.GameObject
 
         public short? Amount { get; set; }
         private byte _speed;
+
         public byte Speed
         {
             get
@@ -308,6 +310,14 @@ namespace NosCore.GameObject
                 Unknown2 = 0,
                 Music = MapInstance.Map.Music,
                 Unknown3 = -1
+            };
+        }
+        public TitPacket GenerateTit()
+        {
+            return new TitPacket()
+            {
+                ClassType = Language.Instance.GetMessageFromKey(Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper()),
+                Name = Name
             };
         }
 
