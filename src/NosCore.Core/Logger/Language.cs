@@ -34,7 +34,7 @@ namespace NosCore.Core.Logger
         {
             string resourceMessage = _manager != null && message != null ? _manager.GetString(message, _resourceCulture) : string.Empty;
 
-            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{message}>";
+            return string.Empty; //!string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{message}>";
         }
 
         #endregion

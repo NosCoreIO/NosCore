@@ -14,5 +14,6 @@ namespace NosCore.Configuration
         public byte ServerGroup { get; set; }
 
         public bool WorldInformation { get; set; }
+        public bool SceneOnCreate { get; set; }
     }
 }

@@ -65,9 +65,6 @@ namespace NosCore.WorldServer
             PrintHeader();
             PacketFactory.Initialize<NoS0575Packet>();
             var conf = InitializeConfiguration();
-            var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(conf).As<WorldConfiguration>();
-            containerBuilder.RegisterInstance(conf.MasterCommunication).As<MasterCommunicationConfiguration>();
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.MasterCommunication.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -94,7 +91,10 @@ namespace NosCore.WorldServer
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
-            var container = InitializeContainer(services).Build();
+            var containerBuilder = InitializeContainer(services);
+            containerBuilder.RegisterInstance(conf).As<WorldConfiguration>();
+            containerBuilder.RegisterInstance(conf.MasterCommunication).As<MasterCommunicationConfiguration>();
+            var container = containerBuilder.Build();
             PacketControllerFactory.Initialize(container);
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);

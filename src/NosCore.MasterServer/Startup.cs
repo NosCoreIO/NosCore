@@ -55,10 +55,6 @@ namespace NosCore.MasterServer
         {
             PrintHeader();
             var conf = InitializeConfiguration();
-            var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(conf).As<MasterConfiguration>();
-            containerBuilder.RegisterInstance(conf).As<MasterCommunicationConfiguration>();
-
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
             var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -84,7 +80,10 @@ namespace NosCore.MasterServer
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
-            var container = InitializeContainer(services).Build();
+            var containerBuilder = InitializeContainer(services);
+            containerBuilder.RegisterInstance(conf).As<MasterConfiguration>();
+            containerBuilder.RegisterInstance(conf).As<WebApiConfiguration>();
+            var container = containerBuilder.Build();
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);
         }
