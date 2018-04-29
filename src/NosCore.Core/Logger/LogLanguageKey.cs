@@ -56,6 +56,9 @@ namespace NosCore.Core.Logger
         ITEMS_PARSED,
         MAPS_LOADED,
         NO_MAP,
-        MAPMONSTERS_LOADED
+        MAPMONSTERS_LOADED,
+        CORRUPT_PACKET,
+        HANDLER_ERROR,
+        HANDLER_NOT_FOUND
     }
 }
