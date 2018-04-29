@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("Char_NEW")]
+    [PacketHeader("Char_NEW", AnonymousAccess = true)]
     public class CharNewPacket : PacketDefinition
     {
         [PacketIndex(0)]

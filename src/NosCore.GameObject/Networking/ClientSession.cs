@@ -177,6 +177,11 @@ namespace NosCore.GameObject.Networking
             var methodReference = ControllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
             if (methodReference.Value != null)
             {
+                if (!HasSelectedCharacter && methodReference.Key.AnonymousAccess == false)
+                {
+                    return;
+                }
+
                 if (!force && methodReference.Key.Amount > 1 && !_waitForPacketsAmount.HasValue)
                 {
                     // we need to wait for more
