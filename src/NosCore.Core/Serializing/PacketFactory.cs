@@ -12,17 +12,10 @@ namespace NosCore.Core.Serializing
 {
     public static class PacketFactory
     {
-        #region Members
-
         private static Dictionary<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> _packetSerializationInformations;
-
-        #endregion
-
-        #region Properties
 
         public static bool IsInitialized { get; set; }
 
-        #endregion
 
         #region Methods
 
@@ -40,7 +33,7 @@ namespace NosCore.Core.Serializing
             try
             {
                 KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> serializationInformation = GetSerializationInformation(packetType);
-                PacketDefinition deserializedPacket = (PacketDefinition)packetType.CreateInstance();
+                PacketDefinition deserializedPacket = packetType.CreateInstance<PacketDefinition>();
                 SetDeserializationInformations(deserializedPacket, packetContent, serializationInformation.Key.Item2);
                 return Deserialize(packetContent, deserializedPacket, serializationInformation, includesKeepAliveIdentity);
             }
@@ -157,7 +150,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            IList subpackets = (IList)Convert.ChangeType((IList)genericListType.CreateInstance(), genericListType);
+            IList subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (string currentValue in splittedValues)
@@ -173,7 +166,7 @@ namespace NosCore.Core.Serializing
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo, bool isReturnPacket = false)
         {
             string[] subpacketValues = currentSubValues.Split(isReturnPacket ? '^' : '.');
-            object newSubpacket = packetBasePropertyType.CreateInstance();
+            object newSubpacket = packetBasePropertyType.CreateInstance<object>();
             foreach (KeyValuePair<PacketIndexAttribute, PropertyInfo> subpacketPropertyInfo in subpacketSerializationInfo.Value)
             {
                 int currentSubIndex = isReturnPacket ? subpacketPropertyInfo.Key.Index + 1 : subpacketPropertyInfo.Key.Index; // return packets do include header
@@ -191,7 +184,7 @@ namespace NosCore.Core.Serializing
             // split into single values
             List<string> splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
-            IList subpackets = (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance(), packetBasePropertyType);
+            IList subpackets = (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             Type subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>> subpacketSerializationInfo = GetSerializationInformation(subPacketType);

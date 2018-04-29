@@ -72,7 +72,7 @@ namespace NosCore.Core.Networking
                     throw new HttpRequestException(response.Headers.ToString());
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 throw;
             }

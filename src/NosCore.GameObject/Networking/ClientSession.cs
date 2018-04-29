@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using DotNetty.Transport.Channels;
+﻿using DotNetty.Transport.Channels;
 using NosCore.Core;
-using NosCore.Core.Handling;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
-using NosCore.Core.Serializing.HandlerSerialization;
 using NosCore.Data;
 using NosCore.Domain.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace NosCore.GameObject.Networking
 {
@@ -26,30 +24,39 @@ namespace NosCore.GameObject.Networking
             HandlePackets(buff, context);
         }
 
-        public bool HealthStop = false;
-
+        public bool HealthStop;
         private Character _character;
         private readonly Random _random;
         private readonly bool _isWorldClient;
-
+        private readonly IEnumerable<IPacketController> _controllers;
         private readonly IList<string> _waitForPacketList = new List<string>();
 
-        private IDictionary<string, HandlerMethodReference> _handlerMethods;
         private int? _waitForPacketsAmount;
 
         // private byte countPacketReceived;
         private readonly long lastPacketReceive;
-        public ClientSession() : base (null) { }
-        public ClientSession(IChannel channel, IEnumerable<IPacketHandler> packetList, bool isWorldClient) : base(channel)
+        public ClientSession() : base(null) { }
+        
+        public ClientSession(IChannel channel, bool isWorldClient) : base(channel)
         {
             // set last received
             lastPacketReceive = DateTime.Now.Ticks;
             _random = new Random((int)ClientId);
             _isWorldClient = isWorldClient;
-            // dynamically create packethandler references
-            GenerateHandlerReferences(packetList);
+            foreach (var controller in PacketControllerFactory.GenerateControllers())
+            {
+                controller.RegisterSession(this);
+                foreach (MethodInfo methodInfo in controller.GetType().GetMethods().Where(x => x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
+                {
+                    var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
+                    PacketHeaderAttribute packetheader = (PacketHeaderAttribute)type.GetCustomAttributes(true).FirstOrDefault(ca => ca.GetType().Equals(typeof(PacketHeaderAttribute)));
+                    HeaderMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
+                    ControllerMethods.Add(packetheader, DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo));
+                }
+            }
         }
-
+        Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> HeaderMethod = new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
+        Dictionary<PacketHeaderAttribute, Action<object, object>> ControllerMethods = new Dictionary<PacketHeaderAttribute, Action<object, object>>();
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
             SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
@@ -83,12 +90,6 @@ namespace NosCore.GameObject.Networking
         public bool IsOnMap => CurrentMapInstance != null;
 
         public int LastKeepAliveIdentity { get; set; }
-
-        public void Initialize(IEnumerable<IPacketHandler> packetHandler)
-        {
-            // dynamically create packethandler references
-            GenerateHandlerReferences(packetHandler);
-        }
 
         public void InitializeAccount(AccountDTO accountDTO)
         {
@@ -168,78 +169,41 @@ namespace NosCore.GameObject.Networking
         {
             Character = character;
             HasSelectedCharacter = true;
-
-            // register for servermanager
             Character.Session = this;
-        }
-
-        private void GenerateHandlerReferences(IEnumerable<IPacketHandler> packetDictionary)
-        {
-            // iterate thru each type in the given assembly
-            foreach (IPacketHandler handlerType in packetDictionary)
-            {
-                IPacketHandler handler = (IPacketHandler)Activator.CreateInstance(handlerType.GetType(), this);
-
-                // include PacketDefinition
-                foreach (MethodInfo methodInfo in handlerType.GetType().GetMethods().Where(x => x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
-                {
-                    HandlerMethodReference methodReference = new HandlerMethodReference(DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo), handler, methodInfo.GetParameters().FirstOrDefault()?.ParameterType);
-                    HandlerMethods.Add(methodReference.Identification, methodReference);
-                }
-            }
-        }
-
-        public IDictionary<string, HandlerMethodReference> HandlerMethods
-        {
-            get { return _handlerMethods ?? (_handlerMethods = new Dictionary<string, HandlerMethodReference>()); }
-
-            set { _handlerMethods = value; }
         }
 
         private void TriggerHandler(string packetHeader, string packet, bool force)
         {
-            HandlerMethodReference methodReference = HandlerMethods.ContainsKey(packetHeader) ? HandlerMethods[packetHeader] : null;
-            if (methodReference != null)
+            var methodReference = ControllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
+            if (methodReference.Value != null)
             {
-                if (methodReference.PacketHeaderAttribute != null && !force && methodReference.PacketHeaderAttribute.Amount > 1 && !_waitForPacketsAmount.HasValue)
+                if (!force && methodReference.Key.Amount > 1 && !_waitForPacketsAmount.HasValue)
                 {
                     // we need to wait for more
-                    _waitForPacketsAmount = methodReference.PacketHeaderAttribute.Amount;
+                    _waitForPacketsAmount = methodReference.Key.Amount;
                     _waitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
                     return;
                 }
                 try
                 {
-                    if (!HasSelectedCharacter && !(methodReference.ParentHandler is ICharacterScreenPacketHandler)
-                        && !(methodReference.ParentHandler is ILoginPacketHandler))
+                    //check for the correct authority
+                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                     {
                         return;
                     }
-                    // call actual handler method
-                    if (methodReference.PacketDefinitionParameterType != null)
-                    {
-                        //check for the correct authority
-                        if (IsAuthenticated && (byte)methodReference.Authority > (byte)Account.Authority)
-                        {
-                            return;
-                        }
-                        object deserializedPacket = PacketFactory.Deserialize(packet, methodReference.PacketDefinitionParameterType, IsAuthenticated);
+                    PacketDefinition deserializedPacket = PacketFactory.Deserialize(packet, HeaderMethod[methodReference.Key].Item2, IsAuthenticated);
 
-                        if (deserializedPacket != null)
-                        {
-                            methodReference.HandlerMethod(methodReference.ParentHandler, deserializedPacket);
-                        }
-                        else
-                        {
-                            Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
-                        }
+                    if (deserializedPacket != null)
+                    {
+                        methodReference.Value.Invoke(HeaderMethod[methodReference.Key].Item1, deserializedPacket);
                     }
                     else
                     {
-                        methodReference.HandlerMethod(methodReference.ParentHandler, packet);
+                        Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
                     }
+
                 }
-                catch (DivideByZeroException ex)
+                catch (Exception ex)
                 {
                     // disconnect if something unexpected happens
                     Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), ex));

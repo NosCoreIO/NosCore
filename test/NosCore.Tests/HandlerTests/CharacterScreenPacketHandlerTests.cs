@@ -15,7 +15,7 @@ using NosCore.Domain.Character;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
-using NosCore.Handler;
+using NosCore.Controllers;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class CharacterScreenPacketHandlerTests
     {
-        private CharacterScreenPacketHandler handler;
+        private CharacterScreenPacketController handler;
         private readonly Mock<IClientSession> session = new Mock<IClientSession>();
         private AccountDTO acc;
 
@@ -63,7 +63,8 @@ namespace NosCore.Tests.HandlerTests
             CharacterDTO chara = new CharacterDTO() { Name = "TestExistingCharacter", Slot = 1, AccountId = acc.AccountId, MapId = 1, State = CharacterState.Active };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
             session.Object.InitializeAccount(acc);
-            handler = new CharacterScreenPacketHandler(session.Object);
+            handler = new CharacterScreenPacketController();
+            handler.RegisterSession((ClientSession)session.Object);
         }
 
         [TestMethod]
