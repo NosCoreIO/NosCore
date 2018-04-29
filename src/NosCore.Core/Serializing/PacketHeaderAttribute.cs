@@ -7,8 +7,6 @@ namespace NosCore.Core.Serializing
     [AttributeUsageAttribute(AttributeTargets.All, AllowMultiple = false)]
     public class PacketHeaderAttribute : Attribute
     {
-        #region Instantiation
-
         public PacketHeaderAttribute(string identification)
         {
             Identification = identification;
@@ -19,10 +17,6 @@ namespace NosCore.Core.Serializing
             Identification = identification;
             Amount = amount;
         }
-        #endregion
-
-        #region Properties
-
         /// <summary>
         ///     Permission to handle the packet
         /// </summary>
@@ -38,7 +32,5 @@ namespace NosCore.Core.Serializing
         /// </summary>
         public byte Amount { get; set; }
         public bool AnonymousAccess { get; set; }
-
-        #endregion
     }
 }

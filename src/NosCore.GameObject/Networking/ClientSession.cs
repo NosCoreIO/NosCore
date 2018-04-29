@@ -205,19 +205,19 @@ namespace NosCore.GameObject.Networking
                     }
                     else
                     {
-                        Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
+                        Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packetHeader, packet));
                     }
                 }
                 catch (Exception ex)
                 {
                     // disconnect if something unexpected happens
-                    Logger.Log.Error(string.Format(Language.Instance.GetMessageFromKey("HANDLER_ERROR"), ex));
+                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_ERROR), ex));
                     Disconnect();
                 }
             }
             else
             {
-                Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("HANDLER_NOT_FOUND"), packetHeader));
+                Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND), packetHeader));
             }
         }
 
