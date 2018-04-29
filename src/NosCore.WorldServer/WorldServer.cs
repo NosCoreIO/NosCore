@@ -6,9 +6,11 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using NosCore.Configuration;
+using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Encryption;
+using NosCore.Core.Extensions;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using NosCore.DAL;
@@ -16,9 +18,16 @@ using NosCore.Domain;
 using NosCore.GameObject.Networking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac.Extensions.DependencyInjection;
+using log4net.Repository;
+using log4net.Config;
+using log4net;
+using System.Reflection;
+using System.IO;
 
 namespace NosCore.WorldServer
 {
@@ -31,9 +40,22 @@ namespace NosCore.WorldServer
             _worldConfiguration = worldConfiguration;
         }
 
+        private void InitializeLogger()
+        {
+            // LOGGER
+            ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
+        }
+
         public void Run()
         {
-            BuildWebHost(null).StartAsync();
+
+            InitializeLogger();
+            if (_worldConfiguration != null)
+            {
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            }
             Mapping.Mapper.InitializeMapping();
             ConnectMaster();
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
@@ -43,22 +65,9 @@ namespace NosCore.WorldServer
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {_worldConfiguration.WebApi}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), true).Wait();
             }
-            else
-            {
-                Console.ReadKey();
-                return;
-            }
         }
 
-        private IWebHost BuildWebHost(string[] args) =>
-           WebHost.CreateDefaultBuilder(args)
-               .UseStartup<Startup>()
-               .UseUrls(_worldConfiguration.WebApi.ToString())
-               .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Warning))
-               .PreferHostingUrls(true)
-               .Build();
-
-        private  void ConnectMaster()
+        private void ConnectMaster()
         {
             async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType, ServerConfiguration WebApi, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
             {
@@ -108,6 +117,6 @@ namespace NosCore.WorldServer
                 }
             }
         }
-        
+
     }
 }

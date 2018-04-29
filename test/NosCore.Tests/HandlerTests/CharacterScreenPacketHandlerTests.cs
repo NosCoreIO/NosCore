@@ -63,7 +63,8 @@ namespace NosCore.Tests.HandlerTests
             CharacterDTO chara = new CharacterDTO() { Name = "TestExistingCharacter", Slot = 1, AccountId = acc.AccountId, MapId = 1, State = CharacterState.Active };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
             session.Object.InitializeAccount(acc);
-            handler = new CharacterScreenPacketController(session.Object);
+            handler = new CharacterScreenPacketController();
+            handler.RegisterSession((ClientSession)session.Object);
         }
 
         [TestMethod]

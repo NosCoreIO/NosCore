@@ -7,9 +7,11 @@ using log4net.Config;
 using log4net.Repository;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
+using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Encryption;
+using NosCore.Core.Extensions;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
@@ -19,6 +21,7 @@ using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -94,6 +97,7 @@ namespace NosCore.LoginServer
             {
                 try
                 {
+                    WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString());
                     RunMasterClient(_loginConfiguration.MasterCommunication.Host, Convert.ToInt32(_loginConfiguration.MasterCommunication.Port), _loginConfiguration.MasterCommunication.Password, new MasterClient() { Name = "LoginServer", Type = ServerType.LoginServer }).Wait();
                     break;
                 }

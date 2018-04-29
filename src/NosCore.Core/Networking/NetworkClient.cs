@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core.Encryption;
-using NosCore.Core.Handling;
 using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
-using System.Reflection;
-using NosCore.Domain;
-using NosCore.Domain.Account;
 
 namespace NosCore.Core.Networking
 {
