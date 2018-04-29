@@ -16,7 +16,6 @@ namespace NosCore.Core.Serializing
 
         public static bool IsInitialized { get; set; }
 
-
         #region Methods
 
         /// <summary>

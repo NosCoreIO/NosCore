@@ -30,6 +30,7 @@ namespace NosCore.WorldServer
     public class Startup
     {
         private const string _configurationPath = @"..\..\..\configuration";
+
         private void PrintHeader()
         {
             Console.Title = "NosCore - WorldServer";

@@ -22,6 +22,7 @@ namespace NosCore.WebApi.Controllers
         {
             _apiConfiguration = apiConfiguration;
         }
+
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Post(string UserName, string Password)

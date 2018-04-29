@@ -50,7 +50,6 @@ namespace NosCore.WorldServer
 
         public void Run()
         {
-
             InitializeLogger();
             if (_worldConfiguration != null)
             {
@@ -117,6 +116,5 @@ namespace NosCore.WorldServer
                 }
             }
         }
-
     }
 }

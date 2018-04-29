@@ -28,15 +28,12 @@ namespace NosCore.GameObject.Networking
         private Character _character;
         private readonly Random _random;
         private readonly bool _isWorldClient;
-        private readonly IEnumerable<IPacketController> _controllers;
-        private readonly IList<string> _waitForPacketList = new List<string>();
-
         private int? _waitForPacketsAmount;
 
         // private byte countPacketReceived;
         private readonly long lastPacketReceive;
         public ClientSession() : base(null) { }
-        
+
         public ClientSession(IChannel channel, bool isWorldClient) : base(channel)
         {
             // set last received
@@ -49,14 +46,16 @@ namespace NosCore.GameObject.Networking
                 foreach (MethodInfo methodInfo in controller.GetType().GetMethods().Where(x => x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    PacketHeaderAttribute packetheader = (PacketHeaderAttribute)type.GetCustomAttributes(true).FirstOrDefault(ca => ca.GetType().Equals(typeof(PacketHeaderAttribute)));
+                    PacketHeaderAttribute packetheader = (PacketHeaderAttribute)Array.Find(type.GetCustomAttributes(true), ca => ca.GetType().Equals(typeof(PacketHeaderAttribute)));
                     HeaderMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     ControllerMethods.Add(packetheader, DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo));
                 }
             }
         }
-        Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> HeaderMethod = new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
-        Dictionary<PacketHeaderAttribute, Action<object, object>> ControllerMethods = new Dictionary<PacketHeaderAttribute, Action<object, object>>();
+
+        private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> HeaderMethod = new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
+        private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> ControllerMethods = new Dictionary<PacketHeaderAttribute, Action<object, object>>();
+
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
             SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out int i);
@@ -90,6 +89,8 @@ namespace NosCore.GameObject.Networking
         public bool IsOnMap => CurrentMapInstance != null;
 
         public int LastKeepAliveIdentity { get; set; }
+
+        public IList<string> WaitForPacketList { get; } = new List<string>();
 
         public void InitializeAccount(AccountDTO accountDTO)
         {
@@ -177,7 +178,7 @@ namespace NosCore.GameObject.Networking
             var methodReference = ControllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
             if (methodReference.Value != null)
             {
-                if (!HasSelectedCharacter && methodReference.Key.AnonymousAccess == false)
+                if (!HasSelectedCharacter && !methodReference.Key.AnonymousAccess)
                 {
                     return;
                 }
@@ -186,7 +187,7 @@ namespace NosCore.GameObject.Networking
                 {
                     // we need to wait for more
                     _waitForPacketsAmount = methodReference.Key.Amount;
-                    _waitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
+                    WaitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
                     return;
                 }
                 try
@@ -206,7 +207,6 @@ namespace NosCore.GameObject.Networking
                     {
                         Logger.Log.Warn(string.Format(Language.Instance.GetMessageFromKey("CORRUPT_PACKET"), packetHeader, packet));
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -287,22 +287,22 @@ namespace NosCore.GameObject.Networking
 
                     if (_waitForPacketsAmount.HasValue)
                     {
-                        _waitForPacketList.Add(packetstring);
+                        WaitForPacketList.Add(packetstring);
                         string[] packetssplit = packetstring.Split(' ');
                         // TODO NEED TO BE REWRITED
                         if (packetssplit.Length > 3 && packetsplit[1] == "DAC")
                         {
-                            _waitForPacketList.Add("0 CrossServerAuthenticate");
+                            WaitForPacketList.Add("0 CrossServerAuthenticate");
                         }
-                        if (_waitForPacketList.Count != _waitForPacketsAmount)
+                        if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
                             continue;
                         }
                         _waitForPacketsAmount = null;
-                        string queuedPackets = string.Join(" ", _waitForPacketList.ToArray());
+                        string queuedPackets = string.Join(" ", WaitForPacketList.ToArray());
                         string header = queuedPackets.Split(' ', '^')[1];
                         TriggerHandler(header, queuedPackets, true);
-                        _waitForPacketList.Clear();
+                        WaitForPacketList.Clear();
                         return;
                     }
                     if (packetsplit.Length <= 1)

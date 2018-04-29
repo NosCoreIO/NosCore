@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Networking
         {
             MultithreadEventLoopGroup bossGroup = new MultithreadEventLoopGroup(1);
             MultithreadEventLoopGroup workerGroup = new MultithreadEventLoopGroup();
-            
+
             try
             {
                 ServerBootstrap bootstrap = new ServerBootstrap();
