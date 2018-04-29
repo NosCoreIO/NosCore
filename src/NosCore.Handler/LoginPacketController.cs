@@ -16,14 +16,15 @@ namespace NosCore.Controllers
 {
     public class LoginPacketController : PacketController
     {
-        LoginConfiguration _loginConfiguration;
-        public LoginPacketController()
-        { }
+        private readonly LoginConfiguration _loginConfiguration;
+
+        public LoginPacketController(){ }
+
         public LoginPacketController(LoginConfiguration loginConfiguration)
         {
             _loginConfiguration = loginConfiguration;
         }
-        
+
         public void VerifyLogin(NoS0575Packet loginPacket)
         {
             try

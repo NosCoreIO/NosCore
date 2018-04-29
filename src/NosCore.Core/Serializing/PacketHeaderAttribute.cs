@@ -4,6 +4,7 @@ using NosCore.Domain.Account;
 
 namespace NosCore.Core.Serializing
 {
+    [AttributeUsageAttribute(AttributeTargets.All, AllowMultiple = false)]
     public class PacketHeaderAttribute : Attribute
     {
         #region Instantiation
@@ -17,7 +18,6 @@ namespace NosCore.Core.Serializing
         {
             Identification = identification;
             Amount = amount;
-
         }
         #endregion
 

@@ -36,12 +36,11 @@ namespace NosCore.Tests.HandlerTests
         private readonly Mock<IClientSession> session = new Mock<IClientSession>();
         private AccountDTO acc;
 
-
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var sqlconnect = new SqlConnectionStringBuilder(@"Server=localhost;User ID=sa;Password=password;");
+            var sqlconnect = new SqlConnectionStringBuilder("Server=localhost;User ID=sa;Password=password;");
             DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
             session.Setup(s => s.SendPacket(It.IsAny<PacketDefinition>())).Verifiable();
             session.SetupAllProperties();

@@ -58,7 +58,6 @@ namespace NosCore.GameObject
             }
         }
 
-
         public DateTime LastSpeedChange { get; set; }
 
         public byte Morph { get; set; }
@@ -79,6 +78,7 @@ namespace NosCore.GameObject
         public byte Authority { get; set; }
 
         public byte Equipment { get; set; }
+
         public FdPacket GenerateFd()
         {
             return new FdPacket()

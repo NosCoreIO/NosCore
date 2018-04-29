@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 
 namespace NosCore.Core.Networking
 {
@@ -72,7 +71,7 @@ namespace NosCore.Core.Networking
                     throw new HttpRequestException(response.Headers.ToString());
                 }
             }
-            catch(Exception ex)
+            catch
             {
                 throw;
             }

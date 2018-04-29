@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 
 namespace NosCore.LoginServer
 {
-
     public class LoginServer
     {
         private readonly LoginConfiguration _loginConfiguration;
@@ -55,7 +54,6 @@ namespace NosCore.LoginServer
                 return;
             }
         }
-        
 
         private void ConnectMaster()
         {
@@ -91,7 +89,6 @@ namespace NosCore.LoginServer
                     Host = serverHost
                 }).ConfigureAwait(false);
             }
-
 
             while (true)
             {

@@ -82,6 +82,5 @@ namespace NosCore.MasterServer
                 Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), workerGroup.ShutdownGracefullyAsync());
             }
         }
-
-    }    
+    }
 }

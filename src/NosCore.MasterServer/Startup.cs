@@ -22,6 +22,7 @@ namespace NosCore.MasterServer
     public class Startup
     {
         private const string _configurationPath = @"..\..\..\configuration";
+
         private void PrintHeader()
         {
             Console.Title = "NosCore - MasterServer";
