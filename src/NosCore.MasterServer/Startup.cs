@@ -44,9 +44,6 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
-            var conf = InitializeConfiguration();
-            containerBuilder.RegisterInstance(conf).As<MasterConfiguration>();
-            containerBuilder.RegisterInstance(conf).As<WebApiConfiguration>();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.Populate(services);
@@ -56,9 +53,13 @@ namespace NosCore.MasterServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             PrintHeader();
-            var container = InitializeContainer(services).Build();
+            var conf = InitializeConfiguration();
+            var containerBuilder = InitializeContainer(services);
+            containerBuilder.RegisterInstance(conf).As<MasterConfiguration>();
+            containerBuilder.RegisterInstance(conf).As<MasterCommunicationConfiguration>();
+
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
-            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(container.Resolve<MasterConfiguration>().Password));
+            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(cfg =>
@@ -82,7 +83,7 @@ namespace NosCore.MasterServer
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
-            container = InitializeContainer(services).Build();
+            var container = InitializeContainer(services).Build();
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);
         }
