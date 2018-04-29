@@ -56,14 +56,14 @@ namespace NosCore.Core.Extensions
             return dynamicMethod.CreateDelegate(delegateType);
         }
 
-        public static object CreateInstance(this Type type)
+        public static T CreateInstance<T>(this Type type)
         {
             if (!_constructors.TryGetValue(type, out Func<object> constructor))
             {
                 constructor = type.GetConstructorDelegate();
                 _constructors.TryAdd(type, constructor);
             }
-            return constructor();
+            return (T)constructor();
         }
     }
 }

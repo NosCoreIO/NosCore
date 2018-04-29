@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing.HandlerSerialization;
+﻿using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
@@ -9,31 +10,18 @@ using NosCore.Packets.ClientPackets;
 using System;
 using System.Diagnostics;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class DefaultPacketHandler : IPacketHandler
+    public class DefaultPacketController : PacketController
     {
-        #region Members
-
-        #endregion
-
-        #region Instantiation
-        public DefaultPacketHandler()
+        public DefaultPacketController()
         { }
-        public DefaultPacketHandler(ClientSession session)
+        public DefaultPacketController(WorldConfiguration worldConfiguration)
         {
-            Session = session;
+            _worldConfiguration = worldConfiguration;
         }
-
-        #endregion
-
-        #region Properties
-
-        public ClientSession Session { get; }
-
-        #endregion
-
-        #region Methods
+        
+        private readonly WorldConfiguration _worldConfiguration;
 
         public void GameStart(GameStartPacket packet)
         {
@@ -49,7 +37,7 @@ namespace NosCore.Handler
             {
                 //Session.SendPacket("scene 40");
             }
-            //if (ConfigurationManager.AppSettings["WorldInformation"].ToLower() == "true")
+            if (_worldConfiguration.WorldInformation)
             {
                 Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", 10));
                 Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
@@ -232,6 +220,5 @@ namespace NosCore.Handler
                 }
             }
         }
-        #endregion
     }
 }
