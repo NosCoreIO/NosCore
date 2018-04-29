@@ -15,9 +15,11 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />

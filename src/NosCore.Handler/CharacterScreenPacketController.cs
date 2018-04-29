@@ -21,25 +21,8 @@ namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-        #region Instantiation
-
         public CharacterScreenPacketController()
         { }
-
-        public CharacterScreenPacketController(IClientSession  session)
-        {
-            Session = session;
-        }
-
-        #endregion
-
-        #region Properties
-
-        private IClientSession Session { get; }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Char_NEW character creation character
@@ -304,7 +287,5 @@ namespace NosCore.Controllers
                 Logger.Log.Error("Select character failed.", ex);
             }
         }
-
-        #endregion
     }
 }

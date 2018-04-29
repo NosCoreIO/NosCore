@@ -8,6 +8,7 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
+using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.IO;
@@ -52,11 +53,18 @@ namespace NosCore.LoginServer
             PacketFactory.Initialize<NoS0575Packet>();
         }
 
+        private static void InitializeControllers(IContainer container)
+        {
+            PacketControllerFactory.Initialize(container);
+        }
+
         public static void Main()
         {
             PrintHeader();
             InitializeLogger();
+            InitializePackets();
             var container = InitializeContainer();
+            InitializeControllers(container);
             var loginServer = container.Resolve<LoginServer>();
             loginServer.Run();
         }
@@ -65,9 +73,7 @@ namespace NosCore.LoginServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>();
-            containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly)
-              .Where(t => t.IsAssignableFrom(typeof(PacketController)))
-              .AsImplementedInterfaces().InstancePerRequest();
+            containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             return containerBuilder.Build();
         }

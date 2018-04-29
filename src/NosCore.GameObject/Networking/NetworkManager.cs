@@ -3,10 +3,12 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking
@@ -17,7 +19,7 @@ namespace NosCore.GameObject.Networking
         {
             MultithreadEventLoopGroup bossGroup = new MultithreadEventLoopGroup(1);
             MultithreadEventLoopGroup workerGroup = new MultithreadEventLoopGroup();
-
+            
             try
             {
                 ServerBootstrap bootstrap = new ServerBootstrap();

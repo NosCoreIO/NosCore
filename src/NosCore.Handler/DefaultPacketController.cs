@@ -16,13 +16,11 @@ namespace NosCore.Controllers
     {
         public DefaultPacketController()
         { }
-        public DefaultPacketController(ClientSession session, WorldConfiguration worldConfiguration)
+        public DefaultPacketController(WorldConfiguration worldConfiguration)
         {
-            Session = session;
             _worldConfiguration = worldConfiguration;
         }
-
-        public ClientSession Session { get; }
+        
         private readonly WorldConfiguration _worldConfiguration;
 
         public void GameStart(GameStartPacket packet)

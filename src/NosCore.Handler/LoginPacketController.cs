@@ -4,6 +4,7 @@ using NosCore.Core.Networking;
 using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Domain.Interaction;
+using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -15,23 +16,14 @@ namespace NosCore.Controllers
 {
     public class LoginPacketController : PacketController
     {
-        #region Instantiation
+        LoginConfiguration _loginConfiguration;
         public LoginPacketController()
         { }
-        public LoginPacketController(ClientSession session, LoginConfiguration loginConfiguration)
+        public LoginPacketController(LoginConfiguration loginConfiguration)
         {
-            Session = session;
+            _loginConfiguration = loginConfiguration;
         }
-        #endregion
-
-        #region Properties
-
-        private ClientSession Session { get; }
-
-        #endregion
-
-        #region Methods
-
+        
         public void VerifyLogin(NoS0575Packet loginPacket)
         {
             try
@@ -149,7 +141,5 @@ namespace NosCore.Controllers
                 });
             }
         }
-
-        #endregion
     }
 }

@@ -67,7 +67,7 @@ namespace NosCore.Core
 
             if (callParamType.ParameterType.IsValueType)
             {
-                return Expression.Constant(callParamType.ParameterType.CreateInstance());
+                return Expression.Constant(callParamType.ParameterType.CreateInstance<object>());
             }
 
             return Expression.Constant(null);
