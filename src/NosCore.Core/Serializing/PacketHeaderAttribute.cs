@@ -37,6 +37,7 @@ namespace NosCore.Core.Serializing
         ///     Amount of tcp message to create the Packet
         /// </summary>
         public byte Amount { get; set; }
+        public bool AnonymousAccess { get; set; }
 
         #endregion
     }

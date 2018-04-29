@@ -2,7 +2,7 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("EntryPoint", 3)]
+    [PacketHeader("EntryPoint", 3, AnonymousAccess = true)]
     public class EntryPointPacket : PacketDefinition
     {
         #region Properties

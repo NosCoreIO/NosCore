@@ -2,7 +2,7 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("select")]
+    [PacketHeader("select", AnonymousAccess = true)]
     public class SelectPacket : PacketDefinition
     {
         #region Properties

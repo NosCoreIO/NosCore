@@ -2,7 +2,7 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("NoS0575")]
+    [PacketHeader("NoS0575", AnonymousAccess = true)]
     public class NoS0575Packet : PacketDefinition
     {
         #region Properties
