@@ -16,7 +16,7 @@ namespace NosCore.GameObject
     {
         #region Instantiation
 
-        public MapInstance(MapDTO map, Guid guid, bool shopAllowed, MapInstanceType type)
+        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type)
         {
             XpRate = 1;
             DropRate = 1;
@@ -46,7 +46,7 @@ namespace NosCore.GameObject
 
         public bool IsPVP { get; set; }
 
-        public MapDTO Map { get; set; }
+        public Map.Map Map { get; set; }
 
         public Guid MapInstanceId { get; set; }
 

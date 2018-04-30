@@ -26,6 +26,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using NosCore.GameObject.Map;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -69,7 +70,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
-            session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
+            session.Object.CurrentMapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
@@ -157,7 +158,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
+            session.Object.CurrentMapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestExistingCharacter";
             handler.DeleteCharacter(new CharacterDeletePacket()
             {
