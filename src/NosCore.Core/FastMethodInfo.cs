@@ -27,7 +27,9 @@ namespace NosCore.Core
                 Delegate = (instance, arguments) => { voidDelegate(instance, arguments); return null; };
             }
             else
+            {
                 Delegate = Expression.Lambda<ReturnValueDelegate>(Expression.Convert(callExpression, typeof(object)), instanceExpression, argumentsExpression).Compile();
+            }
         }
 
         private ReturnValueDelegate Delegate { get; }

@@ -19,10 +19,10 @@ using System.Collections.Generic;
 
 namespace NosCore.PathFinder.Gui
 {
-    class PathFinderGui : GameWindow
+    public class PathFinderGui : GameWindow
     {
-        private Map _map;
-        private byte _gridsize;
+        private readonly Map _map;
+        private readonly byte _gridsize;
 
         public PathFinderGui(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(width * gridsize, height * gridsize, mode, title)
         {
@@ -86,20 +86,20 @@ namespace NosCore.PathFinder.Gui
         }
         private void DrawPixel(short x, short y, Color color)
         {
-            var xindex = ClientRectangle.Width / (_gridsize * 2) - x;
-            var yindex = ClientRectangle.Height / (_gridsize * 2) - y;
+            var xindex = (ClientRectangle.Width / (_gridsize * 2)) - x;
+            var yindex = (ClientRectangle.Height / (_gridsize * 2)) - y;
 
             GL.Begin(PrimitiveType.Quads);
             GL.Color3(color);
             GL.Vertex3(xindex, yindex, 4.0f);
-            GL.Vertex3((xindex - 1), yindex, 4.0f);
-            GL.Vertex3((xindex - 1), yindex - 1, 4.0f);
+            GL.Vertex3(xindex - 1, yindex, 4.0f);
+            GL.Vertex3(xindex - 1, yindex - 1, 4.0f);
             GL.Vertex3(xindex, yindex - 1, 4.0f);
             GL.End();
         }
 
         private const string _configurationPath = @"..\..\..\configuration";
-        static SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
+        private static readonly SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
 
         private static void InitializeConfiguration()
         {
@@ -108,6 +108,7 @@ namespace NosCore.PathFinder.Gui
             builder.AddJsonFile("pathfinder.json", false);
             builder.Build().Bind(_databaseConfiguration);
         }
+
         private static void InitializeLogger()
         {
             // LOGGER
@@ -115,7 +116,7 @@ namespace NosCore.PathFinder.Gui
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
         }
-        
+
         private static void PrintHeader()
         {
             Console.Title = "NosCore - Pathfinder GUI";
@@ -125,9 +126,8 @@ namespace NosCore.PathFinder.Gui
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             PrintHeader();
             InitializeLogger();
@@ -141,7 +141,7 @@ namespace NosCore.PathFinder.Gui
                 {
                     game.Run(30.0);
                 }
-            } 
+            }
         }
     }
 }

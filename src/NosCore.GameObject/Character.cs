@@ -312,6 +312,7 @@ namespace NosCore.GameObject
                 Unknown3 = -1
             };
         }
+
         public TitPacket GenerateTit()
         {
             return new TitPacket()

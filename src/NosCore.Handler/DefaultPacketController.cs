@@ -18,11 +18,12 @@ namespace NosCore.Controllers
     {
         public DefaultPacketController()
         { }
+
         public DefaultPacketController(WorldConfiguration worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
-        
+
         private readonly WorldConfiguration _worldConfiguration;
 
         public void GameStart(GameStartPacket packet)
@@ -199,7 +200,6 @@ namespace NosCore.Controllers
                 }
                 Session.Character.PositionX = walkPacket.XCoordinate;
                 Session.Character.PositionY = walkPacket.YCoordinate;
-
 
                 Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateMove());
                 Session.SendPacket(Session.Character.GenerateCond());

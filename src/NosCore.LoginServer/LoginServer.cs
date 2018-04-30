@@ -43,7 +43,6 @@ namespace NosCore.LoginServer
             ConnectMaster();
             if (DataAccessHelper.Instance.Initialize(_loginConfiguration.Database))
             {
-                ServerManager.Instance.Initialize();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(), new LoginDecoderFactory(), false).Wait();

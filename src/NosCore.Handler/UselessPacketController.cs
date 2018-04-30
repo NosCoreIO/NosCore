@@ -17,5 +17,4 @@ namespace NosCore.Controllers
             // idk
         }
     }
-
 }
