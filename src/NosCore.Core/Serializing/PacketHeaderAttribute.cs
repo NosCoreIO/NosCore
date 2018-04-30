@@ -17,6 +17,7 @@ namespace NosCore.Core.Serializing
             Identification = identification;
             Amount = amount;
         }
+
         /// <summary>
         ///     Permission to handle the packet
         /// </summary>

@@ -9,6 +9,6 @@ namespace NosCore.Packets.ServerPackets
     public class ScenePacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte SceneId { get; set; }      
+        public byte SceneId { get; set; }
     }
 }

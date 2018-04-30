@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Networking
             {
                 int i = 0;
                 int monstercount = 0;
-                OrderablePartitioner<Map.Map> mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Select(mapdto => (Map.Map)mapdto), EnumerablePartitionerOptions.NoBuffering);
+                OrderablePartitioner<Map.Map> mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(), EnumerablePartitionerOptions.NoBuffering);
                 ConcurrentDictionary<short, Map.Map> _mapList = new ConcurrentDictionary<short, Map.Map>();
                 Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
                 {

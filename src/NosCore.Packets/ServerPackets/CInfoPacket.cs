@@ -61,7 +61,6 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(17)]
         public bool ArenaWinner { get; set; }
 
-
         #endregion
     }
 }

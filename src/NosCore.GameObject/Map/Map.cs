@@ -1,5 +1,4 @@
 ﻿using NosCore.Data.StaticEntities;
-using NosCore.PathFinder;
 using System;
 using System.IO;
 
@@ -48,6 +47,7 @@ namespace NosCore.GameObject.Map
                     }
                 }
             }
+            Data = null;
         }
     }
 }

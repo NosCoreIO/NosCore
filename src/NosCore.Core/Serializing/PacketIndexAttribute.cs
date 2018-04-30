@@ -2,10 +2,9 @@
 
 namespace NosCore.Core.Serializing
 {
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public class PacketIndexAttribute : Attribute
     {
-        #region Instantiation
-
         /// <summary> Specify the Index of the packet to parse this property to. </summary>
         /// <param
         ///     name="index">
@@ -24,6 +23,9 @@ namespace NosCore.Core.Serializing
         ///     Removes
         ///     the separator (.) for List<PacketDefinition> packets.
         /// </param>
+        /// <param name="specialSeparator">
+        ///       the separator (.) for List<PacketDefinition> packets.
+        /// </param>
         public PacketIndexAttribute(int index, bool isReturnPacket = false, bool serializeToEnd = false, bool removeSeparator = false, string specialSeparator = ".")
         {
             Index = index;
@@ -32,10 +34,6 @@ namespace NosCore.Core.Serializing
             RemoveSeparator = removeSeparator;
             SpecialSeparator = specialSeparator;
         }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         ///     The zero based index starting from the header (exclusive).
@@ -60,8 +58,9 @@ namespace NosCore.Core.Serializing
         /// </summary>
         public bool IsOptional { get; set; }
 
+        /// <summary>
+        ///    the separator (.) for List<PacketDefinition> packets.
+        /// </summary>
         public string SpecialSeparator { get; set; }
-
-        #endregion
     }
 }
