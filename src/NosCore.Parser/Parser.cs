@@ -34,7 +34,7 @@ namespace NosCore.Parser
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
-            builder.AddJsonFile("login.json", false);
+            builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(_databaseConfiguration);
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }

@@ -28,6 +28,7 @@ using log4net.Config;
 using log4net;
 using System.Reflection;
 using System.IO;
+using NosCore.Mapping;
 
 namespace NosCore.WorldServer
 {
@@ -55,7 +56,7 @@ namespace NosCore.WorldServer
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             }
-            Mapping.Mapper.InitializeMapping();
+            Mapper.InitializeMapping();
             ConnectMaster();
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
             {

@@ -8,6 +8,7 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.PathFinder;
 using System;
 using System.Diagnostics;
 
@@ -187,8 +188,7 @@ namespace NosCore.Controllers
         public void Walk(WalkPacket walkPacket)
         {
             double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
-            int distance = Maps.GetDistance(Session.Character.PositionX, Session.Character.PositionY,
-               walkPacket.XCoordinate, walkPacket.YCoordinate);
+            int distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate), Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if ((Session.Character.Speed >= walkPacket.Speed || Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
             {
