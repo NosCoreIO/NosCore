@@ -153,6 +153,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Corrupted Keepalive en el cliente {0}.</value>
   </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Packet with Header {0} está dañado o PacketDefinition no es válido. Contenido: {1}</value>
+  </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
     <value>Base de datos inicializada</value>
   </data>
@@ -170,6 +173,12 @@
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Desconexion forzada</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Ocurrio un error en el controlador Packet with Header {0}</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>No se pudo encontrar la implementación del controlador para Packet with Header {0}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Cuenta invalida</value>
