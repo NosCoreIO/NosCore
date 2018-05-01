@@ -16,10 +16,5 @@ namespace NosCore.Core
         public int ConnectedAccountsLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
-
-        public WorldServerInfo()
-        {
-
-        }
     }
 }

@@ -15,7 +15,7 @@ using NosCore.Domain.Character;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
-using NosCore.Handler;
+using NosCore.Controllers;
 using NosCore.Packets.ClientPackets;
 using System;
 using System.Collections.Generic;
@@ -26,22 +26,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using NosCore.GameObject.Map;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class CharacterScreenPacketHandlerTests
     {
-        private CharacterScreenPacketHandler handler;
+        private CharacterScreenPacketController handler;
         private readonly Mock<IClientSession> session = new Mock<IClientSession>();
         private AccountDTO acc;
-
 
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var sqlconnect = new SqlConnectionStringBuilder(@"Server=localhost;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
+            var sqlconnect = new SqlConnectionStringBuilder("Server=localhost;User ID=sa;Password=password;");
             DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
             session.Setup(s => s.SendPacket(It.IsAny<PacketDefinition>())).Verifiable();
             session.SetupAllProperties();
@@ -63,13 +63,14 @@ namespace NosCore.Tests.HandlerTests
             CharacterDTO chara = new CharacterDTO() { Name = "TestExistingCharacter", Slot = 1, AccountId = acc.AccountId, MapId = 1, State = CharacterState.Active };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
             session.Object.InitializeAccount(acc);
-            handler = new CharacterScreenPacketHandler(session.Object);
+            handler = new CharacterScreenPacketController();
+            handler.RegisterSession((ClientSession)session.Object);
         }
 
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
-            session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
+            session.Object.CurrentMapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
             {
@@ -157,7 +158,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            session.Object.CurrentMapInstance = new MapInstance(new MapDTO(), new Guid(), true, MapInstanceType.BaseMapInstance);
+            session.Object.CurrentMapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestExistingCharacter";
             handler.DeleteCharacter(new CharacterDeletePacket()
             {

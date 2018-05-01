@@ -4,10 +4,9 @@ using NosCore.Domain.Account;
 
 namespace NosCore.Core.Serializing
 {
+    [AttributeUsageAttribute(AttributeTargets.All, AllowMultiple = false)]
     public class PacketHeaderAttribute : Attribute
     {
-        #region Instantiation
-
         public PacketHeaderAttribute(string identification)
         {
             Identification = identification;
@@ -17,11 +16,7 @@ namespace NosCore.Core.Serializing
         {
             Identification = identification;
             Amount = amount;
-
         }
-        #endregion
-
-        #region Properties
 
         /// <summary>
         ///     Permission to handle the packet
@@ -37,7 +32,6 @@ namespace NosCore.Core.Serializing
         ///     Amount of tcp message to create the Packet
         /// </summary>
         public byte Amount { get; set; }
-
-        #endregion
+        public bool AnonymousAccess { get; set; }
     }
 }

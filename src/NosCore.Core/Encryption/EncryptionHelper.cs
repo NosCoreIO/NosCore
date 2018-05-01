@@ -6,13 +6,13 @@ using System.Text;
 
 namespace NosCore.Core.Encryption
 {
-    public class EncryptionHelper
+    public static class EncryptionHelper
     {
         public static string Sha512(string inputString)
         {
             using (SHA512 hash = SHA512.Create())
             {
-                return string.Join(string.Empty, hash.ComputeHash(Encoding.UTF8.GetBytes(inputString)).Select(item => item.ToString("x2")));
+                return string.Concat(hash.ComputeHash(Encoding.UTF8.GetBytes(inputString)).Select(item => item.ToString("x2")));
             }
         }
     }

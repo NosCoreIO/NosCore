@@ -8,6 +8,7 @@
   "Port": 1337,
   "ConnectedAccountLimit": 100,
   "ServerGroup": 0,
+  "WorldInformation": true,
   "WebApi": {
 		"Host": "http://localhost",
 		"Port": 5001

@@ -9,12 +9,20 @@ using NosCore.Core.Logger;
 using NosCore.Data;
 using NosCore.DAL;
 using NosCore.Domain.Account;
+using NosCore.Configuration;
 
 namespace NosCore.WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class TokenController : Controller
     {
+        private readonly WebApiConfiguration _apiConfiguration;
+
+        public TokenController(WebApiConfiguration apiConfiguration)
+        {
+            _apiConfiguration = apiConfiguration;
+        }
+
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Post(string UserName, string Password)
@@ -30,7 +38,7 @@ namespace NosCore.WebApi.Controllers
                           new Claim(ClaimTypes.NameIdentifier, UserName),
                           new Claim(ClaimTypes.Role, account.Authority.ToString()),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
+                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
                     var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -56,14 +64,14 @@ namespace NosCore.WebApi.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (ServerToken == "NosCorePassword")//TODO replace by configured one
+                if (ServerToken == _apiConfiguration.Password)
                 {
                     var claims = new ClaimsIdentity(new[]
                     {
                           new Claim(ClaimTypes.NameIdentifier, "Server"),
                           new Claim(ClaimTypes.Role, nameof(AuthorityType.GameMaster)),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512("NosCorePassword"));//TODO replace by configured one
+                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
                     var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor

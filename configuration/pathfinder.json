@@ -1,11 +1,8 @@
 {
-	"Lang":"fr",
-	"Database": {
 	  "DataSource" : "localhost",
       "InitialCatalog" : "NosCore",
       "IntegratedSecurity" : true,
       "MultipleActiveResultSets" : false,
       "UserID" : "",
       "Password" : ""
-	}
 }

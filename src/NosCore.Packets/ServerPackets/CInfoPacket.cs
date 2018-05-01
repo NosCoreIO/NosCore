@@ -47,17 +47,19 @@ namespace NosCore.Packets.ServerPackets
         public short Compliment { get; set; }
 
         [PacketIndex(13)]
-        public bool Invisible { get; set; }
+        public short Morph { get; set; }
 
         [PacketIndex(14)]
-        public byte FamilyLevel { get; set; }
+        public bool Invisible { get; set; }
 
         [PacketIndex(15)]
-        public byte MorphUpgrade { get; set; }
+        public byte FamilyLevel { get; set; }
 
         [PacketIndex(16)]
-        public bool ArenaWinner { get; set; }
+        public byte MorphUpgrade { get; set; }
 
+        [PacketIndex(17)]
+        public bool ArenaWinner { get; set; }
 
         #endregion
     }

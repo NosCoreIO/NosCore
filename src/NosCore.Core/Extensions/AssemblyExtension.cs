@@ -12,7 +12,7 @@ namespace NosCore.Core.Extensions
             {
                 if (typeof(T).IsAssignableFrom(t))
                 {
-                    yield return (T)t.CreateInstance();
+                    yield return t.CreateInstance<T>();
                 }
             }
         }

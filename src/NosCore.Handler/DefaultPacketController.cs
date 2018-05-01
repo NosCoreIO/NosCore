@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing.HandlerSerialization;
+﻿using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
@@ -6,34 +7,24 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
+using NosCore.PathFinder;
 using System;
 using System.Diagnostics;
 
-namespace NosCore.Handler
+namespace NosCore.Controllers
 {
-    public class DefaultPacketHandler : IPacketHandler
+    public class DefaultPacketController : PacketController
     {
-        #region Members
-
-        #endregion
-
-        #region Instantiation
-        public DefaultPacketHandler()
+        public DefaultPacketController()
         { }
-        public DefaultPacketHandler(ClientSession session)
+
+        public DefaultPacketController(WorldConfiguration worldConfiguration)
         {
-            Session = session;
+            _worldConfiguration = worldConfiguration;
         }
 
-        #endregion
-
-        #region Properties
-
-        public ClientSession Session { get; }
-
-        #endregion
-
-        #region Methods
+        private readonly WorldConfiguration _worldConfiguration;
 
         public void GameStart(GameStartPacket packet)
         {
@@ -45,11 +36,11 @@ namespace NosCore.Handler
 
             Session.CurrentMapInstance = Session.Character.MapInstance;
 
-            //if (ConfigurationManager.AppSettings["SceneOnCreate"].ToLower() == "true" & Session.Character.GeneralLogs.Count(s => s.LogType == "Connection") < 2)
+            if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                //Session.SendPacket("scene 40");
+                Session.SendPacket(new ScenePacket() { SceneId = 40 });
             }
-            //if (ConfigurationManager.AppSettings["WorldInformation"].ToLower() == "true")
+            if (_worldConfiguration.WorldInformation)
             {
                 Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", 10));
                 Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
@@ -57,7 +48,7 @@ namespace NosCore.Handler
             }
             Session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
-            //            Session.SendPacket(Session.Character.GenerateTit());
+            Session.SendPacket(Session.Character.GenerateTit());
             //            Session.SendPacket(Session.Character.GenerateSpPoint());
             //            Session.SendPacket("rsfi 1 1 0 9 0 9");
             if (Session.Character.Hp <= 0)
@@ -198,8 +189,7 @@ namespace NosCore.Handler
         public void Walk(WalkPacket walkPacket)
         {
             double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
-            int distance = Maps.GetDistance(Session.Character.PositionX, Session.Character.PositionY,
-               walkPacket.XCoordinate, walkPacket.YCoordinate);
+            int distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate), Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if ((Session.Character.Speed >= walkPacket.Speed || Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
             {
@@ -210,7 +200,6 @@ namespace NosCore.Handler
                 }
                 Session.Character.PositionX = walkPacket.XCoordinate;
                 Session.Character.PositionY = walkPacket.YCoordinate;
-
 
                 Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateMove());
                 Session.SendPacket(Session.Character.GenerateCond());
@@ -232,6 +221,5 @@ namespace NosCore.Handler
                 }
             }
         }
-        #endregion
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("Char_DEL")]
+    [PacketHeader("Char_DEL", AnonymousAccess = true)]
     public class CharacterDeletePacket : PacketDefinition
     {
         [PacketIndex(0)]

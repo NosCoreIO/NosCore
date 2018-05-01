@@ -14,13 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Autofac" Version="4.8.0" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\NosCore.Handler\NosCore.Handler.csproj" />
+    <ProjectReference Include="..\NosCore.Handler\NosCore.Controllers.csproj" />
     <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
   </ItemGroup>
 

@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.GameObject", "src\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Data", "src\NosCore.Data\NosCore.Data.csproj", "{AEDAAE2C-D615-4241-8006-240BB7FF1446}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Handler", "src\NosCore.Handler\NosCore.Handler.csproj", "{8DD33CE5-B9B4-4CCA-B3D7-55DA387AB4AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Controllers", "src\NosCore.Handler\NosCore.Controllers.csproj", "{8DD33CE5-B9B4-4CCA-B3D7-55DA387AB4AA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Packets", "src\NosCore.Packets\NosCore.Packets.csproj", "{985361D1-B720-453D-891E-113937E6B003}"
 EndProject
@@ -34,7 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.WebApi", "src\NosCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Mapping", "src\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj", "{619F65F5-BBB6-443E-B5C6-BCA148A1EEF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.PathFinder", "src\NosCore.PathFinder\NosCore.PathFinder.csproj", "{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PathFinder", "src\NosCore.PathFinder\NosCore.PathFinder.csproj", "{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.PathFinder.Gui", "src\NosCore.PathFinder.Gui\NosCore.PathFinder.Gui.csproj", "{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +112,10 @@ Global
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

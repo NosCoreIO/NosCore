@@ -24,14 +24,13 @@ namespace NosCore.GameObject.Networking
             }
         }
 
-
         private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();
 
-        private static readonly List<MapDTO> _maps = new List<MapDTO>();
+        private static readonly List<Map.Map> _maps = new List<Map.Map>();
 
         public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
         {
-            MapDTO map = _maps.Find(m => m.MapId.Equals(mapId));
+            Map.Map map = _maps.Find(m => m.MapId.Equals(mapId));
             if (map == null)
             {
                 return null;
@@ -49,20 +48,14 @@ namespace NosCore.GameObject.Networking
             {
                 int i = 0;
                 int monstercount = 0;
-                OrderablePartitioner<MapDTO> mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll(), EnumerablePartitionerOptions.NoBuffering);
-                ConcurrentDictionary<short, MapDTO> _mapList = new ConcurrentDictionary<short, MapDTO>();
+                OrderablePartitioner<Map.Map> mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(), EnumerablePartitionerOptions.NoBuffering);
+                ConcurrentDictionary<short, Map.Map> _mapList = new ConcurrentDictionary<short, Map.Map>();
                 Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
                 {
                     Guid guid = Guid.NewGuid();
-                    MapDTO mapinfo = new MapDTO()
-                    {
-
-                        Music = map.Music,
-                        Data = map.Data,
-                        MapId = map.MapId
-                    };
-                    _mapList[map.MapId] = mapinfo;
-                    MapInstance newMap = new MapInstance(mapinfo, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
+                    map.Initialize();
+                    _mapList[map.MapId] = map;
+                    MapInstance newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
                     _mapinstances.TryAdd(guid, newMap);
 
                     monstercount += newMap.Monsters.Count;
