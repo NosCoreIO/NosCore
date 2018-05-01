@@ -1,6 +1,7 @@
 ﻿using NosCore.Data.StaticEntities;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace NosCore.GameObject.Map
 {
@@ -8,46 +9,35 @@ namespace NosCore.GameObject.Map
     {
         public void Initialize()
         {
-            LoadZone();
+
         }
 
-        public short XLength { get; private set; }
-
-        public short YLength { get; private set; }
-
-        public byte[,] MapGrid { get; private set; }
-
-        private void LoadZone()
+        private short _xLength;
+        public short XLength
         {
-            using (Stream stream = new MemoryStream(Data))
+            get
             {
-                const int numBytesToRead = 1;
-                const int numBytesRead = 0;
-                byte[] bytes = new byte[numBytesToRead];
-
-                byte[] xlength = new byte[2];
-                byte[] ylength = new byte[2];
-                stream.Read(bytes, numBytesRead, numBytesToRead);
-                xlength[0] = bytes[0];
-                stream.Read(bytes, numBytesRead, numBytesToRead);
-                xlength[1] = bytes[0];
-                stream.Read(bytes, numBytesRead, numBytesToRead);
-                ylength[0] = bytes[0];
-                stream.Read(bytes, numBytesRead, numBytesToRead);
-                ylength[1] = bytes[0];
-                YLength = BitConverter.ToInt16(ylength, 0);
-                XLength = BitConverter.ToInt16(xlength, 0);
-                MapGrid = new byte[XLength, YLength];
-                for (short i = 0; i < YLength; ++i)
+                if (_xLength == 0)
                 {
-                    for (short t = 0; t < XLength; ++t)
-                    {
-                        stream.Read(bytes, numBytesRead, numBytesToRead);
-                        MapGrid[t, i] = bytes[0];
-                    }
+                    _xLength = BitConverter.ToInt16(Data.AsSpan().Slice(0, 2).ToArray(), 0);
                 }
+                return _xLength;
             }
-            Data = null;
         }
+
+        private short _yLength;
+        public short YLength
+        {
+            get
+            {
+                if (_yLength == 0)
+                {
+                    _yLength = BitConverter.ToInt16(Data.AsSpan().Slice(2, 2).ToArray(), 0);
+                }
+                return _yLength;
+            }
+        }
+
+        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * XLength + x, 1)[0];
     }
 }
