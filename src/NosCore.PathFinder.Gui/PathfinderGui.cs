@@ -16,6 +16,7 @@ using log4net;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -63,7 +64,7 @@ namespace NosCore.PathFinder.Gui
             base.OnRenderFrame(e);
             PrintMap(_map);
         }
-
+        
         private void PrintMap(Map map)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -71,11 +72,12 @@ namespace NosCore.PathFinder.Gui
             Matrix4 modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref modelview);
-            for (short i = 0; i < _map.YLength; ++i)
+
+            for (short i = 0; i < _map.YLength; i++)
             {
-                for (short t = 0; t < _map.XLength; ++t)
+                for (short t = 0; t < _map.XLength; t++)
                 {
-                    if (_map.MapGrid[t, i] == 1)//TODO iswalkable
+                    if (_map[t, i] == 1)//TODO iswalkable
                     {
                         DrawPixel(t, i, Color.Aqua);
                     }
@@ -84,6 +86,7 @@ namespace NosCore.PathFinder.Gui
 
             SwapBuffers();
         }
+
         private void DrawPixel(short x, short y, Color color)
         {
             var xindex = (ClientRectangle.Width / (_gridsize * 2)) - x;
@@ -139,8 +142,9 @@ namespace NosCore.PathFinder.Gui
                 map.Initialize();
                 using (PathFinderGui game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
                 {
-                    game.Run(30.0);
+                    game.Run(30);
                 }
+                Thread.Sleep(10000);
             }
         }
     }
