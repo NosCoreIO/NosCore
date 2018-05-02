@@ -35,20 +35,12 @@ namespace NosCore.PathFinder.Gui
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
             GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
-            GL.Enable(EnableCap.DepthTest);
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-
-            Matrix4 projection = Matrix4.CreateOrthographic(ClientRectangle.Width / _gridsize, ClientRectangle.Height / _gridsize, 1.0f, 64.0f);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref projection);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -64,15 +56,10 @@ namespace NosCore.PathFinder.Gui
             base.OnRenderFrame(e);
             PrintMap(_map);
         }
-        
+
         private void PrintMap(Map map)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            Matrix4 modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadMatrix(ref modelview);
-
             for (short i = 0; i < _map.YLength; i++)
             {
                 for (short t = 0; t < _map.XLength; t++)
@@ -83,21 +70,23 @@ namespace NosCore.PathFinder.Gui
                     }
                 }
             }
-
+            GL.Flush();
             SwapBuffers();
         }
 
         private void DrawPixel(short x, short y, Color color)
         {
-            var xindex = (ClientRectangle.Width / (_gridsize * 2)) - x;
-            var yindex = (ClientRectangle.Height / (_gridsize * 2)) - y;
+            var pixelsizex = _gridsize * 2 / (double)(ClientRectangle.Width);
+            var pixelsizey = _gridsize * 2 / (double)(ClientRectangle.Height);
+
 
             GL.Begin(PrimitiveType.Quads);
             GL.Color3(color);
-            GL.Vertex3(xindex, yindex, 4.0f);
-            GL.Vertex3(xindex - 1, yindex, 4.0f);
-            GL.Vertex3(xindex - 1, yindex - 1, 4.0f);
-            GL.Vertex3(xindex, yindex - 1, 4.0f);
+            GL.Vertex2(-1 + (x + 1) * pixelsizex, 1 - (y + 1) * pixelsizey);
+            GL.Vertex2(-1 + (x + 1) * pixelsizex, 1 - y * pixelsizey);
+            GL.Vertex2(-1 + x * pixelsizex, 1 - y * pixelsizey);
+            GL.Vertex2(-1 + x * pixelsizex, 1 - (y + 1) * pixelsizey);
+
             GL.End();
         }
 
