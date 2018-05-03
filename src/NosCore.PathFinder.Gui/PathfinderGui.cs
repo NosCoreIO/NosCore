@@ -24,23 +24,13 @@ namespace NosCore.PathFinder.Gui
     {
         private readonly Map _map;
         private readonly byte _gridsize;
-
+        List<Tuple<short, short, byte>> walls = new List<Tuple<short, short, byte>>();
         public PathFinderGui(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(width * gridsize, height * gridsize, mode, title)
         {
             VSync = VSyncMode.On;
             _map = map;
             _gridsize = gridsize;
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
+            GetMap(_map);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -54,39 +44,40 @@ namespace NosCore.PathFinder.Gui
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            PrintMap(_map);
+
+            GL.ClearColor(Color.LightSkyBlue);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            Matrix4 world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
+            GL.LoadMatrix(ref world);
+            walls.ForEach(w=>DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable
+            GL.Flush();
+            SwapBuffers();
+
         }
 
-        private void PrintMap(Map map)
+        private void GetMap(Map map)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             for (short i = 0; i < _map.YLength; i++)
             {
                 for (short t = 0; t < _map.XLength; t++)
                 {
-                    if (_map[t, i] == 1)//TODO iswalkable
+                    var value = _map[t, i];
+                    if (_map[t, i] > 0)
                     {
-                        DrawPixel(t, i, Color.Aqua);
+                        walls.Add(new Tuple<short, short, byte>(t, i, value));
                     }
                 }
             }
-            GL.Flush();
-            SwapBuffers();
         }
 
         private void DrawPixel(short x, short y, Color color)
         {
-            var pixelsizex = _gridsize * 2 / (double)(ClientRectangle.Width);
-            var pixelsizey = _gridsize * 2 / (double)(ClientRectangle.Height);
-
-
             GL.Begin(PrimitiveType.Quads);
             GL.Color3(color);
-            GL.Vertex2(-1 + (x + 1) * pixelsizex, 1 - (y + 1) * pixelsizey);
-            GL.Vertex2(-1 + (x + 1) * pixelsizex, 1 - y * pixelsizey);
-            GL.Vertex2(-1 + x * pixelsizex, 1 - y * pixelsizey);
-            GL.Vertex2(-1 + x * pixelsizex, 1 - (y + 1) * pixelsizey);
-
+            GL.Vertex2(x * _gridsize, y * _gridsize);
+            GL.Vertex2(_gridsize * (x + 1), y * _gridsize);
+            GL.Vertex2(_gridsize * (x + 1), _gridsize * (y + 1));
+            GL.Vertex2(x * _gridsize, _gridsize * (y + 1));
             GL.End();
         }
 
@@ -131,7 +122,7 @@ namespace NosCore.PathFinder.Gui
                 map.Initialize();
                 using (PathFinderGui game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
                 {
-                    game.Run(30);
+                    game.Run(60);
                 }
                 Thread.Sleep(10000);
             }
