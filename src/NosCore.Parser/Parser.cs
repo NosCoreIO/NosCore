@@ -18,7 +18,7 @@ namespace NosCore.Parser
 {
     public static class Parser
     {
-        private static readonly ParserConfiguration _databaseConfiguration = new ParserConfiguration();
+        private static readonly ParserConfiguration _parserConfiguration = new ParserConfiguration();
 
         private const string _configurationPath = @"..\..\..\configuration";
 
@@ -35,7 +35,7 @@ namespace NosCore.Parser
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("parser.json", false);
-            builder.Build().Bind(_databaseConfiguration);
+            builder.Build().Bind(_parserConfiguration);
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }
 
@@ -53,7 +53,7 @@ namespace NosCore.Parser
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
-            if (DataAccessHelper.Instance.Initialize(_databaseConfiguration.Database))
+            if (DataAccessHelper.Instance.Initialize(_parserConfiguration.Database))
             {
                 try
                 {
@@ -71,7 +71,7 @@ namespace NosCore.Parser
                         folder = args.Aggregate(folder, (current, str) => current + str + " ");
                     }
 
-                    ImportFactory factory = new ImportFactory(folder);
+                    ImportFactory factory = new ImportFactory(folder, _parserConfiguration);
                     factory.ImportPackets();
 
                     if (key.KeyChar != 'n')
