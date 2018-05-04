@@ -7,6 +7,7 @@ using System.Text;
 using NosCore.DAL;
 using NosCore.Domain.Account;
 using NosCore.Parser.Parsers;
+using NosCore.Configuration;
 
 namespace NosCore.Parser
 {
@@ -17,24 +18,19 @@ namespace NosCore.Parser
         private readonly string _folder;
         private readonly List<string[]> _packetList = new List<string[]>();
 
-        private readonly MapParser _mapParser = new MapParser();
+        private readonly MapParser _mapParser;
         private readonly MapNpcParser _mapNpcParser = new MapNpcParser();
         private readonly CardParser _cardParser = new CardParser();
         private readonly ItemParser _itemParser = new ItemParser();
+        private readonly ParserConfiguration configuration;
 
-        #endregion
-
-        #region Instantiation
-
-        public ImportFactory(string folder)
+        public ImportFactory(string folder, ParserConfiguration conf)
         {
+            configuration = conf;
             _folder = folder;
+            _mapParser = new MapParser(conf); //TODO add dependency injection in importer
         }
-
-        #endregion
-
-        #region Methods
-
+        
         public void ImportAccounts()
         {
             AccountDTO acc1 = new AccountDTO
