@@ -120,7 +120,7 @@ namespace NosCore.PathFinder.Gui
             {
                 while (true)
                 {
-                    Console.WriteLine("Please Insert the MapId");
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
                     long askMapId = Convert.ToInt64(Console.ReadLine());
                     Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
                     //add a check map != null and XLength and YLength > 0
@@ -132,7 +132,6 @@ namespace NosCore.PathFinder.Gui
                             game.Run(60);
                             //game.Exit(); exec if map change
                         }
-                        Thread.Sleep(10000);
                     });
                     task.Start();
                 }
