@@ -133,7 +133,7 @@ namespace NosCore.PathFinder.Gui
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
                     string input = Console.ReadLine();
                     double askMapId;
-                    if (input != null || !double.TryParse(input, out askMapId))
+                    if (input == null || !double.TryParse(input, out askMapId))
                     {
                         Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
                         continue;
