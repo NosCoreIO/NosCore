@@ -59,6 +59,7 @@ namespace NosCore.Core.Logger
         MAPMONSTERS_LOADED,
         CORRUPT_PACKET,
         HANDLER_ERROR,
-        HANDLER_NOT_FOUND
+        HANDLER_NOT_FOUND,
+        SELECT_MAPID
     }
 }
