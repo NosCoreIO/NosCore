@@ -133,14 +133,14 @@ namespace NosCore.PathFinder.Gui
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
                     string input = Console.ReadLine();
                     double askMapId;
-                    if (String.IsNullOrEmpty(input) || !double.TryParse(input, out askMapId))
+                    if (input != null || !double.TryParse(input, out askMapId))
                     {
                         Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
                     Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
-                    if (map.MapId == askMapId && map.XLength > 0 && map.YLength > 0)
+                    if (map != null && map.XLength > 0 && map.YLength > 0)
                     {
                         map.Initialize();
 
