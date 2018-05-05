@@ -24,6 +24,7 @@ namespace NosCore.PathFinder.Gui
     {
         private readonly Map _map;
         private readonly byte _gridsize;
+        private static PathFinderGui game;
         List<Tuple<short, short, byte>> walls = new List<Tuple<short, short, byte>>();
         public PathFinderGui(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(width * gridsize, height * gridsize, mode, title)
         {
@@ -109,6 +110,14 @@ namespace NosCore.PathFinder.Gui
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
+        private static void ExitPathFinderGui()
+        {
+            if (game.Exists)
+            {
+                game.Exit();
+            }
+        }
+
         [STAThread]
         public static void Main()
         {
@@ -118,6 +127,7 @@ namespace NosCore.PathFinder.Gui
             Mapper.InitializeMapping();
             if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
             {
+                bool firstCicle = false;
                 while (true)
                 {
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -136,13 +146,19 @@ namespace NosCore.PathFinder.Gui
 
                         var task = new Thread(() =>
                         {
-                            using (PathFinderGui game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
+                            using (game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
                             {
                                 game.Run(60);
-                            //game.Exit(); exec if map change
-                        }
+                            }
                         });
                         task.Start();
+
+                        if (firstCicle)
+                        {
+                            ExitPathFinderGui();
+                        }
+                        task.Join(1000);
+                        firstCicle = true;
                     }
                 }
             }
