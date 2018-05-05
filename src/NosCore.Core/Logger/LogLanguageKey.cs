@@ -60,6 +60,7 @@ namespace NosCore.Core.Logger
         CORRUPT_PACKET,
         HANDLER_ERROR,
         HANDLER_NOT_FOUND,
-        SELECT_MAPID
+        SELECT_MAPID,
+        WRONG_SELECTED_MAPID
     }
 }
