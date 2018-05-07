@@ -142,17 +142,16 @@ namespace NosCore.PathFinder.Gui
                     {
                         map.Initialize();
 
-                        var thread = new Thread(() =>
-                        {
-                            using (game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
-                            {
-                                game.Run(60);
-                            }
-                        });
-                        thread.Start();
                         if (game != null)
+                        {
                             ExitPathFinderGui();
+                        }
 
+                        new Thread(() =>
+                        {
+                            game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            game.Run(60);
+                        }).Start();
                     }
                 } while (true);
             }
