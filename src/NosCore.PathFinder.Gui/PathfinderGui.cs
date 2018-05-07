@@ -24,6 +24,7 @@ namespace NosCore.PathFinder.Gui
     {
         private readonly Map _map;
         private readonly byte _gridsize;
+        private static PathFinderGui game;
         List<Tuple<short, short, byte>> walls = new List<Tuple<short, short, byte>>();
         public PathFinderGui(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(width * gridsize, height * gridsize, mode, title)
         {
@@ -109,6 +110,14 @@ namespace NosCore.PathFinder.Gui
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
+        private static void ExitPathFinderGui()
+        {
+            if (game.Exists)
+            {
+                game.Exit();
+            }
+        }
+
         [STAThread]
         public static void Main()
         {
@@ -118,13 +127,33 @@ namespace NosCore.PathFinder.Gui
             Mapper.InitializeMapping();
             if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
             {
-                Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == 1);
-                map.Initialize();
-                using (PathFinderGui game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
+                do
                 {
-                    game.Run(60);
-                }
-                Thread.Sleep(10000);
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
+                    string input = Console.ReadLine();
+                    if (input == null || !double.TryParse(input, out double askMapId))
+                    {
+                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
+                        continue;
+                    }
+                    Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    
+                    if (map != null && map.XLength > 0 && map.YLength > 0)
+                    {
+                        map.Initialize();
+
+                        if (game != null)
+                        {
+                            ExitPathFinderGui();
+                        }
+
+                        new Thread(() =>
+                        {
+                            game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            game.Run(60);
+                        }).Start();
+                    }
+                } while (true);
             }
         }
     }
