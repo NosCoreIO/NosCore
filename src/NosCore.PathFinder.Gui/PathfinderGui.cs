@@ -127,40 +127,34 @@ namespace NosCore.PathFinder.Gui
             Mapper.InitializeMapping();
             if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
             {
-                bool firstCicle = false;
-                while (true)
+                do
                 {
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
                     string input = Console.ReadLine();
-                    double askMapId;
-                    if (input == null || !double.TryParse(input, out askMapId))
+                    if (input == null || !double.TryParse(input, out double askMapId))
                     {
                         Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
                     Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
-
+                    
                     if (map != null && map.XLength > 0 && map.YLength > 0)
                     {
                         map.Initialize();
 
-                        var task = new Thread(() =>
+                        var thread = new Thread(() =>
                         {
                             using (game = new PathFinderGui(map, 5, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}"))
                             {
                                 game.Run(60);
                             }
                         });
-                        task.Start();
-
-                        if (firstCicle)
-                        {
+                        thread.Start();
+                        if (game != null)
                             ExitPathFinderGui();
-                        }
-                        task.Join(1000);
-                        firstCicle = true;
+
                     }
-                }
+                } while (true);
             }
         }
     }
