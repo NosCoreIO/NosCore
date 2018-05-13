@@ -13,14 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.0" />
-    <PackageReference Include="DotNetty.Buffers" Version="0.4.7" />
-    <PackageReference Include="DotNetty.Codecs" Version="0.4.7" />
-    <PackageReference Include="DotNetty.Common" Version="0.4.7" />
-    <PackageReference Include="DotNetty.Transport" Version="0.4.7" />
+    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="DotNetty.Buffers" Version="0.4.8" />
+    <PackageReference Include="DotNetty.Codecs" Version="0.4.8" />
+    <PackageReference Include="DotNetty.Common" Version="0.4.8" />
+    <PackageReference Include="DotNetty.Transport" Version="0.4.8" />
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Memory" Version="4.5.0-preview2-26406-04" />
   </ItemGroup>

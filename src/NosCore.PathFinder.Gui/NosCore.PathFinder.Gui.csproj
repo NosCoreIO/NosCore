@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="OpenTK.NETCore" Version="1.1.2749.6433" />
     <PackageReference Include="System.Memory" Version="4.5.0-preview2-26406-04" />
+    <PackageReference Include="Ultraviolet" Version="2018.5.0.3604" />
   </ItemGroup>
 
   <ItemGroup>
