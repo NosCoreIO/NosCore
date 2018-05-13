@@ -79,6 +79,24 @@ namespace NosCore.Core.Resource {
         }
         
         /// <summary>
+        ///   Cerca una stringa localizzata simile a Auth Error.
+        /// </summary>
+        public static string AUTH_ERROR {
+            get {
+                return ResourceManager.GetString("AUTH_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Incorrect Auth.
+        /// </summary>
+        public static string AUTH_INCORRECT {
+            get {
+                return ResourceManager.GetString("AUTH_INCORRECT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una stringa localizzata simile a Authenticated Error..
         /// </summary>
         public static string AUTHENTICATED_ERROR {
@@ -115,11 +133,47 @@ namespace NosCore.Core.Resource {
         }
         
         /// <summary>
+        ///   Cerca una stringa localizzata simile a Client connected, SessionId: {0}.
+        /// </summary>
+        public static string CLIENT_ARRIVED {
+            get {
+                return ResourceManager.GetString("CLIENT_ARRIVED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a New client connected. ClientId = {0}.
+        /// </summary>
+        public static string CLIENT_CONNECTED {
+            get {
+                return ResourceManager.GetString("CLIENT_CONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una stringa localizzata simile a Connection closed..
         /// </summary>
         public static string CLIENT_DISCONNECTED {
             get {
                 return ResourceManager.GetString("CLIENT_DISCONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Packet with Header {0} is corrupt or PacketDefinition is invalid. Content: {1}.
+        /// </summary>
+        public static string CORRUPT_PACKET {
+            get {
+                return ResourceManager.GetString("CORRUPT_PACKET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Corrupted Keepalive on client {0}.
+        /// </summary>
+        public static string CORRUPTED_KEEPALIVE {
+            get {
+                return ResourceManager.GetString("CORRUPTED_KEEPALIVE", resourceCulture);
             }
         }
         
@@ -160,6 +214,42 @@ namespace NosCore.Core.Resource {
         }
         
         /// <summary>
+        ///   Cerca una stringa localizzata simile a Character changed while changing map. Do not abuse Commands. {0}.
+        /// </summary>
+        public static string ERROR_CHANGE_MAP {
+            get {
+                return ResourceManager.GetString("ERROR_CHANGE_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Forced Disconnecting of client {0}, too much connections..
+        /// </summary>
+        public static string FORCED_DISCONNECTION {
+            get {
+                return ResourceManager.GetString("FORCED_DISCONNECTION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Handler Error.
+        /// </summary>
+        public static string HANDLER_ERROR {
+            get {
+                return ResourceManager.GetString("HANDLER_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Could not found Handler implementation for Packet with Header {0}.
+        /// </summary>
+        public static string HANDLER_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("HANDLER_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una stringa localizzata simile a Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -183,6 +273,60 @@ namespace NosCore.Core.Resource {
         public static string ITEMS_PARSED {
             get {
                 return ResourceManager.GetString("ITEMS_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Listening Port {0}.
+        /// </summary>
+        public static string LISTENING_PORT {
+            get {
+                return ResourceManager.GetString("LISTENING_PORT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a {0} MapMonsters Loaded!.
+        /// </summary>
+        public static string MAPMONSTERS_LOADED {
+            get {
+                return ResourceManager.GetString("MAPMONSTERS_LOADED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a {0} Maps Loaded!.
+        /// </summary>
+        public static string MAPS_LOADED {
+            get {
+                return ResourceManager.GetString("MAPS_LOADED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a MasterServer started successfully..
+        /// </summary>
+        public static string MASTER_SERVER_LISTENING {
+            get {
+                return ResourceManager.GetString("MASTER_SERVER_LISTENING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Cannot connect to Master Server! Trying again in 5 seconds....
+        /// </summary>
+        public static string MASTER_SERVER_RETRY {
+            get {
+                return ResourceManager.GetString("MASTER_SERVER_RETRY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Server need at least nosville MAP to work!.
+        /// </summary>
+        public static string NO_MAP {
+            get {
+                return ResourceManager.GetString("NO_MAP", resourceCulture);
             }
         }
         
@@ -360,9 +504,27 @@ namespace NosCore.Core.Resource {
         /// <summary>
         ///   Cerca una stringa localizzata simile a Registered on MasterServer.
         /// </summary>
+        public static string REGISTRED_FROM_MASTER {
+            get {
+                return ResourceManager.GetString("REGISTRED_FROM_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Registered on MasterServer.
+        /// </summary>
         public static string REGISTRED_ON_MASTER {
             get {
                 return ResourceManager.GetString("REGISTRED_ON_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Please, Select a MapId:.
+        /// </summary>
+        public static string SELECT_MAPID {
+            get {
+                return ResourceManager.GetString("SELECT_MAPID", resourceCulture);
             }
         }
         
@@ -390,6 +552,15 @@ namespace NosCore.Core.Resource {
         public static string UNREGISTRED_FROM_MASTER {
             get {
                 return ResourceManager.GetString("UNREGISTRED_FROM_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a Wrong MapId!.
+        /// </summary>
+        public static string WRONG_SELECTED_MAPID {
+            get {
+                return ResourceManager.GetString("WRONG_SELECTED_MAPID", resourceCulture);
             }
         }
     }
