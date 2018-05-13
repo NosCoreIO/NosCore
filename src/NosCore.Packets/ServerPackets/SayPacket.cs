@@ -1,4 +1,5 @@
 ﻿using NosCore.Core.Serializing;
+using NosCore.Domain;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -14,7 +15,7 @@ namespace NosCore.Packets.ServerPackets
         public long VisualId { get; set; }
 
         [PacketIndex(2)]
-        public byte Type { get; set; }
+        public SayColorType Type { get; set; }
 
         [PacketIndex(3)]
         public string Message { get; set; }
