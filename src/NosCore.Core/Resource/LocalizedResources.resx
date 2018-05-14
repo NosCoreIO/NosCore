@@ -261,6 +261,9 @@
   <data name="PARSE_SKILLS" xml:space="preserve">
     <value>Do you want to parse Skills?</value>
   </data>
+  <data name="PARSE_SKILLS1" xml:space="preserve">
+    <value>Do you want to parse Skills?</value>
+  </data>
   <data name="PARSE_TELEPORTERS" xml:space="preserve">
     <value>Do you want to parse Teleporters?</value>
   </data>

@@ -484,6 +484,15 @@ namespace NosCore.Core.Resource {
         }
         
         /// <summary>
+        ///   Cerca una stringa localizzata simile a Do you want to parse Skills?.
+        /// </summary>
+        public static string PARSE_SKILLS1 {
+            get {
+                return ResourceManager.GetString("PARSE_SKILLS1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una stringa localizzata simile a Do you want to parse Teleporters?.
         /// </summary>
         public static string PARSE_TELEPORTERS {
