@@ -1,5 +1,6 @@
 ﻿using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Domain;
 using NosCore.Domain.Interaction;
 using NosCore.Domain.Map;
 using NosCore.GameObject;
@@ -42,9 +43,9 @@ namespace NosCore.Controllers
             }
             if (_worldConfiguration.WorldInformation)
             {
-                Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", 10));
-                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", 11));
-                Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", 10));
+                Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", SayColorType.Yellow));
+                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", SayColorType.Purple));
+                Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", SayColorType.Yellow));
             }
             Session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
@@ -68,7 +69,7 @@ namespace NosCore.Controllers
             //            StaticBonusDTO medal = Session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             //            if (medal != null)
             //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("LOGIN_MEDAL"), 12));
+            //                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("LOGIN_MEDAL"), SayColorType.Green));
             //            }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
@@ -164,11 +165,11 @@ namespace NosCore.Controllers
             //            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
             //            if (giftcount > 0)
             //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("GIFTED"), giftcount), 11));
+            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("GIFTED"), giftcount), SayColorType.Purple));
             //            }
             //            if (mailcount > 0)
             //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), 10));
+            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
             //            }
             //            Session.Character.DeleteTimeout();
 

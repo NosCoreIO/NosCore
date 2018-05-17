@@ -1,4 +1,5 @@
-﻿using NosCore.GameObject.ComponentEntities.Interfaces;
+﻿using NosCore.Domain;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Packets.ServerPackets;
 using NosCore.Packets.ServerPackets;
 
@@ -18,7 +19,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, string message, byte type)
+        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, string message, SayColorType type)
         {
             return new SayPacket()
             {
