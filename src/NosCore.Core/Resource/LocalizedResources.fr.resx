@@ -240,4 +240,40 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client arrivé.</value>
   </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Keepalive corrompu.</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Mot de passe invalide.</value>
+  </data>
+    <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Identifiant invalide.</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Identifiant invalide.</value>
+  </data>   
+  <data name="ACCOUNT_VALIDED" xml:space="preserve">
+    <value>Identifiant validé.</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Tentative de reconnection au serveur master.</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Ecoute du port</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>Ecoute du serveur master.</value>
+  </data>
+  <data name="MAP_LOADED" xml:space="preserve">
+    <value>Les cartes ont été chargées.</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>Aucune carte n'a été trouvé.</value>
+  </data>
+<data name="MAPMONSTER_LOADED" xml:space="preserve">
+    <value>Les monstres ont été chargés sur les cartes.</value>
+  </data>
+<data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Packets corrompu.</value>
+  </data>
 </root>
