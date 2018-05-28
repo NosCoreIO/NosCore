@@ -202,7 +202,7 @@
     <value>Enregistrer du master.</value>
   </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Packet méconnu du master.</value>
+    <value>Packet inconnu du master.</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentification avec succès.</value>
@@ -277,7 +277,7 @@
     <value>Le compte {0} c'est connecté.</value>
   </data>
 <data name="MONSTER_LOADED" xml:space="preserve">
-    <value>Packets corrompu.</value>
+    <value>Les monstres ont été chargés.</value>
   </data>
 <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Erreur du gestionnaire.</value>
