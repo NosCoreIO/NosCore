@@ -270,10 +270,25 @@
   <data name="NO_MAP" xml:space="preserve">
     <value>Aucune carte n'a été trouvé.</value>
   </data>
-<data name="MAPMONSTER_LOADED" xml:space="preserve">
+<data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Les monstres ont été chargés sur les cartes.</value>
   </data>
-<data name="CORRUPT_PACKET" xml:space="preserve">
+<data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Le compte {0} c'est connecté.</value>
+  </data>
+<data name="MONSTER_LOADED" xml:space="preserve">
     <value>Packets corrompu.</value>
+  </data>
+<data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Erreur du gestionnaire.</value>
+  </data>
+<data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Gestionnaire introuvable.</value>
+  </data>
+<data name="SELECT_MAPID" xml:space="preserve">
+    <value>Veuillez séléctionner un MapID.</value>
+  </data>
+<data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Mauvais MapID .</value>
   </data>
 </root>
