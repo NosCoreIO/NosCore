@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
-    <ProjectReference Include="..\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj" />
   </ItemGroup>
 
 </Project>

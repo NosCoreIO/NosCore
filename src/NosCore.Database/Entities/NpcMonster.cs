@@ -1,4 +1,4 @@
-using NosCore.Domain.Map;
+using NosCore.Shared.Map;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -1,4 +1,4 @@
-using NosCore.Domain.Interaction;
+using NosCore.Shared.Interaction;
 
 namespace NosCore.Database.Entities
 {

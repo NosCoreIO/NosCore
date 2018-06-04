@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.Domain.Items;
+using NosCore.Shared.Items;
 
 namespace NosCore.Parser.Parsers
 {

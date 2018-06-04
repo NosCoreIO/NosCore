@@ -14,7 +14,7 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Core.Serializing;
 using NosCore.Packets.ClientPackets;
 using NosCore.WebApi.Controllers;

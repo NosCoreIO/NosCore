@@ -1,5 +1,5 @@
 ﻿
-using NosCore.Domain.Family;
+using NosCore.Shared.Family;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities

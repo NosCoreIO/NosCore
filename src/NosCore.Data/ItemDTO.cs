@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Items;
+﻿using NosCore.Shared.Items;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data

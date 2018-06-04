@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Character;
+using NosCore.Shared.Character;
 
 namespace NosCore.Data.AliveEntities
 {

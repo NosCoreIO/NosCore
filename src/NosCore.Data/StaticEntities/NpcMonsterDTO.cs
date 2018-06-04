@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.AliveEntities;
-using NosCore.Domain.Map;
+using NosCore.Shared.Map;
 
 namespace NosCore.Data.StaticEntities
 {

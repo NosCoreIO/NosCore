@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NosCore.Domain\NosCore.Domain.csproj" />
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 
 </Project>

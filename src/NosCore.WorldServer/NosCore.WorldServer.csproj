@@ -32,10 +32,8 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
-    <ProjectReference Include="..\NosCore.Handler\NosCore.Controllers.csproj" />
-    <ProjectReference Include="..\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj" />
-    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
-    <ProjectReference Include="..\NosCore.WebApi\NosCore.WebApi.csproj" />
+    <ProjectReference Include="..\NosCore.Controllers\NosCore.Controllers.csproj" />
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 
 </Project>

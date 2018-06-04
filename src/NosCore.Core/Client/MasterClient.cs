@@ -1,5 +1,5 @@
 ﻿using NosCore.Configuration;
-using NosCore.Domain;
+using NosCore.Shared;
 
 namespace NosCore.Core.Client
 {

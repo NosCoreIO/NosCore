@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.Domain.Map;
+using NosCore.Shared.Map;
 
 namespace NosCore.GameObject.Networking
 {

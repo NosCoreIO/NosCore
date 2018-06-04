@@ -1,6 +1,6 @@
-﻿using NosCore.Core.Logger;
+﻿using NosCore.Shared.Logger;
 using NosCore.Core.Serializing;
-using NosCore.Domain.Interaction;
+using NosCore.Shared.Interaction;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;

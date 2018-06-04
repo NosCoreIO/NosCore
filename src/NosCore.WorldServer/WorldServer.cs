@@ -2,33 +2,25 @@
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Encryption;
-using NosCore.Core.Extensions;
-using NosCore.Core.Logger;
 using NosCore.Core.Networking;
-using NosCore.DAL;
-using NosCore.Domain;
 using NosCore.GameObject.Networking;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac.Extensions.DependencyInjection;
 using log4net.Repository;
 using log4net.Config;
 using log4net;
 using System.Reflection;
 using System.IO;
-using NosCore.Mapping;
+using NosCore.GameObject;
+using NosCore.Shared.Logger;
+using NosCore.DAL;
+using NosCore.Shared;
 
 namespace NosCore.WorldServer
 {
@@ -56,7 +48,7 @@ namespace NosCore.WorldServer
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             }
-            Mapper.InitializeMapping();
+            DAOFactory.RegisterMapping(typeof(Character).Assembly);
             ConnectMaster();
             if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
             {

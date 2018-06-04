@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Buff;
+﻿using NosCore.Shared.Buff;
 using System;
 
 namespace NosCore.Database.Entities

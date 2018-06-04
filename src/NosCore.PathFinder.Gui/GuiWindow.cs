@@ -1,20 +1,10 @@
-﻿using log4net;
-using log4net.Config;
-using log4net.Repository;
-using Microsoft.Extensions.Configuration;
-using NosCore.Core.Logger;
-using NosCore.DAL;
-using NosCore.GameObject.Map;
-using NosCore.Mapping;
+﻿using NosCore.GameObject.Map;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Reflection;
 using System.Threading;
 
 namespace NosCore.PathFinder.Gui

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using NosCore.Configuration;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 

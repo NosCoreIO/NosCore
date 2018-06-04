@@ -1,10 +1,10 @@
 ﻿using DotNetty.Transport.Channels;
 using NosCore.Core;
-using NosCore.Core.Logger;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
-using NosCore.Domain.Map;
+using NosCore.Shared.Logger;
+using NosCore.Shared.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using System;
 using System.Collections.Generic;

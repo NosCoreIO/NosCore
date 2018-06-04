@@ -5,7 +5,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Core.Networking;
 using System;
 using System.Collections.Generic;

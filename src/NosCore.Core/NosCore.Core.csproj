@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
-    <ProjectReference Include="..\NosCore.Domain\NosCore.Domain.csproj" />
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 	  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Character;
+﻿using NosCore.Shared.Character;
 using System;
 using System.ComponentModel.DataAnnotations;
 

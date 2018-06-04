@@ -1,13 +1,13 @@
-﻿using NosCore.Core.Logger;
+﻿using NosCore.Shared.Logger;
 using NosCore.Data;
 using NosCore.GameObject.Helper;
 using System;
 using NosCore.Data.AliveEntities;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
-using NosCore.Domain.Character;
+using NosCore.Shared.Character;
 
 namespace NosCore.GameObject
 {

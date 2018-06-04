@@ -1,5 +1,5 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain;
+using NosCore.Shared;
 
 namespace NosCore.Packets.ServerPackets
 {
