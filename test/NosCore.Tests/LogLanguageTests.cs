@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Logger;
-using NosCore.Domain;
+using NosCore.Shared.Logger;
+using NosCore.Shared;
 using System;
 using System.Collections;
 using System.Collections.Generic;

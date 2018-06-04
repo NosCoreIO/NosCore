@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Core.Serializing;
 
 namespace NosCore.Core.Networking
@@ -46,7 +46,7 @@ namespace NosCore.Core.Networking
                 }
             }
 
-            Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED)));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED)));
 
             g.Add(context.Channel);
         }
@@ -60,7 +60,7 @@ namespace NosCore.Core.Networking
 
         public void Disconnect()
         {
-            Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION)));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION)));
             _channel.DisconnectAsync();
         }
 

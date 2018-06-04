@@ -2,10 +2,10 @@
 using System.IO;
 using NosCore.Data;
 using NosCore.Core.Encryption;
-using NosCore.Domain;
+using NosCore.Shared;
 using System.Text;
 using NosCore.DAL;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 using NosCore.Parser.Parsers;
 using NosCore.Configuration;
 

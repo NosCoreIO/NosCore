@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using NosCore.Data;
-using NosCore.Database;
+using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.Database.Entities;
 using System;
 using System.Linq;
-using NosCore.Data.AliveEntities;
-using NosCore.Data.StaticEntities;
+using System.Reflection;
 
 namespace NosCore.DAL
 {
@@ -85,9 +85,31 @@ namespace NosCore.DAL
             get { return _questObjectiveDAO ?? (_questObjectiveDAO = new GenericDAO<QuestObjective, QuestObjectiveDTO>(_mapper)); }
         }
 
-        public static void RegisterMapping(IMapper mapper)
+        public static void RegisterMapping(Assembly gameobjectAssembly)
         {
-            _mapper = mapper;
+            MapperConfiguration config = new MapperConfiguration(cfg =>
+            {
+                foreach (Type type in typeof(CharacterDTO).Assembly.GetTypes().Where(t => typeof(IDTO).IsAssignableFrom(t)))
+                {
+                    int index = type.Name.LastIndexOf("DTO");
+                    if (index >= 0)
+                    {
+                        string name = type.Name.Substring(0, index);
+                        Type typefound = gameobjectAssembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
+                        Type entitytypefound = typeof(Database.Entities.Account).Assembly.GetTypes().SingleOrDefault(t => t.Name.Equals(name));
+                        if (entitytypefound != null)
+                        {
+                            cfg.CreateMap(type, entitytypefound).ReverseMap();
+                            if (typefound != null)
+                            {
+                                cfg.CreateMap(entitytypefound, type).As(typefound);
+                            }
+                        }
+                    }
+                }
+            });
+
+            _mapper = config.CreateMapper();
         }
     }
 }

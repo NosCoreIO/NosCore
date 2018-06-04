@@ -20,8 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\..\src\NosCore.Handler\NosCore.Controllers.csproj" />
-    <ProjectReference Include="..\..\src\NosCore.Mapping\NosCore.Mapping\NosCore.Mapping.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Shared\NosCore.Shared.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Controllers\NosCore.Controllers.csproj" />
   </ItemGroup>
 
 </Project>

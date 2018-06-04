@@ -1,7 +1,7 @@
 ﻿using System;
 using DotNetty.Transport.Channels;
 using Newtonsoft.Json;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 
 namespace NosCore.Core.Networking
 {
@@ -13,12 +13,12 @@ namespace NosCore.Core.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            Logger.Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNREGISTRED_FROM_MASTER)));
+            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNREGISTRED_FROM_MASTER)));
         }
 
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
-            Logger.Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER)));
+            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER)));
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
@@ -30,7 +30,7 @@ namespace NosCore.Core.Networking
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+                Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
                 return;
             }
         }

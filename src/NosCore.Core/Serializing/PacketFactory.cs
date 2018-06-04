@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using NosCore.Core.Extensions;
+using NosCore.Shared.Logger;
 
 namespace NosCore.Core.Serializing
 {
@@ -38,7 +39,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+                Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
                 return null;
             }
         }
@@ -104,7 +105,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Logger.Log.Warn("Wrong Packet Format!", e);
+                Logger.Log.Warn("Wrong Packet Format!", e);
                 return string.Empty;
             }
         }
@@ -261,7 +262,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception)
                 {
-                    Logger.Logger.Log.Warn($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
+                    Logger.Log.Warn($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
                 }
 
                 return convertedValue;

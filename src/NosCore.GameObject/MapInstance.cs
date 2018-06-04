@@ -1,5 +1,5 @@
 ﻿using NosCore.Data;
-using NosCore.Domain.Map;
+using NosCore.Shared.Map;
 using NosCore.Packets;
 using System;
 using System.Collections.Concurrent;

@@ -2,16 +2,12 @@
 using log4net.Config;
 using log4net.Repository;
 using Microsoft.Extensions.Configuration;
-using NosCore.Core.Logger;
 using NosCore.DAL;
+using NosCore.Shared.Logger;
+using NosCore.GameObject;
 using NosCore.GameObject.Map;
-using NosCore.Mapping;
-using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
@@ -55,7 +51,7 @@ namespace NosCore.PathFinder.Gui
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
-            Mapper.InitializeMapping();
+            DAOFactory.RegisterMapping(typeof(Character).Assembly);
             if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
             {
                 do

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NosCore.Core.Logger;
 using NosCore.Database;
+using NosCore.Shared.Logger;
 using System;
 using System.Data.SqlClient;
 

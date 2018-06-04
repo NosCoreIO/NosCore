@@ -21,8 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\NosCore.Handler\NosCore.Controllers.csproj" />
-    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
+    <ProjectReference Include="..\NosCore.Controllers\NosCore.Controllers.csproj" />
   </ItemGroup>
 
 </Project>

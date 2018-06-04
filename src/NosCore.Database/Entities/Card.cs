@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static NosCore.Domain.Buff.BCardType;
+using static NosCore.Shared.Buff.BCardType;
 
 namespace NosCore.Database.Entities
 {

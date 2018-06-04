@@ -1,5 +1,5 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 
 namespace NosCore.Packets.CommandPackets
 {

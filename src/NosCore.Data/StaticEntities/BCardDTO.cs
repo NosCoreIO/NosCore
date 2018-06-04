@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Buff;
+using NosCore.Shared.Buff;
 
 namespace NosCore.Data.StaticEntities
 {

@@ -1,5 +1,5 @@
-﻿using NosCore.Domain.Character;
-using NosCore.Domain.Family;
+﻿using NosCore.Shared.Character;
+using NosCore.Shared.Family;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

@@ -1,6 +1,6 @@
-﻿using NosCore.Domain;
+﻿using NosCore.Shared;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 
 namespace NosCore.Data
 {

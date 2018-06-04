@@ -1,5 +1,5 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Character;
+using NosCore.Shared.Character;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.ClientPackets

@@ -1,4 +1,4 @@
-﻿using NosCore.Domain;
+﻿using NosCore.Shared;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Packets.ServerPackets;
 using NosCore.Packets.ServerPackets;

@@ -7,10 +7,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Domain;
-using NosCore.Core.Logger;
+using NosCore.Shared;
 using NosCore.Database;
 using NosCore.Data;
+using NosCore.Shared.Logger;
 
 namespace NosCore.DAL
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using NosCore.Core.Serializing;
-using NosCore.Domain.Character;
+using NosCore.Shared.Character;
 
 namespace NosCore.Packets.ServerPackets
 {

@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Character;
+﻿using NosCore.Shared.Character;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

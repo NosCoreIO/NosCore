@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using NosCore.Domain;
+using NosCore.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 
 namespace NosCore.Core
 {

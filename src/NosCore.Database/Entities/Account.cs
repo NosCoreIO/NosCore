@@ -1,7 +1,7 @@
-using NosCore.Domain;
+using NosCore.Shared;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Account;
+using NosCore.Shared.Account;
 
 namespace NosCore.Database.Entities
 {

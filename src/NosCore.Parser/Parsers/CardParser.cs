@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NosCore.Core.Logger;
+using NosCore.Shared.Logger;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.Domain.Buff;
+using NosCore.Shared.Buff;
 
 namespace NosCore.Parser.Parsers
 

@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Interaction;
+﻿using NosCore.Shared.Interaction;
 using System;
 using System.ComponentModel.DataAnnotations;
 
