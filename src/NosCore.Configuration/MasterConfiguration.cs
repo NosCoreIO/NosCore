@@ -7,6 +7,6 @@ namespace NosCore.Configuration
 {
     public class MasterConfiguration : WebApiConfiguration
     {
-        public SqlConnectionStringBuilder Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; }
     }
 }

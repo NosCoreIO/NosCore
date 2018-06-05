@@ -496,4 +496,5 @@ fabric.properties
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
 Log.txt
+/build/netcoreapp2.1
 /build/netcoreapp2.0

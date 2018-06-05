@@ -5,6 +5,6 @@ namespace NosCore.Configuration
 {
     public class LoginConfiguration : GameServerConfiguration
     {
-        public SqlConnectionStringBuilder Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; }
     }
 }

@@ -12,13 +12,15 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using NosCore.Database;
+using NosCore.Configuration;
 
 namespace NosCore.PathFinder.Gui
 {
     public static class PathFinderGui
     {
         private const string _configurationPath = @"..\..\..\configuration";
-        private static readonly SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
+        private static readonly SqlConnectionConfiguration _databaseConfiguration = new SqlConnectionConfiguration();
         private static GuiWindow guiWindow;
 
         private static void InitializeConfiguration()

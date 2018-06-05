@@ -35,7 +35,7 @@ namespace NosCore.Parser.Parsers
 
             string line;
             int i = 0;
-            using (StreamReader mapIdStream = new StreamReader(fileMapIdDat, Encoding.GetEncoding(1252)))
+            using (StreamReader mapIdStream = new StreamReader(fileMapIdDat, Encoding.UTF8))
             {
                 while ((line = mapIdStream.ReadLine()) != null)
                 {
@@ -56,7 +56,7 @@ namespace NosCore.Parser.Parsers
                 mapIdStream.Close();
             }
 
-            using (StreamReader mapIdLangStream = new StreamReader(fileMapIdLang, Encoding.GetEncoding(1252)))
+            using (StreamReader mapIdLangStream = new StreamReader(fileMapIdLang, Encoding.UTF8))
             {
                 while ((line = mapIdLangStream.ReadLine()) != null)
                 {

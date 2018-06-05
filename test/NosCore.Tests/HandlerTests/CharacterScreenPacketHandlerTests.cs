@@ -27,6 +27,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using NosCore.GameObject.Map;
+using NosCore.Configuration;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -41,7 +42,7 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var sqlconnect = new SqlConnectionStringBuilder("Server=localhost;User ID=sa;Password=password;");
+            var sqlconnect = new SqlConnectionConfiguration();//TODO add real connection
             DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
             session.Setup(s => s.SendPacket(It.IsAny<PacketDefinition>())).Verifiable();
             session.SetupAllProperties();
