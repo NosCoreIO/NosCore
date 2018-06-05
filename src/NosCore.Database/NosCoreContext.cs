@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using NosCore.Database.Entities;
 using System.Data.SqlClient;
 using System.IO;
+using NosCore.Configuration;
 
 namespace NosCore.Database
 {
@@ -14,7 +15,7 @@ namespace NosCore.Database
 
         public NosCoreContext CreateDbContext(string[] args)
         {
-            SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
+            SqlConnectionConfiguration _databaseConfiguration = new SqlConnectionConfiguration();
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("database.json", false);
@@ -26,16 +27,16 @@ namespace NosCore.Database
     public class NosCoreContext : DbContext
     {
         #region Instantiation
-        private readonly SqlConnectionStringBuilder _conn;
+        private readonly SqlConnectionConfiguration _conn;
 
-        public NosCoreContext(SqlConnectionStringBuilder conn)
+        public NosCoreContext(SqlConnectionConfiguration conn)
         {
             _conn = conn;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_conn.ConnectionString);
+            optionsBuilder.UseNpgsql(_conn.ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

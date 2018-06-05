@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NosCore.Configuration;
 using NosCore.Database;
 using NosCore.Shared.Logger;
 using System;
@@ -22,7 +23,7 @@ namespace NosCore.DAL
 
         #region Members
 
-        private SqlConnectionStringBuilder _conn;
+        private SqlConnectionConfiguration _conn;
 
         #endregion
 
@@ -36,7 +37,7 @@ namespace NosCore.DAL
             return new NosCoreContext(_conn);
         }
 
-        public bool Initialize(SqlConnectionStringBuilder Database)
+        public bool Initialize(SqlConnectionConfiguration Database)
         {
             _conn = Database;
             using (NosCoreContext context = CreateContext())
@@ -57,7 +58,7 @@ namespace NosCore.DAL
             }
         }
 
-        public void EnsureDeleted(SqlConnectionStringBuilder Database)
+        public void EnsureDeleted(SqlConnectionConfiguration Database)
         {
             _conn = Database;
             using (NosCoreContext context = CreateContext())

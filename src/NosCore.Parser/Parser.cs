@@ -56,7 +56,7 @@ namespace NosCore.Parser
                 {
                     Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
                     string folder = string.Empty;
-                    ConsoleKeyInfo key;
+                    ConsoleKeyInfo key = default(ConsoleKeyInfo);
                     if (args.Length == 0)
                     {
                         folder = Console.ReadLine();
