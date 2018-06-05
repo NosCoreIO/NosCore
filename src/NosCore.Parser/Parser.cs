@@ -78,7 +78,7 @@ namespace NosCore.Parser
                         //factory.ImportMapType();
                         //factory.ImportMapTypeMap();
                         factory.ImportAccounts();
-                        //factory.ImportPortals();
+                        factory.ImportPortals();
                         //factory.ImportScriptedInstances();
                         //factory.ImportItems();
                         //factory.ImportSkills();
