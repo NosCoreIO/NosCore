@@ -2,7 +2,7 @@
 mono: none
 sudo: required
 dist: trusty
-dotnet: 2.1.101
+dotnet: 2.1
 addons:
   apt:
     packages:
@@ -21,9 +21,6 @@ install:
     - dotnet restore
 script: 
     - dotnet build
-before_install:
-    - chmod +x ./tools/launch-mssql-in-docker.sh
-    - ./tools/launch-mssql-in-docker.sh -p password
 after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
     - pip install --user awscli
