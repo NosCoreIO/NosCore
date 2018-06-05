@@ -216,6 +216,9 @@
   <data name="PARSE_CARDS" xml:space="preserve">
     <value>Czy chcesz wprowadzić Cards?</value>
   </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Przedmioty?</value>
+  </data>
   <data name="PARSE_MAPNPCS" xml:space="preserve">
     <value>Czy chcesz wprowadzić MapNpc?</value>
   </data>
@@ -267,6 +270,9 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowany w MASTER</value>
   </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Wybierz MapID</value>
+  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Pomyślnie załadowany</value>
   </data>
@@ -275,5 +281,8 @@
   </data>
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Wyrejestrowany z MASTER</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Błędnie wybrane MapID</value>
   </data>
 </root>
