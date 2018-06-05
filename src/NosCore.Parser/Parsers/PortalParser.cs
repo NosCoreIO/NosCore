@@ -1,10 +1,8 @@
 ﻿using NosCore.DAL;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.Logger;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace NosCore.Parser.Parsers
 {
