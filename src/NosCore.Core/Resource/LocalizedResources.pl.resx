@@ -117,4 +117,163 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Polączono nowego uzytkownika</value>
+  </data>
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
+    <value>Przynajmniej jeden z wymaganych plików nie mógł zostać znaleziony</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Uwierzytelnienie nie powiodło się !</value>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Uwierzytelnienie powiodło się !</value>
+  </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Błąd Uwierzytelniania</value>
+  </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Niepoprawne Uwierzytelnianie</value>
+  </data>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>{0} Cards Wprowadzonych</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Postać nie zainicjowana</value>
+  </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Dotarł nowy uzytkownik</value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Uzytkownik połączony</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Użytkownik rozłaczony</value>
+  </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Corrupted Keepalive on client {0}.</value>
+  </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Pakiet z Headerem {0} PacketDefinition jest niewłaściwy.</value>
+  </data>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>Baza danych zostala zaladowana !</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>Baza danych jest nie aktualna. prosze przeprowadzić aktualizację.</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>Wprowadzanie ukończone!</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Podaj ściezkę pliku aby przeprowadzić rozbiór danych</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Błąd zmiany mapy</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Rozłaczanie użytkownika {0}, zbyt dużo połączeń.</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Hanlder implementation error</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Could not found Handler implementation</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Nie poprawne ID Uzytkownika</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Niepoprawne haslo!</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>{0} Przedmiotów Wprowadzonych!</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Komunikacja z Port została rozpoczęta</value>
+  </data>
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} potworów wprowadzonych</value>
+  </data>
+  <data name="MAPS_LOADED" xml:space="preserve">
+    <value>{0} Map Wprowadzonych !</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>Komunikacja z Master Server została rozpoczęta</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Nie udało się połączyć z MasterServer Ponowne połaczenie się ....</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>ID Mapy jest nie właściwe</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Konta?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Czy chcesz wprowadzić wszystko?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Cards?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić MapNpc?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Mapy?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Czy chcesz wprowadzić MapTypes?</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Potwory?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Czy chesz wprowadzić dane NpcMonster?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Czy chesz wprowadzić dane NpcMonster?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Portale?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Zadania?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Przepisy?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić ShopItems?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Sklepy?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Sklepy z umiejętnościami?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Umiejętności?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Teleporters?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Czy chcesz wprowadzic Czaso-Przestrzenie?</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Rejestracja z MasterServer </value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Zarejestrowany w MASTER</value>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>Pomyślnie załadowany</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Nierozpoznany Master Pakiet</value>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Wyrejestrowany z MASTER</value>
+  </data>
 </root>
