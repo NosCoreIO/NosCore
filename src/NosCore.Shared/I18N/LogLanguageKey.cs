@@ -44,6 +44,7 @@ namespace NosCore.Shared.Logger
         PARSE_SKILLS,
         PARSE_MAPNPCS,
         PARSE_MONSTERS,
+        PORTALS_PARSED,
         PARSE_SHOPS,
         PARSE_TELEPORTERS,
         PARSE_SHOPITEMS,
