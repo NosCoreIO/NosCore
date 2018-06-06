@@ -10,7 +10,7 @@ namespace NosCore.Parser.Parsers
     {
         private static List<PortalDTO> listPortals1 = new List<PortalDTO>();
         private static List<PortalDTO> listPortals2 = new List<PortalDTO>();
-        private List<MapDTO> maps;
+        private List<MapDTO> maps = DAOFactory.MapDAO.LoadAll().ToList();
 
         public void ParsePortals(string folder, List<string[]> packetList)
         {
