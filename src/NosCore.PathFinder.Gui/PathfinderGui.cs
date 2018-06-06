@@ -54,8 +54,10 @@ namespace NosCore.PathFinder.Gui
             InitializeLogger();
             InitializeConfiguration();
             DAOFactory.RegisterMapping(typeof(Character).Assembly);
-            if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
+            try
             {
+                DataAccessHelper.Instance.Initialize(_databaseConfiguration);
+
                 do
                 {
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -83,6 +85,10 @@ namespace NosCore.PathFinder.Gui
                         }).Start();
                     }
                 } while (true);
+            }
+            catch
+            {
+                Console.ReadKey();
             }
         }
     }

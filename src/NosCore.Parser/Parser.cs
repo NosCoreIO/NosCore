@@ -50,8 +50,10 @@ namespace NosCore.Parser
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
-            if (DataAccessHelper.Instance.Initialize(_parserConfiguration.Database))
+            try
             {
+                DataAccessHelper.Instance.Initialize(_parserConfiguration.Database);
+
                 try
                 {
                     Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
@@ -231,10 +233,9 @@ namespace NosCore.Parser
                     Thread.Sleep(5000);
                 }
             }
-            else
+            catch (Exception)
             {
                 Console.ReadKey();
-                return;
             }
         }
     }

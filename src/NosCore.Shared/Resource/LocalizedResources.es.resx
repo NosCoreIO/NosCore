@@ -117,184 +117,172 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Cuenta con SessionId {0} ha llegado.</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>Au moins un fichier est manquant. Vérifiez que tout soit bien présent.</value>
-  </data>
-  <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Cartes analysées !</value>
-  </data>
-  <data name="DATABASE_INITIALIZED" xml:space="preserve">
-    <value>La base de données a été initialisée !</value>
-  </data>
-  <data name="DONE" xml:space="preserve">
-    <value>L'analyse des fichiers est terminée !</value>
-  </data>
-  <data name="ENTER_PATH" xml:space="preserve">
-    <value>Entre le répertoire des fichiers pour commencer l'importation</value>
-  </data>
-  <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>{0} Objets analysés !</value>
-  </data>
-  <data name="PARSE_ACCOUNTS" xml:space="preserve">
-    <value>Vous-vous analyser les comptes ?</value>
-  </data>
-  <data name="PARSE_ALL" xml:space="preserve">
-    <value>Voulez-vous tout analyser ?</value>
-  </data>
-  <data name="PARSE_CARDS" xml:space="preserve">
-    <value>Voulez-vous analysé les Bcard ?</value>
-  </data>
-  <data name="PARSE_ITEMS" xml:space="preserve">
-    <value>Voulez-vous analyser les objets ?</value>
-  </data>
-  <data name="PARSE_MAPNPCS" xml:space="preserve">
-    <value>Voulez-vous analyser les cartes-pnj ?</value>
-  </data>
-  <data name="PARSE_MAPS" xml:space="preserve">
-    <value>Voulez-vous analyser les cartes ?</value>
-  </data>
-  <data name="PARSE_MAPTYPES" xml:space="preserve">
-    <value>Voulez-vous anlysez les types de cartes ?</value>
-  </data>
-  <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les monstres ?</value>
-  </data>
-  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
-    <value>Voulez-vous analyser NpcMonsterData ?</value>
-  </data>
-  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les pnj ?</value>
-  </data>
-  <data name="PARSE_PORTALS" xml:space="preserve">
-    <value>Voulez-vous analyser les portails ?</value>
-  </data>
-  <data name="PARSE_QUESTS" xml:space="preserve">
-    <value>Voulez-vous analyser les quêtes ?</value>
-  </data>
-  <data name="PARSE_RECIPES" xml:space="preserve">
-    <value>Voulez-vous analyser les recettes ?</value>
-  </data>
-  <data name="PARSE_SHOPITEMS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins d'objets ?</value>
-  </data>
-  <data name="PARSE_SHOPS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins ?</value>
-  </data>
-  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
-    <value>Voulez-vous analyser les magasins de compétences ?</value>
-  </data>
-  <data name="PARSE_SKILLS" xml:space="preserve">
-    <value>Voulez-vous analyser les compétences ?</value>
-  </data>
-  <data name="PARSE_TELEPORTERS" xml:space="preserve">
-    <value>Voulez-vous analyser les téléporteurs ?</value>
-  </data>
-  <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>Voulez-vous analyser les espaces temps ?</value>
-  </data>
-  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>L'émulateur à bien été chargé.</value>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Déconnecter de master.</value>
-  </data>
-  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
-    <value>Enregistrer du master.</value>
-  </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Packet inconnu du master.</value>
-  </data>
-  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Authentification avec succès.</value>
+    <value>Al menos falta un archivo</value>
   </data>
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Erreur d'authentification.</value>
+    <value>Error Autentificado.</value>
   </data>
-  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
-    <value>La base de données n'est pas à jour.</value>
-  </data>
-  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
-    <value>Client déconnecté.</value>
-  </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Personnage non chargé.</value>
-  </data>
-  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
-    <value>Erreur lors d'un passage à une map.</value>
-  </data>
-  <data name="AUTH_INCORRECT" xml:space="preserve">
-    <value>Authentification incorrecte.</value>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Autenticación Exitosa!</value>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
-    <value>Erreur d'authentification.</value>
+    <value>Auth error</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Déconnexion forcée.</value>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Auth incorrecto</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Client connecté.</value>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>¡{0} tarjetas analizadas!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Enrengistrer de master.</value>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Personaje no cargado</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
-    <value>Client arrivé.</value>
+    <value>Cliente conectado, SessionId: {0}</value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Nuevo cliente conectado. ClientId = {0}</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Conexión cerrada.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
-    <value>Keepalive corrompu.</value>
+    <value>Keepalive corrupto en el cliente {0}</value>
   </data>
-  <data name="INVALID_PASSWORD" xml:space="preserve">
-    <value>Mot de passe invalide.</value>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>Base de datos inicializada.</value>
   </data>
-    <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Identifiant invalide.</value>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>Base de datos no actualizada</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>¡Importación terminada!</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Entre el directorio de los archivos para comenzar la importación</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Error al Cambiar de mapa. No abuses de comandos. {0}</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Desconexión del cliente {0} forzada, demasiadas conexiones.</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Identifiant invalide.</value>
-  </data>   
-  <data name="ACCOUNT_VALIDED" xml:space="preserve">
-    <value>Identifiant validé.</value>
+    <value>¡Id incorrecta!</value>
   </data>
-  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>Tentative de reconnection au serveur master.</value>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>¡Contraseña incorrecta!</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>{0} elementos analizados</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Ecoute du port</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Ecoute du serveur master.</value>
-  </data>
-  <data name="MAP_LOADED" xml:space="preserve">
-    <value>Les cartes ont été chargées.</value>
-  </data>
-  <data name="NO_MAP" xml:space="preserve">
-    <value>Aucune carte n'a été trouvé.</value>
+    <value>Escuchando el Puerto {0}</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>Les monstres ont été chargés sur les cartes.</value>
-  </data>
-  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
-    <value>Le compte {0} c'est connecté.</value>
-  </data>
-  <data name="MONSTER_LOADED" xml:space="preserve">
-    <value>Les monstres ont été chargés.</value>
-  </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Erreur du gestionnaire.</value>
-  </data>
-  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
-    <value>Gestionnaire introuvable.</value>
-  </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Veuillez séléctionner un MapID.</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Mauvais MapID.</value>
+    <value>¡{0} MapMonsters cargado!</value>
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
-    <value>Les cartes ont été chargées.</value>
+    <value>¡{0} Mapas cargados!</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>ServidorMaestro iniciado exitosamente.</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>¡No se puede conectar con el ServidorMaestro! Reintentando en 5 segundos..</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>¡El servidor necesita al menos el mapa de nosville para funcionar!</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Quieres importar las Cuentas?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Quieres importarlo Todo?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Quieres importar Bcard?</value>
+  </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Quieres importar los Artículos?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Quieres importar los Mapas Npc?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Quieres importar los Mapas?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Quieres importar los tipos de Mapas?</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Quieres importar los Monstruos?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Quieres importar los datos de Npc Monstruos?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Quieres importar los Npc Monstruos?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Quieres importar los Portales?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Quieres importar las Misiones?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Quieres importar las Tienda Recetas?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Quieres importar las Tiendas de Artículos?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Quieres importar las Tiendas?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Quieres importar las Tiendas de Habilidades?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Quieres importar los Habilidades?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Quieres importar los Teletransportadores?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Quieres importar los Espacio de Tiempo?</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Registrado desde el ServidorMaestro</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Registrado en el ServidorMaestro</value>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>¡Cargado exitosamente!</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Paquete Maestro irreconocible.</value>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>No registrado en el servidor maestro.</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>¡IdMapa incorrecto!</value>
+  </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Porfavor, Seleccione un MapId:</value>
   </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
-    <value>Paquet corrompu.</value>
+    <value>El paquete con cabezera {0} es corrupto o PacketDefinition es invalido. Contexto: {1}</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Error del Controlador</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>No se ha podido encontrar la implementación del controlador para el paquete con Cabezera: {0}</value>
   </data>
 </root>

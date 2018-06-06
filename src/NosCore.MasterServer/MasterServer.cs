@@ -40,11 +40,17 @@ namespace NosCore.MasterServer
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             }
-            if (DataAccessHelper.Instance.Initialize(_masterConfiguration.Database))
+            try
             {
+                DataAccessHelper.Instance.Initialize(_masterConfiguration.Database);
+
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _masterConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
                 RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
+            }
+            catch
+            {
+                Console.ReadKey();
             }
         }
 

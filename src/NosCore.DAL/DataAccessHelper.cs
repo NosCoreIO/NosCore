@@ -37,7 +37,7 @@ namespace NosCore.DAL
             return new NosCoreContext(_conn);
         }
 
-        public bool Initialize(SqlConnectionConfiguration Database)
+        public void Initialize(SqlConnectionConfiguration Database)
         {
             _conn = Database;
             using (NosCoreContext context = CreateContext())
@@ -52,9 +52,8 @@ namespace NosCore.DAL
                 {
                     Logger.Log.Error("Database Error", ex);
                     Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
-                    return false;
+                    throw;
                 }
-                return true;
             }
         }
 
