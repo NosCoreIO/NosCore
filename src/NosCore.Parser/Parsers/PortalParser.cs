@@ -126,7 +126,7 @@ namespace NosCore.Parser.Parsers
                 s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX && s.SourceY == portal.SourceY));
             DAOFactory.PortalDAO.InsertOrUpdate(portalsDtos);
 
-            Logger.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PORTALS_PARSED), portalCounter));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PORTALS_PARSED), portalCounter));
         }
     }
 }
