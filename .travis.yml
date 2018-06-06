@@ -3,6 +3,11 @@ mono: none
 sudo: required
 dist: trusty
 dotnet: 2.1
+env:
+  global:
+    - PGUSER=postgres
+    - PGPASSWORD='password'
+    - PGHOST=localhost
 addons:
   apt:
     packages:
@@ -16,7 +21,7 @@ stages:
     - compile
     - test
 services:
-    - docker
+    - postgresql
 install:
     - dotnet restore
 script: 
