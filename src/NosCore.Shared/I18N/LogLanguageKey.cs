@@ -54,6 +54,8 @@ namespace NosCore.Shared.Logger
         AT_LEAST_ONE_FILE_MISSING,
         CARDS_PARSED,
         ITEMS_PARSED,
+        MAPS_PARSED,
+        PORTALS_PARSED,
         MAPS_LOADED,
         NO_MAP,
         MAPMONSTERS_LOADED,
