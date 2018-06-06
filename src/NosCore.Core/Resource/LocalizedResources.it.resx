@@ -136,7 +136,7 @@
     <value>Auth non corretto</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>[0] Bcard Caricate!</value>
+    <value>{0} Bcard Caricate!</value>
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Personaggio non inizializzato.</value>
@@ -198,6 +198,9 @@
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>{0} Mappe caricate !</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0} Mappe Caricate!</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer avviato con successo.</value>
@@ -264,6 +267,9 @@
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Vuoi sincronizzare TimeSpaces?</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0} Portali Caricati!</value>
   </data>
   <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Registrato su MasterServer</value>
