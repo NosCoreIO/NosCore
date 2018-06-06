@@ -34,7 +34,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly ClientSession session = new ClientSession();
         private AccountDTO acc;
 
-        private const string _configurationPath = @"..\..\..\configuration";
+        private const string _configurationPath = "../../configuration";
 
         [TestInitialize]
         public void Setup()
@@ -49,7 +49,7 @@ namespace NosCore.Tests.HandlerTests
             var sqlconnect = databaseConfiguration;
             DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
             ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
+            XmlConfigurator.Configure(logRepository, new FileInfo(_configurationPath + "/log4net.config"));
             Shared.Logger.Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenPacketHandlerTests)));
             DataAccessHelper.Instance.Initialize(sqlconnect);
             DAOFactory.RegisterMapping(typeof(Character).Assembly);
