@@ -23,6 +23,7 @@ namespace NosCore.DAL
         private static GenericDAO<QuestReward, QuestRewardDTO> _questRewardDAO;
         private static GenericDAO<QuestObjective, QuestObjectiveDTO> _questObjectiveDAO;
         private static GenericDAO<Mate, MateDTO> _mateDAO;
+        private static GenericDAO<Portal, PortalDTO> _portalDAO;
         private static IMapper _mapper;
 
         public static GenericDAO<Account, AccountDTO> AccountDAO
@@ -83,6 +84,11 @@ namespace NosCore.DAL
         public static GenericDAO<QuestObjective, QuestObjectiveDTO> QuestObjectiveDAO
         {
             get { return _questObjectiveDAO ?? (_questObjectiveDAO = new GenericDAO<QuestObjective, QuestObjectiveDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<Portal, PortalDTO> PortalDAO
+        {
+            get { return _portalDAO ?? (_portalDAO = new GenericDAO<Portal, PortalDTO>(_mapper)); }
         }
 
         public static void RegisterMapping(Assembly gameobjectAssembly)

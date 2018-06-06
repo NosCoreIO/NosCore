@@ -22,6 +22,7 @@ namespace NosCore.Parser
         private readonly MapNpcParser _mapNpcParser = new MapNpcParser();
         private readonly CardParser _cardParser = new CardParser();
         private readonly ItemParser _itemParser = new ItemParser();
+        private readonly PortalParser _portalParser = new PortalParser();
         private readonly ParserConfiguration configuration;
 
         public ImportFactory(string folder, ParserConfiguration conf)
@@ -1297,6 +1298,7 @@ monstercards.Add(itemCard);
 
         public void ImportPortals()
         {
+            _portalParser.ParsePortals(_folder, _packetList);
         }
 
         public void ImportRecipe()
