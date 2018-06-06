@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
+    <value>Au moins un fichier est manquant. Vérifiez que tout soit bien présent.</value>
+  </data>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>{0} Cartes analysées !</value>
+  </data>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>La base de données a été initialisée !</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>L'analyse des fichiers est terminée !</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Entre le répertoire des fichiers pour commencer l'importation</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>{0} Objets analysés !</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Vous-vous analyser les comptes ?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Voulez-vous tout analyser ?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Voulez-vous analysé les Bcard ?</value>
+  </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Voulez-vous analyser les objets ?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Voulez-vous analyser les cartes-pnj ?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Voulez-vous analyser les cartes ?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Voulez-vous anlysez les types de cartes ?</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les monstres ?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Voulez-vous analyser NpcMonsterData ?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les pnj ?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Voulez-vous analyser les portails ?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Voulez-vous analyser les quêtes ?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Voulez-vous analyser les recettes ?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins d'objets ?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins ?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins de compétences ?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Voulez-vous analyser les compétences ?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les téléporteurs ?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Voulez-vous analyser les espaces temps ?</value>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>L'émulateur à bien été chargé.</value>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Déconnecter de master.</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Enregistrer du master.</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Packet inconnu du master.</value>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Authentification avec succès.</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>La base de données n'est pas à jour.</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Client déconnecté.</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Personnage non chargé.</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Erreur lors d'un passage à une map.</value>
+  </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Authentification incorrecte.</value>
+  </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Déconnexion forcée.</value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Client connecté.</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Enrengistrer de master.</value>
+  </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Client arrivé.</value>
+  </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Keepalive corrompu.</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Mot de passe invalide.</value>
+  </data>
+    <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Identifiant invalide.</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Identifiant invalide.</value>
+  </data> 
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Tentative de reconnection au serveur master.</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Ecoute du port</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>Ecoute du serveur master.</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>Aucune carte n'a été trouvé.</value>
+  </data>
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
+    <value>Les monstres ont été chargés sur les cartes.</value>
+  </data>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Le compte {0} c'est connecté.</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Erreur du gestionnaire.</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Gestionnaire introuvable.</value>
+  </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Veuillez séléctionner un MapID.</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Mauvais MapID.</value>
+  </data>
+  <data name="MAPS_LOADED" xml:space="preserve">
+    <value>Les cartes ont été chargées.</value>
+  </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Paquet corrompu.</value>
+  </data>
+</root>

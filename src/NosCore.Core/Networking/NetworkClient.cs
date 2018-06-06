@@ -61,7 +61,7 @@ namespace NosCore.Core.Networking
         public void Disconnect()
         {
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION)));
-            _channel.DisconnectAsync();
+            _channel?.DisconnectAsync();
         }
 
         public void SendPacket(PacketDefinition packet)
@@ -70,8 +70,8 @@ namespace NosCore.Core.Networking
             {
                 return;
             }
-            _channel.WriteAndFlushAsync(PacketFactory.Serialize(packet));
-            _channel.Flush();
+            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packet));
+            _channel?.Flush();
         }
 
         public void SendPackets(IEnumerable<PacketDefinition> packets)

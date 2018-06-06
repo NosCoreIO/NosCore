@@ -50,12 +50,18 @@ namespace NosCore.WorldServer
             }
             DAOFactory.RegisterMapping(typeof(Character).Assembly);
             ConnectMaster();
-            if (DataAccessHelper.Instance.Initialize(_worldConfiguration.Database))
+            try
             {
+                DataAccessHelper.Instance.Initialize(_worldConfiguration.Database);
+
                 ServerManager.Instance.Initialize();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _worldConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {_worldConfiguration.WebApi}";
                 NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(), new WorldDecoderFactory(), true).Wait();
+            }
+            catch
+            {
+                Console.ReadKey();
             }
         }
 

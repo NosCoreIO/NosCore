@@ -34,7 +34,7 @@ namespace NosCore.Shared.Logger
 
         public string GetMessageFromKey(LogLanguageKey messageKey, string culture = null)
         {
-            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture,true, culture == default(RegionType).ToString())?.GetString(messageKey.ToString()) : string.Empty;
+            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, culture == default(RegionType).ToString())?.GetString(messageKey.ToString()) : string.Empty;
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }

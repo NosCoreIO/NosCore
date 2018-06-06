@@ -41,17 +41,4 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-	  <ItemGroup>
-	    <Compile Update="Resource\LocalizedResources.Designer.cs">
-	      <DesignTime>True</DesignTime>
-	      <AutoGen>True</AutoGen>
-	      <DependentUpon>LocalizedResources.resx</DependentUpon>
-	    </Compile>
-	  </ItemGroup>
-	  <ItemGroup>
-	    <EmbeddedResource Update="Resource\LocalizedResources.resx">
-	      <Generator>PublicResXFileCodeGenerator</Generator>
-	      <LastGenOutput>LocalizedResources.Designer.cs</LastGenOutput>
-	    </EmbeddedResource>
-	  </ItemGroup>
 </Project>
