@@ -34,7 +34,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly ClientSession session = new ClientSession();
         private AccountDTO acc;
 
-        private const string _configurationPath = "../../configuration";
+        private const string _configurationPath = "../../../configuration";
 
         [TestInitialize]
         public void Setup()
