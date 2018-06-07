@@ -131,6 +131,9 @@
     <value>Přihlášení proběhlo úspěšně</value>
     <comment>check</comment>
   </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Nesprávné přihlášení</value>
+  </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Kart bylo naparsováno</value>
   </data>
@@ -138,8 +141,20 @@
     <value>Charakter se nenačetl</value>
     <comment>check</comment>
   </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Uživatel se připojil, SessionId: {0} </value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Nový hráč se připojil ClientId = {0}</value>
+  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Klient se Odpojil</value>
+  </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Poškozený KeepAlive vna klientovi {0}</value>
+  </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Paket s hlavičkou {0} je poškozen nebo definice paketu je neplatná. Obsah: {1}</value>
   </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
     <value>Databáze byla Initializována</value>
@@ -153,6 +168,18 @@
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete naparsovat</value>
   </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Chyba Obsluhy</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
@@ -161,6 +188,27 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo naparsováno {0} Itemů</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Poslech Portu {0}</value>
+  </data>
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} MAPMONSTERS načteny</value>
+  </data>
+  <data name="MAPS_LOADED" xml:space="preserve">
+    <value>{0}  Mapy Načteny</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0}  Mapy Nahrány</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>Master Server Se spustil správně</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Znovu připojení k Master Serveru</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Chceš naparsovat účty?</value>
@@ -219,9 +267,18 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Chceš naparsovat Časoprostory</value>
   </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0}  Portály Nahrány</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Registrováno na Master Serveru</value>
+  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Prosím vybere ID Mapy</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
@@ -233,5 +290,8 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Neregistrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Špatně vybrané ID Mapy</value>
   </data>
 </root>
