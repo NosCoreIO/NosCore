@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Shared.Logger;
 using NosCore.WebApi.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -55,6 +56,7 @@ namespace NosCore.MasterServer
         {
             PrintHeader();
             var conf = InitializeConfiguration();
+            LogLanguage.Language = conf.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
             var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);

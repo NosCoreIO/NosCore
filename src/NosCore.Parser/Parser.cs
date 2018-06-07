@@ -33,6 +33,7 @@ namespace NosCore.Parser
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(_parserConfiguration);
+            LogLanguage.Language = _parserConfiguration.Language;
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }
 
@@ -50,6 +51,7 @@ namespace NosCore.Parser
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
+          
             try
             {
                 DataAccessHelper.Instance.Initialize(_parserConfiguration.Database);

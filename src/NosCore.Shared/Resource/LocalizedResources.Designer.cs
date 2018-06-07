@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NosCore.Core.Resource {
+namespace NosCore.Shared.Resource {
     using System;
     
     

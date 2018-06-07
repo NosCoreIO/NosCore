@@ -35,6 +35,7 @@ namespace NosCore.LoginServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(loginConfiguration);
+            LogLanguage.Language = loginConfiguration.Language;
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
         }

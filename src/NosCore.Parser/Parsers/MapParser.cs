@@ -6,6 +6,7 @@ using NosCore.Configuration;
 using NosCore.Shared.Logger;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
+using System;
 
 namespace NosCore.Parser.Parsers
 {
@@ -25,7 +26,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
-            string _fileMapIdLang = $"\\_code_{configuration.Lang}_MapIDData.txt";
+            string _fileMapIdLang = $"\\_code_{(string.Equals(configuration.Language, "en", StringComparison.OrdinalIgnoreCase) ? "uk" : configuration.Language)}_MapIDData.txt";
             string fileMapIdDat = folder + _fileMapIdDat;
             string fileMapIdLang = folder + _fileMapIdLang;
             string folderMap = folder + _folderMap;

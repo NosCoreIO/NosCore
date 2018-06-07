@@ -20,7 +20,7 @@ namespace NosCore.PathFinder.Gui
     public static class PathFinderGui
     {
         private const string _configurationPath = @"..\..\..\configuration";
-        private static readonly SqlConnectionConfiguration _databaseConfiguration = new SqlConnectionConfiguration();
+        private static readonly PathfinderGUIConfiguration _databaseConfiguration = new PathfinderGUIConfiguration();
         private static GuiWindow guiWindow;
 
         private static void InitializeConfiguration()
@@ -53,10 +53,11 @@ namespace NosCore.PathFinder.Gui
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
+            LogLanguage.Language = _databaseConfiguration.Language;
             DAOFactory.RegisterMapping(typeof(Character).Assembly);
             try
             {
-                DataAccessHelper.Instance.Initialize(_databaseConfiguration);
+                DataAccessHelper.Instance.Initialize(_databaseConfiguration.Database);
 
                 do
                 {
