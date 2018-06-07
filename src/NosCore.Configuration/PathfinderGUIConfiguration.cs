@@ -1,7 +1,7 @@
 ﻿
 namespace NosCore.Configuration
 {
-    public class ParserConfiguration : LanguageConfiguration
+    public class PathfinderGUIConfiguration : LanguageConfiguration
     {
         public SqlConnectionConfiguration Database { get; set; }
     }

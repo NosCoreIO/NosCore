@@ -5,6 +5,7 @@
 		"Host": "http://+",
 		"Port": 5000
   },
+  "Language" : "en",
   "Database": {
 		"Host" : "localhost",
 		"Port" : 5432,

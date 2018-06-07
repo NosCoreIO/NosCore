@@ -10,6 +10,7 @@
   },
   "Host": "127.0.0.1",
   "Port": 4002,
+  "Language" : "en",
   "Database": {
 	  "Host" : "localhost",
 	  "Port" : 5432,
