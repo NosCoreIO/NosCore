@@ -37,6 +37,6 @@ namespace NosCore.Shared.Logger
         private static LogLanguage instance;
         private readonly ResourceManager _manager;
         private static CultureInfo _resourceCulture;
-        public static string Language;
+        public static string Language = "en";
     }
 }
