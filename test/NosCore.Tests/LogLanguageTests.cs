@@ -13,6 +13,12 @@ namespace NosCore.Test
     [TestClass]
     public class LogLanguageTests
     {
+        [TestInitialize]
+        public void Setup()
+        {
+            LogLanguage.Language = "en";
+        }
+
         [DataTestMethod]
         [DataRow(RegionType.EN)]
         [DataRow(RegionType.CS)]
