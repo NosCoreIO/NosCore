@@ -145,16 +145,16 @@
     <value>Dotarł nowy uzytkownik</value>
   </data>
   <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Uzytkownik połączony ClientId = {0}</value>
+    <value>Uzytkownik połączony ClientId </value>
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Użytkownik rozłaczony</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
-    <value>Corrupted Keepalive on client {0}.</value>
+    <value>Corrupted Keepalive on client </value>
   </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
-    <value>Pakiet z Headerem {0} PacketDefinition jest niewłaściwy.</value>
+    <value>Pakiet z Headerem PacketDefinition jest niewłaściwy.</value>
   </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
     <value>Baza danych zostala zaladowana !</value>
@@ -172,7 +172,7 @@
     <value>Błąd zmiany mapy</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Rozłaczanie użytkownika {0}, zbyt dużo połączeń.</value>
+    <value>Rozłaczanie użytkownika , zbyt dużo połączeń.</value>
   </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Hanlder implementation error</value>
@@ -187,16 +187,19 @@
     <value>Niepoprawne haslo!</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>{0} Przedmiotów Wprowadzonych!</value>
+    <value>Przedmiotów Wprowadzonych!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Komunikacja z Port została rozpoczęta</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>{0} potworów wprowadzonych</value>
+    <value>Potwory załadowane</value>
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
-    <value>{0} Map Wprowadzonych !</value>
+    <value>Mapy załadowane</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>Mapy wprowadzone</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Komunikacja z Master Server została rozpoczęta</value>
@@ -263,6 +266,9 @@
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Czy chcesz wprowadzic Czaso-Przestrzenie?</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>Portale wprowadzone</value>
   </data>
   <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Rejestracja z MasterServer </value>
