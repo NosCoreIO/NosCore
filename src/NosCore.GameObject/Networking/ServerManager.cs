@@ -37,6 +37,7 @@ namespace NosCore.GameObject.Networking
             }
             Guid guid = Guid.NewGuid();
             MapInstance mapInstance = new MapInstance(map, guid, false, type);
+            mapInstance.LoadPortals();
             _mapinstances.TryAdd(guid, mapInstance);
             return mapInstance;
         }
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Networking
                     _mapList[map.MapId] = map;
                     MapInstance newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
                     _mapinstances.TryAdd(guid, newMap);
-
+                    Task.Run(() => newMap.LoadPortals());
                     monstercount += newMap.Monsters.Count;
                     i++;
                 });
