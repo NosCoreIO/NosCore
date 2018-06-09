@@ -8,6 +8,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Character;
+using System.Collections.Generic;
+using NosCore.GameObject.Map;
 
 namespace NosCore.GameObject
 {
@@ -19,7 +21,11 @@ namespace NosCore.GameObject
 
         public MapInstance MapInstance { get; set; }
 
+        public double LastPortal { get; set; }
+
         public ClientSession Session { get; set; }
+
+        public MapInstance Miniland { get; private set; }
 
         public byte VisualType { get; set; } = 1;
 
@@ -345,5 +351,7 @@ namespace NosCore.GameObject
                 ArenaWinner = false
             };
         }
+
+        public List<Portal> GetExtraPortal() => MapInstancePortalHandler.GenerateMinilandEntryPortals(MapInstance.Map.MapId, Miniland.MapInstanceId);
     }
 }
