@@ -12,6 +12,9 @@ using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Linq;
+using NosCore.Shared.Logger;
 
 namespace NosCore.Controllers
 {
@@ -181,6 +184,52 @@ namespace NosCore.Controllers
             //            {
             //                Session.Character.ConnectAct4();
             //            }
+        }
+
+        /// <summary>
+        ///     PreqPacket packet
+        /// </summary>
+        /// <param name="packet"></param>
+        public void Preq(PreqPacket packet)
+        {
+            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
+            double timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
+            if (!(timeSpanSinceLastPortal >= 4) && Session.CurrentMapInstance?.MapInstanceType != MapInstanceType.RaidInstance || !Session.HasCurrentMapInstance)
+            {
+                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("CANT_MOVE"), SayColorType.Yellow));
+                return;
+            }
+
+            Parallel.ForEach(Session.CurrentMapInstance.Portals.Concat(Session.Character.GetExtraPortal()), portal =>
+            {
+                if (Session.Character.PositionY < portal.SourceY - 1 || Session.Character.PositionY > portal.SourceY + 1 || Session.Character.PositionX < portal.SourceX - 1 ||
+                    Session.Character.PositionX > portal.SourceX + 1)
+                {
+                    return;
+                }
+
+                switch (portal.Type)
+                {
+                    case (sbyte)PortalType.MapPortal:
+                        break;
+                    
+                    default:
+                        Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("PORTAL_BLOCKED"), SayColorType.Yellow));
+                        return;
+                }
+
+                Session.Character.LastPortal = currentRunningSeconds;
+
+                if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType != MapInstanceType.BaseMapInstance &&
+                    ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType == MapInstanceType.BaseMapInstance)
+                {
+                    Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
+                }
+                else
+                {
+                    Session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY);
+                }
+            });
         }
 
         /// <summary>
