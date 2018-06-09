@@ -156,6 +156,8 @@ namespace NosCore.GameObject.Networking
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GenerateIn());
+                SendPackets(Character.MapInstance.GetMapItems());
+
                 Character.MapInstance.Sessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }

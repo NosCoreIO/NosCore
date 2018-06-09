@@ -9,6 +9,9 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets;
 using NosCore.GameObject.Networking;
+using System.Threading.Tasks;
+using NosCore.DAL;
+using NosCore.Core.Serializing;
 
 namespace NosCore.GameObject
 {
@@ -24,6 +27,7 @@ namespace NosCore.GameObject
             MapInstanceType = type;
             Map = map;
             MapInstanceId = guid;
+            Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<long, MapMonsterDTO>();
             _npcs = new ConcurrentDictionary<long, MapNpcDTO>();
         }
@@ -62,6 +66,8 @@ namespace NosCore.GameObject
             get { return _npcs.Select(s => s.Value).ToList(); }
         }
 
+        public List<Portal> Portals { get; set; }
+
         public bool ShopAllowed { get; }
 
         public int XpRate { get; set; }
@@ -77,5 +83,30 @@ namespace NosCore.GameObject
         }
         #endregion
 
+        public void LoadPortals()
+        {
+            OrderablePartitioner<PortalDTO> partitioner = Partitioner.Create(DAOFactory.PortalDAO.Where(s => s.SourceMapId.Equals(Map.MapId)),
+                EnumerablePartitionerOptions.None);
+            ConcurrentDictionary<int, Portal> portalList = new ConcurrentDictionary<int, Portal>();
+            Parallel.ForEach(partitioner, portal =>
+            {
+                if (!(portal is Portal portal2))
+                {
+                    return;
+                }
+
+                portal2.SourceMapInstanceId = MapInstanceId;
+                portalList[portal2.PortalId] = portal2;
+            });
+            Portals.AddRange(portalList.Select(s => s.Value));
+        }
+
+        public List<PacketDefinition> GetMapItems()
+        {
+            List<PacketDefinition> packets = new List<PacketDefinition>();
+            // TODO: Parallelize getting of items of mapinstance
+            Portals.ForEach(s => packets.Add(s.GenerateGp()));
+            return packets;
+        }
     }
 }
