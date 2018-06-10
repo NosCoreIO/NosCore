@@ -177,6 +177,10 @@ namespace NosCore.Database
                 .HasIndex(e => new { e.MapId, e.MapTypeId })
                 .IsUnique();
 
+            modelBuilder.Entity<Account>()
+                .HasIndex(e => new { e.Name })
+                .IsUnique();
+
             modelBuilder.Entity<I18N_ActDesc>()
                  .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();

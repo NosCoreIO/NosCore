@@ -14,14 +14,6 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileMapIdDat = $"\\MapIDData.dat";
         private readonly string _folderMap = $"\\map";
-        private readonly Dictionary<int, string> _dictionaryId = new Dictionary<int, string>();
-        private readonly Dictionary<int, int> _dictionaryMusic = new Dictionary<int, int>();
-        private readonly ParserConfiguration configuration;
-
-        public MapParser(ParserConfiguration conf)
-        {
-            configuration = conf;
-        }
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {

@@ -24,11 +24,72 @@ namespace NosCore.DAL
         private static GenericDAO<QuestObjective, QuestObjectiveDTO> _questObjectiveDAO;
         private static GenericDAO<Mate, MateDTO> _mateDAO;
         private static GenericDAO<Portal, PortalDTO> _portalDAO;
+        private static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> _i18N_ActDescDAO;
+        private static GenericDAO<I18N_Card, I18N_CardDTO> _i18N_CardDAO;
+        private static GenericDAO<I18N_BCard, I18N_BCardDTO> _i18N_BCardDAO;
+        private static GenericDAO<I18N_Item, I18N_ItemDTO> _i18N_ItemDAO;
+        private static GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO> _i18N_MapIdDataDAO;
+        private static GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO> _i18N_MapPointDataDAO;
+        private static GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO> _i18N_NpcMonsterDAO;
+        private static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> _i18N_NpcMonsterTalkDAO;
+        private static GenericDAO<I18N_Quest, I18N_QuestDTO> _i18N_QuestDAO;
+        private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
         private static IMapper _mapper;
+
+
+        public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO
+        {
+            get { return _i18N_ActDescDAO ?? (_i18N_ActDescDAO = new GenericDAO<I18N_ActDesc, I18N_ActDescDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_Card, I18N_CardDTO> I18N_CardDAO
+        {
+            get { return _i18N_CardDAO ?? (_i18N_CardDAO = new GenericDAO<I18N_Card, I18N_CardDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_BCard, I18N_BCardDTO> I18N_BCardDAO
+        {
+            get { return _i18N_BCardDAO ?? (_i18N_BCardDAO = new GenericDAO<I18N_BCard, I18N_BCardDTO>(_mapper)); }
+        }
 
         public static GenericDAO<Account, AccountDTO> AccountDAO
         {
             get { return _accountDAO ?? (_accountDAO = new GenericDAO<Account, AccountDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_Item, I18N_ItemDTO> I18N_ItemDAO
+        {
+            get { return _i18N_ItemDAO ?? (_i18N_ItemDAO = new GenericDAO<I18N_Item, I18N_ItemDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO> I18N_MapIdDataDAO
+        {
+            get { return _i18N_MapIdDataDAO ?? (_i18N_MapIdDataDAO = new GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO> I18N_MapPointDataDAO
+        {
+            get { return _i18N_MapPointDataDAO ?? (_i18N_MapPointDataDAO = new GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO> I18N_NpcMonsterDAO
+        {
+            get { return _i18N_NpcMonsterDAO ?? (_i18N_NpcMonsterDAO = new GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> I18N_NpcMonsterTalkDAO
+        {
+            get { return _i18N_NpcMonsterTalkDAO ?? (_i18N_NpcMonsterTalkDAO = new GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_Quest, I18N_QuestDTO> I18N_QuestDAO
+        {
+            get { return _i18N_QuestDAO ?? (_i18N_QuestDAO = new GenericDAO<I18N_Quest, I18N_QuestDTO>(_mapper)); }
+        }
+
+        public static GenericDAO<I18N_Skill, I18N_SkillDTO> I18N_SkillDAO
+        {
+            get { return _iI18N_SkillDAO ?? (_iI18N_SkillDAO = new GenericDAO<I18N_Skill, I18N_SkillDTO>(_mapper)); }
         }
 
         public static GenericDAO<Mate, MateDTO> MateDAO
