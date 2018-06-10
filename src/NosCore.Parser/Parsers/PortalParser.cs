@@ -12,7 +12,7 @@ namespace NosCore.Parser.Parsers
         private static List<PortalDTO> listPortals2 = new List<PortalDTO>();
         private List<MapDTO> maps = DAOFactory.MapDAO.LoadAll().ToList();
 
-        public void ParsePortals(string folder, List<string[]> packetList)
+        public void InsertPortals(List<string[]> packetList)
         {
             short map = 0;
 

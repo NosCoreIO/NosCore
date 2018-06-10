@@ -18,20 +18,20 @@ namespace NosCore.Parser
         private readonly string _folder;
         private readonly List<string[]> _packetList = new List<string[]>();
 
-        private readonly MapParser _mapParser;
+        private readonly MapParser _mapParser = new MapParser();
         private readonly MapNpcParser _mapNpcParser = new MapNpcParser();
         private readonly CardParser _cardParser = new CardParser();
         private readonly ItemParser _itemParser = new ItemParser();
         private readonly PortalParser _portalParser = new PortalParser();
+        private readonly I18NParser _i18NParser = new I18NParser();
         private readonly ParserConfiguration configuration;
 
         public ImportFactory(string folder, ParserConfiguration conf)
         {
             configuration = conf;
             _folder = folder;
-            _mapParser = new MapParser(conf); //TODO add dependency injection in importer
         }
-        
+
         public void ImportAccounts()
         {
             AccountDTO acc1 = new AccountDTO
@@ -40,7 +40,11 @@ namespace NosCore.Parser
                 Name = "admin",
                 Password = EncryptionHelper.Sha512("test")
             };
-            DAOFactory.AccountDAO.InsertOrUpdate(ref acc1);
+
+            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            {
+                DAOFactory.AccountDAO.InsertOrUpdate(ref acc1);
+            }
 
             AccountDTO acc2 = new AccountDTO
             {
@@ -48,12 +52,16 @@ namespace NosCore.Parser
                 Name = "test",
                 Password = EncryptionHelper.Sha512("test")
             };
-            DAOFactory.AccountDAO.InsertOrUpdate(ref acc2);
+
+            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            {
+                DAOFactory.AccountDAO.InsertOrUpdate(ref acc2);
+            }
         }
 
         public void ImportCards()
         {
-           _cardParser.InsertCards();
+            _cardParser.InsertCards();
         }
 
         public void ImportMapNpcs()
@@ -1298,7 +1306,12 @@ monstercards.Add(itemCard);
 
         public void ImportPortals()
         {
-            _portalParser.ParsePortals(_folder, _packetList);
+            _portalParser.InsertPortals(_packetList);
+        }
+
+        public void ImportI18N()
+        {
+            _i18NParser.InsertI18N(_folder);
         }
 
         public void ImportRecipe()

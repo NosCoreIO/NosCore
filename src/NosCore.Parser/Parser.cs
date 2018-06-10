@@ -83,6 +83,7 @@ namespace NosCore.Parser
                         //factory.ImportMapTypeMap();
                         factory.ImportAccounts();
                         factory.ImportPortals();
+                        factory.ImportI18N();
                         //factory.ImportScriptedInstances();
                         //factory.ImportItems();
                         //factory.ImportSkills();
@@ -127,6 +128,13 @@ namespace NosCore.Parser
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportPortals();
+                        }
+
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_I18N)} [Y/n]");
+                        key = Console.ReadKey(true);
+                        if (key.KeyChar != 'n')
+                        {
+                            factory.ImportI18N();
                         }
 
                         Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_TIMESPACES)} [Y/n]");
