@@ -46,7 +46,7 @@ namespace NosCore.Core.Networking
                 }
             }
 
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED)));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), ClientId));
 
             g.Add(context.Channel);
         }
@@ -60,7 +60,7 @@ namespace NosCore.Core.Networking
 
         public void Disconnect()
         {
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION)));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION), ClientId));
             _channel?.DisconnectAsync();
         }
 

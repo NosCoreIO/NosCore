@@ -145,7 +145,7 @@
     <value>Dotarł nowy uzytkownik</value>
   </data>
   <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Uzytkownik połączony</value>
+    <value>Uzytkownik połączony ClientId = {0}</value>
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Użytkownik rozłaczony</value>
