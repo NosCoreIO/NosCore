@@ -15,7 +15,6 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileMapIdDat = $"\\MapIDData.dat";
         private readonly string _folderMap = $"\\map";
         private readonly Dictionary<int, string> _dictionaryId = new Dictionary<int, string>();
-        private readonly Dictionary<string, string> dictionaryIdLang = new Dictionary<string, string>();
         private readonly Dictionary<int, int> _dictionaryMusic = new Dictionary<int, int>();
         private readonly ParserConfiguration configuration;
 
@@ -26,9 +25,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
-            string _fileMapIdLang = $"\\_code_{(string.Equals(configuration.Language, "en", StringComparison.OrdinalIgnoreCase) ? "uk" : configuration.Language)}_MapIDData.txt";
             string fileMapIdDat = folder + _fileMapIdDat;
-            string fileMapIdLang = folder + _fileMapIdLang;
             string folderMap = folder + _folderMap;
             List<MapDTO> maps = new List<MapDTO>();
             Dictionary<int, string> dictionaryId = new Dictionary<int, string>();
@@ -57,20 +54,6 @@ namespace NosCore.Parser.Parsers
                 mapIdStream.Close();
             }
 
-            using (StreamReader mapIdLangStream = new StreamReader(fileMapIdLang, Encoding.UTF8))
-            {
-                while ((line = mapIdLangStream.ReadLine()) != null)
-                {
-                    string[] linesave = line.Split('\t');
-                    if (linesave.Length <= 1 || dictionaryIdLang.ContainsKey(linesave[0]))
-                    {
-                        continue;
-                    }
-                    dictionaryIdLang.Add(linesave[0], linesave[1]);
-                }
-                mapIdLangStream.Close();
-            }
-
             foreach (string[] linesave in packetList.Where(o => o[0].Equals("at")))
             {
                 if (linesave.Length <= 7 || linesave[0] != "at")
@@ -89,9 +72,9 @@ namespace NosCore.Parser.Parsers
                 string name = string.Empty;
                 int music = 0;
 
-                if (dictionaryId.ContainsKey(int.Parse(file.Name)) && dictionaryIdLang.ContainsKey(dictionaryId[int.Parse(file.Name)]))
+                if (dictionaryId.ContainsKey(int.Parse(file.Name)))
                 {
-                    name = dictionaryIdLang[dictionaryId[int.Parse(file.Name)]];
+                    name = dictionaryId[int.Parse(file.Name)];
                 }
                 if (dictionaryMusic.ContainsKey(int.Parse(file.Name)))
                 {

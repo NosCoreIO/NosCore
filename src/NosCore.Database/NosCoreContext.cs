@@ -132,6 +132,26 @@ namespace NosCore.Database
 
         public virtual DbSet<StaticBuff> StaticBuff { get; set; }
 
+        public virtual DbSet<I18N_ActDesc> I18N_ActDesc { get; set; }
+
+        public virtual DbSet<I18N_BCard> I18N_BCard { get; set; }
+
+        public virtual DbSet<I18N_Card> I18N_Card { get; set; }
+
+        public virtual DbSet<I18N_Item> I18N_Item { get; set; }
+
+        public virtual DbSet<I18N_MapIdData> I18N_MapIdData { get; set; }
+
+        public virtual DbSet<I18N_MapPointData> I18N_MapPointData { get; set; }
+
+        public virtual DbSet<I18N_NpcMonster> I18N_NpcMonster { get; set; }
+
+        public virtual DbSet<I18N_NpcMonsterTalk> I18N_NpcMonsterTalk { get; set; }
+
+        public virtual DbSet<I18N_Quest> I18N_Quest { get; set; }
+
+        public virtual DbSet<I18N_Skill> I18N_Skill { get; set; }
+
         #endregion
 
         #region Methods
@@ -148,12 +168,53 @@ namespace NosCore.Database
                 .HasValue<SpecialistInstance>("SpecialistInstance")
                 .HasValue<UsableInstance>("UsableInstance")
                 .HasValue<BoxInstance>("BoxInstance");
+
             modelBuilder.Entity<ItemInstance>()
                 .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
                 .IsUnique();
 
             modelBuilder.Entity<MapTypeMap>()
                 .HasIndex(e => new { e.MapId, e.MapTypeId })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_ActDesc>()
+                 .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_BCard>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Card>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Item>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_MapIdData>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_MapPointData>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_NpcMonster>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_NpcMonsterTalk>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Quest>()
+                .HasIndex(e => new { e.Key, e.RegionType })
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Skill>()
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<Map>()
