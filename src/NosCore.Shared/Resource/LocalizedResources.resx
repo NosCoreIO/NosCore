@@ -120,6 +120,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account with SessionId {0} has arrived.</value>
   </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>This name is already taken!</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>At least on of required files is missing</value>
   </data>

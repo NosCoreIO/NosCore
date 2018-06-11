@@ -34,7 +34,7 @@ namespace NosCore.Parser
             builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(_parserConfiguration);
             LogLanguage.Language = _parserConfiguration.Language;
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
         private static void PrintHeader()
@@ -58,13 +58,13 @@ namespace NosCore.Parser
 
                 try
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENTER_PATH));
                     string folder = string.Empty;
                     ConsoleKeyInfo key = default(ConsoleKeyInfo);
                     if (args.Length == 0)
                     {
                         folder = Console.ReadLine();
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ALL)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ALL)} [Y/n]");
                         key = Console.ReadKey(true);
                     }
                     else
@@ -101,14 +101,14 @@ namespace NosCore.Parser
                     }
                     else
                     {
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportMaps();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPTYPES)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPTYPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -116,130 +116,130 @@ namespace NosCore.Parser
                             factory.ImportMapTypeMap();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ACCOUNTS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ACCOUNTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportAccounts();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_PORTALS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_PORTALS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportPortals();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_I18N)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_I18N)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportI18N();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_TIMESPACES)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TIMESPACES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportScriptedInstances();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ITEMS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportItems();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_NPCMONSTERS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportNpcMonsters();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_NPCMONSTERDATA)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERDATA)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportNpcMonsterData();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_CARDS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportCards();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SKILLS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportSkills();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPNPCS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPNPCS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportMapNpcs();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MONSTERS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportMonsters();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SHOPS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportShops();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_TELEPORTERS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TELEPORTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportTeleporters();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SHOPITEMS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportShopItems();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SHOPSKILLS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPSKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportShopSkills();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_RECIPES)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportRecipe();
                         }
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_QUESTS)} [Y/n]");
+                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
                         key = System.Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportQuests();
                         }
                     }
-                    Console.WriteLine(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DONE));
+                    Console.WriteLine(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DONE));
                     Thread.Sleep(5000);
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AT_LEAST_ONE_FILE_MISSING));
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AT_LEAST_ONE_FILE_MISSING));
                     Thread.Sleep(5000);
                 }
             }

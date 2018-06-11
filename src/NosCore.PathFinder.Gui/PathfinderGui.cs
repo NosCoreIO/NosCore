@@ -61,11 +61,11 @@ namespace NosCore.PathFinder.Gui
 
                 do
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
                     string input = Console.ReadLine();
                     if (input == null || !double.TryParse(input, out double askMapId))
                     {
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
+                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
                     Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);

@@ -137,7 +137,7 @@ namespace NosCore.Parser.Parsers
                 DAOFactory.CardDAO.InsertOrUpdate(_cards);
                 DAOFactory.BcardDAO.InsertOrUpdate(Bcards);
 
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), _counter));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED), _counter));
             }
         }
     }

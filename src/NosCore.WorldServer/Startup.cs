@@ -67,7 +67,7 @@ namespace NosCore.WorldServer
             var conf = InitializeConfiguration();
             LogLanguage.Language = conf.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
-            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.MasterCommunication.Password));
+            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(conf.MasterCommunication.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
 
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)

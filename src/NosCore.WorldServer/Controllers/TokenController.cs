@@ -38,7 +38,7 @@ namespace NosCore.WebApi.Controllers
                           new Claim(ClaimTypes.NameIdentifier, UserName),
                           new Claim(ClaimTypes.Role, account.Authority.ToString()),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+                    var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
                     var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -52,10 +52,10 @@ namespace NosCore.WebApi.Controllers
                 }
                 else
                 {
-                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
                 }
             }
-            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
         }
 
         [AllowAnonymous]
@@ -71,7 +71,7 @@ namespace NosCore.WebApi.Controllers
                           new Claim(ClaimTypes.NameIdentifier, "Server"),
                           new Claim(ClaimTypes.Role, nameof(AuthorityType.GameMaster)),
                     });
-                    var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+                    var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
                     var signinKey = new SymmetricSecurityKey(keyByteArray);
                     var handler = new JwtSecurityTokenHandler();
                     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -85,10 +85,10 @@ namespace NosCore.WebApi.Controllers
                 }
                 else
                 {
-                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                    return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
                 }
             }
-            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+            return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
         }
     }
 }

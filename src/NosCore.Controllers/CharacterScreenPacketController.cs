@@ -49,7 +49,7 @@ namespace NosCore.Controllers
                 if (character == null)
                 {
                     Random rnd = new Random();
-                    Character newCharacter = new Character
+                    CharacterDTO chara = new Character
                     {
                         Class = (byte)CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
@@ -71,7 +71,6 @@ namespace NosCore.Controllers
                         MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
-                    CharacterDTO chara = newCharacter;
                     SaveResult insertResult = DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
                     LoadCharacters(null);
                 }
@@ -79,7 +78,7 @@ namespace NosCore.Controllers
                 {
                     Session.SendPacket(new InfoPacket()
                     {
-                        Message = Language.Instance.GetMessageFromKey("ALREADY_TAKEN"),
+                        Message = Session.GetMessageFromKey(LanguageKey.ALREADY_TAKEN),
                     });
                 }
             }
@@ -87,7 +86,7 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket()
                 {
-                    Message = Language.Instance.GetMessageFromKey("INVALID_CHARNAME"),
+                    Message = Session.GetMessageFromKey(LanguageKey.INVALID_CHARNAME),
                 });
             }
         }
@@ -124,7 +123,7 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket()
                 {
-                    Message = Language.Instance.GetMessageFromKey("BAD_PASSWORD"),
+                    Message = Session.GetMessageFromKey(LanguageKey.BAD_PASSWORD),
                 });
             }
         }
@@ -152,21 +151,22 @@ namespace NosCore.Controllers
                             AccountId = account.AccountId,
                             Name = account.Name,
                             Password = account.Password.ToLower(),
-                            Authority = account.Authority
+                            Authority = account.Authority,
+                            Language = account.Language
                         };
                         Session.InitializeAccount(accountobject);
                         //Send Account Connected
                     }
                     else
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
+                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
                         Session.Disconnect();
                         return;
                     }
                 }
                 else
                 {
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
+                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
@@ -178,7 +178,7 @@ namespace NosCore.Controllers
             }
 
             IEnumerable<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
-            Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED), Session.Account.Name);
+            Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED), Session.Account.Name);
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket() { Type = 0 });

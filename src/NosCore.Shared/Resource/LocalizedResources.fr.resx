@@ -246,12 +246,9 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Mot de passe invalide.</value>
   </data>
-    <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Identifiant invalide.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Identifiant invalide.</value>
-  </data> 
+  </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Tentative de reconnection au serveur master.</value>
   </data>
@@ -287,5 +284,8 @@
   </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Paquet corrompu.</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>Ce pseudo est déjà utilisé.</value>
   </data>
 </root>

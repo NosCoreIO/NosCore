@@ -4,47 +4,31 @@ using System.Resources;
 
 namespace NosCore.Shared.Logger
 {
-    public class Language //TODO replace by a session language system
+    public class Language
     {
-        #region Instantiation
-
         private Language()
         {
-            _resourceCulture = new CultureInfo("en-en");
-            if (Assembly.GetEntryAssembly() != null)
+            if (Assembly.GetExecutingAssembly() != null)
             {
-                //_manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Ressource.LocalizedResources", Assembly.GetExecutingAssembly());
+                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());
             }
         }
-
-        #endregion
-
-        #region Properties
 
         public static Language Instance
         {
             get { return instance ?? (instance = new Language()); }
         }
 
-        #endregion
-
-        #region Methods
-
-        public string GetMessageFromKey(string message)
+        public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
         {
-            string resourceMessage = _manager != null && message != null ? _manager.GetString(message, _resourceCulture) : string.Empty;
+            CultureInfo cult = new CultureInfo(culture.ToString());
+            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(cult, true, cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())?.GetString(messageKey.ToString()) : string.Empty;
 
-            return "undefined"; //!string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{message}>";
+            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }
-
-        #endregion
-
-        #region Members
 
         private static Language instance;
         private readonly ResourceManager _manager;
-        private readonly CultureInfo _resourceCulture;
 
-        #endregion
     }
 }
