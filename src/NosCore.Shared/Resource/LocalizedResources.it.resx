@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skills Caricate! Regione: {1}</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
@@ -194,28 +197,28 @@
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
-    <value>{0} I18N ActDescs Caricate! Region: {1}</value>
+    <value>{0} I18N ActDescs Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_BCARD_PARSED" xml:space="preserve">
-    <value>{0} I18N BCards Caricate! Region: {1}</value>
+    <value>{0} I18N BCards Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_CARD_PARSED" xml:space="preserve">
-    <value>{0} I18N Cards Caricate! Region: {1}</value>
+    <value>{0} I18N Cards Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_ITEM_PARSED" xml:space="preserve">
-    <value>{0} I18N Items Caricate! Region: {1}</value>
+    <value>{0} I18N Items Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapIdDatas Caricate! Region: {1}</value>
+    <value>{0} I18N MapIdDatas Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapPointDatas Caricate! Region: {1}</value>
+    <value>{0} I18N MapPointDatas Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsters Caricate! Region: {1}</value>
+    <value>{0} I18N NpcMonsters Caricate! Regione: {1}</value>
   </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
-    <value>{0} I18N Quests Caricate! Region: {1}</value>
+    <value>{0} I18N Quests Caricate! Regione: {1}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
@@ -252,6 +255,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
+  </data>
+  <data name="NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsterTalk Caricate! Regione: {1}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Vuoi sincronizzare gli Account?</value>
