@@ -8,6 +8,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Character;
+using System.Collections.Generic;
+using NosCore.GameObject.Map;
 
 namespace NosCore.GameObject
 {
@@ -18,6 +20,8 @@ namespace NosCore.GameObject
         public bool IsChangingMapInstance { get; set; }
 
         public MapInstance MapInstance { get; set; }
+
+        public double LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
 

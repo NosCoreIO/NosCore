@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NosCore.Shared.Map;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -21,6 +22,6 @@ namespace NosCore.Data.StaticEntities
 
         public short SourceY { get; set; }
 
-        public short Type { get; set; }
+        public PortalType Type { get; set; }
     }
 }
