@@ -12,6 +12,9 @@ using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Linq;
+using NosCore.Shared.Logger;
 
 namespace NosCore.Controllers
 {
@@ -29,13 +32,12 @@ namespace NosCore.Controllers
 
         public void GameStart(GameStartPacket packet)
         {
-            if (Session.IsOnMap || !Session.HasSelectedCharacter)
+            if (Session.GameStarted || !Session.HasSelectedCharacter)
             {
                 // character should have been selected in SelectCharacter
                 return;
             }
-
-            Session.CurrentMapInstance = Session.Character.MapInstance;
+            Session.GameStarted = true;
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
@@ -184,6 +186,41 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
+        ///     PreqPacket packet
+        /// </summary>
+        /// <param name="packet"></param>
+        public void Preq(PreqPacket packet)
+        {
+            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
+            double timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
+            if (!(timeSpanSinceLastPortal >= 4))
+            {
+                return;
+            }
+            Portal portal = Session.Character.MapInstance.Portals.FirstOrDefault(port => Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX), Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
+            if (portal != null)
+            {
+                if (portal.DestinationMapInstanceId == default(Guid))
+                {
+                    return;
+                }
+
+                Session.Character.LastPortal = currentRunningSeconds;
+
+                if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType != MapInstanceType.BaseMapInstance &&
+                    ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType == MapInstanceType.BaseMapInstance)
+                {
+                    Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
+                }
+                else
+                {
+                    Session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY);
+                }
+
+            }
+        }
+
+        /// <summary>
         /// Walk Packet
         /// </summary>
         /// <param name="walkPacket"></param>
@@ -202,7 +239,7 @@ namespace NosCore.Controllers
                 Session.Character.PositionX = walkPacket.XCoordinate;
                 Session.Character.PositionY = walkPacket.YCoordinate;
 
-                Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateMove());
+                Session.Character.MapInstance.Broadcast(Session.Character.GenerateMove());
                 Session.SendPacket(Session.Character.GenerateCond());
                 Session.Character.LastMove = DateTime.Now;
             }
@@ -218,7 +255,7 @@ namespace NosCore.Controllers
             {
                 if (guriPacket.VisualEntityId != null && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
                 {
-                    Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+                    Session.Character.MapInstance.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
                 }
             }
         }

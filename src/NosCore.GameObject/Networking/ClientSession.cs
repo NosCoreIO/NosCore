@@ -84,9 +84,8 @@ namespace NosCore.GameObject.Networking
             }
         }
 
-        public MapInstance CurrentMapInstance { get; set; }
-        public bool HasCurrentMapInstance => CurrentMapInstance != null;
-        public bool IsOnMap => CurrentMapInstance != null;
+        public bool HasCurrentMapInstance => Character?.MapInstance != null;
+        public bool GameStarted { get; set; }
 
         public int LastKeepAliveIdentity { get; set; }
 
@@ -135,6 +134,7 @@ namespace NosCore.GameObject.Networking
                     Character.IsSitting = false;
                 }
                 Character.MapInstanceId = mapInstanceId;
+                Character.MapInstance = ServerManager.Instance.GetMapInstance(mapInstanceId);
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
@@ -156,6 +156,8 @@ namespace NosCore.GameObject.Networking
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GenerateIn());
+                SendPackets(Character.MapInstance.GetMapItems());
+              
                 Character.MapInstance.Sessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }

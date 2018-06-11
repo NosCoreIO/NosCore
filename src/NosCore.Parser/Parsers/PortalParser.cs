@@ -1,6 +1,7 @@
 ﻿using NosCore.DAL;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.Logger;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 172,
                 SourceY = 171,
                 DestinationMapId = 98,
-                Type = -1,
+                Type = Shared.Map.PortalType.MapPortal,
                 DestinationX = 6,
                 DestinationY = 36,
                 IsDisabled = false
@@ -35,7 +36,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 3,
                 SourceY = 8,
                 DestinationMapId = 1,
-                Type = -1,
+                Type = Shared.Map.PortalType.MapPortal,
                 DestinationX = 48,
                 DestinationY = 132,
                 IsDisabled = false
@@ -48,7 +49,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 34,
                 SourceY = 54,
                 DestinationMapId = 145,
-                Type = -1,
+                Type = Shared.Map.PortalType.MapPortal,
                 DestinationX = 61,
                 DestinationY = 165,
                 IsDisabled = false
@@ -61,7 +62,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 42,
                 SourceY = 3,
                 DestinationMapId = 189,
-                Type = -1,
+                Type = Shared.Map.PortalType.MapPortal,
                 DestinationX = 48,
                 DestinationY = 156,
                 IsDisabled = false
@@ -84,7 +85,7 @@ namespace NosCore.Parser.Parsers
                         SourceX = short.Parse(currentPacket[1]),
                         SourceY = short.Parse(currentPacket[2]),
                         DestinationMapId = short.Parse(currentPacket[3]),
-                        Type = sbyte.Parse(currentPacket[4]),
+                        Type = (Shared.Map.PortalType)Enum.Parse(typeof(Shared.Map.PortalType), currentPacket[4]),
                         DestinationX = -1,
                         DestinationY = -1,
                         IsDisabled = false
