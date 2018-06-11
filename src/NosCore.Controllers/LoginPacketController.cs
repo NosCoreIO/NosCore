@@ -79,7 +79,8 @@ namespace NosCore.Controllers
 
                     return;
                 }
-
+                acc.Language = _loginConfiguration.UserLanguage;
+                DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
                 List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
 
                 if (servers.Count > 0)
