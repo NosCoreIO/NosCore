@@ -120,6 +120,15 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Avventuriero</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>Questo nome è già in uso !</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Arciere</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Manca almeno un file richiesto</value>
   </data>
@@ -134,6 +143,9 @@
   </data>
   <data name="AUTH_INCORRECT" xml:space="preserve">
     <value>Auth non corretto</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Password errata</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Caricate!</value>
@@ -181,8 +193,35 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
   </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} I18N ActDescs Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} I18N BCards Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} I18N Cards Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} I18N Items Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapIdDatas Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapPointDatas Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsters Caricate! Region: {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} I18N Quests Caricate! Region: {1}</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Il nome contiene caratteri non ammessi.</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
@@ -192,6 +231,9 @@
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Ascolto della porta {0}</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Mago</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricati!</value>
@@ -219,6 +261,9 @@
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
     <value>Vuoi sincronizzare le Bcard?</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>Vuoi sincronizzare i dati I18N?</value>
   </data>
   <data name="PARSE_ITEMS" xml:space="preserve">
     <value>Vuoi sincronizzare gli Items?</value>
@@ -284,6 +329,12 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Supporter {0}</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Spadaccino</value>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Pacchetto Master non riconosciuto</value>
     <comment>revisionare</comment>
@@ -291,6 +342,9 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Non registrato dal MasterServer</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Lottatore</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>MapId errato!</value>
