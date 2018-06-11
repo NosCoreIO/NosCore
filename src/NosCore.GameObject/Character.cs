@@ -25,8 +25,6 @@ namespace NosCore.GameObject
 
         public ClientSession Session { get; set; }
 
-        public MapInstance Miniland { get; private set; }
-
         public byte VisualType { get; set; } = 1;
 
         public short VNum { get; set; }
@@ -351,7 +349,5 @@ namespace NosCore.GameObject
                 ArenaWinner = false
             };
         }
-
-        public List<Portal> GetExtraPortal() => MapInstancePortalHandler.GenerateMinilandEntryPortals(MapInstance.Map.MapId, Miniland.MapInstanceId);
     }
 }
