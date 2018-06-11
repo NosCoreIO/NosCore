@@ -1,4 +1,5 @@
 ﻿using NosCore.Core.Serializing;
+using NosCore.Shared.Map;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -17,7 +18,7 @@ namespace NosCore.Packets.ServerPackets
         public short MapId { get; set; }
 
         [PacketIndex(3)]
-        public short Type { get; set; }
+        public PortalType PortalType { get; set; }
 
         [PacketIndex(4)]
         public int PortalId { get; set; }

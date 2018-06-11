@@ -15,9 +15,7 @@ namespace NosCore.GameObject
         { }
 
         #endregion
-
-        #region Methods
-
+        
         public GpPacket GenerateGp()
         {
             return new GpPacket()
@@ -25,13 +23,11 @@ namespace NosCore.GameObject
                 SourceX = SourceX,
                 SourceY = SourceY,
                 MapId = ServerManager.Instance.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
-                Type = Type,
+                PortalType = Type,
                 PortalId = PortalId,
                 IsDisabled = IsDisabled ? 1 : 0
             };
         }
-
-        #endregion
 
         #region Members
 
