@@ -358,6 +358,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} I18N Skills Parsed! Region: {1}.
+        /// </summary>
+        public static string I18N_SKILL_PARSED {
+            get {
+                return ResourceManager.GetString("I18N_SKILL_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -462,6 +471,15 @@ namespace NosCore.Shared.Resource {
         public static string NO_MAP {
             get {
                 return ResourceManager.GetString("NO_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} I18N NpcMonsterTalk Parsed! Region: {1}.
+        /// </summary>
+        public static string NPCMONSTERTALK_PARSED {
+            get {
+                return ResourceManager.GetString("NPCMONSTERTALK_PARSED", resourceCulture);
             }
         }
         

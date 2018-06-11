@@ -219,6 +219,9 @@
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
     <value>{0} I18N Quests Parsed! Region: {1}</value>
   </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skills Parsed! Region: {1}</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Wrong Id!</value>
   </data>
@@ -254,6 +257,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsterTalk Parsed! Region: {1}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Do you want to parse Accounts?</value>
