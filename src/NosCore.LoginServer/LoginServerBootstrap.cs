@@ -36,7 +36,7 @@ namespace NosCore.LoginServer
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(loginConfiguration);
             LogLanguage.Language = loginConfiguration.Language;
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
         }
 

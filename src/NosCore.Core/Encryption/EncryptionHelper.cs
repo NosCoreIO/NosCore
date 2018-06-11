@@ -12,7 +12,7 @@ namespace NosCore.Core.Encryption
         {
             using (SHA512 hash = SHA512.Create())
             {
-                return string.Concat(hash.ComputeHash(Encoding.UTF8.GetBytes(inputString)).Select(item => item.ToString("x2")));
+                return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString)).Select(item => item.ToString("x2")));
             }
         }
     }

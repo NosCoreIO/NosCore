@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_ActDescDAO.InsertOrUpdate(actdescdtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_ACTDESC_PARSED), actdescdtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ACTDESC_PARSED), actdescdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -92,7 +92,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_CardDAO.InsertOrUpdate(carddtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_CARD_PARSED), carddtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_CARD_PARSED), carddtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -122,7 +122,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_BCardDAO.InsertOrUpdate(bcarddtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_BCARD_PARSED), bcarddtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_BCARD_PARSED), bcarddtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -152,7 +152,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_ItemDAO.InsertOrUpdate(itemdtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_ITEM_PARSED), itemdtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ITEM_PARSED), itemdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -182,7 +182,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_MapIdDataDAO.InsertOrUpdate(mapiddatadtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MAPIDDATA_PARSED), mapiddatadtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPIDDATA_PARSED), mapiddatadtos.Count, region));
 
                     }
                 }
@@ -213,7 +213,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_MapPointDataDAO.InsertOrUpdate(mappointdatadtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MAPPOINTDATA_PARSED), mappointdatadtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPPOINTDATA_PARSED), mappointdatadtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -243,7 +243,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_NpcMonsterDAO.InsertOrUpdate(npcmonsterdto);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MPCMONSTER_PARSED), npcmonsterdto.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MPCMONSTER_PARSED), npcmonsterdto.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -273,7 +273,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_NpcMonsterTalkDAO.InsertOrUpdate(npctalkdtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_NPCMONSTERTALK_PARSED), npctalkdtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_NPCMONSTERTALK_PARSED), npctalkdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -303,7 +303,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_QuestDAO.InsertOrUpdate(questdtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_QUEST_PARSED), questdtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_QUEST_PARSED), questdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }
@@ -333,7 +333,7 @@ namespace NosCore.Parser.Parsers
 
                         DAOFactory.I18N_SkillDAO.InsertOrUpdate(skilldtos);
 
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_SKILL_PARSED), skilldtos.Count, region));
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_SKILL_PARSED), skilldtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException) { }

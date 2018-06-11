@@ -22,9 +22,10 @@ namespace NosCore.Shared.Logger
             get { return instance ?? (instance = new LogLanguage()); }
         }
 
-        public string GetMessageFromKey(LogLanguageKey messageKey, string culture = null)
+        public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
         {
-            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, _resourceCulture.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())?.GetString(messageKey.ToString()) : string.Empty;
+            CultureInfo cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
+            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(cult, true, cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())?.GetString(messageKey.ToString()) : string.Empty;
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
         }

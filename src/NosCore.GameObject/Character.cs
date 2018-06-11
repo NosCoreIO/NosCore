@@ -317,7 +317,7 @@ namespace NosCore.GameObject
         {
             return new TitPacket()
             {
-                ClassType = Language.Instance.GetMessageFromKey(Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper()),
+                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey), Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper())),
                 Name = Name
             };
         }
@@ -326,7 +326,7 @@ namespace NosCore.GameObject
         {
             return new CInfoPacket()
             {
-                Name = (Account.Authority == AuthorityType.Moderator ? $"[{Language.Instance.GetMessageFromKey("SUPPORT")}]" + Name : Name),
+                Name = (Account.Authority == AuthorityType.Moderator ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name),
                 Unknown1 = string.Empty,
                 Unknown2 = -1,
                 FamilyId = -1,
