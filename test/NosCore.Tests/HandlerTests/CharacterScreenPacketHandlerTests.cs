@@ -33,6 +33,7 @@ namespace NosCore.Tests.HandlerTests
         private CharacterScreenPacketController handler;
         private readonly ClientSession session = new ClientSession();
         private AccountDTO acc;
+        CharacterDTO chara;
 
         private const string _configurationPath = "../../../configuration";
 
@@ -57,7 +58,7 @@ namespace NosCore.Tests.HandlerTests
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             acc = new AccountDTO() { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
             DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-            CharacterDTO chara = new CharacterDTO() { Name = "TestExistingCharacter", Slot = 1, AccountId = acc.AccountId, MapId = 1, State = CharacterState.Active };
+            chara = new CharacterDTO() { Name = "TestExistingCharacter", Slot = 1, AccountId = acc.AccountId, MapId = 1, State = CharacterState.Active };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
             session.InitializeAccount(acc);
             handler = new CharacterScreenPacketController();
@@ -67,6 +68,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
+            session.SetCharacter((Character)chara);
             session.Character.MapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestCharacter";
             handler.CreateCharacter(new CharNewPacket()
@@ -155,6 +157,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
+            session.SetCharacter((Character)chara);
             session.Character.MapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestExistingCharacter";
             handler.DeleteCharacter(new CharacterDeletePacket()
