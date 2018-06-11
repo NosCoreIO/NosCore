@@ -32,13 +32,12 @@ namespace NosCore.Controllers
 
         public void GameStart(GameStartPacket packet)
         {
-            if (Session.IsOnMap || !Session.HasSelectedCharacter)
+            if (Session.GameStarted || !Session.HasSelectedCharacter)
             {
                 // character should have been selected in SelectCharacter
                 return;
             }
-
-            Session.CurrentMapInstance = Session.Character.MapInstance;
+            Session.GameStarted = true;
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
@@ -192,30 +191,18 @@ namespace NosCore.Controllers
         /// <param name="packet"></param>
         public void Preq(PreqPacket packet)
         {
-            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
+            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
             double timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
-            if (!(timeSpanSinceLastPortal >= 4) && Session.CurrentMapInstance?.MapInstanceType != MapInstanceType.RaidInstance || !Session.HasCurrentMapInstance)
+            if (!(timeSpanSinceLastPortal >= 4))
             {
-                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("CANT_MOVE"), SayColorType.Yellow));
                 return;
             }
-
-            Parallel.ForEach(Session.CurrentMapInstance.Portals.Concat(Session.Character.GetExtraPortal()), portal =>
+            Portal portal = Session.Character.MapInstance.Portals.FirstOrDefault(port => Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX), Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
+            if (portal != null)
             {
-                if (Session.Character.PositionY < portal.SourceY - 1 || Session.Character.PositionY > portal.SourceY + 1 || Session.Character.PositionX < portal.SourceX - 1 ||
-                    Session.Character.PositionX > portal.SourceX + 1)
+                if (portal.DestinationMapInstanceId == default(Guid))
                 {
                     return;
-                }
-
-                switch (portal.Type)
-                {
-                    case (sbyte)PortalType.MapPortal:
-                        break;
-                    
-                    default:
-                        Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("PORTAL_BLOCKED"), SayColorType.Yellow));
-                        return;
                 }
 
                 Session.Character.LastPortal = currentRunningSeconds;
@@ -229,7 +216,8 @@ namespace NosCore.Controllers
                 {
                     Session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY);
                 }
-            });
+
+            }
         }
 
         /// <summary>
@@ -251,7 +239,7 @@ namespace NosCore.Controllers
                 Session.Character.PositionX = walkPacket.XCoordinate;
                 Session.Character.PositionY = walkPacket.YCoordinate;
 
-                Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateMove());
+                Session.Character.MapInstance.Broadcast(Session.Character.GenerateMove());
                 Session.SendPacket(Session.Character.GenerateCond());
                 Session.Character.LastMove = DateTime.Now;
             }
@@ -267,7 +255,7 @@ namespace NosCore.Controllers
             {
                 if (guriPacket.VisualEntityId != null && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
                 {
-                    Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+                    Session.Character.MapInstance.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
                 }
             }
         }

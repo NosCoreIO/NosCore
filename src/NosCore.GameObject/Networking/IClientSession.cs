@@ -12,7 +12,6 @@ namespace NosCore.GameObject.Networking
         AccountDTO Account { get; set; }
         bool HasSelectedCharacter { get; }
         Character Character { get; }
-        MapInstance CurrentMapInstance { get; set; }
         bool IsAuthenticated { get; set; }
 
         void SetCharacter(Character character);
