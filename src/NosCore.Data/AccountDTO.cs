@@ -25,6 +25,6 @@ namespace NosCore.Data
 
         public long ItemShopMoney { get; set; }
 
-        public RegionType RegionType { get; set; }
+        public RegionType Language { get; set; }
     }
 }

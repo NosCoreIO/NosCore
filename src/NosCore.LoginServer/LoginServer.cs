@@ -75,7 +75,7 @@ namespace NosCore.LoginServer
                     ConnectedAccountsLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
-                    Host = serverHost
+                    Host = serverHost,
                 }).ConfigureAwait(false);
             }
 

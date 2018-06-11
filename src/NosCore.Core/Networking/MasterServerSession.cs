@@ -69,7 +69,7 @@ namespace NosCore.Core.Networking
                     {
                         _id = 0;
                     }
-                    ServerType servtype = (ServerType)System.Enum.Parse(typeof(ServerType), msgChannel.ClientType.ToString());
+                    ServerType servtype = (ServerType)Enum.Parse(typeof(ServerType), msgChannel.ClientType.ToString());
                     if (servtype == ServerType.WorldServer)
                     {
                         WorldServerInfo serv = new WorldServerInfo

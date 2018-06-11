@@ -1,4 +1,5 @@
 ﻿using NosCore.Configuration;
+using NosCore.Shared;
 using System;
 
 namespace NosCore.Core
@@ -21,5 +22,7 @@ namespace NosCore.Core
         public int ConnectedAccountsLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
+
+        public RegionType UserLanguage { get; set; }
     }
 }

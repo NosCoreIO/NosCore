@@ -11,4 +11,8 @@
     <OutputPath>..\..\build\</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

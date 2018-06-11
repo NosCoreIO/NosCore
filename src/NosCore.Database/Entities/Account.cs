@@ -41,6 +41,8 @@ namespace NosCore.Database.Entities
         [MaxLength(32)]
         public string VerificationToken { get; set; }
 
+        public RegionType Language { get; set; }
+
         #endregion
     }
 }
