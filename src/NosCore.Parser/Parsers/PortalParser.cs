@@ -18,57 +18,70 @@ namespace NosCore.Parser.Parsers
 		{
 			short map = 0;
 
-			var lodPortal = new PortalDTO
-			{
-				SourceMapId = 150,
-				SourceX = 172,
-				SourceY = 171,
-				DestinationMapId = 98,
-				Type = PortalType.MapPortal,
-				DestinationX = 6,
-				DestinationY = 36,
-				IsDisabled = false
-			};
-			DAOFactory.PortalDAO.InsertOrUpdate(ref lodPortal);
 
-			var minilandPortal = new PortalDTO
-			{
-				SourceMapId = 20001,
-				SourceX = 3,
-				SourceY = 8,
-				DestinationMapId = 1,
-				Type = PortalType.MapPortal,
-				DestinationX = 48,
-				DestinationY = 132,
-				IsDisabled = false
-			};
-			DAOFactory.PortalDAO.InsertOrUpdate(ref minilandPortal);
+            var lodPortal = new PortalDTO
+            {
+                SourceMapId = 150,
+                SourceX = 172,
+                SourceY = 171,
+                DestinationMapId = 98,
+                Type = Shared.Map.PortalType.MapPortal,
+                DestinationX = 6,
+                DestinationY = 36,
+                IsDisabled = false
+            };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == lodPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref lodPortal);
+            }
 
-			var weddingPortal = new PortalDTO
-			{
-				SourceMapId = 2586,
-				SourceX = 34,
-				SourceY = 54,
-				DestinationMapId = 145,
-				Type = PortalType.MapPortal,
-				DestinationX = 61,
-				DestinationY = 165,
-				IsDisabled = false
-			};
-			DAOFactory.PortalDAO.InsertOrUpdate(ref weddingPortal);
+            var minilandPortal = new PortalDTO
+            {
+                SourceMapId = 20001,
+                SourceX = 3,
+                SourceY = 8,
+                DestinationMapId = 1,
+                Type = Shared.Map.PortalType.MapPortal,
+                DestinationX = 48,
+                DestinationY = 132,
+                IsDisabled = false
+            };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == minilandPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref minilandPortal);
+            }
 
-			var glacerusCavernPortal = new PortalDTO
-			{
-				SourceMapId = 2587,
-				SourceX = 42,
-				SourceY = 3,
-				DestinationMapId = 189,
-				Type = PortalType.MapPortal,
-				DestinationX = 48,
-				DestinationY = 156,
-				IsDisabled = false
-			};
-			DAOFactory.PortalDAO.InsertOrUpdate(ref glacerusCavernPortal);
+            var weddingPortal = new PortalDTO
+            {
+                SourceMapId = 2586,
+                SourceX = 34,
+                SourceY = 54,
+                DestinationMapId = 145,
+                Type = Shared.Map.PortalType.MapPortal,
+                DestinationX = 61,
+                DestinationY = 165,
+                IsDisabled = false
+            };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == weddingPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref weddingPortal);
+            }
+
+            var glacerusCavernPortal = new PortalDTO
+            {
+                SourceMapId = 2587,
+                SourceX = 42,
+                SourceY = 3,
+                DestinationMapId = 189,
+                Type = Shared.Map.PortalType.MapPortal,
+                DestinationX = 48,
+                DestinationY = 156,
+                IsDisabled = false
+            };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == glacerusCavernPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref glacerusCavernPortal);
+            }
 
 			foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
 			{
