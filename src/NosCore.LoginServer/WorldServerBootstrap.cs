@@ -22,7 +22,7 @@ namespace NosCore.LoginServer
 		{
 			Console.Title = "NosCore - LoginServer";
 			const string text = "LOGIN SERVER - 0Lucifer0";
-			var offset = Console.WindowWidth / 2 + text.Length / 2;
+			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
 			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
 		}

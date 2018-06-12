@@ -127,9 +127,9 @@ namespace NosCore.Core.Serializing
 				foreach (var packetBasePropertyInfo in serializationInformation.Value)
 				{
 					var currentIndex =
-						packetBasePropertyInfo.Key.Index +
-						(includesKeepAliveIdentity ? 2
-							: 1); // adding 2 because we need to skip incrementing number and packet header
+                        packetBasePropertyInfo.Key.Index
+                        + (includesKeepAliveIdentity ? 2
+                            : 1); // adding 2 because we need to skip incrementing number and packet header
 
 					if (currentIndex < matches.Count + (includesKeepAliveIdentity ? 1 : 0))
 					{
@@ -232,8 +232,8 @@ namespace NosCore.Core.Serializing
 
 				// check if the amount of properties can be serialized properly
 				if ((splittedSubpacketParts.Count + (includesKeepAliveIdentity ? 1 : 0))
-					% subPacketTypePropertiesCount ==
-					0) // amount of properties per subpacket does match the given value amount in %
+                    % subPacketTypePropertiesCount
+                    == 0) // amount of properties per subpacket does match the given value amount in %
 				{
 					for (var i = currentIndex.Value + 1 + (includesKeepAliveIdentity ? 1 : 0);
 						i < splittedSubpacketParts.Count;
@@ -296,8 +296,8 @@ namespace NosCore.Core.Serializing
 				object convertedValue = null;
 				try
 				{
-					if (currentValue != null &&
-						packetPropertyType.IsEnumDefined(Enum.Parse(packetPropertyType, currentValue)))
+					if (currentValue != null
+                        && packetPropertyType.IsEnumDefined(Enum.Parse(packetPropertyType, currentValue)))
 					{
 						convertedValue = Enum.Parse(packetPropertyType, currentValue);
 					}
@@ -322,17 +322,17 @@ namespace NosCore.Core.Serializing
 					packetIndexAttribute?.IsReturnPacket ?? false);
 			}
 
-			if (packetPropertyType.IsGenericType &&
-				packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)) // subpacket list
-				&& packetPropertyType.GenericTypeArguments[0].BaseType.Equals(typeof(PacketDefinition)))
+			if (packetPropertyType.IsGenericType
+                && packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)) // subpacket list
+                && packetPropertyType.GenericTypeArguments[0].BaseType.Equals(typeof(PacketDefinition)))
 			{
 				return DeserializeSubpackets(currentValue, packetPropertyType,
 					packetIndexAttribute?.RemoveSeparator ?? false, packetMatches, packetIndexAttribute?.Index,
 					includesKeepAliveIdentity);
 			}
 
-			if (packetPropertyType.IsGenericType &&
-				packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) // simple list
+			if (packetPropertyType.IsGenericType
+                && packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) // simple list
 			{
 				return DeserializeSimpleList(currentValue, packetPropertyType);
 			}
@@ -353,8 +353,8 @@ namespace NosCore.Core.Serializing
 				return Convert.ChangeType(currentValue, packetPropertyType.GenericTypeArguments[0]);
 			}
 
-			if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue) &&
-				!packetIndexAttribute.SerializeToEnd)
+			if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)
+                && !packetIndexAttribute.SerializeToEnd)
 			{
 				throw new NullReferenceException();
 			}
@@ -530,16 +530,16 @@ namespace NosCore.Core.Serializing
 						packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false);
 				}
 
-				if (propertyType.IsGenericType &&
-					propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
-					&& propertyType.GenericTypeArguments[0].BaseType.Equals(typeof(PacketDefinition)))
+				if (propertyType.IsGenericType
+                    && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
+                    && propertyType.GenericTypeArguments[0].BaseType.Equals(typeof(PacketDefinition)))
 				{
 					return SerializeSubpackets((IList) value, propertyType,
 						packetIndexAttribute?.RemoveSeparator ?? false);
 				}
 
-				if (propertyType.IsGenericType &&
-					propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
+				if (propertyType.IsGenericType
+                    && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
 				{
 					return SerializeSimpleList((IList) value, propertyType);
 				}

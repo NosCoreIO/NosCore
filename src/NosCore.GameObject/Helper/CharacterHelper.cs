@@ -3,7 +3,7 @@ using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.GameObject.Helper
 {
-	public class CharacterHelper
+	public sealed class CharacterHelper
 	{
 		private static CharacterHelper instance;
 
@@ -185,10 +185,10 @@ namespace NosCore.GameObject.Helper
 		{
 			if (elementRate < 40)
 			{
-				return elementRate * elementRate + 50;
+				return (elementRate * elementRate) + 50;
 			}
 
-			return elementRate * elementRate * 3 + 50;
+			return (elementRate * elementRate * 3) + 50;
 		}
 
 		public static int LoadFamilyXpData(byte familyLevel)
@@ -328,7 +328,7 @@ namespace NosCore.GameObject.Helper
 					break;
 			}
 
-			return p * (lvl / 5 + 1);
+			return p * ((lvl / 5) + 1);
 		}
 
 		public int SlPoint(short spPoint, short mode)
@@ -345,39 +345,39 @@ namespace NosCore.GameObject.Helper
 						}
 						else if (spPoint <= 28)
 						{
-							point = 10 + (spPoint - 10) / 2;
+							point = 10 + ((spPoint - 10) / 2);
 						}
 						else if (spPoint <= 88)
 						{
-							point = 19 + (spPoint - 28) / 3;
+							point = 19 + ((spPoint - 28) / 3);
 						}
 						else if (spPoint <= 168)
 						{
-							point = 39 + (spPoint - 88) / 4;
+							point = 39 + ((spPoint - 88) / 4);
 						}
 						else if (spPoint <= 268)
 						{
-							point = 59 + (spPoint - 168) / 5;
+							point = 59 + ((spPoint - 168) / 5);
 						}
 						else if (spPoint <= 334)
 						{
-							point = 79 + (spPoint - 268) / 6;
+							point = 79 + ((spPoint - 268) / 6);
 						}
 						else if (spPoint <= 383)
 						{
-							point = 90 + (spPoint - 334) / 7;
+							point = 90 + ((spPoint - 334) / 7);
 						}
 						else if (spPoint <= 391)
 						{
-							point = 97 + (spPoint - 383) / 8;
+							point = 97 + ((spPoint - 383) / 8);
 						}
 						else if (spPoint <= 400)
 						{
-							point = 98 + (spPoint - 391) / 9;
+							point = 98 + ((spPoint - 391) / 9);
 						}
 						else if (spPoint <= 410)
 						{
-							point = 99 + (spPoint - 400) / 10;
+							point = 99 + ((spPoint - 400) / 10);
 						}
 
 						break;
@@ -389,27 +389,27 @@ namespace NosCore.GameObject.Helper
 						}
 						else if (spPoint <= 40)
 						{
-							point = 20 + (spPoint - 20) / 2;
+							point = 20 + ((spPoint - 20) / 2);
 						}
 						else if (spPoint <= 70)
 						{
-							point = 30 + (spPoint - 40) / 3;
+							point = 30 + ((spPoint - 40) / 3);
 						}
 						else if (spPoint <= 110)
 						{
-							point = 40 + (spPoint - 70) / 4;
+							point = 40 + ((spPoint - 70) / 4);
 						}
 						else if (spPoint <= 210)
 						{
-							point = 50 + (spPoint - 110) / 5;
+							point = 50 + ((spPoint - 110) / 5);
 						}
 						else if (spPoint <= 270)
 						{
-							point = 70 + (spPoint - 210) / 6;
+							point = 70 + ((spPoint - 210) / 6);
 						}
 						else if (spPoint <= 410)
 						{
-							point = 80 + (spPoint - 270) / 7;
+							point = 80 + ((spPoint - 270) / 7);
 						}
 
 						break;
@@ -421,35 +421,35 @@ namespace NosCore.GameObject.Helper
 						}
 						else if (spPoint <= 48)
 						{
-							point = 10 + (spPoint - 10) / 2;
+							point = 10 + ((spPoint - 10) / 2);
 						}
 						else if (spPoint <= 81)
 						{
-							point = 29 + (spPoint - 48) / 3;
+							point = 29 + ((spPoint - 48) / 3);
 						}
 						else if (spPoint <= 161)
 						{
-							point = 40 + (spPoint - 81) / 4;
+							point = 40 + ((spPoint - 81) / 4);
 						}
 						else if (spPoint <= 236)
 						{
-							point = 60 + (spPoint - 161) / 5;
+							point = 60 + ((spPoint - 161) / 5);
 						}
 						else if (spPoint <= 290)
 						{
-							point = 75 + (spPoint - 236) / 6;
+							point = 75 + ((spPoint - 236) / 6);
 						}
 						else if (spPoint <= 360)
 						{
-							point = 84 + (spPoint - 290) / 7;
+							point = 84 + ((spPoint - 290) / 7);
 						}
 						else if (spPoint <= 400)
 						{
-							point = 97 + (spPoint - 360) / 8;
+							point = 97 + ((spPoint - 360) / 8);
 						}
 						else if (spPoint <= 410)
 						{
-							point = 99 + (spPoint - 400) / 10;
+							point = 99 + ((spPoint - 400) / 10);
 						}
 
 						break;
@@ -461,31 +461,31 @@ namespace NosCore.GameObject.Helper
 						}
 						else if (spPoint <= 50)
 						{
-							point = 10 + (spPoint - 10) / 2;
+							point = 10 + ((spPoint - 10) / 2);
 						}
 						else if (spPoint <= 110)
 						{
-							point = 30 + (spPoint - 50) / 3;
+							point = 30 + ((spPoint - 50) / 3);
 						}
 						else if (spPoint <= 150)
 						{
-							point = 50 + (spPoint - 110) / 4;
+							point = 50 + ((spPoint - 110) / 4);
 						}
 						else if (spPoint <= 200)
 						{
-							point = 60 + (spPoint - 150) / 5;
+							point = 60 + ((spPoint - 150) / 5);
 						}
 						else if (spPoint <= 260)
 						{
-							point = 70 + (spPoint - 200) / 6;
+							point = 70 + ((spPoint - 200) / 6);
 						}
 						else if (spPoint <= 330)
 						{
-							point = 80 + (spPoint - 260) / 7;
+							point = 80 + ((spPoint - 260) / 7);
 						}
 						else if (spPoint <= 410)
 						{
-							point = 90 + (spPoint - 330) / 8;
+							point = 90 + ((spPoint - 330) / 8);
 						}
 
 						break;
@@ -572,7 +572,7 @@ namespace NosCore.GameObject.Helper
 
 			if (upgrade > 15)
 			{
-				point += 173 + 25 + 5 * (upgrade - 15);
+				point += 173 + 25 + (5 * (upgrade - 15));
 			}
 
 			return point;
@@ -718,7 +718,7 @@ namespace NosCore.GameObject.Helper
 			// Adventurer HP
 			for (var i = 1; i < HpData.GetLength(1); i++)
 			{
-				HpData[(int) CharacterClassType.Adventurer, i] = (int) (1 / 2.0 * i * i + 31 / 2.0 * i + 205);
+				HpData[(int) CharacterClassType.Adventurer, i] = (int) ((1 / 2.0 * i * i) + (31 / 2.0 * i) + 205);
 			}
 
 			// Swordsman HP
@@ -749,7 +749,7 @@ namespace NosCore.GameObject.Helper
 			// Magician HP
 			for (var i = 0; i < HpData.GetLength(1); i++)
 			{
-				HpData[(int) CharacterClassType.Magician, i] = (int) ((i + 15) * (i + 15) + i + 15.0 - 465 + 550);
+				HpData[(int) CharacterClassType.Magician, i] = (int) (((i + 15) * (i + 15)) + i + 15.0 - 465 + 550);
 			}
 
 			// Archer HP
@@ -902,7 +902,7 @@ namespace NosCore.GameObject.Helper
 
 			for (var i = 20; i < SpxpData.Length; i++)
 			{
-				SpxpData[i] = SpxpData[i - 1] + 6 * (3 * i * (i + 1) + 1);
+				SpxpData[i] = SpxpData[i - 1] + (6 * ((3 * i * (i + 1)) + 1));
 			}
 		}
 
@@ -938,7 +938,7 @@ namespace NosCore.GameObject.Helper
 				_distRate[(int) CharacterClassType.Adventurer, i] = (i + 9) * 2; // approx
 				_criticalDistRate[(int) CharacterClassType.Adventurer, i] = 0; // sure
 				_criticalDist[(int) CharacterClassType.Adventurer, i] = 0; // sure
-				_hitDef[(int) CharacterClassType.Adventurer, i] = i + 9 / 2; // approx
+				_hitDef[(int) CharacterClassType.Adventurer, i] = i + (9 / 2); // approx
 				_hitDodge[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
 				_distDef[(int) CharacterClassType.Adventurer, i] = (i + 9) / 2; // approx
 				_distDodge[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
@@ -958,8 +958,8 @@ namespace NosCore.GameObject.Helper
 				_hitRate[(int) CharacterClassType.Swordman, i] = i + 27; // approx
 				_hitDef[(int) CharacterClassType.Swordman, i] = i + 2; // approx
 
-				_minHit[(int) CharacterClassType.Swordman, i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
-				_maxHit[(int) CharacterClassType.Swordman, i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
+				_minHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
+				_maxHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
 				_distDef[(int) CharacterClassType.Swordman, i] = i; // approx
 
 				// MAGICIAN
@@ -978,9 +978,9 @@ namespace NosCore.GameObject.Helper
 				_distDodge[(int) CharacterClassType.Magician, i] = 14 + i; // approx
 
 				_minHit[(int) CharacterClassType.Magician, i] =
-					2 * i + 9; // approx Numbers n such that n^2 is of form x^ 2 + 40y ^ 2 with positive x,y.
+                    (2 * i) + 9; // approx Numbers n such that n^2 is of form x^ 2 + 40y ^ 2 with positive x,y.
 				_maxHit[(int) CharacterClassType.Magician, i] =
-					2 * i + 9; // approx Numbers n such that n^2 is of form x^2+40y^2 with positive x,y.
+                    (2 * i) + 9; // approx Numbers n such that n^2 is of form x^2+40y^2 with positive x,y.
 				_distDef[(int) CharacterClassType.Magician, i] = 20 + i; // approx
 
 				// ARCHER
@@ -989,15 +989,15 @@ namespace NosCore.GameObject.Helper
 				_criticalDistRate[(int) CharacterClassType.Archer, i] = 0; // sure
 				_criticalDist[(int) CharacterClassType.Archer, i] = 0; // sure
 
-				_minHit[(int) CharacterClassType.Archer, i] = 9 + i * 3; // approx
-				_maxHit[(int) CharacterClassType.Archer, i] = 9 + i * 3; // approx
+				_minHit[(int) CharacterClassType.Archer, i] = 9 + (i * 3); // approx
+				_maxHit[(int) CharacterClassType.Archer, i] = 9 + (i * 3); // approx
 				var add = i % 2 == 0 ? 2 : 4;
 				_hitRate[(int) CharacterClassType.Archer, 1] = 41;
 				_hitRate[(int) CharacterClassType.Archer, i] += add; // approx
 				_minDist[(int) CharacterClassType.Archer, i] = 2 * i; // approx
 				_maxDist[(int) CharacterClassType.Archer, i] = 2 * i; // approx
 
-				_distRate[(int) CharacterClassType.Archer, i] = 20 + 2 * i; // approx
+				_distRate[(int) CharacterClassType.Archer, i] = 20 + (2 * i); // approx
 				_hitDef[(int) CharacterClassType.Archer, i] = i; // approx
 				_magicalDef[(int) CharacterClassType.Archer, i] = i + 2; // approx
 				_hitDodge[(int) CharacterClassType.Archer, i] = 41 + i; // approx
@@ -1017,7 +1017,7 @@ namespace NosCore.GameObject.Helper
 			XpData[0] = 300;
 			for (var i = 2; i < v.Length; i++)
 			{
-				v[i] = v[i - 1] + 420 + 120 * (i - 1);
+				v[i] = v[i - 1] + 420 + (120 * (i - 1));
 			}
 
 			for (var i = 1; i < XpData.Length; i++)
@@ -1037,7 +1037,7 @@ namespace NosCore.GameObject.Helper
 						var = 70 / 3d;
 					}
 
-					XpData[i] = Convert.ToInt64(XpData[i - 1] + var * v[i - 1]);
+					XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * v[i - 1]));
 				}
 
 				if (i < 79)
@@ -1058,7 +1058,7 @@ namespace NosCore.GameObject.Helper
 						break;
 				}
 
-				XpData[i] = Convert.ToInt64(XpData[i - 1] + var * (i + 2) * (i + 2));
+				XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * (i + 2) * (i + 2)));
 			}
 		}
 

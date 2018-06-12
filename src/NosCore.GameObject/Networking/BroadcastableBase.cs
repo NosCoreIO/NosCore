@@ -12,7 +12,6 @@ namespace NosCore.GameObject.Networking
 		public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } =
 			new ConcurrentDictionary<int, ClientSession>();
 
-
 		public void Broadcast(PacketDefinition packet)
 		{
 			Broadcast(null, packet);

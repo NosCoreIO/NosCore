@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Map
 			}
 		}
 
-		public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * XLength + x, 1)[0];
+		public byte this[short x, short y] => Data.AsSpan().Slice(4 + (y * XLength) + x, 1)[0];
 
 		public void Initialize()
 		{

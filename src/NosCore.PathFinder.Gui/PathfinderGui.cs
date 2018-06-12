@@ -40,7 +40,7 @@ namespace NosCore.PathFinder.Gui
 		{
 			Console.Title = "NosCore - Pathfinder GUI";
 			const string text = "PATHFINDER GUI - 0Lucifer0";
-			var offset = Console.WindowWidth / 2 + text.Length / 2;
+			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
 			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
 		}
@@ -56,36 +56,36 @@ namespace NosCore.PathFinder.Gui
 			{
 				DataAccessHelper.Instance.Initialize(_databaseConfiguration.Database);
 
-				do
-				{
-					Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
-					var input = Console.ReadLine();
-					if (input == null || !double.TryParse(input, out var askMapId))
-					{
-						Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
-						continue;
-					}
+                while (true)
+                {
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
+                    var input = Console.ReadLine();
+                    if (input == null || !double.TryParse(input, out var askMapId))
+                    {
+                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
+                        continue;
+                    }
 
-					var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
-					if (map != null && map.XLength > 0 && map.YLength > 0)
-					{
-						map.Initialize();
+                    if (map?.XLength > 0 && map.YLength > 0)
+                    {
+                        map.Initialize();
 
-						if (guiWindow?.Exists == true)
-						{
-							guiWindow.Exit();
-						}
+                        if (guiWindow?.Exists == true)
+                        {
+                            guiWindow.Exit();
+                        }
 
-						new Thread(() =>
-						{
-							guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-								$"NosCore Pathfinder GUI - Map {map.MapId}");
-							guiWindow.Run(30);
-						}).Start();
-					}
-				} while (true);
-			}
+                        new Thread(() =>
+                        {
+                            guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
+                                $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            guiWindow.Run(30);
+                        }).Start();
+                    }
+                }
+            }
 			catch
 			{
 				Console.ReadKey();

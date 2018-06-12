@@ -2,7 +2,7 @@
 
 namespace NosCore.Core.Networking
 {
-	public class MasterClientListSingleton
+	public sealed class MasterClientListSingleton
 	{
 		private static MasterClientListSingleton instance;
 

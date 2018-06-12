@@ -32,7 +32,7 @@ namespace NosCore.WorldServer
 		{
 			Console.Title = "NosCore - WorldServer";
 			const string text = "WORLD SERVER - 0Lucifer0";
-			var offset = Console.WindowWidth / 2 + text.Length / 2;
+			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
 			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
 		}

@@ -169,7 +169,6 @@ namespace NosCore.Core.Encryption
 				return;
 			}
 
-
 			var sessionKey = sessionId & 0xFF;
 			var sessionNumber = unchecked((byte) (sessionId >> 6));
 			sessionNumber &= 0xFF;

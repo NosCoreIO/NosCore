@@ -12,16 +12,16 @@ namespace NosCore.Parser.Parsers
 {
 	public class I18NParser
 	{
-		private static readonly string ActDescTxt = "\\_code_{0}_act_desc.txt";
-		private static readonly string BCardTxt = "\\_code_{0}_BCard.txt";
-		private static readonly string CardTxt = "\\_code_{0}_Card.txt";
-		private static readonly string ItemTxt = "\\_code_{0}_Item.txt";
-		private static readonly string MapIDDataTxt = "\\_code_{0}_MapIDData.txt";
-		private static readonly string MapPointDataTxt = "\\_code_{0}_MapPointData.txt";
-		private static readonly string MonsterTxt = "\\_code_{0}_monster.txt";
-		private static readonly string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
-		private static readonly string QuestTxt = "\\_code_{0}_quest.txt";
-		private static readonly string SkillTxt = "\\_code_{0}_Skill.txt";
+		private const string ActDescTxt = "\\_code_{0}_act_desc.txt";
+		private const string BCardTxt = "\\_code_{0}_BCard.txt";
+		private const string CardTxt = "\\_code_{0}_Card.txt";
+		private const string ItemTxt = "\\_code_{0}_Item.txt";
+		private const string MapIDDataTxt = "\\_code_{0}_MapIDData.txt";
+		private const string MapPointDataTxt = "\\_code_{0}_MapPointData.txt";
+		private const string MonsterTxt = "\\_code_{0}_monster.txt";
+		private const string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
+		private const string QuestTxt = "\\_code_{0}_quest.txt";
+		private const string SkillTxt = "\\_code_{0}_Skill.txt";
 
 		private static string _line;
 		private string _folder;
@@ -48,8 +48,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (actdesclist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (actdesclist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								actdescdtos.Add(new I18N_ActDescDTO
 								{
@@ -84,7 +84,7 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (cardlist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+							if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
 								carddtos.Add(new I18N_CardDTO
 								{
@@ -119,8 +119,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (bcardlist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								bcarddtos.Add(new I18N_BCardDTO
 								{
@@ -155,7 +155,7 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (itemlist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+							if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
 								itemdtos.Add(new I18N_ItemDTO
 								{
@@ -190,8 +190,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (mapiddatalist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (mapiddatalist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								mapiddatadtos.Add(new I18N_MapIdDataDTO
 								{
@@ -226,7 +226,7 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (mappointdatalist.FirstOrDefault(s =>
+							if (mappointdatalist.Find(s =>
 								s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
 								mappointdatadtos.Add(new I18N_MapPointDataDTO
@@ -262,8 +262,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (npcmonsterlist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (npcmonsterlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								npcmonsterdto.Add(new I18N_NpcMonsterDTO
 								{
@@ -298,7 +298,7 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (npcmonstertalklist.FirstOrDefault(
+							if (npcmonstertalklist.Find(
 								s => s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
 								npctalkdtos.Add(new I18N_NpcMonsterTalkDTO
@@ -334,8 +334,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (questlist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (questlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								questdtos.Add(new I18N_QuestDTO
 								{
@@ -370,8 +370,8 @@ namespace NosCore.Parser.Parsers
 						while ((_line = stream.ReadLine()) != null)
 						{
 							var currentLine = _line.Split('\t');
-							if (skilllist.FirstOrDefault(s => s.Key == currentLine[0] && s.RegionType == region) ==
-								null)
+							if (skilllist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
+                                == null)
 							{
 								skilldtos.Add(new I18N_SkillDTO
 								{

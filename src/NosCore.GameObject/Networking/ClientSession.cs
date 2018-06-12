@@ -301,8 +301,8 @@ namespace NosCore.GameObject.Networking
 				{
 					// keep alive
 					var nextKeepAliveRaw = packetsplit[0];
-					if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity) &&
-						nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
+					if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
+                        && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
 					{
 						Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
 							ClientId);
@@ -350,8 +350,8 @@ namespace NosCore.GameObject.Networking
 						continue;
 					}
 
-					if (packetsplit[1].Length >= 1 &&
-						(packetsplit[1][0] == '/' || packetsplit[1][0] == ':' || packetsplit[1][0] == ';'))
+					if (packetsplit[1].Length >= 1
+                        && (packetsplit[1][0] == '/' || packetsplit[1][0] == ':' || packetsplit[1][0] == ';'))
 					{
 						packetsplit[1] = packetsplit[1][0].ToString();
 						packetstring = packet.Insert(packet.IndexOf(' ') + 2, " ");
