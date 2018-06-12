@@ -1,9 +1,8 @@
-﻿
-namespace NosCore.Shared.Character
+﻿namespace NosCore.Shared.Enumerations.Character
 {
-    public enum GenderType : byte
-    {
-        Male = 0,
-        Female = 1
-    }
+	public enum GenderType : byte
+	{
+		Male = 0,
+		Female = 1
+	}
 }

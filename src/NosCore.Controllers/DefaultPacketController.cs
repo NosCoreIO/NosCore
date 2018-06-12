@@ -1,263 +1,279 @@
-﻿using NosCore.Configuration;
-using NosCore.Core;
-using NosCore.Shared;
-using NosCore.Shared.Interaction;
-using NosCore.Shared.Map;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Linq;
-using NosCore.Shared.Logger;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Controllers
 {
-    public class DefaultPacketController : PacketController
-    {
-        public DefaultPacketController()
-        { }
+	public class DefaultPacketController : PacketController
+	{
+		private readonly WorldConfiguration _worldConfiguration;
 
-        public DefaultPacketController(WorldConfiguration worldConfiguration)
-        {
-            _worldConfiguration = worldConfiguration;
-        }
+		public DefaultPacketController()
+		{
+		}
 
-        private readonly WorldConfiguration _worldConfiguration;
+		public DefaultPacketController(WorldConfiguration worldConfiguration)
+		{
+			_worldConfiguration = worldConfiguration;
+		}
 
-        public void GameStart(GameStartPacket packet)
-        {
-            if (Session.GameStarted || !Session.HasSelectedCharacter)
-            {
-                // character should have been selected in SelectCharacter
-                return;
-            }
-            Session.GameStarted = true;
+		public void GameStart(GameStartPacket packet)
+		{
+			if (Session.GameStarted || !Session.HasSelectedCharacter)
+			{
+				// character should have been selected in SelectCharacter
+				return;
+			}
 
-            if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
-            {
-                Session.SendPacket(new ScenePacket() { SceneId = 40 });
-            }
-            if (_worldConfiguration.WorldInformation)
-            {
-                Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------", SayColorType.Yellow));
-                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/", SayColorType.Purple));
-                Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------", SayColorType.Yellow));
-            }
-            Session.Character.LoadSpeed();
-            //            Session.Character.LoadSkills();
-            Session.SendPacket(Session.Character.GenerateTit());
-            //            Session.SendPacket(Session.Character.GenerateSpPoint());
-            //            Session.SendPacket("rsfi 1 1 0 9 0 9");
-            if (Session.Character.Hp <= 0)
-            {
-                //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
-            }
-            else
-            {
-                Session.ChangeMap();
-            }
-            //            Session.SendPacket(Session.Character.GenerateSki());
-            //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
-            Session.SendPacket(Session.Character.GenerateFd());
-            //            Session.SendPacket("rage 0 250000");
-            //            Session.SendPacket("rank_cool 0 0 18000");
-            //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
-            //            StaticBonusDTO medal = Session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            //            if (medal != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("LOGIN_MEDAL"), SayColorType.Green));
-            //            }
+			Session.GameStarted = true;
 
-            //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
-            //            {
-            //                Session.SendPacket("ib 1278 1");
-            //            }
+			if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
+			{
+				Session.SendPacket(new ScenePacket {SceneId = 40});
+			}
 
-            //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.CleftOfDarkness))
-            //            {
-            //                Session.SendPacket("bc 0 0 0");
-            //            }
-            //            if (specialistInstance != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSpPoint());
-            //            }
-            //            Session.SendPacket("scr 0 0 0 0 0 0");
-            //            for (int i = 0; i < 10; i++)
-            //            {
-            //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
-            //            }
-            //            Session.SendPacket(Session.Character.GenerateExts());
-            //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            //            Session.SendPacket(UserInterfaceHelper.Instance.GeneratePClear());
+			if (_worldConfiguration.WorldInformation)
+			{
+				Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------",
+					SayColorType.Yellow));
+				Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/",
+					SayColorType.Purple));
+				Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------",
+					SayColorType.Yellow));
+			}
 
-            //            Session.SendPacket(Session.Character.GeneratePinit());
-            //            Session.SendPackets(Session.Character.GeneratePst());
+			Session.Character.LoadSpeed();
+			//            Session.Character.LoadSkills();
+			Session.SendPacket(Session.Character.GenerateTit());
+			//            Session.SendPacket(Session.Character.GenerateSpPoint());
+			//            Session.SendPacket("rsfi 1 1 0 9 0 9");
+			if (Session.Character.Hp <= 0)
+			{
+				//                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
+			}
+			else
+			{
+				Session.ChangeMap();
+			}
 
-            //            Session.SendPacket("zzim");
-            //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
+			//            Session.SendPacket(Session.Character.GenerateSki());
+			//            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
+			Session.SendPacket(Session.Character.GenerateFd());
+			//            Session.SendPacket("rage 0 250000");
+			//            Session.SendPacket("rank_cool 0 0 18000");
+			//            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
+			//            StaticBonusDTO medal = Session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+			//            if (medal != null)
+			//            {
+			//                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("LOGIN_MEDAL"), SayColorType.Green));
+			//            }
 
-            //            // qstlist target sqst bf
-            //            Session.SendPacket("act6");
-            //            Session.SendPacket(Session.Character.GenerateFaction());
-            //            // MATES
-            //            Session.SendPackets(Session.Character.GenerateScP());
-            //            Session.SendPackets(Session.Character.GenerateScN());
-            //            Session.Character.GenerateStartupInventory();
+			//            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
+			//            {
+			//                Session.SendPacket("ib 1278 1");
+			//            }
 
-            //            Session.SendPacket(Session.Character.GenerateGold());
-            //            Session.SendPackets(Session.Character.GenerateQuicklist());
+			//            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.CleftOfDarkness))
+			//            {
+			//                Session.SendPacket("bc 0 0 0");
+			//            }
+			//            if (specialistInstance != null)
+			//            {
+			//                Session.SendPacket(Session.Character.GenerateSpPoint());
+			//            }
+			//            Session.SendPacket("scr 0 0 0 0 0 0");
+			//            for (int i = 0; i < 10; i++)
+			//            {
+			//                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
+			//            }
+			//            Session.SendPacket(Session.Character.GenerateExts());
+			//            Session.SendPacket(Session.Character.GenerateMlinfo());
+			//            Session.SendPacket(UserInterfaceHelper.Instance.GeneratePClear());
 
-            //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
-            //            string flinit = ServerManager.Instance.TopReputation.Aggregate("flinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Reput}|{character.Name}");
-            //            string kdlinit = ServerManager.Instance.TopPoints.Aggregate("kdlinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
+			//            Session.SendPacket(Session.Character.GeneratePinit());
+			//            Session.SendPackets(Session.Character.GeneratePst());
 
-            //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
+			//            Session.SendPacket("zzim");
+			//            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
-            //            Session.SendPacket(Session.Character.GenerateFinit());
-            //            Session.SendPacket(Session.Character.GenerateBlinit());
-            //            Session.SendPacket(clinit);
-            //            Session.SendPacket(flinit);
-            //            Session.SendPacket(kdlinit);
+			//            // qstlist target sqst bf
+			//            Session.SendPacket("act6");
+			//            Session.SendPacket(Session.Character.GenerateFaction());
+			//            // MATES
+			//            Session.SendPackets(Session.Character.GenerateScP());
+			//            Session.SendPackets(Session.Character.GenerateScN());
+			//            Session.Character.GenerateStartupInventory();
 
-            //            Session.Character.LastPVPRevive = DateTime.Now;
+			//            Session.SendPacket(Session.Character.GenerateGold());
+			//            Session.SendPackets(Session.Character.GenerateQuicklist());
 
-            //            long? familyId = DAOFactory.FamilyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
-            //            if (familyId != null)
-            //            {
-            //                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
-            //            }
+			//            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
+			//                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
+			//            string flinit = ServerManager.Instance.TopReputation.Aggregate("flinit",
+			//                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Reput}|{character.Name}");
+			//            string kdlinit = ServerManager.Instance.TopPoints.Aggregate("kdlinit",
+			//                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
-            //            if (Session.Character.Family != null && Session.Character.FamilyCharacter != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateGInfo());
-            //                Session.SendPackets(Session.Character.GetFamilyHistory());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMember());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMemberMessage());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMemberExp());
-            //                if (!string.IsNullOrWhiteSpace(Session.Character.Family.FamilyMessage))
-            //                {
-            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family Message ---\n" + Session.Character.Family.FamilyMessage));
-            //                }
-            //            }
+			//            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            //            IEnumerable<PenaltyLogDTO> warning = DAOFactory.PenaltyLogDAO.Where(s => s.AccountId == Session.Character.AccountId).Where(p => p.Penalty == PenaltyType.Warning);
-            //            IEnumerable<PenaltyLogDTO> penaltyLogDtos = warning as IList<PenaltyLogDTO> ?? warning.ToList();
-            //            if (penaltyLogDtos.Any())
-            //            {
-            //                Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo(string.Format(Language.Instance.GetMessageFromKey("WARNING_INFO"), penaltyLogDtos.Count())));
-            //            }
+			//            Session.SendPacket(Session.Character.GenerateFinit());
+			//            Session.SendPacket(Session.Character.GenerateBlinit());
+			//            Session.SendPacket(clinit);
+			//            Session.SendPacket(flinit);
+			//            Session.SendPacket(kdlinit);
 
-            //            // finfo - friends info
-            //            IEnumerable<MailDTO> mails = DAOFactory.MailDAO.Where(s => s.ReceiverId.Equals(Session.Character.CharacterId)).ToList();
+			//            Session.Character.LastPVPRevive = DateTime.Now;
 
-            //            foreach (MailDTO mail in mails)
-            //            {
-            //                Session.Character.GenerateMail(mail);
-            //            }
-            //            int giftcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum != null && !mail.IsOpened);
-            //            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
-            //            if (giftcount > 0)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("GIFTED"), giftcount), SayColorType.Purple));
-            //            }
-            //            if (mailcount > 0)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
-            //            }
-            //            Session.Character.DeleteTimeout();
+			//            long? familyId = DAOFactory.FamilyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
+			//            if (familyId != null)
+			//            {
+			//                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
+			//            }
 
-            //            foreach (StaticBuffDTO sb in DAOFactory.StaticBuffDAO.Where(s => s.CharacterId == Session.Character.CharacterId))
-            //            {
-            //                Session.Character.AddStaticBuff(sb);
-            //            }
-            //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.Act4 || m.MapTypeId == (short)MapTypeEnum.Act42))
-            //            {
-            //                Session.Character.ConnectAct4();
-            //            }
-        }
+			//            if (Session.Character.Family != null && Session.Character.FamilyCharacter != null)
+			//            {
+			//                Session.SendPacket(Session.Character.GenerateGInfo());
+			//                Session.SendPackets(Session.Character.GetFamilyHistory());
+			//                Session.SendPacket(Session.Character.GenerateFamilyMember());
+			//                Session.SendPacket(Session.Character.GenerateFamilyMemberMessage());
+			//                Session.SendPacket(Session.Character.GenerateFamilyMemberExp());
+			//                if (!string.IsNullOrWhiteSpace(Session.Character.Family.FamilyMessage))
+			//                {
+			//                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family Message ---\n" + Session.Character.Family.FamilyMessage));
+			//                }
+			//            }
 
-        /// <summary>
-        ///     PreqPacket packet
-        /// </summary>
-        /// <param name="packet"></param>
-        public void Preq(PreqPacket packet)
-        {
-            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
-            double timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
-            if (!(timeSpanSinceLastPortal >= 4))
-            {
-                return;
-            }
-            Portal portal = Session.Character.MapInstance.Portals.FirstOrDefault(port => Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX), Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
-            if (portal != null)
-            {
-                if (portal.DestinationMapInstanceId == default(Guid))
-                {
-                    return;
-                }
+			//            IEnumerable<PenaltyLogDTO> warning = DAOFactory.PenaltyLogDAO.Where(s => s.AccountId == Session.Character.AccountId).Where(p => p.Penalty == PenaltyType.Warning);
+			//            IEnumerable<PenaltyLogDTO> penaltyLogDtos = warning as IList<PenaltyLogDTO> ?? warning.ToList();
+			//            if (penaltyLogDtos.Any())
+			//            {
+			//                Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo(string.Format(Language.Instance.GetMessageFromKey("WARNING_INFO"), penaltyLogDtos.Count())));
+			//            }
 
-                Session.Character.LastPortal = currentRunningSeconds;
+			//            // finfo - friends info
+			//            IEnumerable<MailDTO> mails = DAOFactory.MailDAO.Where(s => s.ReceiverId.Equals(Session.Character.CharacterId)).ToList();
 
-                if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType != MapInstanceType.BaseMapInstance &&
-                    ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType == MapInstanceType.BaseMapInstance)
-                {
-                    Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
-                }
-                else
-                {
-                    Session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY);
-                }
+			//            foreach (MailDTO mail in mails)
+			//            {
+			//                Session.Character.GenerateMail(mail);
+			//            }
+			//            int giftcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum != null && !mail.IsOpened);
+			//            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
+			//            if (giftcount > 0)
+			//            {
+			//                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("GIFTED"), giftcount), SayColorType.Purple));
+			//            }
+			//            if (mailcount > 0)
+			//            {
+			//                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
+			//            }
+			//            Session.Character.DeleteTimeout();
 
-            }
-        }
+			//            foreach (StaticBuffDTO sb in DAOFactory.StaticBuffDAO.Where(s => s.CharacterId == Session.Character.CharacterId))
+			//            {
+			//                Session.Character.AddStaticBuff(sb);
+			//            }
+			//            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.Act4 || m.MapTypeId == (short)MapTypeEnum.Act42))
+			//            {
+			//                Session.Character.ConnectAct4();
+			//            }
+		}
 
-        /// <summary>
-        /// Walk Packet
-        /// </summary>
-        /// <param name="walkPacket"></param>
-        public void Walk(WalkPacket walkPacket)
-        {
-            double currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
-            int distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate), Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
+		/// <summary>
+		///     PreqPacket packet
+		/// </summary>
+		/// <param name="packet"></param>
+		public void Preq(PreqPacket packet)
+		{
+			var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
+			var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
+			if (!(timeSpanSinceLastPortal >= 4))
+			{
+				return;
+			}
 
-            if ((Session.Character.Speed >= walkPacket.Speed || Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
-            {
-                if (Session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
-                {
-                    Session.Character.MapX = walkPacket.XCoordinate;
-                    Session.Character.MapY = walkPacket.YCoordinate;
-                }
-                Session.Character.PositionX = walkPacket.XCoordinate;
-                Session.Character.PositionY = walkPacket.YCoordinate;
+			var portal = Session.Character.MapInstance.Portals.FirstOrDefault(port =>
+				Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
+					Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
+			if (portal != null)
+			{
+				if (portal.DestinationMapInstanceId == default(Guid))
+				{
+					return;
+				}
 
-                Session.Character.MapInstance.Broadcast(Session.Character.GenerateMove());
-                Session.SendPacket(Session.Character.GenerateCond());
-                Session.Character.LastMove = DateTime.Now;
-            }
-        }
+				Session.Character.LastPortal = currentRunningSeconds;
 
-        /// <summary>
-        /// Guri Packet
-        /// </summary>
-        /// <param name="guriPacket"></param>
-        public void Guri(GuriPacket guriPacket)
-        {
-            if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999 && !Session.Character.EmoticonsBlocked)
-            {
-                if (guriPacket.VisualEntityId != null && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
-                {
-                    Session.Character.MapInstance.Broadcast(Session, Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
-                }
-            }
-        }
-    }
+				if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType !=
+					MapInstanceType.BaseMapInstance &&
+					ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType ==
+					MapInstanceType.BaseMapInstance)
+				{
+					Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
+				}
+				else
+				{
+					Session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
+						portal.DestinationY);
+				}
+			}
+		}
+
+		/// <summary>
+		///     Walk Packet
+		/// </summary>
+		/// <param name="walkPacket"></param>
+		public void Walk(WalkPacket walkPacket)
+		{
+			var currentRunningSeconds =
+				(DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
+			var distance = (int) Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
+				Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
+
+			if ((Session.Character.Speed >= walkPacket.Speed ||
+				Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
+			{
+				if (Session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
+				{
+					Session.Character.MapX = walkPacket.XCoordinate;
+					Session.Character.MapY = walkPacket.YCoordinate;
+				}
+
+				Session.Character.PositionX = walkPacket.XCoordinate;
+				Session.Character.PositionY = walkPacket.YCoordinate;
+
+				Session.Character.MapInstance.Broadcast(Session.Character.GenerateMove());
+				Session.SendPacket(Session.Character.GenerateCond());
+				Session.Character.LastMove = DateTime.Now;
+			}
+		}
+
+		/// <summary>
+		///     Guri Packet
+		/// </summary>
+		/// <param name="guriPacket"></param>
+		public void Guri(GuriPacket guriPacket)
+		{
+			if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999 &&
+				!Session.Character.EmoticonsBlocked)
+			{
+				if (guriPacket.VisualEntityId != null &&
+					Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
+				{
+					Session.Character.MapInstance.Broadcast(Session,
+						Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+				}
+			}
+		}
+	}
 }

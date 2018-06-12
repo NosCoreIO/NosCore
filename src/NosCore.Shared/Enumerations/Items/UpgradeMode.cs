@@ -1,11 +1,9 @@
-﻿
-
-namespace NosCore.Shared.Items
+﻿namespace NosCore.Shared.Enumerations.Items
 {
-    public enum UpgradeMode
-    {
-        Normal,
-        Reduced,
-        Free
-    }
+	public enum UpgradeMode
+	{
+		Normal,
+		Reduced,
+		Free
+	}
 }

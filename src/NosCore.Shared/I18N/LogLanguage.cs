@@ -1,43 +1,44 @@
-﻿using NosCore.Shared;
-using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Shared.Logger
+namespace NosCore.Shared.I18N
 {
-    public class LogLanguage
-    {
-        private LogLanguage()
-        {
-            _resourceCulture = new CultureInfo(Language);
-            if (Assembly.GetExecutingAssembly() != null)
-            {
-                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());
-            }
-        }
+	public class LogLanguage
+	{
+		private static LogLanguage instance;
+		private static CultureInfo _resourceCulture;
+		public static string Language = "en";
+		private readonly ResourceManager _manager;
 
-        public static LogLanguage Instance
-        {
-            get { return instance ?? (instance = new LogLanguage()); }
-        }
+		private LogLanguage()
+		{
+			_resourceCulture = new CultureInfo(Language);
+			if (Assembly.GetExecutingAssembly() != null)
+			{
+				_manager = new ResourceManager(
+					Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
+					Assembly.GetExecutingAssembly());
+			}
+		}
 
-        public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
-        {
-            CultureInfo cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
-            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(cult, true, cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())?.GetString(messageKey.ToString()) : string.Empty;
+		public static LogLanguage Instance => instance ?? (instance = new LogLanguage());
 
-            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
-        }
+		public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
+		{
+			var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
+			var resourceMessage = _manager != null && messageKey.ToString() != null
+				? _manager.GetResourceSet(cult, true,
+						cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
+					?.GetString(messageKey.ToString()) : string.Empty;
 
-        public ResourceSet GetRessourceSet(string culture = null)
-        {
-            return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
-        }
+			return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
+		}
 
-        private static LogLanguage instance;
-        private readonly ResourceManager _manager;
-        private static CultureInfo _resourceCulture;
-        public static string Language = "en";
-    }
+		public ResourceSet GetRessourceSet(string culture = null)
+		{
+			return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
+		}
+	}
 }

@@ -6,15 +6,15 @@ using NosCore.GameObject.Networking;
 
 namespace NosCore.WorldServer.Controllers
 {
-    [Route("api/[controller]")]
-    public class ConnectedAccountsController : Controller
-    {
-        // GET api/connectedAccounts
-        [HttpGet]
-        [AllowAnonymous]
-        public IEnumerable<string> Get()
-        {
-            return ServerManager.Instance.Sessions.Select(s=>s.Value.Account.Name);
-        }
-    }
+	[Route("api/[controller]")]
+	public class ConnectedAccountsController : Controller
+	{
+		// GET api/connectedAccounts
+		[HttpGet]
+		[AllowAnonymous]
+		public IEnumerable<string> Get()
+		{
+			return ServerManager.Instance.Sessions.Select(s => s.Value.Account.Name);
+		}
+	}
 }

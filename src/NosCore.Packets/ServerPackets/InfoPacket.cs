@@ -2,14 +2,14 @@
 
 namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("info")]
-    public class InfoPacket : PacketDefinition
-    {
-        #region Properties
+	[PacketHeader("info")]
+	public class InfoPacket : PacketDefinition
+	{
+		#region Properties
 
-        [PacketIndex(0, serializeToEnd: true)]
-        public string Message { get; set; }
+		[PacketIndex(0, serializeToEnd: true)]
+		public string Message { get; set; }
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -1,34 +1,36 @@
 ﻿using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Shared.Logger
+namespace NosCore.Shared.I18N
 {
-    public class Language
-    {
-        private Language()
-        {
-            if (Assembly.GetExecutingAssembly() != null)
-            {
-                _manager = new ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources", Assembly.GetExecutingAssembly());
-            }
-        }
+	public class Language
+	{
+		private static Language instance;
+		private readonly ResourceManager _manager;
 
-        public static Language Instance
-        {
-            get { return instance ?? (instance = new Language()); }
-        }
+		private Language()
+		{
+			if (Assembly.GetExecutingAssembly() != null)
+			{
+				_manager = new ResourceManager(
+					Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
+					Assembly.GetExecutingAssembly());
+			}
+		}
 
-        public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
-        {
-            CultureInfo cult = new CultureInfo(culture.ToString());
-            string resourceMessage = _manager != null && messageKey.ToString() != null ? _manager.GetResourceSet(cult, true, cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())?.GetString(messageKey.ToString()) : string.Empty;
+		public static Language Instance => instance ?? (instance = new Language());
 
-            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString() }>";
-        }
+		public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
+		{
+			var cult = new CultureInfo(culture.ToString());
+			var resourceMessage = _manager != null && messageKey.ToString() != null
+				? _manager.GetResourceSet(cult, true,
+						cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
+					?.GetString(messageKey.ToString()) : string.Empty;
 
-        private static Language instance;
-        private readonly ResourceManager _manager;
-
-    }
+			return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
+		}
+	}
 }

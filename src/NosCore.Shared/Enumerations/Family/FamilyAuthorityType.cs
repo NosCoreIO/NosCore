@@ -1,9 +1,9 @@
-﻿namespace NosCore.Shared.Family
+﻿namespace NosCore.Shared.Enumerations.Family
 {
-    public enum FamilyAuthorityType : byte
-    {
-        NONE = 0,
-        PUT = 1,
-        ALL = 2
-    }
+	public enum FamilyAuthorityType : byte
+	{
+		NONE = 0,
+		PUT = 1,
+		ALL = 2
+	}
 }
