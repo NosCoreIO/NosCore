@@ -2,16 +2,17 @@
 
 namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("in_item_subpacket")]
-    public class InItemSubPacket : PacketDefinition
-    {
-        #region Properties
-        [PacketIndex(0)]
-        public int Amount { get; set; }
+	[PacketHeader("in_item_subpacket")]
+	public class InItemSubPacket : PacketDefinition
+	{
+		#region Properties
 
-        [PacketIndex(1)]
-        public bool IsQuestRelative { get; set; }
-        
-        #endregion
-    }
+		[PacketIndex(0)]
+		public int Amount { get; set; }
+
+		[PacketIndex(1)]
+		public bool IsQuestRelative { get; set; }
+
+		#endregion
+	}
 }

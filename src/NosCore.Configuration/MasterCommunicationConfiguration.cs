@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace NosCore.Configuration
+﻿namespace NosCore.Configuration
 {
-    public class MasterCommunicationConfiguration : ServerConfiguration
-    {
-        public string Password { get; set; }
-        public ServerConfiguration WebApi { get; set; }
-    }
+	public class MasterCommunicationConfiguration : ServerConfiguration
+	{
+		public string Password { get; set; }
+		public ServerConfiguration WebApi { get; set; }
+	}
 }

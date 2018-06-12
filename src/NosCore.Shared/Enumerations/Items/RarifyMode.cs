@@ -1,12 +1,11 @@
-﻿
-namespace NosCore.Shared.Items
+﻿namespace NosCore.Shared.Enumerations.Items
 {
-    public enum RarifyMode
-    {
-        Normal,
-        Reduced,
-        Free,
-        Drop,
-        Success
-    }
+	public enum RarifyMode
+	{
+		Normal,
+		Reduced,
+		Free,
+		Drop,
+		Success
+	}
 }

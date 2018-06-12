@@ -1,7 +1,6 @@
 ﻿namespace NosCore.Data.StaticEntities
 {
-    public class DropDTO : IDTO
-    {
-
-    }
+	public class DropDTO : IDTO
+	{
+	}
 }

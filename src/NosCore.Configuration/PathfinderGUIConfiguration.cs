@@ -1,8 +1,7 @@
-﻿
-namespace NosCore.Configuration
+﻿namespace NosCore.Configuration
 {
-    public class PathfinderGUIConfiguration : LanguageConfiguration
-    {
-        public SqlConnectionConfiguration Database { get; set; }
-    }
+	public class PathfinderGUIConfiguration : LanguageConfiguration
+	{
+		public SqlConnectionConfiguration Database { get; set; }
+	}
 }

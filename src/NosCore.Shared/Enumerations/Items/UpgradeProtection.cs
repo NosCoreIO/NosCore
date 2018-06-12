@@ -1,9 +1,8 @@
-﻿
-namespace NosCore.Shared.Items
+﻿namespace NosCore.Shared.Enumerations.Items
 {
-    public enum UpgradeProtection
-    {
-        None,
-        Protected
-    }
+	public enum UpgradeProtection
+	{
+		None,
+		Protected
+	}
 }

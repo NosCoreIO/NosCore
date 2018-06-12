@@ -1,71 +1,66 @@
-﻿using NosCore.Data.StaticEntities;
+﻿using System;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.GameObject
 {
-    public class Portal : PortalDTO
-    {
-        #region Instantiation
+	public class Portal : PortalDTO
+	{
+		#region Instantiation
 
-        public Portal()
-        { }
+		#endregion
 
-        #endregion
-        
-        public GpPacket GenerateGp()
-        {
-            return new GpPacket()
-            {
-                SourceX = SourceX,
-                SourceY = SourceY,
-                MapId = ServerManager.Instance.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
-                PortalType = Type,
-                PortalId = PortalId,
-                IsDisabled = IsDisabled ? 1 : 0
-            };
-        }
+		public GpPacket GenerateGp()
+		{
+			return new GpPacket
+			{
+				SourceX = SourceX,
+				SourceY = SourceY,
+				MapId = ServerManager.Instance.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
+				PortalType = Type,
+				PortalId = PortalId,
+				IsDisabled = IsDisabled ? 1 : 0
+			};
+		}
 
-        #region Members
+		#region Members
 
-        private Guid _destinationMapInstanceId;
-        private Guid _sourceMapInstanceId;
+		private Guid _destinationMapInstanceId;
+		private Guid _sourceMapInstanceId;
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        public Guid DestinationMapInstanceId
-        {
-            get
-            {
-                if (_destinationMapInstanceId == default(Guid) && DestinationMapId != -1)
-                {
-                    _destinationMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(DestinationMapId);
-                }
+		public Guid DestinationMapInstanceId
+		{
+			get
+			{
+				if (_destinationMapInstanceId == default(Guid) && DestinationMapId != -1)
+				{
+					_destinationMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(DestinationMapId);
+				}
 
-                return _destinationMapInstanceId;
-            }
-            set => _destinationMapInstanceId = value;
-        }
+				return _destinationMapInstanceId;
+			}
+			set => _destinationMapInstanceId = value;
+		}
 
-        public Guid SourceMapInstanceId
-        {
-            get
-            {
-                if (_sourceMapInstanceId == default(Guid))
-                {
-                    _sourceMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(SourceMapId);
-                }
+		public Guid SourceMapInstanceId
+		{
+			get
+			{
+				if (_sourceMapInstanceId == default(Guid))
+				{
+					_sourceMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(SourceMapId);
+				}
 
-                return _sourceMapInstanceId;
-            }
-            set => _sourceMapInstanceId = value;
-        }
+				return _sourceMapInstanceId;
+			}
+			set => _sourceMapInstanceId = value;
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }
