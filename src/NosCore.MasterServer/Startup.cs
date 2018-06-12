@@ -28,7 +28,7 @@ namespace NosCore.MasterServer
 		{
 			Console.Title = "NosCore - MasterServer";
 			const string text = "MASTER SERVER - 0Lucifer0";
-			var offset = Console.WindowWidth / 2 + text.Length / 2;
+			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
 			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
 		}

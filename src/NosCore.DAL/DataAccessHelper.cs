@@ -6,7 +6,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.DAL
 {
-	public class DataAccessHelper
+	public sealed class DataAccessHelper
 	{
 		private static DataAccessHelper instance;
 

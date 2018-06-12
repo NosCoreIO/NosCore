@@ -202,7 +202,7 @@ namespace NosCore.Controllers
 				return;
 			}
 
-			var portal = Session.Character.MapInstance.Portals.FirstOrDefault(port =>
+			var portal = Session.Character.MapInstance.Portals.Find(port =>
 				Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
 					Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
 			if (portal != null)
@@ -214,10 +214,10 @@ namespace NosCore.Controllers
 
 				Session.Character.LastPortal = currentRunningSeconds;
 
-				if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType !=
-					MapInstanceType.BaseMapInstance &&
-					ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType ==
-					MapInstanceType.BaseMapInstance)
+				if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
+                    != MapInstanceType.BaseMapInstance
+                    && ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
+                    == MapInstanceType.BaseMapInstance)
 				{
 					Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
 				}
@@ -240,8 +240,8 @@ namespace NosCore.Controllers
 			var distance = (int) Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
 				Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
-			if ((Session.Character.Speed >= walkPacket.Speed ||
-				Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
+			if ((Session.Character.Speed >= walkPacket.Speed
+                || Session.Character.LastSpeedChange.AddSeconds(5) > DateTime.Now) && !(distance > 60))
 			{
 				if (Session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
 				{
@@ -264,11 +264,11 @@ namespace NosCore.Controllers
 		/// <param name="guriPacket"></param>
 		public void Guri(GuriPacket guriPacket)
 		{
-			if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999 &&
-				!Session.Character.EmoticonsBlocked)
+			if (guriPacket.Type == 10 && guriPacket.Data >= 973 && guriPacket.Data <= 999
+                && !Session.Character.EmoticonsBlocked)
 			{
-				if (guriPacket.VisualEntityId != null &&
-					Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
+				if (guriPacket.VisualEntityId != null
+                    && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
 				{
 					Session.Character.MapInstance.Broadcast(Session,
 						Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);

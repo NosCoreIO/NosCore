@@ -29,8 +29,8 @@ namespace NosCore.Controllers
 			Session.SendPacket(Session.Character.GenerateSay("-------------Help command-------------",
 				SayColorType.Purple));
 			var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
-					typeof(ICommandPacket).IsAssignableFrom(t) &&
-					t.GetCustomAttribute<PacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
+                    typeof(ICommandPacket).IsAssignableFrom(t)
+                    && t.GetCustomAttribute<PacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
 				.OrderBy(x => x.Name).ToList();
 			foreach (var type in classes)
 			{

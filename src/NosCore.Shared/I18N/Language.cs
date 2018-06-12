@@ -5,7 +5,7 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Shared.I18N
 {
-	public class Language
+	public sealed class Language
 	{
 		private static Language instance;
 		private readonly ResourceManager _manager;

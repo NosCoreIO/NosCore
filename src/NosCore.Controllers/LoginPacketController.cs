@@ -52,8 +52,8 @@ namespace NosCore.Controllers
 					return;
 				}
 
-				if (acc == null ||
-					!string.Equals(acc.Password, loginPacket.Password, StringComparison.OrdinalIgnoreCase))
+				if (acc == null
+                    || !string.Equals(acc.Password, loginPacket.Password, StringComparison.OrdinalIgnoreCase))
 				{
 					Session.SendPacket(new FailcPacket
 					{
@@ -104,8 +104,8 @@ namespace NosCore.Controllers
 						var currentlyConnectedAccounts = WebApiAccess.Instance
 							.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Count();
 						var channelcolor =
-							(int) Math.Round((double) currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20) +
-							1;
+                            (int)Math.Round((double)currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
+                            + 1;
 						subpacket.Add(new NsTeSTSubPacket
 						{
 							Host = server.Host,

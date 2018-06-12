@@ -2,7 +2,7 @@
 
 namespace NosCore.Core.Networking
 {
-	public class SessionFactory
+	public sealed class SessionFactory
 	{
 		#region Instantiation
 

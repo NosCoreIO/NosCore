@@ -93,10 +93,10 @@ namespace NosCore.Parser.Parsers
 					};
 
 					if (listPortals1.Any(s =>
-							s.SourceMapId == map && s.SourceX == portal.SourceX && s.SourceY == portal.SourceY &&
-							s.DestinationMapId == portal.DestinationMapId) ||
-						maps.All(s => s.MapId != portal.SourceMapId) ||
-						maps.All(s => s.MapId != portal.DestinationMapId))
+                            s.SourceMapId == map && s.SourceX == portal.SourceX && s.SourceY == portal.SourceY
+                            && s.DestinationMapId == portal.DestinationMapId)
+                        || maps.All(s => s.MapId != portal.SourceMapId)
+                        || maps.All(s => s.MapId != portal.DestinationMapId))
 					{
 						// Portal already in list
 						continue;
@@ -128,14 +128,14 @@ namespace NosCore.Parser.Parsers
 			// foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
 			var portalCounter = listPortals2.Count(portal => !DAOFactory.PortalDAO
 				.Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
-					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX &&
-						s.SourceY == portal.SourceY));
+					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
+                        && s.SourceY == portal.SourceY));
 
 			// so this dude doesnt exist yet in DAOFactory -> insert it
 			var portalsDtos = listPortals2.Where(portal => !DAOFactory.PortalDAO
 				.Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
-					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX &&
-						s.SourceY == portal.SourceY));
+					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
+                        && s.SourceY == portal.SourceY));
 			DAOFactory.PortalDAO.InsertOrUpdate(portalsDtos);
 
 			Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PORTALS_PARSED),

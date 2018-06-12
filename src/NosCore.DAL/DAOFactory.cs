@@ -36,7 +36,6 @@ namespace NosCore.DAL
 		private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
 		private static IMapper _mapper;
 
-
 		public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
 			(_i18N_ActDescDAO = new GenericDAO<I18N_ActDesc, I18N_ActDescDTO>(_mapper));
 

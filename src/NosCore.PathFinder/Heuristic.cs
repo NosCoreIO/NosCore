@@ -21,7 +21,7 @@ namespace NosCore.PathFinder
 		{
 			float tFdx = iDx;
 			float tFdy = iDy;
-			return Math.Sqrt(tFdx * tFdx + tFdy * tFdy);
+			return Math.Sqrt((tFdx * tFdx) + (tFdy * tFdy));
 		}
 
 		public static double Manhattan(int iDx, int iDy)
@@ -33,7 +33,7 @@ namespace NosCore.PathFinder
 		{
 			var min = Math.Min(iDx, iDy);
 			var max = Math.Max(iDx, iDy);
-			return min * SQRT_2 + max - min;
+			return (min * SQRT_2) + max - min;
 		}
 
 		#endregion

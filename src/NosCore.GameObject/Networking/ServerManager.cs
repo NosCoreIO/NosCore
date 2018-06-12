@@ -9,7 +9,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-	public class ServerManager : BroadcastableBase
+	public sealed class ServerManager : BroadcastableBase
 	{
 		private static ServerManager instance;
 

@@ -112,8 +112,8 @@ namespace NosCore.Controllers
 			if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
 			{
 				var character = DAOFactory.CharacterDAO.FirstOrDefault(s =>
-					s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot &&
-					s.State == CharacterState.Active);
+                    s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
+                    && s.State == CharacterState.Active);
 				if (character == null)
 				{
 					return;
@@ -268,8 +268,8 @@ namespace NosCore.Controllers
 
 				var characterDto =
 					DAOFactory.CharacterDAO.FirstOrDefault(s =>
-						s.AccountId == Session.Account.AccountId && s.Slot == selectPacket.Slot &&
-						s.State == CharacterState.Active);
+                        s.AccountId == Session.Account.AccountId && s.Slot == selectPacket.Slot
+                        && s.State == CharacterState.Active);
 				if (characterDto == null)
 				{
 					return;

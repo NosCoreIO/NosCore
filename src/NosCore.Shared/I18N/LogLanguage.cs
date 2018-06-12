@@ -5,7 +5,7 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Shared.I18N
 {
-	public class LogLanguage
+	public sealed class LogLanguage
 	{
 		private static LogLanguage instance;
 		private static CultureInfo _resourceCulture;
