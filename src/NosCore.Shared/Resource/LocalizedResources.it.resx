@@ -223,6 +223,9 @@
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
     <value>{0} I18N Quests Caricate! Regione: {1}</value>
   </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skills Caricate! Regione: {1}</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
   </data>
