@@ -87,7 +87,7 @@ namespace NosCore.LoginServer
 			{
 				try
 				{
-					WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString());
+					WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
 					RunMasterClient(_loginConfiguration.MasterCommunication.Host,
 						Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
 						_loginConfiguration.MasterCommunication.Password,

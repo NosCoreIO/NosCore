@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
@@ -140,12 +142,26 @@ namespace NosCore.Controllers
 		/// <returns></returns>
 		public void LoadCharacters(EntryPointPacket packet)
 		{
-			if (Session.Account == null)
+            if (Session.Account == null)
 			{
-				AccountDTO account = null;
-
+				var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
 				var name = packet.Name;
-				account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == name);
+                var alreadyConnnected = false;
+				foreach (var server in servers)
+				{
+					if (WebApiAccess.Instance.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Any(a => a == name))
+					{
+						alreadyConnnected = true;
+					}
+				}
+
+				if (alreadyConnnected)
+				{
+					Session.Disconnect();
+					return;
+                }
+
+                var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == name);
 
 				if (account != null)
 				{

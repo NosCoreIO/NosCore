@@ -7,76 +7,65 @@ using NosCore.Configuration;
 
 namespace NosCore.Core.Networking
 {
-	public class WebApiAccess
-	{
-		private static WebApiAccess instance;
+    public class WebApiAccess
+    {
+        private static WebApiAccess _instance;
 
-		private static Uri _baseAddress { get; set; }
+        private static Uri BaseAddress { get; set; }
 
-		private static string _token { get; set; }
+        private static string Token { get; set; }
 
-		public static WebApiAccess Instance
-		{
-			get
-			{
-				if (_baseAddress == null)
-				{
-					throw new NullReferenceException("baseAddress can't be null");
-				}
+        public static WebApiAccess Instance
+        {
+            get
+            {
+                if (BaseAddress == null)
+                {
+                    throw new NullReferenceException("baseAddress can't be null");
+                }
 
-				if (instance == null)
-				{
-					instance = new WebApiAccess();
-				}
+                return _instance ?? (_instance = new WebApiAccess());
+            }
+        }
 
-				return instance;
-			}
-		}
+        public static FormUrlEncodedContent Content { get; private set; }
 
-		public static void RegisterBaseAdress(string address)
-		{
-			_baseAddress = new Uri(address);
-		}
+        public static void RegisterBaseAdress(string address, string token)
+        {
+            BaseAddress = new Uri(address);
+            var values = new Dictionary<string, string>
+            {
+                {"ServerToken", token}
+            };
+            Content = new FormUrlEncodedContent(values);
+        }
 
-		public T Get<T>(string route, ServerConfiguration webApi = null)
-		{
-			try
-			{
-				var client = new HttpClient();
-				HttpResponseMessage response;
-				client.BaseAddress = webApi == null ? _baseAddress : new Uri(webApi.ToString());
-				if (_token == null)
-				{
-					var values = new Dictionary<string, string>
-					{
-						{"ServerToken", "NosCorePassword"} //TODO replace by configured one
-					};
-					var content = new FormUrlEncodedContent(values);
+        public T Get<T>(string route, ServerConfiguration webApi = null)
+        {
+            var client = new HttpClient();
+            HttpResponseMessage response;
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            if (Token == null)
+            {
+                response = client.PostAsync("api/token/connectserver", Content).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    Token = response.Content.ReadAsStringAsync().Result;
+                }
+                else
+                {
+                    throw new HttpRequestException(response.Headers.ToString());
+                }
+            }
 
-					response = client.PostAsync("api/token/connectserver", content).Result;
-					if (response.IsSuccessStatusCode)
-					{
-						_token = response.Content.ReadAsStringAsync().Result;
-					}
-					else
-					{
-						throw new HttpRequestException(response.Headers.ToString());
-					}
-				}
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            response = client.GetAsync(route).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
 
-				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-				response = client.GetAsync(route).Result;
-				if (response.IsSuccessStatusCode)
-				{
-					return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
-				}
-
-				throw new HttpRequestException(response.Headers.ToString());
-			}
-			catch
-			{
-				throw;
-			}
-		}
-	}
+            throw new HttpRequestException(response.Headers.ToString());
+        }
+    }
 }
