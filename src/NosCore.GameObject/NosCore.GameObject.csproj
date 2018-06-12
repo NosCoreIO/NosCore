@@ -17,7 +17,6 @@
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
     <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
-    <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
   </ItemGroup>
 
 </Project>

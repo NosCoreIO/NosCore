@@ -120,6 +120,15 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Dobrodruh</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>Tohle jméno je obsazené!</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Lukostřelec</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Nejméně jeden z požadovaných souborů chybí</value>
   </data>
@@ -131,8 +140,14 @@
     <value>Přihlášení proběhlo úspěšně</value>
     <comment>check</comment>
   </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Chybné Přihlášení</value>
+  </data>
   <data name="AUTH_INCORRECT" xml:space="preserve">
     <value>Nesprávné přihlášení</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Špatné Heslo</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Kart bylo naparsováno</value>
@@ -183,6 +198,9 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Nevhodné Jméno Charakteru!</value>
+  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
@@ -191,6 +209,9 @@
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Mág</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
@@ -283,6 +304,12 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
   </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Podpora</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Bojovník s Mečem</value>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Neznámý Master Packet</value>
     <comment>check</comment>
@@ -290,6 +317,9 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Neregistrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Wrestler</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Špatně vybrané ID Mapy</value>

@@ -1,12 +1,10 @@
-﻿
-
-namespace NosCore.Shared.Interaction
+﻿namespace NosCore.Shared.Enumerations.Interaction
 {
-    public enum TalentArenaOptionType : byte
-    {
-        Watch = 0,
-        Nothing = 1,
-        Call = 2,
-        WatchAndCall = 3
-    }
+	public enum TalentArenaOptionType : byte
+	{
+		Watch = 0,
+		Nothing = 1,
+		Call = 2,
+		WatchAndCall = 3
+	}
 }

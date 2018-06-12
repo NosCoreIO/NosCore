@@ -1,7 +1,6 @@
 ﻿namespace NosCore.Data.StaticEntities
 {
-    public class SkillDTO : IDTO
-    {
-
-    }
+	public class SkillDTO : IDTO
+	{
+	}
 }

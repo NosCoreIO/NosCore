@@ -1,19 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using NosCore.Shared;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using NosCore.Shared.Account;
+using Microsoft.AspNetCore.Authorization;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Core
 {
-    public class AuthorizeRoleAttribute : AuthorizeAttribute
-    {
-        public AuthorizeRoleAttribute(AuthorityType allowedRole)
-        {
-            var allowedRolesAsStrings = string.Empty;
-            IEnumerable<AuthorityType> enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList().Where(s => s >= allowedRole);
-            Roles = String.Join(",", enums.ToArray());
-        }
-    }
+	public class AuthorizeRoleAttribute : AuthorizeAttribute
+	{
+		public AuthorizeRoleAttribute(AuthorityType allowedRole)
+		{
+			var allowedRolesAsStrings = string.Empty;
+			var enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList()
+				.Where(s => s >= allowedRole);
+			Roles = string.Join(",", enums.ToArray());
+		}
+	}
 }

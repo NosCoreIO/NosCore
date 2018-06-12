@@ -1,71 +1,66 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Database;
-using NosCore.Shared.Logger;
-using System;
-using System.Data.SqlClient;
+using NosCore.Shared.I18N;
 
 namespace NosCore.DAL
 {
-    public class DataAccessHelper
-    {
-        private static DataAccessHelper instance;
+	public sealed class DataAccessHelper
+	{
+		private static DataAccessHelper instance;
 
-        private DataAccessHelper() { }
+		#region Members
 
-        public static DataAccessHelper Instance
-        {
-            get
-            {
-                return instance ?? (instance = new DataAccessHelper());
-            }
-        }
+		private SqlConnectionConfiguration _conn;
 
-        #region Members
+		#endregion
 
-        private SqlConnectionConfiguration _conn;
+		private DataAccessHelper()
+		{
+		}
 
-        #endregion
+		public static DataAccessHelper Instance => instance ?? (instance = new DataAccessHelper());
 
-        #region Methods
+		#region Methods
 
-        /// <summary>
-        /// Creates new instance of database context.
-        /// </summary>
-        public NosCoreContext CreateContext()
-        {
-            return new NosCoreContext(_conn);
-        }
+		/// <summary>
+		///     Creates new instance of database context.
+		/// </summary>
+		public NosCoreContext CreateContext()
+		{
+			return new NosCoreContext(_conn);
+		}
 
-        public void Initialize(SqlConnectionConfiguration Database)
-        {
-            _conn = Database;
-            using (NosCoreContext context = CreateContext())
-            {
-                try
-                {
-                    context.Database.Migrate();
-                    context.Database.GetDbConnection().Open();
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log.Error("Database Error", ex);
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
-                    throw;
-                }
-            }
-        }
+		public void Initialize(SqlConnectionConfiguration Database)
+		{
+			_conn = Database;
+			using (var context = CreateContext())
+			{
+				try
+				{
+					context.Database.Migrate();
+					context.Database.GetDbConnection().Open();
+					Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
+				}
+				catch (Exception ex)
+				{
+					Logger.Log.Error("Database Error", ex);
+					Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
+					throw;
+				}
+			}
+		}
 
-        public void EnsureDeleted(SqlConnectionConfiguration Database)
-        {
-            _conn = Database;
-            using (NosCoreContext context = CreateContext())
-            {
-                context.Database.EnsureDeleted();
-            }
-        }
+		public void EnsureDeleted(SqlConnectionConfiguration Database)
+		{
+			_conn = Database;
+			using (var context = CreateContext())
+			{
+				context.Database.EnsureDeleted();
+			}
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -1,13 +1,12 @@
-﻿
-namespace NosCore.Shared.Items
+﻿namespace NosCore.Shared.Enumerations.Items
 {
-    public enum CellonType : byte
-    {
-        Hp,
-        HpRecovery,
-        Mp,
-        MpRecovery,
-        MpConsumption,
-        CriticalDamageDecrease
-    }
+	public enum CellonType : byte
+	{
+		Hp,
+		HpRecovery,
+		Mp,
+		MpRecovery,
+		MpConsumption,
+		CriticalDamageDecrease
+	}
 }

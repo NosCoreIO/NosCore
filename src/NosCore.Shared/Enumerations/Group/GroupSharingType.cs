@@ -1,10 +1,8 @@
-﻿
-
-namespace NosCore.Shared.Group
+﻿namespace NosCore.Shared.Enumerations.Group
 {
-    public enum GroupSharingType : byte
-    {
-        ByOrder = 0,
-        Everyone = 1
-    }
+	public enum GroupSharingType : byte
+	{
+		ByOrder = 0,
+		Everyone = 1
+	}
 }

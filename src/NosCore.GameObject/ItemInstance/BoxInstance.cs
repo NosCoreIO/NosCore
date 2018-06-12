@@ -1,7 +1,6 @@
 ﻿namespace NosCore.GameObject.ItemInstance
 {
-    public class BoxInstance : SpecialistInstance
-    {
-     
-    }
+	public class BoxInstance : SpecialistInstance
+	{
+	}
 }

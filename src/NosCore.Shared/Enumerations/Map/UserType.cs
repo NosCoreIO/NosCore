@@ -1,10 +1,10 @@
-﻿namespace NosCore.Shared.Map
+﻿namespace NosCore.Shared.Enumerations.Map
 {
-    public enum UserType : byte
-    {
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
-    }
+	public enum UserType : byte
+	{
+		Player = 1,
+		Npc = 2,
+		Monster = 3,
+		Object = 9
+	}
 }
