@@ -10,14 +10,13 @@ namespace NosCore.Parser.Parsers
 {
     public class PortalParser
 	{
-		private static List<PortalDTO> listPortals1 = new List<PortalDTO>();
-		private static readonly List<PortalDTO> listPortals2 = new List<PortalDTO>();
-		private readonly List<MapDTO> maps = DAOFactory.MapDAO.LoadAll().ToList();
+		private static List<PortalDTO> _listPortals1 = new List<PortalDTO>();
+		private static readonly List<PortalDTO> ListPortals2 = new List<PortalDTO>();
+		private readonly List<MapDTO> _maps = DAOFactory.MapDAO.LoadAll().ToList();
 
 		public void InsertPortals(List<string[]> packetList)
 		{
 			short map = 0;
-
 
             var lodPortal = new PortalDTO
             {
@@ -105,25 +104,25 @@ namespace NosCore.Parser.Parsers
 						IsDisabled = false
 					};
 
-					if (listPortals1.Any(s =>
+					if (_listPortals1.Any(s =>
                             s.SourceMapId == map && s.SourceX == portal.SourceX && s.SourceY == portal.SourceY
                             && s.DestinationMapId == portal.DestinationMapId)
-                        || maps.All(s => s.MapId != portal.SourceMapId)
-                        || maps.All(s => s.MapId != portal.DestinationMapId))
+                        || _maps.All(s => s.MapId != portal.SourceMapId)
+                        || _maps.All(s => s.MapId != portal.DestinationMapId))
 					{
 						// Portal already in list
 						continue;
 					}
 
-					listPortals1.Add(portal);
+					_listPortals1.Add(portal);
 				}
 			}
 
-			listPortals1 = listPortals1.OrderBy(s => s.SourceMapId).ThenBy(s => s.DestinationMapId)
+			_listPortals1 = _listPortals1.OrderBy(s => s.SourceMapId).ThenBy(s => s.DestinationMapId)
 				.ThenBy(s => s.SourceY).ThenBy(s => s.SourceX).ToList();
-			foreach (var portal in listPortals1)
+			foreach (var portal in _listPortals1)
 			{
-				var p = listPortals1.Except(listPortals2).FirstOrDefault(s =>
+				var p = _listPortals1.Except(ListPortals2).FirstOrDefault(s =>
 					s.SourceMapId == portal.DestinationMapId && s.DestinationMapId == portal.SourceMapId);
 				if (p == null)
 				{
@@ -134,18 +133,18 @@ namespace NosCore.Parser.Parsers
 				portal.DestinationY = p.SourceY;
 				p.DestinationY = portal.SourceY;
 				p.DestinationX = portal.SourceX;
-				listPortals2.Add(p);
-				listPortals2.Add(portal);
+				ListPortals2.Add(p);
+				ListPortals2.Add(portal);
 			}
 
 			// foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
-			var portalCounter = listPortals2.Count(portal => !DAOFactory.PortalDAO
+			var portalCounter = ListPortals2.Count(portal => !DAOFactory.PortalDAO
 				.Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
 					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));
 
 			// so this dude doesnt exist yet in DAOFactory -> insert it
-			var portalsDtos = listPortals2.Where(portal => !DAOFactory.PortalDAO
+			var portalsDtos = ListPortals2.Where(portal => !DAOFactory.PortalDAO
 				.Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
 					s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));

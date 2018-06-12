@@ -124,9 +124,9 @@ namespace NosCore.DAL
 
 					var value = _primaryKey.GetValue(dto, null);
 					TEntity entityfound = null;
-					if (value is object[])
+					if (value is object[] objects)
 					{
-						entityfound = dbset.Find((object[]) value);
+						entityfound = dbset.Find(objects);
 					}
 					else
 					{
@@ -175,9 +175,9 @@ namespace NosCore.DAL
 						var value = _primaryKey.GetValue(dto, null);
 
 						TEntity entityfound = null;
-						if (value is object[])
+						if (value is object[] objects)
 						{
-							entityfound = dbset.Find((object[]) value);
+							entityfound = dbset.Find(objects);
 						}
 						else
 						{
