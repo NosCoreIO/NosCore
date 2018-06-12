@@ -2,7 +2,11 @@
   "MasterCommunication": {
     "Password": "NosCorePassword",
     "Host": "127.0.0.1",
-    "Port": 6969
+    "Port": 6969,
+	 "WebApi": {
+		"Host": "http://localhost",
+		"Port": 5000
+	},
   },
   "Host": "127.0.0.1",
   "Port": 1337,

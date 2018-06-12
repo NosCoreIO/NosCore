@@ -64,17 +64,19 @@ namespace NosCore.DAL
 			{
 				var dbset = context.Set<TEntity>();
 
-				if (dtokey is IEnumerable)
+				if (dtokey is IEnumerable enumerable)
 				{
-					foreach (var key in dtokey as IEnumerable)
+					foreach (var key in enumerable)
 					{
 						var entityfound = dbset.Find(key);
 
-						if (entityfound != null)
+						if (entityfound == null)
 						{
-							dbset.Remove(entityfound);
-							context.SaveChanges();
+							continue;
 						}
+
+						dbset.Remove(entityfound);
+						context.SaveChanges();
 					}
 				}
 				else
@@ -100,7 +102,6 @@ namespace NosCore.DAL
 				using (var context = DataAccessHelper.Instance.CreateContext())
 				{
 					var dbset = context.Set<TEntity>();
-					var entities = Enumerable.Empty<TEntity>();
 					var ent = dbset.FirstOrDefault(predicate);
 					return _mapper.Map<TDTO>(ent);
 				}

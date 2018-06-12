@@ -111,7 +111,8 @@ namespace NosCore.WorldServer
 			{
 				try
 				{
-					RunMasterClient(_worldConfiguration.MasterCommunication.Host,
+					WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);
+                    RunMasterClient(_worldConfiguration.MasterCommunication.Host,
 						Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
 						_worldConfiguration.MasterCommunication.Password,
 						new MasterClient
