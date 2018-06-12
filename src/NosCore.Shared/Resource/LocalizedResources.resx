@@ -120,8 +120,14 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account with SessionId {0} has arrived.</value>
   </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Adventurer</value>
+  </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>This name is already taken!</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Archer</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>At least on of required files is missing</value>
@@ -139,6 +145,9 @@
   </data>
   <data name="AUTH_INCORRECT" xml:space="preserve">
     <value>Incorrect Auth</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Wrong password!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Cards Parsed!</value>
@@ -186,8 +195,41 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
   </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} I18N ActDescs Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} I18N BCards Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} I18N Cards Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} I18N Items Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapIdDatas Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapPointDatas Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsters Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsterTalk Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} I18N Quests Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skills Parsed! Region: {1}</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Wrong Id!</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Invalid characters in your nickname!</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
@@ -197,6 +239,9 @@
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Magician</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>
@@ -224,6 +269,9 @@
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
     <value>Do you want to parse Cards?</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>Do you want to parse I18N datas?</value>
   </data>
   <data name="PARSE_ITEMS" xml:space="preserve">
     <value>Do you want to parse Items?</value>
@@ -289,6 +337,12 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
   </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Supporter {0}</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Swordman</value>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Unrecognized Master Packet.</value>
     <comment>check</comment>
@@ -296,6 +350,9 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Unregistred From Master.</value>
     <comment>check</comment>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Wrestler</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Wrong MapId!</value>
