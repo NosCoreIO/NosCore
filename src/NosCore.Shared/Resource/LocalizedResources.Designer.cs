@@ -349,6 +349,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} I18N NpcMonsterTalk Parsed! Region: {1}.
+        /// </summary>
+        public static string I18N_NPCMONSTERTALK_PARSED {
+            get {
+                return ResourceManager.GetString("I18N_NPCMONSTERTALK_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} I18N Quests Parsed! Region: {1}.
         /// </summary>
         public static string I18N_QUEST_PARSED {
@@ -471,15 +480,6 @@ namespace NosCore.Shared.Resource {
         public static string NO_MAP {
             get {
                 return ResourceManager.GetString("NO_MAP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} I18N NpcMonsterTalk Parsed! Region: {1}.
-        /// </summary>
-        public static string NPCMONSTERTALK_PARSED {
-            get {
-                return ResourceManager.GetString("NPCMONSTERTALK_PARSED", resourceCulture);
             }
         }
         

@@ -217,6 +217,9 @@
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
     <value>{0} I18N NpcMonsters Caricate! Regione: {1}</value>
   </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsterTalk Caricate! Regione: {1}</value>
+  </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
     <value>{0} I18N Quests Caricate! Regione: {1}</value>
   </data>
@@ -255,9 +258,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
-  </data>
-  <data name="NPCMONSTERTALK_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsterTalk Caricate! Regione: {1}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Vuoi sincronizzare gli Account?</value>
