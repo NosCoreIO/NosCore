@@ -28,6 +28,10 @@ namespace NosCore.Parser.Parsers
                 DestinationY = 36,
                 IsDisabled = false
             };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == lodPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref lodPortal);
+            }
 
             var minilandPortal = new PortalDTO
             {
@@ -40,6 +44,10 @@ namespace NosCore.Parser.Parsers
                 DestinationY = 132,
                 IsDisabled = false
             };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == minilandPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref minilandPortal);
+            }
 
             var weddingPortal = new PortalDTO
             {
@@ -52,6 +60,10 @@ namespace NosCore.Parser.Parsers
                 DestinationY = 165,
                 IsDisabled = false
             };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == weddingPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref weddingPortal);
+            }
 
             var glacerusCavernPortal = new PortalDTO
             {
@@ -64,6 +76,10 @@ namespace NosCore.Parser.Parsers
                 DestinationY = 156,
                 IsDisabled = false
             };
+            if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == glacerusCavernPortal.SourceMapId) == null)
+            {
+                DAOFactory.PortalDAO.InsertOrUpdate(ref glacerusCavernPortal);
+            }
 
             foreach (string[] currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
             {
@@ -91,14 +107,6 @@ namespace NosCore.Parser.Parsers
                     {
                         // Portal already in list
                         continue;
-                    }
-
-                    if (DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == lodPortal.SourceMapId) == null || DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == minilandPortal.SourceMapId) == null || DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == weddingPortal.SourceMapId) == null || DAOFactory.PortalDAO.FirstOrDefault(s => s.SourceMapId == glacerusCavernPortal.SourceMapId) == null)
-                    {
-                        DAOFactory.PortalDAO.InsertOrUpdate(ref lodPortal);
-                        DAOFactory.PortalDAO.InsertOrUpdate(ref minilandPortal);
-                        DAOFactory.PortalDAO.InsertOrUpdate(ref weddingPortal);
-                        DAOFactory.PortalDAO.InsertOrUpdate(ref glacerusCavernPortal);
                     }
 
                     listPortals1.Add(portal);
