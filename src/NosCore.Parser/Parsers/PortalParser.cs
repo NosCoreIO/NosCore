@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using NosCore.DAL;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Parser.Parsers
 {
-	public class PortalParser
+    public class PortalParser
 	{
 		private static List<PortalDTO> listPortals1 = new List<PortalDTO>();
 		private static readonly List<PortalDTO> listPortals2 = new List<PortalDTO>();
@@ -25,7 +25,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 172,
                 SourceY = 171,
                 DestinationMapId = 98,
-                Type = Shared.Map.PortalType.MapPortal,
+                Type = PortalType.MapPortal,
                 DestinationX = 6,
                 DestinationY = 36,
                 IsDisabled = false
@@ -41,7 +41,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 3,
                 SourceY = 8,
                 DestinationMapId = 1,
-                Type = Shared.Map.PortalType.MapPortal,
+                Type = PortalType.MapPortal,
                 DestinationX = 48,
                 DestinationY = 132,
                 IsDisabled = false
@@ -57,7 +57,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 34,
                 SourceY = 54,
                 DestinationMapId = 145,
-                Type = Shared.Map.PortalType.MapPortal,
+                Type = PortalType.MapPortal,
                 DestinationX = 61,
                 DestinationY = 165,
                 IsDisabled = false
@@ -73,7 +73,7 @@ namespace NosCore.Parser.Parsers
                 SourceX = 42,
                 SourceY = 3,
                 DestinationMapId = 189,
-                Type = Shared.Map.PortalType.MapPortal,
+                Type = PortalType.MapPortal,
                 DestinationX = 48,
                 DestinationY = 156,
                 IsDisabled = false
