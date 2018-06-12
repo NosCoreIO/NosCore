@@ -2,20 +2,16 @@
 
 namespace NosCore.Core.Networking
 {
-    public class MasterClientListSingleton
-    {
-        private static MasterClientListSingleton instance;
+	public sealed class MasterClientListSingleton
+	{
+		private static MasterClientListSingleton instance;
 
-        private MasterClientListSingleton() { }
+		private MasterClientListSingleton()
+		{
+		}
 
-        public static MasterClientListSingleton Instance
-        {
-            get
-            {
-                return instance ?? (instance = new MasterClientListSingleton());
-            }
-        }
+		public static MasterClientListSingleton Instance => instance ?? (instance = new MasterClientListSingleton());
 
-        public List<WorldServerInfo> WorldServers { get; set; }
-    }
+		public List<WorldServerInfo> WorldServers { get; set; }
+	}
 }

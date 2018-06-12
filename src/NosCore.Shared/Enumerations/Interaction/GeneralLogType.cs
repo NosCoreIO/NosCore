@@ -1,11 +1,9 @@
-﻿
-
-namespace NosCore.Shared.Interaction
+﻿namespace NosCore.Shared.Enumerations.Interaction
 {
-    public enum GeneralLogType
-    {
-        Connection,
-        Promotion,
-        Demotion
-    }
+	public enum GeneralLogType
+	{
+		Connection,
+		Promotion,
+		Demotion
+	}
 }

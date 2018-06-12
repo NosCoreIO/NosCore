@@ -6,15 +6,15 @@ using NosCore.Core.Networking;
 
 namespace NosCore.MasterServer.Controllers
 {
-    [Route("api/[controller]")]
-    public class ChannelsController : Controller
-    {
-        // GET api/channels
-        [HttpGet]
-        [AllowAnonymous]
-        public List<WorldServerInfo> Get()
-        {
-            return MasterClientListSingleton.Instance.WorldServers;
-        }
-    }
+	[Route("api/[controller]")]
+	public class ChannelsController : Controller
+	{
+		// GET api/channels
+		[HttpGet]
+		[AllowAnonymous]
+		public List<WorldServerInfo> Get()
+		{
+			return MasterClientListSingleton.Instance.WorldServers;
+		}
+	}
 }

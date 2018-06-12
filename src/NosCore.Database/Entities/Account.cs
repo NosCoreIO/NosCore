@@ -1,48 +1,49 @@
-using NosCore.Shared;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Account;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Database.Entities
 {
-    public class Account
-    {
-        #region Instantiation
+	public class Account
+	{
+		#region Instantiation
 
-        public Account()
-        {
-            Character = new HashSet<Character>();
-            PenaltyLog = new HashSet<PenaltyLog>();
-        }
+		public Account()
+		{
+			Character = new HashSet<Character>();
+			PenaltyLog = new HashSet<PenaltyLog>();
+		}
 
-        #endregion
+		#endregion
 
-        #region Properties
-        public long AccountId { get; set; }
+		#region Properties
 
-        public AuthorityType Authority { get; set; }
+		public long AccountId { get; set; }
 
-        public virtual ICollection<Character> Character { get; set; }
+		public AuthorityType Authority { get; set; }
 
-        [MaxLength(255)]
-        public string Email { get; set; }
+		public virtual ICollection<Character> Character { get; set; }
 
-        [MaxLength(255)]
-        public string Name { get; set; }
+		[MaxLength(255)]
+		public string Email { get; set; }
 
-        [MaxLength(255)]
-        public string Password { get; set; }
+		[MaxLength(255)]
+		public string Name { get; set; }
 
-        public virtual ICollection<PenaltyLog> PenaltyLog { get; set; }
+		[MaxLength(255)]
+		public string Password { get; set; }
 
-        [MaxLength(45)]
-        public string RegistrationIP { get; set; }
+		public virtual ICollection<PenaltyLog> PenaltyLog { get; set; }
 
-        [MaxLength(32)]
-        public string VerificationToken { get; set; }
+		[MaxLength(45)]
+		public string RegistrationIP { get; set; }
 
-        public RegionType Language { get; set; }
+		[MaxLength(32)]
+		public string VerificationToken { get; set; }
 
-        #endregion
-    }
+		public RegionType Language { get; set; }
+
+		#endregion
+	}
 }

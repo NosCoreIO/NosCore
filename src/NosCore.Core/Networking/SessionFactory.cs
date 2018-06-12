@@ -1,42 +1,40 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Concurrent;
 
 namespace NosCore.Core.Networking
 {
-    public class SessionFactory
-    {
-        #region Members
+	public sealed class SessionFactory
+	{
+		#region Instantiation
 
-        private static SessionFactory _instance;
-        private int _sessionCounter;
-        public ConcurrentDictionary<string,int> Sessions;
-        #endregion
+		private SessionFactory()
+		{
+			Sessions = new ConcurrentDictionary<string, int>();
+		}
 
-        #region Instantiation
+		#endregion
 
-        private SessionFactory()
-        {
-            Sessions = new ConcurrentDictionary<string, int>();
-        }
+		#region Properties
 
-        #endregion
+		public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
 
-        #region Properties
+		#endregion
 
-        public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
+		#region Methods
 
-        #endregion
+		public int GenerateSessionId()
+		{
+			_sessionCounter += 2;
+			return _sessionCounter;
+		}
 
-        #region Methods
+		#endregion
 
-        public int GenerateSessionId()
-        {
-            _sessionCounter += 2;
-            return _sessionCounter;
-        }
+		#region Members
 
-        #endregion
-    }
+		private static SessionFactory _instance;
+		private int _sessionCounter;
+		public ConcurrentDictionary<string, int> Sessions;
+
+		#endregion
+	}
 }

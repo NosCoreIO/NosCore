@@ -1,8 +1,8 @@
-﻿namespace NosCore.Shared
+﻿namespace NosCore.Shared.Enumerations
 {
-    public enum ServerType
-    {
-        WorldServer,
-        LoginServer
-    }
+	public enum ServerType
+	{
+		WorldServer,
+		LoginServer
+	}
 }

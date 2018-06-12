@@ -1,9 +1,8 @@
-﻿
-namespace NosCore.Shared.Character
+﻿namespace NosCore.Shared.Enumerations.Character
 {
-    public enum MateType : byte
-    {
-        Partner = 0,
-        Pet = 1
-    }
+	public enum MateType : byte
+	{
+		Partner = 0,
+		Pet = 1
+	}
 }

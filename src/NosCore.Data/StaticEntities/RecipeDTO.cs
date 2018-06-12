@@ -1,7 +1,6 @@
 ﻿namespace NosCore.Data.StaticEntities
 {
-    public class RecipeDTO : IDTO
-    {
-
-    }
+	public class RecipeDTO : IDTO
+	{
+	}
 }
