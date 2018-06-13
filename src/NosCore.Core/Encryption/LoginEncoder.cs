@@ -13,7 +13,7 @@ namespace NosCore.Core.Encryption
 		{
 			try
 			{
-				var tmp = Encoding.Default.GetBytes(message);
+				var tmp = Encoding.Default.GetBytes($"{message} ");
 				for (var i = 0; i < message.Length; i++)
 				{
 					tmp[i] = Convert.ToByte(tmp[i] + 15);
@@ -29,6 +29,7 @@ namespace NosCore.Core.Encryption
 			}
 			catch
 			{
+				//do nothing maybe log it
 			}
 		}
 	}
