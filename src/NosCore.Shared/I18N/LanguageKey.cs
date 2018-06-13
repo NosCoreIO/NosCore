@@ -79,6 +79,7 @@
 		SWORDMAN,
 		ARCHER,
 		MAGICIAN,
-		WRESTLER
-	}
+		WRESTLER,
+        NPCMONSTER_PARSED
+    }
 }
