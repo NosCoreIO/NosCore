@@ -89,7 +89,7 @@ namespace NosCore.Parser
 						factory.ImportNpcMonsters();
 						factory.ImportNpcMonsterData();
 						//factory.ImportMapNpcs();
-						//factory.ImportMonsters();
+						factory.ImportMonsters();
 						//factory.ImportShops();
 						//factory.ImportTeleporters();
 						//factory.ImportShopItems();

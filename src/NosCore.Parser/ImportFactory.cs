@@ -25,7 +25,9 @@ namespace NosCore.Parser
 		private readonly I18NParser _i18NParser = new I18NParser();
         private readonly NpcMonsterParser _npcMonsterParser = new NpcMonsterParser();
         private readonly NpcMonsterDataParser _npcMonsterDataParser = new NpcMonsterDataParser();
-		private readonly ParserConfiguration configuration;
+        private readonly MapMonsterParser _mapMonsterParser = new MapMonsterParser();
+
+        private readonly ParserConfiguration configuration;
 
 		public ImportFactory(string folder, ParserConfiguration conf)
 		{
@@ -89,6 +91,7 @@ namespace NosCore.Parser
 
 		public void ImportMonsters()
 		{
+            _mapMonsterParser.ImportMonsters(_packetList);
 		}
 
 		public void ImportNpcMonsterData()
