@@ -35,7 +35,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.OldClient
                     });
-
+	                Session.Disconnect();
                     return;
                 }
 
@@ -48,7 +48,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.WrongCaps
                     });
-
+	                Session.Disconnect();
                     return;
                 }
 
@@ -59,6 +59,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
                     });
+					Session.Disconnect();
                     return;
                 }
 
@@ -68,7 +69,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.Banned
                     });
-
+	                Session.Disconnect();
                     return;
                 }
 
@@ -88,7 +89,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.AlreadyConnected
                     });
-
+	                Session.Disconnect();
                     return;
                 }
 
@@ -143,7 +144,7 @@ namespace NosCore.Controllers
                         SubPacket = subpacket,
                         SessionId = newSessionId
                     });
-
+	                Session.Disconnect();
                     return;
                 }
 
@@ -151,6 +152,7 @@ namespace NosCore.Controllers
                 {
                     Type = LoginFailType.CantConnect
                 });
+	            Session.Disconnect();
             }
             catch
             {
@@ -158,6 +160,7 @@ namespace NosCore.Controllers
                 {
                     Type = LoginFailType.UnhandledError
                 });
+	            Session.Disconnect();
             }
         }
     }
