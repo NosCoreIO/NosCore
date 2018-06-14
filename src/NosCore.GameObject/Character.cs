@@ -83,8 +83,9 @@ namespace NosCore.GameObject
 		public byte Authority { get; set; }
 
 		public byte Equipment { get; set; }
+        public bool InvisibleGm { get; set; }
 
-		public FdPacket GenerateFd()
+        public FdPacket GenerateFd()
 		{
 			return new FdPacket
 			{
