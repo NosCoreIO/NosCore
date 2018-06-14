@@ -23,7 +23,7 @@ namespace NosCore.Packets.ServerPackets
 		public byte Class { get; set; }
 
 		[PacketIndex(5)]
-		public byte Equipment { get; set; }
+		public InEquipmentSubPacket Equipment { get; set; }
 
 		#endregion
 	}
