@@ -4,13 +4,13 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
 	public interface IVisualEntity
 	{
-		byte VisualType { get; set; }
+		byte VisualType { get; }
 
 		short VNum { get; set; }
 
 		long VisualId { get; }
 
-		byte? Direction { get; set; }
+		byte Direction { get; set; }
 
 		Guid MapInstanceId { get; set; }
 

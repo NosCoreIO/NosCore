@@ -30,13 +30,13 @@ namespace NosCore.GameObject
 
 		public DateTime LastMove { get; set; }
 
-		public byte VisualType { get; set; } = 1;
+		public byte VisualType => 1;
 
 		public short VNum { get; set; }
 
 		public long VisualId => CharacterId;
 
-		public byte? Direction { get; set; }
+		public byte Direction { get; set; }
 
 		public short PositionX { get; set; }
 

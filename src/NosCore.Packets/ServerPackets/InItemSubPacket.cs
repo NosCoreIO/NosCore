@@ -13,6 +13,9 @@ namespace NosCore.Packets.ServerPackets
 		[PacketIndex(1)]
 		public bool IsQuestRelative { get; set; }
 
-		#endregion
-	}
+		[PacketIndex(2)]
+		public long Owner { get; set; }
+
+        #endregion
+    }
 }

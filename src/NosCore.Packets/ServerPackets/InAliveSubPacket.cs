@@ -13,6 +13,6 @@ namespace NosCore.Packets.ServerPackets
 		[PacketIndex(1)]
 		public int MP { get; set; }
 
-		#endregion
-	}
+        #endregion
+    }
 }
