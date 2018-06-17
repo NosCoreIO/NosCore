@@ -28,28 +28,17 @@ namespace NosCore.Packets.ServerPackets
 		[PacketIndex(6, IsOptional = true)]
 		public byte? Direction { get; set; }
 
-		[PacketIndex(7, IsOptional = true)]
-		public short? Amount { get; set; }
-
-		[PacketIndex(8, IsOptional = true, RemoveSeparator = true)]
+		[PacketIndex(7, IsOptional = true, RemoveSeparator = true)]
 		public InCharacterSubPacket InCharacterSubPacket { get; set; }
 
-		[PacketIndex(9, IsOptional = true, RemoveSeparator = true)]
-		public InAliveSubPacket InAliveSubPacket { get; set; }
-
-		[PacketIndex(10, IsOptional = true, RemoveSeparator = true)]
+		[PacketIndex(8, IsOptional = true, RemoveSeparator = true)]
 		public InItemSubPacket InItemSubPacket { get; set; }
 
-		[PacketIndex(11, IsOptional = true, RemoveSeparator = true)]
+		[PacketIndex(9, IsOptional = true, RemoveSeparator = true)]
 		public InNonPlayerSubPacket InNonPlayerSubPacket { get; set; }
 
-		[PacketIndex(12, IsOptional = true, RemoveSeparator = true)]
-		public InOwnableSubPacket InOwnableSubPacket { get; set; }
-
-		[PacketIndex(13)]
-        public bool IsSitting { get; set; }
-
-        //-1 4 3 0 0 0 7 86 86 2340 ~Luna~(Membre) -2 0 5 0 0 88 10 0 0 10 1
+        //1 -1 0 0 0 0 0 0 1 2 -1 - 7 0 0 0 0 19 0 0 0 10
+        //0 0 3 793041 1 0 -1 Hamster^furieux 0 -1 0 0 0 0 0 0 0 0
         //{GroupId?} {(fairy ? 4 : 0)} {fairyElement} 0 {Morph} 0 {Morph} {GenerateEqRareUpgradeForPacket()} {FamilyId?} {Name} {(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco())} {isInvisible} {MorphUpgrade} {faction} {MorphUpgrade2} {Level} {FamilyLevel} {ArenaWinner} {Compliment} {Size} {HeroLevel}";
 
         #endregion
