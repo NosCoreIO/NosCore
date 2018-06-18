@@ -9,6 +9,8 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -150,6 +152,7 @@ namespace NosCore.GameObject.Networking
             try
             {
                 Character.IsChangingMapInstance = true;
+	            LeaveMap(this);
                 Character.MapInstance.Sessions.TryRemove(SessionId, out var sess);
                 if (Character.IsSitting)
                 {
@@ -182,11 +185,12 @@ namespace NosCore.GameObject.Networking
                 SendPackets(Character.MapInstance.GetMapItems());
                 if (!Character.InvisibleGm)
                 {
-                    Parallel.ForEach(Character.MapInstance?.Sessions.Values.Where(s => s.Character != null && s != this), s =>
-                    {
-                        s.SendPacket(Character.GenerateIn());
-                    });
+                    Character.MapInstance.Broadcast(Character.GenerateIn());
                 }
+                Parallel.ForEach(Character.MapInstance?.Sessions.Values.Where(s => s.Character != null && s != this), s =>
+                {
+                    SendPacket(s.Character.GenerateIn());
+                });
                 Character.MapInstance.Sessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }
@@ -196,6 +200,12 @@ namespace NosCore.GameObject.Networking
                 Character.IsChangingMapInstance = false;
             }
         }
+
+	    public void LeaveMap(ClientSession session)
+	    {
+		    session.SendPacket(new MapOutPacket());
+		    session.Character.MapInstance.Broadcast(session, session.Character.GenerateOut(), ReceiverType.AllExceptMe);
+	    }
 
         public string GetMessageFromKey(LanguageKey languageKey)
         {

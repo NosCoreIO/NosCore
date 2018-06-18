@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using log4net;
+﻿using log4net;
 using log4net.Config;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Serializing;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using NosCore.Tests.HandlerTests;
+using System.IO;
+using System.Reflection;
 
 namespace NosCore.Tests
 {
@@ -36,8 +30,8 @@ namespace NosCore.Tests
         {
             var characterTest = new Character() { Name = "characterTest" };
 
-            string packet = PacketFactory.Serialize(characterTest.GenerateIn());
-            // Assert.AreEqual("in 1 characterTest - 0 0 0 0 0 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 0 0 0 0", packet);
+            var packet = PacketFactory.Serialize(characterTest.GenerateIn());
+            Assert.AreEqual("in 1 characterTest - 0 0 0 0 0 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -45,8 +39,8 @@ namespace NosCore.Tests
         {
             var mapMonsterTest = new MapMonster();
 
-            string packet = PacketFactory.Serialize(mapMonsterTest.GenerateIn());
-            // Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
+            var packet = PacketFactory.Serialize(mapMonsterTest.GenerateIn());
+            Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -54,8 +48,8 @@ namespace NosCore.Tests
         {
             var mapNpcTest = new MapNpc();
 
-            string packet = PacketFactory.Serialize(mapNpcTest.GenerateIn());
-            // Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
+            var packet = PacketFactory.Serialize(mapNpcTest.GenerateIn());
+            Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -63,7 +57,7 @@ namespace NosCore.Tests
         {
             var mapItemTest = new MapItem() { };
 
-            string packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
+            var packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
             Assert.AreEqual("in 9 - 0 0 0 0 0 0 0", packet);
         }
     }

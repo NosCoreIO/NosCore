@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject
@@ -26,5 +27,6 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public string Name { get; set; }
+	    public NpcMonsterDTO Monster { get; set; }
     }
 }

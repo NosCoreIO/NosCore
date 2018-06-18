@@ -381,5 +381,5 @@ namespace NosCore.GameObject
 				ArenaWinner = false
 			};
 		}
-	}
+    }
 }

@@ -37,10 +37,6 @@ namespace NosCore.Packets.ServerPackets
 		[PacketIndex(9, IsOptional = true, RemoveSeparator = true)]
 		public InNonPlayerSubPacket InNonPlayerSubPacket { get; set; }
 
-        //1 -1 0 0 0 0 0 0 1 2 -1 - 7 0 0 0 0 19 0 0 0 10
-        //0 0 3 793041 1 0 -1 Hamster^furieux 0 -1 0 0 0 0 0 0 0 0
-        //{GroupId?} {(fairy ? 4 : 0)} {fairyElement} 0 {Morph} 0 {Morph} {GenerateEqRareUpgradeForPacket()} {FamilyId?} {Name} {(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco())} {isInvisible} {MorphUpgrade} {faction} {MorphUpgrade2} {Level} {FamilyLevel} {ArenaWinner} {Compliment} {Size} {HeroLevel}";
-
         #endregion
     }
 }

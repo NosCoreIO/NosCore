@@ -449,7 +449,7 @@ namespace NosCore.Core.Serializing
         private static string SerializeSubpacket(object value,
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
                 subpacketSerializationInfo, bool isReturnPacket,
-            bool shouldRemoveSeparator, bool packetDefinitionFound = false)
+            bool shouldRemoveSeparator)
         {
             var serializedSubpacket = isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ";
 
@@ -467,11 +467,10 @@ namespace NosCore.Core.Serializing
                 {
                     var subpacketSerializationInfo2 = GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
-                    if (!packetDefinitionFound)
-                    {
-                        serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket, subpacketPropertyInfo.Key.RemoveSeparator).Trim(' ');
-                        continue;
-                    }
+	                serializedSubpacket = serializedSubpacket.TrimEnd(' ');
+                    serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket, subpacketPropertyInfo.Key.RemoveSeparator);
+                    continue;
+
                 }
 
                 serializedSubpacket += SerializeValue(subpacketPropertyInfo.Value.PropertyType,
