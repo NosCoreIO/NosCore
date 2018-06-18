@@ -1,10 +1,20 @@
-﻿using NosCore.GameObject.ComponentEntities.Interfaces;
+﻿using System;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
+	    public static OutPacket GenerateOut(this ICharacterEntity visualEntity)
+	    {
+		    return new OutPacket()
+		    {
+			    VisualType = visualEntity.VisualType,
+			    VisualId = visualEntity.VisualId,
+		    };
+        }
+
         //in 9 {vnum} {id} {x} {y} {amount} {IsQuestRelative} 0 {owner}
         //in 3 {Effect} {IsSitting} {GroupId} {SecondName} 0 -1 0 0 0 0 0 0 0 0
         //in 2 {Effect} {IsSitting} {GroupId} {SecondName} 0 -1 0 0 0 0 0 0 0 0
@@ -42,19 +52,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         SecondaryWeapon = -1,
                         WeaponSkin = -1
                     },
-	                InAliveSubPacket = new InAliveSubPacket
-	                {
-		                HP = visualEntity.Hp,
-		                MP = visualEntity.Mp,
-	                },
-	                IsSitting = visualEntity.IsSitting,
-	                GroupId = -1
+                    InAliveSubPacket = new InAliveSubPacket
+                    {
+                        HP = visualEntity.Hp,
+                        MP = visualEntity.Mp,
+                    },
+                    IsSitting = visualEntity.IsSitting,
+                    GroupId = -1
                 },
             };
         }
 
         //Pet Monster in packet
-        public static InPacket GenerateIn(this INamedEntity visualEntity)
+        public static InPacket GenerateIn(this INonPlayableEntity visualEntity)
         {
             return new InPacket
             {
@@ -66,8 +76,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket()
                 {
-					Dialog = 0,
-					Unknown = 0,
+                    Dialog = 0,
+                    InAliveSubPacket = new InAliveSubPacket()
+                    {
+                        MP = (int)(visualEntity.Mp / (float)((visualEntity.Monster?.MaxMP ?? 1) * 100)),
+                        HP = (int)(visualEntity.Hp / (float)((visualEntity.Monster?.MaxHP ?? 1) * 100))
+                    }
                 }
             };
         }

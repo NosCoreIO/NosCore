@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDTO, INamedEntity, INonPlayableEntity
+    public class MapMonster : MapMonsterDTO, INonPlayableEntity
     {
         public bool IsSitting { get; set; }
         public byte Class { get; set; }
@@ -30,5 +31,6 @@ namespace NosCore.GameObject
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public string Name { get; set; }
+	    public NpcMonsterDTO Monster { get; set; }
     }
 }

@@ -34,6 +34,68 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(8)]
         public int? GroupId { get; set; }
 
+	    [PacketIndex(9)]
+	    public byte Fairy { get; set; }
+
+	    [PacketIndex(10)]
+	    public byte FairyElement { get; set; }
+
+	    [PacketIndex(11)]
+	    public byte Unknown { get; set; }
+
+	    [PacketIndex(12)]
+	    public byte Morph { get; set; }
+
+	    [PacketIndex(13)]
+	    public byte WeaponUpgrade { get; set; }
+
+	    [PacketIndex(14)]
+	    public short WeaponRare { get; set; }
+
+	    [PacketIndex(15)]
+	    public byte ArmorUpgrade { get; set; }
+
+	    [PacketIndex(16)]
+	    public short ArmorRare { get; set; }
+
+	    [PacketIndex(17)]
+	    public long FamilyId { get; set; }
+
+	    [PacketIndex(18)]
+	    public string FamilyName { get; set; }
+
+	    [PacketIndex(19)]
+	    public short ReputIco { get; set; }
+
+	    [PacketIndex(20)]
+	    public bool Invisible { get; set; }
+
+	    [PacketIndex(21)]
+	    public byte MorphUpgrade { get; set; }
+
+	    [PacketIndex(22)]
+	    public byte Faction { get; set; }
+
+	    [PacketIndex(23)]
+	    public byte MorphUpgrade2 { get; set; }
+
+	    [PacketIndex(24)]
+	    public byte Level { get; set; }
+
+	    [PacketIndex(25)]
+	    public byte FamilyLevel { get; set; }
+
+	    [PacketIndex(26)]
+	    public bool ArenaWinner { get; set; }
+
+	    [PacketIndex(27)]
+	    public short Compliment { get; set; }
+
+	    [PacketIndex(28)]
+	    public byte Size { get; set; }
+
+	    [PacketIndex(29)]
+	    public byte HeroLevel { get; set; }
         #endregion
     }
 }
