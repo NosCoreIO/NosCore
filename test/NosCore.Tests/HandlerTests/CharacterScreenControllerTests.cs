@@ -25,7 +25,7 @@ using NosCore.Shared.I18N;
 namespace NosCore.Tests.HandlerTests
 {
 	[TestClass]
-	public class CharacterScreenPacketHandlerTests
+	public class CharacterScreenControllerTests
 	{
 		private const string _configurationPath = "../../../configuration";
 		private readonly ClientSession session = new ClientSession();
@@ -47,7 +47,7 @@ namespace NosCore.Tests.HandlerTests
 			DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo(_configurationPath + "/log4net.config"));
-			Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenPacketHandlerTests)));
+			Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenControllerTests)));
 			DataAccessHelper.Instance.Initialize(sqlconnect);
 			DAOFactory.RegisterMapping(typeof(Character).Assembly);
 			var map = new MapDTO {MapId = 1};

@@ -20,8 +20,9 @@ namespace NosCore.Core.Networking
 		public int SessionId { get; set; }
 
 		public long ClientId { get; set; }
+        public PacketDefinition LastPacket { get; private set; }
 
-		public NetworkClient(IChannel channel)
+        public NetworkClient(IChannel channel)
 		{
 			_channel = channel;
 		}
@@ -54,9 +55,8 @@ namespace NosCore.Core.Networking
 
 		public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
 		{
-			Console.WriteLine("{0}", exception.StackTrace);
-
-			context.CloseAsync();
+			Logger.Log.Fatal(exception.StackTrace);
+            context.CloseAsync();
 		}
 
 		public void Disconnect()
@@ -73,7 +73,8 @@ namespace NosCore.Core.Networking
 				return;
 			}
 
-			_channel?.WriteAndFlushAsync(PacketFactory.Serialize(packet));
+			LastPacket = packet;
+            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packet));
 			_channel?.Flush();
 		}
 
