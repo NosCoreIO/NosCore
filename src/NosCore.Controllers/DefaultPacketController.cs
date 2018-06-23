@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
+using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -18,7 +18,8 @@ namespace NosCore.Controllers
 	{
 		private readonly WorldConfiguration _worldConfiguration;
 
-		public DefaultPacketController()
+		[UsedImplicitly]
+        public DefaultPacketController()
 		{
 		}
 

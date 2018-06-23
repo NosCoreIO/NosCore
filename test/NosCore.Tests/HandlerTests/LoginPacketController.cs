@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using log4net;
 using log4net.Config;
@@ -9,20 +7,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
@@ -58,10 +51,7 @@ namespace NosCore.Tests.HandlerTests
             _acc = new AccountDTO { Name = Name, Password = EncryptionHelper.Sha512("test") };
             DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
-	        _handler = new LoginPacketController(new LoginConfiguration()
-	        {
-
-	        });
+	        _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);
         }
 
@@ -79,7 +69,7 @@ namespace NosCore.Tests.HandlerTests
                 Name = Name.ToUpper(),
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.OldClient);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.OldClient);
         }
 
 
@@ -92,7 +82,7 @@ namespace NosCore.Tests.HandlerTests
 			    Name = "noaccount",
 		    });
 		    Assert.IsTrue(_session.LastPacket is FailcPacket);
-		    Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.AccountOrPasswordWrong);
+		    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
 	    }
 
         [TestMethod]
@@ -104,7 +94,7 @@ namespace NosCore.Tests.HandlerTests
 			    Name = Name.ToUpper(),
 		    });
 		    Assert.IsTrue(_session.LastPacket is FailcPacket);
-		    Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.WrongCaps);
+		    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
 	    }
 
 	    //[TestMethod]

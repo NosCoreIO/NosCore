@@ -1,5 +1,4 @@
-﻿using System;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+﻿using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions

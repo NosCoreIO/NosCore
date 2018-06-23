@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using NosCore.Core.Extensions;
 using NosCore.Core.Serializing;
 using NosCore.GameObject;
@@ -9,9 +10,11 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {
-	public class CommandPacketController : PacketController
+	[UsedImplicitly]
+    public class CommandPacketController : PacketController
 	{
-		public void Speed(SpeedPacket speedPacket)
+		[UsedImplicitly]
+        public void Speed(SpeedPacket speedPacket)
 		{
 			if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
 			{
@@ -24,7 +27,8 @@ namespace NosCore.Controllers
 			}
 		}
 
-		public void Help(HelpPacket helpPacket)
+		[UsedImplicitly]
+        public void Help(HelpPacket helpPacket)
 		{
 			Session.SendPacket(Session.Character.GenerateSay("-------------Help command-------------",
 				SayColorType.Purple));

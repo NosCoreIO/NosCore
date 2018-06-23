@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -16,9 +17,10 @@ namespace NosCore.Controllers
     {
         private readonly LoginConfiguration _loginConfiguration;
 
-        public LoginPacketController()
-        {
-        }
+	    [UsedImplicitly]
+	    public LoginPacketController()
+	    {
+	    }
 
         public LoginPacketController(LoginConfiguration loginConfiguration)
         {
@@ -29,7 +31,6 @@ namespace NosCore.Controllers
         {
             try
             {
-
 	            if (false) //TODO Maintenance
                 {
 		            Session.SendPacket(new FailcPacket
