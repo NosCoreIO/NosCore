@@ -275,5 +275,14 @@ namespace NosCore.Controllers
 				}
 			}
 		}
+
+        public void Pulse(PulsePacket pulsePacket)
+        {
+            Session.Character.LastPulse += 60;
+            if(pulsePacket.Tick != Session.Character.LastPulse)
+            {
+                Session.Disconnect();
+            }
+        }
 	}
 }

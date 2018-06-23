@@ -77,15 +77,17 @@ namespace NosCore.GameObject
 
 		public bool NoAttack { get; set; }
 
+        	public int LastPulse { get; set; }
+
 		public bool NoMove { get; set; }
 		public bool IsSitting { get; set; }
 		public Guid MapInstanceId { get; set; }
 		public byte Authority { get; set; }
 
 		public byte Equipment { get; set; }
-        public bool InvisibleGm { get; set; }
+        	public bool InvisibleGm { get; set; }
 
-        public FdPacket GenerateFd()
+        	public FdPacket GenerateFd()
 		{
 			return new FdPacket
 			{
