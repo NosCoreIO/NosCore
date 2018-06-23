@@ -4,5 +4,5 @@
 	{
 		public string Password { get; set; }
 		public ServerConfiguration WebApi { get; set; }
-	}
+    	}
 }
