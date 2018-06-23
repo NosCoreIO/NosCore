@@ -34,6 +34,7 @@ namespace NosCore.DAL
 		private static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> _i18N_NpcMonsterTalkDAO;
 		private static GenericDAO<I18N_Quest, I18N_QuestDTO> _i18N_QuestDAO;
 		private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
+        private static GenericDAO<MapMonster, MapMonsterDTO> _mapMonsterDAO;
 		private static IMapper _mapper;
 
 		public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
@@ -106,7 +107,10 @@ namespace NosCore.DAL
 		public static GenericDAO<Portal, PortalDTO> PortalDAO =>
 			_portalDAO ?? (_portalDAO = new GenericDAO<Portal, PortalDTO>(_mapper));
 
-		public static void RegisterMapping(Assembly gameobjectAssembly)
+        public static GenericDAO<MapMonster, MapMonsterDTO> MapMonsterDAO =>
+            _mapMonsterDAO ?? (_mapMonsterDAO = new GenericDAO<MapMonster, MapMonsterDTO>(_mapper));
+
+        public static void RegisterMapping(Assembly gameobjectAssembly)
 		{
 			var config = new MapperConfiguration(cfg =>
 			{
