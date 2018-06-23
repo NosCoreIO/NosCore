@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
+using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
@@ -20,6 +21,7 @@ using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -63,15 +65,97 @@ namespace NosCore.Tests.HandlerTests
             _handler.RegisterSession(_session);
         }
 
-	    [TestMethod]
-        public void Login()
+        [TestMethod]
+        public void LoginOldClient()
         {
+	        _handler = new LoginPacketController(new LoginConfiguration()
+	        {
+				ClientData = "123456"
+	        });
+	        _handler.RegisterSession(_session);
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = "test",
-                Name = Name,
+                Password = EncryptionHelper.Sha512("test"),
+                Name = Name.ToUpper(),
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
+            Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.OldClient);
         }
+
+
+        [TestMethod]
+	    public void LoginNoAccount()
+	    {
+		    _handler.VerifyLogin(new NoS0575Packet
+		    {
+			    Password = EncryptionHelper.Sha512("test"),
+			    Name = "noaccount",
+		    });
+		    Assert.IsTrue(_session.LastPacket is FailcPacket);
+		    Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.AccountOrPasswordWrong);
+	    }
+
+        [TestMethod]
+	    public void LoginWrongCaps()
+	    {
+		    _handler.VerifyLogin(new NoS0575Packet
+		    {
+			    Password = EncryptionHelper.Sha512("test"),
+			    Name = Name.ToUpper(),
+		    });
+		    Assert.IsTrue(_session.LastPacket is FailcPacket);
+		    Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.WrongCaps);
+	    }
+
+	    //[TestMethod]
+	    //public void Login()
+	    //{
+		   // _handler.VerifyLogin(new NoS0575Packet
+		   // {
+			  //  Password = EncryptionHelper.Sha512("test"),
+			  //  Name = Name,
+		   // });
+		   // Assert.IsTrue(!(_session.LastPacket is FailcPacket));
+	    //}
+
+        //[TestMethod]
+        //public void LoginAlreadyConnected()
+        //{
+        // ServerManager.Instance.Sessions.TryAdd(_session.SessionId, _session);
+        // _handler.VerifyLogin(new NoS0575Packet
+        // {
+        //  Password = EncryptionHelper.Sha512("test"),
+        //  Name = Name,
+        // });
+        // Assert.IsTrue(_session.LastPacket is FailcPacket);
+        // Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.AlreadyConnected);
+        //}
+
+        //   [TestMethod]
+        //   public void LoginBanned()
+        //   {
+        //       _handler.VerifyLogin(new NoS0575Packet
+        //       {
+        //           Password = EncryptionHelper.Sha512("test"),
+        //           Name = Name,
+        //       });
+        //       Assert.IsTrue(_session.LastPacket is FailcPacket);
+        //       Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.Banned);
+        //   }
+
+        //[TestMethod]
+        //public void LoginNoServer()
+        //{
+        // _handler.VerifyLogin(new NoS0575Packet
+        // {
+        //  Password = EncryptionHelper.Sha512("test"),
+        //  Name = Name.ToUpper(),
+        // });
+        // Assert.IsTrue(_session.LastPacket is FailcPacket);
+        // Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.CantConnect);
+        //}
+
+        //Maintenance = 3,
+        //WrongCountry = 8,
     }
 }

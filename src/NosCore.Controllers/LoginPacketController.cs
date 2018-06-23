@@ -29,6 +29,17 @@ namespace NosCore.Controllers
         {
             try
             {
+
+	            if (false) //TODO Maintenance
+                {
+		            Session.SendPacket(new FailcPacket
+		            {
+			            Type = LoginFailType.Maintenance
+		            });
+		            Session.Disconnect();
+		            return;
+	            }
+
                 if (_loginConfiguration.ClientData != null && loginPacket.ClientData != _loginConfiguration.ClientData)
                 {
                     Session.SendPacket(new FailcPacket
