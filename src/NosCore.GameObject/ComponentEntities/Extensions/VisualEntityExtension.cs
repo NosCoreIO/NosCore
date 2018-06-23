@@ -103,8 +103,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     IsQuestRelative = false,
                     Owner = 0
                 }
-
-
             };
         }
     }
