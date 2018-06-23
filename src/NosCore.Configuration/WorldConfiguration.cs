@@ -10,5 +10,6 @@
 
 		public bool WorldInformation { get; set; }
 		public bool SceneOnCreate { get; set; }
+		public string ServerName { get; set; }
 	}
 }

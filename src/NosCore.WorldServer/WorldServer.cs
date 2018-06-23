@@ -117,7 +117,7 @@ namespace NosCore.WorldServer
 						_worldConfiguration.MasterCommunication.Password,
 						new MasterClient
 						{
-							Name = "WorldServer",
+							Name = _worldConfiguration.ServerName,
 							Type = ServerType.WorldServer,
 							WebApi = _worldConfiguration.WebApi
 						}, _worldConfiguration.WebApi, _worldConfiguration.ConnectedAccountLimit,
