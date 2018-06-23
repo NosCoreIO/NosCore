@@ -77,7 +77,7 @@ namespace NosCore.GameObject
 
 		public bool NoAttack { get; set; }
 
-        public int LastPulse { get; set; }
+        	public int LastPulse { get; set; }
 
 		public bool NoMove { get; set; }
 		public bool IsSitting { get; set; }
