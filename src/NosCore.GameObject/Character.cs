@@ -389,9 +389,9 @@ namespace NosCore.GameObject
             return new StatPacket
             {
                 HP = Hp,
-                HPLoad = HPLoad(),
+                HPMaximum = HPLoad(),
                 MP = Mp,
-                MPLoad = MPLoad(),
+                MPMaximum = MPLoad(),
                 Unknown = 0,
                 Option = 0
             };
