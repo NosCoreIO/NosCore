@@ -70,7 +70,7 @@ namespace NosCore.Controllers
 			//            Session.SendPacket(Session.Character.GenerateSki());
 			//            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
 			Session.SendPacket(Session.Character.GenerateFd());
-            Session.SendPacket(Session.Character.GenerateStat());
+            		Session.SendPacket(Session.Character.GenerateStat());
 			//            Session.SendPacket("rage 0 250000");
 			//            Session.SendPacket("rank_cool 0 0 18000");
 			//            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
