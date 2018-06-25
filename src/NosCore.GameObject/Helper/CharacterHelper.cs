@@ -5,7 +5,7 @@ namespace NosCore.GameObject.Helper
 {
 	public sealed class CharacterHelper
 	{
-		private static CharacterHelper instance;
+		private static CharacterHelper _instance;
 
 		#region Instantiation
 
@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Helper
 
 		#endregion
 
-		public static CharacterHelper Instance => instance ?? (instance = new CharacterHelper());
+		public static CharacterHelper Instance => _instance ?? (_instance = new CharacterHelper());
 
 		#region Members
 

@@ -43,12 +43,12 @@ namespace NosCore.WorldServer
 		public void Run()
 		{
 			InitializeLogger();
-			if (_worldConfiguration != null)
+			if (_worldConfiguration == null)
 			{
-				Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+				return;
 			}
-
-			DAOFactory.RegisterMapping(typeof(Character).Assembly);
+			Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            DAOFactory.RegisterMapping(typeof(Character).Assembly);
 			ConnectMaster();
 			try
 			{

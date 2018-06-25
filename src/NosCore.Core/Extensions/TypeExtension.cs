@@ -7,7 +7,7 @@ namespace NosCore.Core.Extensions
 {
 	public static class TypeExtension
 	{
-		private static readonly ConcurrentDictionary<Type, Func<object>> _constructors =
+		private static readonly ConcurrentDictionary<Type, Func<object>> Constructors =
 			new ConcurrentDictionary<Type, Func<object>>();
 
 		public static Func<TBase> GetConstructorDelegate<TBase>(this Type type)
@@ -63,11 +63,13 @@ namespace NosCore.Core.Extensions
 
 		public static T CreateInstance<T>(this Type type)
 		{
-			if (!_constructors.TryGetValue(type, out var constructor))
+			if (Constructors.TryGetValue(type, out var constructor))
 			{
-				constructor = type.GetConstructorDelegate();
-				_constructors.TryAdd(type, constructor);
+				return (T) constructor();
 			}
+
+			constructor = type.GetConstructorDelegate();
+			Constructors.TryAdd(type, constructor);
 
 			return (T) constructor();
 		}
