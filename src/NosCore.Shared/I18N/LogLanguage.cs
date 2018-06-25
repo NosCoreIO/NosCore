@@ -7,7 +7,7 @@ namespace NosCore.Shared.I18N
 {
 	public sealed class LogLanguage
 	{
-		private static LogLanguage instance;
+		private static LogLanguage _instance;
 		private static CultureInfo _resourceCulture;
 		public static string Language = "en";
 		private readonly ResourceManager _manager;
@@ -23,7 +23,7 @@ namespace NosCore.Shared.I18N
 			}
 		}
 
-		public static LogLanguage Instance => instance ?? (instance = new LogLanguage());
+		public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 
 		public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
 		{

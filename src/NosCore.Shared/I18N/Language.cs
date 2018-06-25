@@ -7,7 +7,7 @@ namespace NosCore.Shared.I18N
 {
 	public sealed class Language
 	{
-		private static Language instance;
+		private static Language _instance;
 		private readonly ResourceManager _manager;
 
 		private Language()
@@ -20,7 +20,7 @@ namespace NosCore.Shared.I18N
 			}
 		}
 
-		public static Language Instance => instance ?? (instance = new Language());
+		public static Language Instance => _instance ?? (_instance = new Language());
 
 		public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
 		{

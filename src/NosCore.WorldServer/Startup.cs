@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -26,11 +27,12 @@ namespace NosCore.WorldServer
 {
 	public class Startup
 	{
-		private const string _configurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"..\..\..\configuration";
+        private const string Title = "NosCore - WorldServer";
 
-		private void PrintHeader()
+        private void PrintHeader()
 		{
-			Console.Title = "NosCore - WorldServer";
+			Console.Title = Title;
 			const string text = "WORLD SERVER - 0Lucifer0";
 			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
@@ -41,7 +43,7 @@ namespace NosCore.WorldServer
 		{
 			var builder = new ConfigurationBuilder();
 			var worldConfiguration = new WorldConfiguration();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("world.json", false);
 			builder.Build().Bind(worldConfiguration);
 			return worldConfiguration;
@@ -57,6 +59,7 @@ namespace NosCore.WorldServer
 			return containerBuilder;
 		}
 
+		[UsedImplicitly]
 		public IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			PrintHeader();
@@ -98,6 +101,7 @@ namespace NosCore.WorldServer
 			return new AutofacServiceProvider(container);
 		}
 
+		[UsedImplicitly]
 		public void Configure(IApplicationBuilder app)
 		{
 			app.UseSwagger();

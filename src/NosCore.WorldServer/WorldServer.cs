@@ -58,7 +58,7 @@ namespace NosCore.WorldServer
 				Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
 					_worldConfiguration.Port));
 				Console.Title +=
-					$" - Port : {Convert.ToInt32(_worldConfiguration.Port)} - WebApi : {_worldConfiguration.WebApi}";
+					$" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
 				NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(),
 					new WorldDecoderFactory(), true).Wait();
 			}
@@ -71,7 +71,7 @@ namespace NosCore.WorldServer
 		private void ConnectMaster()
 		{
 			async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
-				ServerConfiguration WebApi, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0,
+				ServerConfiguration webApi, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0,
 				string serverHost = "")
 			{
 				var group = new MultithreadEventLoopGroup();
@@ -103,7 +103,7 @@ namespace NosCore.WorldServer
 					Port = clientPort,
 					ServerGroup = serverGroup,
 					Host = serverHost,
-					WebApi = WebApi
+					WebApi = webApi
 				}).ConfigureAwait(false);
 			}
 

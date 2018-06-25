@@ -10,8 +10,8 @@ namespace NosCore.Parser.Parsers
 {
 	public class MapParser
 	{
-		private readonly string _fileMapIdDat = $"\\MapIDData.dat";
-		private readonly string _folderMap = $"\\map";
+		private readonly string _fileMapIdDat = "\\MapIDData.dat";
+		private readonly string _folderMap = "\\map";
 
 		public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
 		{
@@ -21,10 +21,10 @@ namespace NosCore.Parser.Parsers
 			var dictionaryId = new Dictionary<int, string>();
 			var dictionaryMusic = new Dictionary<int, int>();
 
-			string line;
 			var i = 0;
 			using (var mapIdStream = new StreamReader(fileMapIdDat, Encoding.UTF8))
 			{
+				string line;
 				while ((line = mapIdStream.ReadLine()) != null)
 				{
 					var linesave = line.Split(' ');

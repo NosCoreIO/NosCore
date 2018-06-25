@@ -16,16 +16,17 @@ namespace NosCore.PathFinder.Gui
 {
 	public static class PathFinderGui
 	{
-		private const string _configurationPath = @"..\..\..\configuration";
-		private static readonly PathfinderGUIConfiguration _databaseConfiguration = new PathfinderGUIConfiguration();
-		private static GuiWindow guiWindow;
+		private const string ConfigurationPath = @"..\..\..\configuration";
+		private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
+		private static GuiWindow _guiWindow;
+		private const string Title = "NosCore - Pathfinder GUI";
 
-		private static void InitializeConfiguration()
+        private static void InitializeConfiguration()
 		{
 			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("pathfinder.json", false);
-			builder.Build().Bind(_databaseConfiguration);
+			builder.Build().Bind(DatabaseConfiguration);
 		}
 
 		private static void InitializeLogger()
@@ -38,7 +39,7 @@ namespace NosCore.PathFinder.Gui
 
 		private static void PrintHeader()
 		{
-			Console.Title = "NosCore - Pathfinder GUI";
+			Console.Title = Title;
 			const string text = "PATHFINDER GUI - 0Lucifer0";
 			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
@@ -50,17 +51,17 @@ namespace NosCore.PathFinder.Gui
 			PrintHeader();
 			InitializeLogger();
 			InitializeConfiguration();
-			LogLanguage.Language = _databaseConfiguration.Language;
+			LogLanguage.Language = DatabaseConfiguration.Language;
 			DAOFactory.RegisterMapping(typeof(Character).Assembly);
 			try
 			{
-				DataAccessHelper.Instance.Initialize(_databaseConfiguration.Database);
+				DataAccessHelper.Instance.Initialize(DatabaseConfiguration.Database);
 
                 while (true)
                 {
                     Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
                     var input = Console.ReadLine();
-                    if (input == null || !double.TryParse(input, out var askMapId))
+                    if (input == null || !int.TryParse(input, out var askMapId))
                     {
                         Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
                         continue;
@@ -72,16 +73,16 @@ namespace NosCore.PathFinder.Gui
                     {
                         map.Initialize();
 
-                        if (guiWindow?.Exists == true)
+                        if (_guiWindow?.Exists == true)
                         {
-                            guiWindow.Exit();
+                            _guiWindow.Exit();
                         }
 
                         new Thread(() =>
                         {
-                            guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
+                            _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
                                 $"NosCore Pathfinder GUI - Map {map.MapId}");
-                            guiWindow.Run(30);
+                            _guiWindow.Run(30);
                         }).Start();
                     }
                 }

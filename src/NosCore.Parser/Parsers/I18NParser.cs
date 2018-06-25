@@ -16,7 +16,7 @@ namespace NosCore.Parser.Parsers
 		private const string BCardTxt = "\\_code_{0}_BCard.txt";
 		private const string CardTxt = "\\_code_{0}_Card.txt";
 		private const string ItemTxt = "\\_code_{0}_Item.txt";
-		private const string MapIDDataTxt = "\\_code_{0}_MapIDData.txt";
+		private const string MapIdDataTxt = "\\_code_{0}_MapIDData.txt";
 		private const string MapPointDataTxt = "\\_code_{0}_MapPointData.txt";
 		private const string MonsterTxt = "\\_code_{0}_monster.txt";
 		private const string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
@@ -184,7 +184,7 @@ namespace NosCore.Parser.Parsers
 				var mapiddatadtos = new List<I18N_MapIdDataDTO>();
 				try
 				{
-					using (var stream = new StreamReader(I18NTextFileName(MapIDDataTxt, region),
+					using (var stream = new StreamReader(I18NTextFileName(MapIdDataTxt, region),
 						CodePagesEncodingProvider.Instance.GetEncoding(1252)))
 					{
 						while ((_line = stream.ReadLine()) != null)

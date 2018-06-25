@@ -4,7 +4,7 @@ using NosCore.Core.Serializing;
 namespace NosCore.Packets.ServerPackets
 {
 	[PacketHeader("NsTeST")]
-	public class NSTestPacket : PacketDefinition
+	public class NsTestPacket : PacketDefinition
 	{
 		#region Properties
 
@@ -15,7 +15,7 @@ namespace NosCore.Packets.ServerPackets
 		public int SessionId { get; set; }
 
 		[PacketIndex(2)]
-		public List<NsTeSTSubPacket> SubPacket { get; set; }
+		public List<NsTeStSubPacket> SubPacket { get; set; }
 
 		#endregion
 	}
