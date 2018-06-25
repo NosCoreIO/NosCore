@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Group
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Group
 {
-	public enum GroupRequestType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum GroupRequestType : byte
 	{
 		Requested = 0,
 		Invited = 1,

@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Items
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Items
 {
-	public enum UpgradeProtection
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum UpgradeProtection
 	{
 		None,
 		Protected

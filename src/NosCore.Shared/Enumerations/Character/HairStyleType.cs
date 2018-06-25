@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Character
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Character
 {
-	public enum HairStyleType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum HairStyleType : byte
 	{
 		HairStyleA = 0,
 		HairStyleB = 1,

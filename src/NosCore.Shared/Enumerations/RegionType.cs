@@ -1,5 +1,8 @@
-﻿namespace NosCore.Shared.Enumerations
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations
 {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum RegionType
 	{
 		EN,
