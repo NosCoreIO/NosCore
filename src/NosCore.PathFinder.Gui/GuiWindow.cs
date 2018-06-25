@@ -15,20 +15,20 @@ namespace NosCore.PathFinder.Gui
 		private readonly byte _gridsize;
 		private double _gridsizeX;
 		private double _gridsizeY;
-		private readonly int originalHeight;
-		private readonly int originalWidth;
-		private readonly List<Tuple<short, short, byte>> walls = new List<Tuple<short, short, byte>>();
+		private readonly int _originalHeight;
+		private readonly int _originalWidth;
+		private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
 
 		public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
 			width * gridsize, height * gridsize, mode, title)
 		{
-			originalWidth = width * gridsize;
-			originalHeight = height * gridsize;
+			_originalWidth = width * gridsize;
+			_originalHeight = height * gridsize;
 			_map = map;
 			_gridsizeX = gridsize;
 			_gridsizeY = gridsize;
 			_gridsize = gridsize;
-			GetMap(_map);
+			GetMap();
 		}
 
 		protected override void OnUpdateFrame(FrameEventArgs e)
@@ -47,12 +47,12 @@ namespace NosCore.PathFinder.Gui
 
 			GL.ClearColor(Color.LightSkyBlue);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			_gridsizeX = _gridsize * (ClientRectangle.Width / (double) originalWidth);
-			_gridsizeY = _gridsize * (ClientRectangle.Height / (double) originalHeight);
+			_gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
+			_gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
 			var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
 			GL.LoadMatrix(ref world);
 			//walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable
-			foreach (var wall in walls)
+			foreach (var wall in _walls)
 			{
 				DrawPixel(wall.Item1, wall.Item2, Color.Blue); //TODO iswalkable
 			}
@@ -62,7 +62,7 @@ namespace NosCore.PathFinder.Gui
 			Thread.Sleep(32);
 		}
 
-		private void GetMap(Map map)
+		private void GetMap()
 		{
 			for (short i = 0; i < _map.YLength; i++)
 			{
@@ -71,7 +71,7 @@ namespace NosCore.PathFinder.Gui
 					var value = _map[t, i];
 					if (_map[t, i] > 0)
 					{
-						walls.Add(new Tuple<short, short, byte>(t, i, value));
+						_walls.Add(new Tuple<short, short, byte>(t, i, value));
 					}
 				}
 			}

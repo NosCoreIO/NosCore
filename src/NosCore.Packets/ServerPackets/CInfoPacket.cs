@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing;
+﻿using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -47,7 +48,8 @@ namespace NosCore.Packets.ServerPackets
 		public short Compliment { get; set; }
 
 		[PacketIndex(13)]
-		public short Morph { get; set; }
+		[UsedImplicitly]
+        public short Morph { get; set; }
 
 		[PacketIndex(14)]
 		public bool Invisible { get; set; }

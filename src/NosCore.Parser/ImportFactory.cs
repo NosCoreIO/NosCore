@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data;
 using NosCore.DAL;
@@ -23,11 +22,9 @@ namespace NosCore.Parser
 		private readonly ItemParser _itemParser = new ItemParser();
 		private readonly PortalParser _portalParser = new PortalParser();
 		private readonly I18NParser _i18NParser = new I18NParser();
-		private readonly ParserConfiguration configuration;
 
-		public ImportFactory(string folder, ParserConfiguration conf)
+		public ImportFactory(string folder)
 		{
-			configuration = conf;
 			_folder = folder;
 		}
 
@@ -1311,10 +1308,6 @@ monstercards.Add(itemCard);
 		}
 
 		public void ImportRecipe()
-		{
-		}
-
-		public void ImportRespawnMapType()
 		{
 		}
 

@@ -111,7 +111,7 @@ namespace NosCore.Tests.HandlerTests
                 Password = EncryptionHelper.Sha512("test"),
                 Name = Name,
             });
-            Assert.IsTrue(_session.LastPacket is NSTestPacket);
+            Assert.IsTrue(_session.LastPacket is NsTestPacket);
         }
 
         [TestMethod]

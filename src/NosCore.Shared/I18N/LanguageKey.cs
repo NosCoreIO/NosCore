@@ -1,4 +1,6 @@
-﻿namespace NosCore.Shared.I18N
+﻿using JetBrains.Annotations;
+
+namespace NosCore.Shared.I18N
 {
 	public enum LanguageKey
 	{
@@ -75,10 +77,10 @@
 		INVALID_CHARNAME,
 		BAD_PASSWORD,
 		SUPPORT,
-		ADVENTURER,
-		SWORDMAN,
-		ARCHER,
-		MAGICIAN,
-		WRESTLER
+		[UsedImplicitly] ADVENTURER,
+		[UsedImplicitly] SWORDMAN,
+		[UsedImplicitly] ARCHER,
+		[UsedImplicitly] MAGICIAN,
+		[UsedImplicitly] WRESTLER
 	}
 }

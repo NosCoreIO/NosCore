@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing;
+﻿using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -11,7 +12,8 @@ namespace NosCore.Packets.ClientPackets
 		public int Type { get; set; }
 
 		[PacketIndex(1)]
-		public int Argument { get; set; }
+		[UsedImplicitly]
+        public int Argument { get; set; }
 
 		[PacketIndex(2)]
 		public long? VisualEntityId { get; set; }

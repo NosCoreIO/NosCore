@@ -3,7 +3,7 @@
 namespace NosCore.Packets.ServerPackets
 {
 	[PacketHeader("NsTeST")]
-	public class NsTeSTSubPacket : PacketDefinition
+	public class NsTeStSubPacket : PacketDefinition
 	{
 		#region Properties
 

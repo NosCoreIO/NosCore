@@ -3,7 +3,7 @@
 namespace NosCore.Packets.ServerPackets
 {
 	[PacketHeader("OK")]
-	public class OKPacket : PacketDefinition
+	public class OkPacket : PacketDefinition
 	{
 		#region Properties
 

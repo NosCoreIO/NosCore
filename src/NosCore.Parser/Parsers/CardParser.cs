@@ -16,8 +16,8 @@ namespace NosCore.Parser.Parsers
 		private static int _counter;
 		private static CardDTO _card = new CardDTO();
 		private static bool _itemAreaBegin;
-		private static readonly List<CardDTO> _cards = new List<CardDTO>();
-		private static readonly string FileCardDat = $"\\Card.dat";
+		private static readonly List<CardDTO> Cards = new List<CardDTO>();
+		private const string FileCardDat = "\\Card.dat";
 		private static readonly List<BCardDTO> Bcards = new List<BCardDTO>();
 
 		public void AddFirstData(string[] currentLine)
@@ -77,7 +77,7 @@ namespace NosCore.Parser.Parsers
 			// investigate
 			if (DAOFactory.CardDAO.FirstOrDefault(s => s.CardId == _card.CardId) == null)
 			{
-				_cards.Add(_card);
+				Cards.Add(_card);
 				_counter++;
 			}
 
@@ -140,7 +140,7 @@ namespace NosCore.Parser.Parsers
 					}
 				}
 
-				DAOFactory.CardDAO.InsertOrUpdate(_cards);
+				DAOFactory.CardDAO.InsertOrUpdate(Cards);
 				DAOFactory.BcardDAO.InsertOrUpdate(Bcards);
 
 				Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED),
