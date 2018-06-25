@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Map
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Map
 {
-	public enum MapTypeEnum : short
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum MapTypeEnum : short
 	{
 		// Act
 		Act1 = 1,

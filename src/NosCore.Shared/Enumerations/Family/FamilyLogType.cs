@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Family
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Family
 {
-	public enum FamilyLogType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum FamilyLogType : byte
 	{
 		DailyMessage = 1,
 		RaidWon = 2,

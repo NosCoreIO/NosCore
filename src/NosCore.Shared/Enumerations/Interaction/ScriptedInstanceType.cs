@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Interaction
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Interaction
 {
-	public enum ScriptedInstanceType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum ScriptedInstanceType : byte
 	{
 		TimeSpace = 0,
 		Raid = 1,

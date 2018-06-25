@@ -1,14 +1,17 @@
-﻿namespace NosCore.Shared.Enumerations.Map
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Map
 {
-	public enum PortalType : sbyte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum PortalType : sbyte
 	{
 		MapPortal = -1,
-		TSNormal = 0, // same over >127 - sbyte
+		TsNormal = 0, // same over >127 - sbyte
 		Closed = 1,
 		Open = 2,
 		Miniland = 3,
-		TSEnd = 4,
-		TSEndClosed = 5,
+		TsEnd = 4,
+		TsEndClosed = 5,
 		Exit = 6,
 		ExitClosed = 7,
 		Raid = 8,

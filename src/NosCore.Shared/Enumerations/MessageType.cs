@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations
 {
-	public enum MessageType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum MessageType : byte
 	{
 		Whisper = 0,
 		PrivateChat = 1,

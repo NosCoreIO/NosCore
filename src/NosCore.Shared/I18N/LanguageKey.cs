@@ -1,8 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace NosCore.Shared.I18N
 {
-	public enum LanguageKey
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+    public enum LanguageKey
 	{
 		UNREGISTRED_FROM_MASTER,
 		REGISTRED_ON_MASTER,

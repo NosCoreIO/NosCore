@@ -1,5 +1,8 @@
-﻿namespace NosCore.Shared.Enumerations.Quest
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Quest
 {
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public enum QuestType : byte
 	{
 		Hunt = 1,

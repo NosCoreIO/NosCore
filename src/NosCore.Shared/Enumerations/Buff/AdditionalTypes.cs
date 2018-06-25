@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Buff
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Buff
 {
-	public class AdditionalTypes : BCardType
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class AdditionalTypes : BCardType
 	{
 		// 81-??
 		public enum AbsorbedSpirit : byte
