@@ -53,9 +53,7 @@
 		public enum ArenaCamera : byte
 		{
 			CallParticipant1 = 11,
-
-			CallParticipant2 =
-				12, // propably we will need to fix "Their" Mistake soo CallParticipant1 = 11 and 12, CallParticipant2 = 21 and 22 :D
+			CallParticipant2 = 12, // propably we will need to fix "Their" Mistake soo CallParticipant1 = 11 and 12, CallParticipant2 = 21 and 22 :D
 			CallParticipant2Negated = 21,
 			CallParticipant2NegatedNegated = 22,
 			CallParticipant3 = 31,
@@ -381,19 +379,19 @@
 			// Unknown = 21, Unknown2 = 22
 		}
 
-		public enum GuarantedDodgeRangedAttack : byte
-		{
-			AttackHitChance = 11,
-			AttackHitChanceNegated = 12,
-			AlwaysDodgePropability = 21,
-			AlwaysDodgePropabilityNegated = 22,
-			NoPenatly = 41,
-			NoPenatlyNegated = 42,
-			DistanceDamageIncreasing = 41,
-			DistanceDamageIncreasingNegated = 42
-		}
+        public enum GuarantedDodgeRangedAttack : byte
+        {
+            AttackHitChance = 11,
+            AttackHitChanceNegated = 12,
+            AlwaysDodgePropability = 21,
+            AlwaysDodgePropabilityNegated = 22,
+            NoPenatly = 41,
+            DistanceDamageIncreasing = 41,
+            NoPenatlyNegated = 42,
+            DistanceDamageIncreasingNegated = 42
+        }
 
-		public enum HealingBurningAndCasting : byte
+        public enum HealingBurningAndCasting : byte
 		{
 			RestoreHP = 11,
 			DecreaseHP = 12,
