@@ -23,10 +23,9 @@ namespace NosCore.Core.Networking
 
 		protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
 		{
-			Channel msgChannel;
 			try
 			{
-				msgChannel = JsonConvert.DeserializeObject<Channel>(msg);
+				JsonConvert.DeserializeObject<Channel>(msg);
 			}
 			catch (Exception ex)
 			{

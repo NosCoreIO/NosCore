@@ -35,12 +35,13 @@ namespace NosCore.MasterServer
 		public void Run()
 		{
 			InitializeLogger();
-			if (_masterConfiguration != null)
+			if (_masterConfiguration == null)
 			{
-				Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+				return;
 			}
 
-			try
+			Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            try
 			{
 				DataAccessHelper.Instance.Initialize(_masterConfiguration.Database);
 
