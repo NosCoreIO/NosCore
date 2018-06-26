@@ -45,9 +45,9 @@ namespace NosCore.Packets.ServerPackets
 
 	    [PacketIndex(11)]
 	    [UsedImplicitly]
-        public byte Unknown { get; set; }
+        public byte Unknown { get; set; }//TODO to find
 
-	    [PacketIndex(12)]
+        [PacketIndex(12)]
 	    [UsedImplicitly]
         public byte Morph { get; set; }
 
