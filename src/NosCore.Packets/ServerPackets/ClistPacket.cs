@@ -16,9 +16,9 @@ namespace NosCore.Packets.ServerPackets
 		public string Name { get; set; }
 
 		[PacketIndex(2)]
-		public byte Unknown { get; set; }
+		public byte Unknown { get; set; }//TODO to find
 
-		[PacketIndex(3)]
+        [PacketIndex(3)]
 		public byte Gender { get; set; }
 
 		[PacketIndex(4)]
@@ -28,9 +28,9 @@ namespace NosCore.Packets.ServerPackets
 		public byte HairColor { get; set; }
 
 		[PacketIndex(6)]
-		public byte Unknown1 { get; set; }
+		public byte Unknown1 { get; set; }//TODO to find
 
-		[PacketIndex(7)]
+        [PacketIndex(7)]
 		public CharacterClassType Class { get; set; }
 
 		[PacketIndex(8)]
@@ -58,8 +58,8 @@ namespace NosCore.Packets.ServerPackets
 		public int Design { get; set; }
 
 		[PacketIndex(16)]
-		public byte Unknown3 { get; set; }
+		public byte Unknown3 { get; set; }//TODO to find
 
-		#endregion
-	}
+        #endregion
+    }
 }

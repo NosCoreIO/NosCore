@@ -12,12 +12,12 @@ namespace NosCore.Packets.ServerPackets
 		public string Name { get; set; }
 
 		[PacketIndex(1)]
-		public string Unknown1 { get; set; }
+		public string Unknown1 { get; set; }//TODO to find
 
-		[PacketIndex(2)]
-		public short Unknown2 { get; set; }
+        [PacketIndex(2)]
+		public short Unknown2 { get; set; }//TODO to find
 
-		[PacketIndex(3)]
+        [PacketIndex(3)]
 		public int FamilyId { get; set; }
 
 		[PacketIndex(4)]

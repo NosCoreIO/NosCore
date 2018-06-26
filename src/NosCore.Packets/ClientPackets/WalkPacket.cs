@@ -16,9 +16,9 @@ namespace NosCore.Packets.ClientPackets
 
 		[PacketIndex(2)]
 		[UsedImplicitly]
-        public short Unknown { get; set; }
+        public short Unknown { get; set; }//TODO to find
 
-		[PacketIndex(3)]
+        [PacketIndex(3)]
 		public short Speed { get; set; }
 
 		#endregion
