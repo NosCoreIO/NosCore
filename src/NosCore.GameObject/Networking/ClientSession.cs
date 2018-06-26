@@ -79,6 +79,8 @@ namespace NosCore.GameObject.Networking
 
         public bool HasCurrentMapInstance => Character?.MapInstance != null;
 
+        public int LastPulse { get; set; }
+
         public void InitializeAccount(AccountDTO accountDTO)
         {
             Account = accountDTO;

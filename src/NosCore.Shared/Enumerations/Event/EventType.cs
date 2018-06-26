@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Event
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Event
 {
-	public enum EventType
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum EventType
 	{
 		Instantbattle,
 		Lod,

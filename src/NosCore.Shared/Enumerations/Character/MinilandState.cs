@@ -1,9 +1,12 @@
-﻿namespace NosCore.Shared.Enumerations.Character
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Character
 {
-	public enum MinilandState : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum MinilandState : byte
 	{
-		OPEN = 0,
-		PRIVATE = 1,
-		LOCK = 2
+		Open = 0,
+		Private = 1,
+		Lock = 2
 	}
 }
