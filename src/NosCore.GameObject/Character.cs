@@ -381,5 +381,18 @@ namespace NosCore.GameObject
                 ArenaWinner = false
             };
         }
+        
+        public StatPacket GenerateStat()
+        {
+            return new StatPacket
+            {
+                HP = Hp,
+                HPMaximum = HPLoad(),
+                MP = Mp,
+                MPMaximum = MPLoad(),
+                Unknown = 0,
+                Option = 0
+            };
+        }
     }
 }
