@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using log4net;
 using log4net.Config;
@@ -7,9 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Controllers;
-using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
@@ -56,8 +53,6 @@ namespace NosCore.Tests.HandlerTests
             _session.InitializeAccount(_acc);
 	        _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);
-	        WebApiAccess.RegisterBaseAdress();
-	        WebApiAccess.Instance.MockValues = new Dictionary<string, object>();
         }
 
         [TestMethod]
@@ -76,6 +71,7 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.OldClient);
         }
+
 
         [TestMethod]
 	    public void LoginNoAccount()
@@ -101,6 +97,7 @@ namespace NosCore.Tests.HandlerTests
 		    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
 	    }
 
+<<<<<<< HEAD
         [TestMethod]
         public void Login()
         {
@@ -141,29 +138,57 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.CantConnect);
         }
+=======
+	    //[TestMethod]
+	    //public void Login()
+	    //{
+		   // _handler.VerifyLogin(new NoS0575Packet
+		   // {
+			  //  Password = EncryptionHelper.Sha512("test"),
+			  //  Name = Name,
+		   // });
+		   // Assert.IsTrue(!(_session.LastPacket is FailcPacket));
+	    //}
+>>>>>>> parent of b783133... create test login packet handler fix #41
 
         //[TestMethod]
-        //public void LoginBanned()
+        //public void LoginAlreadyConnected()
         //{
-        //    _handler.VerifyLogin(new NoS0575Packet
-        //    {
-        //        Password = EncryptionHelper.Sha512("test"),
-        //        Name = Name,
-        //    });
-        //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.Banned);
+        // ServerManager.Instance.Sessions.TryAdd(_session.SessionId, _session);
+        // _handler.VerifyLogin(new NoS0575Packet
+        // {
+        //  Password = EncryptionHelper.Sha512("test"),
+        //  Name = Name,
+        // });
+        // Assert.IsTrue(_session.LastPacket is FailcPacket);
+        // Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.AlreadyConnected);
         //}
 
+        //   [TestMethod]
+        //   public void LoginBanned()
+        //   {
+        //       _handler.VerifyLogin(new NoS0575Packet
+        //       {
+        //           Password = EncryptionHelper.Sha512("test"),
+        //           Name = Name,
+        //       });
+        //       Assert.IsTrue(_session.LastPacket is FailcPacket);
+        //       Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.Banned);
+        //   }
+
         //[TestMethod]
-        //public void LoginMaintenance()
+        //public void LoginNoServer()
         //{
-        //    _handler.VerifyLogin(new NoS0575Packet
-        //    {
-        //        Password = EncryptionHelper.Sha512("test"),
-        //        Name = Name,
-        //    });
-        //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.Maintenance);
+        // _handler.VerifyLogin(new NoS0575Packet
+        // {
+        //  Password = EncryptionHelper.Sha512("test"),
+        //  Name = Name.ToUpper(),
+        // });
+        // Assert.IsTrue(_session.LastPacket is FailcPacket);
+        // Assert.IsTrue((_session.LastPacket as FailcPacket).Type == LoginFailType.CantConnect);
         //}
+
+        //Maintenance = 3,
+        //WrongCountry = 8,
     }
 }

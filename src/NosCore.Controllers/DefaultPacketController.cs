@@ -28,7 +28,7 @@ namespace NosCore.Controllers
 			_worldConfiguration = worldConfiguration;
 		}
 
-		public void GameStart([UsedImplicitly]GameStartPacket packet)
+		public void GameStart(GameStartPacket packet)
 		{
 			if (Session.GameStarted || !Session.HasSelectedCharacter)
 			{
@@ -70,6 +70,7 @@ namespace NosCore.Controllers
 			//            Session.SendPacket(Session.Character.GenerateSki());
 			//            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
 			Session.SendPacket(Session.Character.GenerateFd());
+            		Session.SendPacket(Session.Character.GenerateStat());
 			//            Session.SendPacket("rage 0 250000");
 			//            Session.SendPacket("rank_cool 0 0 18000");
 			//            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
@@ -194,7 +195,7 @@ namespace NosCore.Controllers
 		///     PreqPacket packet
 		/// </summary>
 		/// <param name="packet"></param>
-		public void Preq([UsedImplicitly]PreqPacket packet)
+		public void Preq(PreqPacket packet)
 		{
 			var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
 			var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;

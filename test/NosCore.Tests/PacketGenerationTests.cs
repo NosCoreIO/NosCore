@@ -55,7 +55,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForItem()
         {
-            var mapItemTest = new MapItem();
+            var mapItemTest = new MapItem() { };
 
             var packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
             Assert.AreEqual("in 9 - 0 0 0 0 0 0 0", packet);
