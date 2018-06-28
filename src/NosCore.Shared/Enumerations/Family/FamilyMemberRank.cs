@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Family
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Family
 {
-	public enum FamilyMemberRank : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum FamilyMemberRank : byte
 	{
 		Nothing = 0,
 		OldUncle = 1,

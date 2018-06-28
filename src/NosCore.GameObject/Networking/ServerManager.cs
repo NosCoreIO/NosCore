@@ -11,22 +11,22 @@ namespace NosCore.GameObject.Networking
 {
 	public sealed class ServerManager : BroadcastableBase
 	{
-		private static ServerManager instance;
+		private static ServerManager _instance;
 
-		private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances =
+		private static readonly ConcurrentDictionary<Guid, MapInstance> Mapinstances =
 			new ConcurrentDictionary<Guid, MapInstance>();
 
-		private static readonly List<Map.Map> _maps = new List<Map.Map>();
+		private static readonly List<Map.Map> Maps = new List<Map.Map>();
 
 		private ServerManager()
 		{
 		}
 
-		public static ServerManager Instance => instance ?? (instance = new ServerManager());
+		public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
 		public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
 		{
-			var map = _maps.Find(m => m.MapId.Equals(mapId));
+			var map = Maps.Find(m => m.MapId.Equals(mapId));
 			if (map == null)
 			{
 				return null;
@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Networking
 			var guid = Guid.NewGuid();
 			var mapInstance = new MapInstance(map, guid, false, type);
 			mapInstance.LoadPortals();
-			_mapinstances.TryAdd(guid, mapInstance);
+			Mapinstances.TryAdd(guid, mapInstance);
 			return mapInstance;
 		}
 
@@ -48,19 +48,19 @@ namespace NosCore.GameObject.Networking
 				var monstercount = 0;
 				var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(),
 					EnumerablePartitionerOptions.NoBuffering);
-				var _mapList = new ConcurrentDictionary<short, Map.Map>();
+				var mapList = new ConcurrentDictionary<short, Map.Map>();
 				Parallel.ForEach(mapPartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, map =>
 				{
 					var guid = Guid.NewGuid();
 					map.Initialize();
-					_mapList[map.MapId] = map;
+					mapList[map.MapId] = map;
 					var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
-					_mapinstances.TryAdd(guid, newMap);
+					Mapinstances.TryAdd(guid, newMap);
 					Task.Run(() => newMap.LoadPortals());
 					monstercount += newMap.Monsters.Count;
 					i++;
 				});
-				_maps.AddRange(_mapList.Select(s => s.Value));
+				Maps.AddRange(mapList.Select(s => s.Value));
 				if (i != 0)
 				{
 					Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED), i));
@@ -79,15 +79,15 @@ namespace NosCore.GameObject.Networking
 			}
 		}
 
-		public Guid GetBaseMapInstanceIdByMapId(short MapId)
+		public Guid GetBaseMapInstanceIdByMapId(short mapId)
 		{
-			return _mapinstances.FirstOrDefault(s =>
-				s.Value?.Map.MapId == MapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;
+			return Mapinstances.FirstOrDefault(s =>
+				s.Value?.Map.MapId == mapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;
 		}
 
 		public MapInstance GetMapInstance(Guid id)
 		{
-			return _mapinstances.ContainsKey(id) ? _mapinstances[id] : null;
+			return Mapinstances.ContainsKey(id) ? Mapinstances[id] : null;
 		}
 
 		internal void RegisterSession(ClientSession clientSession)
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Networking
 
 		internal void UnregisterSession(ClientSession clientSession)
 		{
-			Sessions.TryRemove(clientSession.SessionId, out var clientSessionuseless);
+			Sessions.TryRemove(clientSession.SessionId, out _);
 		}
 	}
 }

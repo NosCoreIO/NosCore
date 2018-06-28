@@ -14,8 +14,6 @@ namespace NosCore.GameObject
 {
 	public class MapInstance : BroadcastableBase
 	{
-		#region Instantiation
-
 		public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type)
 		{
 			XpRate = 1;
@@ -28,8 +26,6 @@ namespace NosCore.GameObject
 			_monsters = new ConcurrentDictionary<long, MapMonsterDTO>();
 			_npcs = new ConcurrentDictionary<long, MapNpcDTO>();
 		}
-
-		#endregion
 
 		public void LoadPortals()
 		{
@@ -57,21 +53,11 @@ namespace NosCore.GameObject
 			return packets;
 		}
 
-		#region Members
-
 		private readonly ConcurrentDictionary<long, MapMonsterDTO> _monsters;
 
 		private readonly ConcurrentDictionary<long, MapNpcDTO> _npcs;
 
-		#endregion
-
-		#region Properties
-
 		public int DropRate { get; set; }
-
-		public bool IsDancing { get; set; }
-
-		public bool IsPVP { get; set; }
 
 		public Map.Map Map { get; set; }
 
@@ -104,7 +90,5 @@ namespace NosCore.GameObject
 				MapType = MapInstanceType != MapInstanceType.BaseMapInstance
 			};
 		}
-
-		#endregion
 	}
 }

@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing;
+﻿using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -11,12 +12,12 @@ namespace NosCore.Packets.ServerPackets
 		public string Name { get; set; }
 
 		[PacketIndex(1)]
-		public string Unknown1 { get; set; }
+		public string Unknown1 { get; set; }//TODO to find
 
-		[PacketIndex(2)]
-		public short Unknown2 { get; set; }
+        [PacketIndex(2)]
+		public short Unknown2 { get; set; }//TODO to find
 
-		[PacketIndex(3)]
+        [PacketIndex(3)]
 		public int FamilyId { get; set; }
 
 		[PacketIndex(4)]
@@ -47,7 +48,8 @@ namespace NosCore.Packets.ServerPackets
 		public short Compliment { get; set; }
 
 		[PacketIndex(13)]
-		public short Morph { get; set; }
+		[UsedImplicitly]
+        public short Morph { get; set; }
 
 		[PacketIndex(14)]
 		public bool Invisible { get; set; }

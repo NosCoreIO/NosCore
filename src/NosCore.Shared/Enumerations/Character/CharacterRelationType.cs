@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Character
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Character
 {
-	public enum CharacterRelationType : short
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum CharacterRelationType : short
 	{
 		Blocked = -1,
 		Friend = 0,

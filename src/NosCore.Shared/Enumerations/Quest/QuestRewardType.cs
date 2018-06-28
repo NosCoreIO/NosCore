@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Quest
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Quest
 {
-	public enum QuestRewardType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum QuestRewardType : byte
 	{
 		Gold = 1,
 		BaseGoldByAmount = 2, // Base Gold * amount

@@ -9,15 +9,17 @@ using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+// ReSharper disable LocalizableElement
 
 namespace NosCore.Parser
 {
 	public static class Parser
 	{
-		private const string _configurationPath = @"..\..\..\configuration";
-		private static readonly ParserConfiguration _parserConfiguration = new ParserConfiguration();
+		private const string ConfigurationPath = @"..\..\..\configuration";
+		private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
+		private const string Title = "NosCore - Parser";
 
-		private static void InitializeLogger()
+        private static void InitializeLogger()
 		{
 			// LOGGER
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -28,16 +30,16 @@ namespace NosCore.Parser
 		private static void InitializeConfiguration()
 		{
 			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("parser.json", false);
-			builder.Build().Bind(_parserConfiguration);
-			LogLanguage.Language = _parserConfiguration.Language;
+			builder.Build().Bind(ParserConfiguration);
+			LogLanguage.Language = ParserConfiguration.Language;
 			Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
 		}
 
 		private static void PrintHeader()
 		{
-			Console.Title = "NosCore - Parser";
+			Console.Title = Title;
 			const string text = "PARSER SERVER - 0Lucifer0";
 			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
@@ -52,7 +54,7 @@ namespace NosCore.Parser
 
 			try
 			{
-				DataAccessHelper.Instance.Initialize(_parserConfiguration.Database);
+				DataAccessHelper.Instance.Initialize(ParserConfiguration.Database);
 
 				try
 				{
@@ -70,7 +72,7 @@ namespace NosCore.Parser
 						folder = args.Aggregate(folder, (current, str) => current + str + " ");
 					}
 
-					var factory = new ImportFactory(folder, _parserConfiguration);
+					var factory = new ImportFactory(folder);
 					factory.ImportPackets();
 
 					if (key.KeyChar != 'n')

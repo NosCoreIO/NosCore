@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -22,11 +23,12 @@ namespace NosCore.MasterServer
 {
 	public class Startup
 	{
-		private const string _configurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string Title = "NosCore - MasterServer";
 
-		private void PrintHeader()
+        private void PrintHeader()
 		{
-			Console.Title = "NosCore - MasterServer";
+			Console.Title = Title;
 			const string text = "MASTER SERVER - 0Lucifer0";
 			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
@@ -37,7 +39,7 @@ namespace NosCore.MasterServer
 		{
 			var builder = new ConfigurationBuilder();
 			var masterConfiguration = new MasterConfiguration();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("master.json", false);
 			builder.Build().Bind(masterConfiguration);
 			return masterConfiguration;
@@ -52,6 +54,7 @@ namespace NosCore.MasterServer
 			return containerBuilder;
 		}
 
+		[UsedImplicitly]
 		public IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			PrintHeader();
@@ -90,7 +93,8 @@ namespace NosCore.MasterServer
 			return new AutofacServiceProvider(container);
 		}
 
-		public void Configure(IApplicationBuilder app)
+		[UsedImplicitly]
+        public void Configure(IApplicationBuilder app)
 		{
 			app.UseSwagger();
 

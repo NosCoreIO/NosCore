@@ -27,11 +27,11 @@ namespace NosCore.Tests.HandlerTests
 	[TestClass]
 	public class CharacterScreenControllerTests
 	{
-		private const string _configurationPath = "../../../configuration";
-		private readonly ClientSession session = new ClientSession();
-		private AccountDTO acc;
-		private CharacterDTO chara;
-		private CharacterScreenPacketController handler;
+		private const string ConfigurationPath = "../../../configuration";
+		private readonly ClientSession _session = new ClientSession();
+		private AccountDTO _acc;
+		private CharacterDTO _chara;
+		private CharacterScreenPacketController _handler;
 
 		[TestInitialize]
 		public void Setup()
@@ -39,43 +39,43 @@ namespace NosCore.Tests.HandlerTests
 			PacketFactory.Initialize<NoS0575Packet>();
 			var builder = new ConfigurationBuilder();
 			var databaseConfiguration = new SqlConnectionConfiguration();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("database.json", false);
 			builder.Build().Bind(databaseConfiguration);
 			databaseConfiguration.Database = "postgresunittest";
 			var sqlconnect = databaseConfiguration;
 			DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo(_configurationPath + "/log4net.config"));
+			XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
 			Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenControllerTests)));
 			DataAccessHelper.Instance.Initialize(sqlconnect);
 			DAOFactory.RegisterMapping(typeof(Character).Assembly);
 			var map = new MapDTO {MapId = 1};
 			DAOFactory.MapDAO.InsertOrUpdate(ref map);
-			acc = new AccountDTO {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
-			DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-			chara = new CharacterDTO
+			_acc = new AccountDTO {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
+			DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
+			_chara = new CharacterDTO
 			{
 				Name = "TestExistingCharacter",
 				Slot = 1,
-				AccountId = acc.AccountId,
+				AccountId = _acc.AccountId,
 				MapId = 1,
 				State = CharacterState.Active
 			};
-			DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
-			session.InitializeAccount(acc);
-			handler = new CharacterScreenPacketController();
-			handler.RegisterSession(session);
+			DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
+			_session.InitializeAccount(_acc);
+			_handler = new CharacterScreenPacketController();
+			_handler.RegisterSession(_session);
 		}
 
 		[TestMethod]
 		public void CreateCharacterWhenInGame_Does_Not_Create_Character()
 		{
-			session.SetCharacter((Character) chara);
-			session.Character.MapInstance =
+			_session.SetCharacter((Character) _chara);
+			_session.Character.MapInstance =
 				new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
 			const string name = "TestCharacter";
-			handler.CreateCharacter(new CharNewPacket
+			_handler.CreateCharacter(new CharNewPacket
 			{
 				Name = name
 			});
@@ -86,7 +86,7 @@ namespace NosCore.Tests.HandlerTests
 		public void CreateCharacter()
 		{
 			const string name = "TestCharacter";
-			handler.CreateCharacter(new CharNewPacket
+			_handler.CreateCharacter(new CharNewPacket
 			{
 				Name = name
 			});
@@ -97,7 +97,7 @@ namespace NosCore.Tests.HandlerTests
 		public void CreateCharacter_With_Packet()
 		{
 			const string name = "TestCharacter";
-			handler.CreateCharacter(
+			_handler.CreateCharacter(
 				(CharNewPacket) PacketFactory.Deserialize($"Char_NEW {name} 0 0 0 0", typeof(CharNewPacket)));
 			Assert.IsNotNull(DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name));
 		}
@@ -106,7 +106,7 @@ namespace NosCore.Tests.HandlerTests
 		public void InvalidName_Does_Not_Create_Character()
 		{
 			const string name = "Test Character";
-			handler.CreateCharacter(new CharNewPacket
+			_handler.CreateCharacter(new CharNewPacket
 			{
 				Name = name
 			});
@@ -124,7 +124,7 @@ namespace NosCore.Tests.HandlerTests
 		public void ExistingName_Does_Not_Create_Character()
 		{
 			const string name = "TestExistingCharacter";
-			handler.CreateCharacter(new CharNewPacket
+			_handler.CreateCharacter(new CharNewPacket
 			{
 				Name = name
 			});
@@ -135,7 +135,7 @@ namespace NosCore.Tests.HandlerTests
 		public void NotEmptySlot_Does_Not_Create_Character()
 		{
 			const string name = "TestCharacter";
-			handler.CreateCharacter(new CharNewPacket
+			_handler.CreateCharacter(new CharNewPacket
 			{
 				Name = name,
 				Slot = 1
@@ -147,8 +147,8 @@ namespace NosCore.Tests.HandlerTests
 		public void DeleteCharacter_With_Packet()
 		{
 			const string name = "TestExistingCharacter";
-			handler.DeleteCharacter(
-				(CharacterDeletePacket) PacketFactory.Deserialize($"Char_DEL 1 test", typeof(CharacterDeletePacket)));
+			_handler.DeleteCharacter(
+				(CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 test", typeof(CharacterDeletePacket)));
 			Assert.IsNull(
 				DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
 		}
@@ -157,7 +157,7 @@ namespace NosCore.Tests.HandlerTests
 		public void DeleteCharacter_Invalid_Password()
 		{
 			const string name = "TestExistingCharacter";
-			handler.DeleteCharacter((CharacterDeletePacket) PacketFactory.Deserialize($"Char_DEL 1 testpassword",
+			_handler.DeleteCharacter((CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 testpassword",
 				typeof(CharacterDeletePacket)));
 			Assert.IsNotNull(
 				DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
@@ -166,11 +166,11 @@ namespace NosCore.Tests.HandlerTests
 		[TestMethod]
 		public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
 		{
-			session.SetCharacter((Character) chara);
-			session.Character.MapInstance =
+			_session.SetCharacter((Character) _chara);
+			_session.Character.MapInstance =
 				new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
 			const string name = "TestExistingCharacter";
-			handler.DeleteCharacter(new CharacterDeletePacket
+			_handler.DeleteCharacter(new CharacterDeletePacket
 			{
 				Password = "test",
 				Slot = 1
@@ -183,7 +183,7 @@ namespace NosCore.Tests.HandlerTests
 		public void DeleteCharacter()
 		{
 			const string name = "TestExistingCharacter";
-			handler.DeleteCharacter(new CharacterDeletePacket
+			_handler.DeleteCharacter(new CharacterDeletePacket
 			{
 				Password = "test",
 				Slot = 1

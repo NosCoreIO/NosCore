@@ -5,7 +5,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDTO, INamedEntity, INonPlayableEntity
+    public class MapNpc : MapNpcDTO, INonPlayableEntity
     {
         public byte Class { get; set; }
         public byte Speed { get; set; }

@@ -1,6 +1,10 @@
-﻿namespace NosCore.Shared.I18N
+﻿using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
+
+namespace NosCore.Shared.I18N
 {
-	public enum LanguageKey
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+    public enum LanguageKey
 	{
 		UNREGISTRED_FROM_MASTER,
 		REGISTRED_ON_MASTER,
@@ -75,10 +79,10 @@
 		INVALID_CHARNAME,
 		BAD_PASSWORD,
 		SUPPORT,
-		ADVENTURER,
-		SWORDMAN,
-		ARCHER,
-		MAGICIAN,
-		WRESTLER
+		[UsedImplicitly] ADVENTURER,
+		[UsedImplicitly] SWORDMAN,
+		[UsedImplicitly] ARCHER,
+		[UsedImplicitly] MAGICIAN,
+		[UsedImplicitly] WRESTLER
 	}
 }

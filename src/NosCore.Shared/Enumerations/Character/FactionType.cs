@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Character
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Character
 {
-	public enum FactionType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum FactionType : byte
 	{
 		Neutral = 0,
 		Angel = 1,

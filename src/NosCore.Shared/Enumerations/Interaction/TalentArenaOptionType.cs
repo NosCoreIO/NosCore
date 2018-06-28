@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Interaction
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Interaction
 {
-	public enum TalentArenaOptionType : byte
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum TalentArenaOptionType : byte
 	{
 		Watch = 0,
 		Nothing = 1,

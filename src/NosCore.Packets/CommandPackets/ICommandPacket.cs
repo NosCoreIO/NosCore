@@ -1,7 +1,10 @@
-﻿namespace NosCore.Packets.CommandPackets
+﻿using JetBrains.Annotations;
+
+namespace NosCore.Packets.CommandPackets
 {
 	public interface ICommandPacket
 	{
-		string Help();
+		[UsedImplicitly]
+        string Help();
 	}
 }

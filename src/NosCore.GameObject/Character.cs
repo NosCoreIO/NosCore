@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;

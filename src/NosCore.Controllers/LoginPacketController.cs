@@ -110,7 +110,7 @@ namespace NosCore.Controllers
 
                 if (servers.Count > 0)
                 {
-                    var subpacket = new List<NsTeSTSubPacket>();
+                    var subpacket = new List<NsTeStSubPacket>();
                     var i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
@@ -128,7 +128,7 @@ namespace NosCore.Controllers
                         var channelcolor =
                             (int)Math.Round((double)currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
                             + 1;
-                        subpacket.Add(new NsTeSTSubPacket
+                        subpacket.Add(new NsTeStSubPacket
                         {
                             Host = server.Host,
                             Port = server.Port,
@@ -141,7 +141,7 @@ namespace NosCore.Controllers
                     }
 
                     var newSessionId = SessionFactory.Instance.GenerateSessionId();
-                    subpacket.Add(new NsTeSTSubPacket
+                    subpacket.Add(new NsTeStSubPacket
                     {
                         Host = "-1",
                         Port = null,
@@ -150,7 +150,7 @@ namespace NosCore.Controllers
                         WorldId = 10000,
                         Name = "1"
                     }); //useless server to end the client reception
-                    Session.SendPacket(new NSTestPacket
+                    Session.SendPacket(new NsTestPacket
                     {
                         AccountName = loginPacket.Name,
                         SubPacket = subpacket,

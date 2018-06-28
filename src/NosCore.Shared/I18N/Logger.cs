@@ -17,12 +17,12 @@ namespace NosCore.Shared.I18N
 		/// <summary>
 		///     Wraps up the message with the CallerMemberName
 		/// </summary>
-		/// <param name="Caller"></param>
+		/// <param name="caller"></param>
 		/// <param name="message"></param>
 		/// <param name="memberName"></param>
-		public static void Debug(string Caller, string message, [CallerMemberName] string memberName = "")
+		public static void Debug(string caller, string message, [CallerMemberName] string memberName = "")
 		{
-			Log?.Debug($"{Caller} Method: {memberName} Packet: {message}");
+			Log?.Debug($"{caller} Method: {memberName} Packet: {message}");
 		}
 
 		/// <summary>

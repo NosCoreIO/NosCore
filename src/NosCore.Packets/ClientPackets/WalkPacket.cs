@@ -1,4 +1,5 @@
-﻿using NosCore.Core.Serializing;
+﻿using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -14,9 +15,10 @@ namespace NosCore.Packets.ClientPackets
 		public short YCoordinate { get; set; }
 
 		[PacketIndex(2)]
-		public short Unknown { get; set; }
+		[UsedImplicitly]
+        public short Unknown { get; set; }//TODO to find
 
-		[PacketIndex(3)]
+        [PacketIndex(3)]
 		public short Speed { get; set; }
 
 		#endregion

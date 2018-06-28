@@ -312,7 +312,7 @@ namespace NosCore.Controllers
 					Session.Character.Mp = (int) Session.Character.MPLoad();
 				}
 
-				Session.SendPacket(new OKPacket());
+				Session.SendPacket(new OkPacket());
 			}
 			catch (Exception ex)
 			{

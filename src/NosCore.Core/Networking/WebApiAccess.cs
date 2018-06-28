@@ -15,6 +15,8 @@ namespace NosCore.Core.Networking
 
         private static string Token { get; set; }
 
+        public Dictionary<string, object> MockValues { get; set; } = new Dictionary<string, object>();
+
         public static WebApiAccess Instance
         {
             get
@@ -30,8 +32,14 @@ namespace NosCore.Core.Networking
 
         public static FormUrlEncodedContent Content { get; private set; }
 
-        public static void RegisterBaseAdress(string address, string token)
+        public static void RegisterBaseAdress(string address = null, string token = null)
         {
+            if (address == null)
+            {
+                BaseAddress = new Uri("http://localhost");
+	            return;
+            }
+
             BaseAddress = new Uri(address);
             var values = new Dictionary<string, string>
             {
@@ -42,6 +50,11 @@ namespace NosCore.Core.Networking
 
         public T Get<T>(string route, ServerConfiguration webApi = null)
         {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T)MockValues[route];
+            }
+
             var client = new HttpClient();
             HttpResponseMessage response;
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());

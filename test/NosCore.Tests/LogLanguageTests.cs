@@ -49,7 +49,7 @@ namespace NosCore.Tests
 		public void CheckEveryLanguageAreUsefull(RegionType type)
 		{
 			var unfound = string.Empty;
-			var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString());
+			var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
 			foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
 			{
 				var resourceKey = entry.Key.ToString();

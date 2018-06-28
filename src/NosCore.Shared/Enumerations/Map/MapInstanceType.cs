@@ -1,6 +1,9 @@
-﻿namespace NosCore.Shared.Enumerations.Map
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NosCore.Shared.Enumerations.Map
 {
-	public enum MapInstanceType
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum MapInstanceType
 	{
 		BaseMapInstance,
 		NormalInstance,

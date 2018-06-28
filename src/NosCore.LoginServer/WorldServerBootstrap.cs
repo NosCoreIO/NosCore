@@ -16,11 +16,12 @@ namespace NosCore.LoginServer
 {
 	public static class WorldServerBootstrap
 	{
-		private const string _configurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string Title = "NosCore - LoginServer";
 
-		private static void PrintHeader()
+        private static void PrintHeader()
 		{
-			Console.Title = "NosCore - LoginServer";
+			Console.Title = Title;
 			const string text = "LOGIN SERVER - 0Lucifer0";
 			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
 			var separator = new string('=', Console.WindowWidth);
@@ -31,7 +32,7 @@ namespace NosCore.LoginServer
 		{
 			var builder = new ConfigurationBuilder();
 			var loginConfiguration = new LoginConfiguration();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
 			builder.AddJsonFile("login.json", false);
 			builder.Build().Bind(loginConfiguration);
 			LogLanguage.Language = loginConfiguration.Language;
