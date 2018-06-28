@@ -28,7 +28,7 @@ namespace NosCore.Controllers
 			_worldConfiguration = worldConfiguration;
 		}
 
-		public void GameStart([UsedImplicitly]GameStartPacket packet)
+		public void GameStart(GameStartPacket packet)
 		{
 			if (Session.GameStarted || !Session.HasSelectedCharacter)
 			{
@@ -195,7 +195,7 @@ namespace NosCore.Controllers
 		///     PreqPacket packet
 		/// </summary>
 		/// <param name="packet"></param>
-		public void Preq([UsedImplicitly]PreqPacket packet)
+		public void Preq(PreqPacket packet)
 		{
 			var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
 			var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
