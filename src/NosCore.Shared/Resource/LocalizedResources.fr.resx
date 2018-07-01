@@ -288,4 +288,67 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Ce pseudo est déjà utilisé.</value>
   </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Aventurier</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Archer</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Mauvais mot de passe.</value>
+  </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} i18n ActDesc parser. Region : {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} i18n BCards parser. Region : {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} i18n cartes parser. Region : {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} i18n items parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} i18n MapIdData parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} i18n MapPointData parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} i18n NpcMonster parser. Region : {1}</value>
+  </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} i18n NpcMonsterTalk parser. Region : {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} i18n quêtes parser. Region : {1}</value>
+  </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} i18n skills parser. Region : {1}</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Le nom du personnage est invalide.</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Magicien</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0} cartes parser.</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>Voulez-vous importer i18n ?</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0} portails parser.</value>
+  </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Escrimeur</value>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Catcheur</value>
+  </data>
 </root>
