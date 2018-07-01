@@ -5,6 +5,7 @@ using NosCore.Core.Extensions;
 using NosCore.Core.Serializing;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.CommandPackets;
 using NosCore.Shared.Enumerations;
 
@@ -26,6 +27,18 @@ namespace NosCore.Controllers
 				Session.SendPacket(Session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
 			}
 		}
+
+        [UsedImplicitly]
+        public void ChangeRep(ClientSession session, long reput)
+        {
+            if(session == null || reput < 0)
+            {
+                return;
+            }
+
+            Session.Character.Reput = reput;
+            Session.SendPacket(Session.Character.GenerateFd());
+        }
 
 		[UsedImplicitly]
         public void Help(HelpPacket helpPacket)
