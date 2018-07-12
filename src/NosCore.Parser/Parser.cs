@@ -88,17 +88,18 @@ namespace NosCore.Parser
 						//factory.ImportItems();
 						//factory.ImportSkills();
 						//factory.ImportCards();
-						//factory.ImportNpcMonsters();
-						//factory.ImportNpcMonsterData();
-						//factory.ImportMapNpcs();
-						//factory.ImportMonsters();
-						//factory.ImportShops();
-						//factory.ImportTeleporters();
-						//factory.ImportShopItems();
-						//factory.ImportShopSkills();
-						//factory.ImportRecipe();
-						//factory.ImportQuests();
-					}
+						factory.ImportNpcMonsters();
+						factory.ImportDrops();
+                        //factory.ImportNpcMonsterData();
+                        //factory.ImportMapNpcs();
+                        //factory.ImportMonsters();
+                        //factory.ImportShops();
+                        //factory.ImportTeleporters();
+                        //factory.ImportShopItems();
+                        //factory.ImportShopSkills();
+                        //factory.ImportRecipe();
+                        //factory.ImportQuests();
+                    }
 					else
 					{
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
@@ -163,6 +164,14 @@ namespace NosCore.Parser
 						}
 
 						Console.WriteLine(
+							$"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_DROPS)} [Y/n]");
+						key = Console.ReadKey(true);
+						if (key.KeyChar != 'n')
+						{
+							factory.ImportDrops();
+						}
+
+                        Console.WriteLine(
 							$"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERDATA)} [Y/n]");
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
