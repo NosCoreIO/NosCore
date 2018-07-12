@@ -17,7 +17,8 @@ namespace NosCore.DAL
 		private static GenericDAO<MapNpc, MapNpcDTO> _mapNpcDAO;
 		private static GenericDAO<NpcMonster, NpcMonsterDTO> _npcMonsterDAO;
 		private static GenericDAO<Card, CardDTO> _cardDAO;
-		private static GenericDAO<BCard, BCardDTO> _bcardDAO;
+		private static GenericDAO<Drop, DropDTO> _dropDAO;
+        private static GenericDAO<BCard, BCardDTO> _bcardDAO;
 		private static GenericDAO<Item, ItemDTO> _itemDAO;
 		private static GenericDAO<Quest, QuestDTO> _questDAO;
 		private static GenericDAO<QuestReward, QuestRewardDTO> _questRewardDAO;
@@ -36,7 +37,10 @@ namespace NosCore.DAL
 		private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
 		private static IMapper _mapper;
 
-		public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
+		public static GenericDAO<Drop, DropDTO> DropDAO => _dropDAO ??
+			(_dropDAO = new GenericDAO<Drop, DropDTO>(_mapper));
+
+        public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
 			(_i18N_ActDescDAO = new GenericDAO<I18N_ActDesc, I18N_ActDescDTO>(_mapper));
 
 		public static GenericDAO<I18N_Card, I18N_CardDTO> I18N_CardDAO =>
