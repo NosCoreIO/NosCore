@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Interaction;
@@ -58,17 +59,14 @@ namespace NosCore.GameObject.Networking
             switch (sentPacket.Receiver)
             {
                 case ReceiverType.AllExceptMe:
-                    Parallel.ForEach(Sessions, session =>
+                    Parallel.ForEach(Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId), session =>
                     {
                         if (!session.Value.HasSelectedCharacter)
                         {
                             return;
                         }
 
-                        if (session.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId)
-                        {
-                            session.Value.SendPacket(sentPacket.Packet);
-                        }
+                        session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;
                 case ReceiverType.AllExceptGroup:
