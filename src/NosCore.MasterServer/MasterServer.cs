@@ -8,6 +8,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using log4net;
 using log4net.Config;
+using Microsoft.AspNetCore.Hosting;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
 using NosCore.DAL;
@@ -19,22 +20,13 @@ namespace NosCore.MasterServer
 	{
 		private readonly MasterConfiguration _masterConfiguration;
 
-		public MasterServer(MasterConfiguration masterConfiguration)
+        public MasterServer(MasterConfiguration masterConfiguration)
 		{
 			_masterConfiguration = masterConfiguration;
 		}
 
-		private void InitializeLogger()
-		{
-			// LOGGER
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-			Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
-		}
-
 		public void Run()
 		{
-			InitializeLogger();
 			if (_masterConfiguration == null)
 			{
 				return;

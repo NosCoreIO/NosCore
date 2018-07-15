@@ -32,17 +32,9 @@ namespace NosCore.WorldServer
 			_worldConfiguration = worldConfiguration;
 		}
 
-		private void InitializeLogger()
-		{
-			// LOGGER
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-			Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
-		}
 
 		public void Run()
 		{
-			InitializeLogger();
 			if (_worldConfiguration == null)
 			{
 				return;
