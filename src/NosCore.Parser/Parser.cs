@@ -78,16 +78,16 @@ namespace NosCore.Parser
 					if (key.KeyChar != 'n')
 					{
 						factory.ImportMaps();
-						//factory.ImportRespawnMapType();
-						//factory.ImportMapType();
-						//factory.ImportMapTypeMap();
+						factory.ImportRespawnMapType();
+						factory.ImportMapType();
+						factory.ImportMapTypeMap();
 						factory.ImportAccounts();
 						factory.ImportPortals();
 						factory.ImportI18N();
 						//factory.ImportScriptedInstances();
 						//factory.ImportItems();
-						//factory.ImportSkills();
-						//factory.ImportCards();
+						factory.ImportSkills();
+						factory.ImportCards();
 						factory.ImportNpcMonsters();
 						factory.ImportDrops();
                         //factory.ImportNpcMonsterData();
@@ -145,7 +145,7 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportScriptedInstances();
+							//factory.ImportScriptedInstances();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
@@ -176,7 +176,7 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportNpcMonsterData();
+							//factory.ImportNpcMonsterData();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
@@ -205,14 +205,14 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportMonsters();
+							//factory.ImportMonsters();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportShops();
+							//factory.ImportShops();
 						}
 
 						Console.WriteLine(
@@ -220,7 +220,7 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportTeleporters();
+							//factory.ImportTeleporters();
 						}
 
 						Console.WriteLine(
@@ -228,7 +228,7 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportShopItems();
+							//factory.ImportShopItems();
 						}
 
 						Console.WriteLine(
@@ -236,21 +236,21 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportShopSkills();
+							//factory.ImportShopSkills();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportRecipe();
+							//factory.ImportRecipe();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportQuests();
+							//factory.ImportQuests();
 						}
 					}
 
