@@ -302,7 +302,7 @@ namespace NosCore.Controllers
 	    {
             //TODO: Add a penalty check when it will be ready
 	        var type = SayColorType.White;
-            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new Packets.ServerPackets.SayPacket
+            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
             {
                 Message = sayPacket.Message,
                 Type = type
