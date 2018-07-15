@@ -396,16 +396,5 @@ namespace NosCore.GameObject
                 Option = 0
             };
         }
-
-        public SayPacket GenerateSay(SayPacket packet)
-        {
-            return new SayPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = CharacterId,
-                Type = packet.Type,
-                Message = packet.Message
-            };
-        }
     }
 }
