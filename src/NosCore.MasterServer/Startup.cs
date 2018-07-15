@@ -6,18 +6,29 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
+using log4net;
+using log4net.Config;
+using log4net.Repository.Hierarchy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
+using Logger = NosCore.Shared.I18N.Logger;
 
 namespace NosCore.MasterServer
 {
@@ -58,12 +69,14 @@ namespace NosCore.MasterServer
 		public IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			PrintHeader();
-			var conf = InitializeConfiguration();
-			LogLanguage.Language = conf.Language;
+			var configuration = InitializeConfiguration();
+			services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature() { PreferHostingUrls = true, Addresses = { configuration.WebApi.ToString() } });
+            LogLanguage.Language = configuration.Language;
 			services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
-			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(conf.Password));
+			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(configuration.Password));
 			var signinKey = new SymmetricSecurityKey(keyByteArray);
-			services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
+			services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(cfg =>
 				{
 					cfg.RequireHttpsMetadata = false;
@@ -86,21 +99,22 @@ namespace NosCore.MasterServer
 				o.Filters.Add(new AuthorizeFilter(policy));
 			}).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
 			var containerBuilder = InitializeContainer(services);
-			containerBuilder.RegisterInstance(conf).As<MasterConfiguration>();
-			containerBuilder.RegisterInstance(conf).As<WebApiConfiguration>();
+			containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
+			containerBuilder.RegisterInstance(configuration).As<WebApiConfiguration>();
 			var container = containerBuilder.Build();
-			Task.Run(() => container.Resolve<MasterServer>().Run());
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
+            Task.Run(() => container.Resolve<MasterServer>().Run());
 			return new AutofacServiceProvider(container);
 		}
 
-		[UsedImplicitly]
+
+        [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
 		{
-			app.UseSwagger();
-
+            app.UseSwagger();
 			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
 			app.UseAuthentication();
 			app.UseMvc();
-		}
+        }
 	}
 }

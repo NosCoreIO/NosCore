@@ -17,14 +17,20 @@ namespace NosCore.DAL
 		private static GenericDAO<MapNpc, MapNpcDTO> _mapNpcDAO;
 		private static GenericDAO<NpcMonster, NpcMonsterDTO> _npcMonsterDAO;
 		private static GenericDAO<Card, CardDTO> _cardDAO;
-		private static GenericDAO<BCard, BCardDTO> _bcardDAO;
+		private static GenericDAO<Drop, DropDTO> _dropDAO;
+        private static GenericDAO<BCard, BCardDTO> _bcardDAO;
 		private static GenericDAO<Item, ItemDTO> _itemDAO;
 		private static GenericDAO<Quest, QuestDTO> _questDAO;
 		private static GenericDAO<QuestReward, QuestRewardDTO> _questRewardDAO;
 		private static GenericDAO<QuestObjective, QuestObjectiveDTO> _questObjectiveDAO;
 		private static GenericDAO<Mate, MateDTO> _mateDAO;
 		private static GenericDAO<Portal, PortalDTO> _portalDAO;
-		private static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> _i18N_ActDescDAO;
+		private static GenericDAO<MapType, MapTypeDTO> _mapTypeDAO;
+		private static GenericDAO<Combo, ComboDTO> _comboDAO;
+		private static GenericDAO<BCard, BCardDTO> _bCardDAO;
+        private static GenericDAO<RespawnMapType, RespawnMapTypeDTO> _respawnMapTypeDAO;
+        private static GenericDAO<MapTypeMap, MapTypeMapDTO> _mapTypeMapDAO;
+        private static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> _i18N_ActDescDAO;
 		private static GenericDAO<I18N_Card, I18N_CardDTO> _i18N_CardDAO;
 		private static GenericDAO<I18N_BCard, I18N_BCardDTO> _i18N_BCardDAO;
 		private static GenericDAO<I18N_Item, I18N_ItemDTO> _i18N_ItemDAO;
@@ -34,9 +40,33 @@ namespace NosCore.DAL
 		private static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> _i18N_NpcMonsterTalkDAO;
 		private static GenericDAO<I18N_Quest, I18N_QuestDTO> _i18N_QuestDAO;
 		private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
-		private static IMapper _mapper;
+		private static GenericDAO<Skill, SkillDTO> _skillDAO;
+		private static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> _npcMonsterSkillDAO;
+        private static IMapper _mapper;
 
-		public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
+		public static GenericDAO<Drop, DropDTO> DropDAO => _dropDAO ??
+			(_dropDAO = new GenericDAO<Drop, DropDTO>(_mapper));
+
+		public static GenericDAO<RespawnMapType, RespawnMapTypeDTO> RespawnMapTypeDAO => _respawnMapTypeDAO ??
+			(_respawnMapTypeDAO = new GenericDAO<RespawnMapType, RespawnMapTypeDTO>(_mapper));
+		public static GenericDAO<Combo, ComboDTO> ComboDAO => _comboDAO ??
+			(_comboDAO = new GenericDAO<Combo, ComboDTO>(_mapper));
+
+        public static GenericDAO<BCard, BCardDTO> BCardDAO => _bCardDAO ??
+			(_bCardDAO = new GenericDAO<BCard, BCardDTO>(_mapper));
+
+        public static GenericDAO<Skill, SkillDTO> SkillDAO => _skillDAO ??
+			(_skillDAO = new GenericDAO<Skill, SkillDTO>(_mapper));
+		public static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> NpcMonsterSkillDAO => _npcMonsterSkillDAO ??
+			(_npcMonsterSkillDAO = new GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO>(_mapper));
+
+        public static GenericDAO<MapType, MapTypeDTO> MapTypeDAO => _mapTypeDAO ??
+			(_mapTypeDAO = new GenericDAO<MapType, MapTypeDTO>(_mapper));
+
+		public static GenericDAO<MapTypeMap, MapTypeMapDTO> MapTypeMapDAO => _mapTypeMapDAO ??
+			(_mapTypeMapDAO = new GenericDAO<MapTypeMap, MapTypeMapDTO>(_mapper));
+
+        public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
 			(_i18N_ActDescDAO = new GenericDAO<I18N_ActDesc, I18N_ActDescDTO>(_mapper));
 
 		public static GenericDAO<I18N_Card, I18N_CardDTO> I18N_CardDAO =>
