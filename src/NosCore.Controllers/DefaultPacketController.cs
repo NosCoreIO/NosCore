@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core.Networking;
+using NosCore.Data.AliveEntities;
+using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
@@ -12,6 +16,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
@@ -308,5 +313,52 @@ namespace NosCore.Controllers
                 Type = type
             } ), ReceiverType.AllExceptMe);
 	    }
-	}
+
+	    /// <summary>
+	    ///     WhisperPacket
+	    /// </summary>
+	    /// <param name="whisperPacket"></param>
+	    public void WhisperPacket(WhisperPacket whisperPacket)
+	    {
+	        try
+	        {
+	            string message = string.Empty;
+	            if (string.IsNullOrEmpty(whisperPacket.Message))
+	            {
+	                return;
+	            }
+
+                //Todo: review this
+	            string[] messageData = whisperPacket.Message.Split(' ');
+                string receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+
+	            for (int i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
+	            {
+	                message += $"{messageData[i]} ";
+	            }
+
+	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : whisperPacket.Message;
+	            message = message.Trim();
+
+                Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
+                {
+                    SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster : SpeakType.Player,
+                    Message = message
+                }));
+
+	            CharacterDTO receiver = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == receiverName);
+
+	            if (receiver == null)
+	            {
+	                return;
+	            }
+                //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
+                
+	        }
+	        catch (Exception e)
+	        {
+                Logger.Log.Error("Whisper failed.", e);
+	        }
+	    }
+    }
 }
