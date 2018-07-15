@@ -10,6 +10,7 @@ using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
@@ -107,14 +108,13 @@ namespace NosCore.Controllers
 
                 acc.Language = _loginConfiguration.UserLanguage;
                 DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-
-                if (servers.Count > 0)
+                if (servers.Any())
                 {
                     var subpacket = new List<NsTeStSubPacket>();
                     var i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
-                    foreach (var server in servers.OrderBy(s => s.Name))
+                    foreach (WorldServerInfo server in servers.OrderBy(s => s.Name))
                     {
                         if (server.Name != servergroup)
                         {

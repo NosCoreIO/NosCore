@@ -1,5 +1,6 @@
 ﻿using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.GameObject
 {
@@ -7,7 +8,7 @@ namespace NosCore.GameObject
     {
         public short Amount { get; set; }
 
-        public byte VisualType => 9;
+        public VisualType VisualType => VisualType.Object;
 
         public short VNum { get; set; }
 

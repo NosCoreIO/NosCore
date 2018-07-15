@@ -1,5 +1,6 @@
 ﻿using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -9,7 +10,7 @@ namespace NosCore.Packets.ServerPackets
 		#region Properties
 
 		[PacketIndex(0)]
-		public byte VisualType { get; set; }
+		public VisualType VisualType { get; set; }
 
 		[PacketIndex(1)]
 		public long VisualId { get; set; }
