@@ -1,6 +1,6 @@
 ﻿namespace NosCore.Shared.Enumerations.Map
 {
-	public enum UserType : byte
+	public enum VisualType : byte
 	{
 		Player = 1,
 		Npc = 2,

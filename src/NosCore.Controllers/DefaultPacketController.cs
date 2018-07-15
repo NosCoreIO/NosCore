@@ -9,6 +9,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 
@@ -292,5 +293,20 @@ namespace NosCore.Controllers
                 Session.Disconnect();
             }
         }
+
+	    /// <summary>
+	    ///     SayPacket
+	    /// </summary>
+	    /// <param name="sayPacket"></param>
+	    public void SayPacket(ClientSayPacket sayPacket)
+	    {
+            //TODO: Add a penalty check when it will be ready
+	        var type = SayColorType.White;
+            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new Packets.ServerPackets.SayPacket
+            {
+                Message = sayPacket.Message,
+                Type = type
+            } ), ReceiverType.AllExceptMe);
+	    }
 	}
 }
