@@ -58,6 +58,19 @@ namespace NosCore.GameObject.Networking
             switch (sentPacket.Receiver)
             {
                 case ReceiverType.AllExceptMe:
+                    Parallel.ForEach(Sessions, session =>
+                    {
+                        if (!session.Value.HasSelectedCharacter)
+                        {
+                            return;
+                        }
+
+                        if (session.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId)
+                        {
+                            session.Value.SendPacket(sentPacket.Packet);
+                        }
+                    });
+                    break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
                 case ReceiverType.AllNoHeroBlocked:

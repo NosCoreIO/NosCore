@@ -139,7 +139,7 @@ namespace NosCore.Core.Serializing
                             var index = matches.Count > currentIndex ? matches[currentIndex].Index
                                 : packetContent.Length;
                             var valueToEnd =
-                                packetContent.Substring(packetContent.Length, packetContent.Length - index);
+                                packetContent.Substring(matches[currentIndex].Index, packetContent.Length - matches[currentIndex].Index);
                             packetBasePropertyInfo.Value.SetValue(deserializedPacket,
                                 DeserializeValue(packetBasePropertyInfo.Value.PropertyType, valueToEnd,
                                     packetBasePropertyInfo.Key,

@@ -337,12 +337,12 @@ namespace NosCore.Controllers
 	                message += $"{messageData[i]} ";
 	            }
 
-	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : whisperPacket.Message;
+	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : message;
 	            message = message.Trim();
 
                 Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
                 {
-                    SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster : SpeakType.Player,
+                    SpeakType = SpeakType.Player,
                     Message = message
                 }));
 
@@ -353,7 +353,6 @@ namespace NosCore.Controllers
 	                return;
 	            }
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
-                
 	        }
 	        catch (Exception e)
 	        {
