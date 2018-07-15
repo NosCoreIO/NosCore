@@ -85,6 +85,9 @@ namespace NosCore.Shared.I18N
 		[UsedImplicitly] MAGICIAN,
 		[UsedImplicitly] WRESTLER,
         NPCMONSTERS_PARSED,
-        PARSE_DROPS
+        PARSE_DROPS,
+        MAPTYPES_PARSED,
+        RESPAWNTYPE_PARSED,
+        SKILLS_PARSED
     }
 }
