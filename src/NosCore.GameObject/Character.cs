@@ -5,8 +5,10 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
@@ -30,7 +32,7 @@ namespace NosCore.GameObject
 
         public DateTime LastMove { get; set; }
 
-        public byte VisualType => 1;
+        public VisualType VisualType => VisualType.Player;
 
         public short VNum { get; set; }
 
@@ -392,6 +394,18 @@ namespace NosCore.GameObject
                 MPMaximum = MPLoad(),
                 Unknown = 0,
                 Option = 0
+            };
+        }
+
+        public SpeakPacket GenerateSpk(SpeakPacket packet)
+        {
+            return new SpeakPacket
+            {
+                VisualType = VisualType,
+                VisualId = CharacterId,
+                SpeakType = packet.SpeakType,
+                EntityName = Name,
+                Message = packet.Message
             };
         }
     }

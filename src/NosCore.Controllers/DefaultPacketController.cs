@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Core.Serializing;
+using NosCore.Data.AliveEntities;
+using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
@@ -9,8 +16,11 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
+using NosCore.WebApiData;
 
 namespace NosCore.Controllers
 {
@@ -292,5 +302,80 @@ namespace NosCore.Controllers
                 Session.Disconnect();
             }
         }
-	}
+
+	    /// <summary>
+	    ///     SayPacket
+	    /// </summary>
+	    /// <param name="sayPacket"></param>
+	    public void SayPacket(ClientSayPacket sayPacket)
+	    {
+            //TODO: Add a penalty check when it will be ready
+	        var type = SayColorType.White;
+            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
+            {
+                Message = sayPacket.Message,
+                Type = type
+            } ), ReceiverType.AllExceptMe);
+	    }
+
+	    /// <summary>
+	    ///     WhisperPacket
+	    /// </summary>
+	    /// <param name="whisperPacket"></param>
+	    public void WhisperPacket(WhisperPacket whisperPacket)
+	    {
+	        try
+	        {
+	            string message = string.Empty;
+	            if (string.IsNullOrEmpty(whisperPacket.Message))
+	            {
+	                return;
+	            }
+
+	            //Todo: review this
+	            string[] messageData = whisperPacket.Message.Split(' ');
+	            string receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+
+	            for (int i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
+	            {
+	                message += $"{messageData[i]} ";
+	            }
+
+	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : message;
+	            message = message.Trim();
+
+                Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
+                {
+                    SpeakType = SpeakType.Player,
+                    Message = message
+                }));
+
+	            var speakPacket = Session.Character.GenerateSpk(new SpeakPacket
+	            {
+	                SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster : SpeakType.Player,
+	                Message = message
+	            });
+
+	            //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
+
+	            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+                foreach (var channel in channels)
+	            {
+	                var postedPacket = new PostedPacket
+	                {
+	                    Packet = PacketFactory.Serialize(speakPacket), //Todo: delete this later, this is just for testing purposes
+	                    Receiver = receiverName,
+	                    Sender = Session.Character.Name,
+	                    WebApi = channel.WebApi
+	                };
+	                WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                }
+	        }
+	        catch (Exception e)
+	        {
+	            Logger.Log.Error("Whisper failed.", e);
+	        }
+        }
+    }
 }

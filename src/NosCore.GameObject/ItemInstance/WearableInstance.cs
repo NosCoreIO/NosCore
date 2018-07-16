@@ -1,5 +1,6 @@
 ﻿using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.GameObject.ItemInstance
 {
@@ -7,7 +8,7 @@ namespace NosCore.GameObject.ItemInstance
 	{
 		public string Name { get; set; }
 		public short? Amount { get; set; }
-		public byte VisualType { get; set; } = 9;
+		public VisualType VisualType { get; set; } = VisualType.Object;
 		public short VNum { get; set; }
 		public long VisualId { get; set; }
 		public byte Direction { get; set; }
