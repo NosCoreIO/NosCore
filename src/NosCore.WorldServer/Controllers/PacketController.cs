@@ -33,7 +33,7 @@ namespace NosCore.WorldServer.Controllers
 
             if (senderSession == null)
             {
-                postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, RegionType.FR)}: {postedPacket.SenderWorldId}";
+                postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
             }
 
             receiverSession.SendPacket(postedPacket.Packet);
