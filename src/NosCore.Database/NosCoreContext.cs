@@ -224,7 +224,7 @@ namespace NosCore.Database
 			modelBuilder.Entity<Item>()
 				.HasMany(e => e.Drop)
 				.WithOne(e => e.Item)
-				.HasForeignKey(e => e.ItemVNum)
+				.HasForeignKey(e => e.VNum)
 				.OnDelete(DeleteBehavior.Restrict);
 
 			modelBuilder.Entity<Item>()
@@ -290,7 +290,7 @@ namespace NosCore.Database
 			modelBuilder.Entity<RespawnMapType>()
 				.HasOne(e => e.Map)
 				.WithMany(e => e.RespawnMapType)
-				.HasForeignKey(e => e.DefaultMapId)
+				.HasForeignKey(e => e.MapId)
 				.OnDelete(DeleteBehavior.Restrict);
 
 			modelBuilder.Entity<MapType>()

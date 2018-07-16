@@ -154,9 +154,5 @@ namespace NosCore.Data
 		public short WaterResistance { get; set; }
 
 		public byte Width { get; set; }
-
-		public void Initialize()
-		{
-		}
 	}
 }
