@@ -145,5 +145,17 @@ namespace NosCore.Core.Networking
 
             throw new HttpRequestException(response.Headers.ToString());
         }
+
+        public T SendPacketToCharacter<T>(T packet)
+        {
+            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+            foreach (var channel in channels)
+            {
+                Post<T>("api/packet", packet, channel.WebApi);
+            }
+
+            return packet;
+        }
     }
 }
