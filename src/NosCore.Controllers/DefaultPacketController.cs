@@ -362,12 +362,6 @@ namespace NosCore.Controllers
                     Message = message
                 }));
 
-	            CharacterDTO receiver = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == receiverName);
-
-	            if (receiver == null)
-	            {
-	                return;
-	            }
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
 
 	            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
