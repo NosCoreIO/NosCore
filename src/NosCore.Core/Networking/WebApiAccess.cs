@@ -146,16 +146,32 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public T SendPacketToCharacter<T>(T packet)
+        public void SendPacketToCharacter<T>(T packet)
         {
-            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            if (packet == null)
+            {
+                return;
+            }
+
+            var channels = Get<List<WorldServerInfo>>("api/channels");
 
             foreach (var channel in channels)
             {
                 Post<T>("api/packet", packet, channel.WebApi);
             }
+        }
 
-            return packet;
+        public void SendPacketsToCharacter<T>(List<T> packets)
+        {
+            if (packets == null)
+            {
+                return;
+            }
+
+            foreach (T packet in packets)
+            {
+                SendPacketToCharacter(packet);
+            }
         }
     }
 }
