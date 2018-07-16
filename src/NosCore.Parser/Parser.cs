@@ -15,7 +15,7 @@ namespace NosCore.Parser
 {
 	public static class Parser
 	{
-		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"../../../configuration";
 		private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
 		private const string Title = "NosCore - Parser";
 

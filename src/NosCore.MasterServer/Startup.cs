@@ -34,7 +34,7 @@ namespace NosCore.MasterServer
 {
 	public class Startup
 	{
-		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"../../../configuration";
 		private const string Title = "NosCore - MasterServer";
 
         private void PrintHeader()
