@@ -78,7 +78,6 @@ namespace NosCore.Core.Networking
 			_channel?.Flush();
 		}
 
-        //Todo: delete this later, it's just for testing purposes
 	    public void SendPacket(string packet)
 	    {
 	        if (packet == null)
