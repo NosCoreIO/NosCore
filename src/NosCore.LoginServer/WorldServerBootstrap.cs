@@ -14,9 +14,9 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
-	public static class WorldServerBootstrap
+	public static class LoginServerBootstrap
 	{
-		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"../../../configuration";
 		private const string Title = "NosCore - LoginServer";
 
         private static void PrintHeader()
