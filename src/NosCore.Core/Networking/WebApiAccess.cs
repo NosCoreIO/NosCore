@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using Newtonsoft.Json;
 using NosCore.Configuration;
+using NosCore.Core.Serializing;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Networking
 {
@@ -73,6 +76,49 @@ namespace NosCore.Core.Networking
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             response = client.GetAsync(route).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(response.Headers.ToString());
+        }
+
+        public T Post<T>(string route, T data, ServerConfiguration webApi = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T)MockValues[route];
+            }
+
+            var client = new HttpClient();
+            HttpResponseMessage response;
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            // When you Serialize the object, you get the correct data, but when you send it, the packetcontroller receives a null Object
+            response = client.PostAsync(route, new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json")).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(response.Headers.ToString());
+        }
+
+        public T Delete<T>(string route, ServerConfiguration webApi = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T)MockValues[route];
+            }
+
+            var client = new HttpClient();
+            HttpResponseMessage response;
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            response = client.DeleteAsync(route).Result;
+
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
