@@ -7,7 +7,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
 
-namespace NosCore.Parser
+namespace NosCore.Parser.Parsers
 {
     internal class SkillParser
     {
@@ -23,10 +23,10 @@ namespace NosCore.Parser
             List<BCardDTO> skillCards = new List<BCardDTO>();
 	        int counter = 0;
 
-            using (StreamReader skillIdStream = new StreamReader(_folder+fileSkillId, Encoding.GetEncoding(1252)))
+            using (StreamReader skillIdStream = new StreamReader(_folder + fileSkillId, Encoding.Default))
             {
-	            string line;
-	            while ((line = skillIdStream.ReadLine()) != null)
+                string line;
+                while ((line = skillIdStream.ReadLine()) != null)
                 {
                     string[] currentLine = line.Split('\t');
 

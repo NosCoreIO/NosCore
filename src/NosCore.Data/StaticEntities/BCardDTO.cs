@@ -16,14 +16,6 @@ namespace NosCore.Data.StaticEntities
 
 		public int SecondData { get; set; }
 
-		public virtual CardDTO Card { get; set; }
-
-		public virtual AdditionalTypes.Item Item { get; set; }
-
-		public virtual SkillDTO Skill { get; set; }
-
-		public virtual NpcMonsterDTO NpcMonster { get; set; }
-
 		public short? CardId { get; set; }
 
 		public short? ItemVNum { get; set; }
