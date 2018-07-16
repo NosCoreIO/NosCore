@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
@@ -17,6 +19,7 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using NosCore.WebApiData;
 
 namespace NosCore.Controllers
 {
@@ -337,6 +340,19 @@ namespace NosCore.Controllers
 	                message += $"{messageData[i]} ";
 	            }
 
+	            var speakPacket = new SpeakPacket
+	            {
+	                SpeakType = SpeakType.Player,
+	                Message = message
+	            };
+
+                PostedPacket post = new PostedPacket
+                {
+                    Packet = speakPacket,
+                    Receiver = receiverName,
+                    Sender = Session.Character.Name
+                };
+
 	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : message;
 	            message = message.Trim();
 
@@ -353,7 +369,22 @@ namespace NosCore.Controllers
 	                return;
 	            }
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
-	        }
+
+	            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+	            foreach (var channel in channels)
+	            {
+	                var postObject = new PostedPacket
+	                {
+	                    Packet = speakPacket,
+	                    Receiver = receiverName,
+	                    Sender = Session.Character.Name,
+	                    WebApi = channel.WebApi
+	                };
+
+	                WebApiAccess.Instance.Post("api/packet", postObject, channel.WebApi);
+	            }
+            }
 	        catch (Exception e)
 	        {
                 Logger.Log.Error("Whisper failed.", e);
