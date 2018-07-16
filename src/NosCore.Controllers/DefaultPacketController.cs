@@ -7,6 +7,7 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -20,7 +21,6 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using NosCore.WebApiData;
 
 namespace NosCore.Controllers
 {
@@ -358,11 +358,19 @@ namespace NosCore.Controllers
 
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
 
+	            int? channel = ServerManager.Instance.GetChannelIdPerAccountName(Session.Account.Name);
+
+	            if (channel == null)
+	            {
+	                return;
+	            }
+
 	            WebApiAccess.Instance.SendPacketToCharacter(new PostedPacket
 	            {
 	                Packet = PacketFactory.Serialize(speakPacket),
 	                Receiver = receiverName,
-	                Sender = Session.Character.Name
+	                Sender = Session.Character.Name,
+                    SenderWorldId = channel.Value
 	            });
             }
 	        catch (Exception e)

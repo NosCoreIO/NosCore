@@ -90,6 +90,7 @@ namespace NosCore.Shared.I18N
         RESPAWNTYPE_PARSED,
         SKILLS_PARSED,
         NPCS_PARSED,
-        MONSTERS_PARSED
+        MONSTERS_PARSED,
+        CHANNEL
     }
 }

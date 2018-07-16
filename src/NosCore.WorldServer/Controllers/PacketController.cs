@@ -5,11 +5,12 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NosCore.Core.Networking;
+using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using NosCore.WebApiData;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -19,12 +20,23 @@ namespace NosCore.WorldServer.Controllers
         // POST api/packet
         [HttpPost]
         [AllowAnonymous]
-        public void SendPacketToCharacter(string postedData)
+        public void SendMessageToCharacter(string postedData)
         {
             var postedPacket = JsonConvert.DeserializeObject<PostedPacket>(postedData);
+            ClientSession senderSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Sender);
             ClientSession receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Receiver);
 
-            receiverSession?.SendPacket(postedPacket.Packet);
+            if (receiverSession == null)
+            {
+                return;
+            }
+
+            if (senderSession == null)
+            {
+                postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, RegionType.FR)}: {postedPacket.SenderWorldId}";
+            }
+
+            receiverSession.SendPacket(postedPacket.Packet);
         }
 
     }
