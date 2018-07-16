@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core.Serializing;
+using NosCore.Data;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Networking
@@ -52,6 +53,23 @@ namespace NosCore.Core.Networking
             Content = new FormUrlEncodedContent(values);
         }
 
+        private static void AssignToken(HttpResponseMessage response, HttpClient client)
+        {
+            if (Token != null)
+            {
+                return;
+            }
+
+            response = client.PostAsync("api/token/connectserver", Content).Result;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(response.Headers.ToString());
+            }
+
+            Token = response.Content.ReadAsStringAsync().Result;
+        }
+
         public T Get<T>(string route, ServerConfiguration webApi = null)
         {
             if (MockValues.ContainsKey(route))
@@ -60,20 +78,9 @@ namespace NosCore.Core.Networking
             }
 
             var client = new HttpClient();
-            HttpResponseMessage response;
+            var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            if (Token == null)
-            {
-                response = client.PostAsync("api/token/connectserver", Content).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    Token = response.Content.ReadAsStringAsync().Result;
-                }
-                else
-                {
-                    throw new HttpRequestException(response.Headers.ToString());
-                }
-            }
+            AssignToken(response, client);
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             response = client.GetAsync(route).Result;
@@ -93,20 +100,9 @@ namespace NosCore.Core.Networking
             }
 
             var client = new HttpClient();
-            HttpResponseMessage response;
+            HttpResponseMessage response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            if (Token == null)
-            {
-                response = client.PostAsync("api/token/connectserver", Content).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    Token = response.Content.ReadAsStringAsync().Result;
-                }
-                else
-                {
-                    throw new HttpRequestException(response.Headers.ToString());
-                }
-            }
+            AssignToken(response, client);
 
             var param = new Dictionary<string, string>
             {
@@ -146,7 +142,7 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public void SendPacketToCharacter<T>(T packet)
+        public void SendPacketToCharacter(PostedPacket packet)
         {
             if (packet == null)
             {
@@ -157,18 +153,19 @@ namespace NosCore.Core.Networking
 
             foreach (var channel in channels)
             {
-                Post<T>("api/packet", packet, channel.WebApi);
+                packet.ReceiverWorldId = channel.Id;
+                Post<PostedPacket>("api/packet", packet, channel.WebApi);
             }
         }
 
-        public void SendPacketsToCharacter<T>(List<T> packets)
+        public void SendPacketsToCharacter(List<PostedPacket> packets)
         {
             if (packets == null)
             {
                 return;
             }
 
-            foreach (T packet in packets)
+            foreach (PostedPacket packet in packets)
             {
                 SendPacketToCharacter(packet);
             }

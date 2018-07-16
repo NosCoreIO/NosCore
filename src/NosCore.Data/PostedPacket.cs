@@ -1,10 +1,8 @@
-﻿using NosCore.Core.Serializing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NosCore.Configuration;
 
-namespace NosCore.WebApiData
+namespace NosCore.Data
 {
     public class PostedPacket
     {
@@ -14,6 +12,8 @@ namespace NosCore.WebApiData
 
         public string Receiver { get; set; }
 
-        public ServerConfiguration WebApi { get; set; }
+        public int SenderWorldId { get; set; }
+
+        public int ReceiverWorldId { get; set; }
     }
 }

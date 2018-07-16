@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core;
+using NosCore.Core.Networking;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -38,6 +40,19 @@ namespace NosCore.GameObject.Networking
 			Mapinstances.TryAdd(guid, mapInstance);
 			return mapInstance;
 		}
+
+	    public int? GetChannelIdPerAccountName(string accountName)
+	    {
+	        var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+	        foreach (var server in servers)
+	        {
+	            if (WebApiAccess.Instance.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Any(a => a == accountName))
+	            {
+	                return server.Id;
+	            }
+	        }
+            return null;
+	    }
 
 		public void Initialize()
 		{
