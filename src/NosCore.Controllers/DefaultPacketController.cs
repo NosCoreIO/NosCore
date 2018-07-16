@@ -360,7 +360,7 @@ namespace NosCore.Controllers
 
 	            WebApiAccess.Instance.SendPacketToCharacter(new PostedPacket
 	            {
-	                Packet = PacketFactory.Serialize(speakPacket), //Todo: delete this later, this is just for testing purposes
+	                Packet = PacketFactory.Serialize(speakPacket),
 	                Receiver = receiverName,
 	                Sender = Session.Character.Name
 	            });

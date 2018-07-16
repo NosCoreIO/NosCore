@@ -45,11 +45,11 @@ namespace NosCore.Core.Networking
             }
 
             BaseAddress = new Uri(address);
-            var values = new Dictionary<string, string>//TODO use JSON instead
+            var values = new Dictionary<string, string>
             {
                 {"ServerToken", token}
             };
-            Content = new FormUrlEncodedContent(values);//TODO use StringContent instead
+            Content = new FormUrlEncodedContent(values);
         }
 
         public T Get<T>(string route, ServerConfiguration webApi = null)
