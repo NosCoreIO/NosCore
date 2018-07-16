@@ -356,22 +356,15 @@ namespace NosCore.Controllers
 	                Message = message
 	            });
 
-	            //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
+                //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
 
-	            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-
-                foreach (var channel in channels)
+	            WebApiAccess.Instance.SendPacketToCharacter(new PostedPacket
 	            {
-	                var postedPacket = new PostedPacket
-	                {
-	                    Packet = PacketFactory.Serialize(speakPacket), //Todo: delete this later, this is just for testing purposes
-	                    Receiver = receiverName,
-	                    Sender = Session.Character.Name,
-	                    WebApi = channel.WebApi
-	                };
-	                WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
-                }
-	        }
+	                Packet = PacketFactory.Serialize(speakPacket), //Todo: delete this later, this is just for testing purposes
+	                Receiver = receiverName,
+	                Sender = Session.Character.Name
+	            });
+            }
 	        catch (Exception e)
 	        {
 	            Logger.Log.Error("Whisper failed.", e);
