@@ -41,4 +41,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+	  <ItemGroup>
+	    <Reference Include="AspNetCore.Http.Extensions">
+	      <HintPath>..\..\..\..\..\.nuget\packages\aspnetcore.http.extensions\1.0.0\lib\netstandard2.0\AspNetCore.Http.Extensions.dll</HintPath>
+	    </Reference>
+	  </ItemGroup>
 </Project>

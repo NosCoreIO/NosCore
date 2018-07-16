@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Core.Serializing;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -331,27 +332,14 @@ namespace NosCore.Controllers
 	                return;
 	            }
 
-                //Todo: review this
+	            //Todo: review this
 	            string[] messageData = whisperPacket.Message.Split(' ');
-                string receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+	            string receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
 
 	            for (int i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
 	            {
 	                message += $"{messageData[i]} ";
 	            }
-
-	            var speakPacket = new SpeakPacket
-	            {
-	                SpeakType = SpeakType.Player,
-	                Message = message
-	            };
-
-                PostedPacket post = new PostedPacket
-                {
-                    Packet = speakPacket,
-                    Receiver = receiverName,
-                    Sender = Session.Character.Name
-                };
 
 	            message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : message;
 	            message = message.Trim();
@@ -362,27 +350,32 @@ namespace NosCore.Controllers
                     Message = message
                 }));
 
-                //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
+	            var speakPacket = Session.Character.GenerateSpk(new SpeakPacket
+	            {
+	                SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster : SpeakType.Player,
+	                Message = message
+	            });
+
+	            //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done
 
 	            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
 
-	            foreach (var channel in channels)
+                foreach (var channel in channels)
 	            {
-	                var postObject = new PostedPacket
+	                var postedPacket = new PostedPacket
 	                {
-	                    Packet = speakPacket,
+	                    Packet = PacketFactory.Serialize(speakPacket), //Todo: delete this later, this is just for testing purposes
 	                    Receiver = receiverName,
 	                    Sender = Session.Character.Name,
 	                    WebApi = channel.WebApi
 	                };
-
-	                WebApiAccess.Instance.Post("api/packet", postObject, channel.WebApi);
-	            }
-            }
+	                WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                }
+	        }
 	        catch (Exception e)
 	        {
-                Logger.Log.Error("Whisper failed.", e);
+	            Logger.Log.Error("Whisper failed.", e);
 	        }
-	    }
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace NosCore.WebApiData
 {
     public class PostedPacket
     {
-        public PacketDefinition Packet { get; set; }
+        public string Packet { get; set; }
 
         public string Sender { get; set; }
 
