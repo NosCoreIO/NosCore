@@ -22,7 +22,8 @@ namespace NosCore.Parser
 
 		private readonly MapParser _mapParser = new MapParser();
 		private readonly MapNpcParser _mapNpcParser = new MapNpcParser();
-		private readonly CardParser _cardParser = new CardParser();
+		private readonly MapMonsterParser _mapMonsterParser = new MapMonsterParser();
+        private readonly CardParser _cardParser = new CardParser();
 		private readonly ItemParser _itemParser = new ItemParser();
 		private readonly PortalParser _portalParser = new PortalParser();
 		private readonly I18NParser _i18NParser = new I18NParser();
@@ -67,15 +68,19 @@ namespace NosCore.Parser
 
 		public void ImportCards()
 		{
-			_cardParser.InsertCards();
+			_cardParser.InsertCards(_folder);
 		}
 
 		public void ImportMapNpcs()
 		{
 			_mapNpcParser.InsertMapNpcs(_packetList);
 		}
+		public void ImportMapMonsters()
+		{
+			_mapMonsterParser.InsertMapMonster(_packetList);
+		}
 
-		public void ImportMaps()
+        public void ImportMaps()
 		{
 			_mapParser.InsertOrUpdateMaps(_folder, _packetList);
 		}
@@ -137,7 +142,7 @@ namespace NosCore.Parser
 
 		internal void ImportItems()
 		{
-			_itemParser.Parse(_folder, _packetList);
+			_itemParser.Parse(_folder);
 		}
 
 	}

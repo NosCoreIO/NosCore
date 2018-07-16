@@ -8,6 +8,7 @@ using log4net.Config;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.DAL;
+using NosCore.GameObject;
 using NosCore.Shared.I18N;
 // ReSharper disable LocalizableElement
 
@@ -15,7 +16,7 @@ namespace NosCore.Parser
 {
 	public static class Parser
 	{
-		private const string ConfigurationPath = @"..\..\..\configuration";
+		private const string ConfigurationPath = @"../../../configuration";
 		private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
 		private const string Title = "NosCore - Parser";
 
@@ -51,8 +52,7 @@ namespace NosCore.Parser
 			PrintHeader();
 			InitializeLogger();
 			InitializeConfiguration();
-
-			try
+            try
 			{
 				DataAccessHelper.Instance.Initialize(ParserConfiguration.Database);
 
@@ -79,20 +79,20 @@ namespace NosCore.Parser
 					{
 						factory.ImportMaps();
 						factory.ImportRespawnMapType();
-						factory.ImportMapType();
+                        factory.ImportMapType();
 						factory.ImportMapTypeMap();
 						factory.ImportAccounts();
 						factory.ImportPortals();
 						factory.ImportI18N();
 						//factory.ImportScriptedInstances();
-						//factory.ImportItems();
+						factory.ImportItems();
 						factory.ImportSkills();
 						factory.ImportCards();
 						factory.ImportNpcMonsters();
 						factory.ImportDrops();
                         //factory.ImportNpcMonsterData();
-                        //factory.ImportMapNpcs();
-                        //factory.ImportMonsters();
+                        factory.ImportMapNpcs();
+                        factory.ImportMapMonsters();
                         //factory.ImportShops();
                         //factory.ImportTeleporters();
                         //factory.ImportShopItems();
@@ -114,7 +114,8 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							factory.ImportMapType();
+							factory.ImportRespawnMapType();
+                            factory.ImportMapType();
 							factory.ImportMapTypeMap();
 						}
 
@@ -205,7 +206,7 @@ namespace NosCore.Parser
 						key = Console.ReadKey(true);
 						if (key.KeyChar != 'n')
 						{
-							//factory.ImportMonsters();
+							factory.ImportMapMonsters();
 						}
 
 						Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
@@ -263,9 +264,10 @@ namespace NosCore.Parser
 					Thread.Sleep(5000);
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				Console.ReadKey();
+				Logger.Log.Error(ex);
+                Console.ReadKey();
 			}
 		}
 	}

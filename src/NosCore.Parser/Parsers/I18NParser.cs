@@ -51,7 +51,8 @@ namespace NosCore.Parser.Parsers
 							if (actdesclist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
 							{
-								actdescdtos.Add(new I18N_ActDescDTO
+								if (currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
+                                    actdescdtos.Add(new I18N_ActDescDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -85,7 +86,7 @@ namespace NosCore.Parser.Parsers
 						{
 							var currentLine = _line.Split('\t');
 							if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
-							{
+							{	if(currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
 								carddtos.Add(new I18N_CardDTO
 								{
 									Key = currentLine[0],
@@ -122,7 +123,8 @@ namespace NosCore.Parser.Parsers
 							if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
 							{
-								bcarddtos.Add(new I18N_BCardDTO
+								if (currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
+                                    bcarddtos.Add(new I18N_BCardDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -157,7 +159,8 @@ namespace NosCore.Parser.Parsers
 							var currentLine = _line.Split('\t');
 							if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
-								itemdtos.Add(new I18N_ItemDTO
+								if (currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
+                                    itemdtos.Add(new I18N_ItemDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -193,7 +196,8 @@ namespace NosCore.Parser.Parsers
 							if (mapiddatalist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
 							{
-								mapiddatadtos.Add(new I18N_MapIdDataDTO
+								if (currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
+                                    mapiddatadtos.Add(new I18N_MapIdDataDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -229,7 +233,8 @@ namespace NosCore.Parser.Parsers
 							if (mappointdatalist.Find(s =>
 								s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
-								mappointdatadtos.Add(new I18N_MapPointDataDTO
+								if (currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
+                                    mappointdatadtos.Add(new I18N_MapPointDataDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -265,7 +270,8 @@ namespace NosCore.Parser.Parsers
 							if (npcmonsterlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
 							{
-								npcmonsterdto.Add(new I18N_NpcMonsterDTO
+								if (currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
+                                    npcmonsterdto.Add(new I18N_NpcMonsterDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -301,7 +307,8 @@ namespace NosCore.Parser.Parsers
 							if (npcmonstertalklist.Find(
 								s => s.Key == currentLine[0] && s.RegionType == region) == null)
 							{
-								npctalkdtos.Add(new I18N_NpcMonsterTalkDTO
+								if (currentLine.Length > 1 && npctalkdtos.Exists(s=>s.Key == currentLine[0]))
+                                    npctalkdtos.Add(new I18N_NpcMonsterTalkDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,
@@ -337,7 +344,8 @@ namespace NosCore.Parser.Parsers
 							if (questlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
 							{
-								questdtos.Add(new I18N_QuestDTO
+								if (currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
+                                    questdtos.Add(new I18N_QuestDTO
 								{
 									Key = currentLine[0],
 									RegionType = region,

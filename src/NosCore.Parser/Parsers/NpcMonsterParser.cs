@@ -541,13 +541,13 @@ namespace NosCore.Parser.Parsers
                             {
                                 break;
                             }
-                            if (DAOFactory.DropDAO.Where(s => s.MonsterVNum == npc.NpcMonsterVNum).Count(s => s.ItemVNum == vnum) != 0)
+                            if (DAOFactory.DropDAO.Where(s => s.MonsterVNum == npc.NpcMonsterVNum).Count(s => s.VNum == vnum) != 0)
                             {
                                 continue;
                             }
                             drops.Add(new DropDTO
                             {
-                                ItemVNum = vnum,
+                                VNum = vnum,
                                 Amount = Convert.ToInt32(currentLine[i + 2]),
                                 MonsterVNum = npc.NpcMonsterVNum,
                                 DropChance = Convert.ToInt32(currentLine[i + 1])

@@ -33,7 +33,7 @@ namespace NosCore.WorldServer
 {
     public class Startup
     {
-        private const string ConfigurationPath = @"..\..\..\configuration";
+        private const string ConfigurationPath = @"../../../configuration";
         private const string Title = "NosCore - WorldServer";
 
         private void PrintHeader()

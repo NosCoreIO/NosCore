@@ -99,6 +99,10 @@ namespace NosCore.DAL
 		{
 			try
 			{
+				if (predicate == null)
+				{
+					return default(TDTO);
+				}
 				using (var context = DataAccessHelper.Instance.CreateContext())
 				{
 					var dbset = context.Set<TEntity>();

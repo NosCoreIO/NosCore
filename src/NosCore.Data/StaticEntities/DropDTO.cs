@@ -12,7 +12,7 @@ namespace NosCore.Data.StaticEntities
 		[Key]
         public short DropId { get; set; }
 
-		public short ItemVNum { get; set; }
+		public short VNum { get; set; }
 
 		public short? MapTypeId { get; set; }
 
