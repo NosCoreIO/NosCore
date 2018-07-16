@@ -78,6 +78,18 @@ namespace NosCore.Core.Networking
 			_channel?.Flush();
 		}
 
+        //Todo: delete this later, it's just for testing purposes
+	    public void SendPacket(string packet)
+	    {
+	        if (packet == null)
+	        {
+	            return;
+	        }
+
+	        _channel?.WriteAndFlushAsync(packet);
+	        _channel?.Flush();
+	    }
+
 		public void SendPackets(IEnumerable<PacketDefinition> packets)
 		{
 			// TODO: maybe send at once with delimiter

@@ -19,25 +19,12 @@ namespace NosCore.WorldServer.Controllers
         // POST api/packet
         [HttpPost]
         [AllowAnonymous]
-        public void SendPacketToCharacter(PostedPacket postedPacket)
+        public void SendPacketToCharacter(string postedData)
         {
-            // Here, the "postedPacket" argument is null for some reason
-            ClientSession senderSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Sender);
+            var postedPacket = JsonConvert.DeserializeObject<PostedPacket>(postedData);
             ClientSession receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Receiver);
 
-            if (senderSession == null)
-            {
-                return;
-            }
-
-            if (receiverSession == null)
-            {
-                //Temporary regionType
-                senderSession.SendPacket(senderSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, RegionType.FR), SayColorType.Yellow));
-                return;
-            }
-
-            receiverSession.SendPacket(postedPacket.Packet);
+            receiverSession?.SendPacket(postedPacket.Packet);
         }
 
     }
