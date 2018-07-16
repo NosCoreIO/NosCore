@@ -16,7 +16,8 @@ namespace NosCore.Parser.Parsers
 		private static int _counter;
 		private static CardDTO _card = new CardDTO();
 		private static bool _itemAreaBegin;
-		private static readonly List<CardDTO> Cards = new List<CardDTO>();
+        private string _folder;
+        private static readonly List<CardDTO> Cards = new List<CardDTO>();
 		private const string FileCardDat = "\\Card.dat";
 		private static readonly List<BCardDTO> Bcards = new List<BCardDTO>();
 
@@ -84,10 +85,12 @@ namespace NosCore.Parser.Parsers
 			_itemAreaBegin = false;
 		}
 
-		public void InsertCards()
+		public void InsertCards(string folder)
 		{
-			using (var npcIdStream =
-				new StreamReader(FileCardDat, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+			_folder = folder;
+
+            using (var npcIdStream =
+				new StreamReader(_folder + FileCardDat, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
 			{
 				while ((_line = npcIdStream.ReadLine()) != null)
 				{

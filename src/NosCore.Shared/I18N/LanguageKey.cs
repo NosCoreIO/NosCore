@@ -89,6 +89,7 @@ namespace NosCore.Shared.I18N
         MAPTYPES_PARSED,
         RESPAWNTYPE_PARSED,
         SKILLS_PARSED,
-        CHARACTER_OFFLINE
+        NPCS_PARSED,
+        MONSTERS_PARSED
     }
 }
