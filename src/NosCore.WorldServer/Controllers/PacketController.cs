@@ -22,21 +22,43 @@ namespace NosCore.WorldServer.Controllers
         [AllowAnonymous]
         public void SendMessageToCharacter(string postedData)
         {
-            var postedPacket = JsonConvert.DeserializeObject<PostedPacket>(postedData);
-            ClientSession senderSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Sender);
-            ClientSession receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.Receiver);
-
-            if (receiverSession == null)
+            if (postedData == null)
             {
                 return;
             }
 
-            if (senderSession == null)
+            var postedPacket = JsonConvert.DeserializeObject<PostedPacket>(postedData);
+
+            if (postedPacket == null)
             {
-                postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
+                return;
             }
 
-            receiverSession.SendPacket(postedPacket.Packet);
+            switch (postedPacket.MessageType)
+            {
+                case MessageType.Shout:
+                    ServerManager.Instance.Broadcast(postedPacket.Packet);
+                    break;
+
+                case MessageType.Whisper:
+                case MessageType.WhisperGm:
+                case MessageType.PrivateChat:
+                    ClientSession senderSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.SenderCharacterName);
+                    ClientSession receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.ReceiverCharacterName);
+
+                    if (receiverSession == null)
+                    {
+                        return;
+                    }
+
+                    if (senderSession == null)
+                    {
+                        postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
+                    }
+
+                    receiverSession.SendPacket(postedPacket.Packet);
+                    break;
+            }
         }
 
     }

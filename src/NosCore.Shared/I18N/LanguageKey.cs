@@ -91,6 +91,7 @@ namespace NosCore.Shared.I18N
         SKILLS_PARSED,
         NPCS_PARSED,
         MONSTERS_PARSED,
-        CHANNEL
+        CHANNEL,
+	    ADMINISTRATOR
     }
 }

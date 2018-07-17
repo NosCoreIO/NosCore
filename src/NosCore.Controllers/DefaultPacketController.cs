@@ -368,9 +368,10 @@ namespace NosCore.Controllers
 	            WebApiAccess.Instance.SendPacketToCharacter(new PostedPacket
 	            {
 	                Packet = PacketFactory.Serialize(speakPacket),
-	                Receiver = receiverName,
-	                Sender = Session.Character.Name,
-                    SenderWorldId = channel.Value
+	                ReceiverCharacterName = receiverName,
+	                SenderCharacterName = Session.Character.Name,
+                    SenderWorldId = channel.Value,
+                    MessageType = MessageType.Whisper
 	            });
             }
 	        catch (Exception e)

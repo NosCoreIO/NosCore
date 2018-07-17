@@ -19,11 +19,25 @@ namespace NosCore.GameObject.Networking
 			YCoordinate = yCoordinate;
 		}
 
-		#endregion
+	    public BroadcastPacket(ClientSession session, string packetString, ReceiverType receiver,
+	        string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
+	    {
+	        Sender = session;
+	        PacketString = packetString;
+	        Receiver = receiver;
+	        SomeonesCharacterName = someonesCharacterName;
+	        SomeonesCharacterId = someonesCharacterId;
+	        XCoordinate = xCoordinate;
+	        YCoordinate = yCoordinate;
+	    }
 
-		#region Properties
+        #endregion
 
-		public PacketDefinition Packet { get; set; }
+        #region Properties
+
+        public PacketDefinition Packet { get; set; }
+
+        public string PacketString { get; set; }
 
 		public ReceiverType Receiver { get; set; }
 
