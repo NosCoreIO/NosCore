@@ -116,24 +116,27 @@ namespace NosCore.GameObject.Networking
 			Sessions.TryRemove(clientSession.SessionId, out _);
 		}
 
-        public void BroadcastPacket(PostedPacket postedPacket)
+        public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)
         {
-	        foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
-	        {
-		        WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
-	        }
+            if (channelId == null)
+            {
+                foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                {
+                    WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                }
+            }
+            else
+            {
+                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels").FirstOrDefault(s => s.Id == channelId.Value);
+                WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel?.WebApi);
+            }
         }
 
-		public void BroadcastPackets(List<PostedPacket> packets)
+		public void BroadcastPackets(List<PostedPacket> packets, int? channelId = null)
 		{
-			var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-
             foreach (PostedPacket packet in packets)
 			{
-				foreach (var channel in channels)
-				{
-					WebApiAccess.Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
-				}
+                BroadcastPacket(packet, channelId);
 			}
 		}
     }
