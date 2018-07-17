@@ -47,7 +47,7 @@ namespace NosCore.WorldServer.Controllers
 
 			        if (senderSession == null)
 			        {
-				       // postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.OriginWorldId}";
+				       postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.OriginWorldId}";
 			        }
 
 			        receiverSession.SendPacket(PacketFactory.Deserialize(postedPacket.Packet, postedPacket.PacketHeader));

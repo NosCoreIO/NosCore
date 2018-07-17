@@ -360,6 +360,13 @@ namespace NosCore.Controllers
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
 
 	            int? channel = ServerManager.Instance.GetChannelIdPerAccountName(Session.Account.Name);
+	            int? destinationChannel = ServerManager.Instance.GetChannelIdPerAccountName(ServerManager.Instance.GetAccountIdPerCharacterName(receiverName));
+
+	            if (destinationChannel == null)
+	            {
+                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, Session.Account.Language), SayColorType.Yellow));
+	                return;
+	            }
 
 	            if (channel == null)
 	            {
@@ -375,6 +382,11 @@ namespace NosCore.Controllers
                     MessageType = MessageType.Whisper,
                     PacketHeader = typeof(SpeakPacket)
 	            });
+
+	            if (destinationChannel.Value != channel.Value)
+	            {
+	                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER, Session.Account.Language), SayColorType.Purple));
+	            }
             }
 	        catch (Exception e)
 	        {

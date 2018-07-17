@@ -55,6 +55,13 @@ namespace NosCore.GameObject.Networking
             return null;
 	    }
 
+	    public string GetAccountIdPerCharacterName(string characterName)
+	    {
+	        long accountId = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == characterName).AccountId;
+
+	        return DAOFactory.AccountDAO.FirstOrDefault(s => s.AccountId == accountId).Name;
+	    }
+
 		public void Initialize()
 		{
 			// parse rates

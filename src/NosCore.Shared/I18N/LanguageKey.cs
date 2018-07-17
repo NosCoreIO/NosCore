@@ -92,6 +92,8 @@ namespace NosCore.Shared.I18N
         NPCS_PARSED,
         MONSTERS_PARSED,
         CHANNEL,
-	    ADMINISTRATOR
+	    ADMINISTRATOR,
+	    CHARACTER_OFFLINE,
+	    SEND_MESSAGE_TO_CHARACTER
     }
 }
