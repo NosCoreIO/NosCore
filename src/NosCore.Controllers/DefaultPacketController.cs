@@ -372,7 +372,8 @@ namespace NosCore.Controllers
 	                ReceiverCharacterData = new CharacterData {CharacterName = receiverName },
 	                SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name },
                     OriginWorldId = channel.Value,
-                    MessageType = MessageType.Whisper
+                    MessageType = MessageType.Whisper,
+                    PacketHeader = typeof(SpeakPacket)
 	            });
             }
 	        catch (Exception e)

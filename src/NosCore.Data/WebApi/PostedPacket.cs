@@ -16,5 +16,7 @@ namespace NosCore.Data.WebApi
         public int OriginWorldId { get; set; }
 
         public MessageType MessageType { get; set; }
+
+        public Type PacketHeader { get; set; }
     }
 }

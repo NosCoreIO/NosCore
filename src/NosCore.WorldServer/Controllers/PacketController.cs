@@ -27,7 +27,7 @@ namespace NosCore.WorldServer.Controllers
 	        switch (postedPacket.MessageType)
 	        {
 		        case MessageType.Shout:
-			        ServerManager.Instance.Broadcast(PacketFactory.Deserialize(postedPacket.Packet, typeof(PacketDefinition)));
+			        ServerManager.Instance.Broadcast(PacketFactory.Deserialize(postedPacket.Packet, postedPacket.PacketHeader));
 			        break;
 
 		        case MessageType.Whisper:
@@ -50,7 +50,7 @@ namespace NosCore.WorldServer.Controllers
 				       // postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.OriginWorldId}";
 			        }
 
-			        receiverSession.SendPacket(PacketFactory.Deserialize(postedPacket.Packet, typeof(PacketDefinition)));
+			        receiverSession.SendPacket(PacketFactory.Deserialize(postedPacket.Packet, postedPacket.PacketHeader));
 			        break;
 		        case MessageType.Family:
 			        break;

@@ -46,13 +46,15 @@ namespace NosCore.Controllers
 	        {
                 Packet = PacketFactory.Serialize(sayPacket),
                 SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name, CharacterId = Session.Character.CharacterId },
-                MessageType = MessageType.Shout
+                MessageType = MessageType.Shout,
+                PacketHeader = typeof(SayPacket)
 	        };
 
             var msgPostedPacket = new PostedPacket
             {
                 Packet = PacketFactory.Serialize(msgPacket),
-                MessageType = MessageType.Shout
+                MessageType = MessageType.Shout,
+                PacketHeader = typeof(MsgPacket)
             };
 
             ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
