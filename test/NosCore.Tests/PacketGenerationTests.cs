@@ -60,5 +60,17 @@ namespace NosCore.Tests
             var packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
             Assert.AreEqual("in 9 - 0 0 0 0 0 0 0", packet);
         }
+
+        [TestMethod]
+        public void CheckWhisperIsNotCorrupted()
+        {
+            var packet = new WhisperPacket
+            {
+                Message = "test message !"
+            };
+
+            var serializedPacket = PacketFactory.Serialize(packet);
+            Assert.AreEqual("/ test message !", serializedPacket);
+        }
     }
 }
