@@ -396,17 +396,5 @@ namespace NosCore.GameObject
                 Option = 0
             };
         }
-
-        public SpeakPacket GenerateSpk(SpeakPacket packet)
-        {
-            return new SpeakPacket
-            {
-                VisualType = VisualType,
-                VisualId = CharacterId,
-                SpeakType = packet.SpeakType,
-                EntityName = Name,
-                Message = packet.Message
-            };
-        }
     }
 }

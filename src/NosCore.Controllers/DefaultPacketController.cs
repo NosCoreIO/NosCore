@@ -369,9 +369,9 @@ namespace NosCore.Controllers
 	            ServerManager.Instance.BroadcastPacket(new PostedPacket
 	            {
 	                Packet = PacketFactory.Serialize(speakPacket),
-	                ReceiverCharacterName = receiverName,
-	                SenderCharacterName = Session.Character.Name,
-                    SenderWorldId = channel.Value,
+	                ReceiverCharacterData = new CharacterData {CharacterName = receiverName },
+	                SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name },
+                    OriginWorldId = channel.Value,
                     MessageType = MessageType.Whisper
 	            });
             }

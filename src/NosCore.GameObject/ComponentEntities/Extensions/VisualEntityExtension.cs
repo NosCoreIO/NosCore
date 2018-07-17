@@ -1,5 +1,6 @@
 ﻿using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -102,6 +103,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     IsQuestRelative = false,
                     Owner = 0
                 }
+            };
+        }
+
+        public static SpeakPacket GenerateSpk(this INamedEntity visualEntity, SpeakPacket packet)
+        {
+            return new SpeakPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                SpeakType = packet.SpeakType,
+                EntityName = visualEntity.Name,
+                Message = packet.Message
             };
         }
     }

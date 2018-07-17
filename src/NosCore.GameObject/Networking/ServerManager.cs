@@ -120,7 +120,6 @@ namespace NosCore.GameObject.Networking
         {
 	        foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
 	        {
-		        postedPacket.ReceiverWorldId = channel.Id;
 		        WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
 	        }
         }
@@ -133,7 +132,6 @@ namespace NosCore.GameObject.Networking
 			{
 				foreach (var channel in channels)
 				{
-					packet.ReceiverWorldId = channel.Id;
 					WebApiAccess.Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
 				}
 			}
