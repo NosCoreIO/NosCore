@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.DAL;
+using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -114,5 +115,28 @@ namespace NosCore.GameObject.Networking
 		{
 			Sessions.TryRemove(clientSession.SessionId, out _);
 		}
-	}
+
+        public void BroadcastPacket(PostedPacket postedPacket)
+        {
+	        foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+	        {
+		        postedPacket.ReceiverWorldId = channel.Id;
+		        WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+	        }
+        }
+
+		public void BroadcastPackets(List<PostedPacket> packets)
+		{
+			var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+            foreach (PostedPacket packet in packets)
+			{
+				foreach (var channel in channels)
+				{
+					packet.ReceiverWorldId = channel.Id;
+					WebApiAccess.Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+				}
+			}
+		}
+    }
 }

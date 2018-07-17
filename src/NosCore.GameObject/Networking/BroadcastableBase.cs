@@ -17,12 +17,7 @@ namespace NosCore.GameObject.Networking
         {
             Broadcast(null, packet);
         }
-
-        public void Broadcast(string packet)
-        {
-            Broadcast(null, packet);
-        }
-
+		
         public void Broadcast(PacketDefinition packet, int xRangeCoordinate, int yRangeCoordinate)
         {
             Broadcast(new BroadcastPacket(null, packet, ReceiverType.AllInRange, xCoordinate: xRangeCoordinate,
@@ -30,19 +25,6 @@ namespace NosCore.GameObject.Networking
         }
 
         public void Broadcast(ClientSession client, PacketDefinition packet, ReceiverType receiver = ReceiverType.All,
-            string characterName = "", long characterId = -1)
-        {
-            try
-            {
-                SpreadBroadcastpacket(new BroadcastPacket(client, packet, receiver, characterName, characterId));
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-        }
-
-        public void Broadcast(ClientSession client, string packet, ReceiverType receiver = ReceiverType.All,
             string characterName = "", long characterId = -1)
         {
             try

@@ -9,6 +9,7 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -365,7 +366,7 @@ namespace NosCore.Controllers
 	                return;
 	            }
 
-	            WebApiAccess.Instance.SendPacketToCharacter(new PostedPacket
+	            ServerManager.Instance.BroadcastPacket(new PostedPacket
 	            {
 	                Packet = PacketFactory.Serialize(speakPacket),
 	                ReceiverCharacterName = receiverName,
