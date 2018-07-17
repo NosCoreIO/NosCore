@@ -1,6 +1,6 @@
 ﻿using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ItemInstance
 {
