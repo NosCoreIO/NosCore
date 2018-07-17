@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Networking
 
         private void SpreadBroadcastpacket(BroadcastPacket sentPacket)
         {
-            if (Sessions == null || sentPacket?.Packet == null && sentPacket?.PacketString == null)
+            if (Sessions == null || sentPacket?.Packet == null)
             {
                 return;
             }
@@ -66,14 +66,7 @@ namespace NosCore.GameObject.Networking
                             return;
                         }
 
-                        if (sentPacket.Packet == null)
-                        {
-                            session.Value.SendPacket(sentPacket.PacketString);
-                        }
-                        else
-                        {
-                            session.Value.SendPacket(sentPacket.Packet);
-                        }
+                        session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;
                 case ReceiverType.AllExceptGroup:
@@ -88,15 +81,7 @@ namespace NosCore.GameObject.Networking
                         {
                             return;
                         }
-
-                        if (sentPacket.Packet == null)
-                        {
-                            session.Value.SendPacket(sentPacket.PacketString);
-                        }
-                        else
-                        {
-                            session.Value.SendPacket(sentPacket.Packet);
-                        }
+                        session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;
             }

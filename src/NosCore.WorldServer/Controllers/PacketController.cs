@@ -35,10 +35,10 @@ namespace NosCore.WorldServer.Controllers
 		        case MessageType.PrivateChat:
 			        ClientSession senderSession =
 				        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-					        s.Character.Name == postedPacket.SenderCharacterName);
+					        s.Character.Name == postedPacket.SenderCharacterData.CharacterName);
 			        ClientSession receiverSession =
 				        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-					        s.Character.Name == postedPacket.ReceiverCharacterName);
+					        s.Character.Name == postedPacket.ReceiverCharacterData.CharacterName);
 
 			        if (receiverSession == null)
 			        {
@@ -47,11 +47,10 @@ namespace NosCore.WorldServer.Controllers
 
 			        if (senderSession == null)
 			        {
-				        postedPacket.Packet +=
-					        $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
+				       // postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.OriginWorldId}";
 			        }
 
-			        receiverSession.SendPacket(postedPacket.Packet);
+			        receiverSession.SendPacket(PacketFactory.Deserialize(postedPacket.Packet, typeof(PacketDefinition)));
 			        break;
 		        case MessageType.Family:
 			        break;

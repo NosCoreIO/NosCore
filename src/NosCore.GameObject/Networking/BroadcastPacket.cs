@@ -5,8 +5,6 @@ namespace NosCore.GameObject.Networking
 {
 	public class BroadcastPacket
 	{
-		#region Instantiation
-
 		public BroadcastPacket(ClientSession session, PacketDefinition packet, ReceiverType receiver,
 			string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
 		{
@@ -19,25 +17,7 @@ namespace NosCore.GameObject.Networking
 			YCoordinate = yCoordinate;
 		}
 
-	    public BroadcastPacket(ClientSession session, string packetString, ReceiverType receiver,
-	        string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
-	    {
-	        Sender = session;
-	        PacketString = packetString;
-	        Receiver = receiver;
-	        SomeonesCharacterName = someonesCharacterName;
-	        SomeonesCharacterId = someonesCharacterId;
-	        XCoordinate = xCoordinate;
-	        YCoordinate = yCoordinate;
-	    }
-
-        #endregion
-
-        #region Properties
-
         public PacketDefinition Packet { get; set; }
-
-        public string PacketString { get; set; }
 
 		public ReceiverType Receiver { get; set; }
 
@@ -50,7 +30,5 @@ namespace NosCore.GameObject.Networking
 		public int XCoordinate { get; set; }
 
 		public int YCoordinate { get; set; }
-
-		#endregion
 	}
 }
