@@ -11,8 +11,7 @@ namespace NosCore.MasterServer.Controllers
 	{
 		// GET api/channels
 		[HttpGet]
-		[AllowAnonymous]
-		public List<WorldServerInfo> Get()
+		public List<WorldServerInfo> GetChannels()
 		{
 			return MasterClientListSingleton.Instance.WorldServers;
 		}

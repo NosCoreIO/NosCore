@@ -1,65 +1,66 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.Core;
+using NosCore.Core.Serializing;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
+    [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
         // POST api/packet
         [HttpPost]
-        [AllowAnonymous]
-        public void SendMessageToCharacter(string postedData)
+        public IActionResult PostPacket([FromBody] PostedPacket postedPacket)
         {
-            if (postedData == null)
-            {
-                return;
-            }
+	        if (!ModelState.IsValid)
+	        {
+		        return BadRequest();
+	        }
 
-            var postedPacket = JsonConvert.DeserializeObject<PostedPacket>(postedData);
+	        switch (postedPacket.MessageType)
+	        {
+		        case MessageType.Shout:
+			        ServerManager.Instance.Broadcast(PacketFactory.Deserialize(postedPacket.Packet, typeof(PacketDefinition)));
+			        break;
 
-            if (postedPacket == null)
-            {
-                return;
-            }
+		        case MessageType.Whisper:
+		        case MessageType.WhisperGm:
+		        case MessageType.PrivateChat:
+			        ClientSession senderSession =
+				        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+					        s.Character.Name == postedPacket.SenderCharacterName);
+			        ClientSession receiverSession =
+				        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+					        s.Character.Name == postedPacket.ReceiverCharacterName);
 
-            switch (postedPacket.MessageType)
-            {
-                case MessageType.Shout:
-                    ServerManager.Instance.Broadcast(postedPacket.Packet);
-                    break;
+			        if (receiverSession == null)
+			        {
+				        return Ok();
+			        }
 
-                case MessageType.Whisper:
-                case MessageType.WhisperGm:
-                case MessageType.PrivateChat:
-                    ClientSession senderSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.SenderCharacterName);
-                    ClientSession receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == postedPacket.ReceiverCharacterName);
+			        if (senderSession == null)
+			        {
+				        postedPacket.Packet +=
+					        $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
+			        }
 
-                    if (receiverSession == null)
-                    {
-                        return;
-                    }
+			        receiverSession.SendPacket(postedPacket.Packet);
+			        break;
+		        case MessageType.Family:
+			        break;
+		        case MessageType.FamilyChat:
+			        break;
+	        }
 
-                    if (senderSession == null)
-                    {
-                        postedPacket.Packet += $" <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiverSession.Account.Language)}: {postedPacket.SenderWorldId}";
-                    }
+	        return Ok();
 
-                    receiverSession.SendPacket(postedPacket.Packet);
-                    break;
-            }
         }
-
     }
 }

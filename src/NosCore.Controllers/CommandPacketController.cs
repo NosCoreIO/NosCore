@@ -6,8 +6,10 @@ using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -53,7 +55,7 @@ namespace NosCore.Controllers
                 MessageType = MessageType.Shout
             };
 
-            WebApiAccess.Instance.SendPacketsToCharacter(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
 	    }
 
 		[UsedImplicitly]

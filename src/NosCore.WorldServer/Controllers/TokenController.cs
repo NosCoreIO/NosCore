@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
@@ -13,7 +14,8 @@ using NosCore.Shared.I18N;
 namespace NosCore.WorldServer.Controllers
 {
 	[Route("api/[controller]")]
-	public class TokenController : Controller
+	[AllowAnonymous]
+    public class TokenController : Controller
 	{
 		private readonly WebApiConfiguration _apiConfiguration;
 
@@ -22,25 +24,24 @@ namespace NosCore.WorldServer.Controllers
 			_apiConfiguration = apiConfiguration;
 		}
 
-		[AllowAnonymous]
 		[HttpPost]
-		public IActionResult Post(string userName, string password)
+		public IActionResult ConnectUser([FromBody]WebApiClient client)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
 			}
 
-			var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == userName);
+			var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == client.Username);
 
-			if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) != true)
+			if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) != true)
 			{
 				return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
 			}
 
 			var claims = new ClaimsIdentity(new[]
 			{
-				new Claim(ClaimTypes.NameIdentifier, userName),
+				new Claim(ClaimTypes.NameIdentifier, client.Username),
 				new Claim(ClaimTypes.Role, account.Authority.ToString())
 			});
 			var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
@@ -56,16 +57,15 @@ namespace NosCore.WorldServer.Controllers
 			return Ok(handler.WriteToken(securityToken));
 		}
 
-		[AllowAnonymous]
 		[HttpPost("ConnectServer")]
-		public IActionResult ConnectServer(string serverToken)
+		public IActionResult ConnectServer([FromBody]WebApiToken serverWebApiToken)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
 			}
 
-			if (serverToken != _apiConfiguration.Password)
+			if (serverWebApiToken.ServerToken != _apiConfiguration.Password)
 			{
 				return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
 			}
@@ -73,9 +73,9 @@ namespace NosCore.WorldServer.Controllers
 			var claims = new ClaimsIdentity(new[]
 			{
 				new Claim(ClaimTypes.NameIdentifier, "Server"),
-				new Claim(ClaimTypes.Role, nameof(AuthorityType.GameMaster))
+				new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
 			});
-			var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
 			var signinKey = new SymmetricSecurityKey(keyByteArray);
 			var handler = new JwtSecurityTokenHandler();
 			var securityToken = handler.CreateToken(new SecurityTokenDescriptor
