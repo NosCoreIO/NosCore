@@ -38,7 +38,7 @@ namespace NosCore.Controllers
 
             var msgPacket = new MsgPacket
             {
-                Type = 2,
+                Type = MessagePositionType.TopYellowMessage,
                 Message = shoutPacket.Message
             };
 
