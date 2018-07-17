@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -9,7 +10,7 @@ namespace NosCore.Packets.ServerPackets
     public class MsgPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Type { get; set; } //Todo: Find what it exactly does to make an enum
+        public MessagePositionType Type { get; set; }
 
         [PacketIndex(1, SerializeToEnd = true)]
         public string Message { get; set; }
