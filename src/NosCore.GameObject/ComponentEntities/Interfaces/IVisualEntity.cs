@@ -1,5 +1,5 @@
 ﻿using System;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

@@ -1,4 +1,4 @@
-﻿namespace NosCore.Shared.Enumerations.Map
+﻿namespace NosCore.Shared.Enumerations
 {
 	public enum VisualType : byte
 	{
