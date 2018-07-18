@@ -1,18 +1,55 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NosCore.Core.Extensions;
+using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Data;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.CommandPackets;
+using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
 	[UsedImplicitly]
     public class CommandPacketController : PacketController
 	{
+	    public void Shout(ShoutPacket shoutPacket)
+	    {
+	        var sayPacket = new SayPacket
+	        {
+                VisualType = VisualType.Player,
+                VisualId = 0,
+                Type = SayColorType.Yellow,
+                Message = $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}){shoutPacket.Message}"
+	        };
+
+            var msgPacket = new MsgPacket
+            {
+                Type = MessageType.Shout,
+                Message = shoutPacket.Message
+            };
+
+	        var sayPostedPacket = new PostedPacket
+	        {
+                Packet = PacketFactory.Serialize(sayPacket),
+                SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name, CharacterId = Session.Character.CharacterId },
+	        };
+
+            var msgPostedPacket = new PostedPacket
+            {
+                Packet = PacketFactory.Serialize(msgPacket),
+            };
+
+            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+	    }
+
 		[UsedImplicitly]
         public void Speed(SpeedPacket speedPacket)
 		{

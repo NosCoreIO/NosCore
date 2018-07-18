@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Interaction;
@@ -16,7 +17,7 @@ namespace NosCore.GameObject.Networking
         {
             Broadcast(null, packet);
         }
-
+		
         public void Broadcast(PacketDefinition packet, int xRangeCoordinate, int yRangeCoordinate)
         {
             Broadcast(new BroadcastPacket(null, packet, ReceiverType.AllInRange, xCoordinate: xRangeCoordinate,
@@ -58,6 +59,16 @@ namespace NosCore.GameObject.Networking
             switch (sentPacket.Receiver)
             {
                 case ReceiverType.AllExceptMe:
+                    Parallel.ForEach(Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId), session =>
+                    {
+                        if (!session.Value.HasSelectedCharacter)
+                        {
+                            return;
+                        }
+
+                        session.Value.SendPacket(sentPacket.Packet);
+                    });
+                    break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
                 case ReceiverType.AllNoHeroBlocked:
@@ -70,7 +81,6 @@ namespace NosCore.GameObject.Networking
                         {
                             return;
                         }
-
                         session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;

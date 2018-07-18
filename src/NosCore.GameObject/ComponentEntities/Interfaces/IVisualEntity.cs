@@ -1,10 +1,11 @@
 ﻿using System;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
 	public interface IVisualEntity
 	{
-		byte VisualType { get; }
+		VisualType VisualType { get; }
 
 		short VNum { get; set; }
 
