@@ -372,4 +372,16 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Sorts ont été analysés !</value>
   </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Administrateur</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Canal</value>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>Personnage hors ligne</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Message envoyé à {0}</value>
+  </data>
 </root>
