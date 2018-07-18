@@ -358,7 +358,7 @@
     <value>{0} Monstres ont été analysés !</value>
   </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
-    <value>{0} NPCMonsterData ont été analysés !</value>
+    <value>{0} MonsterPNJ ont été analysés !</value>
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} PNJ ont été analysés !</value>
