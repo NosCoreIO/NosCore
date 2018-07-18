@@ -7,5 +7,6 @@ namespace NosCore.Data.WebApi
         public string Name { get; set; }
         public RegionType Language { get; set; }
         public int ChannelId { get; set; }
+        public ConnectedCharacter ConnectedCharacter { get; set; }
     }
 }
