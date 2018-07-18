@@ -7,6 +7,8 @@
 		Unconfirmed = -1,
 		User = 0,
 		Moderator = 1,
-		GameMaster = 2
-	}
+		GameMaster = 2,
+		Administrator = 3,
+		Root = 4
+    }
 }

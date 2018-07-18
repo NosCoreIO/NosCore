@@ -90,6 +90,10 @@ namespace NosCore.Shared.I18N
         RESPAWNTYPE_PARSED,
         SKILLS_PARSED,
         NPCS_PARSED,
-        MONSTERS_PARSED
+        MONSTERS_PARSED,
+        CHANNEL,
+	    ADMINISTRATOR,
+	    CHARACTER_OFFLINE,
+	    SEND_MESSAGE_TO_CHARACTER
     }
 }

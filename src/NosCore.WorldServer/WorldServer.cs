@@ -95,8 +95,8 @@ namespace NosCore.WorldServer
 					Port = clientPort,
 					ServerGroup = serverGroup,
 					Host = serverHost,
-					WebApi = webApi
-				}).ConfigureAwait(false);
+					WebApi = webApi,
+                }).ConfigureAwait(false);
 			}
 
 			while (true)

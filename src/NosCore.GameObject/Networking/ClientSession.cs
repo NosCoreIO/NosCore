@@ -365,7 +365,7 @@ namespace NosCore.GameObject.Networking
                         && (packetsplit[1][0] == '/' || packetsplit[1][0] == ':' || packetsplit[1][0] == ';'))
                     {
                         packetsplit[1] = packetsplit[1][0].ToString();
-                        packetstring = packet.Insert(packet.IndexOf(' ') + 2, " ");
+                        packetstring = packetstring.Insert(packetstring.IndexOf(' ') + 2, " ");
                     }
 
                     if (packetsplit[1] != "0")
@@ -380,13 +380,6 @@ namespace NosCore.GameObject.Networking
                     {
                         Disconnect();
                         return;
-                    }
-
-                    // simple messaging
-                    if (packetHeader[0] == '/' || packetHeader[0] == ':' || packetHeader[0] == ';')
-                    {
-                        packetHeader = packetHeader[0].ToString();
-                        packetstring = packet.Insert(packet.IndexOf(' ') + 2, " ");
                     }
 
                     TriggerHandler(packetHeader.Replace("#", ""), packetstring, false);

@@ -4,8 +4,10 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
@@ -24,7 +26,7 @@ namespace NosCore.MasterServer.Controllers
 
 		[AllowAnonymous]
 		[HttpPost]
-		public IActionResult Post(string userName, string password)
+		public IActionResult ConnectUser(string userName, string password)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -56,16 +58,16 @@ namespace NosCore.MasterServer.Controllers
 			return Ok(handler.WriteToken(securityToken));
 		}
 
-		[AllowAnonymous]
+        [AllowAnonymous]
 		[HttpPost("ConnectServer")]
-		public IActionResult ConnectServer(string serverToken)
+		public IActionResult ConnectServer([FromBody]WebApiToken serverWebApiToken)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
 			}
 
-			if (serverToken != _apiConfiguration.Password)
+			if (serverWebApiToken.ServerToken != _apiConfiguration.Password)
 			{
 				return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
 			}
@@ -73,7 +75,7 @@ namespace NosCore.MasterServer.Controllers
 			var claims = new ClaimsIdentity(new[]
 			{
 				new Claim(ClaimTypes.NameIdentifier, "Server"),
-				new Claim(ClaimTypes.Role, nameof(AuthorityType.GameMaster))
+				new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
 			});
 			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
 			var signinKey = new SymmetricSecurityKey(keyByteArray);

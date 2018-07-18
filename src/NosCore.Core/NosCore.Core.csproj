@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
+    <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 	  <ItemGroup>

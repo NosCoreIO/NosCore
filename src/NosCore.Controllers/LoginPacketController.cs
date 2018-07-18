@@ -5,11 +5,13 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
@@ -89,7 +91,7 @@ namespace NosCore.Controllers
                 var alreadyConnnected = false;
                 foreach (var server in servers)
                 {
-                    if (WebApiAccess.Instance.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Any(a => a == acc.Name))
+                    if (WebApiAccess.Instance.Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Any(a => a.Name == acc.Name))
                     {
                         alreadyConnnected = true;
                     }
@@ -107,14 +109,13 @@ namespace NosCore.Controllers
 
                 acc.Language = _loginConfiguration.UserLanguage;
                 DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-
                 if (servers.Count > 0)
                 {
                     var subpacket = new List<NsTeStSubPacket>();
                     var i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
-                    foreach (var server in servers.OrderBy(s => s.Name))
+                    foreach (WorldServerInfo server in servers.OrderBy(s => s.Name))
                     {
                         if (server.Name != servergroup)
                         {
@@ -124,7 +125,7 @@ namespace NosCore.Controllers
                         }
 
                         var currentlyConnectedAccounts = WebApiAccess.Instance
-                            .Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Count();
+                            .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Count();
                         var channelcolor =
                             (int)Math.Round((double)currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
                             + 1;

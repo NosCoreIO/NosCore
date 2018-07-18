@@ -63,5 +63,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 				Id = effectid
 			};
 		}
+
+	    public static SayPacket GenerateSay(this IAliveEntity aliveEntity, SayPacket packet)
+	    {
+	        return new SayPacket
+	        {
+	            VisualType = aliveEntity.VisualType,
+	            VisualId = aliveEntity.VisualId,
+	            Type = packet.Type,
+	            Message = packet.Message
+	        };
+        }
 	}
 }

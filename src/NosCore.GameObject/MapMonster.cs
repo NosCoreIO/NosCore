@@ -2,6 +2,7 @@
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
 {
@@ -19,7 +20,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
 
-	    public byte VisualType => 3;
+	    public VisualType VisualType => VisualType.Monster;
 
 	    public long VisualId => MapMonsterId;
 

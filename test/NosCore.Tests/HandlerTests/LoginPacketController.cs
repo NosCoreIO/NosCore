@@ -13,6 +13,7 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
@@ -29,8 +30,8 @@ namespace NosCore.Tests.HandlerTests
         private const string ConfigurationPath = "../../../configuration";
         private readonly ClientSession _session = new ClientSession();
         private AccountDTO _acc;
-	    private LoginPacketController _handler;
-	    private const string Name = "TestExistingCharacter";
+        private LoginPacketController _handler;
+        private const string Name = "TestExistingCharacter";
 
         [TestInitialize]
         public void Setup()
@@ -54,20 +55,20 @@ namespace NosCore.Tests.HandlerTests
             _acc = new AccountDTO { Name = Name, Password = EncryptionHelper.Sha512("test") };
             DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
-	        _handler = new LoginPacketController(new LoginConfiguration());
+            _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);
-	        WebApiAccess.RegisterBaseAdress();
-	        WebApiAccess.Instance.MockValues = new Dictionary<string, object>();
+            WebApiAccess.RegisterBaseAdress();
+            WebApiAccess.Instance.MockValues = new Dictionary<string, object>();
         }
 
         [TestMethod]
         public void LoginOldClient()
         {
-	        _handler = new LoginPacketController(new LoginConfiguration()
-	        {
-				ClientData = "123456"
-	        });
-	        _handler.RegisterSession(_session);
+            _handler = new LoginPacketController(new LoginConfiguration()
+            {
+                ClientData = "123456"
+            });
+            _handler.RegisterSession(_session);
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
@@ -78,34 +79,34 @@ namespace NosCore.Tests.HandlerTests
         }
 
         [TestMethod]
-	    public void LoginNoAccount()
-	    {
-		    _handler.VerifyLogin(new NoS0575Packet
-		    {
-			    Password = EncryptionHelper.Sha512("test"),
-			    Name = "noaccount",
-		    });
-		    Assert.IsTrue(_session.LastPacket is FailcPacket);
-		    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
-	    }
+        public void LoginNoAccount()
+        {
+            _handler.VerifyLogin(new NoS0575Packet
+            {
+                Password = EncryptionHelper.Sha512("test"),
+                Name = "noaccount",
+            });
+            Assert.IsTrue(_session.LastPacket is FailcPacket);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
+        }
 
         [TestMethod]
-	    public void LoginWrongCaps()
-	    {
-		    _handler.VerifyLogin(new NoS0575Packet
-		    {
-			    Password = EncryptionHelper.Sha512("test"),
-			    Name = Name.ToUpper(),
-		    });
-		    Assert.IsTrue(_session.LastPacket is FailcPacket);
-		    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
-	    }
+        public void LoginWrongCaps()
+        {
+            _handler.VerifyLogin(new NoS0575Packet
+            {
+                Password = EncryptionHelper.Sha512("test"),
+                Name = Name.ToUpper(),
+            });
+            Assert.IsTrue(_session.LastPacket is FailcPacket);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
+        }
 
         [TestMethod]
         public void Login()
         {
-            WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>() {new WorldServerInfo()});
-	        WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<string>());
+            WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>() { new WorldServerInfo() });
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
@@ -117,29 +118,29 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-	        WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>() { new WorldServerInfo() });
-	        WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<string>() { Name });
+            WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>() { new WorldServerInfo() });
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<ConnectedAccount>() { new ConnectedAccount() { Name = Name } });
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
                 Name = Name,
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.AlreadyConnected);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AlreadyConnected);
         }
 
         [TestMethod]
         public void LoginNoServer()
         {
-	        WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>());
-	        WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<string>());
+            WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>());
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
                 Name = Name,
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.CantConnect);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.CantConnect);
         }
 
         //[TestMethod]

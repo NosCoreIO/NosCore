@@ -25,7 +25,9 @@ namespace NosCore.Core.Networking
 		{
 			try
 			{
-				JsonConvert.DeserializeObject<Channel>(msg);
+				Channel chan = JsonConvert.DeserializeObject<Channel>(msg);
+				MasterClientListSingleton.Instance.ChannelId = chan.ChannelId;
+
 			}
 			catch (Exception ex)
 			{
