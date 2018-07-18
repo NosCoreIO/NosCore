@@ -5,13 +5,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
-	    public static OutPacket GenerateOut(this ICharacterEntity visualEntity)
-	    {
-		    return new OutPacket()
-		    {
-			    VisualType = visualEntity.VisualType,
-			    VisualId = visualEntity.VisualId,
-		    };
+        public static OutPacket GenerateOut(this ICharacterEntity visualEntity)
+        {
+            return new OutPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId
+            };
         }
 
         //in 9 {vnum} {id} {x} {y} {amount} {IsQuestRelative} 0 {owner}
@@ -35,11 +35,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte)visualEntity.Gender,
-                    HairStyle = (byte)visualEntity.HairStyle,
-                    HairColor = (byte)visualEntity.HairColor,
+                    Gender = (byte) visualEntity.Gender,
+                    HairStyle = (byte) visualEntity.HairStyle,
+                    HairColor = (byte) visualEntity.HairColor,
                     Class = visualEntity.Class,
-                    Equipment = new InEquipmentSubPacket()
+                    Equipment = new InEquipmentSubPacket
                     {
                         Armor = -1,
                         CostumeHat = -1,
@@ -54,11 +54,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     InAliveSubPacket = new InAliveSubPacket
                     {
                         HP = visualEntity.Hp,
-                        MP = visualEntity.Mp,
+                        MP = visualEntity.Mp
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = -1
-                },
+                }
             };
         }
 
@@ -73,13 +73,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
                 Direction = visualEntity.Direction,
-                InNonPlayerSubPacket = new InNonPlayerSubPacket()
+                InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
                     Dialog = 0,
-                    InAliveSubPacket = new InAliveSubPacket()
+                    InAliveSubPacket = new InAliveSubPacket
                     {
-                        MP = (int)(visualEntity.Mp / (float)((visualEntity.Monster?.MaxMP ?? 1) * 100)),
-                        HP = (int)(visualEntity.Hp / (float)((visualEntity.Monster?.MaxHP ?? 1) * 100))
+                        MP = (int) (visualEntity.Mp / (float) ((visualEntity.Monster?.MaxMP ?? 1) * 100)),
+                        HP = (int) (visualEntity.Hp / (float) ((visualEntity.Monster?.MaxHP ?? 1) * 100))
                     }
                 }
             };
@@ -96,7 +96,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
                 Direction = visualEntity.Direction,
-                InItemSubPacket = new InItemSubPacket()
+                InItemSubPacket = new InItemSubPacket
                 {
                     Amount = visualEntity.Amount,
                     IsQuestRelative = false,

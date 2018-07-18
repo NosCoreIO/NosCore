@@ -11,24 +11,24 @@ namespace NosCore.Parser.Parsers
 {
     internal class SkillParser
     {
-	    private readonly string fileSkillId = "\\Skill.dat";
+        private readonly string fileSkillId = "\\Skill.dat";
         private string _folder;
 
         internal void InsertSkills(string folder)
         {
-	        _folder = folder;
-            List<SkillDTO> skills = new List<SkillDTO>();
-            SkillDTO skill = new SkillDTO();
-            List<ComboDTO> combo = new List<ComboDTO>();
-            List<BCardDTO> skillCards = new List<BCardDTO>();
-	        int counter = 0;
+            _folder = folder;
+            var skills = new List<SkillDTO>();
+            var skill = new SkillDTO();
+            var combo = new List<ComboDTO>();
+            var skillCards = new List<BCardDTO>();
+            var counter = 0;
 
-            using (StreamReader skillIdStream = new StreamReader(_folder + fileSkillId, Encoding.Default))
+            using (var skillIdStream = new StreamReader(_folder + fileSkillId, Encoding.Default))
             {
                 string line;
                 while ((line = skillIdStream.ReadLine()) != null)
                 {
-                    string[] currentLine = line.Split('\t');
+                    var currentLine = line.Split('\t');
 
                     if (currentLine.Length > 2 && currentLine[1] == "VNUM")
                     {
@@ -51,9 +51,9 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "FCOMBO")
                     {
-                        for (int i = 3; i < currentLine.Length - 4; i += 3)
+                        for (var i = 3; i < currentLine.Length - 4; i += 3)
                         {
-                            ComboDTO comb = new ComboDTO
+                            var comb = new ComboDTO
                             {
                                 SkillVNum = skill.SkillVNum,
                                 Hit = short.Parse(currentLine[i]),
@@ -65,7 +65,10 @@ namespace NosCore.Parser.Parsers
                             {
                                 continue;
                             }
-                            if (DAOFactory.ComboDAO.FirstOrDefault(s => s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit) && s.Effect.Equals(comb.Effect)) == null)
+
+                            if (DAOFactory.ComboDAO.FirstOrDefault(s =>
+                                s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit) &&
+                                s.Effect.Equals(comb.Effect)) == null)
                             {
                                 combo.Add(comb);
                             }
@@ -73,15 +76,15 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "COST")
                     {
-                        skill.CPCost = currentLine[2] == "-1" ? (byte)0 : byte.Parse(currentLine[2]);
+                        skill.CPCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
                         skill.Price = int.Parse(currentLine[3]);
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "LEVEL")
                     {
-                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte)0;
+                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte) 0;
                         if (skill.Class > 31)
                         {
-                            SkillDTO firstskill = skills.FirstOrDefault(s => s.Class == skill.Class);
+                            var firstskill = skills.FirstOrDefault(s => s.Class == skill.Class);
                             if (firstskill == null || skill.SkillVNum <= firstskill.SkillVNum + 10)
                             {
                                 switch (skill.Class)
@@ -101,6 +104,7 @@ namespace NosCore.Parser.Parsers
                                                 skill.LevelMinimum = 0;
                                                 break;
                                         }
+
                                         break;
 
                                     case 9:
@@ -130,6 +134,7 @@ namespace NosCore.Parser.Parsers
                                                 skill.LevelMinimum = 0;
                                                 break;
                                         }
+
                                         break;
 
                                     case 16:
@@ -159,6 +164,7 @@ namespace NosCore.Parser.Parsers
                                                 skill.LevelMinimum = 0;
                                                 break;
                                         }
+
                                         break;
 
                                     default:
@@ -188,14 +194,16 @@ namespace NosCore.Parser.Parsers
                                                 skill.LevelMinimum = 0;
                                                 break;
                                         }
+
                                         break;
                                 }
                             }
                         }
-                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte)0;
-                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte)0;
-                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte)0;
-                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte)0;
+
+                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte) 0;
+                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte) 0;
+                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte) 0;
+                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte) 0;
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "EFFECT")
                     {
@@ -222,22 +230,23 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "BASIC")
                     {
-                        byte type = (byte)int.Parse(currentLine[3]);
+                        var type = (byte) int.Parse(currentLine[3]);
                         if (type == 0 || type == 255)
                         {
                             continue;
                         }
-                        int first = int.Parse(currentLine[5]);
-                        BCardDTO itemCard = new BCardDTO
+
+                        var first = int.Parse(currentLine[5]);
+                        var itemCard = new BCardDTO
                         {
                             SkillVNum = skill.SkillVNum,
                             Type = type,
-                            SubType = (byte)((int.Parse(currentLine[4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                            SubType = (byte) ((int.Parse(currentLine[4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                             IsLevelScaled = Convert.ToBoolean(first % 4),
-                            IsLevelDivided = (first % 4) == 2,
-                            FirstData = (short)(first > 0 ? first : -first / 4),
-                            SecondData = (short)(int.Parse(currentLine[6]) / 4),
-                            ThirdData = (short)(int.Parse(currentLine[7]) / 4),
+                            IsLevelDivided = first % 4 == 2,
+                            FirstData = (short) (first > 0 ? first : -first / 4),
+                            SecondData = (short) (int.Parse(currentLine[6]) / 4),
+                            ThirdData = (short) (int.Parse(currentLine[7]) / 4)
                         };
                         skillCards.Add(itemCard);
                     }
@@ -272,11 +281,12 @@ namespace NosCore.Parser.Parsers
                     else if (currentLine.Length > 1 && currentLine[1] == "Z_DESC")
                     {
                         // investigate
-                        SkillDTO skill1 = skill;
+                        var skill1 = skill;
                         if (DAOFactory.SkillDAO.FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
                         }
+
                         skills.Add(skill);
                         counter++;
                     }
@@ -291,7 +301,8 @@ namespace NosCore.Parser.Parsers
                 DAOFactory.ComboDAO.InsertOrUpdate(comboDtos);
                 DAOFactory.BCardDAO.InsertOrUpdate(bCardDtos);
 
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SKILLS_PARSED), counter));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SKILLS_PARSED),
+                    counter));
             }
         }
     }

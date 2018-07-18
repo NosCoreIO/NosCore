@@ -2,16 +2,16 @@
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-	public interface INonPlayableEntity : INamedEntity
+    public interface INonPlayableEntity : INamedEntity
     {
-		bool IsMoving { get; set; }
+        bool IsMoving { get; set; }
 
-		short Effect { get; set; }
+        short Effect { get; set; }
 
-		short EffectDelay { get; set; }
+        short EffectDelay { get; set; }
 
-		bool IsDisabled { get; set; }
+        bool IsDisabled { get; set; }
 
-	    NpcMonsterDTO Monster { get; set; }
+        NpcMonsterDTO Monster { get; set; }
     }
 }

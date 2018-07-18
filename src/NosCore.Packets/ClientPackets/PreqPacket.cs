@@ -2,8 +2,8 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-	[PacketHeader("preq")]
-	public class PreqPacket : PacketDefinition
-	{
-	}
+    [PacketHeader("preq")]
+    public class PreqPacket : PacketDefinition
+    {
+    }
 }

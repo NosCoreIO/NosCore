@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.DAL;
 using NosCore.Data.WebApi;
+using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -52,17 +52,17 @@ namespace NosCore.GameObject.Networking
                 var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(),
                     EnumerablePartitionerOptions.NoBuffering);
                 var mapList = new ConcurrentDictionary<short, Map.Map>();
-                Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
-                  {
-                      var guid = Guid.NewGuid();
-                      map.Initialize();
-                      mapList[map.MapId] = map;
-                      var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
-                      Mapinstances.TryAdd(guid, newMap);
-                      Task.Run(() => newMap.LoadPortals());
-                      monstercount += newMap.Monsters.Count;
-                      i++;
-                  });
+                Parallel.ForEach(mapPartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, map =>
+                {
+                    var guid = Guid.NewGuid();
+                    map.Initialize();
+                    mapList[map.MapId] = map;
+                    var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
+                    Mapinstances.TryAdd(guid, newMap);
+                    Task.Run(() => newMap.LoadPortals());
+                    monstercount += newMap.Monsters.Count;
+                    i++;
+                });
                 Maps.AddRange(mapList.Select(s => s.Value));
                 if (i != 0)
                 {
@@ -114,7 +114,8 @@ namespace NosCore.GameObject.Networking
             }
             else
             {
-                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels").FirstOrDefault(s => s.Id == channelId.Value);
+                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels")
+                    .FirstOrDefault(s => s.Id == channelId.Value);
                 if (channel != null)
                 {
                     WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
@@ -124,7 +125,7 @@ namespace NosCore.GameObject.Networking
 
         public void BroadcastPackets(List<PostedPacket> packets, int? channelId = null)
         {
-            foreach (PostedPacket packet in packets)
+            foreach (var packet in packets)
             {
                 BroadcastPacket(packet, channelId);
             }

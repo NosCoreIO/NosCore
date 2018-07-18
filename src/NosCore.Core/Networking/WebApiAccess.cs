@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
@@ -42,7 +43,8 @@ namespace NosCore.Core.Networking
             }
 
             BaseAddress = new Uri(address);
-            Content = new StringContent(JsonConvert.SerializeObject(new WebApiToken() { ServerToken = token }), System.Text.Encoding.Default, "application/json");
+            Content = new StringContent(JsonConvert.SerializeObject(new WebApiToken {ServerToken = token}),
+                Encoding.Default, "application/json");
         }
 
         private void AssignToken(HttpResponseMessage response, ref HttpClient client)
@@ -66,7 +68,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient();
@@ -86,7 +88,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient();
@@ -106,14 +108,14 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient();
-            HttpResponseMessage response = new HttpResponseMessage();
+            var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
             var postResponse = client.PostAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
@@ -127,14 +129,14 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient();
-            HttpResponseMessage response = new HttpResponseMessage();
+            var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
             var postResponse = client.PutAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
@@ -148,14 +150,14 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient();
-            HttpResponseMessage response = new HttpResponseMessage();
+            var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
             var postResponse = client.PatchAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {

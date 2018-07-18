@@ -11,7 +11,6 @@ using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
@@ -19,10 +18,10 @@ namespace NosCore.Controllers
     {
         private readonly LoginConfiguration _loginConfiguration;
 
-	    [UsedImplicitly]
-	    public LoginPacketController()
-	    {
-	    }
+        [UsedImplicitly]
+        public LoginPacketController()
+        {
+        }
 
         public LoginPacketController(LoginConfiguration loginConfiguration)
         {
@@ -33,15 +32,15 @@ namespace NosCore.Controllers
         {
             try
             {
-	            if (false) //TODO Maintenance
+                if (false) //TODO Maintenance
                 {
-		            Session.SendPacket(new FailcPacket
-		            {
-			            Type = LoginFailType.Maintenance
-		            });
-		            Session.Disconnect();
-		            return;
-	            }
+                    Session.SendPacket(new FailcPacket
+                    {
+                        Type = LoginFailType.Maintenance
+                    });
+                    Session.Disconnect();
+                    return;
+                }
 
                 if (_loginConfiguration.ClientData != null && loginPacket.ClientData != _loginConfiguration.ClientData)
                 {
@@ -49,7 +48,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.OldClient
                     });
-	                Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -62,7 +61,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.WrongCaps
                     });
-	                Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -73,7 +72,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
                     });
-					Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -83,7 +82,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.Banned
                     });
-	                Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -91,7 +90,9 @@ namespace NosCore.Controllers
                 var alreadyConnnected = false;
                 foreach (var server in servers)
                 {
-                    if (WebApiAccess.Instance.Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Any(a => a.Name == acc.Name))
+                    if (WebApiAccess.Instance
+                        .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi)
+                        .Any(a => a.Name == acc.Name))
                     {
                         alreadyConnnected = true;
                     }
@@ -103,7 +104,7 @@ namespace NosCore.Controllers
                     {
                         Type = LoginFailType.AlreadyConnected
                     });
-	                Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -115,7 +116,7 @@ namespace NosCore.Controllers
                     var i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
-                    foreach (WorldServerInfo server in servers.OrderBy(s => s.Name))
+                    foreach (var server in servers.OrderBy(s => s.Name))
                     {
                         if (server.Name != servergroup)
                         {
@@ -127,7 +128,7 @@ namespace NosCore.Controllers
                         var currentlyConnectedAccounts = WebApiAccess.Instance
                             .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Count();
                         var channelcolor =
-                            (int)Math.Round((double)currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
+                            (int) Math.Round((double) currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {
@@ -157,7 +158,7 @@ namespace NosCore.Controllers
                         SubPacket = subpacket,
                         SessionId = newSessionId
                     });
-	                Session.Disconnect();
+                    Session.Disconnect();
                     return;
                 }
 
@@ -165,7 +166,7 @@ namespace NosCore.Controllers
                 {
                     Type = LoginFailType.CantConnect
                 });
-	            Session.Disconnect();
+                Session.Disconnect();
             }
             catch
             {
@@ -173,7 +174,7 @@ namespace NosCore.Controllers
                 {
                     Type = LoginFailType.UnhandledError
                 });
-	            Session.Disconnect();
+                Session.Disconnect();
             }
         }
     }

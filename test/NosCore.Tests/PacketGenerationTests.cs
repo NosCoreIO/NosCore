@@ -1,4 +1,6 @@
-﻿using log4net;
+﻿using System.IO;
+using System.Reflection;
+using log4net;
 using log4net.Config;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Serializing;
@@ -6,8 +8,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
-using System.IO;
-using System.Reflection;
 
 namespace NosCore.Tests
 {
@@ -28,10 +28,12 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character() { Name = "characterTest" };
+            var characterTest = new Character {Name = "characterTest"};
 
             var packet = PacketFactory.Serialize(characterTest.GenerateIn());
-            Assert.AreEqual("in 1 characterTest - 0 0 0 0 0 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 0 0 0 0 0", packet);
+            Assert.AreEqual(
+                "in 1 characterTest - 0 0 0 0 0 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 0 0 0 0 0",
+                packet);
         }
 
         [TestMethod]

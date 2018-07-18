@@ -10,17 +10,22 @@ using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.WorldServer.Controllers
 {
-	[Route("api/[controller]")]
-	[AuthorizeRole(AuthorityType.GameMaster)]
-	public class ConnectedAccountsController : Controller
-	{
-		// GET api/connectedAccounts
-		[HttpGet]
-		[AllowAnonymous]
-		public IEnumerable<ConnectedAccount> GetConnectedAccounts()
-		{
-			return ServerManager.Instance.Sessions.Select(s =>
-				new ConnectedAccount() {Name = s.Value.Account.Name, Language = s.Value.Account.Language, ChannelId = MasterClientListSingleton.Instance.ChannelId});
-		}
-	}
+    [Route("api/[controller]")]
+    [AuthorizeRole(AuthorityType.GameMaster)]
+    public class ConnectedAccountsController : Controller
+    {
+        // GET api/connectedAccounts
+        [HttpGet]
+        [AllowAnonymous]
+        public IEnumerable<ConnectedAccount> GetConnectedAccounts()
+        {
+            return ServerManager.Instance.Sessions.Select(s =>
+                new ConnectedAccount
+                {
+                    Name = s.Value.Account.Name,
+                    Language = s.Value.Account.Language,
+                    ChannelId = MasterClientListSingleton.Instance.ChannelId
+                });
+        }
+    }
 }

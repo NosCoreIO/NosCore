@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Core.Serializing;
+﻿using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -18,7 +14,7 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public SpeakType SpeakType { get; set; }
-        
+
         [PacketIndex(3)]
         public string EntityName { get; set; }
 

@@ -2,13 +2,13 @@
 
 namespace NosCore.Packets.ClientPackets
 {
-	[PacketHeader("Char_DEL", AnonymousAccess = true)]
-	public class CharacterDeletePacket : PacketDefinition
-	{
-		[PacketIndex(0)]
-		public byte Slot { get; set; }
+    [PacketHeader("Char_DEL", AnonymousAccess = true)]
+    public class CharacterDeletePacket : PacketDefinition
+    {
+        [PacketIndex(0)]
+        public byte Slot { get; set; }
 
-		[PacketIndex(1)]
-		public string Password { get; set; }
-	}
+        [PacketIndex(1)]
+        public string Password { get; set; }
+    }
 }

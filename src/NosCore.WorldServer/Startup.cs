@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using log4net;
-using log4net.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -17,7 +15,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Controllers;
@@ -40,7 +37,7 @@ namespace NosCore.WorldServer
         {
             Console.Title = Title;
             const string text = "WORLD SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
+            var offset = Console.WindowWidth / 2 + text.Length / 2;
             var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -71,12 +68,17 @@ namespace NosCore.WorldServer
             PrintHeader();
             PacketFactory.Initialize<NoS0575Packet>();
             var configuration = InitializeConfiguration();
-            services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature() { PreferHostingUrls = true, Addresses = { configuration.WebApi.ToString() } });
+            services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
+            {
+                PreferHostingUrls = true,
+                Addresses = {configuration.WebApi.ToString()}
+            });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
+            var keyByteArray =
+                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
-	        services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+            services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
                 {
@@ -104,7 +106,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             var container = containerBuilder.Build();
             PacketControllerFactory.Initialize(container);
-	        Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }
@@ -112,7 +114,6 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();

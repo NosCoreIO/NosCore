@@ -5,32 +5,32 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Shared.I18N
 {
-	public sealed class Language
-	{
-		private static Language _instance;
-		private readonly ResourceManager _manager;
+    public sealed class Language
+    {
+        private static Language _instance;
+        private readonly ResourceManager _manager;
 
-		private Language()
-		{
-			if (Assembly.GetExecutingAssembly() != null)
-			{
-				_manager = new ResourceManager(
-					Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
-					Assembly.GetExecutingAssembly());
-			}
-		}
+        private Language()
+        {
+            if (Assembly.GetExecutingAssembly() != null)
+            {
+                _manager = new ResourceManager(
+                    Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
+                    Assembly.GetExecutingAssembly());
+            }
+        }
 
-		public static Language Instance => _instance ?? (_instance = new Language());
+        public static Language Instance => _instance ?? (_instance = new Language());
 
-		public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
-		{
-			var cult = new CultureInfo(culture.ToString());
-			var resourceMessage = _manager != null && messageKey.ToString() != null
-				? _manager.GetResourceSet(cult, true,
-						cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
-					?.GetString(messageKey.ToString()) : string.Empty;
+        public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
+        {
+            var cult = new CultureInfo(culture.ToString());
+            var resourceMessage = _manager != null && messageKey.ToString() != null
+                ? _manager.GetResourceSet(cult, true,
+                        cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
+                    ?.GetString(messageKey.ToString()) : string.Empty;
 
-			return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
-		}
-	}
+            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
+        }
+    }
 }

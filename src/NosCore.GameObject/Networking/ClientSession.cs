@@ -18,13 +18,13 @@ namespace NosCore.GameObject.Networking
 {
     public class ClientSession : NetworkClient, IClientSession
     {
-        private readonly bool _isWorldClient;
-
         private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> _controllerMethods =
             new Dictionary<PacketHeaderAttribute, Action<object, object>>();
 
         private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
+
+        private readonly bool _isWorldClient;
 
         private Character _character;
         private int? _waitForPacketsAmount;
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -57,6 +57,8 @@ namespace NosCore.GameObject.Networking
         public int LastKeepAliveIdentity { get; set; }
 
         public IList<string> WaitForPacketList { get; } = new List<string>();
+
+        public int LastPulse { get; set; }
 
         public AccountDTO Account { get; set; }
 
@@ -78,8 +80,6 @@ namespace NosCore.GameObject.Networking
         }
 
         public bool HasCurrentMapInstance => Character?.MapInstance != null;
-
-        public int LastPulse { get; set; }
 
         public void InitializeAccount(AccountDTO accountDTO)
         {
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId((short) mapId);
             }
 
             try
@@ -160,15 +160,15 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short)mapX;
-                        Character.MapY = (short)mapY;
+                        Character.MapX = (short) mapX;
+                        Character.MapY = (short) mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short)mapX;
-                    Character.PositionY = (short)mapY;
+                    Character.PositionX = (short) mapX;
+                    Character.PositionY = (short) mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -228,7 +228,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
+                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
                     {
                         return;
                     }
@@ -303,7 +303,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');

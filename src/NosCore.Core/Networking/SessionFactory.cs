@@ -2,39 +2,39 @@
 
 namespace NosCore.Core.Networking
 {
-	public sealed class SessionFactory
-	{
-		#region Instantiation
+    public sealed class SessionFactory
+    {
+        #region Instantiation
 
-		private SessionFactory()
-		{
-			Sessions = new ConcurrentDictionary<string, int>();
-		}
+        private SessionFactory()
+        {
+            Sessions = new ConcurrentDictionary<string, int>();
+        }
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
+        public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Methods
 
-		public int GenerateSessionId()
-		{
-			_sessionCounter += 2;
-			return _sessionCounter;
-		}
+        public int GenerateSessionId()
+        {
+            _sessionCounter += 2;
+            return _sessionCounter;
+        }
 
-		#endregion
+        #endregion
 
-		#region Members
+        #region Members
 
-		private static SessionFactory _instance;
-		private int _sessionCounter;
-		public ConcurrentDictionary<string, int> Sessions;
+        private static SessionFactory _instance;
+        private int _sessionCounter;
+        public ConcurrentDictionary<string, int> Sessions;
 
-		#endregion
-	}
+        #endregion
+    }
 }

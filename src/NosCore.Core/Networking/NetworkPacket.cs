@@ -2,10 +2,10 @@
 
 namespace NosCore.Core.Networking
 {
-	public class NetworkPacket
-	{
-		public string Message { get; set; }
+    public class NetworkPacket
+    {
+        public string Message { get; set; }
 
-		public Encoding Encoding { get; set; } = Encoding.Default;
-	}
+        public Encoding Encoding { get; set; } = Encoding.Default;
+    }
 }

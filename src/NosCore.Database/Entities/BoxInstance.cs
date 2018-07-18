@@ -1,11 +1,11 @@
 ﻿namespace NosCore.Database.Entities
 {
-	public class BoxInstance : SpecialistInstance
-	{
-		#region Properties
+    public class BoxInstance : SpecialistInstance
+    {
+        #region Properties
 
-		public short? HoldingVNum { get; set; }
+        public short? HoldingVNum { get; set; }
 
-		#endregion
-	}
+        #endregion
+    }
 }

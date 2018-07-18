@@ -5,35 +5,34 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Networking
 {
-	public class MasterClientSession : MasterServerSession
-	{
-		public MasterClientSession(string password) : base(password)
-		{
-		}
+    public class MasterClientSession : MasterServerSession
+    {
+        public MasterClientSession(string password) : base(password)
+        {
+        }
 
-		public override void ChannelUnregistered(IChannelHandlerContext context)
-		{
-			Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
-		}
+        public override void ChannelUnregistered(IChannelHandlerContext context)
+        {
+            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
+        }
 
-		public override void ChannelRegistered(IChannelHandlerContext context)
-		{
-			Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
-		}
+        public override void ChannelRegistered(IChannelHandlerContext context)
+        {
+            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
+        }
 
-		protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
-		{
-			try
-			{
-				Channel chan = JsonConvert.DeserializeObject<Channel>(msg);
-				MasterClientListSingleton.Instance.ChannelId = chan.ChannelId;
-
-			}
-			catch (Exception ex)
-			{
-				Logger.Log.Error(
-					string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
-			}
-		}
-	}
+        protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
+        {
+            try
+            {
+                var chan = JsonConvert.DeserializeObject<Channel>(msg);
+                MasterClientListSingleton.Instance.ChannelId = chan.ChannelId;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log.Error(
+                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+            }
+        }
+    }
 }

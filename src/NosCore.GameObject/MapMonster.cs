@@ -20,9 +20,9 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
 
-	    public VisualType VisualType => VisualType.Monster;
+        public VisualType VisualType => VisualType.Monster;
 
-	    public long VisualId => MapMonsterId;
+        public long VisualId => MapMonsterId;
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
@@ -30,6 +30,6 @@ namespace NosCore.GameObject
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public string Name { get; set; }
-	    public NpcMonsterDTO Monster { get; set; }
+        public NpcMonsterDTO Monster { get; set; }
     }
 }

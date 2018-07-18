@@ -1,6 +1,6 @@
 ﻿namespace NosCore.Core.Encryption
 {
-	public interface IDecoder
-	{
-	}
+    public interface IDecoder
+    {
+    }
 }

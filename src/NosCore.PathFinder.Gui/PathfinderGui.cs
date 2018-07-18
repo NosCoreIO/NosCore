@@ -14,48 +14,48 @@ using OpenTK.Graphics;
 
 namespace NosCore.PathFinder.Gui
 {
-	public static class PathFinderGui
-	{
-		private const string ConfigurationPath = @"../../../configuration";
-		private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
-		private static GuiWindow _guiWindow;
-		private const string Title = "NosCore - Pathfinder GUI";
+    public static class PathFinderGui
+    {
+        private const string ConfigurationPath = @"../../../configuration";
+        private const string Title = "NosCore - Pathfinder GUI";
+        private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
+        private static GuiWindow _guiWindow;
 
         private static void InitializeConfiguration()
-		{
-			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-			builder.AddJsonFile("pathfinder.json", false);
-			builder.Build().Bind(DatabaseConfiguration);
-		}
+        {
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
+            builder.AddJsonFile("pathfinder.json", false);
+            builder.Build().Bind(DatabaseConfiguration);
+        }
 
-		private static void InitializeLogger()
-		{
-			// LOGGER
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-			Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
-		}
+        private static void InitializeLogger()
+        {
+            // LOGGER
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
+        }
 
-		private static void PrintHeader()
-		{
-			Console.Title = Title;
-			const string text = "PATHFINDER GUI - 0Lucifer0";
-			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-			var separator = new string('=', Console.WindowWidth);
-			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-		}
+        private static void PrintHeader()
+        {
+            Console.Title = Title;
+            const string text = "PATHFINDER GUI - 0Lucifer0";
+            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var separator = new string('=', Console.WindowWidth);
+            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
+        }
 
-		public static void Main()
-		{
-			PrintHeader();
-			InitializeLogger();
-			InitializeConfiguration();
-			LogLanguage.Language = DatabaseConfiguration.Language;
-			DAOFactory.RegisterMapping(typeof(Character).Assembly);
-			try
-			{
-				DataAccessHelper.Instance.Initialize(DatabaseConfiguration.Database);
+        public static void Main()
+        {
+            PrintHeader();
+            InitializeLogger();
+            InitializeConfiguration();
+            LogLanguage.Language = DatabaseConfiguration.Language;
+            DAOFactory.RegisterMapping(typeof(Character).Assembly);
+            try
+            {
+                DataAccessHelper.Instance.Initialize(DatabaseConfiguration.Database);
 
                 while (true)
                 {
@@ -67,7 +67,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {
@@ -87,10 +87,10 @@ namespace NosCore.PathFinder.Gui
                     }
                 }
             }
-			catch
-			{
-				Console.ReadKey();
-			}
-		}
-	}
+            catch
+            {
+                Console.ReadKey();
+            }
+        }
+    }
 }

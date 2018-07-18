@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Interaction;
+﻿using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Data.WebApi
 {
