@@ -360,9 +360,9 @@ namespace NosCore.Controllers
                     var accounts = WebApiAccess.Instance
                         .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).ToList();
 
-                    if (accounts.Any(a => a.Name == receiverName))
+                    if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
-                        receiver = accounts.First(a => a.Name == receiverName);
+                        receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
                     }
                 }
 
