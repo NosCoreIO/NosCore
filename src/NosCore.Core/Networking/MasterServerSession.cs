@@ -91,7 +91,8 @@ namespace NosCore.Core.Networking
 						};
 
 						MasterClientListSingleton.Instance.WorldServers.Add(serv);
-						WriteAsync(ctx, msgChannel);
+						msgChannel.ChannelId = _id;
+                        WriteAsync(ctx, msgChannel);
 					}
 
 					ctx.Flush();

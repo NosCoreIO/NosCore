@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Data.WebApi
 {
@@ -15,8 +16,6 @@ namespace NosCore.Data.WebApi
 
         public int OriginWorldId { get; set; }
 
-        public MessageType MessageType { get; set; }
-
-        public Type PacketHeader { get; set; }
+        public ReceiverType ReceiverType { get; set; }
     }
 }

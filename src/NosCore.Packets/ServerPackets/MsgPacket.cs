@@ -10,7 +10,7 @@ namespace NosCore.Packets.ServerPackets
     public class MsgPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public MessagePositionType Type { get; set; }
+        public MessageType Type { get; set; }
 
         [PacketIndex(1, SerializeToEnd = true)]
         public string Message { get; set; }

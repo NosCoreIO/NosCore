@@ -17,7 +17,9 @@ namespace NosCore.Core
 
 		public byte ServerGroup { get; set; }
 
-		public string Host { get; set; }
+		public int ChannelId { get; set; }
+
+        public string Host { get; set; }
 
 		public int ConnectedAccountsLimit { get; set; }
 
