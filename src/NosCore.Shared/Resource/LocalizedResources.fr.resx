@@ -351,4 +351,25 @@
   <data name="WRESTLER" xml:space="preserve">
     <value>Lutteur</value>
   </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapType ont été analysés !</value>
+  </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} Monstres ont été analysés !</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} MonsterPNJ ont été analysés !</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} PNJ ont été analysés !</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>{0} Drops ont été analysés !</value>
+  </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnType ont été analysés !</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Sorts ont été analysés !</value>
+  </data>
 </root>
