@@ -1,7 +1,6 @@
 ﻿using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

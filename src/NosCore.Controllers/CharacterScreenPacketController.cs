@@ -7,6 +7,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ItemInstance;
@@ -149,7 +150,7 @@ namespace NosCore.Controllers
                 var alreadyConnnected = false;
 				foreach (var server in servers)
 				{
-					if (WebApiAccess.Instance.Get<IEnumerable<string>>($"api/connectedAccounts", server.WebApi).Any(a => a == name))
+					if (WebApiAccess.Instance.Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Any(a => a.Name == name))
 					{
 						alreadyConnnected = true;
 					}
