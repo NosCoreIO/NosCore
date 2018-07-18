@@ -18,88 +18,89 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
-	public class LoginServer
-	{
-		private readonly LoginConfiguration _loginConfiguration;
+    public class LoginServer
+    {
+        private readonly LoginConfiguration _loginConfiguration;
 
-		public LoginServer(LoginConfiguration loginConfiguration)
-		{
-			_loginConfiguration = loginConfiguration;
-		}
+        public LoginServer(LoginConfiguration loginConfiguration)
+        {
+            _loginConfiguration = loginConfiguration;
+        }
 
-		public void Run()
-		{
-			ConnectMaster();
-			try
-			{
-				DataAccessHelper.Instance.Initialize(_loginConfiguration.Database);
+        public void Run()
+        {
+            ConnectMaster();
+            try
+            {
+                DataAccessHelper.Instance.Initialize(_loginConfiguration.Database);
 
-				Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-					_loginConfiguration.Port));
-				Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
-				NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(),
-					new LoginDecoderFactory(), false).Wait();
-			}
-			catch
-			{
-				Console.ReadKey();
-			}
-		}
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _loginConfiguration.Port));
+                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
+                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(),
+                    new LoginDecoderFactory(), false).Wait();
+            }
+            catch
+            {
+                Console.ReadKey();
+            }
+        }
 
-		private void ConnectMaster()
-		{
-			async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
-				int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
-			{
-				var group = new MultithreadEventLoopGroup();
+        private void ConnectMaster()
+        {
+            async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
+                int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
+            {
+                var group = new MultithreadEventLoopGroup();
 
-				var bootstrap = new Bootstrap();
-				bootstrap
-					.Group(group)
-					.Channel<TcpSocketChannel>()
-					.Option(ChannelOption.TcpNodelay, true)
-					.Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
-					{
-						var pipeline = channel.Pipeline;
+                var bootstrap = new Bootstrap();
+                bootstrap
+                    .Group(group)
+                    .Channel<TcpSocketChannel>()
+                    .Option(ChannelOption.TcpNodelay, true)
+                    .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
+                    {
+                        var pipeline = channel.Pipeline;
 
-						pipeline.AddLast(new LengthFieldPrepender(2));
-						pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
+                        pipeline.AddLast(new LengthFieldPrepender(2));
+                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
 
-						pipeline.AddLast(new StringEncoder(), new StringDecoder());
-						pipeline.AddLast(new MasterClientSession(password));
-					}));
-				var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
-					.ConfigureAwait(false);
+                        pipeline.AddLast(new StringEncoder(), new StringDecoder());
+                        pipeline.AddLast(new MasterClientSession(password));
+                    }));
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
+                    .ConfigureAwait(false);
 
-				await connection.WriteAndFlushAsync(new Channel
-				{
-					Password = password,
-					ClientName = clientType.Name,
-					ClientType = (byte) clientType.Type,
-					ConnectedAccountsLimit = connectedAccountLimit,
-					Port = clientPort,
-					ServerGroup = serverGroup,
-					Host = serverHost
-				}).ConfigureAwait(false);
-			}
+                await connection.WriteAndFlushAsync(new Channel
+                {
+                    Password = password,
+                    ClientName = clientType.Name,
+                    ClientType = (byte) clientType.Type,
+                    ConnectedAccountsLimit = connectedAccountLimit,
+                    Port = clientPort,
+                    ServerGroup = serverGroup,
+                    Host = serverHost
+                }).ConfigureAwait(false);
+            }
 
-			while (true)
-			{
-				try
-				{
-					WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
-					RunMasterClient(_loginConfiguration.MasterCommunication.Host,
-						Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-						_loginConfiguration.MasterCommunication.Password,
-						new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer}).Wait();
-					break;
-				}
-				catch
-				{
-					Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
-					Thread.Sleep(5000);
-				}
-			}
-		}
-	}
+            while (true)
+            {
+                try
+                {
+                    WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
+                        _loginConfiguration.MasterCommunication.Password);
+                    RunMasterClient(_loginConfiguration.MasterCommunication.Host,
+                        Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
+                        _loginConfiguration.MasterCommunication.Password,
+                        new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer}).Wait();
+                    break;
+                }
+                catch
+                {
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
+                    Thread.Sleep(5000);
+                }
+            }
+        }
+    }
 }

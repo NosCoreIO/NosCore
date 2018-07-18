@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data.WebApi;
@@ -14,80 +13,80 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer.Controllers
 {
-	[Route("api/[controller]")]
-	public class TokenController : Controller
-	{
-		private readonly WebApiConfiguration _apiConfiguration;
+    [Route("api/[controller]")]
+    public class TokenController : Controller
+    {
+        private readonly WebApiConfiguration _apiConfiguration;
 
-		public TokenController(WebApiConfiguration apiConfiguration)
-		{
-			_apiConfiguration = apiConfiguration;
-		}
-
-		[AllowAnonymous]
-		[HttpPost]
-		public IActionResult ConnectUser(string userName, string password)
-		{
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
-			}
-
-			var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == userName);
-
-			if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) != true)
-			{
-				return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
-			}
-
-			var claims = new ClaimsIdentity(new[]
-			{
-				new Claim(ClaimTypes.NameIdentifier, userName),
-				new Claim(ClaimTypes.Role, account.Authority.ToString())
-			});
-			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
-			var signinKey = new SymmetricSecurityKey(keyByteArray);
-			var handler = new JwtSecurityTokenHandler();
-			var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-			{
-				Subject = claims,
-				Issuer = "Issuer",
-				Audience = "Audience",
-				SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
-			});
-			return Ok(handler.WriteToken(securityToken));
-		}
+        public TokenController(WebApiConfiguration apiConfiguration)
+        {
+            _apiConfiguration = apiConfiguration;
+        }
 
         [AllowAnonymous]
-		[HttpPost("ConnectServer")]
-		public IActionResult ConnectServer([FromBody]WebApiToken serverWebApiToken)
-		{
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
-			}
+        [HttpPost]
+        public IActionResult ConnectUser(string userName, string password)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
+            }
 
-			if (serverWebApiToken.ServerToken != _apiConfiguration.Password)
-			{
-				return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
-			}
+            var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == userName);
 
-			var claims = new ClaimsIdentity(new[]
-			{
-				new Claim(ClaimTypes.NameIdentifier, "Server"),
-				new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-			});
-			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
-			var signinKey = new SymmetricSecurityKey(keyByteArray);
-			var handler = new JwtSecurityTokenHandler();
-			var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-			{
-				Subject = claims,
-				Issuer = "Issuer",
-				Audience = "Audience",
-				SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
-			});
-			return Ok(handler.WriteToken(securityToken));
-		}
-	}
+            if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) != true)
+            {
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
+            }
+
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userName),
+                new Claim(ClaimTypes.Role, account.Authority.ToString())
+            });
+            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Issuer = "Issuer",
+                Audience = "Audience",
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+            });
+            return Ok(handler.WriteToken(securityToken));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ConnectServer")]
+        public IActionResult ConnectServer([FromBody] WebApiToken serverWebApiToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
+            }
+
+            if (serverWebApiToken.ServerToken != _apiConfiguration.Password)
+            {
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
+            }
+
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "Server"),
+                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+            });
+            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Issuer = "Issuer",
+                Audience = "Audience",
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+            });
+            return Ok(handler.WriteToken(securityToken));
+        }
+    }
 }

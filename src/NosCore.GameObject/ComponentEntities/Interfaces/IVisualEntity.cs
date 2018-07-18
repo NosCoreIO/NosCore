@@ -3,20 +3,20 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-	public interface IVisualEntity
-	{
-		VisualType VisualType { get; }
+    public interface IVisualEntity
+    {
+        VisualType VisualType { get; }
 
-		short VNum { get; set; }
+        short VNum { get; set; }
 
-		long VisualId { get; }
+        long VisualId { get; }
 
-		byte Direction { get; set; }
+        byte Direction { get; set; }
 
-		Guid MapInstanceId { get; set; }
+        Guid MapInstanceId { get; set; }
 
-		short PositionX { get; set; }
+        short PositionX { get; set; }
 
-		short PositionY { get; set; }
-	}
+        short PositionY { get; set; }
+    }
 }

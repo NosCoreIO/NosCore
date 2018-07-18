@@ -18,7 +18,7 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
-	    public VisualType VisualType => VisualType.Npc;
+        public VisualType VisualType => VisualType.Npc;
 
         public long VisualId => MapNpcId;
 
@@ -26,6 +26,6 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public string Name { get; set; }
-	    public NpcMonsterDTO Monster { get; set; }
+        public NpcMonsterDTO Monster { get; set; }
     }
 }

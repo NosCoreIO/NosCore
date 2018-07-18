@@ -2,11 +2,11 @@
 
 namespace NosCore.Packets.ServerPackets
 {
-	[PacketHeader("OK")]
-	public class OkPacket : PacketDefinition
-	{
-		#region Properties
+    [PacketHeader("OK")]
+    public class OkPacket : PacketDefinition
+    {
+        #region Properties
 
-		#endregion
-	}
+        #endregion
+    }
 }

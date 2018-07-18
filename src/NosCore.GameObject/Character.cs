@@ -8,7 +8,6 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
@@ -31,6 +30,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
+        public bool InvisibleGm { get; set; }
 
         public VisualType VisualType => VisualType.Player;
 
@@ -53,19 +53,20 @@ namespace NosCore.GameObject
                 //        return 0;
                 //    }
 
-                const int bonusSpeed = 0; /*(byte)GetBuff(CardType.Move, (byte)AdditionalTypes.Move.SetMovementNegated)[0];*/
+                const int
+                    bonusSpeed = 0; /*(byte)GetBuff(CardType.Move, (byte)AdditionalTypes.Move.SetMovementNegated)[0];*/
                 if (_speed + bonusSpeed > 59)
                 {
                     return 59;
                 }
 
-                return (byte)(_speed + bonusSpeed);
+                return (byte) (_speed + bonusSpeed);
             }
 
             set
             {
                 LastSpeedChange = DateTime.Now;
-                _speed = value > 59 ? (byte)59 : value;
+                _speed = value > 59 ? (byte) 59 : value;
             }
         }
 
@@ -85,14 +86,13 @@ namespace NosCore.GameObject
         public byte Authority { get; set; }
 
         public byte Equipment { get; set; }
-        public bool InvisibleGm { get; set; }
 
         public FdPacket GenerateFd()
         {
             return new FdPacket
             {
                 Reput = Reput,
-                Dignity = (int)Dignity,
+                Dignity = (int) Dignity,
                 ReputIcon = GetReputIco(),
                 DignityIcon = Math.Abs(GetDignityIco())
             };
@@ -322,7 +322,7 @@ namespace NosCore.GameObject
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int)((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
+            return (int) ((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
         }
 
         public double HPLoad()
@@ -330,7 +330,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int)((CharacterHelper.Instance.HpData[Class, Level] + hp) * multiplicator);
+            return (int) ((CharacterHelper.Instance.HpData[Class, Level] + hp) * multiplicator);
         }
 
         //TODO move to extension
@@ -353,7 +353,7 @@ namespace NosCore.GameObject
         {
             return new TitPacket
             {
-                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
+                ClassType = Session.GetMessageFromKey((LanguageKey) Enum.Parse(typeof(LanguageKey),
                     Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper())),
                 Name = Name
             };
@@ -370,20 +370,20 @@ namespace NosCore.GameObject
                 FamilyId = -1,
                 FamilyName = string.Empty,
                 CharacterId = CharacterId,
-                Authority = (byte)Account.Authority,
-                Gender = (byte)Gender,
-                HairStyle = (byte)HairStyle,
-                HairColor = (byte)HairColor,
+                Authority = (byte) Account.Authority,
+                Gender = (byte) Gender,
+                HairStyle = (byte) HairStyle,
+                HairColor = (byte) HairColor,
                 Class = Class,
                 Icon = 1,
-                Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Compliment = (short) (Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
                 Invisible = false,
                 FamilyLevel = 0,
                 MorphUpgrade = 0,
                 ArenaWinner = false
             };
         }
-        
+
         public StatPacket GenerateStat()
         {
             return new StatPacket

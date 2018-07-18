@@ -2,19 +2,19 @@
 
 namespace NosCore.Shared.Enumerations.Map
 {
-	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum MapInstanceType
-	{
-		BaseMapInstance,
-		NormalInstance,
-		LodInstance,
-		TimeSpaceInstance,
-		RaidInstance,
-		FamilyRaidInstance,
-		TalentArenaMapInstance,
-		Act4Instance,
-		IceBreakerInstance,
-		RainbowBattleInstance,
-		ArenaInstance
-	}
+    {
+        BaseMapInstance,
+        NormalInstance,
+        LodInstance,
+        TimeSpaceInstance,
+        RaidInstance,
+        FamilyRaidInstance,
+        TalentArenaMapInstance,
+        Act4Instance,
+        IceBreakerInstance,
+        RainbowBattleInstance,
+        ArenaInstance
+    }
 }

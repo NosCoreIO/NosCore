@@ -7,86 +7,86 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Networking
 {
-	public class NetworkClient : ChannelHandlerAdapter, INetworkClient
-	{
-		private readonly IChannel _channel;
+    public class NetworkClient : ChannelHandlerAdapter, INetworkClient
+    {
+        private readonly IChannel _channel;
 
-		#region Members
+        #region Members
 
-		public bool HasSelectedCharacter { get; set; }
+        public bool HasSelectedCharacter { get; set; }
 
-		public bool IsAuthenticated { get; set; }
+        public bool IsAuthenticated { get; set; }
 
-		public int SessionId { get; set; }
+        public int SessionId { get; set; }
 
-		public long ClientId { get; set; }
+        public long ClientId { get; set; }
         public PacketDefinition LastPacket { get; private set; }
 
         public NetworkClient(IChannel channel)
-		{
-			_channel = channel;
-		}
+        {
+            _channel = channel;
+        }
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Methods
 
-		private static volatile IChannelGroup _group;
+        private static volatile IChannelGroup _group;
 
-		public override void ChannelRegistered(IChannelHandlerContext context)
-		{
-			var g = _group;
-			if (g == null)
-			{
-				lock (_channel)
-				{
-					if (_group == null)
-					{
-						g = _group = new DefaultChannelGroup(context.Executor);
-					}
-				}
-			}
+        public override void ChannelRegistered(IChannelHandlerContext context)
+        {
+            var g = _group;
+            if (g == null)
+            {
+                lock (_channel)
+                {
+                    if (_group == null)
+                    {
+                        g = _group = new DefaultChannelGroup(context.Executor);
+                    }
+                }
+            }
 
-			Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
-				ClientId));
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
+                ClientId));
 
-			g.Add(context.Channel);
-		}
+            g.Add(context.Channel);
+        }
 
-		public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
-		{
-			Logger.Log.Fatal(exception.StackTrace);
+        public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+        {
+            Logger.Log.Fatal(exception.StackTrace);
             context.CloseAsync();
-		}
+        }
 
-		public void Disconnect()
-		{
-			Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
-				ClientId));
-			_channel?.DisconnectAsync();
-		}
+        public void Disconnect()
+        {
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
+                ClientId));
+            _channel?.DisconnectAsync();
+        }
 
-		public void SendPacket(PacketDefinition packet)
-		{
-			if (packet == null)
-			{
-				return;
-			}
+        public void SendPacket(PacketDefinition packet)
+        {
+            if (packet == null)
+            {
+                return;
+            }
 
-			LastPacket = packet;
+            LastPacket = packet;
             _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packet));
-			_channel?.Flush();
-		}
+            _channel?.Flush();
+        }
 
-		public void SendPackets(IEnumerable<PacketDefinition> packets)
-		{
-			// TODO: maybe send at once with delimiter
-			foreach (var packet in packets)
-			{
-				SendPacket(packet);
-			}
-		}
+        public void SendPackets(IEnumerable<PacketDefinition> packets)
+        {
+            // TODO: maybe send at once with delimiter
+            foreach (var packet in packets)
+            {
+                SendPacket(packet);
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

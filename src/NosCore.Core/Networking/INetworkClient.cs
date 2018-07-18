@@ -3,22 +3,22 @@ using NosCore.Core.Serializing;
 
 namespace NosCore.Core.Networking
 {
-	public interface INetworkClient
-	{
-		#region Properties
+    public interface INetworkClient
+    {
+        #region Properties
 
-		long ClientId { get; set; }
+        long ClientId { get; set; }
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Methods
 
-		void Disconnect();
+        void Disconnect();
 
-		void SendPacket(PacketDefinition packet);
+        void SendPacket(PacketDefinition packet);
 
-		void SendPackets(IEnumerable<PacketDefinition> packets);
+        void SendPackets(IEnumerable<PacketDefinition> packets);
 
-		#endregion
-	}
+        #endregion
+    }
 }

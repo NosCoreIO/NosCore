@@ -1,7 +1,4 @@
 using NosCore.Core.Serializing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -21,7 +18,7 @@ namespace NosCore.Packets.ServerPackets
         public double MPMaximum { get; set; }
 
         [PacketIndex(4)]
-        public int Unknown { get; set; }//TODO to find
+        public int Unknown { get; set; } //TODO to find
 
         [PacketIndex(5)]
         public double Option { get; set; }

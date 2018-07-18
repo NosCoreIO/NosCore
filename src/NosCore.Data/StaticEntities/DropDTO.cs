@@ -1,22 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Buff;
 
 namespace NosCore.Data.StaticEntities
 {
-	public class DropDTO : IDTO
-	{
-		public int Amount { get; set; }
+    public class DropDTO : IDTO
+    {
+        public int Amount { get; set; }
 
-		public int DropChance { get; set; }
+        public int DropChance { get; set; }
 
-		[Key]
+        [Key]
         public short DropId { get; set; }
 
-		public short VNum { get; set; }
+        public short VNum { get; set; }
 
-		public short? MapTypeId { get; set; }
+        public short? MapTypeId { get; set; }
 
-		public short? MonsterVNum { get; set; }
-
+        public short? MonsterVNum { get; set; }
     }
 }

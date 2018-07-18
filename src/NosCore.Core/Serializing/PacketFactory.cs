@@ -62,11 +62,14 @@ namespace NosCore.Core.Serializing
                 {
                     packetsplit[1] = packetsplit[1][0].ToString();
                 }
-                var packetType = _packetSerializationInformations.Keys.FirstOrDefault(t => t.Item2 == packetsplit[0])?.Item1;
+
+                var packetType = _packetSerializationInformations.Keys.FirstOrDefault(t => t.Item2 == packetsplit[0])
+                    ?.Item1;
                 if (packetType != null)
                 {
                     return Deserialize(packetContent, packetType);
                 }
+
                 throw new InvalidOperationException();
             }
             catch (Exception e)
@@ -200,7 +203,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            var subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
+            var subpackets = (IList) Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (var currentValue in splittedValues)
@@ -242,7 +245,7 @@ namespace NosCore.Core.Serializing
             var splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
             var subpackets =
-                (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
+                (IList) Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             var subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
@@ -437,6 +440,7 @@ namespace NosCore.Core.Serializing
                     packetsForPacketDefinition.Add(indexAttribute, packetBasePropertyInfo);
                 }
             }
+
             var serializationInformatin =
                 new KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>(
                     new Tuple<Type, string>(serializationType, header), packetsForPacketDefinition);
@@ -492,10 +496,12 @@ namespace NosCore.Core.Serializing
 
                 if (typeof(PacketDefinition).IsAssignableFrom(subpacketPropertyInfo.Value.PropertyType))
                 {
-                    var subpacketSerializationInfo2 = GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
+                    var subpacketSerializationInfo2 =
+                        GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
                     serializedSubpacket = serializedSubpacket.TrimEnd(' ');
-                    serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket, subpacketPropertyInfo.Key.RemoveSeparator);
+                    serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
+                        subpacketPropertyInfo.Key.RemoveSeparator);
                     continue;
                 }
 
@@ -573,14 +579,14 @@ namespace NosCore.Core.Serializing
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList)value, propertyType,
+                return SerializeSubpackets((IList) value, propertyType,
                     packetIndexAttribute?.RemoveSeparator ?? false);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
             {
-                return SerializeSimpleList((IList)value, propertyType);
+                return SerializeSimpleList((IList) value, propertyType);
             }
 
             return $" {value}";

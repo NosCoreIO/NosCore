@@ -1,7 +1,7 @@
 ﻿namespace NosCore.Configuration
 {
-	public class LanguageConfiguration
-	{
-		public string Language { get; set; }
-	}
+    public class LanguageConfiguration
+    {
+        public string Language { get; set; }
+    }
 }

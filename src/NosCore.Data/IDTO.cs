@@ -1,6 +1,6 @@
 ﻿namespace NosCore.Data
 {
-	public interface IDTO
-	{
-	}
+    public interface IDTO
+    {
+    }
 }

@@ -1,17 +1,17 @@
-﻿using NosCore.DAL;
-using NosCore.Data.StaticEntities;
-using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.StaticEntities;
+using NosCore.DAL;
+using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     public class PortalParser
     {
-        private List<PortalDTO> _listPortals1 = new List<PortalDTO>();
         private readonly List<PortalDTO> _listPortals2 = new List<PortalDTO>();
+        private List<PortalDTO> _listPortals1 = new List<PortalDTO>();
         private List<MapDTO> _maps;
 
         public void InsertPortals(List<string[]> packetList)
@@ -111,7 +111,7 @@ namespace NosCore.Parser.Parsers
                     SourceX = short.Parse(currentPacket[1]),
                     SourceY = short.Parse(currentPacket[2]),
                     DestinationMapId = short.Parse(currentPacket[3]),
-                    Type = (PortalType)Enum.Parse(typeof(PortalType), currentPacket[4]),
+                    Type = (PortalType) Enum.Parse(typeof(PortalType), currentPacket[4]),
                     DestinationX = -1,
                     DestinationY = -1,
                     IsDisabled = false
@@ -151,9 +151,9 @@ namespace NosCore.Parser.Parsers
 
             // foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
             portalCounter += _listPortals2.Count(portal => !DAOFactory.PortalDAO
-               .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
-                   s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
-                       && s.SourceY == portal.SourceY));
+                .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
+                    s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
+                        && s.SourceY == portal.SourceY));
 
             // so this dude doesnt exist yet in DAOFactory -> insert it
             var portalsDtos = _listPortals2.Where(portal => !DAOFactory.PortalDAO

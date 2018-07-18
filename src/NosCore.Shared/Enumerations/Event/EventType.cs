@@ -2,17 +2,17 @@
 
 namespace NosCore.Shared.Enumerations.Event
 {
-	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum EventType
-	{
-		Instantbattle,
-		Lod,
-		MinilandRefresh,
-		LodDh,
-		RankingreFresh,
-		TalentArena,
-		MasterArena,
-		IceBreaker,
-		Act4Ship
-	}
+    {
+        Instantbattle,
+        Lod,
+        MinilandRefresh,
+        LodDh,
+        RankingreFresh,
+        TalentArena,
+        MasterArena,
+        IceBreaker,
+        Act4Ship
+    }
 }

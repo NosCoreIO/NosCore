@@ -1,7 +1,7 @@
 ﻿namespace NosCore.Core.Encryption
 {
-	public abstract class DecoderFactory
-	{
-		public abstract IDecoder GetDecoder();
-	}
+    public abstract class DecoderFactory
+    {
+        public abstract IDecoder GetDecoder();
+    }
 }

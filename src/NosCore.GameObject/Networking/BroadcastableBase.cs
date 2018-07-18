@@ -17,7 +17,7 @@ namespace NosCore.GameObject.Networking
         {
             Broadcast(null, packet);
         }
-		
+
         public void Broadcast(PacketDefinition packet, int xRangeCoordinate, int yRangeCoordinate)
         {
             Broadcast(new BroadcastPacket(null, packet, ReceiverType.AllInRange, xCoordinate: xRangeCoordinate,
@@ -59,15 +59,17 @@ namespace NosCore.GameObject.Networking
             switch (sentPacket.Receiver)
             {
                 case ReceiverType.AllExceptMe:
-                    Parallel.ForEach(Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId), session =>
-                    {
-                        if (!session.Value.HasSelectedCharacter)
+                    Parallel.ForEach(
+                        Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        session =>
                         {
-                            return;
-                        }
+                            if (!session.Value.HasSelectedCharacter)
+                            {
+                                return;
+                            }
 
-                        session.Value.SendPacket(sentPacket.Packet);
-                    });
+                            session.Value.SendPacket(sentPacket.Packet);
+                        });
                     break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
@@ -81,6 +83,7 @@ namespace NosCore.GameObject.Networking
                         {
                             return;
                         }
+
                         session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;

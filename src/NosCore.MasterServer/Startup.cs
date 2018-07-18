@@ -7,17 +7,10 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using log4net;
-using log4net.Config;
-using log4net.Repository.Hierarchy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,93 +21,96 @@ using NosCore.Core.Encryption;
 using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
-using Logger = NosCore.Shared.I18N.Logger;
 
 namespace NosCore.MasterServer
 {
-	public class Startup
-	{
-		private const string ConfigurationPath = @"../../../configuration";
-		private const string Title = "NosCore - MasterServer";
+    public class Startup
+    {
+        private const string ConfigurationPath = @"../../../configuration";
+        private const string Title = "NosCore - MasterServer";
 
         private void PrintHeader()
-		{
-			Console.Title = Title;
-			const string text = "MASTER SERVER - 0Lucifer0";
-			var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-			var separator = new string('=', Console.WindowWidth);
-			Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-		}
+        {
+            Console.Title = Title;
+            const string text = "MASTER SERVER - 0Lucifer0";
+            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var separator = new string('=', Console.WindowWidth);
+            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
+        }
 
-		private MasterConfiguration InitializeConfiguration()
-		{
-			var builder = new ConfigurationBuilder();
-			var masterConfiguration = new MasterConfiguration();
-			builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-			builder.AddJsonFile("master.json", false);
-			builder.Build().Bind(masterConfiguration);
-			return masterConfiguration;
-		}
+        private MasterConfiguration InitializeConfiguration()
+        {
+            var builder = new ConfigurationBuilder();
+            var masterConfiguration = new MasterConfiguration();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
+            builder.AddJsonFile("master.json", false);
+            builder.Build().Bind(masterConfiguration);
+            return masterConfiguration;
+        }
 
-		private ContainerBuilder InitializeContainer(IServiceCollection services)
-		{
-			var containerBuilder = new ContainerBuilder();
-			containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
-			containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
-			containerBuilder.Populate(services);
-			return containerBuilder;
-		}
+        private ContainerBuilder InitializeContainer(IServiceCollection services)
+        {
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
+            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.Populate(services);
+            return containerBuilder;
+        }
 
-		[UsedImplicitly]
-		public IServiceProvider ConfigureServices(IServiceCollection services)
-		{
-			PrintHeader();
-			var configuration = InitializeConfiguration();
-			services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature() { PreferHostingUrls = true, Addresses = { configuration.WebApi.ToString() } });
+        [UsedImplicitly]
+        public IServiceProvider ConfigureServices(IServiceCollection services)
+        {
+            PrintHeader();
+            var configuration = InitializeConfiguration();
+            services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
+            {
+                PreferHostingUrls = true,
+                Addresses = {configuration.WebApi.ToString()}
+            });
             LogLanguage.Language = configuration.Language;
-			services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
-			var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(configuration.Password));
-			var signinKey = new SymmetricSecurityKey(keyByteArray);
-			services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
+            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(configuration.Password));
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(cfg =>
-				{
-					cfg.RequireHttpsMetadata = false;
-					cfg.SaveToken = true;
-					cfg.TokenValidationParameters = new TokenValidationParameters
-					{
-						IssuerSigningKey = signinKey,
-						ValidAudience = "Audience",
-						ValidIssuer = "Issuer",
-						ValidateIssuerSigningKey = true,
-						ValidateLifetime = true
-					};
-				});
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.SaveToken = true;
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        IssuerSigningKey = signinKey,
+                        ValidAudience = "Audience",
+                        ValidIssuer = "Issuer",
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true
+                    };
+                });
 
-			services.AddMvc(o =>
-			{
-				var policy = new AuthorizationPolicyBuilder()
-					.RequireAuthenticatedUser()
-					.Build();
-				o.Filters.Add(new AuthorizeFilter(policy));
-			}).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
-			var containerBuilder = InitializeContainer(services);
-			containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
-			containerBuilder.RegisterInstance(configuration).As<WebApiConfiguration>();
-			var container = containerBuilder.Build();
+            services.AddMvc(o =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                o.Filters.Add(new AuthorizeFilter(policy));
+            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            var containerBuilder = InitializeContainer(services);
+            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<WebApiConfiguration>();
+            var container = containerBuilder.Build();
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             Task.Run(() => container.Resolve<MasterServer>().Run());
-			return new AutofacServiceProvider(container);
-		}
+            return new AutofacServiceProvider(container);
+        }
 
 
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
-		{
+        {
             app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
-			app.UseAuthentication();
-			app.UseMvc();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
+            app.UseAuthentication();
+            app.UseMvc();
         }
-	}
+    }
 }

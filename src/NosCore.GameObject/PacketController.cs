@@ -4,13 +4,13 @@ using NosCore.GameObject.Networking;
 
 namespace NosCore.GameObject
 {
-	public class PacketController : IPacketController
-	{
-		protected ClientSession Session { get; set; }
+    public class PacketController : IPacketController
+    {
+        protected ClientSession Session { get; set; }
 
-		public void RegisterSession(NetworkClient clientSession)
-		{
-			Session = (ClientSession) clientSession;
-		}
-	}
+        public void RegisterSession(NetworkClient clientSession)
+        {
+            Session = (ClientSession) clientSession;
+        }
+    }
 }

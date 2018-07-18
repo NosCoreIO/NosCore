@@ -1,6 +1,6 @@
 ﻿namespace NosCore.Data.StaticEntities
 {
-	public class TeleporterDTO : IDTO
-	{
-	}
+    public class TeleporterDTO : IDTO
+    {
+    }
 }

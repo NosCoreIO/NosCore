@@ -79,15 +79,15 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             default:
-                                item.Type = (InventoryType)Enum.Parse(typeof(InventoryType), currentLine[2]);
+                                item.Type = (InventoryType) Enum.Parse(typeof(InventoryType), currentLine[2]);
                                 break;
                         }
 
                         item.ItemType = currentLine[3] != "-1"
-                            ? (ItemType)Enum.Parse(typeof(ItemType), $"{(short)item.Type}{currentLine[3]}")
+                            ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}")
                             : ItemType.Weapon;
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
-                        item.EquipmentSlot = (EquipmentType)Enum.Parse(typeof(EquipmentType),
+                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType),
                             currentLine[5] != "-1" ? currentLine[5] : "0");
 
                         switch (item.VNum)
@@ -466,41 +466,83 @@ namespace NosCore.Parser.Parsers
                     else if (currentLine.Length > 3 && currentLine[1] == "TYPE")
                     {
                         // currentLine[2] 0-range 2-range 3-magic
-                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte)15
+                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte) 15
                             : Convert.ToByte(currentLine[3]);
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "FLAG")
                     {
                         if (currentLine.Length > 5)
+                        {
                             item.IsSoldable = currentLine[5] == "0";
+                        }
+
                         if (currentLine.Length > 6)
+                        {
                             item.IsDroppable = currentLine[6] == "0";
+                        }
+
                         if (currentLine.Length > 7)
+                        {
                             item.IsTradable = currentLine[7] == "0";
+                        }
+
                         if (currentLine.Length > 8)
+                        {
                             item.IsMinilandActionable = currentLine[8] == "1";
+                        }
+
                         if (currentLine.Length > 9)
+                        {
                             item.IsWarehouse = currentLine[9] == "1";
+                        }
+
                         if (currentLine.Length > 10)
+                        {
                             item.Flag9 = currentLine[10] == "1";
+                        }
+
                         if (currentLine.Length > 11)
+                        {
                             item.Flag1 = currentLine[11] == "1";
+                        }
+
                         if (currentLine.Length > 12)
+                        {
                             item.Flag2 = currentLine[12] == "1";
+                        }
+
                         if (currentLine.Length > 13)
+                        {
                             item.Flag3 = currentLine[13] == "1";
+                        }
+
                         if (currentLine.Length > 14)
+                        {
                             item.Flag4 = currentLine[14] == "1";
+                        }
+
                         if (currentLine.Length > 15)
+                        {
                             item.Flag5 = currentLine[15] == "1";
+                        }
+
                         if (currentLine.Length > 16)
+                        {
                             item.IsColored = currentLine[16] == "1";
+                        }
+
                         if (currentLine.Length > 18)
-                            item.Sex = currentLine[18] == "1" ? (byte)1 :
-                            currentLine[17] == "1" ? (byte)2 : (byte)0;
+                        {
+                            item.Sex = currentLine[18] == "1" ? (byte) 1 :
+                                currentLine[17] == "1" ? (byte) 2 : (byte) 0;
+                        }
+
                         //not used item.Flag6 = currentLine[19] == "1";
                         if (currentLine.Length > 20)
+                        {
                             item.Flag6 = currentLine[20] == "1";
+                        }
+
                         if (currentLine.Length > 21)
                         {
                             if (currentLine[21] == "1")
@@ -510,11 +552,19 @@ namespace NosCore.Parser.Parsers
                         }
 
                         if (currentLine.Length > 22)
+                        {
                             item.IsHeroic = currentLine[22] == "1";
+                        }
+
                         if (currentLine.Length > 23)
+                        {
                             item.Flag7 = currentLine[23] == "1";
+                        }
+
                         if (currentLine.Length > 24)
+                        {
                             item.Flag8 = currentLine[24] == "1";
+                        }
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "DATA")
                     {
@@ -608,12 +658,12 @@ namespace NosCore.Parser.Parsers
                                 {
                                     case EquipmentType.Amulet:
                                         item.LevelMinimum = Convert.ToByte(currentLine[2]);
-                                        if ((item.VNum > 4055 && item.VNum < 4061)
-                                            || (item.VNum > 4172 && item.VNum < 4176))
+                                        if (item.VNum > 4055 && item.VNum < 4061
+                                            || item.VNum > 4172 && item.VNum < 4176)
                                         {
                                             item.ItemValidTime = 10800;
                                         }
-                                        else if ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967
+                                        else if (item.VNum > 4045 && item.VNum < 4056 || item.VNum == 967
                                             || item.VNum == 968)
                                         {
                                             // (item.VNum > 8104 && item.VNum < 8115) <= disaled for now
@@ -974,8 +1024,8 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     default:
-                                        if ((item.VNum > 5891 && item.VNum < 5900)
-                                            || (item.VNum > 9100 && item.VNum < 9109))
+                                        if (item.VNum > 5891 && item.VNum < 5900
+                                            || item.VNum > 9100 && item.VNum < 9109)
                                         {
                                             item.Effect =
                                                 69; // imagined number as for I = √(-1), complex z = a + bi
@@ -1059,7 +1109,7 @@ namespace NosCore.Parser.Parsers
                                 item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
                                 item.ReputationMinimum = Convert.ToByte(currentLine[21]);
 
-                                var elementdic = new Dictionary<int, int> { { 0, 0 } };
+                                var elementdic = new Dictionary<int, int> {{0, 0}};
                                 if (item.FireResistance != 0)
                                 {
                                     elementdic.Add(1, item.FireResistance);
@@ -1080,12 +1130,12 @@ namespace NosCore.Parser.Parsers
                                     elementdic.Add(4, item.DarkResistance);
                                 }
 
-                                item.Element = (byte)elementdic.OrderByDescending(s => s.Value).First().Key;
+                                item.Element = (byte) elementdic.OrderByDescending(s => s.Value).First().Key;
                                 if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
                                     == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
                                 {
                                     item.SecondaryElement =
-                                        (byte)elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
+                                        (byte) elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
                                 }
 
                                 // needs to be hardcoded
@@ -1223,8 +1273,8 @@ namespace NosCore.Parser.Parsers
                             item.Height = Convert.ToByte(currentLine[10]);
                         }
 
-                        if ((item.EquipmentSlot != EquipmentType.Boots &&
-                                item.EquipmentSlot != EquipmentType.Gloves)
+                        if (item.EquipmentSlot != EquipmentType.Boots &&
+                            item.EquipmentSlot != EquipmentType.Gloves
                             || item.Type != 0)
                         {
                             continue;
@@ -1239,23 +1289,23 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 0; i < 5; i++)
                         {
-                            var type = (byte)int.Parse(currentLine[2 + (5 * i)]);
+                            var type = (byte) int.Parse(currentLine[2 + 5 * i]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[3 + (5 * i)]);
+                            var first = int.Parse(currentLine[3 + 5 * i]);
                             var itemCard = new BCardDTO
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
-                                SubType = (byte)(((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
+                                SubType = (byte) ((int.Parse(currentLine[5 + 5 * i]) + 1) * 10 + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
-                                FirstData = (short)((first > 0 ? first : -first) / 4),
-                                SecondData = (short)(int.Parse(currentLine[4 + (5 * i)]) / 4),
-                                ThirdData = (short)(int.Parse(currentLine[6 + (5 * i)]) / 4)
+                                FirstData = (short) ((first > 0 ? first : -first) / 4),
+                                SecondData = (short) (int.Parse(currentLine[4 + 5 * i]) / 4),
+                                ThirdData = (short) (int.Parse(currentLine[6 + 5 * i]) / 4)
                             };
                             _itemCards.Add(itemCard);
                         }

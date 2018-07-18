@@ -4,16 +4,16 @@ using NosCore.Packets.ClientPackets;
 
 namespace NosCore.Controllers
 {
-	public class UselessPacketController : PacketController
-	{
-		public void CClose([UsedImplicitly]CClosePacket cClosePacket)
-		{
-			// idk
-		}
+    public class UselessPacketController : PacketController
+    {
+        public void CClose([UsedImplicitly] CClosePacket cClosePacket)
+        {
+            // idk
+        }
 
-		public void FStashEnd([UsedImplicitly]FStashEndPacket fStashEndPacket)
-		{
-			// idk
-		}
-	}
+        public void FStashEnd([UsedImplicitly] FStashEndPacket fStashEndPacket)
+        {
+            // idk
+        }
+    }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Core.Serializing;
+﻿using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets

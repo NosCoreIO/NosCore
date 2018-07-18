@@ -2,7 +2,7 @@
 
 namespace NosCore.Data.StaticEntities
 {
-	public class MapTypeDTO : IDTO
+    public class MapTypeDTO : IDTO
     {
         [Key]
         public short MapTypeId { get; set; }

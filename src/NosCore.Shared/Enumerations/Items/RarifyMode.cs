@@ -2,13 +2,13 @@
 
 namespace NosCore.Shared.Enumerations.Items
 {
-	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum RarifyMode
-	{
-		Normal,
-		Reduced,
-		Free,
-		Drop,
-		Success
-	}
+    {
+        Normal,
+        Reduced,
+        Free,
+        Drop,
+        Success
+    }
 }
