@@ -48,7 +48,7 @@ namespace NosCore.Controllers
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                Session.SendPacket(new ScenePacket {SceneId = 40});
+                Session.SendPacket(new ScenePacket { SceneId = 40 });
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -249,7 +249,7 @@ namespace NosCore.Controllers
         {
             var currentRunningSeconds =
                 (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
-            var distance = (int) Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
+            var distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if (Session.Character.Speed < walkPacket.Speed &&
@@ -351,14 +351,21 @@ namespace NosCore.Controllers
                     Message = message
                 });
 
+                var receiverSession =
+                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                if (receiverSession != null) {
+
+                    receiverSession?.SendPacket(speakPacket);
+                    return;
+                }
+
                 //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
                 ConnectedAccount receiver = null;
-
-                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-                foreach (var server in servers)
+                
+                foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).ToList();
+                        .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
@@ -374,29 +381,23 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                if (receiver.ChannelId != MasterClientListSingleton.Instance.ChannelId)
-                {
-                    speakPacket.Message =
-                        $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
+                speakPacket.Message =
+                    $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                    ServerManager.Instance.BroadcastPacket(new PostedPacket
-                    {
-                        Packet = PacketFactory.Serialize(speakPacket),
-                        ReceiverCharacterData = new CharacterData {CharacterName = receiverName},
-                        SenderCharacterData = new CharacterData {CharacterName = Session.Character.Name},
-                        OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                        ReceiverType = ReceiverType.OnlySomeone
-                    }, receiver.ChannelId);
-
-                    Session.SendPacket(Session.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
-                            Session.Account.Language), SayColorType.Purple));
-                }
-                else
+                ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
-                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName)
-                        ?.SendPacket(speakPacket);
-                }
+                    Packet = PacketFactory.Serialize(speakPacket),
+                    ReceiverCharacterData = new CharacterData { CharacterName = receiverName },
+                    SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name },
+                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                    ReceiverType = ReceiverType.OnlySomeone
+                }, receiver.ChannelId);
+
+                Session.SendPacket(Session.Character.GenerateSay(
+                    Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
+                        Session.Account.Language), SayColorType.Purple));
+
+
             }
             catch (Exception e)
             {
