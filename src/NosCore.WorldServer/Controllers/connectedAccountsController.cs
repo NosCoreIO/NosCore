@@ -17,7 +17,7 @@ namespace NosCore.WorldServer.Controllers
         // GET api/connectedAccounts
         [HttpGet]
         [AllowAnonymous]
-        public IEnumerable<ConnectedAccount> GetConnectedAccounts()
+        public List<ConnectedAccount> GetConnectedAccounts()
         {
             return ServerManager.Instance.Sessions.Select(s =>
                 new ConnectedAccount
@@ -26,7 +26,7 @@ namespace NosCore.WorldServer.Controllers
                     Language = s.Value.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
                     ConnectedCharacter = s.Value.Character == null ? null : new ConnectedCharacter() { Name = s.Value.Character.Name }
-                });
+                }).ToList();
         }
     }
 }
