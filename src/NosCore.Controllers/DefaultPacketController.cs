@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -19,6 +15,11 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Controllers
 {
@@ -403,6 +404,94 @@ namespace NosCore.Controllers
             catch (Exception e)
             {
                 Logger.Log.Error("Whisper failed.", e);
+            }
+        }
+
+        /// <summary>
+        ///     fins packet
+        /// </summary>
+        /// <param name="finsPacket"></param>
+        public void AddFriend(FinsPacket finsPacket)
+        {
+            if (Session.Character.IsFriendListFull())
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL, Session.Account.Language)
+                });
+                return;
+            }
+
+            if (Session.Character.IsBlockedByCharacter(finsPacket.CharacterId))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language)
+                });
+                return;
+            }
+
+            if (Session.Character.IsFriendOfCharacter(finsPacket.CharacterId))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND, Session.Account.Language)
+                });
+                return;
+            }
+            
+            //TODO: Make character options & check if the character has friend requests blocked
+            if (Session.Character.FriendRequestBlocked)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED, Session.Account.Language)
+                });
+                return;
+            }
+
+            ClientSession targetSession = ServerManager.Instance.GetSessionByCharacterId(finsPacket.CharacterId);
+
+            if (targetSession == null)
+            {
+                return;
+            }
+
+            if (!targetSession.Character.FriendRequestCharacters.Contains(Session.Character.CharacterId))
+            {
+                targetSession.SendPacket(new DlgPacket
+                {
+                    PacketContent = $"#fins^1^{Session.Character.CharacterId} #fins^2^{Session.Character.CharacterId} {string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name)}"
+                });
+                Session.Character.FriendRequestCharacters.Add(finsPacket.CharacterId);
+                return;
+            }
+
+            switch (finsPacket.Type)
+            {
+                case FinsPacketType.Accepted:
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED, Session.Account.Language)
+                    });
+
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED, Session.Account.Language)
+                    });
+
+                    Session.Character.AddRelation(targetSession.Character.CharacterId, CharacterRelationType.Friend);
+                    targetSession.Character.AddRelation(Session.Character.CharacterId, CharacterRelationType.Friend);
+                    Session.Character.FriendRequestCharacters.Remove(finsPacket.CharacterId);
+                    break;
+                case FinsPacketType.Rejected:
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED, Session.Account.Language)
+                    });
+
+                    Session.Character.FriendRequestCharacters.Remove(finsPacket.CharacterId);
+                    break;
             }
         }
     }

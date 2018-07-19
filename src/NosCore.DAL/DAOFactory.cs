@@ -43,6 +43,7 @@ namespace NosCore.DAL
         private static GenericDAO<Skill, SkillDTO> _skillDAO;
         private static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> _npcMonsterSkillDAO;
         private static GenericDAO<MapMonster, MapMonsterDTO> _mapMonsterDAO;
+        private static GenericDAO<CharacterRelation, CharacterRelationDTO> _characterRelationDAO;
         private static IMapper _mapper;
 
         public static GenericDAO<Drop, DropDTO> DropDAO => _dropDAO ??
@@ -141,6 +142,9 @@ namespace NosCore.DAL
 
         public static GenericDAO<MapMonster, MapMonsterDTO> MapMonsterDAO =>
             _mapMonsterDAO ?? (_mapMonsterDAO = new GenericDAO<MapMonster, MapMonsterDTO>(_mapper));
+
+        public static GenericDAO<CharacterRelation, CharacterRelationDTO> CharacterRelationDAO =>
+            _characterRelationDAO ?? (_characterRelationDAO = new GenericDAO<CharacterRelation, CharacterRelationDTO>(_mapper));
 
         public static void RegisterMapping(Assembly gameobjectAssembly)
         {

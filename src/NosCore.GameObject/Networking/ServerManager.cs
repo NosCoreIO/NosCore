@@ -10,6 +10,7 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database.Entities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
@@ -25,6 +26,8 @@ namespace NosCore.GameObject.Networking
             new ConcurrentDictionary<Guid, MapInstance>();
 
         private static readonly List<Map.Map> Maps = new List<Map.Map>();
+
+        public List<CharacterRelationDTO> CharacterRelations { get; set; }
 
         private ServerManager()
         {
