@@ -377,7 +377,7 @@ namespace NosCore.Controllers
                 if (receiver.ChannelId != MasterClientListSingleton.Instance.ChannelId)
                 {
                     speakPacket.Message =
-                        $"<{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}> {speakPacket.Message}";
+                        $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
                     ServerManager.Instance.BroadcastPacket(new PostedPacket
                     {

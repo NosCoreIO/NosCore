@@ -35,7 +35,7 @@ namespace NosCore.WorldServer.Controllers
 
                     if (receiverSession == null)
                     {
-                        return NotFound();
+                        return Ok();
                     }
 
                     receiverSession.SendPacket(message);
