@@ -386,7 +386,7 @@ namespace NosCore.Controllers
                         SenderCharacterData = new CharacterData {CharacterName = Session.Character.Name},
                         OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                         ReceiverType = ReceiverType.OnlySomeone
-                    });
+                    }, receiver.ChannelId);
 
                     Session.SendPacket(Session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
