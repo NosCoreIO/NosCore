@@ -137,7 +137,8 @@ namespace NosCore.Controllers
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            Session.Character.GenerateFinit(); //TODO: Generate Finit for every friend online as well
+            Session.SendPacket(Session.Character.GenerateFinit());
+            //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
             //            Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
