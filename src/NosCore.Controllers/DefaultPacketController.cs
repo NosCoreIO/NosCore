@@ -137,7 +137,7 @@ namespace NosCore.Controllers
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            //            Session.SendPacket(Session.Character.GenerateFinit());
+            Session.Character.GenerateFinit(); //TODO: Generate Finit for every friend online as well
             //            Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
@@ -413,7 +413,7 @@ namespace NosCore.Controllers
         /// <param name="finsPacket"></param>
         public void AddFriend(FinsPacket finsPacket)
         {
-            if (Session.Character.IsFriendListFull())
+            if (Session.Character.IsFriendListFull)
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -457,13 +457,13 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (!targetSession.Character.FriendRequestCharacters.Contains(Session.Character.CharacterId))
+            if (!targetSession.Character.FriendRequestCharacters.Values.Contains(Session.Character.CharacterId))
             {
                 targetSession.SendPacket(new DlgPacket
                 {
                     PacketContent = $"#fins^1^{Session.Character.CharacterId} #fins^2^{Session.Character.CharacterId} {string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name)}"
                 });
-                Session.Character.FriendRequestCharacters.Add(finsPacket.CharacterId);
+                Session.Character.FriendRequestCharacters[Session.Character.CharacterId] = finsPacket.CharacterId;
                 return;
             }
 
@@ -482,7 +482,7 @@ namespace NosCore.Controllers
 
                     Session.Character.AddRelation(targetSession.Character.CharacterId, CharacterRelationType.Friend);
                     targetSession.Character.AddRelation(Session.Character.CharacterId, CharacterRelationType.Friend);
-                    Session.Character.FriendRequestCharacters.Remove(finsPacket.CharacterId);
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out long _);
                     break;
                 case FinsPacketType.Rejected:
                     targetSession.SendPacket(new InfoPacket
@@ -490,7 +490,7 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED, Session.Account.Language)
                     });
 
-                    Session.Character.FriendRequestCharacters.Remove(finsPacket.CharacterId);
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out long _);
                     break;
             }
         }

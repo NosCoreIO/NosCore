@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data;
@@ -21,29 +22,37 @@ namespace NosCore.GameObject
     {
         public Character()
         {
-            FriendRequestCharacters = new List<long>();
+            FriendRequestCharacters = new ConcurrentDictionary<long, long>();
         }
 
         private byte _speed;
+        private bool _isFriendListFull;
+
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
-        public List<CharacterRelationDTO> CharacterRelations
+        public ConcurrentBag<CharacterRelationDTO> CharacterRelations
         {
             get
             {
-                lock (ServerManager.Instance.CharacterRelations)
-                {
-                    return ServerManager.Instance.CharacterRelations == null
-                        ? new List<CharacterRelationDTO>()
-                        : ServerManager.Instance.CharacterRelations.Where(s =>
-                            s.CharacterId == CharacterId || s.RelatedCharacterId == CharacterId).ToList();
-                }
+                return ServerManager.Instance.CharacterRelations == null
+                    ? new ConcurrentBag<CharacterRelationDTO>()
+                    : new ConcurrentBag<CharacterRelationDTO>(ServerManager.Instance.CharacterRelations.Values.Where(s =>
+                        s.CharacterId == CharacterId || s.RelatedCharacterId == CharacterId));
             }
         }
 
-        public List<long> FriendRequestCharacters { get; set; }
+        public bool IsFriendListFull
+        {
+            get => _isFriendListFull;
+            set
+            {
+                _isFriendListFull = CharacterRelations.Where(s => s.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
+            }
+        }
+
+        public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public MapInstance MapInstance { get; set; }
 
@@ -241,11 +250,6 @@ namespace NosCore.GameObject
             DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relation);
             ServerManager.Instance.RefreshRelations(relation.CharacterRelationId);
             GenerateFinit();
-        }
-
-        public bool IsFriendListFull()
-        {
-            return CharacterRelations.Where(s => s.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
         }
 
         public bool IsBlockedByCharacter(long characterId)
