@@ -136,7 +136,7 @@ namespace NosCore.Controllers
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
-
+            Session.Character.LoadRelations();
             Session.SendPacket(Session.Character.GenerateFinit());
             //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
             //            Session.SendPacket(Session.Character.GenerateBlinit());
