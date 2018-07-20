@@ -409,6 +409,64 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
+        ///     btk packet
+        /// </summary>
+        /// <param name="btkPacket"></param>
+        public void FriendTalk(BtkPacket btkPacket)
+        {
+            if (string.IsNullOrEmpty(btkPacket?.Message))
+            {
+                return;
+            }
+
+            string message = btkPacket.Message;
+            if (message.Length > 60)
+            {
+                message = message.Substring(0, 60);
+            }
+
+            message = message.Trim();
+            var receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == btkPacket.CharacterId);
+
+            if (receiverSession != null)
+            {
+                receiverSession.SendPacket(Session.Character.GenerateTalk(message));
+                return;
+            }
+
+            ConnectedAccount receiver = null;
+
+            foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+            {
+                var accounts = WebApiAccess.Instance
+                    .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+
+                if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
+                {
+                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
+                }
+            }
+
+            if (receiver == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, Session.Account.Language)
+                });
+                return;
+            }
+
+            ServerManager.Instance.BroadcastPacket(new PostedPacket
+            {
+                Packet = PacketFactory.Serialize(Session.Character.GenerateTalk(message)),
+                ReceiverCharacterData = new CharacterData { CharacterId = btkPacket.CharacterId, CharacterName = ServerManager.Instance.GetCharacterByCharacterId(btkPacket.CharacterId)?.Name },
+                SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name, CharacterId = Session.Character.CharacterId },
+                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                ReceiverType = ReceiverType.OnlySomeone
+            }, receiver.ChannelId);
+        }
+
+        /// <summary>
         ///     fdel packet
         /// </summary>
         /// <param name="fdelPacket"></param>
