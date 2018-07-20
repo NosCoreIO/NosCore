@@ -291,6 +291,10 @@ namespace NosCore.GameObject
 
             if (relation == null)
             {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
                 return;
             }
 
