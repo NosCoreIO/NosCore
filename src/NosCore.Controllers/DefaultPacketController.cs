@@ -142,7 +142,6 @@ namespace NosCore.Controllers
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
             //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
-            //            Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
