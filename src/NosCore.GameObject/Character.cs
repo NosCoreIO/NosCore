@@ -126,15 +126,12 @@ namespace NosCore.GameObject
 
         public void LoadRelations()
         {
-            var characterRelationPartitioner = Partitioner.Create(DAOFactory.CharacterRelationDAO.LoadAll(), EnumerablePartitionerOptions.NoBuffering);
+            var characterRelationPartitioner = Partitioner.Create(DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == CharacterId || s.RelatedCharacterId == CharacterId), EnumerablePartitionerOptions.NoBuffering);
 
-            foreach (CharacterRelationDTO relation in characterRelationPartitioner.GetDynamicPartitions())
+            Parallel.ForEach(characterRelationPartitioner, relation =>
             {
-                if (relation.CharacterId == CharacterId || relation.RelatedCharacterId == CharacterId)
-                {
-                    CharacterRelations[relation.CharacterRelationId] = relation;
-                }
-            }
+                CharacterRelations[relation.CharacterRelationId] = relation;
+            });
         }
 
         public void RefreshRelations(long relationId)
