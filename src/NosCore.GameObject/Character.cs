@@ -229,6 +229,33 @@ namespace NosCore.GameObject
             return 0;
         }
 
+        public BlinitPacket GenerateBlinit()
+        {
+            var subpackets = new List<BlinitSubPacket>();
+            foreach (CharacterRelationDTO relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
+            {
+                if (relation.RelatedCharacterId == CharacterId)
+                {
+                    continue;
+                }
+
+                string relatedCharacter = DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+
+                if (relatedCharacter == null)
+                {
+                    continue;
+                }
+
+                subpackets.Add(new BlinitSubPacket
+                {
+                    RelatedCharacterId = relation.RelatedCharacterId,
+                    CharacterName = relatedCharacter
+                });
+            }
+
+            return new BlinitPacket { SubPackets = subpackets };
+        }
+
         public FinitPacket GenerateFinit()
         {
             var subpackets = new List<FinitSubPacket>();
@@ -258,6 +285,20 @@ namespace NosCore.GameObject
             return new FinitPacket { SubPackets = subpackets };
         }
 
+        public void DeleteBlackList(long characterId)
+        {
+            CharacterRelationDTO relation = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == characterId && s.RelationType == CharacterRelationType.Blocked);
+
+            if (relation == null)
+            {
+                return;
+            }
+
+            DAOFactory.CharacterRelationDAO.Delete(relation.CharacterRelationId);
+            RefreshRelations(relation.CharacterRelationId);
+            Session.SendPacket(GenerateBlinit());
+        }
+
         public void AddRelation(long characterId, CharacterRelationType relationType)
         {
             var relation = new CharacterRelationDTO
@@ -269,6 +310,13 @@ namespace NosCore.GameObject
 
             DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relation);
             RefreshRelations(relation.CharacterRelationId);
+
+            if (relationType == CharacterRelationType.Blocked)
+            {
+                Session.SendPacket(GenerateBlinit());
+                return;
+            }
+
             Session.SendPacket(GenerateFinit());
         }
 

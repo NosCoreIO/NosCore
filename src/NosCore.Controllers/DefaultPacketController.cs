@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NosCore.Data.AliveEntities;
+using NosCore.DAL;
 using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Controllers
@@ -138,6 +140,7 @@ namespace NosCore.Controllers
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
             Session.Character.LoadRelations();
             Session.SendPacket(Session.Character.GenerateFinit());
+            Session.SendPacket(Session.Character.GenerateBlinit());
             //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
             //            Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
@@ -315,7 +318,7 @@ namespace NosCore.Controllers
             {
                 Message = sayPacket.Message,
                 Type = type
-            }), ReceiverType.AllExceptMe);
+            }), ReceiverType.AllExceptMeAndBlacklisted);
         }
 
         /// <summary>
@@ -331,6 +334,24 @@ namespace NosCore.Controllers
                 //Todo: review this
                 var messageData = whisperPacket.Message.Split(' ');
                 var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+
+                CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == receiverName);
+
+                if (target == null)
+                {
+                    return;
+                }
+
+                if (DAOFactory.CharacterRelationDAO.FirstOrDefault(s =>
+                    s.CharacterId == target.CharacterId && s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked) != null)
+                {
+                    Session.SendPacket(new SayPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                        Type = SayColorType.Yellow
+                    });
+                    return;
+                }
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {
@@ -361,7 +382,6 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
                 ConnectedAccount receiver = null;
                 
                 foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
@@ -565,6 +585,46 @@ namespace NosCore.Controllers
                     Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out long _);
                     break;
             }
+        }
+
+        /// <summary>
+        ///     blins packet
+        /// </summary>
+        /// <param name="blinsPacket"></param>
+        public void BlackListAdd(BlInsPacket blinsPacket)
+        {
+            if (Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND, Session.Account.Language)
+                });
+                return;
+            }
+
+            Session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
+            Session.SendPacket(new InfoPacket
+            {
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED, Session.Account.Language)
+            });
+        }
+
+        /// <summary>
+        ///     bldel packet
+        /// </summary>
+        /// <param name="bldelPacket"></param>
+        public void BlackListDelete(BlDelPacket bldelPacket)
+        {
+            if (!Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == bldelPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language)
+                });
+                return;
+            }
+
+            Session.Character.DeleteBlackList(bldelPacket.CharacterId);
         }
     }
 }

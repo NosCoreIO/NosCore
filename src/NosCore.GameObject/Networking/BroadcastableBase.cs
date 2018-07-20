@@ -123,6 +123,19 @@ namespace NosCore.GameObject.Networking
 
             switch (sentPacket.Receiver)
             {
+                case ReceiverType.AllExceptMeAndBlacklisted:
+                    Parallel.ForEach(
+                        Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId && !s.Value.Character.IsBlockedByCharacter(sentPacket.Sender.Character.CharacterId)),
+                        session =>
+                        {
+                            if (!session.Value.HasSelectedCharacter)
+                            {
+                                return;
+                            }
+
+                            session.Value.SendPacket(sentPacket.Packet);
+                        });
+                    break;
                 case ReceiverType.AllExceptMe:
                     Parallel.ForEach(
                         Sessions.Where(s => s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
