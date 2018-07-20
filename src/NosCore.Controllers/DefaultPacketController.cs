@@ -625,5 +625,66 @@ namespace NosCore.Controllers
 
             Session.Character.DeleteBlackList(bldelPacket.CharacterId);
         }
+
+        /// <summary>
+        ///     flPacket packet
+        /// </summary>
+        /// <param name="flPacket"></param>
+        public void AddDistantFriend(FlPacket flPacket)
+        {
+            if (string.IsNullOrEmpty(flPacket?.CharacterName))
+            {
+                return;
+            }
+
+            CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == flPacket.CharacterName);
+
+            if (target == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            var fins = new FinsPacket
+            {
+                CharacterId = target.CharacterId,
+                Type = FinsPacketType.Accepted
+            };
+
+            AddFriend(fins);
+        }
+
+        /// <summary>
+        ///     blPacket packet
+        /// </summary>
+        /// <param name="blPacket"></param>
+        public void DistantBlackList(BlPacket blPacket)
+        {
+            if (string.IsNullOrEmpty(blPacket?.CharacterName))
+            {
+                return;
+            }
+
+            CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == blPacket.CharacterName);
+
+            if (target == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            var blinsPacket = new BlInsPacket
+            {
+                CharacterId = target.CharacterId
+            };
+
+            BlackListAdd(blinsPacket);
+        }
     }
 }
