@@ -249,6 +249,26 @@ namespace NosCore.GameObject
             Session.SendPacket(GenerateFinit());
         }
 
+        public void DeleteRelation(long characterId)
+        {
+            CharacterRelationDTO relation1 = CharacterRelations.FirstOrDefault(s => s.RelatedCharacterId == characterId);
+            CharacterRelationDTO relation2 = DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == CharacterId);
+
+            if (relation1 == null || relation2 == null)
+            {
+                return;
+            }
+
+            DAOFactory.CharacterRelationDAO.Delete(relation1.CharacterRelationId);
+            DAOFactory.CharacterRelationDAO.Delete(relation2.CharacterRelationId);
+            ServerManager.Instance.RefreshRelations(relation1.CharacterRelationId);
+            ServerManager.Instance.RefreshRelations(relation2.CharacterRelationId);
+            Session.SendPacket(GenerateFinit());
+            //TODO: Refresh target relation if online, this is just for testing purposes
+            ClientSession target = ServerManager.Instance.GetSessionByCharacterId(characterId);
+            target?.SendPacket(target?.Character.GenerateFinit());
+        }
+
         public bool IsBlockedByCharacter(long characterId)
         {
             return CharacterRelations.Any(s => s.RelationType == CharacterRelationType.Blocked && s.RelatedCharacterId.Equals(characterId) && !s.RelatedCharacterId.Equals(CharacterId) && s.CharacterId.Equals(CharacterId));

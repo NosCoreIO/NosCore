@@ -409,6 +409,19 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
+        ///     fdel packet
+        /// </summary>
+        /// <param name="fdelPacket"></param>
+        public void DeleteFriend(FdelPacket fdelPacket)
+        {
+            Session.Character.DeleteRelation(fdelPacket.CharacterId);
+            Session.SendPacket(new InfoPacket
+            {
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, Session.Account.Language),
+            });
+        }
+
+        /// <summary>
         ///     fins packet
         /// </summary>
         /// <param name="finsPacket"></param>
