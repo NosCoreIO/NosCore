@@ -534,5 +534,14 @@ namespace NosCore.GameObject
                 Option = 0
             };
         }
+
+        public TalkPacket GenerateTalk(string message)
+        {
+            return new TalkPacket
+            {
+                CharacterId = CharacterId,
+                Message = message
+            };
+        }
     }
 }
