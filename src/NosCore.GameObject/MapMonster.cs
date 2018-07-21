@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
@@ -30,6 +32,18 @@ namespace NosCore.GameObject
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public string Name { get; set; }
-        public NpcMonsterDTO Monster { get; set; }
+        public NpcMonsterDTO NpcMonster { get; set; }
+        public MapInstance MapInstance { get; set; }
+
+        internal void Initialize(MapInstance mapInstance)
+        {
+            NpcMonster = ServerManager.Instance.NpcMonsters.FirstOrDefault(s=>s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster.MaxMP;
+            Hp = NpcMonster.MaxHP;
+            MapInstance = mapInstance;
+            PositionX = MapX;
+            PositionY = MapY;
+            MapInstanceId = mapInstance.MapInstanceId;
+        }
     }
 }
