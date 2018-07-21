@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NosCore.Data;
 
-namespace NosCore.GameObject
+namespace NosCore.Data
 {
     public class CharacterRelation : CharacterRelationDTO
     {

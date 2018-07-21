@@ -24,7 +24,7 @@ namespace NosCore.WorldServer.Controllers
                     Name = s.Account.Name,
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Value.Character == null ? null : new ConnectedCharacter() { Name = s.Value.Character.Name, Id = s.Value.Character.CharacterId }
+                    ConnectedCharacter = s.Value.Character == null ? null : new ConnectedCharacter() { Name = s.Value.Character.Name, Id = s.Value.Character.CharacterId, Relations = s.Value.Character.CharacterRelations.Values },
                 }).ToList();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -331,13 +332,13 @@ namespace NosCore.Controllers
                     Session.Character.Mp = (int) Session.Character.MPLoad();
                 }
 
-                var characterRelationPartitioner = Partitioner.Create(DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId || s.RelatedCharacterId == Session.Character.CharacterId).Cast<CharacterRelation>(), EnumerablePartitionerOptions.NoBuffering);
+                IEnumerable<CharacterRelation> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
 
-                Parallel.ForEach(characterRelationPartitioner, relation =>
+                foreach (CharacterRelation relation in relations)
                 {
-                    relation.CharacterName = DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    relation.CharacterName = DAOFactory.CharacterDAO.Where(s => s.CharacterId == relation.RelatedCharacterId)?.FirstOrDefault()?.Name;
                     Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
-                });
+                }
 
                 Session.SendPacket(new OkPacket());
             }
