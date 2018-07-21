@@ -7,7 +7,8 @@ using NosCore.Core.Serializing;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Packets.ClientPackets;
-using NosCore.Packets.CommandPackets;
+using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Tests
@@ -34,6 +35,17 @@ namespace NosCore.Tests
             var packet = PacketFactory.Serialize(characterTest.GenerateIn());
             Assert.AreEqual(
                 "in 1 characterTest - 0 0 0 0 0 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 0 0 0 0 0",
+                packet);
+        }
+
+        [TestMethod]
+        public void GeneratePacketWithClientPacket()
+        {
+            var dlgTest = new DlgPacket { Question = "question", NoPacket = new FinsPacket {Type = FinsPacketType.Rejected, CharacterId = 1}, YesPacket = new FinsPacket { Type = FinsPacketType.Accepted, CharacterId = 1 } };
+
+            var packet = PacketFactory.Serialize(dlgTest);
+            Assert.AreEqual(
+                "dlg #fins^1^1 #fins^2^1 question",
                 packet);
         }
 
