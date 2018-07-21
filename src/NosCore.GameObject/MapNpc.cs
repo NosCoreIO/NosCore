@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Reactive.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -18,6 +21,7 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
+        public bool IsAlive { get; set; }
         public VisualType VisualType => VisualType.Npc;
 
         public long VisualId => MapNpcId;
@@ -27,5 +31,13 @@ namespace NosCore.GameObject
         public short PositionY { get; set; }
         public string Name { get; set; }
         public NpcMonsterDTO Monster { get; set; }
+        public DateTime LastMove { get; set; }
+            Speed = NpcMonster.Speed;
+        }
+
+
+        internal void StartLife()
+        {
+            this.Move();
     }
 }

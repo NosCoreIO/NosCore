@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -25,6 +26,13 @@ namespace NosCore.GameObject.Networking
         {
         }
 
+        private static int seed = Environment.TickCount;
+        private static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+        public int RandomNumber(int min = 0, int max = 100)
+        {
+            return random.Value.Next(min, max);
+        }
+
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
@@ -39,6 +47,7 @@ namespace NosCore.GameObject.Networking
             var mapInstance = new MapInstance(map, guid, false, type);
             mapInstance.LoadPortals();
             Mapinstances.TryAdd(guid, mapInstance);
+            mapInstance.StartLife();
             return mapInstance;
         }
 
@@ -60,6 +69,7 @@ namespace NosCore.GameObject.Networking
                     var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
                     Mapinstances.TryAdd(guid, newMap);
                     Task.Run(() => newMap.LoadPortals());
+                      newMap.StartLife();
                     monstercount += newMap.Monsters.Count;
                     i++;
                 });
