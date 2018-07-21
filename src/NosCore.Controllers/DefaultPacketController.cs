@@ -333,24 +333,6 @@ namespace NosCore.Controllers
                 var messageData = whisperPacket.Message.Split(' ');
                 var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
 
-                CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == receiverName);
-
-                if (target == null)
-                {
-                    return;
-                }
-
-                if (DAOFactory.CharacterRelationDAO.FirstOrDefault(s =>
-                    s.CharacterId == target.CharacterId && s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked) != null)
-                {
-                    Session.SendPacket(new SayPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
-                        Type = SayColorType.Yellow
-                    });
-                    return;
-                }
-
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {
                     message += $"{messageData[i]} ";
@@ -373,8 +355,18 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.Sessions.FirstOrDefault(s => s.Character?.Name == receiverName);
-                if (receiverSession != null) {
+                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                if (receiverSession != null)
+                {
+                    if (receiverSession.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+                    {
+                        receiverSession.SendPacket(new SayPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                            Type = SayColorType.Yellow
+                        });
+                        return;
+                    }
 
                     receiverSession?.SendPacket(speakPacket);
                     return;
@@ -399,6 +391,16 @@ namespace NosCore.Controllers
                     Session.SendPacket(Session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, Session.Account.Language),
                         SayColorType.Yellow));
+                    return;
+                }
+
+                if (receiver.ConnectedCharacter.Relations.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+                {
+                    Session.SendPacket(new SayPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                        Type = SayColorType.Yellow
+                    });
                     return;
                 }
 

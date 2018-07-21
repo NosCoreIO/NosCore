@@ -9,7 +9,6 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
-using NosCore.Database.Entities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
@@ -20,7 +19,7 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
-using NosCore.Shared.Enumerations.Items;
+using NosCore.Data;
 
 namespace NosCore.GameObject
 {
@@ -296,7 +295,8 @@ namespace NosCore.GameObject
             {
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
-                RelationType = relationType
+                RelationType = relationType,
+                CharacterName = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name
             };
 
             CharacterRelations[relation.CharacterRelationId] = relation;
