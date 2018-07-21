@@ -140,7 +140,7 @@ namespace NosCore.Controllers
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
-            //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
+            Session.Character.UpdateFriendList();
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);

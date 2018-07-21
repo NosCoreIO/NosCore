@@ -200,33 +200,35 @@ namespace NosCore.GameObject
 
         public void UpdateFriendList()
         {
-            foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+            foreach (CharacterRelation relation in CharacterRelations.Values)
             {
-                var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
-
-                ConnectedAccount account = accounts.FirstOrDefault(s => s.ConnectedCharacter.Id == Session.Character.CharacterId);
-
-                if (account == null)
+                var target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == relation.RelatedCharacterId);
+                if (target != null)
                 {
-                    continue;
+                    target.SendPacket(target.Character.GenerateFinit());
                 }
-
-                ClientSession targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == account.ConnectedCharacter.Id);
-
-                if (targetSession == null)
+                else
                 {
-                    return;
+                    foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                    {
+                        var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
+
+                        ConnectedAccount account = accounts?.FirstOrDefault(s => s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+
+                        if (account == null)
+                        {
+                            continue;
+                        }
+
+                        var postedPacket = new PostedPacket
+                        {
+                            OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                            ReceiverCharacterData = new CharacterData { CharacterId = relation.RelatedCharacterId }
+                        };
+
+                        WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi); ;
+                    }
                 }
-
-                ServerManager.Instance.BroadcastPacket(new PostedPacket
-                {
-                    Packet = PacketFactory.Serialize(targetSession.Character.GenerateFinit()),
-                    ReceiverCharacterData = new CharacterData { CharacterName = targetSession.Character.Name, CharacterId = targetSession.Character.CharacterId },
-                    SenderCharacterData = new CharacterData { CharacterId = Session.Character.CharacterId, CharacterName = Session.Character.Name },
-                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                    ReceiverType = ReceiverType.OnlySomeone
-                }, account.ChannelId);
             }
         }
 
