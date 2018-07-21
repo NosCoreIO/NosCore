@@ -81,6 +81,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
 
         public bool NoMove { get; set; }
+        public bool IsAlive { get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
         public byte Authority { get; set; }

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
 using NosCore.Data.AliveEntities;
@@ -10,6 +11,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -101,6 +103,29 @@ namespace NosCore.GameObject
             });
             Portals.AddRange(portalList.Select(s => s.Value));
         }
+
+        public void StartLife()
+        {
+            _life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(x =>
+            {
+                try
+                {
+                    if (!IsSleeping)
+                    {
+                        Monsters.ForEach(s => s.StartLife());
+                        Npcs.ForEach(s => s.StartLife());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log.Error(e);
+                }
+            });
+        }
+
+        public bool IsSleeping { get; set; }
+
+        private IDisposable _life { get; set; }
 
         public List<PacketDefinition> GetMapItems()
         {

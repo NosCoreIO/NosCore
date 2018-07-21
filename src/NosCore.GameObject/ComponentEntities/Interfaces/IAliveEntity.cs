@@ -23,5 +23,11 @@
         bool NoAttack { get; set; }
 
         bool NoMove { get; set; }
+
+        bool IsAlive { get; set; }
+
+        short MapX { get; set; }
+
+        short MapY { get; set; }
     }
 }

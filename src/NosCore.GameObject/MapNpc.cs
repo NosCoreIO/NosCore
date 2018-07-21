@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -20,6 +23,7 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
+        public bool IsAlive { get; set; }
         public VisualType VisualType => VisualType.Npc;
 
         public long VisualId => MapNpcId;
@@ -28,8 +32,14 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public string Name { get; set; }
+        public DateTime LastMove { get; set; }
         public NpcMonsterDTO NpcMonster { get; set; }
-        public MapInstance MapInstance { get; set; }
+        public MapInstance MapInstance { get; set; }   
+        
+        internal void StartLife()
+        {
+            this.Move();
+        }
 
         internal void Initialize(MapInstance mapInstance)
         {
@@ -40,6 +50,7 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             MapInstanceId = mapInstance.MapInstanceId;
+            Speed = NpcMonster.Speed;
         }
     }
 }

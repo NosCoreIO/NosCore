@@ -52,7 +52,6 @@ namespace NosCore.Controllers
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
-                    var rnd = new Random();
                     CharacterDTO chara = new Character
                     {
                         Class = (byte) CharacterClassType.Adventurer,
@@ -63,8 +62,8 @@ namespace NosCore.Controllers
                         JobLevel = 1,
                         Level = 1,
                         MapId = 1,
-                        MapX = (short) rnd.Next(78, 81),
-                        MapY = (short) rnd.Next(114, 118),
+                        MapX = (short)ServerManager.Instance.RandomNumber(78, 81),
+                        MapY = (short)ServerManager.Instance.RandomNumber(114, 118),
                         Mp = 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,

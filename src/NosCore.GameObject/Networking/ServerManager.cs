@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -26,6 +27,13 @@ namespace NosCore.GameObject.Networking
         {
         }
 
+        private static int seed = Environment.TickCount;
+        private static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+        public int RandomNumber(int min = 0, int max = 100)
+        {
+            return random.Value.Next(min, max);
+        }
+
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         public List<NpcMonsterDTO> NpcMonsters { get; set; }
@@ -44,6 +52,7 @@ namespace NosCore.GameObject.Networking
             mapInstance.LoadMonsters();
             mapInstance.LoadNpcs();
             Mapinstances.TryAdd(guid, mapInstance);
+            mapInstance.StartLife();
             return mapInstance;
         }
 
@@ -59,6 +68,7 @@ namespace NosCore.GameObject.Networking
                 var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(),
                     EnumerablePartitionerOptions.NoBuffering);
                 var mapList = new ConcurrentDictionary<short, Map.Map>();
+
                 Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
                   {
                       var guid = Guid.NewGuid();
@@ -69,6 +79,7 @@ namespace NosCore.GameObject.Networking
                       newMap.LoadPortals();
                       newMap.LoadMonsters();
                       newMap.LoadNpcs();
+                      newMap.StartLife();
                       monstercount += newMap.Monsters.Count;
                       npccount += newMap.Npcs.Count;
                       i++;

@@ -1,4 +1,5 @@
-﻿using NosCore.Data.StaticEntities;
+﻿using System;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -12,6 +13,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisabled { get; set; }
 
+        DateTime LastMove { get; set; }
         NpcMonsterDTO NpcMonster { get; set; }
+
     }
 }
