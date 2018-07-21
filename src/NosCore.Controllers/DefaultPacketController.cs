@@ -382,7 +382,7 @@ namespace NosCore.Controllers
                 }
 
                 ConnectedAccount receiver = null;
-                
+
                 foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
                 {
                     var accounts = WebApiAccess.Instance
@@ -530,7 +530,7 @@ namespace NosCore.Controllers
                 });
                 return;
             }
-            
+
             //TODO: Make character options & check if the character has friend requests blocked
             if (Session.Character.FriendRequestBlocked)
             {
@@ -552,7 +552,9 @@ namespace NosCore.Controllers
             {
                 targetSession.SendPacket(new DlgPacket
                 {
-                    PacketContent = $"#fins^1^{Session.Character.CharacterId} #fins^2^{Session.Character.CharacterId} {string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name)}"
+                    Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name),
+                    YesPacket = new FinsPacket { Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId },
+                    NoPacket = new FinsPacket { Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId }
                 });
                 Session.Character.FriendRequestCharacters[Session.Character.CharacterId] = finsPacket.CharacterId;
                 return;
