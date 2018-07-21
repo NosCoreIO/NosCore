@@ -138,7 +138,6 @@ namespace NosCore.Controllers
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
-            Session.Character.LoadRelations();
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
             //ServerManager.Instance.UpdateFriendList(Session); //TODO: Fix this
@@ -433,11 +432,6 @@ namespace NosCore.Controllers
         /// <param name="btkPacket"></param>
         public void FriendTalk(BtkPacket btkPacket)
         {
-            if (string.IsNullOrEmpty(btkPacket?.Message))
-            {
-                return;
-            }
-
             string message = btkPacket.Message;
             if (message.Length > 60)
             {
@@ -478,7 +472,7 @@ namespace NosCore.Controllers
             ServerManager.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(Session.Character.GenerateTalk(message)),
-                ReceiverCharacterData = new CharacterData { CharacterId = btkPacket.CharacterId, CharacterName = ServerManager.Instance.GetCharacterByCharacterId(btkPacket.CharacterId)?.Name },
+                ReceiverCharacterData = new CharacterData { CharacterId = btkPacket.CharacterId, CharacterName = receiver.Name },
                 SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name, CharacterId = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
@@ -541,7 +535,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            ClientSession targetSession = ServerManager.Instance.GetSessionByCharacterId(finsPacket.CharacterId);
+            ClientSession targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == finsPacket.CharacterId);
 
             if (targetSession == null)
             {
@@ -634,12 +628,7 @@ namespace NosCore.Controllers
         /// <param name="flPacket"></param>
         public void AddDistantFriend(FlPacket flPacket)
         {
-            if (string.IsNullOrEmpty(flPacket?.CharacterName))
-            {
-                return;
-            }
-
-            CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == flPacket.CharacterName);
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
 
             if (target == null)
             {
@@ -652,7 +641,7 @@ namespace NosCore.Controllers
 
             var fins = new FinsPacket
             {
-                CharacterId = target.CharacterId,
+                CharacterId = target.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
 
@@ -665,12 +654,7 @@ namespace NosCore.Controllers
         /// <param name="blPacket"></param>
         public void DistantBlackList(BlPacket blPacket)
         {
-            if (string.IsNullOrEmpty(blPacket?.CharacterName))
-            {
-                return;
-            }
-
-            CharacterDTO target = DAOFactory.CharacterDAO.FirstOrDefault(s => s.Name == blPacket.CharacterName);
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
 
             if (target == null)
             {
@@ -683,7 +667,7 @@ namespace NosCore.Controllers
 
             var blinsPacket = new BlInsPacket
             {
-                CharacterId = target.CharacterId
+                CharacterId = target.Character.CharacterId
             };
 
             BlackListAdd(blinsPacket);
