@@ -8,7 +8,7 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("finit")]
     public class FinitPacket : PacketDefinition
     {
-        [PacketIndex(0)]
+        [PacketIndex(0, SpecialSeparator = "|")]
         public List<FinitSubPacket> SubPackets { get; set; }
     }
 }
