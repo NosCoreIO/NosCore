@@ -4,16 +4,8 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ItemInstance
 {
-    public class WearableInstance : ItemInstance, IVisualEntity
+    public class WearableInstance : ItemInstance
     {
-        public string Name { get; set; }
-        public short? Amount { get; set; }
-        public VisualType VisualType { get; set; } = VisualType.Object;
         public short VNum { get; set; }
-        public long VisualId { get; set; }
-        public byte Direction { get; set; }
-        public Guid MapInstanceId { get; set; }
-        public short PositionX { get; set; }
-        public short PositionY { get; set; }
     }
 }

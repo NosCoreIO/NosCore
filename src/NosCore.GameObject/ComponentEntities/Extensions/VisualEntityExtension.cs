@@ -35,9 +35,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte) visualEntity.Gender,
-                    HairStyle = (byte) visualEntity.HairStyle,
-                    HairColor = (byte) visualEntity.HairColor,
+                    Gender = (byte)visualEntity.Gender,
+                    HairStyle = (byte)visualEntity.HairStyle,
+                    HairColor = (byte)visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = new InEquipmentSubPacket
                     {
@@ -69,6 +69,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 Name = visualEntity.Name,
+                VisualId = visualEntity.VisualId,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
@@ -78,9 +79,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        MP = (int) (visualEntity.Mp / (float) ((visualEntity.Monster?.MaxMP ?? 1) * 100)),
-                        HP = (int) (visualEntity.Hp / (float) ((visualEntity.Monster?.MaxHP ?? 1) * 100))
-                    }
+                        MP = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMP ?? 1) * 100),
+                        HP = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHP ?? 1) * 100)
+                    },
+                    IsSitting = visualEntity.IsSitting
                 }
             };
         }
@@ -92,6 +94,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,

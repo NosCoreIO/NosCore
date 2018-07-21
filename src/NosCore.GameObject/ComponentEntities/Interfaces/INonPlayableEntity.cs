@@ -12,6 +12,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisabled { get; set; }
 
-        NpcMonsterDTO Monster { get; set; }
+        NpcMonsterDTO NpcMonster { get; set; }
     }
 }

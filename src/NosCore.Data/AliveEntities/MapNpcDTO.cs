@@ -28,9 +28,5 @@ namespace NosCore.Data.AliveEntities
         public short VNum { get; set; }
 
         public byte Direction { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }
