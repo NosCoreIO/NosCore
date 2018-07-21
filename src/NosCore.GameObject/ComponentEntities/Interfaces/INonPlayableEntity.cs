@@ -13,8 +13,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisabled { get; set; }
 
-        NpcMonsterDTO Monster { get; set; }
-
         DateTime LastMove { get; set; }
+        NpcMonsterDTO NpcMonster { get; set; }
+
     }
 }

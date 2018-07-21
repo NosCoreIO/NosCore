@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 
@@ -30,14 +32,25 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public string Name { get; set; }
-        public NpcMonsterDTO Monster { get; set; }
         public DateTime LastMove { get; set; }
-            Speed = NpcMonster.Speed;
-        }
-
-
+        public NpcMonsterDTO NpcMonster { get; set; }
+        public MapInstance MapInstance { get; set; }   
+        
         internal void StartLife()
         {
             this.Move();
+        }
+
+        internal void Initialize(MapInstance mapInstance)
+        {
+            NpcMonster = ServerManager.Instance.NpcMonsters.FirstOrDefault(s => s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster.MaxMP;
+            Hp = NpcMonster.MaxHP;
+            MapInstance = mapInstance;
+            PositionX = MapX;
+            PositionY = MapY;
+            MapInstanceId = mapInstance.MapInstanceId;
+            Speed = NpcMonster.Speed;
+        }
     }
 }
