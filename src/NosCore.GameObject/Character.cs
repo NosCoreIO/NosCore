@@ -3,8 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.WebApi;
 using NosCore.Database.Entities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -14,6 +18,7 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
 
@@ -24,25 +29,20 @@ namespace NosCore.GameObject
         public Character()
         {
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
-            CharacterRelations = new ConcurrentDictionary<long, CharacterRelationDTO>();
+            CharacterRelations = new ConcurrentDictionary<long, CharacterRelation>();
         }
 
         private byte _speed;
-        private bool _isFriendListFull;
 
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelationDTO> CharacterRelations { get; set; }
+        public ConcurrentDictionary<long, CharacterRelation> CharacterRelations { get; set; }
 
         public bool IsFriendListFull
         {
-            get => _isFriendListFull;
-            set
-            {
-                _isFriendListFull = CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
-            }
+            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
         }
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
@@ -124,36 +124,6 @@ namespace NosCore.GameObject
         public Inventory Inventory { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
-        public void LoadRelations()
-        {
-            var characterRelationPartitioner = Partitioner.Create(DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == CharacterId || s.RelatedCharacterId == CharacterId), EnumerablePartitionerOptions.NoBuffering);
-
-            Parallel.ForEach(characterRelationPartitioner, relation =>
-            {
-                CharacterRelations[relation.CharacterRelationId] = relation;
-            });
-        }
-
-        public void RefreshRelations(long relationId)
-        {
-            CharacterRelationDTO relationDto = DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterRelationId == relationId);
-
-            if (relationDto != null)
-            {
-                CharacterRelations[relationId] = relationDto;
-                return;
-            }
-
-            relationDto = CharacterRelations.Values.FirstOrDefault(s => s.CharacterRelationId == relationId);
-
-            if (relationDto == null)
-            {
-                return;
-            }
-
-            CharacterRelations.TryRemove(relationId, out CharacterRelationDTO _);
-        }
-
         public FdPacket GenerateFd()
         {
             return new FdPacket
@@ -229,10 +199,42 @@ namespace NosCore.GameObject
             return 0;
         }
 
+        public void UpdateFriendList()
+        {
+            foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+            {
+                var accounts = WebApiAccess.Instance
+                    .Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
+
+                ConnectedAccount account = accounts.FirstOrDefault(s => s.ConnectedCharacter.Id == Session.Character.CharacterId);
+
+                if (account == null)
+                {
+                    continue;
+                }
+
+                ClientSession targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == account.ConnectedCharacter.Id);
+
+                if (targetSession == null)
+                {
+                    return;
+                }
+
+                ServerManager.Instance.BroadcastPacket(new PostedPacket
+                {
+                    Packet = PacketFactory.Serialize(targetSession.Character.GenerateFinit()),
+                    ReceiverCharacterData = new CharacterData { CharacterName = targetSession.Character.Name, CharacterId = targetSession.Character.CharacterId },
+                    SenderCharacterData = new CharacterData { CharacterId = Session.Character.CharacterId, CharacterName = Session.Character.Name },
+                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                    ReceiverType = ReceiverType.OnlySomeone
+                }, account.ChannelId);
+            }
+        }
+
         public BlinitPacket GenerateBlinit()
         {
             var subpackets = new List<BlinitSubPacket>();
-            foreach (CharacterRelationDTO relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
+            foreach (CharacterRelation relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
             {
                 if (relation.RelatedCharacterId == CharacterId)
                 {
@@ -259,16 +261,9 @@ namespace NosCore.GameObject
         public FinitPacket GenerateFinit()
         {
             var subpackets = new List<FinitSubPacket>();
-            foreach (CharacterRelationDTO relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            foreach (CharacterRelation relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
             {
                 if (relation.RelatedCharacterId == CharacterId)
-                {
-                    continue;
-                }
-
-                string relatedCharacter = DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
-
-                if (relatedCharacter == null)
                 {
                     continue;
                 }
@@ -278,7 +273,7 @@ namespace NosCore.GameObject
                     CharacterId = relation.RelatedCharacterId,
                     RelationType = relation.RelationType,
                     IsOnline = ServerManager.Instance.IsCharacterConnected(relation.RelatedCharacterId),
-                    CharacterName = relatedCharacter
+                    CharacterName = relation.CharacterName
                 });
             }
 
@@ -299,21 +294,20 @@ namespace NosCore.GameObject
             }
 
             DAOFactory.CharacterRelationDAO.Delete(relation.CharacterRelationId);
-            RefreshRelations(relation.CharacterRelationId);
+            CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
             Session.SendPacket(GenerateBlinit());
         }
 
         public void AddRelation(long characterId, CharacterRelationType relationType)
         {
-            var relation = new CharacterRelationDTO
+            var relation = new CharacterRelation
             {
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType
             };
 
-            DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relation);
-            RefreshRelations(relation.CharacterRelationId);
+            CharacterRelations[relation.CharacterRelationId] = relation;
 
             if (relationType == CharacterRelationType.Blocked)
             {
@@ -334,13 +328,11 @@ namespace NosCore.GameObject
                 return;
             }
 
-            DAOFactory.CharacterRelationDAO.Delete(relation1.CharacterRelationId);
-            DAOFactory.CharacterRelationDAO.Delete(relation2.CharacterRelationId);
-            RefreshRelations(relation1.CharacterRelationId);
-            RefreshRelations(relation2.CharacterRelationId);
+            CharacterRelations.TryRemove(relation1.CharacterRelationId, out _);
+            CharacterRelations.TryRemove(relation2.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
             //TODO: Refresh target relation if online, this is just for testing purposes
-            ClientSession target = ServerManager.Instance.GetSessionByCharacterId(characterId);
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
             target?.SendPacket(target?.Character.GenerateFinit());
         }
 
