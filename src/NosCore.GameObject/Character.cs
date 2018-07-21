@@ -241,17 +241,10 @@ namespace NosCore.GameObject
                     continue;
                 }
 
-                string relatedCharacter = DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
-
-                if (relatedCharacter == null)
-                {
-                    continue;
-                }
-
                 subpackets.Add(new BlinitSubPacket
                 {
                     RelatedCharacterId = relation.RelatedCharacterId,
-                    CharacterName = relatedCharacter
+                    CharacterName = relation.CharacterName
                 });
             }
 
@@ -293,7 +286,6 @@ namespace NosCore.GameObject
                 return;
             }
 
-            DAOFactory.CharacterRelationDAO.Delete(relation.CharacterRelationId);
             CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
             Session.SendPacket(GenerateBlinit());
         }
@@ -320,16 +312,16 @@ namespace NosCore.GameObject
 
         public void DeleteRelation(long characterId)
         {
-            CharacterRelationDTO relation1 = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == characterId);
-            CharacterRelationDTO relation2 = DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == CharacterId);
+            CharacterRelationDTO characterRelation = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == characterId);
+            CharacterRelationDTO targetRelation = DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == CharacterId);
 
-            if (relation1 == null || relation2 == null)
+            if (characterRelation == null || targetRelation == null)
             {
                 return;
             }
 
-            CharacterRelations.TryRemove(relation1.CharacterRelationId, out _);
-            CharacterRelations.TryRemove(relation2.CharacterRelationId, out _);
+            DAOFactory.CharacterRelationDAO.Delete(targetRelation.CharacterRelationId);
+            CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
             //TODO: Refresh target relation if online, this is just for testing purposes
             ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
