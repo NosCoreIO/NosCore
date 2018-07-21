@@ -94,6 +94,7 @@ namespace NosCore.Shared.I18N
         CHANNEL,
         ADMINISTRATOR,
         CHARACTER_OFFLINE,
-        SEND_MESSAGE_TO_CHARACTER
+        SEND_MESSAGE_TO_CHARACTER,
+        MAPNPCS_LOADED
     }
 }

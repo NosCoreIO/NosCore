@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NosCore.Core.Serializing;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Map;
@@ -14,9 +15,9 @@ namespace NosCore.GameObject
 {
     public class MapInstance : BroadcastableBase
     {
-        private readonly ConcurrentDictionary<long, MapMonsterDTO> _monsters;
+        private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
-        private readonly ConcurrentDictionary<long, MapNpcDTO> _npcs;
+        private readonly ConcurrentDictionary<long, MapNpc> _npcs;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type)
         {
@@ -27,8 +28,8 @@ namespace NosCore.GameObject
             Map = map;
             MapInstanceId = guid;
             Portals = new List<Portal>();
-            _monsters = new ConcurrentDictionary<long, MapMonsterDTO>();
-            _npcs = new ConcurrentDictionary<long, MapNpcDTO>();
+            _monsters = new ConcurrentDictionary<long, MapMonster>();
+            _npcs = new ConcurrentDictionary<long, MapNpc>();
         }
 
         public int DropRate { get; set; }
@@ -39,12 +40,40 @@ namespace NosCore.GameObject
 
         public MapInstanceType MapInstanceType { get; set; }
 
-        public List<MapMonsterDTO> Monsters
+        internal void LoadMonsters()
+        {
+            OrderablePartitioner<MapMonsterDTO> partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            Parallel.ForEach(partitioner, monster =>
+            {
+                if (!(monster is MapMonster mapMonster))
+                {
+                    return;
+                }
+                mapMonster.Initialize(this);
+                _monsters[mapMonster.MapMonsterId] = mapMonster;
+            });
+        }
+
+        internal void LoadNpcs()
+        {
+            OrderablePartitioner<MapNpcDTO> partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            Parallel.ForEach(partitioner, npc =>
+            {
+                if (!(npc is MapNpc mapNpc))
+                {
+                    return;
+                }
+                mapNpc.Initialize(this);
+                _npcs[mapNpc.MapNpcId] = mapNpc;
+            });
+        }
+
+        public List<MapMonster> Monsters
         {
             get { return _monsters.Select(s => s.Value).ToList(); }
         }
 
-        public List<MapNpcDTO> Npcs
+        public List<MapNpc> Npcs
         {
             get { return _npcs.Select(s => s.Value).ToList(); }
         }
@@ -78,6 +107,14 @@ namespace NosCore.GameObject
             var packets = new List<PacketDefinition>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
+            Monsters.ForEach(s =>
+            {
+                packets.Add(s.GenerateIn());
+            });
+            Npcs.ForEach(s =>
+            {
+                packets.Add(s.GenerateIn());
+            });
             return packets;
         }
 

@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
+using NosCore.DAL;
+using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using OpenTK;
 using OpenTK.Graphics;
@@ -18,6 +23,8 @@ namespace NosCore.PathFinder.Gui
         private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
         private double _gridsizeX;
         private double _gridsizeY;
+        private List<MapMonster> _monsters;
+        private List<MapNpc> _npcs;
 
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
@@ -28,6 +35,18 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
+            _monsters = DAOFactory.MapMonsterDAO.Where(s=>s.MapId == map.MapId).Cast<MapMonster>().ToList();
+            foreach (var mapMonster in _monsters)
+            {
+                mapMonster.PositionX = mapMonster.MapX;
+                mapMonster.PositionY = mapMonster.MapY;
+            }
+            _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            foreach (var mapMonster in _npcs)
+            {
+                mapMonster.PositionX = mapMonster.MapX;
+                mapMonster.PositionY = mapMonster.MapY;
+            }
             GetMap();
         }
 
@@ -55,6 +74,16 @@ namespace NosCore.PathFinder.Gui
             foreach (var wall in _walls)
             {
                 DrawPixel(wall.Item1, wall.Item2, Color.Blue); //TODO iswalkable
+            }
+
+            foreach (var monster in _monsters)
+            {
+                DrawPixel(monster.PositionX, monster.PositionY, Color.Red);
+            }
+
+            foreach (var npc in _npcs)
+            {
+                DrawPixel(npc.PositionX, npc.PositionY, Color.Yellow);
             }
 
             GL.Flush();
