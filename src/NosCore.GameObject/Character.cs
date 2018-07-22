@@ -28,7 +28,7 @@ namespace NosCore.GameObject
         public Character()
         {
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
-            CharacterRelations = new ConcurrentDictionary<long, CharacterRelation>();
+            CharacterRelations = new ConcurrentDictionary<long, CharacterRelationDTO>();
         }
 
         private byte _speed;
@@ -37,7 +37,7 @@ namespace NosCore.GameObject
 
         public bool IsChangingMapInstance { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelation> CharacterRelations { get; set; }
+        public ConcurrentDictionary<long, CharacterRelationDTO> CharacterRelations { get; set; }
 
         public bool IsFriendListFull
         {
@@ -200,7 +200,7 @@ namespace NosCore.GameObject
 
         public void UpdateFriendList()
         {
-            foreach (CharacterRelation relation in CharacterRelations.Values)
+            foreach (CharacterRelationDTO relation in CharacterRelations.Values)
             {
                 var target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == relation.RelatedCharacterId);
                 if (target != null)
@@ -235,7 +235,7 @@ namespace NosCore.GameObject
         public BlinitPacket GenerateBlinit()
         {
             var subpackets = new List<BlinitSubPacket>();
-            foreach (CharacterRelation relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
+            foreach (CharacterRelationDTO relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
             {
                 if (relation.RelatedCharacterId == CharacterId)
                 {
@@ -255,7 +255,7 @@ namespace NosCore.GameObject
         public FinitPacket GenerateFinit()
         {
             var subpackets = new List<FinitSubPacket>();
-            foreach (CharacterRelation relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            foreach (CharacterRelationDTO relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
             {
                 if (relation.RelatedCharacterId == CharacterId)
                 {
@@ -293,7 +293,7 @@ namespace NosCore.GameObject
 
         public void AddRelation(long characterId, CharacterRelationType relationType)
         {
-            var relation = new CharacterRelation
+            var relation = new CharacterRelationDTO
             {
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,

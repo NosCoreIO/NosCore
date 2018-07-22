@@ -8,6 +8,6 @@ namespace NosCore.Data.WebApi
 
         public long Id { get; set; }
 
-        public ICollection<CharacterRelation> Relations { get; set; }
+        public ICollection<CharacterRelationDTO> Relations { get; set; }
     }
 }

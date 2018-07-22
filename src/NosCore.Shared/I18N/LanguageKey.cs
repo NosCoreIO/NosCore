@@ -103,5 +103,18 @@ namespace NosCore.Shared.I18N
         ITEMS_LOADED,
         ASK_TO_DELETE,
         SURE_TO_DELETE
+        CANT_FIND_CHARACTER,
+        BLACKLIST_BLOCKED,
+        FRIEND_OFFLINE,
+        FRIEND_DELETED,
+        FRIENDLIST_FULL,
+        ALREADY_FRIEND,
+        FRIEND_REQUEST_BLOCKED,
+        FRIEND_ADD,
+        FRIEND_ADDED,
+        FRIEND_REJECTED,
+        CANT_BLOCK_FRIEND,
+        NOT_IN_BLACKLIST,
+        BLACKLIST_ADDED
     }
 }
