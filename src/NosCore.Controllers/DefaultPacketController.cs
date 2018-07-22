@@ -370,6 +370,7 @@ namespace NosCore.Controllers
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
                         receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
+                        continue;
                     }
                 }
 

@@ -88,11 +88,15 @@ namespace NosCore.Controllers
 
                 var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
                 var alreadyConnnected = false;
+                var connectedAccounts = new Dictionary<int, List<ConnectedAccount>>();
+                var i = 1;
                 foreach (var server in servers)
                 {
-                    if (WebApiAccess.Instance
-                        .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi)
-                        .Any(a => a.Name == acc.Name))
+                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccounts",
+                        server.WebApi);
+                    connectedAccounts.Add(i, channelList);
+                    i++;
+                    if (channelList.Any(a => a.Name == acc.Name))
                     {
                         alreadyConnnected = true;
                     }
@@ -113,7 +117,7 @@ namespace NosCore.Controllers
                 if (servers.Count > 0)
                 {
                     var subpacket = new List<NsTeStSubPacket>();
-                    var i = 1;
+                    i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
                     foreach (var server in servers.OrderBy(s => s.Name))
@@ -125,10 +129,8 @@ namespace NosCore.Controllers
                             worldCount++;
                         }
 
-                        var currentlyConnectedAccounts = WebApiAccess.Instance
-                            .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi).Count();
                         var channelcolor =
-                            (int) Math.Round((double) currentlyConnectedAccounts / server.ConnectedAccountsLimit * 20)
+                            (int)Math.Round((double)connectedAccounts[i].Count / server.ConnectedAccountsLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {
