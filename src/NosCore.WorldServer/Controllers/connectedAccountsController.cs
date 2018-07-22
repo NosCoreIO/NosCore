@@ -16,7 +16,6 @@ namespace NosCore.WorldServer.Controllers
     {
         // GET api/connectedAccounts
         [HttpGet]
-        [AllowAnonymous]
         public List<ConnectedAccount> GetConnectedAccounts()
         {
             return ServerManager.Instance.Sessions.Select(s =>
