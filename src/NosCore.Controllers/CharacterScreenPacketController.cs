@@ -150,10 +150,11 @@ namespace NosCore.Controllers
                 foreach (var server in servers)
                 {
                     if (WebApiAccess.Instance
-                        .Get<IEnumerable<ConnectedAccount>>($"api/connectedAccounts", server.WebApi)
+                        .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi)
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;
+                        continue;
                     }
                 }
 
