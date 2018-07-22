@@ -13,8 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
+    <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
     <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
     <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
   </ItemGroup>

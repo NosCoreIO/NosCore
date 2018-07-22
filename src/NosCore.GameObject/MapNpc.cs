@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -30,16 +33,48 @@ namespace NosCore.GameObject
         public string Name { get; set; }
         public NpcMonsterDTO NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
+        public DateTime LastMove { get; set; }
+        public bool IsAlive { get; set; }
+        public IDisposable Life { get; private set; }
 
-        internal void Initialize(MapInstance mapInstance)
+        internal void Initialize()
         {
             NpcMonster = ServerManager.Instance.NpcMonsters.FirstOrDefault(s => s.NpcMonsterVNum == VNum);
             Mp = NpcMonster.MaxMP;
             Hp = NpcMonster.MaxHP;
-            MapInstance = mapInstance;
             PositionX = MapX;
             PositionY = MapY;
-            MapInstanceId = mapInstance.MapInstanceId;
+            Speed = NpcMonster.Speed;
+            IsAlive = true;
+        }
+
+        internal void StopLife()
+        {
+            Life.Dispose();
+            Life = null;
+        }
+
+        public void StartLife()
+        {
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(x =>
+            {
+                try
+                {
+                    if (!MapInstance.IsSleeping)
+                    {
+                        MonsterLife();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e);
+                }
+            });
+        }
+
+        private void MonsterLife()
+        {
+            this.Move();
         }
     }
 }

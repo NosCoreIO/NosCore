@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
@@ -8,10 +9,67 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-    public abstract class BroadcastableBase
+    public abstract class BroadcastableBase : IDisposable
     {
-        public ConcurrentDictionary<int, ClientSession> Sessions { get; set; } =
-            new ConcurrentDictionary<int, ClientSession>();
+        private bool _disposed;
+        public virtual void Dispose()
+        {
+            if (!_disposed)
+            {
+                GC.SuppressFinalize(this);
+                _disposed = true;
+            }
+        }
+
+        public void RegisterSession(ClientSession session)
+        {
+            if (!session.HasSelectedCharacter)
+            {
+                return;
+            }      
+            _sessions[session.Character.CharacterId] = session;
+            if (session.HasCurrentMapInstance)
+            {
+                session.Character.MapInstance.IsSleeping = false;
+            }
+        }
+
+
+        public void UnregisterSession(ClientSession session)
+        {
+            if (!session.HasSelectedCharacter)
+            {
+                return;
+            }
+            // Remove client from online clients list
+            if (!_sessions.TryRemove(session.Character.CharacterId, out _))
+            {
+                return;
+            }
+            if (session.HasCurrentMapInstance && _sessions.Count == 0)
+            {
+                session.Character.MapInstance.IsSleeping = true;
+            }
+            LastUnregister = DateTime.Now;
+        }
+
+        private readonly ConcurrentDictionary<long, ClientSession> _sessions;
+        public List<ClientSession> Sessions
+        {
+            get
+            {
+                return _sessions.Select(s => s.Value).Where(s => s.HasSelectedCharacter).ToList();
+            }
+        }
+
+        protected DateTime LastUnregister { get; private set; }
+
+
+        protected BroadcastableBase()
+        {
+            LastUnregister = DateTime.Now.AddMinutes(-1);
+            _sessions = new ConcurrentDictionary<long, ClientSession>();
+        }
 
         public void Broadcast(PacketDefinition packet)
         {
@@ -60,15 +118,15 @@ namespace NosCore.GameObject.Networking
             {
                 case ReceiverType.AllExceptMe:
                     Parallel.ForEach(
-                        Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        Sessions.Where(s => s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session =>
                         {
-                            if (!session.Value.HasSelectedCharacter)
+                            if (!session.HasSelectedCharacter)
                             {
                                 return;
                             }
 
-                            session.Value.SendPacket(sentPacket.Packet);
+                            session.SendPacket(sentPacket.Packet);
                         });
                     break;
                 case ReceiverType.AllExceptGroup:
@@ -79,12 +137,12 @@ namespace NosCore.GameObject.Networking
                 case ReceiverType.All:
                     Parallel.ForEach(Sessions, session =>
                     {
-                        if (!session.Value.HasSelectedCharacter)
+                        if (!session.HasSelectedCharacter)
                         {
                             return;
                         }
 
-                        session.Value.SendPacket(sentPacket.Packet);
+                        session.SendPacket(sentPacket.Packet);
                     });
                     break;
             }

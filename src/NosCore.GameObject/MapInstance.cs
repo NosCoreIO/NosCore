@@ -10,6 +10,8 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
+using System.Reactive.Linq;
 
 namespace NosCore.GameObject
 {
@@ -30,8 +32,39 @@ namespace NosCore.GameObject
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<long, MapMonster>();
             _npcs = new ConcurrentDictionary<long, MapNpc>();
+            _isSleeping = true;
         }
 
+        private bool _isSleeping;
+        private bool _isSleepingRequest;
+        public bool IsSleeping
+        {
+            get
+            {
+                if (!_isSleepingRequest || _isSleeping || LastUnregister.AddSeconds(30) >= DateTime.Now)
+                {
+                    return _isSleeping;
+                }
+                _isSleeping = true;
+                _isSleepingRequest = false;
+                Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => monster.StopLife());
+                Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => npc.StopLife());
+
+                return true;
+            }
+            set
+            {
+                if (value)
+                {
+                    _isSleepingRequest = true;
+                }
+                else
+                {
+                    _isSleeping = false;
+                    _isSleepingRequest = false;
+                }
+            }
+        }
         public int DropRate { get; set; }
 
         public Map.Map Map { get; set; }
@@ -49,7 +82,9 @@ namespace NosCore.GameObject
                 {
                     return;
                 }
-                mapMonster.Initialize(this);
+                mapMonster.Initialize();
+                mapMonster.MapInstance = this;
+                mapMonster.MapInstanceId = MapInstanceId;
                 _monsters[mapMonster.MapMonsterId] = mapMonster;
             });
         }
@@ -63,7 +98,9 @@ namespace NosCore.GameObject
                 {
                     return;
                 }
-                mapNpc.Initialize(this);
+                mapNpc.Initialize();
+                mapNpc.MapInstance = this;
+                mapNpc.MapInstanceId = MapInstanceId;
                 _npcs[mapNpc.MapNpcId] = mapNpc;
             });
         }
@@ -127,5 +164,27 @@ namespace NosCore.GameObject
                 MapType = MapInstanceType != MapInstanceType.BaseMapInstance
             };
         }
+
+        public void StartLife()
+        {
+            _life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(x =>
+               {
+                   try
+                   {
+                       if (!IsSleeping)
+                       {
+                           Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
+                           Parallel.ForEach(Npcs.Where(s=>s.Life == null), npc => npc.StartLife());
+                       }
+                   }
+                   catch (Exception e)
+                   {
+                       Logger.Log.Error(e);
+                   }
+               });
+        }
+
+
+        private IDisposable _life { get; set; }
     }
 }
