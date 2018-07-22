@@ -352,7 +352,7 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                    ServerManager.Instance.Sessions.FirstOrDefault(s => s.Character?.Name == receiverName);
                 if (receiverSession != null) {
 
                     receiverSession?.SendPacket(speakPacket);

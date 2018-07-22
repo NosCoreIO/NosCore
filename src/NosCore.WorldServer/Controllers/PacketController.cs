@@ -30,7 +30,7 @@ namespace NosCore.WorldServer.Controllers
                     ServerManager.Instance.Broadcast(message);
                     break;
                 case ReceiverType.OnlySomeone:
-                    var receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                    var receiverSession = ServerManager.Instance.Sessions.FirstOrDefault(s =>
                         s.Character.Name == postedPacket.ReceiverCharacterData.CharacterName);
 
                     if (receiverSession == null)

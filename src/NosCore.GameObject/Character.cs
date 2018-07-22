@@ -86,6 +86,7 @@ namespace NosCore.GameObject
         public byte Authority { get; set; }
 
         public byte Equipment { get; set; }
+        public bool IsAlive { get; set; }
 
         public FdPacket GenerateFd()
         {

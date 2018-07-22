@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -25,7 +26,12 @@ namespace NosCore.GameObject.Networking
         private ServerManager()
         {
         }
-
+        private static int seed = Environment.TickCount;
+        private static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+        public int RandomNumber(int min = 0, int max = 100)
+        {
+            return random.Value.Next(min, max);
+        }
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         public List<NpcMonsterDTO> NpcMonsters { get; set; }
@@ -43,6 +49,7 @@ namespace NosCore.GameObject.Networking
             mapInstance.LoadPortals();
             mapInstance.LoadMonsters();
             mapInstance.LoadNpcs();
+            mapInstance.StartLife();
             Mapinstances.TryAdd(guid, mapInstance);
             return mapInstance;
         }
@@ -69,6 +76,7 @@ namespace NosCore.GameObject.Networking
                       newMap.LoadPortals();
                       newMap.LoadMonsters();
                       newMap.LoadNpcs();
+                      newMap.StartLife();
                       monstercount += newMap.Monsters.Count;
                       npccount += newMap.Npcs.Count;
                       i++;
@@ -102,16 +110,6 @@ namespace NosCore.GameObject.Networking
         public MapInstance GetMapInstance(Guid id)
         {
             return Mapinstances.ContainsKey(id) ? Mapinstances[id] : null;
-        }
-
-        internal void RegisterSession(ClientSession clientSession)
-        {
-            Sessions.TryAdd(clientSession.SessionId, clientSession);
-        }
-
-        internal void UnregisterSession(ClientSession clientSession)
-        {
-            Sessions.TryRemove(clientSession.SessionId, out _);
         }
 
         public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)

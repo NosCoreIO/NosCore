@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using NosCore.Data.AliveEntities;
+using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.Map;
+using NosCore.Shared.Enumerations.Map;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using Map = NosCore.GameObject.Map.Map;
+using MapMonster = NosCore.GameObject.MapMonster;
+using MapNpc = NosCore.GameObject.MapNpc;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -25,7 +28,7 @@ namespace NosCore.PathFinder.Gui
         private double _gridsizeY;
         private List<MapMonster> _monsters;
         private List<MapNpc> _npcs;
-
+        private List<NpcMonsterDTO> _npcMonsters;
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
         {
@@ -35,18 +38,35 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DAOFactory.MapMonsterDAO.Where(s=>s.MapId == map.MapId).Cast<MapMonster>().ToList();
+            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Cast<MapMonster>().ToList();
+            _npcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
+            var mapInstance = new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance);
+            mapInstance.IsSleeping = false;
             foreach (var mapMonster in _monsters)
             {
                 mapMonster.PositionX = mapMonster.MapX;
                 mapMonster.PositionY = mapMonster.MapY;
+                mapMonster.MapInstance = mapInstance;
+                mapMonster.MapInstanceId = mapInstance.MapInstanceId;
+                mapMonster.Mp = 100;
+                mapMonster.Hp = 100;
+                mapMonster.Speed = _npcMonsters.FirstOrDefault(s=>s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
+                mapMonster.IsAlive = true;
             }
             _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
-            foreach (var mapMonster in _npcs)
+            foreach (var mapNpc in _npcs)
             {
-                mapMonster.PositionX = mapMonster.MapX;
-                mapMonster.PositionY = mapMonster.MapY;
+                mapNpc.PositionX = mapNpc.MapX;
+                mapNpc.PositionY = mapNpc.MapY;
+                mapNpc.MapInstance = mapInstance;
+                mapNpc.MapInstanceId = mapInstance.MapInstanceId;
+                mapNpc.Mp = 100;
+                mapNpc.Hp = 100;
+                mapNpc.Speed = _npcMonsters.FirstOrDefault(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
+                mapNpc.IsAlive = true;
             }
+            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
+            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
             GetMap();
         }
 
@@ -66,8 +86,8 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             //walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable

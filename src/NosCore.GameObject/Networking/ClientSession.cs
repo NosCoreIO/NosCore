@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Networking
             {
                 Character.IsChangingMapInstance = true;
                 LeaveMap(this);
-                Character.MapInstance.Sessions.TryRemove(SessionId, out _);
+                Character.MapInstance.UnregisterSession(this);
                 if (Character.IsSitting)
                 {
                     Character.IsSitting = false;
@@ -183,9 +183,9 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Parallel.ForEach(
-                    Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
+                    Character.MapInstance.Sessions.Where(s => s.Character != null && s != this),
                     s => { SendPacket(s.Character.GenerateIn()); });
-                Character.MapInstance.Sessions.TryAdd(SessionId, this);
+                Character.MapInstance.RegisterSession(this);
 
                 Character.IsChangingMapInstance = false;
             }

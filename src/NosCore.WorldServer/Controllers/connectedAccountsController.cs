@@ -22,10 +22,10 @@ namespace NosCore.WorldServer.Controllers
             return ServerManager.Instance.Sessions.Select(s =>
                 new ConnectedAccount
                 {
-                    Name = s.Value.Account.Name,
-                    Language = s.Value.Account.Language,
+                    Name = s.Account.Name,
+                    Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Value.Character == null ? null : new ConnectedCharacter() { Name = s.Value.Character.Name }
+                    ConnectedCharacter = s.Character == null ? null : new ConnectedCharacter() { Name = s.Character.Name }
                 }).ToList();
         }
     }
