@@ -43,7 +43,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(ActDescTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                         Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -82,7 +82,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(CardTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -120,7 +120,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(BCardTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -159,7 +159,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(ItemTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -197,7 +197,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MapIdDataTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -236,7 +236,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MapPointDataTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -275,7 +275,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MonsterTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -314,7 +314,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(NpcTalkTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -353,7 +353,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(QuestTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -392,7 +392,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(SkillTxt, region),
-                        CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {

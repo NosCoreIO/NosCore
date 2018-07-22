@@ -90,7 +90,7 @@ namespace NosCore.Parser.Parsers
             _folder = folder;
 
             using (var npcIdStream =
-                new StreamReader(_folder + FileCardDat, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                new StreamReader(_folder + FileCardDat, Encoding.Default))
             {
                 while ((_line = npcIdStream.ReadLine()) != null)
                 {

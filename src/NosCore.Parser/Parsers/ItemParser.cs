@@ -23,7 +23,7 @@ namespace NosCore.Parser.Parsers
         {
             var fileId = $"{folder}\\Item.dat";
 
-            using (var npcIdStream = new StreamReader(fileId, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+            using (var npcIdStream = new StreamReader(fileId, Encoding.Default))
             {
                 var item = new ItemDTO();
 
