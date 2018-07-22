@@ -16,5 +16,7 @@ namespace NosCore.Data
         public long RelatedCharacterId { get; set; }
 
         public CharacterRelationType RelationType { get; set; }
+
+        public virtual string CharacterName { get; set; }
     }
 }

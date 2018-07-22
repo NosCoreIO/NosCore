@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Parallel.ForEach(
-                    Character.MapInstance.Sessions.Where(s => s.Character != null && s != this),
+                    Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
                     s => { SendPacket(s.Character.GenerateIn()); });
                 Character.MapInstance.RegisterSession(this);
 
