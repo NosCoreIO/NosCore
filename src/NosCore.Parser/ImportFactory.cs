@@ -105,7 +105,7 @@ namespace NosCore.Parser
         {
             var filePacket = $"{_folder}\\packet.txt";
             using (var packetTxtStream =
-                new StreamReader(filePacket, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+                new StreamReader(filePacket, Encoding.Default))
             {
                 string line;
                 while ((line = packetTxtStream.ReadLine()) != null)

@@ -22,7 +22,7 @@ namespace NosCore.Parser.Parsers
             var dictionaryMusic = new Dictionary<int, int>();
 
             var i = 0;
-            using (var mapIdStream = new StreamReader(fileMapIdDat, Encoding.UTF8))
+            using (var mapIdStream = new StreamReader(fileMapIdDat, Encoding.Default))
             {
                 string line;
                 while ((line = mapIdStream.ReadLine()) != null)

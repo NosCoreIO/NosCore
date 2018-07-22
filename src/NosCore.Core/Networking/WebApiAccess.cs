@@ -115,7 +115,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PostAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
@@ -136,7 +136,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PutAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
@@ -157,7 +157,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PatchAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
             {

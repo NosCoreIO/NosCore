@@ -83,7 +83,7 @@ namespace NosCore.Core.Encryption
                 }
             }
 
-            return Encoding.UTF8.GetString(Encoding.Convert(Encoding.Default, Encoding.UTF8, receiveData.ToArray()));
+            return Encoding.Default.GetString(Encoding.Convert(Encoding.Default, Encoding.Default, receiveData.ToArray()));
         }
 
         public string DecryptCustomParameter(byte[] str)

@@ -69,7 +69,7 @@ namespace NosCore.MasterServer
             });
             LogLanguage.Language = configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
-            var keyByteArray = Encoding.ASCII.GetBytes(EncryptionHelper.Sha512(configuration.Password));
+            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
