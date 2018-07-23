@@ -198,38 +198,42 @@ namespace NosCore.GameObject
             return 0;
         }
 
-        public void UpdateFriendList()
+        public void UpdateFriendList(bool isConnected)
         {
             List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            Dictionary<int, List<ConnectedAccount>> accounts = new Dictionary<int, List<ConnectedAccount>>();
+            foreach (var server in servers)
+            {
+                accounts[server.Id] = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
+            }
+
             foreach (CharacterRelationDTO relation in CharacterRelations.Values)
             {
                 var target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == relation.RelatedCharacterId);
                 if (target != null)
                 {
-                    target.SendPacket(target.Character.GenerateFinit());
+                    target.SendPacket(target.Character.GenerateFinfo(CharacterId, isConnected));
+                    return;
                 }
-                else
+
+                foreach (WorldServerInfo server in servers)
                 {
-                    foreach (WorldServerInfo server in servers)
+                    ConnectedAccount account = accounts[server.Id].FirstOrDefault(s => s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+
+                    if (account == null)
                     {
-                        var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
-
-                        ConnectedAccount account = accounts?.FirstOrDefault(s => s.ConnectedCharacter.Id == relation.RelatedCharacterId);
-
-                        if (account == null)
-                        {
-                            continue;
-                        }
-
-                        var postedPacket = new PostedPacket
-                        {
-                            OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                            ReceiverCharacterData = new CharacterData { CharacterId = relation.RelatedCharacterId }
-                        };
-
-                        WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi);
-                        break;
+                        continue;
                     }
+
+                    var postedPacket = new PostedPacket
+                    {
+                        OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                        ReceiverCharacterData = new CharacterData { CharacterId = relation.RelatedCharacterId },
+                        SenderCharacterData = new CharacterData { CharacterId = CharacterId, RelationData = new RelationData { IsConnected = isConnected } }
+                    };
+
+                    WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi);
+                    break;
                 }
             }
         }
@@ -311,25 +315,99 @@ namespace NosCore.GameObject
                 return;
             }
 
+            DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relation);
             Session.SendPacket(GenerateFinit());
+        }
+
+        public void DeleteTargetRelation(long characterId, long relationId)
+        {
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
+
+            if (target != null)
+            {
+                target.Character.CharacterRelations.TryRemove(relationId, out _);
+                target.SendPacket(target.Character.GenerateFinit());
+                return;
+            }
+
+            var postedPacket = new PostedPacket
+            {
+                ReceiverCharacterData = new CharacterData
+                {
+                    CharacterId = characterId,
+                    RelationData = new RelationData
+                    {
+                        RelationId = relationId
+                    }
+                }
+            };
+
+            ConnectedAccount receiver = null;
+
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            foreach (WorldServerInfo server in servers)
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+
+                if (accounts.Any(a => a.ConnectedCharacter?.Id == characterId))
+                {
+                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == characterId);
+                }
+
+                if (receiver == null)
+                {
+                    continue;
+                }
+
+                WebApiAccess.Instance.Post<PostedPacket>("api/relations/deleteRelation", postedPacket, server.WebApi);
+                return;
+            }
+
+            DAOFactory.CharacterRelationDAO.Delete(relationId);
+        }
+
+        public CharacterRelationDTO GetRelation(long characterId, long relatedCharacterId)
+        {
+            ClientSession session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
+
+            if (session != null)
+            {
+                return session.Character.CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId && s.CharacterId == characterId);
+            }
+
+            ConnectedAccount receiver = null;
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            foreach (WorldServerInfo server in servers)
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+
+                if (accounts.Any(a => a.ConnectedCharacter?.Id == characterId))
+                {
+                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == characterId);
+                }
+
+                if (receiver != null)
+                {
+                    return receiver.ConnectedCharacter.Relations.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == relatedCharacterId);
+                }
+            }
+
+            return DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == relatedCharacterId);
         }
 
         public void DeleteRelation(long characterId)
         {
             CharacterRelationDTO characterRelation = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == characterId);
-            CharacterRelationDTO targetRelation = DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == characterId && s.RelatedCharacterId == CharacterId);
+            CharacterRelationDTO targetRelation = GetRelation(characterId, CharacterId);
 
             if (characterRelation == null || targetRelation == null)
             {
                 return;
             }
 
-            DAOFactory.CharacterRelationDAO.Delete(targetRelation.CharacterRelationId);
             CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
-            //TODO: Refresh target relation if online, this is just for testing purposes
-            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
-            target?.SendPacket(target?.Character.GenerateFinit());
+            DeleteTargetRelation(characterId, targetRelation.CharacterRelationId);
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
@@ -594,6 +672,15 @@ namespace NosCore.GameObject
             {
                 CharacterId = CharacterId,
                 Message = message
+            };
+        }
+
+        public FinfoPacket GenerateFinfo(long relatedCharacterId, bool isConnected)
+        {
+            return new FinfoPacket
+            {
+                RelatedCharacterId = relatedCharacterId,
+                IsConnected = isConnected
             };
         }
     }

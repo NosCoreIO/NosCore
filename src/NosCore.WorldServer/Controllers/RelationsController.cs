@@ -27,7 +27,29 @@ namespace NosCore.WorldServer.Controllers
 
             var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == postedPacket.ReceiverCharacterData.CharacterId);
 
-            session?.SendPacket(session.Character.GenerateFinit());
+            session?.SendPacket(session.Character.GenerateFinfo(postedPacket.SenderCharacterData.CharacterId, postedPacket.SenderCharacterData.RelationData.IsConnected ));
+
+            return Ok();
+        }
+
+        // POST api/relations/deleteRelation
+        [HttpPost("deleteRelation")]
+        public IActionResult DeleteRelation([FromBody] PostedPacket postedPacket)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == postedPacket.ReceiverCharacterData.CharacterId);
+
+            if (session == null)
+            {
+                return Ok();
+            }
+
+            session.Character.CharacterRelations.TryRemove(postedPacket.ReceiverCharacterData.RelationData.RelationId, out _);
+            session.SendPacket(session.Character.GenerateFinit());
 
             return Ok();
         }

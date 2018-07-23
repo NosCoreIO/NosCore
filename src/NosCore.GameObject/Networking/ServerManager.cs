@@ -146,14 +146,15 @@ namespace NosCore.GameObject.Networking
         {
             if (channelId == null)
             {
-                foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                foreach (WorldServerInfo channel in servers)
                 {
                     WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
                 }
             }
             else
             {
-                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels")
+                WorldServerInfo channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels")
                     .FirstOrDefault(s => s.Id == channelId.Value);
                 if (channel != null)
                 {
@@ -178,7 +179,8 @@ namespace NosCore.GameObject.Networking
                 return true;
             }
 
-            foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
                     .Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
