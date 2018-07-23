@@ -510,7 +510,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (Session.Character.IsBlockedByCharacter(finsPacket.CharacterId))
+            if (Session.Character.IsRelatedToCharacter(finsPacket.CharacterId, CharacterRelationType.Blocked))
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -519,7 +519,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (Session.Character.IsFriendOfCharacter(finsPacket.CharacterId))
+            if (Session.Character.IsRelatedToCharacter(finsPacket.CharacterId, CharacterRelationType.Friend))
             {
                 Session.SendPacket(new InfoPacket
                 {
