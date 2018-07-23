@@ -5,5 +5,7 @@
         public long CharacterId { get; set; }
 
         public string CharacterName { get; set; }
+
+        public RelationData RelationData { get; set; }
     }
 }

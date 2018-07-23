@@ -140,7 +140,7 @@ namespace NosCore.Controllers
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
-            Session.Character.UpdateFriendList();
+            Session.Character.UpdateFriendList(true);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -375,7 +375,8 @@ namespace NosCore.Controllers
 
                 ConnectedAccount receiver = null;
 
-                foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
                         .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
@@ -383,7 +384,6 @@ namespace NosCore.Controllers
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
                         receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
-                        continue;
                     }
                 }
 
@@ -452,7 +452,8 @@ namespace NosCore.Controllers
 
             ConnectedAccount receiver = null;
 
-            foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
                     .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
