@@ -200,6 +200,7 @@ namespace NosCore.GameObject
 
         public void UpdateFriendList()
         {
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
             foreach (CharacterRelationDTO relation in CharacterRelations.Values)
             {
                 var target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == relation.RelatedCharacterId);
@@ -209,7 +210,7 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                    foreach (WorldServerInfo server in servers)
                     {
                         var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
 
@@ -226,7 +227,8 @@ namespace NosCore.GameObject
                             ReceiverCharacterData = new CharacterData { CharacterId = relation.RelatedCharacterId }
                         };
 
-                        WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi); ;
+                        WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi);
+                        break;
                     }
                 }
             }
@@ -330,19 +332,9 @@ namespace NosCore.GameObject
             target?.SendPacket(target?.Character.GenerateFinit());
         }
 
-        public bool IsBlockedByCharacter(long characterId)
+        public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
         {
-            return CharacterRelations.Values.Any(s => s.RelationType == CharacterRelationType.Blocked && s.RelatedCharacterId.Equals(characterId) && !s.RelatedCharacterId.Equals(CharacterId) && s.CharacterId.Equals(CharacterId));
-        }
-
-        public bool IsFriendOfCharacter(long characterId)
-        {
-            return CharacterRelations.Values.Any(s => s.RelationType == CharacterRelationType.Friend && s.RelatedCharacterId.Equals(characterId) && s.CharacterId.Equals(CharacterId));
-        }
-
-        public bool IsMarriedToCharacter(long characterId)
-        {
-            return CharacterRelations.Values.Any(s => s.RelationType == CharacterRelationType.Spouse && s.RelatedCharacterId.Equals(characterId) && CharacterId.Equals(s.CharacterId));
+            return CharacterRelations.Values.Any(s => s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId) && s.CharacterId.Equals(CharacterId));
         }
 
         public int GetReputIco()

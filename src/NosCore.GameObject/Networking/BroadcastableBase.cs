@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 
@@ -123,27 +124,18 @@ namespace NosCore.GameObject.Networking
             {
                 case ReceiverType.AllExceptMeAndBlacklisted:
                     Parallel.ForEach(
-                        Sessions.Where(s => s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId && !s.Value.Character.IsBlockedByCharacter(sentPacket.Sender.Character.CharacterId)),
+                        Sessions.Where(s => s.Value.HasSelectedCharacter && s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId 
+                            && !s.Value.Character.IsRelatedToCharacter(sentPacket.Sender.Character.CharacterId, CharacterRelationType.Blocked)),
                         session =>
                         {
-                            if (!session.Value.HasSelectedCharacter)
-                            {
-                                return;
-                            }
-
                             session.Value.SendPacket(sentPacket.Packet);
                         });
                     break;
                 case ReceiverType.AllExceptMe:
                     Parallel.ForEach(
-                        Sessions.Values.Where(s => s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        Sessions.Values.Where(s => s.HasSelectedCharacter && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session =>
                         {
-                            if (!session.HasSelectedCharacter)
-                            {
-                                return;
-                            }
-
                             session.SendPacket(sentPacket.Packet);
                         });
                     break;
@@ -153,13 +145,8 @@ namespace NosCore.GameObject.Networking
                 case ReceiverType.Group:
                 case ReceiverType.AllInRange:
                 case ReceiverType.All:
-                    Parallel.ForEach(Sessions, session =>
+                    Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session =>
                     {
-                        if (!session.Value.HasSelectedCharacter)
-                        {
-                            return;
-                        }
-
                         session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;
