@@ -234,7 +234,8 @@ namespace NosCore.GameObject
 
                     Session.SendPacket(new SayPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(isConnected ? LanguageKey.CHARACTER_ONLINE : LanguageKey.CHARACTER_OFFLINE, Session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(isConnected ? LanguageKey.CHARACTER_ONLINE : LanguageKey.CHARACTER_OFFLINE, Session.Account.Language),
+                        Type = SayColorType.Yellow
                     });
 
                     WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi);
