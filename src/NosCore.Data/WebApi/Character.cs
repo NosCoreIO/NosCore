@@ -2,12 +2,10 @@
 
 namespace NosCore.Data.WebApi
 {
-    public class ConnectedCharacter
+    public class Character
     {
         public string Name { get; set; }
 
         public long Id { get; set; }
-
-        public ICollection<CharacterRelationDTO> Relations { get; set; }
     }
 }

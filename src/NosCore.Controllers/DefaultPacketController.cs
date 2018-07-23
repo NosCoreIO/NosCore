@@ -140,7 +140,6 @@ namespace NosCore.Controllers
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
-            Session.Character.UpdateFriendList(true);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -379,11 +378,12 @@ namespace NosCore.Controllers
                 foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+                        .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
                         receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
+                        break;
                     }
                 }
 
@@ -395,15 +395,16 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                if (receiver.ConnectedCharacter.Relations.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
-                {
-                    Session.SendPacket(new SayPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
-                        Type = SayColorType.Yellow
-                    });
-                    return;
-                }
+                //TODO create a RelationsController
+                //if (receiver.ConnectedCharacter.Relations.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+                //{
+                //    Session.SendPacket(new SayPacket
+                //    {
+                //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                //        Type = SayColorType.Yellow
+                //    });
+                //    return;
+                //}
 
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
@@ -411,8 +412,8 @@ namespace NosCore.Controllers
                 ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(speakPacket),
-                    ReceiverCharacterData = new CharacterData { CharacterName = receiverName },
-                    SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name },
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -456,7 +457,7 @@ namespace NosCore.Controllers
             foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+                    .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
 
                 if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
                 {
@@ -476,8 +477,8 @@ namespace NosCore.Controllers
             ServerManager.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(Session.Character.GenerateTalk(message)),
-                ReceiverCharacterData = new CharacterData { CharacterId = btkPacket.CharacterId, CharacterName = receiver.Name },
-                SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name, CharacterId = Session.Character.CharacterId },
+                ReceiverCharacter = new Data.WebApi.Character() { Id = btkPacket.CharacterId, Name = receiver.Name },
+                SenderCharacter = new Data.WebApi.Character() { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.ChannelId);

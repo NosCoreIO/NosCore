@@ -82,7 +82,7 @@ namespace NosCore.Tests
                 WorldCount = 10000,
                 WorldId = 10000,
                 Name = "1"
-            }); //useless server to end the client reception
+            });
            var nstestpacket = new NsTestPacket
             {
                 AccountName = "test",

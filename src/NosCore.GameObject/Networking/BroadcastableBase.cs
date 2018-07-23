@@ -21,35 +21,30 @@ namespace NosCore.GameObject.Networking
                 _disposed = true;
             }
         }
-
-        public void RegisterSession(ClientSession session)
+        public void RegisterSession(ClientSession clientSession)
         {
-            if (!session.HasSelectedCharacter)
+            Sessions.TryAdd(clientSession.SessionId, clientSession);
+            if (clientSession.HasCurrentMapInstance && clientSession.Character != null)
             {
-                return;
-            }
-            Sessions[session.Character.CharacterId] = session;
-            if (session.HasCurrentMapInstance)
-            {
-                session.Character.MapInstance.IsSleeping = false;
+                clientSession.Character.MapInstance.IsSleeping = false;
+                foreach (var characterCharacterRelation in clientSession.Character.CharacterRelations)
+                {
+                    // TODO Send Online Finfo
+                }
             }
         }
 
-
-        public void UnregisterSession(ClientSession session)
+        public void UnregisterSession(ClientSession clientSession)
         {
-            if (!session.HasSelectedCharacter)
+            Sessions.TryRemove(clientSession.SessionId, out _);
+
+            if (clientSession.HasCurrentMapInstance && Sessions.Count == 0 && clientSession.Character != null)
             {
-                return;
-            }
-            // Remove client from online clients list
-            if (!Sessions.TryRemove(session.Character.CharacterId, out _))
-            {
-                return;
-            }
-            if (session.HasCurrentMapInstance && Sessions.Count == 0)
-            {
-                session.Character.MapInstance.IsSleeping = true;
+                clientSession.Character.MapInstance.IsSleeping = true;
+                foreach (var characterCharacterRelation in clientSession.Character.CharacterRelations)
+                {
+                    // TODO Send Offline Finfo
+                }
             }
 
             if (session.Character != null)

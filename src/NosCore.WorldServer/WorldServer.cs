@@ -88,7 +88,7 @@ namespace NosCore.WorldServer
                     Password = password,
                     ClientName = clientType.Name,
                     ClientType = (byte) clientType.Type,
-                    ConnectedAccountsLimit = connectedAccountLimit,
+                    connectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost,

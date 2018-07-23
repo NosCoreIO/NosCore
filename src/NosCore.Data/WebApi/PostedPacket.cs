@@ -6,9 +6,9 @@ namespace NosCore.Data.WebApi
     {
         public string Packet { get; set; }
 
-        public CharacterData SenderCharacterData { get; set; }
+        public Character SenderCharacter { get; set; }
 
-        public CharacterData ReceiverCharacterData { get; set; }
+        public Character ReceiverCharacter { get; set; }
 
         public int OriginWorldId { get; set; }
 

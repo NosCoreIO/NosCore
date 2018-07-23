@@ -12,11 +12,11 @@ namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class ConnectedAccountsController : Controller
+    public class ConnectedAccountController : Controller
     {
-        // GET api/connectedAccounts
+        // GET api/connectedAccount
         [HttpGet]
-        public List<ConnectedAccount> GetConnectedAccounts()
+        public List<ConnectedAccount> GetconnectedAccount()
         {
             return ServerManager.Instance.Sessions.Values.Select(s =>
                 new ConnectedAccount
@@ -24,7 +24,7 @@ namespace NosCore.WorldServer.Controllers
                     Name = s.Account.Name,
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Character == null ? null : new ConnectedCharacter() { Name = s.Character.Name, Id = s.Character.CharacterId, Relations = s.Character.CharacterRelations.Values },
+                    ConnectedCharacter = s.Character == null ? null : new Character() { Name = s.Character.Name, Id = s.Character.CharacterId },
                 }).ToList();
         }
     }
