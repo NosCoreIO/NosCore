@@ -232,6 +232,11 @@ namespace NosCore.GameObject
                         SenderCharacterData = new CharacterData { CharacterId = CharacterId, RelationData = new RelationData { IsConnected = isConnected } }
                     };
 
+                    Session.SendPacket(new SayPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(isConnected ? LanguageKey.CHARACTER_ONLINE : LanguageKey.CHARACTER_OFFLINE, Session.Account.Language)
+                    });
+
                     WebApiAccess.Instance.Post<PostedPacket>("api/relations", postedPacket, server.WebApi);
                     break;
                 }
