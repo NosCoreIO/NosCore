@@ -170,38 +170,5 @@ namespace NosCore.GameObject.Networking
                 BroadcastPacket(packet, channelId);
             }
         }
-
-        //TODO: Move this somewhere
-        public bool IsCharacterConnected(long characterId)
-        {
-            if (Sessions.Values.Any(s => s.Character.CharacterId == characterId))
-            {
-                return true;
-            }
-
-            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-            foreach (var server in servers)
-            {
-                var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>("api/connectedAccounts", server.WebApi);
-
-                if (accounts.Any(a => a.ConnectedCharacter?.Id == characterId))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        internal void RegisterSession(ClientSession clientSession)
-        {
-            Sessions.TryAdd(clientSession.SessionId, clientSession);
-        }
-
-        internal void UnregisterSession(ClientSession clientSession)
-        {
-            Sessions.TryRemove(clientSession.SessionId, out _);
-        }
     }
 }

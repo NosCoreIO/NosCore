@@ -64,7 +64,7 @@ namespace NosCore.Core.Networking
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
         }
 
-        public T Delete<T>(string route, ServerConfiguration webApi = null)
+        public T Delete<T>(string route, object id, ServerConfiguration webApi = null)
         {
             if (MockValues.ContainsKey(route))
             {
@@ -75,7 +75,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            response = client.DeleteAsync(route).Result;
+            response = client.DeleteAsync(route+$"/{id}").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);

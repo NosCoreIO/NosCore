@@ -21,7 +21,7 @@ namespace NosCore.Core
 
         public string Host { get; set; }
 
-        public int ConnectedAccountsLimit { get; set; }
+        public int connectedAccountLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
 
