@@ -120,6 +120,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Administrátor</value>
+  </data>
   <data name="ADVENTURER" xml:space="preserve">
     <value>Dobrodruh</value>
   </data>
@@ -150,11 +153,17 @@
     <value>Špatné Heslo</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Kart bylo naparsováno</value>
+    <value>{0} Kart bylo Nahráno</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Kanál</value>
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Charakter se nenačetl</value>
     <comment>check</comment>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>Postava je Offline</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
@@ -181,7 +190,7 @@
     <value>Parsování dokončeno</value>
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
-    <value>Zadejte složku se soubory, které chcete naparsovat</value>
+    <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
@@ -196,34 +205,34 @@
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
-    <value>{0} I18N ActDescs Naparsováno! Region: {1}</value>
+    <value>{0} I18N ActDescs Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_BCARD_PARSED" xml:space="preserve">
-    <value>{0} I18N BCards Naparsováno! Region: {1}</value>
+    <value>{0} I18N BCards Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_CARD_PARSED" xml:space="preserve">
-    <value>{0} I18N Cards Naparsováno! Region: {1}</value>
+    <value>{0} I18N Cards Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_ITEM_PARSED" xml:space="preserve">
-    <value>{0} I18N Item Naparsováno! Region: {1}</value>
+    <value>{0} I18N Item Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MAPIDDATA Naparsováno! Region: {1}</value>
+    <value>{0} I18N MAPIDDATA Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MAPPOINTDATA Naparsováno! Region: {1}</value>
+    <value>{0} I18N MAPPOINTDATA Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
-    <value>{0} I18N MPCMONSTER Naparsováno! Region: {1}</value>
+    <value>{0} I18N MPCMONSTER Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
-    <value>{0} I18N NPCMONSTERTALK Naparsováno! Region: {1}</value>
+    <value>{0} I18N NPCMONSTERTALK Nahráno! Region: {1}</value>
   </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
-    <value>{0} I18N Úkoly Naparsovány! Region: {1}</value>
+    <value>{0} I18N Úkoly Nahrány! Region: {1}</value>
   </data>
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
-    <value>{0} I18N Skilly Naparsovány! Region: {1}</value>
+    <value>{0} I18N Skilly Nahrány! Region: {1}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
@@ -235,7 +244,7 @@
     <value>Špatné Heslo</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>Bylo naparsováno {0} Itemů</value>
+    <value>Bylo Nahráno {0} Itemů</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
@@ -246,11 +255,17 @@
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
   </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>MAPNPC byla úspěšně nahrána!</value>
+  </data>
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>{0}  Mapy Načteny</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
     <value>{0}  Mapy Nahrány</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapType bylo úspěšně nahráno!</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Master Server Se spustil správně</value>
@@ -258,68 +273,80 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Znovu připojení k Master Serveru</value>
   </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} Monstra byla úspěšně nahrána!</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
   </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} NPMonstra byla úspěšně nahrána!</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} NPC byly úspěšně nahrány!</value>
+  </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
-    <value>Chceš naparsovat účty?</value>
+    <value>Chceš nahrát účty?</value>
   </data>
   <data name="PARSE_ALL" xml:space="preserve">
-    <value>Chceš naparsovat vše?</value>
+    <value>Chceš nahrát vše?</value>
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
-    <value>Chceš naparsovat Karty?</value>
+    <value>Chceš nahrát Karty?</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>{0} Drop byl úspěšně nahrán!</value>
   </data>
   <data name="PARSE_I18N" xml:space="preserve">
-    <value>Chceš naparsovat I18N Data?</value>
+    <value>Chceš nahrát I18N Data?</value>
   </data>
   <data name="PARSE_ITEMS" xml:space="preserve">
-    <value>Chceš naparsovat Itemy?</value>
+    <value>Chceš nahrát Itemy?</value>
   </data>
   <data name="PARSE_MAPNPCS" xml:space="preserve">
-    <value>Chceš naparsovat MapNPC?</value>
+    <value>Chceš nahrát MapNPC?</value>
   </data>
   <data name="PARSE_MAPS" xml:space="preserve">
-    <value>Chceš naparsovat Mapy?</value>
+    <value>Chceš nahrát Mapy?</value>
   </data>
   <data name="PARSE_MAPTYPES" xml:space="preserve">
-    <value>Chceš naparsovat MapType? Doporučuji použít s MapTypeMap</value>
+    <value>Chceš nahrát MapType? Doporučuji použít s MapTypeMap</value>
   </data>
   <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>Chceš naparsovat Monstra?</value>
+    <value>Chceš nahrát Monstra?</value>
   </data>
   <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
-    <value>Chceš naparsovat NPCMonsterData?</value>
+    <value>Chceš nahrát NPCMonsterData?</value>
   </data>
   <data name="PARSE_NPCMONSTERS" xml:space="preserve">
-    <value>Chceš naparsovat NPCMonsters?</value>
+    <value>Chceš nahrát NPCMonsters?</value>
   </data>
   <data name="PARSE_PORTALS" xml:space="preserve">
-    <value>Chceš naparsovat Portály?</value>
+    <value>Chceš nahrát Portály?</value>
   </data>
   <data name="PARSE_QUESTS" xml:space="preserve">
-    <value>Chceš naparsovat Úkoly?</value>
+    <value>Chceš nahrát Úkoly?</value>
   </data>
   <data name="PARSE_RECIPES" xml:space="preserve">
-    <value>Chceš naparsovat Recepty?</value>
+    <value>Chceš nahrát Recepty?</value>
   </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
-    <value>Chceš naparsovat Itemy v Obchodech?</value>
+    <value>Chceš nahrát Itemy v Obchodech?</value>
   </data>
   <data name="PARSE_SHOPS" xml:space="preserve">
-    <value>Chceš naparsovat Obchody?</value>
+    <value>Chceš nahrát Obchody?</value>
   </data>
   <data name="PARSE_SHOPSKILLS" xml:space="preserve">
-    <value>Chceš naparsovat Skilly do Obchodu?</value>
+    <value>Chceš nahrát Skilly do Obchodu?</value>
   </data>
   <data name="PARSE_SKILLS" xml:space="preserve">
-    <value>Chceš naparsovat Skilly?</value>
+    <value>Chceš nahrát Skilly?</value>
   </data>
   <data name="PARSE_TELEPORTERS" xml:space="preserve">
-    <value>Chceš naparsovat Teleporty?</value>
+    <value>Chceš nahrát Teleporty?</value>
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>Chceš naparsovat Časoprostory</value>
+    <value>Chceš nahrát Časoprostory</value>
   </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
@@ -331,8 +358,17 @@
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
   </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnType bylo úspěšně nahráno!</value>
+  </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Prosím vybere ID Mapy</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Zpráva odeslána na {0}</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
