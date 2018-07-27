@@ -120,6 +120,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Amministratore</value>
+  </data>
   <data name="ADVENTURER" xml:space="preserve">
     <value>Avventuriero</value>
   </data>
@@ -148,11 +151,17 @@
     <value>Password errata</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Bcard Caricate!</value>
+    <value>{0} Bcard Sincronizzate!</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Canale</value>
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Personaggio non inizializzato.</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>Il Personaggio è offline</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connesso, SessionId: {0}</value>
@@ -194,34 +203,34 @@
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
-    <value>{0} I18N ActDescs Caricate! Regione: {1}</value>
+    <value>{0} I18N ActDescs Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_BCARD_PARSED" xml:space="preserve">
-    <value>{0} I18N BCards Caricate! Regione: {1}</value>
+    <value>{0} I18N BCards Sincronizzate! Regione: {1}</value>
   </data>
   <data name="I18N_CARD_PARSED" xml:space="preserve">
-    <value>{0} I18N Cards Caricate! Regione: {1}</value>
+    <value>{0} I18N Cards Sincronizzate! Regione: {1}</value>
   </data>
   <data name="I18N_ITEM_PARSED" xml:space="preserve">
-    <value>{0} I18N Items Caricate! Regione: {1}</value>
+    <value>{0} I18N Items Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapIdDatas Caricate! Regione: {1}</value>
+    <value>{0} I18N MapIdDatas Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapPointDatas Caricate! Regione: {1}</value>
+    <value>{0} I18N MapPointDatas Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsters Caricate! Regione: {1}</value>
+    <value>{0} I18N NpcMonsters Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsterTalk Caricate! Regione: {1}</value>
+    <value>{0} I18N NpcMonsterTalk Sincronizzati! Regione: {1}</value>
   </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
-    <value>{0} I18N Quests Caricate! Regione: {1}</value>
+    <value>{0} I18N Quests Sincronizzate! Regione: {1}</value>
   </data>
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
-    <value>{0} I18N Skills Caricate! Regione: {1}</value>
+    <value>{0} I18N Skills Sincronizzate! Regione: {1}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
@@ -244,11 +253,17 @@
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricati!</value>
   </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>{0} MapNpcs Caricati!</value>
+  </data>
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>{0} Mappe caricate !</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
-    <value>{0} Mappe Caricate!</value>
+    <value>{0} Mappe Sincronizzate!</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapTypes Sincronizzati!</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer avviato con successo.</value>
@@ -256,8 +271,17 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al server master! Provando ancora tra 5 secondi...</value>
   </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} MapMonsters Sincronizzati!</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} NpcMonster Sincronizzati!</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} MapNpcs Sincronizzati!</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Vuoi sincronizzare gli Account?</value>
@@ -267,6 +291,9 @@
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
     <value>Vuoi sincronizzare le Bcard?</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>Vuoi sincronizzare i Drops?</value>
   </data>
   <data name="PARSE_I18N" xml:space="preserve">
     <value>Vuoi sincronizzare i dati I18N?</value>
@@ -320,7 +347,7 @@
     <value>Vuoi sincronizzare TimeSpaces?</value>
   </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
-    <value>{0} Portali Caricati!</value>
+    <value>{0} Portali Sincronizzati!</value>
   </data>
   <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Registrato su MasterServer</value>
@@ -329,8 +356,17 @@
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
   </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnTypes Caricati!</value>
+  </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Seleziona un MapId:</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Messaggio inviato a {0}</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Skills Sincronizzate!</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
