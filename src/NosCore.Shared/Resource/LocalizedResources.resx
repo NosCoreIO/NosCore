@@ -120,6 +120,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account with SessionId {0} has arrived.</value>
   </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
   <data name="ADVENTURER" xml:space="preserve">
     <value>Adventurer</value>
   </data>
@@ -152,9 +155,15 @@
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Cards Parsed!</value>
   </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Channel</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Character Not loaded</value>
     <comment>check</comment>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>The Character is offline</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
@@ -246,11 +255,17 @@
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>
   </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>{0} MapNpcs Loaded!</value>
+  </data>
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>{0} Maps Loaded!</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
     <value>{0} Map Parsed!</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapTypes Parsed!</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer started successfully.</value>
@@ -258,8 +273,17 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Cannot connect to Master Server! Trying again in 5 seconds...</value>
   </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} MapMonsters Parsed!</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} NpcMonster Parsed!</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} MapNpcs Parsed!</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Do you want to parse Accounts?</value>
@@ -269,6 +293,9 @@
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
     <value>Do you want to parse Cards?</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>Do you want to parse Drops?</value>
   </data>
   <data name="PARSE_I18N" xml:space="preserve">
     <value>Do you want to parse I18N datas?</value>
@@ -331,8 +358,17 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnTypes Parsed!</value>
+  </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Please, Select a MapId:</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Message sent to {0}</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Skills Parsed!</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
