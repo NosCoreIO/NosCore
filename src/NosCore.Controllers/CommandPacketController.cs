@@ -54,10 +54,10 @@ namespace NosCore.Controllers
             var sayPostedPacket = new PostedPacket
             {
                 Packet = PacketFactory.Serialize(sayPacket),
-                SenderCharacter = new CharacterData
+                SenderCharacter = new Data.WebApi.Character()
                 {
-                    CharacterName = Session.Character.Name,
-                    CharacterId = Session.Character.CharacterId
+                    Name = Session.Character.Name,
+                    Id = Session.Character.CharacterId
                 }
             };
 
