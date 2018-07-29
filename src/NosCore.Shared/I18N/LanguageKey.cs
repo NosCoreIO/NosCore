@@ -95,6 +95,7 @@ namespace NosCore.Shared.I18N
         ADMINISTRATOR,
         CHARACTER_OFFLINE,
         SEND_MESSAGE_TO_CHARACTER,
-        MAPNPCS_LOADED
+        MAPNPCS_LOADED,
+        SAVING_ALL
     }
 }

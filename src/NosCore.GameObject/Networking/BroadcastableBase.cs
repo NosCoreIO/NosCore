@@ -41,14 +41,21 @@ namespace NosCore.GameObject.Networking
             {
                 return;
             }
-            // Remove client from online clients list
-            if (!_sessions.TryRemove(session.Character.CharacterId, out _))
-            {
-                return;
-            }
             if (session.HasCurrentMapInstance && _sessions.Count == 0)
             {
                 session.Character.MapInstance.IsSleeping = true;
+            }
+
+            if (session.Character != null)
+            {
+                if (session.Character.Hp < 1)
+                {
+                    session.Character.Hp = 1;
+                }
+
+                session.Character.Save();
+
+                _sessions.TryRemove(session.Character.CharacterId, out _);
             }
             LastUnregister = DateTime.Now;
         }
