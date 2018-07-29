@@ -1,4 +1,4 @@
-﻿namespace NosCore.GameObject.ItemInstance
+﻿namespace NosCore.GameObject.Item
 {
     public class BoxInstance : SpecialistInstance
     {

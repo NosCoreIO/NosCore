@@ -2,7 +2,7 @@
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.ItemInstance
+namespace NosCore.GameObject.Item
 {
     public class WearableInstance : ItemInstance
     {

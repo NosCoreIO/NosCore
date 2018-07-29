@@ -10,7 +10,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.ItemInstance;
+using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;

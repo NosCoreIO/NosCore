@@ -27,15 +27,16 @@ namespace NosCore.GameObject.Networking
         private ServerManager()
         {
         }
-        private static int seed = Environment.TickCount;
-        private static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+        private static int _seed = Environment.TickCount;
+        private static readonly ThreadLocal<Random> Random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
         public int RandomNumber(int min = 0, int max = 100)
         {
-            return random.Value.Next(min, max);
+            return Random.Value.Next(min, max);
         }
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         public List<NpcMonsterDTO> NpcMonsters { get; set; }
+        public List<Item.Item> Items { get; set; }
 
         public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
         {
