@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
@@ -54,6 +55,11 @@ namespace NosCore.GameObject.Networking
             return mapInstance;
         }
 
+        private void LaunchEvents()
+        {
+            Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => { SaveAll(); });
+        }
+
         public void Initialize()
         {
             // parse rates
@@ -98,6 +104,22 @@ namespace NosCore.GameObject.Networking
             catch (Exception ex)
             {
                 Logger.Log.Error("General Error", ex);
+            }
+        }
+
+        public void SaveAll()
+        {
+            try
+            {
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
+                Parallel.ForEach(Sessions.Where(s => s.Character != null), session =>
+                {
+                    session.Character.Save();
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
             }
         }
 

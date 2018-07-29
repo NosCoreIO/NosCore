@@ -50,7 +50,7 @@ namespace NosCore.GameObject
 
         internal void StopLife()
         {
-            Life.Dispose();
+            Life?.Dispose();
             Life = null;
         }
 
