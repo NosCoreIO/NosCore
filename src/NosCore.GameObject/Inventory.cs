@@ -210,22 +210,6 @@ namespace NosCore.GameObject
             }
         }
 
-        public void DepositItem(PocketType pocket, byte slot, byte amount, byte newSlot, ref ItemInstance item, ref ItemInstance itemdest, bool partnerBackpack)
-        {
-            if (item == null || amount > item.Amount || amount <= 0)
-            {
-                return;
-            }
-            MoveItem(pocket, partnerBackpack ? PocketType.PetWarehouse : PocketType.Warehouse, slot, amount, newSlot, out item, out itemdest);
-            Owner.Session.SendPacket(item != null ? item.GeneratePocketAdd()
-                : UserInterfaceHelper.Instance.GeneratePocketRemove(pocket, slot));
-
-            if (itemdest != null)
-            {
-                Owner.Session.SendPacket(partnerBackpack ? itemdest.GeneratePStash() : itemdest.GenerateStash());
-            }
-        }
-
         public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
         {
             var place = new Dictionary<PocketType, int>();
