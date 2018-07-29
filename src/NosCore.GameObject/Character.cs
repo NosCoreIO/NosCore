@@ -1,6 +1,7 @@
 ﻿using System;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
@@ -312,6 +313,22 @@ namespace NosCore.GameObject
             }
 
             return Reput <= 5000000 ? 26 : 27;
+        }
+
+        public void Save()
+        {
+            try
+            {
+                AccountDTO account = Session.Account;
+                DAOFactory.AccountDAO.InsertOrUpdate(ref account);
+
+                CharacterDTO character = (Character)MemberwiseClone();
+                DAOFactory.CharacterDAO.InsertOrUpdate(ref character);
+            }
+            catch (Exception e)
+            {
+                Logger.Log.Error("Save Character failed. SessionId: " + Session.SessionId, e);
+            }
         }
 
         public void LoadSpeed()
