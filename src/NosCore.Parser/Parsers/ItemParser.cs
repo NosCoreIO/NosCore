@@ -63,23 +63,23 @@ namespace NosCore.Parser.Parsers
                         switch (Convert.ToByte(currentLine[2]))
                         {
                             case 4:
-                                item.Type = InventoryType.Equipment;
+                                item.Type = PocketType.Equipment;
                                 break;
 
                             case 8:
-                                item.Type = InventoryType.Equipment;
+                                item.Type = PocketType.Equipment;
                                 break;
 
                             case 9:
-                                item.Type = InventoryType.Main;
+                                item.Type = PocketType.Main;
                                 break;
 
                             case 10:
-                                item.Type = InventoryType.Etc;
+                                item.Type = PocketType.Etc;
                                 break;
 
                             default:
-                                item.Type = (InventoryType) Enum.Parse(typeof(InventoryType), currentLine[2]);
+                                item.Type = (PocketType) Enum.Parse(typeof(PocketType), currentLine[2]);
                                 break;
                         }
 
@@ -1265,7 +1265,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                         }
 
-                        if (item.Type == InventoryType.Miniland)
+                        if (item.Type == PocketType.Miniland)
                         {
                             item.MinilandObjectPoint = int.Parse(currentLine[2]);
                             item.EffectValue = short.Parse(currentLine[8]);
