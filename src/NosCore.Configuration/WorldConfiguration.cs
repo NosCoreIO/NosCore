@@ -1,4 +1,6 @@
-﻿namespace NosCore.Configuration
+﻿using System.Collections.Generic;
+
+namespace NosCore.Configuration
 {
     public class WorldConfiguration : WebApiConfiguration
     {
@@ -11,5 +13,6 @@
         public bool WorldInformation { get; set; }
         public bool SceneOnCreate { get; set; }
         public string ServerName { get; set; }
+        public Dictionary<FeatureFlag, bool> FeatureFlags { get; set; } = new Dictionary<FeatureFlag, bool>();
     }
 }
