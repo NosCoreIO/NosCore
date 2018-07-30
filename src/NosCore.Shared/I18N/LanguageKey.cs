@@ -96,6 +96,10 @@ namespace NosCore.Shared.I18N
         CHARACTER_OFFLINE,
         SEND_MESSAGE_TO_CHARACTER,
         MAPNPCS_LOADED,
-        SAVING_ALL
+        SAVING_ALL,
+        NO_ITEM,
+        NOT_ENOUGH_PLACE,
+        ITEM_ACQUIRED,
+        ITEMS_LOADED
     }
 }

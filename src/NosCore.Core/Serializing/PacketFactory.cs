@@ -181,8 +181,8 @@ namespace NosCore.Core.Serializing
                                     includesKeepAliveIdentity));
                             break;
                         }
-
-                        var currentValue = matches[currentIndex].Value;
+                        
+                        var currentValue = (currentIndex >= matches.Count) ? null:matches[currentIndex].Value;
 
                         // set the value & convert currentValue
                         packetBasePropertyInfo.Value.SetValue(deserializedPacket,

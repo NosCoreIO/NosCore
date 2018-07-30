@@ -25,5 +25,7 @@
 	  "Database" : "postgres",
 	  "Username" : "postgres",
 	  "Password" : "password",
-	}
+	},
+	"BackpackSize":48,
+	"MaxItemAmount":999,
 }
