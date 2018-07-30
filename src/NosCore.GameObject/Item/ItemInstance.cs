@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NosCore.Data;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
@@ -67,6 +68,11 @@ namespace NosCore.GameObject.Item
                 default:
                     return packet + $".{Amount}.0.0";
             }
+        }
+
+        public ItemInstance Clone()
+        {
+            return (ItemInstance)MemberwiseClone();
         }
     }
 }
