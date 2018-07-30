@@ -11,9 +11,9 @@ namespace NosCore.Data
     public class ItemInstanceDTO
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public int Amount { get; set; }
+        public short Amount { get; set; }
 
         public long? BazaarItemId { get; set; }
 
