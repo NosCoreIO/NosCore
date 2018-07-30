@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
@@ -21,6 +22,17 @@ namespace NosCore.Controllers
     [UsedImplicitly]
     public class CommandPacketController : PacketController
     {
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public CommandPacketController(WorldConfiguration worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
+
+        [UsedImplicitly]
+        public CommandPacketController()
+        {
+        }
         public void Shout(ShoutPacket shoutPacket)
         {
             var sayPacket = new SayPacket
@@ -64,7 +76,8 @@ namespace NosCore.Controllers
                 short vnum = createItemPacket.VNum;
                 sbyte rare = 0;
                 short boxEffect = 999;
-                byte upgrade = 0, amount = 1, design = 0;
+                byte upgrade = 0, design = 0;
+                short amount = 1;
                 if (vnum == 1046)
                 {
                     return; // cannot create gold as item, use $Gold instead
@@ -111,7 +124,7 @@ namespace NosCore.Controllers
                     }
                     if (createItemPacket.Design.HasValue && !createItemPacket.Upgrade.HasValue)
                     {
-                        amount = createItemPacket.Design.Value > 99 ? (byte)99 : createItemPacket.Design.Value;
+                        amount = createItemPacket.Design.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.Design.Value;
                     }
                     var inv = Session.Character.Inventory.AddNewToPocket(vnum, amount, rare: rare, upgrade: upgrade, design: design);
                  
