@@ -12,9 +12,6 @@
         Bazaar = 9,
         Warehouse = 10,
         FamilyWareHouse = 11,
-        PetWarehouse = 12,
-        FirstPartner = 13,
-        SecondPartner = 14,
-        ThirdPartner = 15
+        PetWarehouse = 12
     }
 }
