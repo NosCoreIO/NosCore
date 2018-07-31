@@ -120,7 +120,7 @@ namespace NosCore.GameObject.Networking
             try
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
-                Parallel.ForEach(Sessions.Where(s => s.Character != null), session =>
+                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session =>
                 {
                     session.Character.Save();
                 });

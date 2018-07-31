@@ -47,16 +47,16 @@ namespace NosCore.GameObject.Networking
                 }
             }
 
-            if (session.Character != null)
+            if (clientSession.Character != null)
             {
-                if (session.Character.Hp < 1)
+                if (clientSession.Character.Hp < 1)
                 {
-                    session.Character.Hp = 1;
+                    clientSession.Character.Hp = 1;
                 }
 
-                session.Character.Save();
+                clientSession.Character.Save();
 
-                _sessions.TryRemove(session.Character.CharacterId, out _);
+                Sessions.TryRemove(clientSession.Character.CharacterId, out _);
             }
             LastUnregister = DateTime.Now;
         }
