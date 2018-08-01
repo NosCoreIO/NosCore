@@ -2,6 +2,12 @@
 {
     public class SpecialistInstance : WearableInstance
     {
+        public SpecialistInstance()
+        {
+        }
+        public SpecialistInstance(Item item) : base(item)
+        {
+        }
         public short SlDamage { get; set; }
 
         public short SlDefence { get; set; }

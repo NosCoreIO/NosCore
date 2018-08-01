@@ -31,87 +31,94 @@ namespace NosCore.Tests
             };
         }
 
-        #region AddNewToPocket
+        #region AddItemToPocket
+        //TODO change all tests to use AddItemToPocket
         [TestMethod]
         public void CreateItem()
         {
-            var item = Inventory.AddNewToPocket(1012, 1).First();
+            var item = Inventory.CreateItem(1012, 1).First();
             Assert.IsTrue(item.Amount == 1 && item.ItemVNum == 1012 && item.Type == PocketType.Main);
         }
 
         [TestMethod]
         public void CreateItemAndStackIt()
         {
-            Inventory.AddNewToPocket(1012, 1);
-            var item = Inventory.AddNewToPocket(1012, 1).First();
+            Inventory.CreateItem(1012, 1);
+            var item = Inventory.CreateItem(1012, 1).First();
             Assert.IsTrue(item.Amount == 2 && item.ItemVNum == 1012);
         }
 
         [TestMethod]
         public void CreateItemWhenSlotMax()
         {
-            Inventory.AddNewToPocket(1012, 999);
-            var items = Inventory.AddNewToPocket(1012, 1);
+            Inventory.CreateItem(1012, 999);
+            var items = Inventory.CreateItem(1012, 1);
             Assert.IsTrue(items.First().Amount == 1);
         }
 
         [TestMethod]
         public void CreateItemWhenSlotFilled()
         {
-            Inventory.AddNewToPocket(1012, 990);
-            var items = Inventory.AddNewToPocket(1012, 29);
+            Inventory.CreateItem(1012, 990);
+            var items = Inventory.CreateItem(1012, 29);
             Assert.IsTrue(items.First().Amount == 999 && items.Last().Amount == 20);
         }
 
         [TestMethod]
         public void CreateItemAndFillMultiSlot()
         {
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1012, 990);
-            var items = Inventory.AddNewToPocket(1012, 27);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1012, 990);
+            var items = Inventory.CreateItem(1012, 27);
             Assert.IsTrue(items.All(item => item.Amount == 999) && items.Count == 3);
         }
 
         [TestMethod]
         public void CreateMoreItemThanInventoryPlace()
         {
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1012, 990);
-            var items = Inventory.AddNewToPocket(1012, 99);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1012, 990);
+            var items = Inventory.CreateItem(1012, 99);
             Assert.IsTrue(Inventory.Values.All(item => item.Amount == 990) && items.Count == 0);
         }
 
         [TestMethod]
         public void CreateStackOnASpecificItem()
         {
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1013, 990);
-            Inventory.AddNewToPocket(1013, 1);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1013, 990);
+            Inventory.CreateItem(1013, 1);
             Assert.IsTrue(Inventory.Values.First(item => item.Slot == 2).Amount == 991);
         }
 
         [TestMethod]
         public void CreateDoesntStackOnWrontItem()
         {
-            Inventory.AddNewToPocket(1012, 990);
-            Inventory.AddNewToPocket(1013, 990);
-            Inventory.AddNewToPocket(1013, 19);
+            Inventory.CreateItem(1012, 990);
+            Inventory.CreateItem(1013, 990);
+            Inventory.CreateItem(1013, 19);
             Assert.IsTrue(Inventory.Values.First(item => item.Slot == 1).Amount == 990);
         }
         #endregion
 
         #region LoadBySlotAndType  
-        #endregion
+        [TestMethod]
+        public void LoadItemOnAnNotEmptySlot()
+        {
+            Inventory.CreateItem(1012, 990);
+            var item = Inventory.LoadBySlotAndType<ItemInstance>(0, PocketType.Main);
+            Assert.IsTrue(item.ItemVNum == 1012 && item.Amount == 990);
+        }
 
-        #region AddToPocketWithSlotAndType
-        #endregion
-
-        #region AddToPocket  
-        #endregion
-
-        #region InstantiateItem 
+        [TestMethod]
+        public void LoadAnNonExistingItem()
+        {
+            Inventory.CreateItem(1012, 990);
+            var item = Inventory.LoadBySlotAndType<ItemInstance>(1, PocketType.Main);
+            Assert.IsNull(item);
+        }
         #endregion
     }
 }
