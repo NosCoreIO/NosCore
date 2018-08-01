@@ -2,15 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NosCore.Configuration;
-using NosCore.DAL;
-using NosCore.Data;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Helper;
 using NosCore.GameObject.Item;
-using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations.Family;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 
@@ -20,78 +13,67 @@ namespace NosCore.GameObject
     {
         public WorldConfiguration Configuration { get; set; }
         public bool IsExpanded { get; set; }
-        public long OwnerId { get; set; }
+        public long OwnerId { get; set; } //TODO remove
 
-        public ItemInstance InstantiateItemInstance(short vnum, short amount = 1, sbyte rare = 0)
+        //TODO remove
+        public List<ItemInstance> CreateItem(short vnum, short amount = 1, PocketType? type = null, sbyte rare = 0, byte upgrade = 0, byte design = 0)
         {
-            var newItem = new ItemInstance { ItemVNum = vnum, Amount = amount, CharacterId = OwnerId, Rare = rare };
-            if (newItem.Item != null)
-            {
-                switch (newItem.Item.Type)
-                {
-                    case PocketType.Miniland:
-                        newItem.DurabilityPoint = newItem.Item.MinilandObjectPoint / 2;
-                        break;
-
-                    case PocketType.Equipment:
-                        newItem = newItem.Item.ItemType == ItemType.Specialist ? new SpecialistInstance
-                        {
-                            ItemVNum = vnum,
-                            SpLevel = 1,
-                            Amount = amount
-                        } : newItem.Item.ItemType == ItemType.Box ? new BoxInstance
-                        {
-                            ItemVNum = vnum,
-                            Amount = amount
-                        } :
-                        new WearableInstance
-                        {
-                            ItemVNum = vnum,
-                            Amount = amount
-                        };
-                        break;
-                }
-            }
-
-            // set default itemType
-            if (newItem.Item != null)
-            {
-                newItem.Type = newItem.Item.Type;
-            }
-
-            return newItem;
-        }
-        //    public bool CanAddItem(short itemVnum)
-        //    {
-        //        var type = ServerManager.Instance.Items.Find(item => item.VNum == itemVnum).Type;
-        //        return CanAddItem(type);
-        //    }
-
-        //    public int CountItem(int itemVNum)
-        //    {
-        //        return this.Select(s => s.Value).Where(s => s.ItemVNum == itemVNum).Sum(i => i.Amount);
-        //    }
-
-        //    public int CountItemInAnPocket(PocketType inv)
-        //    {
-        //        return this.Count(s => s.Value.Type == inv);
-        //    }
-
-        public List<ItemInstance> AddNewToPocket(short vnum, short amount = 1, PocketType? type = null, sbyte rare = 0, byte upgrade = 0, byte design = 0)
-        {
-            var newItem = InstantiateItemInstance(vnum, amount);
-            newItem.Rare = rare;
+            var newItem = ItemInstance.Create(vnum, OwnerId, amount, rare);
             newItem.Upgrade = upgrade;
             newItem.Design = design;
-            newItem.CharacterId = OwnerId;
             if (newItem.Rare != 0 && newItem is WearableInstance wearable)
             {
                 wearable.SetRarityPoint();
             }
-            return AddToPocket(newItem, type);
+            return AddItemToPocket(newItem, type);
         }
 
-        public List<ItemInstance> AddToPocket(ItemInstance newItem, PocketType? type = null)
+        public T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance
+        {
+            T retItem = null;
+            try
+            {
+                retItem = (T)this.Select(s => s.Value).SingleOrDefault(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
+            }
+            catch (InvalidOperationException ioEx)
+            {
+                Logger.Error(ioEx);
+                var isFirstItem = true;
+                foreach (var item in this.Select(s => s.Value).Where(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type))
+                {
+                    if (isFirstItem)
+                    {
+                        retItem = (T)item;
+                        isFirstItem = false;
+                        continue;
+                    }
+                    var iteminstance = this.Select(s => s.Value).FirstOrDefault(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
+                    if (iteminstance != null)
+                    {
+                        TryRemove(iteminstance.Id, out var value);
+                    }
+                }
+            }
+            return retItem;
+        }
+
+        //public bool CanAddItem(short itemVnum)
+        //{
+        //    var type = ServerManager.Instance.Items.Find(item => item.VNum == itemVnum).Type;
+        //    return GetFreeSlot(type).HasValue;
+        //}
+
+        //public int CountItem(int itemVNum)
+        //{
+        //    return this.Select(s => s.Value).Where(s => s.ItemVNum == itemVNum).Sum(i => i.Amount);
+        //}
+
+        //public int CountItemInAnPocket(PocketType inv)
+        //{
+        //    return this.Count(s => s.Value.Type == inv);
+        //}
+
+        public List<ItemInstance> AddItemToPocket(ItemInstance newItem, PocketType? type = null)
         {
             var invlist = new List<ItemInstance>();
 
@@ -128,7 +110,7 @@ namespace NosCore.GameObject
             var freeSlot = newItem.Type == PocketType.Wear ? (LoadBySlotAndType<ItemInstance>((short)newItem.Item.EquipmentSlot, PocketType.Wear) == null
                     ? (short?)newItem.Item.EquipmentSlot
                     : null)
-                : GetFreeSlot(newItem.Type, IsExpanded ? 1 : 0);
+                : GetFreeSlot(newItem.Type);
             if (!freeSlot.HasValue)
             {
                 return invlist;
@@ -139,7 +121,17 @@ namespace NosCore.GameObject
             return invlist;
         }
 
-        public ItemInstance AddToPocketWithSlotAndType(ItemInstance itemInstance, PocketType type, short slot)
+        private short? GetFreeSlot(PocketType type)
+        {
+            var backPack = IsExpanded ? 1 : 0;
+            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
+            IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
+            var nextFreeSlot = instanceSlotsByType.Any()
+                ? Enumerable.Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
+                : 0;
+            return (short?)nextFreeSlot < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
+        }
+        private ItemInstance AddToPocketWithSlotAndType(ItemInstance itemInstance, PocketType type, short slot)
         {
             itemInstance.Slot = slot;
             itemInstance.Type = type;
@@ -227,35 +219,6 @@ namespace NosCore.GameObject
         //    {
         //        return (T)this[id];
         //    }
-
-        public T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance
-        {
-            T retItem = null;
-            try
-            {
-                retItem = (T)this.Select(s => s.Value).SingleOrDefault(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
-            }
-            catch (InvalidOperationException ioEx)
-            {
-                Logger.Error(ioEx);
-                var isFirstItem = true;
-                foreach (var item in this.Select(s => s.Value).Where(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type))
-                {
-                    if (isFirstItem)
-                    {
-                        retItem = (T)item;
-                        isFirstItem = false;
-                        continue;
-                    }
-                    var iteminstance = this.Select(s => s.Value).FirstOrDefault(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
-                    if (iteminstance != null)
-                    {
-                        TryRemove(iteminstance.Id, out var value);
-                    }
-                }
-            }
-            return retItem;
-        }
 
         //public ItemInstance LoadBySlotAndType(short slot, PocketType type)
         //{
@@ -414,8 +377,8 @@ namespace NosCore.GameObject
         //                        }
         //                        sourcePocket.Slot = destinationSlot;
         //                        sourcePocket.Type = desttype;
-        //                        PutItem(destinationPocket);
-        //                        PutItem(sourcePocket);
+        //                        this[destinationPocket.Id] = destinationPocket;
+        //                        this[sourcePocket.Id] = sourcePocket;
         //                    }
 
         //                    break;
@@ -504,16 +467,6 @@ namespace NosCore.GameObject
         //        }
         //    }
 
-        //    private bool CanAddItem(PocketType type)
-        //    {
-        //        return GetFreeSlot(type, IsExpanded ? 1 : 0).HasValue;
-        //    }
-
-        //    public void ClearPocket()
-        //    {
-        //        Clear();
-        //        //send clear packet
-        //    }
 
         //private ItemInstance GetFreeSlot(IEnumerable<ItemInstance> slotfree)
         //{
@@ -521,20 +474,6 @@ namespace NosCore.GameObject
         //    return this.Select(s => s.Value).Where(i => pocketitemids.Contains(i.Id) && i.Type != PocketType.Wear && i.Type != PocketType.PetWarehouse && i.Type != PocketType.FamilyWareHouse && i.Type != PocketType.Warehouse && i.Type != PocketType.Bazaar).OrderBy(i => i.Slot).FirstOrDefault();
         //}
 
-        private short? GetFreeSlot(PocketType type, int backPack)
-        {
-            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
-            IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
-            var nextFreeSlot = instanceSlotsByType.Any()
-                                ? Enumerable.Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + backPack * 12 : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
-                                : 0;
-            return (short?)nextFreeSlot < (type != PocketType.Miniland ? Configuration.BackpackSize + backPack * 12 : 50) ? (short?)nextFreeSlot : null;
-        }
-
-        //    private void PutItem(ItemInstance itemInstance)
-        //    {
-        //        this[itemInstance.Id] = itemInstance;
-        //    }
 
         //    private ItemInstance TakeItem(short slot, PocketType type)
         //    {

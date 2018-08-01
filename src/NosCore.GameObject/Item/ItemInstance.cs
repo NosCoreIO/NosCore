@@ -9,9 +9,56 @@ namespace NosCore.GameObject.Item
     public class ItemInstance : ItemInstanceDTO
     {
         public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor && Item.ItemType != ItemType.Weapon;
-
         private Item _item;
-        public Item Item => _item ?? (_item = ServerManager.Instance.Items.Find(item=>item.VNum == ItemVNum));
+        public Item Item => _item ?? (_item = ServerManager.Instance.Items.Find(item => item.VNum == ItemVNum));
+        public ItemInstance(Item item)
+        {
+            ItemVNum = item.VNum;
+        }
+
+        public ItemInstance()
+        {
+        }
+
+        public static ItemInstance Create(short itemVNum, long characterId, short amount = 1, sbyte rare = 0)
+        {
+            var itemToCreate = ServerManager.Instance.Items.Find(item => item.VNum == itemVNum);
+            switch (itemToCreate.Type)
+            {
+                case PocketType.Miniland:
+                    return new ItemInstance(itemToCreate)
+                    {
+                        CharacterId = characterId,
+                        Amount = amount,
+                        DurabilityPoint = itemToCreate.MinilandObjectPoint / 2
+                    };
+
+                case PocketType.Equipment:
+                    return itemToCreate.ItemType == ItemType.Specialist ? new SpecialistInstance(itemToCreate)
+                    {
+                        SpLevel = 1,
+                        Amount = amount,
+                        CharacterId = characterId
+                    } : itemToCreate.ItemType == ItemType.Box ? new BoxInstance(itemToCreate)
+                    {
+                        Amount = amount,
+                        CharacterId = characterId
+                    } :
+                        new WearableInstance(itemToCreate)
+                        {
+                            Amount = amount,
+                            Rare = rare,
+                            CharacterId = characterId
+                        };
+                default:
+                    return new ItemInstance(itemToCreate)
+                    {
+                        Type = itemToCreate.Type,
+                        Amount = amount,
+                        CharacterId = characterId
+                    };
+            }
+        }
 
         public string GenerateFStash()
         {
