@@ -5,6 +5,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 
@@ -48,25 +49,25 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = 1 },
-                            NoPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = 5 },
+                            YesPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = RequestDeletionType.Requested },
+                            NoPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = RequestDeletionType.Declined },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
                                 Session.Account.Language)
                         });
                     break;
 
-                case 1:
+                case RequestDeletionType.Requested:
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = 2 },
-                            NoPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = 5 },
+                            YesPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = RequestDeletionType.Confirmed },
+                            NoPacket = new BIPacket() { PocketType = bIPacket.PocketType, Slot = bIPacket.Slot, Option = RequestDeletionType.Declined  },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
                                 Session.Account.Language)
                         });
                     break;
 
-                case 2:
+                case RequestDeletionType.Confirmed:
                     if (Session.Character.InExchangeOrTrade || bIPacket.PocketType == PocketType.Bazaar)
                     {
                         return;

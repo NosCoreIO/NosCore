@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Packets.ClientPackets
@@ -16,6 +17,6 @@ namespace NosCore.Packets.ClientPackets
         public byte Slot { get; set; }
 
         [PacketIndex(2,IsOptional = true)]
-        public byte? Option { get; set; }
+        public RequestDeletionType? Option { get; set; }
     }
 }
