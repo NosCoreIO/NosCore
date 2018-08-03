@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Configuration;
 using NosCore.GameObject.Item;
+using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 
@@ -13,20 +14,6 @@ namespace NosCore.GameObject
     {
         public WorldConfiguration Configuration { get; set; }
         public bool IsExpanded { get; set; }
-        public long OwnerId { get; set; } //TODO remove
-
-        //TODO remove
-        public List<ItemInstance> CreateItem(short vnum, short amount = 1, PocketType? type = null, sbyte rare = 0, byte upgrade = 0, byte design = 0)
-        {
-            var newItem = ItemInstance.Create(vnum, OwnerId, amount, rare);
-            newItem.Upgrade = upgrade;
-            newItem.Design = design;
-            if (newItem.Rare != 0 && newItem is WearableInstance wearable)
-            {
-                wearable.SetRarityPoint();
-            }
-            return AddItemToPocket(newItem, type);
-        }
 
         public T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance
         {
@@ -57,23 +44,23 @@ namespace NosCore.GameObject
             return retItem;
         }
 
-        //public bool CanAddItem(short itemVnum)
-        //{
-        //    var type = ServerManager.Instance.Items.Find(item => item.VNum == itemVnum).Type;
-        //    return GetFreeSlot(type).HasValue;
-        //}
+        public bool CanAddItem(short itemVnum)
+        {
+            var type = ServerManager.Instance.Items.Find(item => item.VNum == itemVnum).Type;
+            return GetFreeSlot(type).HasValue;
+        }
 
-        //public int CountItem(int itemVNum)
-        //{
-        //    return this.Select(s => s.Value).Where(s => s.ItemVNum == itemVNum).Sum(i => i.Amount);
-        //}
+        public int CountItem(int itemVNum)
+        {
+            return this.Select(s => s.Value).Where(s => s.ItemVNum == itemVNum).Sum(i => i.Amount);
+        }
 
-        //public int CountItemInAnPocket(PocketType inv)
-        //{
-        //    return this.Count(s => s.Value.Type == inv);
-        //}
+        public int CountItemInAnPocket(PocketType inv)
+        {
+            return this.Count(s => s.Value.Type == inv);
+        }
 
-        public List<ItemInstance> AddItemToPocket(ItemInstance newItem, PocketType? type = null)
+        public List<ItemInstance> AddItemToPocket(ItemInstance newItem, PocketType? type = null, short? slot = null)
         {
             var invlist = new List<ItemInstance>();
 
@@ -84,21 +71,21 @@ namespace NosCore.GameObject
             }
 
             // check if item can be stapled
-            if (newItem.Type != PocketType.Bazaar && (newItem.Item.Type == PocketType.Etc || newItem.Item.Type == PocketType.Main))
+            if (slot == null && newItem.Type != PocketType.Bazaar && (newItem.Item.Type == PocketType.Etc || newItem.Item.Type == PocketType.Main))
             {
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i => i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < Configuration.MaxItemAmount);
                 var freeslot = Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12 - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<ItemInstance> itemInstances = slotNotFull as IList<ItemInstance> ?? slotNotFull.ToList();
                 if (newItem.Amount <= freeslot * Configuration.MaxItemAmount + itemInstances.Sum(s => Configuration.MaxItemAmount - s.Amount))
                 {
-                    foreach (var slot in itemInstances)
+                    foreach (var slotToAdd in itemInstances)
                     {
-                        var max = slot.Amount + newItem.Amount;
+                        var max = slotToAdd.Amount + newItem.Amount;
                         max = max > Configuration.MaxItemAmount ? Configuration.MaxItemAmount : max;
-                        newItem.Amount = (short)(slot.Amount + newItem.Amount - max);
+                        newItem.Amount = (short)(slotToAdd.Amount + newItem.Amount - max);
                         newItem.Amount = newItem.Amount;
-                        slot.Amount = (short)max;
-                        invlist.Add(slot);
+                        slotToAdd.Amount = (short)max;
+                        invlist.Add(slotToAdd);
                     }
                 }
             }
@@ -111,12 +98,33 @@ namespace NosCore.GameObject
                     ? (short?)newItem.Item.EquipmentSlot
                     : null)
                 : GetFreeSlot(newItem.Type);
-            if (!freeSlot.HasValue)
+            if (!slot.HasValue && !freeSlot.HasValue)
             {
                 return invlist;
             }
-            var inv = AddToPocketWithSlotAndType(newItem, newItem.Type, freeSlot.Value);
-            invlist.Add(inv);
+            newItem.Slot = slot ?? freeSlot.Value;
+            newItem.Type = newItem.Type;
+
+            if (ContainsKey(newItem.Id))
+            {
+                Logger.Error(new InvalidOperationException("Cannot add the same ItemInstance twice to pocket."));
+                return null;
+            }
+
+            if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type) || newItem.Slot >= Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
+            {
+                return null;
+            }
+            if (newItem.Type == PocketType.Specialist && !(newItem is SpecialistInstance))
+            {
+                Logger.Error(new Exception("Cannot add an item of type Specialist without beeing a SpecialistInstance."));
+            }
+            if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear) && !(newItem is WearableInstance))
+            {
+                Logger.Error(new Exception("Cannot add an item of type Equipment or Wear without beeing a WearableInstance."));
+            }
+            this[newItem.Id] = newItem;
+            invlist.Add(newItem);
 
             return invlist;
         }
@@ -130,33 +138,6 @@ namespace NosCore.GameObject
                 ? Enumerable.Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
                 : 0;
             return (short?)nextFreeSlot < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
-        }
-        private ItemInstance AddToPocketWithSlotAndType(ItemInstance itemInstance, PocketType type, short slot)
-        {
-            itemInstance.Slot = slot;
-            itemInstance.Type = type;
-            itemInstance.CharacterId = OwnerId;
-
-            if (ContainsKey(itemInstance.Id))
-            {
-                Logger.Error(new InvalidOperationException("Cannot add the same ItemInstance twice to pocket."));
-                return null;
-            }
-
-            if (this.Any(s => s.Value.Slot == slot && s.Value.Type == type))
-            {
-                return null;
-            }
-            if (itemInstance.Type == PocketType.Specialist && !(itemInstance is SpecialistInstance))
-            {
-                Logger.Error(new Exception("Cannot add an item of type Specialist without beeing a SpecialistInstance."));
-            }
-            if ((itemInstance.Type == PocketType.Equipment || itemInstance.Type == PocketType.Wear) && !(itemInstance is WearableInstance))
-            {
-                Logger.Error(new Exception("Cannot add an item of type Equipment or Wear without beeing a WearableInstance."));
-            }
-            this[itemInstance.Id] = itemInstance;
-            return itemInstance;
         }
 
         //    public Tuple<short, PocketType> DeleteById(Guid id)
