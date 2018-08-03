@@ -142,7 +142,7 @@ namespace NosCore.Data
 
         public byte SpType { get; set; }
 
-        public InventoryType Type { get; set; }
+        public PocketType Type { get; set; }
 
         [Key]
         public short VNum { get; set; }

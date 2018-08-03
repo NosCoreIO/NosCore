@@ -2,15 +2,19 @@
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Helper;
+using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
@@ -18,6 +22,17 @@ namespace NosCore.Controllers
     [UsedImplicitly]
     public class CommandPacketController : PacketController
     {
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public CommandPacketController(WorldConfiguration worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
+
+        [UsedImplicitly]
+        public CommandPacketController()
+        {
+        }
         public void Shout(ShoutPacket shoutPacket)
         {
             var sayPacket = new SayPacket
@@ -51,6 +66,110 @@ namespace NosCore.Controllers
             };
 
             ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+        }
+
+        [UsedImplicitly]
+        public void CreateItem(CreateItemPacket createItemPacket)
+        {
+            if (createItemPacket != null)
+            {
+                short vnum = createItemPacket.VNum;
+                sbyte rare = 0;
+                short boxEffect = 999;
+                byte upgrade = 0, design = 0;
+                short amount = 1;
+                if (vnum == 1046)
+                {
+                    return; // cannot create gold as item, use $Gold instead
+                }
+                var iteminfo = ServerManager.Instance.Items.Find(item=>item.VNum == vnum);
+                if (iteminfo != null)
+                {
+                    if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
+                    {
+                        if (createItemPacket.DesignOrAmount.HasValue)
+                        {
+                            design = (byte)createItemPacket.DesignOrAmount.Value;
+                        }
+                        rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect ? (sbyte)createItemPacket.Upgrade.Value : rare;
+                    }
+                    else if (iteminfo.Type == PocketType.Equipment)
+                    {
+                        if (createItemPacket.Upgrade.HasValue)
+                        {
+                            if (iteminfo.EquipmentSlot != EquipmentType.Sp)
+                            {
+                                upgrade = createItemPacket.Upgrade.Value;
+                            }
+                            else
+                            {
+                                design = createItemPacket.Upgrade.Value;
+                            }
+                            if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0 && iteminfo.BasicUpgrade != 0)
+                            {
+                                upgrade = iteminfo.BasicUpgrade;
+                            }
+                        }
+                        if (createItemPacket.DesignOrAmount.HasValue)
+                        {
+                            if (iteminfo.EquipmentSlot == EquipmentType.Sp)
+                            {
+                                upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                            }
+                            else
+                            {
+                                rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                            }
+                        }
+                    }
+                    if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
+                    {
+                        amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
+                    }
+                    
+                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum,Session.Character.CharacterId, amount:amount, rare: rare, upgrade: upgrade, design: design));
+                 
+                    if (inv.Count > 0)
+                    {
+                        Session.SendPacket(inv.GeneratePocketChange());
+                        var firstItem = inv.First();
+                        WearableInstance wearable = Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot, firstItem.Type);
+                        if (wearable != null)
+                        {
+                            switch (wearable.Item.EquipmentSlot)
+                            {
+                                case EquipmentType.Armor:
+                                case EquipmentType.MainWeapon:
+                                case EquipmentType.SecondaryWeapon:
+                                    wearable.SetRarityPoint();
+                                    break;
+
+                                case EquipmentType.Boots:
+                                case EquipmentType.Gloves:
+                                    wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
+                                    wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
+                                    wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
+                                    wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                                    break;
+                            }
+                        }
+
+                        Session.SendPacket(Session.Character.GenerateSay($"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}", SayColorType.Green));
+                    }
+                    else
+                    {
+                        Session.SendPacket(new MsgPacket() {Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, Session.Account.Language), Type = 0});
+                    }
+                }
+                else
+                {
+                    Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language), Type = 0 });
+                }
+            }
+            else
+            {
+                Session.SendPacket(Session.Character.GenerateSay(CreateItemPacket.ReturnHelp(), SayColorType.Yellow));
+            }
         }
 
         [UsedImplicitly]

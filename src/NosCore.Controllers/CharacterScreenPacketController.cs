@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
@@ -10,7 +12,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.ItemInstance;
+using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -22,6 +24,18 @@ namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
+
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public CharacterScreenPacketController(WorldConfiguration worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
+
+        [UsedImplicitly]
+        public CharacterScreenPacketController()
+        {
+        }
         /// <summary>
         ///     Char_NEW character creation character
         /// </summary>
@@ -253,15 +267,15 @@ namespace NosCore.Controllers
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>
                     {
-                        equipment[(byte) EquipmentType.Hat]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.Armor]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.WeaponSkin]?.VNum ??
-                        (equipment[(byte) EquipmentType.MainWeapon]?.VNum ?? -1),
-                        equipment[(byte) EquipmentType.SecondaryWeapon]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.Mask]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.Fairy]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.CostumeSuit]?.VNum ?? -1,
-                        equipment[(byte) EquipmentType.CostumeHat]?.VNum ?? -1
+                        equipment[(byte) EquipmentType.Hat]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.Armor]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.WeaponSkin]?.ItemVNum ??
+                        (equipment[(byte) EquipmentType.MainWeapon]?.ItemVNum ?? -1),
+                        equipment[(byte) EquipmentType.SecondaryWeapon]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.Mask]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.Fairy]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.CostumeSuit]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.CostumeHat]?.ItemVNum ?? -1
                     },
                     JobLevel = character.JobLevel,
                     QuestCompletion = 1,
@@ -305,6 +319,7 @@ namespace NosCore.Controllers
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
+                character.Inventory = new Inventory() { Configuration = _worldConfiguration };
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
                     Session.Character.Hp = (int) Session.Character.HPLoad();

@@ -14,5 +14,7 @@ namespace NosCore.Configuration
         public bool SceneOnCreate { get; set; }
         public string ServerName { get; set; }
         public Dictionary<FeatureFlag, bool> FeatureFlags { get; set; } = new Dictionary<FeatureFlag, bool>();
+        public short MaxItemAmount { get; set; }
+        public byte BackpackSize { get; set; }
     }
 }
