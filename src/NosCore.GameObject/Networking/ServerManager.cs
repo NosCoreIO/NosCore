@@ -7,9 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
+using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -27,15 +29,16 @@ namespace NosCore.GameObject.Networking
         private ServerManager()
         {
         }
-        private static int seed = Environment.TickCount;
-        private static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+        private static int _seed = Environment.TickCount;
+        private static readonly ThreadLocal<Random> Random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
         public int RandomNumber(int min = 0, int max = 100)
         {
-            return random.Value.Next(min, max);
+            return Random.Value.Next(min, max);
         }
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         public List<NpcMonsterDTO> NpcMonsters { get; set; }
+        public List<Item.Item> Items { get; set; }
 
         public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
         {
@@ -68,6 +71,9 @@ namespace NosCore.GameObject.Networking
                 var i = 0;
                 var monstercount = 0;
                 var npccount = 0;
+                OrderablePartitioner<ItemDTO> itemPartitioner = Partitioner.Create(DAOFactory.ItemDAO.LoadAll(), EnumerablePartitionerOptions.NoBuffering);
+                Items = DAOFactory.ItemDAO.LoadAll().Cast<Item.Item>().ToList();
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), Items.Count));
                 NpcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
                 var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(),
                     EnumerablePartitionerOptions.NoBuffering);

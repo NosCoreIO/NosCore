@@ -7,6 +7,7 @@ using NosCore.Core.Serializing;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.CommandPackets;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Tests
@@ -61,6 +62,13 @@ namespace NosCore.Tests
 
             var packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
             Assert.AreEqual("in 9 - 0 0 0 0 0 0 0", packet);
+        }
+
+        [TestMethod]
+        public void PacketEndingWithNullableMakeItOptional()
+        {
+            var packet = PacketFactory.Deserialize("$CreateItem 1012 1",typeof(CreateItemPacket));
+            Assert.IsNotNull(packet);
         }
 
         [TestMethod]

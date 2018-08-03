@@ -1,6 +1,6 @@
 ﻿namespace NosCore.Shared.Enumerations.Items
 {
-    public enum InventoryType : byte
+    public enum PocketType : byte
     {
         Equipment = 0,
         Main = 1,
@@ -12,9 +12,6 @@
         Bazaar = 9,
         Warehouse = 10,
         FamilyWareHouse = 11,
-        PetWarehouse = 12,
-        FirstPartnerInventory = 13,
-        SecondPartnerInventory = 14,
-        ThirdPartnerInventory = 15
+        PetWarehouse = 12
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
@@ -10,6 +11,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject
 {
@@ -61,13 +63,13 @@ namespace NosCore.GameObject
                     return 59;
                 }
 
-                return (byte) (_speed + bonusSpeed);
+                return (byte)(_speed + bonusSpeed);
             }
 
             set
             {
                 LastSpeedChange = DateTime.Now;
-                _speed = value > 59 ? (byte) 59 : value;
+                _speed = value > 59 ? (byte)59 : value;
             }
         }
 
@@ -79,6 +81,12 @@ namespace NosCore.GameObject
 
         public byte MorphBonus { get; set; }
 
+        public void DeleteItem(PocketType pocketType, byte slot)
+        {
+            Inventory.DeleteFromTypeAndSlot(pocketType, slot);
+            Session.SendPacket(new IvnPacket { Type = pocketType, IvnSubPackets = new List<IvnSubPacket> { new IvnSubPacket { Slot = slot } } });
+        }
+
         public bool NoAttack { get; set; }
 
         public bool NoMove { get; set; }
@@ -88,13 +96,15 @@ namespace NosCore.GameObject
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
+        public Inventory Inventory { get; set; }
+        public bool InExchangeOrTrade { get; set; }
 
         public FdPacket GenerateFd()
         {
             return new FdPacket
             {
                 Reput = Reput,
-                Dignity = (int) Dignity,
+                Dignity = (int)Dignity,
                 ReputIcon = GetReputIco(),
                 DignityIcon = Math.Abs(GetDignityIco())
             };
@@ -340,7 +350,7 @@ namespace NosCore.GameObject
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int) ((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
         }
 
         public double HPLoad()
@@ -348,7 +358,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int) ((CharacterHelper.Instance.HpData[Class, Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData[Class, Level] + hp) * multiplicator);
         }
 
         //TODO move to extension
@@ -371,7 +381,7 @@ namespace NosCore.GameObject
         {
             return new TitPacket
             {
-                ClassType = Session.GetMessageFromKey((LanguageKey) Enum.Parse(typeof(LanguageKey),
+                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
                     Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper())),
                 Name = Name
             };
@@ -388,13 +398,13 @@ namespace NosCore.GameObject
                 FamilyId = -1,
                 FamilyName = string.Empty,
                 CharacterId = CharacterId,
-                Authority = (byte) Account.Authority,
-                Gender = (byte) Gender,
-                HairStyle = (byte) HairStyle,
-                HairColor = (byte) HairColor,
+                Authority = (byte)Account.Authority,
+                Gender = (byte)Gender,
+                HairStyle = (byte)HairStyle,
+                HairColor = (byte)HairColor,
                 Class = Class,
                 Icon = 1,
-                Compliment = (short) (Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
                 Invisible = false,
                 FamilyLevel = 0,
                 MorphUpgrade = 0,
