@@ -24,7 +24,10 @@ namespace NosCore.Tests
             ServerManager.Instance.Items = new List<GameObject.Item.Item>()
             {
                 new Item(){Type = PocketType.Main, VNum = 1012,  },
-                new Item(){Type = PocketType.Main, VNum = 1013,  }
+                new Item(){Type = PocketType.Main, VNum = 1013,  },
+                new Item(){Type = PocketType.Equipment, VNum = 1, ItemType  = ItemType.Weapon },
+                new Item(){Type = PocketType.Equipment, VNum = 912, ItemType  = ItemType.Specialist },
+                new Item(){Type = PocketType.Equipment, VNum = 924, ItemType  = ItemType.Fashion }
             };
             Inventory = new Inventory
             {
@@ -146,6 +149,48 @@ namespace NosCore.Tests
             Assert.IsTrue(Inventory.Count == 1);
         }
 
+        #endregion
+
+        #region MoveInPocket
+        [TestMethod]
+        public void MoveFashionToFashionPocket()
+        {
+            var fashion = Inventory.AddItemToPocket(ItemInstance.Create(924, 0)).First();
+            var item = Inventory.MoveInPocket(fashion.Slot, fashion.Type, PocketType.Costume);
+            Assert.IsTrue(item.Type == PocketType.Costume);
+        }
+
+        [TestMethod]
+        public void MoveFashionToSpecialistPocket()
+        {
+            var fashion = Inventory.AddItemToPocket(ItemInstance.Create(924, 0)).First();
+            var item = Inventory.MoveInPocket(fashion.Slot, fashion.Type, PocketType.Specialist);
+            Assert.IsNull(item);
+        }
+
+        [TestMethod]
+        public void MoveSpecialistToFashionPocket()
+        {
+            var specialist = Inventory.AddItemToPocket(ItemInstance.Create(912, 0)).First();
+            var item = Inventory.MoveInPocket(specialist.Slot, specialist.Type, PocketType.Costume);
+            Assert.IsNull(item);
+        }
+
+        [TestMethod]
+        public void MoveSpecialistToSpecialistPocket()
+        {
+            var specialist = Inventory.AddItemToPocket(ItemInstance.Create(912, 0)).First();
+            var item = Inventory.MoveInPocket(specialist.Slot, specialist.Type, PocketType.Specialist);
+            Assert.IsTrue(item.Type == PocketType.Specialist);
+        }
+
+        [TestMethod]
+        public void MoveWeaponToPocket()
+        {
+            var weapon = Inventory.AddItemToPocket(ItemInstance.Create(1, 0)).First();
+            var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear);
+            Assert.IsTrue(item.Type == PocketType.Wear);
+        }
         #endregion
     }
 }
