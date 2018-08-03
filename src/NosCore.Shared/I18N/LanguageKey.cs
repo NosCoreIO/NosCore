@@ -100,6 +100,8 @@ namespace NosCore.Shared.I18N
         NO_ITEM,
         NOT_ENOUGH_PLACE,
         ITEM_ACQUIRED,
-        ITEMS_LOADED
+        ITEMS_LOADED,
+        ASK_TO_DELETE,
+        SURE_TO_DELETE
     }
 }
