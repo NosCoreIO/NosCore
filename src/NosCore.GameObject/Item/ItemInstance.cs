@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Item
         {
         }
 
-        public static ItemInstance Create(short itemVNum, long characterId, short amount = 1, sbyte rare = 0)
+        public static ItemInstance Create(short itemVNum, long characterId, short amount = 1, sbyte rare = 0, byte upgrade = 0, byte design = 0)
         {
             var itemToCreate = ServerManager.Instance.Items.Find(item => item.VNum == itemVNum);
             switch (itemToCreate.Type)
@@ -34,22 +34,42 @@ namespace NosCore.GameObject.Item
                     };
 
                 case PocketType.Equipment:
-                    return itemToCreate.ItemType == ItemType.Specialist ? new SpecialistInstance(itemToCreate)
+                    switch (itemToCreate.ItemType)
                     {
-                        SpLevel = 1,
-                        Amount = amount,
-                        CharacterId = characterId
-                    } : itemToCreate.ItemType == ItemType.Box ? new BoxInstance(itemToCreate)
-                    {
-                        Amount = amount,
-                        CharacterId = characterId
-                    } :
-                        new WearableInstance(itemToCreate)
-                        {
-                            Amount = amount,
-                            Rare = rare,
-                            CharacterId = characterId
-                        };
+                        case ItemType.Specialist:
+                            return new SpecialistInstance(itemToCreate)
+                            {
+                                SpLevel = 1,
+                                Amount = amount,
+                                CharacterId = characterId,
+                                Design = design,
+                                Upgrade = upgrade
+                            };
+                        case ItemType.Box:
+                            return new BoxInstance(itemToCreate)
+                            {
+                                Amount = amount,
+                                CharacterId = characterId,
+                                Upgrade = upgrade,
+                                Design = design
+                            };
+                        default:
+                            var wear = new WearableInstance(itemToCreate)
+                            {
+                                Amount = amount,
+                                Rare = rare,
+                                CharacterId = characterId,
+                                Upgrade = upgrade,
+                                Design = design
+                            };
+                            if (wear.Rare > 0)
+                            {
+                                wear.SetRarityPoint();
+                            }
+
+                            return wear;
+                    }
+
                 default:
                     return new ItemInstance(itemToCreate)
                     {

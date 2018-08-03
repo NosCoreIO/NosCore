@@ -319,7 +319,7 @@ namespace NosCore.Controllers
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
-                character.Inventory = new Inventory() { OwnerId = character.CharacterId, Configuration = _worldConfiguration };
+                character.Inventory = new Inventory() { Configuration = _worldConfiguration };
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
                     Session.Character.Hp = (int) Session.Character.HPLoad();
