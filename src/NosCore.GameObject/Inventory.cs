@@ -156,6 +156,11 @@ namespace NosCore.GameObject
             return null;
         }
 
+        public T LoadByItemInstanceId<T>(Guid id) where T : ItemInstance
+        {
+            return (T)this[id];
+        }
+
         public ItemInstance DeleteFromTypeAndSlot(PocketType type, short slot)
         {
             var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
@@ -194,84 +199,76 @@ namespace NosCore.GameObject
         //        return true;
         //    }
 
-        //    public T LoadByItemInstanceId<T>(Guid id) where T : ItemInstance
-        //    {
-        //        return (T)this[id];
-        //    }
-        
 
-        //    public ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot = null, bool wear = true)
-        //    {
-        //        var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
+        public ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot = null, bool wear = true)
+        {
+            var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
 
-        //        if (sourceInstance == null && wear)
-        //        {
-        //            Logger.Error(new InvalidOperationException("SourceInstance to move does not exist."));
-        //            return null;
-        //        }
-        //        if (sourceInstance != null)
-        //        {
-        //            if (targetSlot.HasValue)
-        //            {
-        //                if (wear)
-        //                {
-        //                    // swap
-        //                    var targetInstance = LoadBySlotAndType(targetSlot.Value, targetType);
+            if (sourceInstance == null && wear)
+            {
+                Logger.Error(new InvalidOperationException("SourceInstance to move does not exist."));
+                return null;
+            }
+            if (sourceInstance != null)
+            {
+                if (targetSlot.HasValue)
+                {
+                    if (wear)
+                    {
+                        // swap
+                        var targetInstance = LoadBySlotAndType(targetSlot.Value, targetType);
 
-        //                    sourceInstance.Slot = targetSlot.Value;
-        //                    sourceInstance.Type = targetType;
+                        sourceInstance.Slot = targetSlot.Value;
+                        sourceInstance.Type = targetType;
 
-        //                    targetInstance.Slot = sourceSlot;
-        //                    targetInstance.Type = sourceType;
-        //                }
-        //                else
-        //                {
-        //                    // move source to target
-        //                    var freeTargetSlot = GetFreeSlot(targetType, IsExpanded ? 1 : 0);
-        //                    if (!freeTargetSlot.HasValue)
-        //                    {
-        //                        return sourceInstance;
-        //                    }
-        //                    sourceInstance.Slot = freeTargetSlot.Value;
-        //                    sourceInstance.Type = targetType;
-        //                }
+                        targetInstance.Slot = sourceSlot;
+                        targetInstance.Type = sourceType;
+                    }
+                    else
+                    {
+                        // move source to target
+                        var freeTargetSlot = GetFreeSlot(targetType, IsExpanded ? 1 : 0);
+                        if (!freeTargetSlot.HasValue)
+                        {
+                            return sourceInstance;
+                        }
+                        sourceInstance.Slot = freeTargetSlot.Value;
+                        sourceInstance.Type = targetType;
+                    }
 
-        //                return sourceInstance;
-        //            }
+                    return sourceInstance;
+                }
 
-        //            // check for free target slot
-        //            short? nextFreeSlot;
-        //            switch (targetType)
-        //            {
-        //                case PocketType.FirstPartner:
-        //                case PocketType.SecondPartner:
-        //                case PocketType.ThirdPartner:
-        //                case PocketType.Wear:
-        //                    nextFreeSlot = LoadBySlotAndType((short)sourceInstance.Item.EquipmentSlot, targetType) == null
-        //                        ? (short)sourceInstance.Item.EquipmentSlot
-        //                        : (short)-1;
-        //                    break;
+                // check for free target slot
+                short? nextFreeSlot;
+                switch (targetType)
+                {
+                    case PocketType.Wear:
+                        nextFreeSlot = LoadBySlotAndType((short)sourceInstance.Item.EquipmentSlot, targetType) == null
+                            ? (short)sourceInstance.Item.EquipmentSlot
+                            : (short)-1;
+                        break;
 
-        //                default:
-        //                    nextFreeSlot = GetFreeSlot(targetType, IsExpanded ? 1 : 0);
-        //                    break;
-        //            }
-        //            if (nextFreeSlot.HasValue)
-        //            {
-        //                sourceInstance.Type = targetType;
-        //                sourceInstance.Slot = nextFreeSlot.Value;
-        //            }
-        //            else
-        //            {
-        //                return null;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //        return sourceInstance;
-        //    }
+                    default:
+                        nextFreeSlot = GetFreeSlot(targetType, IsExpanded ? 1 : 0);
+                        break;
+                }
+                if (nextFreeSlot.HasValue)
+                {
+                    sourceInstance.Type = targetType;
+                    sourceInstance.Slot = nextFreeSlot.Value;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+            return sourceInstance;
+        }
 
         //    public void MoveItem(PocketType sourcetype, PocketType desttype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
         //    {

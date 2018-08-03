@@ -1,6 +1,8 @@
 ﻿using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
@@ -20,6 +22,33 @@ namespace NosCore.Controllers
         public InventoryPacketController(WorldConfiguration worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
+        }
+
+        public void MoveEquipment(MvePacket mvePacket)
+        {
+            lock (Session.Character.Inventory)
+            {
+                if (mvePacket.Slot.Equals(mvePacket.DestinationSlot) && mvePacket.InventoryType.Equals(mvePacket.DestinationInventoryType))
+                {
+                    return;
+                }
+                if (Session.Character.InExchangeOrTrade)
+                {
+                    return;
+                }
+                var sourceItem = Session.Character.Inventory.LoadBySlotAndType(mvePacket.Slot, mvePacket.InventoryType);
+                if ((sourceItem == null || sourceItem.Item.ItemType != ItemType.Specialist) && (sourceItem == null || sourceItem.Item.ItemType != ItemType.Fashion))
+                {
+                    return;
+                }
+                var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType, mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
+                if (inv == null)
+                {
+                    return;
+                }
+                Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+                Session.SendPacket(((ItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            }
         }
 
         public void AskToDelete(BIPacket bIPacket)
