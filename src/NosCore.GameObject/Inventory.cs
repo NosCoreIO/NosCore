@@ -140,36 +140,34 @@ namespace NosCore.GameObject
             return (short?)nextFreeSlot < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
         }
 
-        //    public Tuple<short, PocketType> DeleteById(Guid id)
-        //    {
-        //        var inv = this[id];
+        public ItemInstance DeleteById(Guid id)
+        {
+            var inv = this[id];
 
-        //        if (inv != null)
-        //        {
-        //            var removedPlace = new Tuple<short, PocketType>(inv.Slot, inv.Type);
-        //            if (TryRemove(inv.Id, out var value))
-        //            {
-        //                return removedPlace;
-        //            }
-        //        }
+            if (inv != null)
+            {
+                if (TryRemove(inv.Id, out var value))
+                {
+                    return value;
+                }
+            }
 
-        //        Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
-        //        return null;
-        //    }
+            Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
+            return null;
+        }
 
-        //    public void DeleteFromSlotAndType(short slot, PocketType type)
-        //    {
-        //        var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
+        public ItemInstance DeleteFromTypeAndSlot(PocketType type, short slot)
+        {
+            var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
 
-        //        if (inv != null)
-        //        {
-        //            TryRemove(inv.Id, out var value);
-        //        }
-        //        else
-        //        {
-        //            Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
-        //        }
-        //    }
+            if (inv != null)
+            {
+                TryRemove(inv.Id, out var value);
+                return value;
+            }
+            Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
+            return null;
+        }
 
         //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
         //    {
@@ -200,31 +198,7 @@ namespace NosCore.GameObject
         //    {
         //        return (T)this[id];
         //    }
-
-        //public ItemInstance LoadBySlotAndType(short slot, PocketType type)
-        //{
-        //    ItemInstance retItem = null;
-        //    try
-        //    {
-        //        retItem = this.Select(s => s.Value).SingleOrDefault(i => i != null && i.Slot.Equals(slot) && i.Type.Equals(type));
-        //    }
-        //    catch (InvalidOperationException ioEx)
-        //    {
-        //        Logger.Error(ioEx);
-        //        var isFirstItem = true;
-        //        foreach (var item in this.Select(s => s.Value).Where(i => i != null && i.Slot.Equals(slot) && i.Type.Equals(type)))
-        //        {
-        //            if (isFirstItem)
-        //            {
-        //                retItem = item;
-        //                isFirstItem = false;
-        //                continue;
-        //            }
-        //            TryRemove(this.Select(s => s.Value).First(i => i != null && i.Slot.Equals(slot) && i.Type.Equals(type)).Id, out var value);
-        //        }
-        //    }
-        //    return retItem;
-        //}
+        
 
         //    public ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot = null, bool wear = true)
         //    {

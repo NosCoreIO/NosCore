@@ -13,7 +13,7 @@ namespace NosCore.Packets.CommandPackets
         public short VNum { get; set; }
 
         [PacketIndex(1)]
-        public byte? Design { get; set; }
+        public short? DesignOrAmount { get; set; }
 
         [PacketIndex(2)]
         public byte? Upgrade { get; set; }

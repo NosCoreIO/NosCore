@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -32,7 +33,7 @@ namespace NosCore.Tests
         }
 
         #region AddItemToPocket
-        //TODO change all tests to use AddItemToPocket
+
         [TestMethod]
         public void CreateItem()
         {
@@ -119,6 +120,32 @@ namespace NosCore.Tests
             var item = Inventory.LoadBySlotAndType<ItemInstance>(1, PocketType.Main);
             Assert.IsNull(item);
         }
+        #endregion
+
+        #region Delete
+
+        [TestMethod]
+        public void DeleteFromTypeAndSlot()
+        {
+            Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 990));
+            Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 990));
+            Assert.IsTrue(Inventory.Count == 2);
+            var item = Inventory.DeleteFromTypeAndSlot(PocketType.Main, 0);
+            Assert.IsNotNull(item);
+            Assert.IsTrue(Inventory.Count == 1);
+        }
+
+        [TestMethod]
+        public void Delete()
+        {
+            Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 990));
+            var items = Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 990));
+            Assert.IsTrue(Inventory.Count == 2);
+            var item = Inventory.DeleteById(items.First().Id);
+            Assert.IsNotNull(item);
+            Assert.IsTrue(Inventory.Count == 1);
+        }
+
         #endregion
     }
 }

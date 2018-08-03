@@ -87,9 +87,9 @@ namespace NosCore.Controllers
                 {
                     if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
                     {
-                        if (createItemPacket.Design.HasValue)
+                        if (createItemPacket.DesignOrAmount.HasValue)
                         {
-                            design = createItemPacket.Design.Value;
+                            design = (byte)createItemPacket.DesignOrAmount.Value;
                         }
                         rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect ? (sbyte)createItemPacket.Upgrade.Value : rare;
                     }
@@ -110,24 +110,24 @@ namespace NosCore.Controllers
                                 upgrade = iteminfo.BasicUpgrade;
                             }
                         }
-                        if (createItemPacket.Design.HasValue)
+                        if (createItemPacket.DesignOrAmount.HasValue)
                         {
                             if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                             {
-                                upgrade = createItemPacket.Design.Value;
+                                upgrade = (byte)createItemPacket.DesignOrAmount.Value;
                             }
                             else
                             {
-                                rare = (sbyte)createItemPacket.Design.Value;
+                                rare = (sbyte)createItemPacket.DesignOrAmount.Value;
                             }
                         }
                     }
-                    if (createItemPacket.Design.HasValue && !createItemPacket.Upgrade.HasValue)
+                    if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
                     {
-                        amount = createItemPacket.Design.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.Design.Value;
+                        amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
                     
-                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum,Session.Character.CharacterId, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum,Session.Character.CharacterId, amount:amount, rare: rare, upgrade: upgrade, design: design));
                  
                     if (inv.Count > 0)
                     {
