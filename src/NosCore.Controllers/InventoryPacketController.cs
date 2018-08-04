@@ -25,6 +25,7 @@ namespace NosCore.Controllers
             _worldConfiguration = worldConfiguration;
         }
 
+        [UsedImplicitly]
         public void MoveEquipment(MvePacket mvePacket)
         {
             if (Session.Character.InExchangeOrTrade)
@@ -33,14 +34,26 @@ namespace NosCore.Controllers
             }
 
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType, mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            if (inv == null)
-            {
-                return;
-            }
-            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+            Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
             Session.SendPacket(((ItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
+        [UsedImplicitly]
+        public void MoveItem(MviPacket mviPacket)
+        {
+            // check if the character is allowed to move the item
+            if (Session.Character.InExchangeOrTrade)
+            {
+                return;
+            }
+
+            // actually move the item from source to destination
+            Session.Character.Inventory.MoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount, mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
+            Session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
+            Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
+        }
+
+        [UsedImplicitly]
         public void AskToDelete(BIPacket bIPacket)
         {
             switch (bIPacket.Option)
@@ -68,7 +81,7 @@ namespace NosCore.Controllers
                     break;
 
                 case RequestDeletionType.Confirmed:
-                    if (Session.Character.InExchangeOrTrade || bIPacket.PocketType == PocketType.Bazaar)
+                    if (Session.Character.InExchangeOrTrade)
                     {
                         return;
                     }

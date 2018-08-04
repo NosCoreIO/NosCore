@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
-using NosCore.Core.Serializing;
-using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
-using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
@@ -149,6 +145,46 @@ namespace NosCore.Tests
             Assert.IsTrue(Inventory.Count == 1);
         }
 
+        #endregion
+
+        #region Move
+        [TestMethod]
+        public void MoveFullSlot()
+        {
+            var item = Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 999)).First();
+            Inventory.MoveItem(item.Type, item.Slot, 999, 1, out var originItem, out var destinationItem);
+            Assert.IsTrue(originItem == null);
+            Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
+        }
+
+        [TestMethod]
+        public void MoveHalfSlot()
+        {
+            var item = Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 999)).First();
+            Inventory.MoveItem(item.Type, item.Slot, 499, 1, out var originItem, out var destinationItem);
+            Assert.IsTrue(originItem?.Amount == 500 && originItem.Slot == 0);
+            Assert.IsTrue(destinationItem?.Amount == 499 && destinationItem.Slot == 1);
+        }
+
+        [TestMethod]
+        public void MoveHalfSlotAndMergeThem()
+        {
+            var item = Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 999)).First();
+            Inventory.MoveItem(item.Type, item.Slot, 499, 1, out _, out _);
+            Inventory.MoveItem(item.Type, 0, 500, 1, out var originItem, out var destinationItem);
+            Assert.IsTrue(originItem == null);
+            Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
+        }
+
+        [TestMethod]
+        public void MoveHalfSlotAndMergeThemWithOverflow()
+        {
+            var item = Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 999)).First();
+            Inventory.AddItemToPocket(ItemInstance.Create(1012, 0, 500)).First();
+            Inventory.MoveItem(item.Type, item.Slot, 600, 1, out var originItem, out var destinationItem);
+            Assert.IsTrue(originItem?.Amount == 500 && originItem.Slot == 0);
+            Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
+        }
         #endregion
 
         #region MoveInPocket
