@@ -276,75 +276,80 @@ namespace NosCore.GameObject
         //        return true;
         //    }
 
-        //    public void MoveItem(PocketType sourcetype, PocketType desttype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
-        //    {
-        //        // load source and destination slots
-        //        sourcePocket = LoadBySlotAndType(sourceSlot, sourcetype);
-        //        destinationPocket = LoadBySlotAndType(destinationSlot, desttype);
-        //        if (sourcePocket != null && amount <= sourcePocket.Amount)
-        //        {
-        //            switch (destinationPocket)
-        //            {
-        //                case null when sourcePocket.Amount == amount:
-        //                    sourcePocket.Slot = destinationSlot;
-        //                    sourcePocket.Type = desttype;
-        //                    break;
-        //                case null:
-        //                    ItemInstance itemDest = sourcePocket.Clone();
-        //                    sourcePocket.Amount -= amount;
-        //                    itemDest.Amount = amount;
-        //                    itemDest.Type = desttype;
-        //                    itemDest.Id = Guid.NewGuid();
-        //                    AddToPocketWithSlotAndType(itemDest, desttype, destinationSlot);
-        //                    break;
-        //                default:
-        //                    if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (byte)sourcePocket.Item.Type != 0)
-        //                    {
-        //                        if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
-        //                        {
-        //                            var saveItemCount = destinationPocket.Amount;
-        //                            destinationPocket.Amount = Configuration.MaxItemAmount;
-        //                            sourcePocket.Amount = (short)(saveItemCount + sourcePocket.Amount - Configuration.MaxItemAmount);
-        //                        }
-        //                        else
-        //                        {
-        //                            destinationPocket.Amount += amount;
-        //                            sourcePocket.Amount -= amount;
+        public void MoveItem(PocketType sourcetype, PocketType desttype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
+        {
+            // load source and destination slots
+            sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
+            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, desttype);
 
-        //                            // item with amount of 0 should be removed
-        //                            if (sourcePocket.Amount == 0)
-        //                            {
-        //                                DeleteFromSlotAndType(sourcePocket.Slot, sourcePocket.Type);
-        //                            }
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        // add and remove save pocket
-        //                        destinationPocket = TakeItem(destinationPocket.Slot, destinationPocket.Type);
-        //                        if (destinationPocket == null)
-        //                        {
-        //                            return;
-        //                        }
-        //                        destinationPocket.Slot = sourceSlot;
-        //                        destinationPocket.Type = sourcetype;
-        //                        sourcePocket = TakeItem(sourcePocket.Slot, sourcePocket.Type);
-        //                        if (sourcePocket == null)
-        //                        {
-        //                            return;
-        //                        }
-        //                        sourcePocket.Slot = destinationSlot;
-        //                        sourcePocket.Type = desttype;
-        //                        this[destinationPocket.Id] = destinationPocket;
-        //                        this[sourcePocket.Id] = sourcePocket;
-        //                    }
+            if (sourceSlot == destinationSlot || amount == 0 || destinationSlot > Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
+            {
+                return;
+            }
+            if (sourcePocket != null && amount <= sourcePocket.Amount)
+            {
+                switch (destinationPocket)
+                {
+                    case null when sourcePocket.Amount == amount:
+                        sourcePocket.Slot = destinationSlot;
+                        sourcePocket.Type = desttype;
+                        break;
+                    case null:
+                        ItemInstance itemDest = sourcePocket.Clone();
+                        sourcePocket.Amount -= amount;
+                        itemDest.Amount = amount;
+                        itemDest.Type = desttype;
+                        itemDest.Id = Guid.NewGuid();
+                        AddItemToPocket(itemDest, desttype, destinationSlot);
+                        break;
+                    default:
+                        if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (byte)sourcePocket.Item.Type != 0)
+                        {
+                            if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
+                            {
+                                var saveItemCount = destinationPocket.Amount;
+                                destinationPocket.Amount = Configuration.MaxItemAmount;
+                                sourcePocket.Amount = (short)(saveItemCount + sourcePocket.Amount - Configuration.MaxItemAmount);
+                            }
+                            else
+                            {
+                                destinationPocket.Amount += amount;
+                                sourcePocket.Amount -= amount;
 
-        //                    break;
-        //            }
-        //        }
-        //        sourcePocket = LoadBySlotAndType(sourceSlot, sourcetype);
-        //        destinationPocket = LoadBySlotAndType(destinationSlot, desttype);
-        //    }
+                                // item with amount of 0 should be removed
+                                if (sourcePocket.Amount == 0)
+                                {
+                                    DeleteFromTypeAndSlot(sourcePocket.Type, sourcePocket.Slot);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // add and remove save pocket
+                            destinationPocket = TakeItem(destinationPocket.Slot, destinationPocket.Type);
+                            if (destinationPocket == null)
+                            {
+                                return;
+                            }
+                            destinationPocket.Slot = sourceSlot;
+                            destinationPocket.Type = sourcetype;
+                            sourcePocket = TakeItem(sourcePocket.Slot, sourcePocket.Type);
+                            if (sourcePocket == null)
+                            {
+                                return;
+                            }
+                            sourcePocket.Slot = destinationSlot;
+                            sourcePocket.Type = desttype;
+                            this[destinationPocket.Id] = destinationPocket;
+                            this[sourcePocket.Id] = sourcePocket;
+                        }
+
+                        break;
+                }
+            }
+            sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
+            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, desttype);
+        }
 
         //    public IEnumerable<ItemInstance> RemoveItemAmount(int vnum, int amount = 1)
         //    {
@@ -433,15 +438,15 @@ namespace NosCore.GameObject
         //}
 
 
-        //    private ItemInstance TakeItem(short slot, PocketType type)
-        //    {
-        //        var itemInstance = this.Select(s => s.Value).SingleOrDefault(i => i.Slot == slot && i.Type == type);
-        //        if (itemInstance == null)
-        //        {
-        //            return null;
-        //        }
-        //        TryRemove(itemInstance.Id, out _);
-        //        return itemInstance;
-        //    }
+        private ItemInstance TakeItem(short slot, PocketType type)
+        {
+            var itemInstance = this.Select(s => s.Value).SingleOrDefault(i => i.Slot == slot && i.Type == type);
+            if (itemInstance == null)
+            {
+                return null;
+            }
+            TryRemove(itemInstance.Id, out _);
+            return itemInstance;
+        }
     }
 }
