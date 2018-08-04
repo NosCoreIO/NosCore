@@ -285,4 +285,127 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>No se ha podido encontrar la implementación del controlador para el paquete con Cabezera: {0}</value>
   </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Maestro del Juego</value>
+  </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Aventurero</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>¡Este nombre ya ha sido tomado!</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Arquero</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>¿Quieres borrar?</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>¡Contraseña incorrecta!</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Canal</value>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>El personaje está Off</value>
+  </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} I18N ActDescs Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} I18N BCards Parsed! Región: {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} Tarjetas I18N analizadas Región: {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} ¡Artículos I18N analizados! Región: {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapIdDatas Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MapPointDatas Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsters Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NpcMonsterTalk Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} I18N Quests Parsed! Region: {1}</value>
+  </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skills Parsed! Region: {1}</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Caracteres no válidos en tu apodo</value>
+  </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>{0} ¡Artículos cargados!</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>Adquirido</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Mago</value>
+  </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>{0} MapNpcs cargado!</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0} Map Parsed!</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} Tipos de mapas ¡Parsed!</value>
+  </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} Mapa de Monstruos Parsed!</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>No hay suficiente espacio.</value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>¡El artículo no existe!</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} MonsterNpc Parsed!</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} MapNpcs Parsed!</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>¿Quieres analizar Drops?</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>¿Quieres importar i18n?</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0} los portales se han analizado con éxito!</value>
+  </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} ¡Reaparecieron los tipos analizados!</value>
+  </data>
+  <data name="SAVING_ALL" xml:space="preserve">
+    <value>Guardando todos los datos!</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Mensaje enviado a {0}</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Habilidades analizadas!</value>
+  </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Soporte {0}</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>¿Seguro que quieres eliminar este artículo?</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Espadachín</value>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Luchador</value>
+  </data>
 </root>
