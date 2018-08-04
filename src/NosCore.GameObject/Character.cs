@@ -20,6 +20,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Data;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject
 {
