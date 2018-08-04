@@ -165,7 +165,7 @@ namespace NosCore.GameObject
         {
             var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
 
-            if (inv != null)
+            if (inv != null && type != PocketType.Bazaar)
             {
                 TryRemove(inv.Id, out var value);
                 return value;
@@ -251,36 +251,11 @@ namespace NosCore.GameObject
             return sourceInstance;
         }
 
-        //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
-        //    {
-        //        var place = new Dictionary<PocketType, int>();
-        //        foreach (var itemgroup in itemInstances.GroupBy(s => s.ItemVNum))
-        //        {
-        //            var type = itemgroup.First().Type;
-        //            var listitem = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
-        //            if (!place.ContainsKey(type))
-        //            {
-        //                place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + backPack * 12 : 50) - listitem.Count);
-        //            }
-
-        //            var amount = itemgroup.Sum(s => s.Amount);
-        //            var rest = amount % (type == PocketType.Equipment ? 1 : 99);
-        //            var needanotherslot = listitem.Where(s => s.ItemVNum == itemgroup.Key).Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
-        //            place[type] -= (amount / (type == PocketType.Equipment ? 1 : 99)) + (needanotherslot ? 1 : 0);
-
-        //            if (place[type] < 0)
-        //            {
-        //                return false;
-        //            }
-        //        }
-        //        return true;
-        //    }
-
-        public void MoveItem(PocketType sourcetype, PocketType desttype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
+        public void MoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
         {
             // load source and destination slots
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
-            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, desttype);
+            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
 
             if (sourceSlot == destinationSlot || amount == 0 || destinationSlot > Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
             {
@@ -292,18 +267,16 @@ namespace NosCore.GameObject
                 {
                     case null when sourcePocket.Amount == amount:
                         sourcePocket.Slot = destinationSlot;
-                        sourcePocket.Type = desttype;
                         break;
                     case null:
                         ItemInstance itemDest = sourcePocket.Clone();
                         sourcePocket.Amount -= amount;
                         itemDest.Amount = amount;
-                        itemDest.Type = desttype;
                         itemDest.Id = Guid.NewGuid();
-                        AddItemToPocket(itemDest, desttype, destinationSlot);
+                        AddItemToPocket(itemDest, sourcetype, destinationSlot);
                         break;
                     default:
-                        if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (byte)sourcePocket.Item.Type != 0)
+                        if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (sourcePocket.Item.Type == PocketType.Main || sourcePocket.Item.Type == PocketType.Etc))
                         {
                             if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
                             {
@@ -339,7 +312,6 @@ namespace NosCore.GameObject
                                 return;
                             }
                             sourcePocket.Slot = destinationSlot;
-                            sourcePocket.Type = desttype;
                             this[destinationPocket.Id] = destinationPocket;
                             this[sourcePocket.Id] = sourcePocket;
                         }
@@ -348,8 +320,33 @@ namespace NosCore.GameObject
                 }
             }
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
-            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, desttype);
+            destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
         }
+
+        //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
+        //    {
+        //        var place = new Dictionary<PocketType, int>();
+        //        foreach (var itemgroup in itemInstances.GroupBy(s => s.ItemVNum))
+        //        {
+        //            var type = itemgroup.First().Type;
+        //            var listitem = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
+        //            if (!place.ContainsKey(type))
+        //            {
+        //                place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + backPack * 12 : 50) - listitem.Count);
+        //            }
+
+        //            var amount = itemgroup.Sum(s => s.Amount);
+        //            var rest = amount % (type == PocketType.Equipment ? 1 : 99);
+        //            var needanotherslot = listitem.Where(s => s.ItemVNum == itemgroup.Key).Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
+        //            place[type] -= (amount / (type == PocketType.Equipment ? 1 : 99)) + (needanotherslot ? 1 : 0);
+
+        //            if (place[type] < 0)
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        return true;
+        //    }
 
         //    public IEnumerable<ItemInstance> RemoveItemAmount(int vnum, int amount = 1)
         //    {
