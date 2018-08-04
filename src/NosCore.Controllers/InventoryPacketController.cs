@@ -25,6 +25,7 @@ namespace NosCore.Controllers
             _worldConfiguration = worldConfiguration;
         }
 
+        [UsedImplicitly]
         public void MoveEquipment(MvePacket mvePacket)
         {
             if (Session.Character.InExchangeOrTrade)
@@ -41,6 +42,22 @@ namespace NosCore.Controllers
             Session.SendPacket(((ItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
+        [UsedImplicitly]
+        public void MoveItem(MviPacket mviPacket)
+        {
+            // check if the character is allowed to move the item
+            if (Session.Character.InExchangeOrTrade)
+            {
+                return;
+            }
+
+            // actually move the item from source to destination
+            Session.Character.Inventory.MoveItem(mviPacket.InventoryType, mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount, mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
+            Session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
+            Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
+        }
+
+        [UsedImplicitly]
         public void AskToDelete(BIPacket bIPacket)
         {
             switch (bIPacket.Option)

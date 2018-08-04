@@ -11,6 +11,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -65,7 +66,7 @@ namespace NosCore.Controllers
                 Packet = PacketFactory.Serialize(msgPacket)
             };
 
-            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]
@@ -82,7 +83,7 @@ namespace NosCore.Controllers
                 {
                     return; // cannot create gold as item, use $Gold instead
                 }
-                var iteminfo = ServerManager.Instance.Items.Find(item=>item.VNum == vnum);
+                var iteminfo = ServerManager.Instance.Items.Find(item => item.VNum == vnum);
                 if (iteminfo != null)
                 {
                     if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
@@ -126,9 +127,9 @@ namespace NosCore.Controllers
                     {
                         amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
-                    
-                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum,Session.Character.CharacterId, amount:amount, rare: rare, upgrade: upgrade, design: design));
-                 
+
+                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+
                     if (inv.Count > 0)
                     {
                         Session.SendPacket(inv.GeneratePocketChange());
@@ -158,7 +159,7 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Session.SendPacket(new MsgPacket() {Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, Session.Account.Language), Type = 0});
+                        Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, Session.Account.Language), Type = 0 });
                     }
                 }
                 else
@@ -177,7 +178,7 @@ namespace NosCore.Controllers
         {
             if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
             {
-                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
+                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
                 Session.SendPacket(Session.Character.GenerateCond());
             }
             else
