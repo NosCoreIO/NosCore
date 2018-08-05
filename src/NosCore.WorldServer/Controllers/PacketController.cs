@@ -31,7 +31,7 @@ namespace NosCore.WorldServer.Controllers
                     break;
                 case ReceiverType.OnlySomeone:
                     var receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                        s.Character.Name == postedPacket.ReceiverCharacter.Name);
+                        s.Character?.Name == postedPacket.ReceiverCharacter.Name);
 
                     if (receiverSession == null)
                     {

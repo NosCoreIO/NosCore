@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Core.Serializing;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -26,16 +20,18 @@ namespace NosCore.WorldServer.Controllers
             }
 
             var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.CharacterRelations.Any(r => r.Key == id) == true);
-
+     
             if (session == null)
             {
                 return Ok();
             }
 
-            session.Character.CharacterRelations.TryRemove(id, out _);
+            session.Character.CharacterRelations.TryRemove(id, out var relation);
+            session.Character.CharacterRelations.TryRemove(session.Character.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId).CharacterRelationId, out _);
+        
             session.SendPacket(session.Character.GenerateFinit());
 
-            return Ok();
+            return Ok(relation);
         }
     }
 }

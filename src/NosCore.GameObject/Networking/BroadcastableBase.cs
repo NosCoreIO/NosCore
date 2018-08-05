@@ -24,29 +24,12 @@ namespace NosCore.GameObject.Networking
         public void RegisterSession(ClientSession clientSession)
         {
             Sessions.TryAdd(clientSession.SessionId, clientSession);
-            if (clientSession.HasCurrentMapInstance && clientSession.Character != null)
-            {
-                clientSession.Character.MapInstance.IsSleeping = false;
-                foreach (var characterCharacterRelation in clientSession.Character.CharacterRelations)
-                {
-                    // TODO Send Online Finfo
-                }
-            }
         }
 
         public void UnregisterSession(ClientSession clientSession)
         {
             Sessions.TryRemove(clientSession.SessionId, out _);
-
-            if (clientSession.HasCurrentMapInstance && Sessions.Count == 0 && clientSession.Character != null)
-            {
-                clientSession.Character.MapInstance.IsSleeping = true;
-                foreach (var characterCharacterRelation in clientSession.Character.CharacterRelations)
-                {
-                    // TODO Send Offline Finfo
-                }
-            }
-
+            
             if (clientSession.Character != null)
             {
                 if (clientSession.Character.Hp < 1)
@@ -54,9 +37,9 @@ namespace NosCore.GameObject.Networking
                     clientSession.Character.Hp = 1;
                 }
 
-                clientSession.Character.Save();
+                clientSession.Character.SendRelationStatus(false);
 
-                Sessions.TryRemove(clientSession.Character.CharacterId, out _);
+                clientSession.Character.Save();
             }
             LastUnregister = DateTime.Now;
         }
