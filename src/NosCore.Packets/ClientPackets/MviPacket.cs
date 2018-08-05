@@ -14,7 +14,7 @@ namespace NosCore.Packets.ClientPackets
         public short Slot { get; set; }
 
         [PacketIndex(2)]
-        public byte Amount { get; set; }
+        public short Amount { get; set; }
 
         [PacketIndex(3)]
         public byte DestinationSlot { get; set; }

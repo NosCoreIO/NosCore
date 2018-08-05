@@ -74,7 +74,7 @@ namespace NosCore.Controllers
         {
             if (createItemPacket != null)
             {
-                short vnum = createItemPacket.VNum;
+                var vnum = createItemPacket.VNum;
                 sbyte rare = 0;
                 short boxEffect = 999;
                 byte upgrade = 0, design = 0;
@@ -134,7 +134,7 @@ namespace NosCore.Controllers
                     {
                         Session.SendPacket(inv.GeneratePocketChange());
                         var firstItem = inv.First();
-                        WearableInstance wearable = Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot, firstItem.Type);
+                        var wearable = Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot, firstItem.Type);
                         if (wearable != null)
                         {
                             switch (wearable.Item.EquipmentSlot)

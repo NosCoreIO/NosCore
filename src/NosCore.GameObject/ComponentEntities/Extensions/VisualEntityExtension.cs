@@ -5,6 +5,27 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
+        public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
+        {
+            return new ServerGetPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                ItemId = itemId,
+            };
+        }
+
+        public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)
+        {
+            return new IconPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                IconParameter = iconParameter,
+                IconType = iconType
+            };
+        }
+
         public static OutPacket GenerateOut(this ICharacterEntity visualEntity)
         {
             return new OutPacket
