@@ -332,13 +332,22 @@ namespace NosCore.Controllers
                     Session.Character.Mp = (int) Session.Character.MPLoad();
                 }
 
-                IEnumerable<CharacterRelationDTO> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId);
-                List<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+                IEnumerable<CharacterRelation> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
+                IEnumerable<CharacterRelation> relationsWithCharacter = DAOFactory.CharacterRelationDAO.Where(s => s.RelatedCharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
 
-                foreach (CharacterRelationDTO relation in relations)
+                List<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+                List<CharacterDTO> relatedCharacters = DAOFactory.CharacterDAO.Where(s => relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+
+                foreach (CharacterRelation relation in relations)
                 {
                     relation.CharacterName = characters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
+                }
+
+                foreach (CharacterRelation relation in relationsWithCharacter)
+                {
+                    relation.CharacterName = relatedCharacters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;
                 }
 
                 Session.SendPacket(new OkPacket());

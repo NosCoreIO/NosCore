@@ -9,7 +9,7 @@ namespace NosCore.Packets.ServerPackets
     public class FinfoPacket : PacketDefinition
     {
         [PacketIndex(0, SpecialSeparator = ".")]
-        public long RelatedCharacterId { get; set; }
+        public long CharacterId { get; set; }
 
         [PacketIndex(1, SpecialSeparator = ".")]
         public bool IsConnected { get; set; }

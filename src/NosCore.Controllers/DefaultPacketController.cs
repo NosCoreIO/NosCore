@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Character;
@@ -138,6 +139,8 @@ namespace NosCore.Controllers
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
+          
+            Session.Character.SendRelationStatus(true);
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
