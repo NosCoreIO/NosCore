@@ -22,6 +22,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Data;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Core.Serializing;
 
 namespace NosCore.GameObject
 {
@@ -194,6 +195,17 @@ namespace NosCore.GameObject
             //    }
             //}
             return 0;
+        }
+ 	
+ 	public PacketDefinition GenerateSpPoint()
+        {
+            return new SpPacket()
+            {
+                AdditionalPoint = SpAdditionPoint,
+                MaxAdditionalPoint = 1000000,
+                SpPoint = SpPoint,
+                MaxSpPoint = 10000
+            };
         }
 
         public void SendRelationStatus(bool status)
@@ -538,6 +550,11 @@ namespace NosCore.GameObject
             {
                 Logger.Log.Error("Save Character failed. SessionId: " + Session.SessionId, e);
             }
+        }
+
+        public GoldPacket GenerateGold()
+        {
+            return new GoldPacket() { Gold = Gold };
         }
 
         public void LoadSpeed()

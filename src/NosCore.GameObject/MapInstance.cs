@@ -89,7 +89,7 @@ namespace NosCore.GameObject
 
             short mapX = 0;
             short mapY = 0;
-            bool niceSpot = false;
+            var niceSpot = false;
             foreach (MapCell possibility in possibilities.OrderBy(s => ServerManager.Instance.RandomNumber()))
             {
                 mapX = (short)(session.Character.PositionX + possibility.X);
@@ -110,7 +110,7 @@ namespace NosCore.GameObject
             {
                 return null;
             }
-            ItemInstance newItemInstance = inv.Clone();
+            var newItemInstance = inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = new MapItem{MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX,PositionY = mapY, Amount = amount};
@@ -127,7 +127,7 @@ namespace NosCore.GameObject
 
         internal void LoadMonsters()
         {
-            OrderablePartitioner<MapMonsterDTO> partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, monster =>
             {
                 if (!(monster is MapMonster mapMonster))
@@ -143,7 +143,7 @@ namespace NosCore.GameObject
 
         internal void LoadNpcs()
         {
-            OrderablePartitioner<MapNpcDTO> partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, npc =>
             {
                 if (!(npc is MapNpc mapNpc))
@@ -219,15 +219,17 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            _life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(x =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
                {
                    try
                    {
-                       if (!IsSleeping)
+                       if (IsSleeping)
                        {
-                           Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
-                           Parallel.ForEach(Npcs.Where(s=>s.Life == null), npc => npc.StartLife());
+                           return;
                        }
+
+                       Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
+                       Parallel.ForEach(Npcs.Where(s=>s.Life == null), npc => npc.StartLife());
                    }
                    catch (Exception e)
                    {
@@ -237,6 +239,6 @@ namespace NosCore.GameObject
         }
 
 
-        private IDisposable _life { get; set; }
+        private IDisposable Life { get; set; }
     }
 }

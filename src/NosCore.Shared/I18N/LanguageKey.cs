@@ -105,10 +105,13 @@ namespace NosCore.Shared.I18N
         ITEM_NOT_DROPPABLE_HERE,
         DROP_MAP_FULL,
         BAD_DROP_AMOUNT,
-        ITEM_NOT_DROPPABLE
+        ITEM_NOT_DROPPABLE,
         FRIENDLIST_FULL,
         ALREADY_FRIEND,
         FRIEND_REQUEST_BLOCKED,
+        MAX_GOLD,
+        ITEM_ACQUIRED_LOD,
+        SP_POINTSADDED
         FRIEND_ADD,
         FRIEND_ADDED,
         FRIEND_REJECTED,
