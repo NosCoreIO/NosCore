@@ -109,13 +109,6 @@ namespace NosCore.GameObject
         public byte MorphDesign { get; set; }
 
         public byte MorphBonus { get; set; }
-
-        public void DeleteItem(PocketType pocketType, byte slot)
-        {
-            Inventory.DeleteFromTypeAndSlot(pocketType, slot);
-            Session.SendPacket(new IvnPacket { Type = pocketType, IvnSubPackets = new List<IvnSubPacket> { new IvnSubPacket { Slot = slot } } });
-        }
-
         public bool NoAttack { get; set; }
 
         public bool NoMove { get; set; }
