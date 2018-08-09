@@ -11,6 +11,7 @@ using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
@@ -32,6 +33,16 @@ namespace NosCore.Controllers
         {
             try
             {
+                if (loginPacket.LoginGuid == null || loginPacket.ClientData == null)
+                {
+                    Session.SendPacket(new FailcPacket
+                    {
+                        Type = LoginFailType.OldClient
+                    });
+                    Session.Disconnect();
+                    return;
+                }
+
                 if (false) //TODO Maintenance
                 {
                     Session.SendPacket(new FailcPacket
