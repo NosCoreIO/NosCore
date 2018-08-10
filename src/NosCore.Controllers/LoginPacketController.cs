@@ -11,7 +11,6 @@ using NosCore.GameObject;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
 {
