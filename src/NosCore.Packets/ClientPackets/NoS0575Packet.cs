@@ -20,7 +20,7 @@ namespace NosCore.Packets.ClientPackets
         public string Password { get; set; }
 
         [PacketIndex(3)]
-        public string LoginGuid { get; set; }
+        public Guid? ClientId { get; set; }
 
         [PacketIndex(4)]
         public string ClientData { get; set; }
