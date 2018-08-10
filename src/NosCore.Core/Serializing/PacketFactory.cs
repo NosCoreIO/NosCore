@@ -321,7 +321,7 @@ namespace NosCore.Core.Serializing
                 }
             });
             // check for empty value and cast it to null
-            if (currentValue == "-1" || currentValue == "-")
+            if (currentValue == "-1" || currentValue == "-" || currentValue == "NONE")
             {
                 currentValue = null;
             }
