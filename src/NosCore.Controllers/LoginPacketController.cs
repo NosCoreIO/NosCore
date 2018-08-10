@@ -33,16 +33,6 @@ namespace NosCore.Controllers
         {
             try
             {
-                if (loginPacket.ClientData == null)
-                {
-                    Session.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.OldClient
-                    });
-                    Session.Disconnect();
-                    return;
-                }
-
                 if (false) //TODO Maintenance
                 {
                     Session.SendPacket(new FailcPacket
