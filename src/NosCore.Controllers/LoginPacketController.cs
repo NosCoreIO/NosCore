@@ -33,7 +33,7 @@ namespace NosCore.Controllers
         {
             try
             {
-                if (loginPacket.LoginGuid == null || loginPacket.ClientData == null)
+                if (loginPacket.ClientData == null)
                 {
                     Session.SendPacket(new FailcPacket
                     {
