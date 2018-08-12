@@ -90,7 +90,8 @@ namespace NosCore.DAL
                 }
                 else
                 {
-                    var entityfound = dbset.Find(dtokey);
+                    var value = _primaryKey.GetValue(dtokey, null);
+                    var entityfound = dbset.Find(value);
 
                     if (entityfound != null)
                     {

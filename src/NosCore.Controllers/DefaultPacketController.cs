@@ -543,7 +543,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            ClientSession targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == finsPacket.CharacterId);
+            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == finsPacket.CharacterId);
 
             if (targetSession == null)
             {
@@ -575,9 +575,13 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED, Session.Account.Language)
                     });
 
-                    Session.Character.AddRelation(targetSession.Character.CharacterId, CharacterRelationType.Friend);
-                    targetSession.Character.AddRelation(Session.Character.CharacterId, CharacterRelationType.Friend);
-                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out long _);
+                    var relation = Session.Character.AddRelation(targetSession.Character.CharacterId, CharacterRelationType.Friend);
+                    var targetRelation = targetSession.Character.AddRelation(Session.Character.CharacterId, CharacterRelationType.Friend);
+
+                    Session.Character.RelationWithCharacter.TryAdd(targetRelation.CharacterRelationId, targetRelation);
+                    targetSession.Character.RelationWithCharacter.TryAdd(relation.CharacterRelationId, relation);
+
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                     break;
                 case FinsPacketType.Rejected:
                     targetSession.SendPacket(new InfoPacket
@@ -585,7 +589,7 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED, Session.Account.Language)
                     });
 
-                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out long _);
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                     break;
             }
         }
