@@ -8,10 +8,7 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("finfo")]
     public class FinfoPacket : PacketDefinition
     {
-        [PacketIndex(0, SpecialSeparator = ".")]
-        public long CharacterId { get; set; }
-
-        [PacketIndex(1, SpecialSeparator = ".")]
-        public bool IsConnected { get; set; }
+        [PacketIndex(0)]
+        public List<FinfoSubPackets> FriendList { get; set; }
     }
 }
