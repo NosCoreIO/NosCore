@@ -118,7 +118,6 @@ namespace NosCore.Shared.I18N
         CANT_BLOCK_FRIEND,
         NOT_IN_BLACKLIST,
         BLACKLIST_ADDED,
-        CHARACTER_ONLINE,
         SAVING_ALL,
         BLACKLIST_BLOCKED,
         FRIEND_DELETED,
