@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Map
             return false;
         }
 
-        private bool IsWalkable(byte value)
+        public bool IsWalkable(byte value)
         {
             return value == 0 || value == 2 || value >= 16 && value <= 19;
         }

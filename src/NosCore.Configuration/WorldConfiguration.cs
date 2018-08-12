@@ -16,5 +16,6 @@ namespace NosCore.Configuration
         public Dictionary<FeatureFlag, bool> FeatureFlags { get; set; } = new Dictionary<FeatureFlag, bool>();
         public short MaxItemAmount { get; set; }
         public byte BackpackSize { get; set; }
+        public long MaxGoldAmount { get; set; }
     }
 }
