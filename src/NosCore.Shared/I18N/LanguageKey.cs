@@ -111,7 +111,7 @@ namespace NosCore.Shared.I18N
         FRIEND_REQUEST_BLOCKED,
         MAX_GOLD,
         ITEM_ACQUIRED_LOD,
-        SP_POINTSADDED
+        SP_POINTSADDED,
         FRIEND_ADD,
         FRIEND_ADDED,
         FRIEND_REJECTED,
@@ -119,6 +119,10 @@ namespace NosCore.Shared.I18N
         NOT_IN_BLACKLIST,
         BLACKLIST_ADDED,
         CHARACTER_ONLINE,
-        SAVING_ALL
+        SAVING_ALL,
+        BLACKLIST_BLOCKED,
+        FRIEND_DELETED,
+        FRIEND_OFFLINE,
+        CANT_FIND_CHARACTER
     }
 }
