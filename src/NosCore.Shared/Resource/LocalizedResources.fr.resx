@@ -387,4 +387,85 @@
   <data name="MAPNPCS_LOADED" xml:space="preserve">
     <value>Les PNJ ont été chargés avec succès !</value>
   </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Vous êtes déjà amis.</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>Voulez-vous supprimer ?</value>
+  </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>Valeur d'objet incorrect.</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Ajouter à votre liste noire.</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Liste noire bloquée.</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>Impossible de bloquer vos amis.</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>Impossible de trouver ce personnage.</value>
+  </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>Impossible de jeter, il y a trop d'objet au sol.</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>Votre liste d'amis est complète.</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>Voulez-vous l'ajouter en ami ?</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Demande d'ami acceptée.</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Ami supprimé.</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Ami déconnecté.</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Demande d'ami rejetée.</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Demande d'amis bloqué.</value>
+  </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>Les objets ont été chargés avec succès !</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>L'objet a été acquis.</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>L'objet de la Terre des Mort a été acquis.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>Impossible de jeter l'objet.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>Impossible de jeter l'objet ici.</value>
+  </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>Vous avez atteint le nombre d'or maximum.</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>Vous n'avez pas assez de place.</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Pas présent dans votre liste noire.</value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>Aucun objet n'a été trouvé.</value>
+  </data>
+  <data name="SAVING_ALL" xml:space="preserve">
+    <value>Tout sauvegarder.</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Les points de spécialiste ont été ajoutés.</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ?</value>
+  </data>
 </root>
