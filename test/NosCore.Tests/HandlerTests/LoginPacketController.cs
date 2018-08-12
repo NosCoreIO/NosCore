@@ -49,7 +49,7 @@ namespace NosCore.Tests.HandlerTests
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
             DataAccessHelper.Instance.Initialize(sqlconnect);
-            DAOFactory.RegisterMapping(typeof(Character).Assembly);
+            DAOFactory.RegisterMapping(typeof(GameObject.Character).Assembly);
             var map = new MapDTO {MapId = 1};
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             _acc = new AccountDTO {Name = Name, Password = EncryptionHelper.Sha512("test")};
@@ -106,7 +106,7 @@ namespace NosCore.Tests.HandlerTests
         public void Login()
         {
             WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo> {new WorldServerInfo()});
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<ConnectedAccount>());
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
@@ -119,7 +119,7 @@ namespace NosCore.Tests.HandlerTests
         public void LoginAlreadyConnected()
         {
             WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo> {new WorldServerInfo()});
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts",
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccount",
                 new List<ConnectedAccount> {new ConnectedAccount {Name = Name}});
             _handler.VerifyLogin(new NoS0575Packet
             {
@@ -134,7 +134,7 @@ namespace NosCore.Tests.HandlerTests
         public void LoginNoServer()
         {
             WebApiAccess.Instance.MockValues.Add("api/channels", new List<WorldServerInfo>());
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccounts", new List<ConnectedAccount>());
+            WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),

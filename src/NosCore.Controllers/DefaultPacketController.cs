@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -19,6 +15,14 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using NosCore.Data;
+using NosCore.Data.AliveEntities;
+using NosCore.DAL;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Controllers
 {
@@ -135,9 +139,10 @@ namespace NosCore.Controllers
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
-
-            //            Session.SendPacket(Session.Character.GenerateFinit());
-            //            Session.SendPacket(Session.Character.GenerateBlinit());
+          
+            Session.Character.SendRelationStatus(true);
+            Session.SendPacket(Session.Character.GenerateFinit());
+            Session.SendPacket(Session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -313,7 +318,7 @@ namespace NosCore.Controllers
             {
                 Message = sayPacket.Message,
                 Type = type
-            }), ReceiverType.AllExceptMe);
+            }), ReceiverType.AllExceptMeAndBlacklisted);
         }
 
         /// <summary>
@@ -352,25 +357,36 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.Sessions.FirstOrDefault(s => s.Character?.Name == receiverName);
-                if (receiverSession != null) {
+                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                if (receiverSession != null)
+                {
+                    receiverSession.SendPacket(speakPacket);
 
-                    receiverSession?.SendPacket(speakPacket);
+                    if (!receiverSession.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+                    {
+                        return;
+                    }
+
+                    receiverSession.SendPacket(new SayPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                        Type = SayColorType.Yellow
+                    });
                     return;
                 }
 
-                //Todo: Add a check for blacklisted characters when the CharacterRelation system will be done                
                 ConnectedAccount receiver = null;
-                
-                foreach (var server in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+
+                List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi);
+                        .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
                         receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
-                        continue;
+                        break;
                     }
                 }
 
@@ -382,14 +398,25 @@ namespace NosCore.Controllers
                     return;
                 }
 
+                //TODO create a RelationsController
+                //if (receiver.ConnectedCharacter.Relations.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+                //{
+                //    Session.SendPacket(new SayPacket
+                //    {
+                //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                //        Type = SayColorType.Yellow
+                //    });
+                //    return;
+                //}
+
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
                 ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(speakPacket),
-                    ReceiverCharacterData = new CharacterData { CharacterName = receiverName },
-                    SenderCharacterData = new CharacterData { CharacterName = Session.Character.Name },
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -404,6 +431,258 @@ namespace NosCore.Controllers
             {
                 Logger.Log.Error("Whisper failed.", e);
             }
+        }
+
+        /// <summary>
+        ///     btk packet
+        /// </summary>
+        /// <param name="btkPacket"></param>
+        public void FriendTalk(BtkPacket btkPacket)
+        {
+            string message = btkPacket.Message;
+            if (message.Length > 60)
+            {
+                message = message.Substring(0, 60);
+            }
+
+            message = message.Trim();
+            var receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == btkPacket.CharacterId);
+
+            if (receiverSession != null)
+            {
+                receiverSession.SendPacket(Session.Character.GenerateTalk(message));
+                return;
+            }
+
+            ConnectedAccount receiver = null;
+
+            List<WorldServerInfo> servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            foreach (var server in servers)
+            {
+                var accounts = WebApiAccess.Instance
+                    .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
+
+                if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
+                {
+                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
+                }
+            }
+
+            if (receiver == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, Session.Account.Language)
+                });
+                return;
+            }
+
+            ServerManager.Instance.BroadcastPacket(new PostedPacket
+            {
+                Packet = PacketFactory.Serialize(Session.Character.GenerateTalk(message)),
+                ReceiverCharacter = new Data.WebApi.Character() { Id = btkPacket.CharacterId, Name = receiver.Name },
+                SenderCharacter = new Data.WebApi.Character() { Name = Session.Character.Name, Id = Session.Character.CharacterId },
+                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                ReceiverType = ReceiverType.OnlySomeone
+            }, receiver.ChannelId);
+        }
+
+        /// <summary>
+        ///     fdel packet
+        /// </summary>
+        /// <param name="fdelPacket"></param>
+        public void DeleteFriend(FdelPacket fdelPacket)
+        {
+            Session.Character.DeleteRelation(fdelPacket.CharacterId);
+            Session.SendPacket(new InfoPacket
+            {
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, Session.Account.Language),
+            });
+        }
+
+        /// <summary>
+        ///     fins packet
+        /// </summary>
+        /// <param name="finsPacket"></param>
+        public void AddFriend(FinsPacket finsPacket)
+        {
+            if (Session.Character.IsFriendListFull)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL, Session.Account.Language)
+                });
+                return;
+            }
+
+            if (Session.Character.IsRelatedToCharacter(finsPacket.CharacterId, CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language)
+                });
+                return;
+            }
+
+            if (Session.Character.IsRelatedToCharacter(finsPacket.CharacterId, CharacterRelationType.Friend))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND, Session.Account.Language)
+                });
+                return;
+            }
+
+            //TODO: Make character options & check if the character has friend requests blocked
+            if (Session.Character.FriendRequestBlocked)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED, Session.Account.Language)
+                });
+                return;
+            }
+
+            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == finsPacket.CharacterId);
+
+            if (targetSession == null)
+            {
+                return;
+            }
+
+            if (!targetSession.Character.FriendRequestCharacters.Values.Contains(Session.Character.CharacterId))
+            {
+                targetSession.SendPacket(new DlgPacket
+                {
+                    Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name),
+                    YesPacket = new FinsPacket { Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId },
+                    NoPacket = new FinsPacket { Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId }
+                });
+                Session.Character.FriendRequestCharacters[Session.Character.CharacterId] = finsPacket.CharacterId;
+                return;
+            }
+
+            switch (finsPacket.Type)
+            {
+                case FinsPacketType.Accepted:
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED, Session.Account.Language)
+                    });
+
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED, Session.Account.Language)
+                    });
+
+                    var relation = Session.Character.AddRelation(targetSession.Character.CharacterId, CharacterRelationType.Friend);
+                    var targetRelation = targetSession.Character.AddRelation(Session.Character.CharacterId, CharacterRelationType.Friend);
+
+                    Session.Character.RelationWithCharacter.TryAdd(targetRelation.CharacterRelationId, targetRelation);
+                    targetSession.Character.RelationWithCharacter.TryAdd(relation.CharacterRelationId, relation);
+
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
+                    break;
+                case FinsPacketType.Rejected:
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED, Session.Account.Language)
+                    });
+
+                    Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
+                    break;
+            }
+        }
+
+        /// <summary>
+        ///     blins packet
+        /// </summary>
+        /// <param name="blinsPacket"></param>
+        public void BlackListAdd(BlInsPacket blinsPacket)
+        {
+            if (Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND, Session.Account.Language)
+                });
+                return;
+            }
+
+            Session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
+            Session.SendPacket(new InfoPacket
+            {
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED, Session.Account.Language)
+            });
+        }
+
+        /// <summary>
+        ///     bldel packet
+        /// </summary>
+        /// <param name="bldelPacket"></param>
+        public void BlackListDelete(BlDelPacket bldelPacket)
+        {
+            if (!Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == bldelPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language)
+                });
+                return;
+            }
+
+            Session.Character.DeleteBlackList(bldelPacket.CharacterId);
+        }
+
+        /// <summary>
+        ///     flPacket packet
+        /// </summary>
+        /// <param name="flPacket"></param>
+        public void AddDistantFriend(FlPacket flPacket)
+        {
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
+
+            if (target == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            var fins = new FinsPacket
+            {
+                CharacterId = target.Character.CharacterId,
+                Type = FinsPacketType.Accepted
+            };
+
+            AddFriend(fins);
+        }
+
+        /// <summary>
+        ///     blPacket packet
+        /// </summary>
+        /// <param name="blPacket"></param>
+        public void DistantBlackList(BlPacket blPacket)
+        {
+            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
+
+            if (target == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            var blinsPacket = new BlInsPacket
+            {
+                CharacterId = target.Character.CharacterId
+            };
+
+            BlackListAdd(blinsPacket);
         }
     }
 }

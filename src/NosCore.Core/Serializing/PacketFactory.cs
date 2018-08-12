@@ -4,6 +4,7 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -386,7 +387,7 @@ namespace NosCore.Core.Serializing
                     return Enum.Parse(packetPropertyType.GenericTypeArguments[0], currentValue);
                 }
 
-                return Convert.ChangeType(currentValue, packetPropertyType.GenericTypeArguments[0]);
+                return TypeDescriptor.GetConverter(packetPropertyType.GenericTypeArguments[0]).ConvertFromInvariantString(currentValue);
             }
 
             if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)

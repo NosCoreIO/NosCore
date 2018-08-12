@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -66,9 +68,9 @@ namespace NosCore.Controllers
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
-                    CharacterDTO chara = new Character
+                    CharacterDTO chara = new GameObject.Character
                     {
-                        Class = (byte) CharacterClassType.Adventurer,
+                        Class = (byte)CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
                         HairColor = characterCreatePacket.HairColor,
                         HairStyle = characterCreatePacket.HairStyle,
@@ -164,7 +166,7 @@ namespace NosCore.Controllers
                 foreach (var server in servers)
                 {
                     if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>($"api/connectedAccounts", server.WebApi)
+                        .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi)
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;
@@ -223,7 +225,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket {Type = 0});
-            foreach (Character character in characters)
+            foreach (GameObject.Character character in characters)
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -281,8 +283,8 @@ namespace NosCore.Controllers
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored == true
-                        ? equipment[(byte) EquipmentType.Hat].Design : 0,
+                    Design = equipment[(byte)EquipmentType.Hat]?.Item.IsColored == true
+                        ? equipment[(byte)EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });
             }
@@ -308,7 +310,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                if (!(characterDto is Character character))
+                if (!(characterDto is GameObject.Character character))
                 {
                     return;
                 }
@@ -328,6 +330,24 @@ namespace NosCore.Controllers
                 if (Session.Character.Mp > Session.Character.MPLoad())
                 {
                     Session.Character.Mp = (int) Session.Character.MPLoad();
+                }
+
+                IEnumerable<CharacterRelation> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
+                IEnumerable<CharacterRelation> relationsWithCharacter = DAOFactory.CharacterRelationDAO.Where(s => s.RelatedCharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
+
+                List<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+                List<CharacterDTO> relatedCharacters = DAOFactory.CharacterDAO.Where(s => relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+
+                foreach (CharacterRelation relation in relations)
+                {
+                    relation.CharacterName = characters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
+                }
+
+                foreach (CharacterRelation relation in relationsWithCharacter)
+                {
+                    relation.CharacterName = relatedCharacters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;
                 }
 
                 Session.SendPacket(new OkPacket());

@@ -10,8 +10,10 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database.Entities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -118,7 +120,7 @@ namespace NosCore.GameObject.Networking
             try
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
-                Parallel.ForEach(Sessions.Where(s => s.Character != null), session =>
+                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session =>
                 {
                     session.Character.Save();
                 });
@@ -144,7 +146,8 @@ namespace NosCore.GameObject.Networking
         {
             if (channelId == null)
             {
-                foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                foreach (var channel in servers)
                 {
                     WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
                 }

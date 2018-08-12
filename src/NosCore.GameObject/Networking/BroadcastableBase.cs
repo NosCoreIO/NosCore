@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 
@@ -20,54 +21,30 @@ namespace NosCore.GameObject.Networking
                 _disposed = true;
             }
         }
-
-        public void RegisterSession(ClientSession session)
+        public void RegisterSession(ClientSession clientSession)
         {
-            if (!session.HasSelectedCharacter)
-            {
-                return;
-            }      
-            _sessions[session.Character.CharacterId] = session;
-            if (session.HasCurrentMapInstance)
-            {
-                session.Character.MapInstance.IsSleeping = false;
-            }
+            Sessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
-
-        public void UnregisterSession(ClientSession session)
+        public void UnregisterSession(ClientSession clientSession)
         {
-            if (!session.HasSelectedCharacter)
+            Sessions.TryRemove(clientSession.SessionId, out _);
+            
+            if (clientSession.Character != null)
             {
-                return;
-            }
-            if (session.HasCurrentMapInstance && _sessions.Count == 0)
-            {
-                session.Character.MapInstance.IsSleeping = true;
-            }
-
-            if (session.Character != null)
-            {
-                if (session.Character.Hp < 1)
+                if (clientSession.Character.Hp < 1)
                 {
-                    session.Character.Hp = 1;
+                    clientSession.Character.Hp = 1;
                 }
 
-                session.Character.Save();
+                clientSession.Character.SendRelationStatus(false);
 
-                _sessions.TryRemove(session.Character.CharacterId, out _);
+                clientSession.Character.Save();
             }
             LastUnregister = DateTime.Now;
         }
 
-        private readonly ConcurrentDictionary<long, ClientSession> _sessions;
-        public List<ClientSession> Sessions
-        {
-            get
-            {
-                return _sessions.Select(s => s.Value).Where(s => s.HasSelectedCharacter).ToList();
-            }
-        }
+        public ConcurrentDictionary<long, ClientSession> Sessions { get; set; }
 
         protected DateTime LastUnregister { get; private set; }
 
@@ -75,7 +52,7 @@ namespace NosCore.GameObject.Networking
         protected BroadcastableBase()
         {
             LastUnregister = DateTime.Now.AddMinutes(-1);
-            _sessions = new ConcurrentDictionary<long, ClientSession>();
+            Sessions = new ConcurrentDictionary<long, ClientSession>();
         }
 
         public void Broadcast(PacketDefinition packet)
@@ -123,16 +100,20 @@ namespace NosCore.GameObject.Networking
 
             switch (sentPacket.Receiver)
             {
-                case ReceiverType.AllExceptMe:
+                case ReceiverType.AllExceptMeAndBlacklisted:
                     Parallel.ForEach(
-                        Sessions.Where(s => s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        Sessions.Where(s => s.Value.HasSelectedCharacter && s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId 
+                            && !s.Value.Character.IsRelatedToCharacter(sentPacket.Sender.Character.CharacterId, CharacterRelationType.Blocked)),
                         session =>
                         {
-                            if (!session.HasSelectedCharacter)
-                            {
-                                return;
-                            }
-
+                            session.Value.SendPacket(sentPacket.Packet);
+                        });
+                    break;
+                case ReceiverType.AllExceptMe:
+                    Parallel.ForEach(
+                        Sessions.Values.Where(s => s.HasSelectedCharacter && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        session =>
+                        {
                             session.SendPacket(sentPacket.Packet);
                         });
                     break;
@@ -142,14 +123,9 @@ namespace NosCore.GameObject.Networking
                 case ReceiverType.Group:
                 case ReceiverType.AllInRange:
                 case ReceiverType.All:
-                    Parallel.ForEach(Sessions, session =>
+                    Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session =>
                     {
-                        if (!session.HasSelectedCharacter)
-                        {
-                            return;
-                        }
-
-                        session.SendPacket(sentPacket.Packet);
+                        session.Value.SendPacket(sentPacket.Packet);
                     });
                     break;
             }
