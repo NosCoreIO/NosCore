@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out var i);
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             ServerManager.Instance.UnregisterSession(this);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -147,7 +147,13 @@ namespace NosCore.GameObject.Networking
             {
                 Character.IsChangingMapInstance = true;
                 LeaveMap(this);
-                Character.MapInstance.UnregisterSession(this);
+
+                Character.MapInstance.Sessions.TryRemove(SessionId, out _);
+                if (Character.MapInstance.Sessions.Count == 0)
+                {
+                    Character.MapInstance.IsSleeping = true;
+                }
+
                 if (Character.IsSitting)
                 {
                     Character.IsSitting = false;
@@ -160,15 +166,15 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -183,9 +189,11 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Parallel.ForEach(
-                    Character.MapInstance.Sessions.Where(s => s.Character != null && s != this),
+                    Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
                     s => { SendPacket(s.Character.GenerateIn()); });
-                Character.MapInstance.RegisterSession(this);
+
+                Character.MapInstance.IsSleeping = false;
+                Character.MapInstance.Sessions.TryAdd(SessionId, this);
 
                 Character.IsChangingMapInstance = false;
             }
@@ -228,7 +236,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
+                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                     {
                         return;
                     }
@@ -303,7 +311,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');

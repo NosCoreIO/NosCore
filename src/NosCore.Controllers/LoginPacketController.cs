@@ -88,13 +88,13 @@ namespace NosCore.Controllers
 
                 var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
                 var alreadyConnnected = false;
-                var connectedAccounts = new Dictionary<int, List<ConnectedAccount>>();
+                var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                 var i = 1;
                 foreach (var server in servers)
                 {
-                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccounts",
+                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccount",
                         server.WebApi);
-                    connectedAccounts.Add(i, channelList);
+                    connectedAccount.Add(i, channelList);
                     i++;
                     if (channelList.Any(a => a.Name == acc.Name))
                     {
@@ -130,7 +130,7 @@ namespace NosCore.Controllers
                         }
 
                         var channelcolor =
-                            (int)Math.Round((double)connectedAccounts[i].Count / server.ConnectedAccountsLimit * 20)
+                            (int)Math.Round((double)connectedAccount[i].Count / server.connectedAccountLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {

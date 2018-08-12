@@ -64,7 +64,7 @@ namespace NosCore.Core.Networking
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
         }
 
-        public T Delete<T>(string route, ServerConfiguration webApi = null)
+        public T Delete<T>(string route, ServerConfiguration webApi = null, object id = null)
         {
             if (MockValues.ContainsKey(route))
             {
@@ -75,7 +75,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            response = client.DeleteAsync(route).Result;
+            response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -84,7 +84,7 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public T Get<T>(string route, ServerConfiguration webApi = null)
+        public T Get<T>(string route, ServerConfiguration webApi = null, object id = null)
         {
             if (MockValues.ContainsKey(route))
             {
@@ -95,7 +95,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            response = client.GetAsync(route).Result;
+            response = client.GetAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);

@@ -86,7 +86,7 @@ namespace NosCore.Core.Networking
                             Host = msgChannel.Host,
                             Port = msgChannel.Port,
                             Id = _id,
-                            ConnectedAccountsLimit = msgChannel.ConnectedAccountsLimit,
+                            connectedAccountLimit = msgChannel.connectedAccountLimit,
                             WebApi = msgChannel.WebApi
                         };
 
