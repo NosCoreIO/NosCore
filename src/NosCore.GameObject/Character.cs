@@ -213,18 +213,28 @@ namespace NosCore.GameObject
                 {
                     targetSession.SendPacket(new FinfoPacket
                     {
-                        CharacterId = CharacterId,
-                        IsConnected = status
+                        FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
+                        {
+                            CharacterId = CharacterId,
+                            IsConnected = status
+                        }}
                     });
                 }
                 else
                 {
                     ServerManager.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new FinfoPacket { IsConnected = status, CharacterId = CharacterId }),
+                        Packet = PacketFactory.Serialize(new FinfoPacket
+                        {
+                            FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
+                            {
+                                CharacterId = CharacterId,
+                                IsConnected = status
+                            }}
+                        }),
                         ReceiverType = ReceiverType.OnlySomeone,
                         SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
-                        ReceiverCharacter = new Data.WebApi.Character { Id = characterRelation.Value.RelatedCharacterId }
+                        ReceiverCharacter = new Data.WebApi.Character { Id = characterRelation.Value.RelatedCharacterId, Name = characterRelation.Value.CharacterName }
                     });
                 }
             }
@@ -263,10 +273,6 @@ namespace NosCore.GameObject
             var subpackets = new List<FinitSubPacket>();
             foreach (var relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
             {
-                if (relation.RelatedCharacterId == CharacterId)
-                {
-                    continue;
-                }
                 var account = accounts.FirstOrDefault(s =>
                     s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
                 subpackets.Add(new FinitSubPacket
