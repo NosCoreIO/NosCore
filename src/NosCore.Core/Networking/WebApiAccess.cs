@@ -75,7 +75,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            response = client.DeleteAsync(route + "/" + id ?? "").Result;
+            response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -95,7 +95,7 @@ namespace NosCore.Core.Networking
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
             AssignToken(response, ref client);
-            response = client.GetAsync(route + "/" + id ?? "").Result;
+            response = client.GetAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
