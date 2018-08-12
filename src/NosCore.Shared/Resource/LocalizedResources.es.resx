@@ -408,4 +408,64 @@
   <data name="WRESTLER" xml:space="preserve">
     <value>Luchador</value>
   </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Ya eres amigos de este personaje!</value>
+  </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>!Cantidad de caída incorrecta!</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Personaje agregado a la lista negra!</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>¡Este jugador te ha bloqueado!</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>No Puedes bloquear Amigo!</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>!No se Pudo Encontrar Este Personaje!</value>
+  </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>¡Hay demasiados elementos en este mapa! ¡Inténtalo más tarde!</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>¡Tu lista de amigos está llena!</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>¿Ser amigo de {0}?</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Solicitud de amigo aceptada!</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Amigo eliminado!</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Tu amigo está desconectado!</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Solicitud de amigo rechazada!</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Solicitud de amigo bloqueado!</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>!Artículo consequido en lod!</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>¡No puedes soltar ese artículo!</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>¡No puedes soltar ese artículo!</value>
+  </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>¡Cantidad máxima de oro alcanzada!</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Este jugador no está en lista negra!</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Recibiste {0} Puntos SP!</value>
+  </data>
 </root>
