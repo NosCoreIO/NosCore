@@ -110,7 +110,7 @@ namespace NosCore.Tests
             var mapItemTest = new MapItem();
 
             var packet = PacketFactory.Serialize(mapItemTest.GenerateIn());
-            Assert.AreEqual("in 9 - 0 0 0 0 0 0 0", packet);
+            Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 0 0 0 0", packet);
         }
 
         [TestMethod]
