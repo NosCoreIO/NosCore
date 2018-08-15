@@ -88,6 +88,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You are already Friends!.
+        /// </summary>
+        public static string ALREADY_FRIEND {
+            get {
+                return ResourceManager.GetString("ALREADY_FRIEND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This name is already taken!.
         /// </summary>
         public static string ALREADY_TAKEN {
@@ -102,6 +111,15 @@ namespace NosCore.Shared.Resource {
         public static string ARCHER {
             get {
                 return ResourceManager.GetString("ARCHER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to delete?.
+        /// </summary>
+        public static string ASK_TO_DELETE {
+            get {
+                return ResourceManager.GetString("ASK_TO_DELETE", resourceCulture);
             }
         }
         
@@ -151,11 +169,56 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bad drop amount..
+        /// </summary>
+        public static string BAD_DROP_AMOUNT {
+            get {
+                return ResourceManager.GetString("BAD_DROP_AMOUNT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wrong password!.
         /// </summary>
         public static string BAD_PASSWORD {
             get {
                 return ResourceManager.GetString("BAD_PASSWORD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Character added to blacklist!.
+        /// </summary>
+        public static string BLACKLIST_ADDED {
+            get {
+                return ResourceManager.GetString("BLACKLIST_ADDED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Player has blocked you!.
+        /// </summary>
+        public static string BLACKLIST_BLOCKED {
+            get {
+                return ResourceManager.GetString("BLACKLIST_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t block your friend!.
+        /// </summary>
+        public static string CANT_BLOCK_FRIEND {
+            get {
+                return ResourceManager.GetString("CANT_BLOCK_FRIEND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find this character!.
+        /// </summary>
+        public static string CANT_FIND_CHARACTER {
+            get {
+                return ResourceManager.GetString("CANT_FIND_CHARACTER", resourceCulture);
             }
         }
         
@@ -268,6 +331,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There are too many items on this map! Try again later!.
+        /// </summary>
+        public static string DROP_MAP_FULL {
+            get {
+                return ResourceManager.GetString("DROP_MAP_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please enter the directory of files to parse.
         /// </summary>
         public static string ENTER_PATH {
@@ -291,6 +363,69 @@ namespace NosCore.Shared.Resource {
         public static string FORCED_DISCONNECTION {
             get {
                 return ResourceManager.GetString("FORCED_DISCONNECTION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Be a friend of {0}?.
+        /// </summary>
+        public static string FRIEND_ADD {
+            get {
+                return ResourceManager.GetString("FRIEND_ADD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend request accepted!.
+        /// </summary>
+        public static string FRIEND_ADDED {
+            get {
+                return ResourceManager.GetString("FRIEND_ADDED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend Deleted!.
+        /// </summary>
+        public static string FRIEND_DELETED {
+            get {
+                return ResourceManager.GetString("FRIEND_DELETED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your friend is offline!.
+        /// </summary>
+        public static string FRIEND_OFFLINE {
+            get {
+                return ResourceManager.GetString("FRIEND_OFFLINE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend request rejected!.
+        /// </summary>
+        public static string FRIEND_REJECTED {
+            get {
+                return ResourceManager.GetString("FRIEND_REJECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend request blocked!.
+        /// </summary>
+        public static string FRIEND_REQUEST_BLOCKED {
+            get {
+                return ResourceManager.GetString("FRIEND_REQUEST_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Friendlist is full!.
+        /// </summary>
+        public static string FRIENDLIST_FULL {
+            get {
+                return ResourceManager.GetString("FRIENDLIST_FULL", resourceCulture);
             }
         }
         
@@ -430,6 +565,51 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acquired.
+        /// </summary>
+        public static string ITEM_ACQUIRED {
+            get {
+                return ResourceManager.GetString("ITEM_ACQUIRED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Acquired.
+        /// </summary>
+        public static string ITEM_ACQUIRED_LOD {
+            get {
+                return ResourceManager.GetString("ITEM_ACQUIRED_LOD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You cant drop that item!.
+        /// </summary>
+        public static string ITEM_NOT_DROPPABLE {
+            get {
+                return ResourceManager.GetString("ITEM_NOT_DROPPABLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t drop that item!.
+        /// </summary>
+        public static string ITEM_NOT_DROPPABLE_HERE {
+            get {
+                return ResourceManager.GetString("ITEM_NOT_DROPPABLE_HERE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Items Loaded!.
+        /// </summary>
+        public static string ITEMS_LOADED {
+            get {
+                return ResourceManager.GetString("ITEMS_LOADED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} items parsed!.
         /// </summary>
         public static string ITEMS_PARSED {
@@ -520,6 +700,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum amount of gold reached!.
+        /// </summary>
+        public static string MAX_GOLD {
+            get {
+                return ResourceManager.GetString("MAX_GOLD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} MapMonsters Parsed!.
         /// </summary>
         public static string MONSTERS_PARSED {
@@ -529,11 +718,38 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item doesn&apos;t exist!.
+        /// </summary>
+        public static string NO_ITEM {
+            get {
+                return ResourceManager.GetString("NO_ITEM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Server need at least nosville MAP to work!.
         /// </summary>
         public static string NO_MAP {
             get {
                 return ResourceManager.GetString("NO_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not enough place..
+        /// </summary>
+        public static string NOT_ENOUGH_PLACE {
+            get {
+                return ResourceManager.GetString("NOT_ENOUGH_PLACE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This player isn&apos;t on your blacklist!.
+        /// </summary>
+        public static string NOT_IN_BLACKLIST {
+            get {
+                return ResourceManager.GetString("NOT_IN_BLACKLIST", resourceCulture);
             }
         }
         
@@ -781,6 +997,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Saving all data!.
+        /// </summary>
+        public static string SAVING_ALL {
+            get {
+                return ResourceManager.GetString("SAVING_ALL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please, Select a MapId:.
         /// </summary>
         public static string SELECT_MAPID {
@@ -808,6 +1033,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You received {0} SP Points!.
+        /// </summary>
+        public static string SP_POINTSADDED {
+            get {
+                return ResourceManager.GetString("SP_POINTSADDED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Successfully Loaded!.
         /// </summary>
         public static string SUCCESSFULLY_LOADED {
@@ -822,6 +1056,15 @@ namespace NosCore.Shared.Resource {
         public static string SUPPORT {
             get {
                 return ResourceManager.GetString("SUPPORT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete this item?.
+        /// </summary>
+        public static string SURE_TO_DELETE {
+            get {
+                return ResourceManager.GetString("SURE_TO_DELETE", resourceCulture);
             }
         }
         
