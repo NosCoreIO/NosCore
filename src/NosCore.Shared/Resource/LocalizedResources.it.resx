@@ -126,11 +126,17 @@
   <data name="ADVENTURER" xml:space="preserve">
     <value>Avventuriero</value>
   </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Siete già amici!</value>
+  </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Questo nome è già in uso !</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arciere</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>L'item verrà distrutto.</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Manca almeno un file richiesto</value>
@@ -147,8 +153,23 @@
   <data name="AUTH_INCORRECT" xml:space="preserve">
     <value>Auth non corretto</value>
   </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>Quantita' di drop errata.</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Password errata</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Personaggio aggiunto alla lista nera</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Questo giocatore ti ha bloccato!</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>Non puoi bloccare un tuo amico!</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>Impossibile trovare questo personaggio!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Sincronizzate!</value>
@@ -187,6 +208,9 @@
   <data name="DONE" xml:space="preserve">
     <value>Parsing Completato!</value>
   </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>Ci sono troppi oggetti in mappa! Prova più tardi</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>
@@ -195,6 +219,27 @@
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Disconnessione forzata del client {0}, troppe connessioni</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>La tua lista amici è piena!</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>Vuoi essere amico di {0}?</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Richiesta d'amicizia accettata!</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Amico cancellato.</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Il tuo amico è offline!</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Richiesta d'amicizia rifiutata!</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Richiesta di amicizia bloccata!</value>
   </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Handler Error</value>
@@ -241,8 +286,23 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
   </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>{0} Item caricati.</value>
+  </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Items sincronizzati !</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>Hai ricevuto</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>{0} Ha ricevuto</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>Non puoi gettare questo item.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>Non puoi gettare quest'oggetto in questa mappa!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Ascolto della porta {0}</value>
@@ -251,13 +311,13 @@
     <value>Mago</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>{0} MappeMostri caricati!</value>
+    <value>{0} MappeMostri caricate!</value>
   </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
-    <value>{0} MapNpcs Caricati!</value>
+    <value>{0} MapNpcs caricati.</value>
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
-    <value>{0} Mappe caricate !</value>
+    <value>{0} Mappe caricate.</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
     <value>{0} Mappe Sincronizzate!</value>
@@ -271,8 +331,20 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al server master! Provando ancora tra 5 secondi...</value>
   </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>Hai raggiunto la quantità massima di oro!</value>
+  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Sincronizzati!</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>Non hai spazio sufficiente!</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Questo giocatore non è nella tua lista nera!</value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>Questo Item non esiste!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
@@ -359,6 +431,9 @@
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
   </data>
+  <data name="SAVING_ALL" xml:space="preserve">
+    <value>Sto salvando i dati!</value>
+  </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Seleziona un MapId:</value>
   </data>
@@ -368,11 +443,17 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Hai ricevuto {0} punti SP!</value>
+  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter {0}</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>L'item verrà distrutto.</value>
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Spadaccino</value>
