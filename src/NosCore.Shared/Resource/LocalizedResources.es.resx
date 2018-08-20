@@ -130,7 +130,7 @@
     <value>¡Actualmente ya sois amigos!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>¡Este nombre/apodo lo tiene otro usuario!</value>
+    <value>¡Este nombre ya lo tiene otro usuario!</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arquero</value>
