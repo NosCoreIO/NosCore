@@ -142,11 +142,11 @@
     <value>Al menos uno de los archivos necesarios no esta presente.</value>
   </data>
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Error Autentificando.</value>
+    <value>Error de autentificación.</value>
     <comment>check</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>¡Autentificación Exitosa!</value>
+    <value>¡Autentificación exitosa!</value>
     <comment>check</comment>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
