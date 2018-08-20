@@ -156,7 +156,7 @@
     <value>Auth incorrecto.</value>
   </data>
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
-    <value>Cantidad de objetos soltados erronea.</value>
+    <value>La cantidad de items soltados es erronea.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
