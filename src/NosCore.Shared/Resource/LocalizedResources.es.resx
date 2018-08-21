@@ -127,42 +127,42 @@
     <value>Aventurero</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>¡Actualmente ya sois Amigos!</value>
+    <value>¡Actualmente ya sois amigos!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>¡Este nombre ya esta cogido!</value>
+    <value>¡Este nombre ya lo tiene otro usuario!</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arquero</value>
   </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>¿Quieres borrar?</value>
+    <value>¿Deseas eliminarlo?</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>Minimo uno de los archivos necesarios no esta.</value>
+    <value>Al menos uno de los archivos necesarios no esta presente.</value>
   </data>
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Error Autentificando.</value>
+    <value>Error de autentificación.</value>
     <comment>check</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>¡Autentificación Exitosa!</value>
+    <value>¡Autentificación exitosa!</value>
     <comment>check</comment>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
-    <value>Auth error</value>
+    <value>Auth error.</value>
   </data>
   <data name="AUTH_INCORRECT" xml:space="preserve">
-    <value>Auth incorrecto</value>
+    <value>Auth incorrecto.</value>
   </data>
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
-    <value>Cantidad de objetos dropeados erronea.</value>
+    <value>La cantidad de items soltados es erronea.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>¡Character añadido a la lista negra!</value>
+    <value>¡Personaje añadido a la lista negra!</value>
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>¡Este jugador te ha bloqueado!</value>
@@ -174,7 +174,7 @@
     <value>¡No se ha podido encontrar a este personaje!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>¡{0} tarjetas analizadas!</value>
+    <value>¡{0} Cards (Tarjetas de Especialista/SP) Analizadas!</value>
   </data>
   <data name="CHANNEL" xml:space="preserve">
     <value>Canal</value>
@@ -256,28 +256,28 @@
     <value>¡{0} I18N BCards Implementadas! Región: {1}</value>
   </data>
   <data name="I18N_CARD_PARSED" xml:space="preserve">
-    <value>¡{0} I18N Cards Implementadas! Región: {1}</value>
+    <value>¡{0} I18N Cards (Tarjetas de Especialista/SP) Implementadas! Región: {1}</value>
   </data>
   <data name="I18N_ITEM_PARSED" xml:space="preserve">
     <value>¡{0} I18N Items Implementados! Región: {1}</value>
   </data>
   <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
-    <value>¡{0} I18N MapIdDatas Implementados! Región: {1}</value>
+    <value>¡{0} I18N MapIdDatas (Datos de las Ids de los Mapas) Implementados! Región: {1}</value>
   </data>
   <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
-    <value>¡{0} I18N MapPointDatas Implementados! Región: {1}</value>
+    <value>¡{0} I18N MapPointDatas (Datos de los puntos del mapa) Implementados! Región: {1}</value>
   </data>
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
-    <value>¡{0} I18N NpcMonsters Implementados! Región: {1}</value>
+    <value>¡{0} I18N NpcMonsters (NPCs Monstruos) Implementados! Región: {1}</value>
   </data>
   <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
-    <value>¡{0} I18N NpcMonsterTalk Implementadas! Región: {1}</value>
+    <value>¡{0} I18N NpcMonsterTalk (Monólogos de los NPCs Monstruos) Implementadas! Región: {1}</value>
   </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
-    <value>¡{0} I18N Quests Implementadas! Región: {1}</value>
+    <value>¡{0} I18N Quests (Misiones) Implementadas! Región: {1}</value>
   </data>
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
-    <value>¡{0} I18N Skills Implementadas! Región: {1}</value>
+    <value>¡{0} I18N Skills (Habilidades) Implementadas! Región: {1}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>¡Id incorrecta!</value>
@@ -301,10 +301,10 @@
     <value>{0} Adquirido</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>¡No puedes tirar ese objeto!</value>
+    <value>¡No puedes soltar ese objeto!</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>¡No puedes tirar ese objeto aquí!</value>
+    <value>¡No puedes soltar ese objeto aquí!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Escuchando el Puerto {0}</value>
@@ -313,19 +313,19 @@
     <value>Mago</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>¡{0} MapMonsters Cargados!</value>
+    <value>¡{0} MapMonsters (Monstruos de los Mapas) Cargados!</value>
   </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
-    <value>¡{0} MapNpcs Cargados!</value>
+    <value>¡{0} MapNpcs (NPCs de los Mapas) Cargados!</value>
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
-    <value>¡{0} Maps Cargados!</value>
+    <value>¡{0} Maps (Mapas) Cargados!</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
-    <value>¡{0} Maps Analizados!</value>
+    <value>¡{0} Maps (Mapas) Analizados!</value>
   </data>
   <data name="MAPTYPES_PARSED" xml:space="preserve">
-    <value>¡{0} MapTypes Analizados!</value>
+    <value>¡{0} MapTypes (Tipos de Mapas) Analizados!</value>
   </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Servidor Maestro iniciado exitosamente.</value>
@@ -337,7 +337,7 @@
     <value>¡Cantidad máxima de oro alcanzada!</value>
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
-    <value>¡{0} MapMonsters Analizados!</value>
+    <value>¡{0} MapMonsters (Monstruos de los Mapas) Analizados!</value>
   </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>No hay suficiente espacio.</value>
@@ -349,13 +349,13 @@
     <value>¡El Item no existe!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
-    <value>¡El servidor necesita al menos el MAPA (MAP) de Nosville para funcionar!</value>
+    <value>¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
   </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
-    <value>¡{0} NpcMonster Analizados!</value>
+    <value>¡{0} NpcMonster (NPCs Monstruos) Analizados!</value>
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
-    <value>¡{0} MapNpcs Analizados!</value>
+    <value>¡{0} MapNpcs (NPCs de los Mapas) Analizados!</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>¿Quieres importar las Cuentas?</value>
@@ -364,10 +364,10 @@
     <value>¿Quieres importarlo TODO?</value>
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
-    <value>¿Quieres importar las Tarjetas?</value>
+    <value>¿Quieres importar las Tarjetas de Especialista (Cards/SP)?</value>
   </data>
   <data name="PARSE_DROPS" xml:space="preserve">
-    <value>¿Quieres importar los Drops?</value>
+    <value>¿Quieres importar los Objetos del suelo (Drops)?</value>
   </data>
   <data name="PARSE_I18N" xml:space="preserve">
     <value>¿Quieres importar los Datos del I18N?</value>
@@ -385,7 +385,7 @@
     <value>¿Quieres importar los Tipos de Mapas (MapTypes)?</value>
   </data>
   <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>¿Quieres importar los Monstruos (Monsters)?</value>
+    <value>¿Quieres importar los Monstruos?</value>
   </data>
   <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
     <value>¿Quieres importar los Datos de los NPCs Monstruos (NPCMonsterData)?</value>
@@ -418,7 +418,7 @@
     <value>¿Quieres importar los Teletransportadores?</value>
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>¿Quieres importar los (TimeSpaces)?</value>
+    <value>¿Quieres importar los TimeSpaces?</value>
   </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>¡{0} Portales Analizados!</value>
@@ -437,16 +437,16 @@
     <value>¡Guardando todos los datos!</value>
   </data>
   <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Por favor, Seleccione una MapId:</value>
+    <value>Por favor, seleccione una MapId:</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Mensaje mandado a {0}</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
-    <value>{0} Skills Analizadas!</value>
+    <value>¡{0} Skills Analizadas!</value>
   </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Has recibido {0} puntos de SP!</value>
+    <value>¡Has recibido {0} puntos de SP!</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>¡Cargado exitosamente!</value>
@@ -472,6 +472,6 @@
     <value>Luchador</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>¡IdMap incorrecto!</value>
+    <value>¡La Id del Mapa (IdMap) es incorrecta!</value>
   </data>
 </root>
