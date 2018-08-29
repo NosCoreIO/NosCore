@@ -23,5 +23,11 @@
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Controllers\NosCore.Controllers.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Polly">
+      <HintPath>..\..\..\..\.nuget\packages\polly\6.1.0\lib\netstandard2.0\Polly.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
