@@ -15,6 +15,7 @@ using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Polly;
 
 namespace NosCore.LoginServer
 {
@@ -75,7 +76,7 @@ namespace NosCore.LoginServer
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte) clientType.Type,
+                    ClientType = (byte)clientType.Type,
                     connectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
@@ -83,24 +84,16 @@ namespace NosCore.LoginServer
                 }).ConfigureAwait(false);
             }
 
-            while (true)
-            {
-                try
-                {
-                    WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
-                        _loginConfiguration.MasterCommunication.Password);
-                    RunMasterClient(_loginConfiguration.MasterCommunication.Host,
-                        Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-                        _loginConfiguration.MasterCommunication.Password,
-                        new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer}).Wait();
-                    break;
-                }
-                catch
-                {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
-                    Thread.Sleep(5000);
-                }
-            }
+            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, timeSpan, __) =>
+                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan))
+                ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
+                    Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
+                    _loginConfiguration.MasterCommunication.Password, 
+                    new MasterClient { Name = "LoginServer", Type = ServerType.LoginServer })
+                ).Wait();
         }
     }
 }

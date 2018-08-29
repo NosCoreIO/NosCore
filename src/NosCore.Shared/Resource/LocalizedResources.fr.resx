@@ -250,7 +250,7 @@
     <value>Identifiant invalide.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>Tentative de reconnexion au serveur master.</value>
+    <value>Tentative de reconnexion au serveur master dans {0} secondes.</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Écoute du port</value>
