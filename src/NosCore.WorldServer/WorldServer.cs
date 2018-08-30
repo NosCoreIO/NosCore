@@ -16,6 +16,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Polly;
 
 namespace NosCore.WorldServer
 {
@@ -87,7 +88,7 @@ namespace NosCore.WorldServer
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte) clientType.Type,
+                    ClientType = (byte)clientType.Type,
                     connectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
@@ -96,30 +97,22 @@ namespace NosCore.WorldServer
                 }).ConfigureAwait(false);
             }
 
-            while (true)
-            {
-                try
-                {
-                    WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(),
-                        _worldConfiguration.MasterCommunication.Password);
-                    RunMasterClient(_worldConfiguration.MasterCommunication.Host,
-                        Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
-                        _worldConfiguration.MasterCommunication.Password,
-                        new MasterClient
-                        {
-                            Name = _worldConfiguration.ServerName,
-                            Type = ServerType.WorldServer,
-                            WebApi = _worldConfiguration.WebApi
-                        }, _worldConfiguration.WebApi, _worldConfiguration.ConnectedAccountLimit,
-                        _worldConfiguration.Port, _worldConfiguration.ServerGroup, _worldConfiguration.Host).Wait();
-                    break;
-                }
-                catch
-                {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY));
-                    Thread.Sleep(5000);
-                }
-            }
+            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);
+            Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
+                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
+                ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
+                    Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
+                    _worldConfiguration.MasterCommunication.Password,
+                    new MasterClient
+                    {
+                        Name = _worldConfiguration.ServerName,
+                        Type = ServerType.WorldServer,
+                        WebApi = _worldConfiguration.WebApi
+                    }, _worldConfiguration.WebApi, _worldConfiguration.ConnectedAccountLimit,
+                    _worldConfiguration.Port, _worldConfiguration.ServerGroup, _worldConfiguration.Host)
+                ).Wait();
         }
     }
 }
