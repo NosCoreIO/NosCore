@@ -331,7 +331,7 @@
     <value>MasterServer started successfully.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>Cannot connect to Master Server! Trying again in 5 seconds...</value>
+    <value>Cannot connect to Master Server! Trying again in {0} seconds...</value>
   </data>
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Maximum amount of gold reached!</value>
