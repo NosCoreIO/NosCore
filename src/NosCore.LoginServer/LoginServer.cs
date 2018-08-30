@@ -87,8 +87,8 @@ namespace NosCore.LoginServer
             WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
             Policy
                 .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, timeSpan, __) =>
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan))
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
+                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
                     _loginConfiguration.MasterCommunication.Password, 
