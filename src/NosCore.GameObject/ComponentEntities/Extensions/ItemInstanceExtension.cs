@@ -21,8 +21,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Slot = slot,
                         VNum = -1,
-                        Rare = 0,
-                        Upgrade = 0,
+                        RareAmount = 0,
+                        UpgradeDesign = 0,
                         SecondUpgrade = 0
                     }}
                 };
@@ -34,8 +34,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Slot = slot,
                     VNum = itemInstance.ItemVNum,
-                    Rare = itemInstance.Type != PocketType.Equipment ? itemInstance.Amount : itemInstance.Rare,
-                    Upgrade = itemInstance.Upgrade,
+                    RareAmount = itemInstance.Type != PocketType.Equipment ? itemInstance.Amount : itemInstance.Rare,
+                    UpgradeDesign = itemInstance.Upgrade,
                     SecondUpgrade = 0
                 }}
             };
@@ -52,8 +52,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Slot = item.Slot,
                         VNum = item.ItemVNum,
-                        Rare = item.Type != PocketType.Equipment ? item.Amount : item.Rare,
-                        Upgrade = item.Upgrade,
+                        RareAmount = item.Type != PocketType.Equipment ? item.Amount : item.Rare,
+                        UpgradeDesign = item.Upgrade,
                         SecondUpgrade = 0
                     }).ToList()
                 };
