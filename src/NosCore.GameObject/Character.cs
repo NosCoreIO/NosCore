@@ -23,6 +23,7 @@ using NosCore.Shared.I18N;
 using NosCore.Data;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Item;
 
 namespace NosCore.GameObject
 {
@@ -545,6 +546,14 @@ namespace NosCore.GameObject
 
                 DAOFactory.CharacterRelationDAO.Delete(savedRelations.Except(CharacterRelations.Values));
                 DAOFactory.CharacterRelationDAO.InsertOrUpdate(CharacterRelations.Values);
+                // load and concat inventory with equipment
+                var currentlySavedInventoryIds = DAOFactory.ItemInstanceDAO.Where(i => i.CharacterId.Equals(CharacterId)).Select(i => i.Id);
+
+                var todelete = currentlySavedInventoryIds.Except(Inventory.Select(i => i.Value.Id));
+                DAOFactory.ItemInstanceDAO.Delete(todelete);
+
+                var itemInsts = Inventory.Select(s => s.Value);
+                DAOFactory.ItemInstanceDAO.InsertOrUpdate(itemInsts);
             }
             catch (Exception e)
             {

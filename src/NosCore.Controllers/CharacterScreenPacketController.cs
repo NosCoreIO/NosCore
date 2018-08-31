@@ -321,7 +321,11 @@ namespace NosCore.Controllers
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
+
+                IEnumerable<ItemInstanceDTO> inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 character.Inventory = new Inventory() { Configuration = _worldConfiguration };
+                inventories.Select(k => character.Inventory[k.Id] == k);
+
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
                     Session.Character.Hp = (int) Session.Character.HPLoad();
