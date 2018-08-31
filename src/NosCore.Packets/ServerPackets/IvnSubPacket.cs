@@ -10,9 +10,9 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(1)]
         public short VNum { get; set; }
         [PacketIndex(2)]
-        public short Rare { get; set; }
+        public short RareAmount { get; set; }
         [PacketIndex(3)]
-        public byte Upgrade { get; set; }
+        public short UpgradeDesign { get; set; }
         [PacketIndex(4)]
         public byte SecondUpgrade { get; set; }
     }

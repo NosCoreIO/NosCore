@@ -43,7 +43,7 @@ namespace NosCore.GameObject
         public bool IsChangingMapInstance { get; set; }
 
         public ConcurrentDictionary<long, CharacterRelation> CharacterRelations { get; set; }
-        
+
         public ConcurrentDictionary<long, CharacterRelation> RelationWithCharacter { get; set; }
 
         public bool IsFriendListFull
@@ -197,8 +197,8 @@ namespace NosCore.GameObject
             //}
             return 0;
         }
- 	
- 	public PacketDefinition GenerateSpPoint()
+
+        public PacketDefinition GenerateSpPoint()
         {
             return new SpPacket()
             {
@@ -245,7 +245,7 @@ namespace NosCore.GameObject
                 }
             }
         }
-        
+
         public BlinitPacket GenerateBlinit()
         {
             var subpackets = new List<BlinitSubPacket>();
@@ -374,6 +374,71 @@ namespace NosCore.GameObject
             }
 
             DAOFactory.CharacterRelationDAO.Delete(targetCharacterRelation);
+        }
+
+        [Obsolete("GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
+        public IEnumerable<PacketDefinition> GenerateInv()
+        {
+            InvPacket inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() },
+            inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() },
+            inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() },
+            inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() },
+            inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() },
+            inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
+
+            if (Inventory != null)
+            {
+                foreach (ItemInstance inv in Inventory.Select(s => s.Value))
+                {
+                    switch (inv.Type)
+                    {
+                        case PocketType.Equipment:
+                            if (inv.Item.EquipmentSlot == EquipmentType.Sp)
+                            {
+                                if (inv is SpecialistInstance specialistInstance)
+                                {
+                                    inv7.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = specialistInstance.Rare, UpgradeDesign = specialistInstance.Upgrade, SecondUpgrade = specialistInstance.SpStoneUpgrade });
+                                }
+                            }
+                            else
+                            {
+                                if (inv is WearableInstance wearableInstance)
+                                {
+                                    inv0.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = wearableInstance.Rare, UpgradeDesign = inv.Item.IsColored ? wearableInstance.Design : wearableInstance.Upgrade });
+                                }
+                            }
+                            break;
+
+                        case PocketType.Main:
+                            inv1.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            break;
+
+                        case PocketType.Etc:
+                            inv2.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            break;
+
+                        case PocketType.Miniland:
+                            inv3.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            break;
+
+                        case PocketType.Specialist:
+                            if (inv is SpecialistInstance specialist)
+                            {
+                                inv6.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = specialist.Rare, UpgradeDesign = specialist.Upgrade, SecondUpgrade = specialist.SpStoneUpgrade });
+                            }
+                            break;
+
+                        case PocketType.Costume:
+                            if (inv is WearableInstance costumeInstance)
+                            {
+                                inv7.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = costumeInstance.Rare, UpgradeDesign = costumeInstance.Upgrade });
+                            }
+                            break;
+                    }
+                }
+            }
+
+            return new List<PacketDefinition>() { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)

@@ -325,6 +325,7 @@ namespace NosCore.Controllers
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 character.Inventory = new Inventory() { Configuration = _worldConfiguration };
                 inventories.ForEach(k => character.Inventory[k.Id] = (ItemInstance)k);
+                Session.SendPackets(Session.Character.GenerateInv());
 
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
