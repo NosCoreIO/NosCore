@@ -322,9 +322,9 @@ namespace NosCore.Controllers
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
 
-                IEnumerable<ItemInstanceDTO> inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
+                var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 character.Inventory = new Inventory() { Configuration = _worldConfiguration };
-                inventories.Select(k => character.Inventory[k.Id] == k);
+                inventories.ForEach(k => character.Inventory[k.Id] = (ItemInstance)k);
 
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {

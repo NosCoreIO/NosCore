@@ -68,7 +68,16 @@ namespace NosCore.DAL
                 {
                     foreach (var dto in enumerable)
                     {
-                        var value = _primaryKey.GetValue(dto, null);
+                        object value;
+                        try
+                        {
+                            value = _primaryKey.GetValue(dto, null);
+                        }
+                        catch
+                        {
+                            value = dto;
+                        }
+
                         TEntity entityfound = null;
                         if (value is object[] objects)
                         {
@@ -90,7 +99,15 @@ namespace NosCore.DAL
                 }
                 else
                 {
-                    var value = _primaryKey.GetValue(dtokey, null);
+                    object value;
+                    try
+                    {
+                        value = _primaryKey.GetValue(dtokey, null);
+                    }
+                    catch
+                    {
+                        value = dtokey;
+                    }
                     var entityfound = dbset.Find(value);
 
                     if (entityfound != null)
