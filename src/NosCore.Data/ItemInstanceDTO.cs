@@ -8,7 +8,7 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Data
 {
-    public class ItemInstanceDTO
+    public class ItemInstanceDTO : IDTO
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

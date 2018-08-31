@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using NosCore.Data;
@@ -44,6 +46,7 @@ namespace NosCore.DAL
         private static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> _npcMonsterSkillDAO;
         private static GenericDAO<MapMonster, MapMonsterDTO> _mapMonsterDAO;
         private static GenericDAO<CharacterRelation, CharacterRelationDTO> _characterRelationDAO;
+        private static GenericDAO<ItemInstance, ItemInstanceDTO> _itemInstanceDAO;
         private static IMapper _mapper;
 
         public static GenericDAO<Drop, DropDTO> DropDAO => _dropDAO ??
@@ -57,6 +60,9 @@ namespace NosCore.DAL
 
         public static GenericDAO<BCard, BCardDTO> BCardDAO => _bCardDAO ??
             (_bCardDAO = new GenericDAO<BCard, BCardDTO>(_mapper));
+
+        public static GenericDAO<ItemInstance, ItemInstanceDTO> ItemInstanceDAO => _itemInstanceDAO ??
+            (_itemInstanceDAO = new GenericDAO<ItemInstance, ItemInstanceDTO>(_mapper));
 
         public static GenericDAO<Skill, SkillDTO> SkillDAO => _skillDAO ??
             (_skillDAO = new GenericDAO<Skill, SkillDTO>(_mapper));
@@ -166,6 +172,11 @@ namespace NosCore.DAL
                             if (typefound != null)
                             {
                                 cfg.CreateMap(entitytypefound, type).As(typefound);
+                            }
+
+                            if (typeof(ItemInstanceDTO).IsAssignableFrom(type))
+                            {
+                                cfg.CreateMap(type, typeof(ItemInstanceDTO));
                             }
                         }
                     }
