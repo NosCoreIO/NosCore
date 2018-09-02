@@ -170,7 +170,7 @@ namespace NosCore.Controllers
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;
-                        continue;
+                        break;
                     }
                 }
 
