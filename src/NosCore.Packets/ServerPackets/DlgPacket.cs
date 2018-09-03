@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Core.Serializing;
-using NosCore.Packets.ClientPackets;
+﻿using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ServerPackets
 {

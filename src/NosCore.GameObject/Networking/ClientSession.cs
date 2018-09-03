@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Handling;
 using NosCore.Core.Networking;
@@ -28,15 +29,17 @@ namespace NosCore.GameObject.Networking
 
         private Character _character;
         private int? _waitForPacketsAmount;
+        public IServiceProvider Provider { get; set; }
 
         public ClientSession() : base(null)
         {
+
         }
 
-        public ClientSession(IChannel channel, bool isWorldClient) : base(channel)
+        public ClientSession(IChannel channel) : base(channel)
         {
-            _isWorldClient = isWorldClient;
-            foreach (var controller in PacketControllerFactory.GenerateControllers())
+             _isWorldClient = DependancyResolver.Current.GetService<GameServerConfiguration>() is WorldConfiguration;
+            foreach (var controller in DependancyResolver.Current.GetService<IEnumerable<IPacketController>>())
             {
                 controller.RegisterSession(this);
                 foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>

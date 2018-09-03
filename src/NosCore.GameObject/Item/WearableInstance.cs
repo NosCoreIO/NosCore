@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Helper;
+﻿using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Item

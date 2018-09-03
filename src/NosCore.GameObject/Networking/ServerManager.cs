@@ -10,10 +10,7 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.Database.Entities;
 using NosCore.DAL;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -108,6 +105,7 @@ namespace NosCore.GameObject.Networking
                     npccount));
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
                     monstercount));
+                LaunchEvents();
             }
             catch (Exception ex)
             {

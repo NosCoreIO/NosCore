@@ -1,5 +1,4 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {

@@ -19,9 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
-using NosCore.DAL;
 using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Controllers

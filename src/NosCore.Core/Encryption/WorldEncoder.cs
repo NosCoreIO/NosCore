@@ -7,7 +7,7 @@ using DotNetty.Transport.Channels;
 
 namespace NosCore.Core.Encryption
 {
-    public class WorldEncoder : MessageToMessageEncoder<string>, IEncoder
+    public class WorldEncoder : MessageToMessageEncoder<string>
     {
         protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
         {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Items;
 

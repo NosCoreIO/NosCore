@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using NosCore.Core.Serializing;
+﻿using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Packets.ClientPackets

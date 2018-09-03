@@ -5,7 +5,8 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using NosCore.Core.Encryption;
+using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Shared.I18N;
 
@@ -13,9 +14,9 @@ namespace NosCore.GameObject.Networking
 {
     public static class NetworkManager
     {
-        public static async Task RunServerAsync(int port, EncoderFactory encryptor, DecoderFactory decryptor,
-            bool isWorldClient)
+        public static async Task RunServerAsync()
         {
+            var configuration = DependancyResolver.Current.GetService<GameServerConfiguration>();
             var bossGroup = new MultithreadEventLoopGroup(1);
             var workerGroup = new MultithreadEventLoopGroup();
 
@@ -29,12 +30,12 @@ namespace NosCore.GameObject.Networking
                     {
                         SessionFactory.Instance.Sessions[channel.Id.AsLongText()] = 0;
                         var pipeline = channel.Pipeline;
-                        pipeline.AddLast((MessageToMessageDecoder<IByteBuffer>) decryptor.GetDecoder());
-                        pipeline.AddLast(new ClientSession(channel, isWorldClient));
-                        pipeline.AddLast((MessageToMessageEncoder<string>) encryptor.GetEncoder());
+                        pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageDecoder<IByteBuffer>>());
+                        pipeline.AddLast(new ClientSession(channel));
+                        pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageEncoder<string>>());
                     }));
 
-                var bootstrapChannel = await bootstrap.BindAsync(port).ConfigureAwait(false);
+                var bootstrapChannel = await bootstrap.BindAsync(configuration.Port).ConfigureAwait(false);
 
                 Console.ReadLine();
 

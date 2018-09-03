@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NosCore.Data.WebApi
+﻿namespace NosCore.Data.WebApi
 {
     public class Character
     {

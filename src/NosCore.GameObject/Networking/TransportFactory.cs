@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.GameObject.Networking
+﻿namespace NosCore.GameObject.Networking
 {
     public class TransportFactory
     {

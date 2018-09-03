@@ -2,11 +2,16 @@
 using System.IO;
 using System.Reflection;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using DotNetty.Buffers;
+using DotNetty.Codecs;
 using log4net;
 using log4net.Config;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Controllers;
+using NosCore.Core;
+using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
 using NosCore.Packets.ClientPackets;
@@ -53,18 +58,13 @@ namespace NosCore.LoginServer
             PacketFactory.Initialize<NoS0575Packet>();
         }
 
-        private static void InitializeControllers(IContainer container)
-        {
-            PacketControllerFactory.Initialize(container);
-        }
-
         public static void Main()
         {
             PrintHeader();
             InitializeLogger();
             InitializePackets();
             var container = InitializeContainer();
-            InitializeControllers(container);
+            DependancyResolver.Init(new AutofacServiceProvider(container));
             var loginServer = container.Resolve<LoginServer>();
             loginServer.Run();
         }
@@ -72,8 +72,10 @@ namespace NosCore.LoginServer
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>();
+            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             return containerBuilder.Build();
         }
