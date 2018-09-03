@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
@@ -9,7 +8,6 @@ using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Client;
-using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
@@ -38,8 +36,7 @@ namespace NosCore.LoginServer
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
-                NetworkManager.RunServerAsync(Convert.ToInt32(_loginConfiguration.Port), new LoginEncoderFactory(),
-                    new LoginDecoderFactory(), false).Wait();
+                NetworkManager.RunServerAsync().Wait();
             }
             catch
             {

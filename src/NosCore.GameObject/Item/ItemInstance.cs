@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using NosCore.Data;
+﻿using NosCore.Data;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
 

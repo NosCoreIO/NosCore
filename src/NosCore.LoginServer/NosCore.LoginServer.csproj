@@ -25,6 +25,9 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="Autofac.Extensions.DependencyInjection">
+      <HintPath>..\..\..\..\.nuget\packages\autofac.extensions.dependencyinjection\4.3.0\lib\netstandard2.0\Autofac.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
     <Reference Include="Polly">
       <HintPath>..\..\..\..\.nuget\packages\polly\6.1.0\lib\netstandard2.0\Polly.dll</HintPath>
     </Reference>

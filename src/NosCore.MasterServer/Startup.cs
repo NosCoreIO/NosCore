@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
@@ -95,12 +96,13 @@ namespace NosCore.MasterServer
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
-            containerBuilder.RegisterInstance(configuration).As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>().As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             Task.Run(() => container.Resolve<MasterServer>().Run());
-            return new AutofacServiceProvider(container);
+            var serviceProvider = new AutofacServiceProvider(container);
+            DependancyResolver.Init(serviceProvider);
+            return serviceProvider;
         }
 
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
@@ -9,7 +8,6 @@ using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Client;
-using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -49,8 +47,7 @@ namespace NosCore.WorldServer
                     _worldConfiguration.Port));
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
-                NetworkManager.RunServerAsync(Convert.ToInt32(_worldConfiguration.Port), new WorldEncoderFactory(),
-                    new WorldDecoderFactory(), true).Wait();
+                NetworkManager.RunServerAsync().Wait();
             }
             catch
             {

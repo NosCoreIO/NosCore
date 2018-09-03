@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Data;
+﻿using NosCore.Data;
 
 namespace NosCore.GameObject
 {

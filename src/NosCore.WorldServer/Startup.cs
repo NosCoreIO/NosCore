@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DotNetty.Buffers;
+using DotNetty.Codecs;
 using JetBrains.Annotations;
 using log4net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Controllers;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
@@ -56,6 +59,8 @@ namespace NosCore.WorldServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.Populate(services);
@@ -102,13 +107,14 @@ namespace NosCore.WorldServer
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             var container = containerBuilder.Build();
-            PacketControllerFactory.Initialize(container);
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Task.Run(() => container.Resolve<WorldServer>().Run());
-            return new AutofacServiceProvider(container);
+            var serviceProvider = new AutofacServiceProvider(container);
+            DependancyResolver.Init(serviceProvider);
+            return serviceProvider;
         }
 
         [UsedImplicitly]

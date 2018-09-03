@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -224,7 +222,7 @@ namespace NosCore.Controllers
                 Session.Account.Name);
 
             // load characterlist packet for each character in Character
-            Session.SendPacket(new ClistStartPacket {Type = 0});
+            Session.SendPacket(new ClistStartPacket { Type = 0 });
             foreach (GameObject.Character character in characters)
             {
                 var equipment = new WearableInstance[16];
@@ -260,11 +258,11 @@ namespace NosCore.Controllers
                     Slot = character.Slot,
                     Name = character.Name,
                     Unknown = 0,
-                    Gender = (byte) character.Gender,
-                    HairStyle = (byte) character.HairStyle,
-                    HairColor = (byte) character.HairColor,
+                    Gender = (byte)character.Gender,
+                    HairStyle = (byte)character.HairStyle,
+                    HairColor = (byte)character.HairColor,
                     Unknown1 = 0,
-                    Class = (CharacterClassType) character.Class,
+                    Class = (CharacterClassType)character.Class,
                     Level = character.Level,
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>
@@ -325,16 +323,18 @@ namespace NosCore.Controllers
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 character.Inventory = new Inventory() { Configuration = _worldConfiguration };
                 inventories.ForEach(k => character.Inventory[k.Id] = (ItemInstance)k);
+                #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
+                #pragma warning restore CS0618
 
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
-                    Session.Character.Hp = (int) Session.Character.HPLoad();
+                    Session.Character.Hp = (int)Session.Character.HPLoad();
                 }
 
                 if (Session.Character.Mp > Session.Character.MPLoad())
                 {
-                    Session.Character.Mp = (int) Session.Character.MPLoad();
+                    Session.Character.Mp = (int)Session.Character.MPLoad();
                 }
 
                 IEnumerable<CharacterRelation> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();

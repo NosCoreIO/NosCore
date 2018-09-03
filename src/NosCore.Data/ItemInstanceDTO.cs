@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using NosCore.Shared.Enumerations.Buff;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Data

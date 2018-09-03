@@ -9,7 +9,7 @@ using NosCore.Core.Networking;
 
 namespace NosCore.Core.Encryption
 {
-    public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>, IDecoder
+    public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>
     {
         private static string DecryptPrivate(string str)
         {

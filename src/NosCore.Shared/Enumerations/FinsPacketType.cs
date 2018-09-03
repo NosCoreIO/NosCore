@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.Shared.Enumerations
+﻿namespace NosCore.Shared.Enumerations
 {
     public enum FinsPacketType : byte
     {
