@@ -113,10 +113,11 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             var container = containerBuilder.Build();
-            DependancyResolver.Init(new AutofacServiceProvider(container));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Task.Run(() => container.Resolve<WorldServer>().Run());
-            return new AutofacServiceProvider(container);
+            var serviceProvider = new AutofacServiceProvider(container);
+            DependancyResolver.Init(serviceProvider);
+            return serviceProvider;
         }
 
         [UsedImplicitly]
