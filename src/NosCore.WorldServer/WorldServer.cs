@@ -21,10 +21,12 @@ namespace NosCore.WorldServer
     public class WorldServer
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly NetworkManager _networkManager;
 
-        public WorldServer(WorldConfiguration worldConfiguration)
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager)
         {
             _worldConfiguration = worldConfiguration;
+            _networkManager = networkManager;
         }
 
 
@@ -47,7 +49,7 @@ namespace NosCore.WorldServer
                     _worldConfiguration.Port));
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
-                NetworkManager.RunServerAsync().Wait();
+                _networkManager.RunServerAsync().Wait();
             }
             catch
             {

@@ -28,7 +28,7 @@ namespace NosCore.Tests.HandlerTests
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Name = "TestExistingCharacter";
-        private readonly ClientSession _session = new ClientSession();
+        private readonly ClientSession _session = new ClientSession(null, null, null);
         private AccountDTO _acc;
         private LoginPacketController _handler;
 

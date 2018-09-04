@@ -12,11 +12,17 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-    public static class NetworkManager
+    public class NetworkManager
     {
-        public static async Task RunServerAsync()
+        private readonly GameServerConfiguration _configuration;
+
+        public NetworkManager( GameServerConfiguration configuration)
         {
-            var configuration = DependancyResolver.Current.GetService<GameServerConfiguration>();
+            _configuration = configuration;
+        }
+
+        public async Task RunServerAsync()
+        {
             var bossGroup = new MultithreadEventLoopGroup(1);
             var workerGroup = new MultithreadEventLoopGroup();
 
@@ -31,11 +37,13 @@ namespace NosCore.GameObject.Networking
                         SessionFactory.Instance.Sessions[channel.Id.AsLongText()] = 0;
                         var pipeline = channel.Pipeline;
                         pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageDecoder<IByteBuffer>>());
-                        pipeline.AddLast(new ClientSession(channel));
+                        var clientSession = DependancyResolver.Current.GetService<ClientSession>();
+                        clientSession.RegisterChannel(channel);
+                        pipeline.AddLast(clientSession);
                         pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageEncoder<string>>());
                     }));
 
-                var bootstrapChannel = await bootstrap.BindAsync(configuration.Port).ConfigureAwait(false);
+                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
 
                 Console.ReadLine();
 

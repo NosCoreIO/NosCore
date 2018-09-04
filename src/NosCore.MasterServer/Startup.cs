@@ -100,9 +100,7 @@ namespace NosCore.MasterServer
             var container = containerBuilder.Build();
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             Task.Run(() => container.Resolve<MasterServer>().Run());
-            var serviceProvider = new AutofacServiceProvider(container);
-            DependancyResolver.Init(serviceProvider);
-            return serviceProvider;
+            return new AutofacServiceProvider(container);
         }
 
 

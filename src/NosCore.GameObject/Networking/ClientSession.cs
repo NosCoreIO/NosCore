@@ -29,17 +29,11 @@ namespace NosCore.GameObject.Networking
 
         private Character _character;
         private int? _waitForPacketsAmount;
-        public IServiceProvider Provider { get; set; }
 
-        public ClientSession() : base(null)
+        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
         {
-
-        }
-
-        public ClientSession(IChannel channel) : base(channel)
-        {
-             _isWorldClient = DependancyResolver.Current.GetService<GameServerConfiguration>() is WorldConfiguration;
-            foreach (var controller in DependancyResolver.Current.GetService<IEnumerable<IPacketController>>())
+             _isWorldClient = configuration is WorldConfiguration;
+            foreach (var controller in packetControllers)
             {
                 controller.RegisterSession(this);
                 foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>
