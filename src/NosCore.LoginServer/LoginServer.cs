@@ -20,10 +20,11 @@ namespace NosCore.LoginServer
     public class LoginServer
     {
         private readonly LoginConfiguration _loginConfiguration;
-
-        public LoginServer(LoginConfiguration loginConfiguration)
+        private readonly NetworkManager _networkManager;
+        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager)
         {
             _loginConfiguration = loginConfiguration;
+            _networkManager = networkManager;
         }
 
         public void Run()
@@ -36,7 +37,7 @@ namespace NosCore.LoginServer
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
-                NetworkManager.RunServerAsync().Wait();
+                _networkManager.RunServerAsync().Wait();
             }
             catch
             {

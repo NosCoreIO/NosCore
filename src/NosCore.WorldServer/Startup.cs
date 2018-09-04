@@ -24,6 +24,7 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
@@ -63,6 +64,8 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.Populate(services);
             return containerBuilder;
         }
@@ -110,11 +113,10 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             var container = containerBuilder.Build();
+            DependancyResolver.Init(new AutofacServiceProvider(container));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Task.Run(() => container.Resolve<WorldServer>().Run());
-            var serviceProvider = new AutofacServiceProvider(container);
-            DependancyResolver.Init(serviceProvider);
-            return serviceProvider;
+            return new AutofacServiceProvider(container);
         }
 
         [UsedImplicitly]

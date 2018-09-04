@@ -5,6 +5,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
+using DotNetty.Transport.Channels;
 using log4net;
 using log4net.Config;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 
@@ -77,6 +79,9 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
+            containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<NetworkManager>();
+
             return containerBuilder.Build();
         }
     }

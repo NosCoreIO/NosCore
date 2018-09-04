@@ -9,7 +9,7 @@ namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
-        private readonly IChannel _channel;
+        private IChannel _channel;
 
         #region Members
 
@@ -22,7 +22,7 @@ namespace NosCore.Core.Networking
         public long ClientId { get; set; }
         public PacketDefinition LastPacket { get; private set; }
 
-        public NetworkClient(IChannel channel)
+        public void RegisterChannel(IChannel channel)
         {
             _channel = channel;
         }
