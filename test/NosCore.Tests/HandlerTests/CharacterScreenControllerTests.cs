@@ -28,7 +28,7 @@ namespace NosCore.Tests.HandlerTests
     public class CharacterScreenControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        private readonly ClientSession _session = new ClientSession(null, null, null);
+        private readonly ClientSession _session = new ClientSession(null, null);
         private AccountDTO _acc;
         private CharacterDTO _chara;
         private CharacterScreenPacketController _handler;

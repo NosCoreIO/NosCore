@@ -66,6 +66,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.Populate(services);
             return containerBuilder;
         }
@@ -115,9 +116,7 @@ namespace NosCore.WorldServer
             var container = containerBuilder.Build();
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Task.Run(() => container.Resolve<WorldServer>().Run());
-            var serviceProvider = new AutofacServiceProvider(container);
-            DependancyResolver.Init(serviceProvider);
-            return serviceProvider;
+            return new AutofacServiceProvider(container);
         }
 
         [UsedImplicitly]
