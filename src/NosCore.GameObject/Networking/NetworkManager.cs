@@ -15,10 +15,12 @@ namespace NosCore.GameObject.Networking
     public class NetworkManager
     {
         private readonly GameServerConfiguration _configuration;
+        private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
 
-        public NetworkManager( GameServerConfiguration configuration)
+        public NetworkManager(GameServerConfiguration configuration, Func<ISocketChannel, PipelineFactory> pipelineFactory)
         {
             _configuration = configuration;
+            _pipelineFactory = pipelineFactory;
         }
 
         public async Task RunServerAsync()
@@ -34,13 +36,7 @@ namespace NosCore.GameObject.Networking
                     .Channel<TcpServerSocketChannel>()
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     {
-                        SessionFactory.Instance.Sessions[channel.Id.AsLongText()] = 0;
-                        var pipeline = channel.Pipeline;
-                        pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageDecoder<IByteBuffer>>());
-                        var clientSession = DependancyResolver.Current.GetService<ClientSession>();
-                        clientSession.RegisterChannel(channel);
-                        pipeline.AddLast(clientSession);
-                        pipeline.AddLast(DependancyResolver.Current.GetService<MessageToMessageEncoder<string>>());
+                        _pipelineFactory(channel).CreatePipeline();
                     }));
 
                 var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);

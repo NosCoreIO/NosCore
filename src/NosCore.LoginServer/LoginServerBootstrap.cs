@@ -66,7 +66,6 @@ namespace NosCore.LoginServer
             InitializeLogger();
             InitializePackets();
             var container = InitializeContainer();
-            DependancyResolver.Init(new AutofacServiceProvider(container));
             var loginServer = container.Resolve<LoginServer>();
             loginServer.Run();
         }
@@ -81,6 +80,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>();
 
             return containerBuilder.Build();
         }
