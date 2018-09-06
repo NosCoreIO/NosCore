@@ -66,13 +66,13 @@ namespace NosCore.MasterServer
                         pipeline.AddLast(new MasterServerSession(password));
                     }));
 
-                var bootstrapChannel = await bootstrap.BindAsync(port).ConfigureAwait(false);
+                var bootstrapChannel = await bootstrap.BindAsync(port);
 
                 Logger.Log.Info(
                     string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING)));
                 Console.ReadLine();
 
-                await bootstrapChannel.CloseAsync().ConfigureAwait(false);
+                await bootstrapChannel.CloseAsync();
             }
             finally
             {

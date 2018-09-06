@@ -78,10 +78,9 @@ namespace NosCore.WorldServer
                         pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
 
                         pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterClientSession(password));
+                        pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
                     }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
-                    .ConfigureAwait(false);
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
 
                 await connection.WriteAndFlushAsync(new Channel
                 {
@@ -93,7 +92,7 @@ namespace NosCore.WorldServer
                     ServerGroup = serverGroup,
                     Host = serverHost,
                     WebApi = webApi
-                }).ConfigureAwait(false);
+                });
             }
 
             WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);

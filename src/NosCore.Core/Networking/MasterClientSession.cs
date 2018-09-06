@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using Newtonsoft.Json;
 using NosCore.Shared.I18N;
@@ -7,16 +9,19 @@ namespace NosCore.Core.Networking
 {
     public class MasterClientSession : MasterServerSession
     {
-        public MasterClientSession(string password) : base(password)
+        Action _onConnectionLost;
+        public MasterClientSession(string password, Action onConnectionLost) : base(password)
         {
+            _onConnectionLost = onConnectionLost;
         }
 
-        public override void ChannelUnregistered(IChannelHandlerContext context)
+        public override void ChannelInactive(IChannelHandlerContext context)
         {
             Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
+            Task.Run(() => _onConnectionLost());
         }
 
-        public override void ChannelRegistered(IChannelHandlerContext context)
+        public override void ChannelActive(IChannelHandlerContext context)
         {
             Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
         }

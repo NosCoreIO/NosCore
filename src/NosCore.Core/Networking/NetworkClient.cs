@@ -33,7 +33,7 @@ namespace NosCore.Core.Networking
 
         private static volatile IChannelGroup _group;
 
-        public override void ChannelRegistered(IChannelHandlerContext context)
+        public override void ChannelActive(IChannelHandlerContext context)
         {
             var g = _group;
             if (g == null)
