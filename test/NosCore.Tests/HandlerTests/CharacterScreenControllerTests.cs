@@ -21,6 +21,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using System.Collections.Generic;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -28,7 +29,7 @@ namespace NosCore.Tests.HandlerTests
     public class CharacterScreenControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        private readonly ClientSession _session = new ClientSession(null, null);
+        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new CharacterScreenPacketController() });
         private AccountDTO _acc;
         private CharacterDTO _chara;
         private CharacterScreenPacketController _handler;

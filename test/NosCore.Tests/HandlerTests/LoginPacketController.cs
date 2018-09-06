@@ -20,6 +20,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
+using NosCore.GameObject;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -28,7 +29,7 @@ namespace NosCore.Tests.HandlerTests
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Name = "TestExistingCharacter";
-        private readonly ClientSession _session = new ClientSession(null, null);
+        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new LoginPacketController() });
         private AccountDTO _acc;
         private LoginPacketController _handler;
 
