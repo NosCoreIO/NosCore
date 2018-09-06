@@ -34,6 +34,10 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
         }
 
+        private byte _speed;
+
+        public List<long> GroupRequestCharacterIds { get; set; }
+
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }

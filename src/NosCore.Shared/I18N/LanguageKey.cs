@@ -123,8 +123,10 @@ namespace NosCore.Shared.I18N
         FRIEND_DELETED,
         FRIEND_OFFLINE,
         CANT_FIND_CHARACTER,
-        NPCMONSTERS_LOADED,
-        ENCODE_ERROR
-        GROUP_LEADER_CHANGE
+        GROUP_LEADER_CHANGE,
+        GROUP_FULL,
+        ALREADY_IN_GROUP,
+        GROUP_BLOCKED,
+        INVITED_YOU_GROUP
     }
 }
