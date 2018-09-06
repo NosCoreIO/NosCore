@@ -359,16 +359,16 @@ namespace NosCore.Controllers
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                     {
+
+                        receiverSession.SendPacket(new SayPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                            Type = SayColorType.Yellow
+                        });
                         return;
                     }
 
                     receiverSession.SendPacket(speakPacket);
-
-                    receiverSession.SendPacket(new SayPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
-                        Type = SayColorType.Yellow
-                    });
                     return;
                 }
 
