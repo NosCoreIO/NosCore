@@ -16,21 +16,13 @@
 
   <ItemGroup>
 	<PackageReference Include="Autofac" Version="4.8.1" />
+	<PackageReference Include="Polly" Version="6.1.0" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Controllers\NosCore.Controllers.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="Autofac.Extensions.DependencyInjection">
-      <HintPath>..\..\..\..\.nuget\packages\autofac.extensions.dependencyinjection\4.3.0\lib\netstandard2.0\Autofac.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Polly">
-      <HintPath>..\..\..\..\.nuget\packages\polly\6.1.0\lib\netstandard2.0\Polly.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
