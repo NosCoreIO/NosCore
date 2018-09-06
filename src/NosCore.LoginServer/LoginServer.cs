@@ -65,11 +65,9 @@ namespace NosCore.LoginServer
                         pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
 
                         pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterClientSession(password));
+                        pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
                     }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
-                    .ConfigureAwait(false);
-
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
                 await connection.WriteAndFlushAsync(new Channel
                 {
                     Password = password,
@@ -79,7 +77,7 @@ namespace NosCore.LoginServer
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost
-                }).ConfigureAwait(false);
+                });
             }
 
             WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
@@ -89,7 +87,7 @@ namespace NosCore.LoginServer
                     Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-                    _loginConfiguration.MasterCommunication.Password, 
+                    _loginConfiguration.MasterCommunication.Password,
                     new MasterClient { Name = "LoginServer", Type = ServerType.LoginServer })
                 ).Wait();
         }

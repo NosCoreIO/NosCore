@@ -22,7 +22,7 @@ namespace NosCore.Core.Networking
             Password = password;
         }
 
-        public override void ChannelUnregistered(IChannelHandlerContext context)
+        public override void ChannelInactive(IChannelHandlerContext context)
         {
             MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
             Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER),
@@ -106,7 +106,7 @@ namespace NosCore.Core.Networking
             }
         }
 
-        public override void ChannelRegistered(IChannelHandlerContext context)
+        public override void ChannelActive(IChannelHandlerContext context)
         {
             Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER)));
         }

@@ -39,11 +39,11 @@ namespace NosCore.GameObject.Networking
                         _pipelineFactory(channel).CreatePipeline();
                     }));
 
-                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
+                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port);
 
                 Console.ReadLine();
 
-                await bootstrapChannel.CloseAsync().ConfigureAwait(false);
+                await bootstrapChannel.CloseAsync();
             }
             catch (Exception ex)
             {
