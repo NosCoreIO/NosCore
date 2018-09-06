@@ -2,16 +2,13 @@
 using System.IO;
 using System.Reflection;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
-using DotNetty.Transport.Channels;
 using log4net;
 using log4net.Config;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Controllers;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
