@@ -396,7 +396,7 @@ namespace NosCore.GameObject
 
             if (Inventory != null)
             {
-                foreach (ItemInstance inv in Inventory.Select(s => s.Value))
+                foreach (var inv in Inventory.Select(s => s.Value))
                 {
                     switch (inv.Type)
                     {
@@ -736,6 +736,25 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 Message = message
             };
+        }
+
+        public PidxPacket GeneratePidx(bool leaveGroup = false)
+        {
+            var subPackets = new List<PidxSubPacket>();
+            if (leaveGroup || Group == null)
+            {
+                subPackets.Add(new PidxSubPacket { IsMemberOfGroup = true, VisualId = VisualId });
+
+                return new PidxPacket { GroupId = -1, SubPackets = subPackets };
+            }
+
+            subPackets.AddRange(Group.Characters.Values.Select(member => new PidxSubPacket
+            {
+                IsMemberOfGroup = Group.IsMemberOfGroup(CharacterId),
+                VisualId = member.Character.CharacterId
+            }));
+
+            return new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets };
         }
     }
 }
