@@ -41,6 +41,6 @@ namespace NosCore.Packets.ServerPackets
         public short Morph { get; set; }
 
         [PacketIndex(10, IsOptional = true)]
-        public string Buffs { get; set; } //TODO: Change this into a list of buffs
+        public List<int> BuffIds { get; set; }
     }
 }

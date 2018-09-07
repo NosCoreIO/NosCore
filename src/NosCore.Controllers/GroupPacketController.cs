@@ -34,7 +34,7 @@ namespace NosCore.Controllers
         /// <param name="pjoinPacket"></param>
         public void GroupJoin(PjoinPacket pjoinPacket)
         {
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == pjoinPacket.CharacterId);
+            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == (long)pjoinPacket.CharacterId);
 
             if (targetSession == null && pjoinPacket.RequestType != GroupRequestType.Sharing)
             {
@@ -46,12 +46,12 @@ namespace NosCore.Controllers
 
                 case GroupRequestType.Requested:
                 case GroupRequestType.Invited:
-                    if (pjoinPacket.CharacterId <= 0 || targetSession == null || pjoinPacket.CharacterId == Session.Character.CharacterId)
+                    if (pjoinPacket.CharacterId == 0 || targetSession == null || (long)pjoinPacket.CharacterId == Session.Character.CharacterId)
                     {
                         return;
                     }
 
-                    if (targetSession.Character.Group != null && targetSession.Character.Group.IsGroupFull())
+                    if (targetSession.Character.Group != null && targetSession.Character.Group.IsGroupFull)
                     {
                         Session.SendPacket(new InfoPacket
                         {
@@ -69,7 +69,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (Session.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
+                    if (Session.Character.IsRelatedToCharacter((long)pjoinPacket.CharacterId, CharacterRelationType.Blocked))
                     {
                         Session.SendPacket(new InfoPacket
                         {
@@ -87,7 +87,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    Session.Character.GroupRequestCharacterIds.Add(pjoinPacket.CharacterId);
+                    Session.Character.GroupRequestCharacterIds.Add((long)pjoinPacket.CharacterId);
 
                     if (Session.Character.Group == null || Session.Character.Group.Type == GroupType.Group)
                     {
@@ -96,8 +96,8 @@ namespace NosCore.Controllers
                             targetSession.SendPacket(new DlgPacket
                             {
                                 Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP, targetSession.Account.Language),
-                                YesPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Accepted },
-                                NoPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Declined }
+                                YesPacket = new PjoinPacket { CharacterId = (ulong)Session.Character.CharacterId, RequestType = GroupRequestType.Accepted },
+                                NoPacket = new PjoinPacket { CharacterId = (ulong)Session.Character.CharacterId, RequestType = GroupRequestType.Declined }
                             });
                         }
                     }
