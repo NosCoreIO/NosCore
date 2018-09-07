@@ -218,8 +218,8 @@ namespace NosCore.Controllers
                         member.SendPacket(currentGroup.GeneratePinit());
                     }
 
+                    ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
-
                     break;
             }
         }
