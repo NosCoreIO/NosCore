@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
+using NosCore.Core.Serializing;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -21,6 +22,7 @@ namespace NosCore.GameObject
             Type = type;
         }
 
+        public long GroupId { get; set; }
 
         public GroupType Type { get; set; }
 
@@ -106,13 +108,11 @@ namespace NosCore.GameObject
 
             foreach (var member in Characters.Values)
             {
-                i++;
-
                 subPackets.Add(new PinitSubPacket
                 {
                     VisualType = member.Character.VisualType,
                     VisualId = member.Character.CharacterId,
-                    GroupPosition = i,
+                    GroupPosition = ++i,
                     Level = member.Character.Level,
                     Name = member.Character.Name,
                     Unknown = 0,
@@ -123,7 +123,11 @@ namespace NosCore.GameObject
                 });
             }
 
-            return new PinitPacket { PinitSubPackets = subPackets };
+            return new PinitPacket
+            {
+                GroupSize = i,
+                PinitSubPackets = subPackets
+            };
         }
     }
 }

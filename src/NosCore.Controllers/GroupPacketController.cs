@@ -184,6 +184,7 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Group = new Group(GroupType.Group);
+                        Session.Character.Group.JoinGroup(Session);
                         Session.Character.Group.JoinGroup(targetSession);
                         Session.SendPacket(new InfoPacket
                         {
@@ -196,6 +197,8 @@ namespace NosCore.Controllers
                         });
 
                         targetSession.Character.Group = Session.Character.Group;
+                        Session.Character.GroupRequestCharacterIds.Clear();
+                        targetSession.Character.GroupRequestCharacterIds.Clear();
                     }
 
                     if (Session.Character.Group?.Type != GroupType.Group)
@@ -214,6 +217,8 @@ namespace NosCore.Controllers
                     {
                         member.SendPacket(currentGroup.GeneratePinit());
                     }
+
+                    Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
 
                     break;
             }
