@@ -20,7 +20,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public GroupPacketController()
         {
-            
+
         }
 
         public GroupPacketController(WorldConfiguration worldConfiguration)
@@ -100,6 +100,119 @@ namespace NosCore.Controllers
                                 NoPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Declined }
                             });
                         }
+                    }
+
+                    break;
+                case GroupRequestType.Sharing:
+
+                    if (Session.Character.Group == null)
+                    {
+                        return;
+                    }
+
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO, Session.Account.Language)
+                    });
+
+                    Session.Character.Group.Characters.Values.Where(s => s.Character.CharacterId != Session.Character.CharacterId).ToList().ForEach(s =>
+                    {
+                        s.Character.GroupRequestCharacterIds.Add(s.Character.CharacterId);
+                        s.SendPacket(new DlgPacket
+                        {
+                            Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE, Session.Account.Language),
+                            YesPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.AcceptedShare },
+                            NoPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.DeclinedShare }
+                        });
+                    });
+
+                    
+                    break;
+                case GroupRequestType.Accepted:
+                    if (targetSession == null)
+                    {
+                        return;
+                    }
+
+                    if (targetSession.Character.GroupRequestCharacterIds.Count < 0)
+                    {
+                        return;
+                    }
+
+                    if (!targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
+                    {
+                        return;
+                    }
+
+                    targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
+
+                    if (Session.Character.Group != null && targetSession.Character.Group != null)
+                    {
+                        return;
+                    }
+
+                    if (Session.Character.Group != null && Session.Character.Group.IsGroupFull ||
+                        targetSession.Character.Group != null && targetSession.Character.Group.IsGroupFull)
+                    {
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, Session.Account.Language)
+                        });
+
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                          Message  = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, targetSession.Account.Language)
+                        });
+                        return;
+                    }
+
+                    if (Session.Character.Group != null)
+                    {
+                        Session.Character.Group.JoinGroup(targetSession);
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, targetSession.Account.Language)
+                        });
+                    }
+                    else if (targetSession.Character.Group != null)
+                    {
+                        if (targetSession.Character.Group.Type == GroupType.Group)
+                        {
+                            targetSession.Character.Group.JoinGroup(Session);
+                        }
+                    }
+                    else
+                    {
+                        Session.Character.Group = new Group(GroupType.Group);
+                        Session.Character.Group.JoinGroup(targetSession);
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language)
+                        });
+
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN, targetSession.Account.Language)
+                        });
+
+                        targetSession.Character.Group = Session.Character.Group;
+                    }
+
+                    if (Session.Character.Group?.Type != GroupType.Group)
+                    {
+                        return;
+                    }
+
+                    if (Session.Character.Group == null)
+                    {
+                        return;
+                    }
+
+                    var currentGroup = Session.Character.Group;
+
+                    foreach (var member in currentGroup.Characters.Values)
+                    {
+                        member.SendPacket(currentGroup.GeneratePinit());
                     }
 
                     break;
