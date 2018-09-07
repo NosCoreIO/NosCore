@@ -127,6 +127,10 @@ namespace NosCore.Shared.I18N
         GROUP_FULL,
         ALREADY_IN_GROUP,
         GROUP_BLOCKED,
-        INVITED_YOU_GROUP
+        INVITED_YOU_GROUP,
+        INVITED_GROUP_SHARE,
+        GROUP_SHARE_INFO,
+        JOINED_GROUP,
+        GROUP_ADMIN
     }
 }
