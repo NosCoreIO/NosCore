@@ -14,7 +14,6 @@ namespace NosCore.GameObject
 {
     public class Group
     {
-        #region Instantiation
 
         public Group(GroupType type)
         {
@@ -22,17 +21,12 @@ namespace NosCore.GameObject
             Type = type;
         }
 
-        #endregion
-
-        #region Properties
 
         public GroupType Type { get; set; }
 
+        public bool IsGroupFull => Characters.Count == (long) Type;
+
         public ConcurrentDictionary<long, ClientSession> Characters { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public List<PstPacket> GeneratePst(ClientSession session)
         {
@@ -71,15 +65,10 @@ namespace NosCore.GameObject
             return Characters.Any(s => s.Value.Character.CharacterId == characterId);
         }
 
-        public bool IsGroupFull()
-        {
-            return Characters.Count == (int) Type;
-        }
-
         public bool IsGroupLeader(ClientSession session)
         {
-            var leader = Characters.Values.OrderBy(s => s.Character.LastGroupJoin).ElementAtOrDefault(0);
-            return Characters.Any() && leader != null && leader == session;
+            var leader = Characters.Values.OrderBy(s => s.Character.LastGroupJoin).FirstOrDefault();
+            return Characters.Count > 0 && leader != null && leader == session;
         }
 
         public void JoinGroup(ClientSession session)
@@ -109,8 +98,6 @@ namespace NosCore.GameObject
                 });
             }
         }
-
-        #endregion
     }
 }
 

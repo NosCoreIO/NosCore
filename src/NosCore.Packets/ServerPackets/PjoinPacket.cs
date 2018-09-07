@@ -13,6 +13,6 @@ namespace NosCore.Packets.ServerPackets
         public GroupRequestType RequestType { get; set; }
 
         [PacketIndex(1)]
-        public long CharacterId { get; set; }
+        public ulong CharacterId { get; set; }
     }
 }
