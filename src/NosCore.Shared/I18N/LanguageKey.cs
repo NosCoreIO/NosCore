@@ -131,6 +131,9 @@ namespace NosCore.Shared.I18N
         INVITED_GROUP_SHARE,
         GROUP_SHARE_INFO,
         JOINED_GROUP,
-        GROUP_ADMIN
+        GROUP_ADMIN,
+        GROUP_REFUSED,
+        SHARED_REFUSED,
+        ACCEPTED_SHARE
     }
 }
