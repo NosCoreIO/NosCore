@@ -7,6 +7,7 @@ using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.I18N;
@@ -34,7 +35,7 @@ namespace NosCore.Controllers
         /// <param name="pjoinPacket"></param>
         public void GroupJoin(PjoinPacket pjoinPacket)
         {
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == (long)pjoinPacket.CharacterId);
+            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == pjoinPacket.CharacterId);
 
             if (targetSession == null && pjoinPacket.RequestType != GroupRequestType.Sharing)
             {
@@ -134,11 +135,6 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (targetSession.Character.GroupRequestCharacterIds.Count < 0)
-                    {
-                        return;
-                    }
-
                     if (!targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
                     {
                         return;
@@ -220,6 +216,50 @@ namespace NosCore.Controllers
 
                     ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
+                    break;
+                case GroupRequestType.Declined:
+                    if (targetSession == null || !targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
+                    {
+                        return;
+                    }
+
+                    targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED, targetSession.Account.Language)
+                    });
+                    break;
+                case GroupRequestType.AcceptedShare:
+                    if (targetSession == null || !targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
+                    {
+                        return;
+                    }
+
+                    if (Session.Character.Group == null)
+                    {
+                        return;
+                    }
+
+                    targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
+                    Session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE, Session.Account.Language),
+                        Type = MessageType.Whisper
+                    });
+
+                    //TODO: add a way to change respawn points when system will be done
+                    break;
+                case GroupRequestType.DeclinedShare:
+                    if (targetSession == null || !targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
+                    {
+                        return;
+                    }
+
+                    targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED, targetSession.Account.Language)
+                    });
                     break;
             }
         }
