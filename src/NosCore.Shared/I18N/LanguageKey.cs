@@ -139,6 +139,7 @@ namespace NosCore.Shared.I18N
         NEW_LEADER,
         LEAVE_GROUP,
         GROUP_LEFT,
-        GROUP_CLOSED
+        GROUP_CLOSED,
+        GROUP_INVITE
     }
 }
