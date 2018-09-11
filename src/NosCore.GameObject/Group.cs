@@ -101,35 +101,6 @@ namespace NosCore.GameObject
                 });
             }
         }
-
-        public PinitPacket GeneratePinit()
-        {
-            var subPackets = new List<PinitSubPacket>();
-            int i = 0;
-
-            foreach (var member in Characters.Values)
-            {
-                subPackets.Add(new PinitSubPacket
-                {
-                    VisualType = member.Character.VisualType,
-                    VisualId = member.Character.CharacterId,
-                    GroupPosition = ++i,
-                    Level = member.Character.Level,
-                    Name = member.Character.Name,
-                    Unknown = 0,
-                    Gender = member.Character.Gender,
-                    Class = (CharacterClassType)member.Character.Class,
-                    Morph = member.Character.Morph,
-                    HeroLevel = member.Character.HeroLevel
-                });
-            }
-
-            return new PinitPacket
-            {
-                GroupSize = i,
-                PinitSubPackets = subPackets
-            };
-        }
     }
 }
 
