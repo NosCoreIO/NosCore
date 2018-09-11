@@ -212,7 +212,7 @@ namespace NosCore.GameObject
 
             if (Group == null)
             {
-                return new PinitPacket { GroupSize = 0 };
+                return new PinitPacket { GroupSize = 0, PinitSubPackets = new List<PinitSubPacket>() };
             }
 
             foreach (var member in Group.Characters.Values)

@@ -97,6 +97,7 @@ namespace NosCore.Controllers
                     {
                         if (targetSession.Character?.Group == null || targetSession.Character?.Group.Type == GroupType.Group)
                         {
+                            Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE, Session.Account.Language) });
                             targetSession.SendPacket(new DlgPacket
                             {
                                 Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP, targetSession.Account.Language),
@@ -183,8 +184,8 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Group = new Group(GroupType.Group);
-                        Session.Character.Group.JoinGroup(Session);
                         Session.Character.Group.JoinGroup(targetSession);
+                        Session.Character.Group.JoinGroup(Session);
                         Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language)
@@ -278,9 +279,9 @@ namespace NosCore.Controllers
 
             if (group.Characters.Count > 2)
             {
-                group.LeaveGroup(Session);
                 if (group.IsGroupLeader(Session))
                 {
+                    group.LeaveGroup(Session);
                     ServerManager.Instance.Broadcast(Session, new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language) }, ReceiverType.OnlySomeone, string.Empty, group.Characters.Values.First().Character.CharacterId);
                 }
 
@@ -298,7 +299,7 @@ namespace NosCore.Controllers
                     });
                 }
 
-                Session.Character.GeneratePinit();
+                Session.SendPacket(Session.Character.GeneratePinit());
                 ServerManager.Instance.Broadcast(Session.Character.GeneratePidx(true));
                 Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
             }
