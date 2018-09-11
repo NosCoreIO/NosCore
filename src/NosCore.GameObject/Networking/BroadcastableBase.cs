@@ -111,10 +111,15 @@ namespace NosCore.GameObject.Networking
                         Sessions.Values.Where(s => s.HasSelectedCharacter && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session => session.SendPacket(sentPacket.Packet));
                     break;
+                case ReceiverType.Group:
+                    Parallel.ForEach(sentPacket.Sender.Character.Group.Characters.Values, session =>
+                    {
+                        session.SendPacket(sentPacket.Packet);
+                    });
+                    break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
                 case ReceiverType.AllNoHeroBlocked:
-                case ReceiverType.Group:
                 case ReceiverType.AllInRange:
                 case ReceiverType.All:
                     Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session => session.Value.SendPacket(sentPacket.Packet));

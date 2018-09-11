@@ -134,6 +134,11 @@ namespace NosCore.Shared.I18N
         GROUP_ADMIN,
         GROUP_REFUSED,
         SHARED_REFUSED,
-        ACCEPTED_SHARE
+        ACCEPTED_SHARE,
+        GOLD_SET,
+        NEW_LEADER,
+        LEAVE_GROUP,
+        GROUP_LEFT,
+        GROUP_CLOSED
     }
 }

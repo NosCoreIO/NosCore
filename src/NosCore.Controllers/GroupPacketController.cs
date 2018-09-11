@@ -5,11 +5,14 @@ using System.Text;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
@@ -33,7 +36,7 @@ namespace NosCore.Controllers
         ///     pjoin packet
         /// </summary>
         /// <param name="pjoinPacket"></param>
-        public void GroupJoin(PjoinPacket pjoinPacket)
+        public void ManageGroup(PjoinPacket pjoinPacket)
         {
             var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == pjoinPacket.CharacterId);
 
@@ -211,7 +214,7 @@ namespace NosCore.Controllers
 
                     foreach (var member in currentGroup.Characters.Values)
                     {
-                        member.SendPacket(currentGroup.GeneratePinit());
+                        member.SendPacket(member.Character.GeneratePinit());
                     }
 
                     ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
@@ -262,6 +265,66 @@ namespace NosCore.Controllers
                     });
                     break;
             }
+        }
+
+        public void LeaveGroup(PleavePacket pleavePacket)
+        {
+            Group group = Session.Character.Group;
+
+            if (group == null)
+            {
+                return;
+            }
+
+            if (group.Characters.Count > 2)
+            {
+                group.LeaveGroup(Session);
+                if (group.IsGroupLeader(Session))
+                {
+                    ServerManager.Instance.Broadcast(Session, new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language) }, ReceiverType.OnlySomeone, string.Empty, group.Characters.Values.First().Character.CharacterId);
+                }
+
+                if (group.Type == GroupType.Group)
+                {
+                    foreach (var member in group.Characters.Values)
+                    {
+                        member.SendPacket(member.Character.GeneratePinit());
+                        member.SendPacket(new MsgPacket
+                        {
+                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language), Session.Character.Name)
+                        });
+                    }
+
+                    Session.Character.GeneratePinit();
+                    ServerManager.Instance.Broadcast(Session.Character.GeneratePidx(true));
+                    Session.SendPacket(new MsgPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language)});
+                }
+            }
+            else
+            {
+                var memberList = new List<ClientSession>();
+                memberList.AddRange(group.Characters.Values);
+
+                foreach (var member in memberList)
+                {
+                    member.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, member.Account.Language), Type = MessageType.Whisper });
+                    ServerManager.Instance.Broadcast(member.Character.GeneratePidx(true));
+                    group.LeaveGroup(member);
+                    member.SendPacket(member.Character.GeneratePinit());
+                }
+
+                ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
+            }
+        }
+
+        public void GroupTalk(GroupTalkPacket groupTalkPacket)
+        {
+            if (string.IsNullOrEmpty(groupTalkPacket.Message) || Session.Character.Group == null)
+            {
+                return;
+            }
+
+            ServerManager.Instance.Broadcast(Session, Session.Character.GenerateSpk(new SpeakPacket { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }), ReceiverType.Group);
         }
     }
 }
