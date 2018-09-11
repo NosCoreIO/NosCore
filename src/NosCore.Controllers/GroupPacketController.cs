@@ -269,7 +269,7 @@ namespace NosCore.Controllers
 
         public void LeaveGroup(PleavePacket pleavePacket)
         {
-            Group group = Session.Character.Group;
+            var group = Session.Character.Group;
 
             if (group == null)
             {
@@ -284,21 +284,23 @@ namespace NosCore.Controllers
                     ServerManager.Instance.Broadcast(Session, new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language) }, ReceiverType.OnlySomeone, string.Empty, group.Characters.Values.First().Character.CharacterId);
                 }
 
-                if (group.Type == GroupType.Group)
+                if (group.Type != GroupType.Group)
                 {
-                    foreach (var member in group.Characters.Values)
-                    {
-                        member.SendPacket(member.Character.GeneratePinit());
-                        member.SendPacket(new MsgPacket
-                        {
-                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language), Session.Character.Name)
-                        });
-                    }
-
-                    Session.Character.GeneratePinit();
-                    ServerManager.Instance.Broadcast(Session.Character.GeneratePidx(true));
-                    Session.SendPacket(new MsgPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language)});
+                    return;
                 }
+
+                foreach (var member in group.Characters.Values)
+                {
+                    member.SendPacket(member.Character.GeneratePinit());
+                    member.SendPacket(new MsgPacket
+                    {
+                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language), Session.Character.Name)
+                    });
+                }
+
+                Session.Character.GeneratePinit();
+                ServerManager.Instance.Broadcast(Session.Character.GeneratePidx(true));
+                Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
             }
             else
             {
