@@ -711,9 +711,11 @@ namespace NosCore.GameObject.Helper
             }
         }
 
+        //TODO: Find real formula, these are currently the swordsman statistics
+
         private void LoadHpData()
         {
-            HpData = new int[4, 256];
+            HpData = new int[5, 256];
 
             // Adventurer HP
             for (var i = 1; i < HpData.GetLength(1); i++)
@@ -773,24 +775,52 @@ namespace NosCore.GameObject.Helper
 
                 HpData[(int) CharacterClassType.Archer, i] = hp;
             }
+
+            // Wrestler HP
+            //TODO: Find real formula, this is currently the swordsman statistics
+            for (var i = 0; i < HpData.GetLength(1); i++)
+            {
+                var j = 16;
+                var hp = 946;
+                var inc = 85;
+                while (j <= i)
+                {
+                    if (j % 5 == 2)
+                    {
+                        hp += inc / 2;
+                        inc += 2;
+                    }
+                    else
+                    {
+                        hp += inc;
+                        inc += 4;
+                    }
+
+                    ++j;
+                }
+
+                HpData[(int)CharacterClassType.Wrestler, i] = hp;
+            }
         }
 
         private void LoadHpHealth()
         {
-            HpHealth = new int[4];
+            HpHealth = new int[5];
             HpHealth[(int) CharacterClassType.Archer] = 60;
             HpHealth[(int) CharacterClassType.Adventurer] = 30;
             HpHealth[(int) CharacterClassType.Swordman] = 90;
             HpHealth[(int) CharacterClassType.Magician] = 30;
+            HpHealth[(int)CharacterClassType.Wrestler] = 90;
         }
 
         private void LoadHpHealthStand()
         {
-            HpHealthStand = new int[4];
+            HpHealthStand = new int[5];
             HpHealthStand[(int) CharacterClassType.Archer] = 32;
             HpHealthStand[(int) CharacterClassType.Adventurer] = 25;
             HpHealthStand[(int) CharacterClassType.Swordman] = 26;
             HpHealthStand[(int) CharacterClassType.Magician] = 20;
+            HpHealthStand[(int)CharacterClassType.Wrestler] = 26;
         }
 
         private void LoadJobXpData()
@@ -824,7 +854,7 @@ namespace NosCore.GameObject.Helper
 
         private void LoadMpData()
         {
-            MpData = new int[4, 257];
+            MpData = new int[5, 257];
 
             // ADVENTURER MP
             MpData[(int) CharacterClassType.Adventurer, 0] = 60;
@@ -860,33 +890,42 @@ namespace NosCore.GameObject.Helper
             {
                 MpData[(int) CharacterClassType.Magician, i] = 3 * MpData[(int) CharacterClassType.Adventurer, i];
             }
+
+            // WRESTLER MP
+            for (var i = 1; i < MpData.GetLength(1) - 1; i++)
+            {
+                MpData[(int)CharacterClassType.Wrestler, i] = MpData[(int)CharacterClassType.Adventurer, i];
+            }
         }
 
         private void LoadMpHealth()
         {
-            MpHealth = new int[4];
+            MpHealth = new int[5];
             MpHealth[(int) CharacterClassType.Adventurer] = 10;
             MpHealth[(int) CharacterClassType.Swordman] = 30;
             MpHealth[(int) CharacterClassType.Archer] = 50;
             MpHealth[(int) CharacterClassType.Magician] = 80;
+            MpHealth[(int)CharacterClassType.Wrestler] = 30;
         }
 
         private void LoadMpHealthStand()
         {
-            MpHealthStand = new int[4];
+            MpHealthStand = new int[5];
             MpHealthStand[(int) CharacterClassType.Adventurer] = 5;
             MpHealthStand[(int) CharacterClassType.Swordman] = 16;
             MpHealthStand[(int) CharacterClassType.Archer] = 28;
             MpHealthStand[(int) CharacterClassType.Magician] = 40;
+            MpHealthStand[(int)CharacterClassType.Wrestler] = 16;
         }
 
         private void LoadSpeedData()
         {
-            SpeedData = new byte[4];
+            SpeedData = new byte[5];
             SpeedData[(int) CharacterClassType.Adventurer] = 11;
             SpeedData[(int) CharacterClassType.Swordman] = 11;
             SpeedData[(int) CharacterClassType.Archer] = 12;
             SpeedData[(int) CharacterClassType.Magician] = 10;
+            SpeedData[(int)CharacterClassType.Wrestler] = 11;
         }
 
         private void LoadSpxpData()
@@ -909,21 +948,21 @@ namespace NosCore.GameObject.Helper
         // TODO: Change or Verify
         private void LoadStats()
         {
-            _minHit = new int[4, 256];
-            _maxHit = new int[4, 256];
-            _hitRate = new int[4, 256];
-            _criticalHitRate = new int[4, 256];
-            _criticalHit = new int[4, 256];
-            _minDist = new int[4, 256];
-            _maxDist = new int[4, 256];
-            _distRate = new int[4, 256];
-            _criticalDistRate = new int[4, 256];
-            _criticalDist = new int[4, 256];
-            _hitDef = new int[4, 256];
-            _hitDodge = new int[4, 256];
-            _distDef = new int[4, 256];
-            _distDodge = new int[4, 256];
-            _magicalDef = new int[4, 256];
+            _minHit = new int[5, 256];
+            _maxHit = new int[5, 256];
+            _hitRate = new int[5, 256];
+            _criticalHitRate = new int[5, 256];
+            _criticalHit = new int[5, 256];
+            _minDist = new int[5, 256];
+            _maxDist = new int[5, 256];
+            _distRate = new int[5, 256];
+            _criticalDistRate = new int[5, 256];
+            _criticalDist = new int[5, 256];
+            _hitDef = new int[5, 256];
+            _hitDodge = new int[5, 256];
+            _distDef = new int[5, 256];
+            _distDodge = new int[5, 256];
+            _magicalDef = new int[5, 256];
 
             for (var i = 0; i < 256; i++)
             {
@@ -1003,6 +1042,24 @@ namespace NosCore.GameObject.Helper
                 _hitDodge[(int) CharacterClassType.Archer, i] = 41 + i; // approx
                 _distDodge[(int) CharacterClassType.Archer, i] = i + 2; // approx
                 _distDef[(int) CharacterClassType.Archer, i] = i; // approx
+
+                // Wrestler
+                _criticalHitRate[(int) CharacterClassType.Wrestler, i] = 0; // approx
+                _criticalHit[(int) CharacterClassType.Wrestler, i] = 0; // approx
+                _criticalDist[(int) CharacterClassType.Wrestler, i] = 0; // approx
+                _criticalDistRate[(int) CharacterClassType.Wrestler, i] = 0; // approx
+                _minDist[(int) CharacterClassType.Wrestler, i] = i + 12; // approx
+                _maxDist[(int) CharacterClassType.Wrestler, i] = i + 12; // approx
+                _distRate[(int) CharacterClassType.Wrestler, i] = 2 * (i + 12); // approx
+                _hitDodge[(int) CharacterClassType.Wrestler, i] = i + 12; // approx
+                _distDodge[(int) CharacterClassType.Wrestler, i] = i + 12; // approx
+                _magicalDef[(int) CharacterClassType.Wrestler, i] = (i + 9) / 2; // approx
+                _hitRate[(int) CharacterClassType.Wrestler, i] = i + 27; // approx
+                _hitDef[(int) CharacterClassType.Wrestler, i] = i + 2; // approx
+
+                _minHit[(int) CharacterClassType.Wrestler, i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
+                _maxHit[(int) CharacterClassType.Wrestler, i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
+                _distDef[(int) CharacterClassType.Wrestler, i] = i; // approx
             }
         }
 

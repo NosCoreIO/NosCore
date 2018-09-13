@@ -36,6 +36,96 @@ namespace NosCore.Controllers
         public CharacterScreenPacketController()
         {
         }
+
+        /// <summary>
+        ///     Char_NEW character creation character
+        /// </summary>
+        /// <param name="brawlerCreatePacket"></param>
+        public void CreateBrawlerCharacter(BrawlerCreatePacket brawlerCreatePacket)
+        {
+            if (Session.HasCurrentMapInstance)
+            {
+                return;
+            }
+
+            if (DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                    s.Level >= 80 && s.Account.AccountId == Session.Account.AccountId) == null)
+            {
+                //Needs at least a level 80 to create a brawler
+                return;
+            }
+
+            if (DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                    s.Account.AccountId == Session.Account.AccountId &&
+                    s.Class == (byte) CharacterClassType.Wrestler) != null)
+            {
+                //If already a brawler, can't create another
+                return;
+            }
+
+            // TODO: Hold Account Information in Authorized object
+            var accountId = Session.Account.AccountId;
+            var slot = brawlerCreatePacket.Slot;
+            var characterName = brawlerCreatePacket.Name;
+            if (DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                s.AccountId == accountId && s.Slot == slot && s.State == CharacterState.Active) != null)
+            {
+                return;
+            }
+
+            var rg = new Regex(
+                @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$");
+            if (rg.Matches(characterName).Count == 1)
+            {
+                var character =
+                    DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                        s.Name == characterName && s.State == CharacterState.Active);
+                if (character == null)
+                {
+                    CharacterDTO chara = new GameObject.Character
+                    {
+                        Class = (byte)CharacterClassType.Wrestler,
+                        Gender = brawlerCreatePacket.Gender,
+                        HairColor = brawlerCreatePacket.HairColor,
+                        HairStyle = HairStyleType.HairStyleA,
+                        Hp = 12965,
+                        JobLevel = 1,
+                        Level = 81,
+                        MapId = 1,
+                        MapX = (short)ServerManager.Instance.RandomNumber(78, 81),
+                        MapY = (short)ServerManager.Instance.RandomNumber(114, 118),
+                        Mp = 2369,
+                        MaxMateCount = 10,
+                        SpPoint = 10000,
+                        SpAdditionPoint = 0,
+                        Name = characterName,
+                        Slot = slot,
+                        AccountId = accountId,
+                        MinilandMessage = "Welcome",
+                        State = CharacterState.Active
+                    };
+                    var insertResult = DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
+                    LoadCharacters(null);
+                }
+                else
+                {
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Session.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
+                    });
+                }
+            }
+            else
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Session.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
+                });
+            }
+
+        }
+
+
         /// <summary>
         ///     Char_NEW character creation character
         /// </summary>
