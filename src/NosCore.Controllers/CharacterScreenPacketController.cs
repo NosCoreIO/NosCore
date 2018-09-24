@@ -19,6 +19,7 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Mapster;
 
 namespace NosCore.Controllers
 {
@@ -223,7 +224,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket { Type = 0 });
-            foreach (GameObject.Character character in characters)
+            foreach (GameObject.Character character in characters.Adapt<List<GameObject.Character>>())
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -308,10 +309,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                if (!(characterDto is GameObject.Character character))
-                {
-                    return;
-                }
+                GameObject.Character character = characterDto.Adapt<GameObject.Character>();
 
                 character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = ServerManager.Instance.GetMapInstance(character.MapInstanceId);
@@ -322,7 +320,7 @@ namespace NosCore.Controllers
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 character.Inventory = new Inventory() { Configuration = _worldConfiguration };
-                inventories.ForEach(k => character.Inventory[k.Id] = (ItemInstance)k);
+                inventories.ForEach(k => character.Inventory[k.Id] = k.Adapt<ItemInstance>());
                 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
                 #pragma warning restore CS0618
