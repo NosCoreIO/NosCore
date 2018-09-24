@@ -50,7 +50,6 @@ namespace NosCore.Tests.HandlerTests
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenControllerTests)));
             DataAccessHelper.Instance.Initialize(sqlconnect);
-            DAOFactory.RegisterMapping(typeof(Character).Assembly);
             var map = new MapDTO {MapId = 1};
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             _acc = new AccountDTO {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
