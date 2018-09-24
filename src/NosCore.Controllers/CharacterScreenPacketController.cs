@@ -20,6 +20,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Mapster;
+using System.Collections.Concurrent;
 
 namespace NosCore.Controllers
 {
@@ -27,10 +28,14 @@ namespace NosCore.Controllers
     {
 
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
+        private readonly Inventory _inventory;
 
-        public CharacterScreenPacketController(WorldConfiguration worldConfiguration)
+        public CharacterScreenPacketController(WorldConfiguration worldConfiguration, ConcurrentDictionary<Guid, MapInstance> mapInstances, Inventory inventory)
         {
             _worldConfiguration = worldConfiguration;
+            _mapInstances = mapInstances;
+            _inventory = inventory;
         }
 
         [UsedImplicitly]
@@ -311,15 +316,15 @@ namespace NosCore.Controllers
 
                 GameObject.Character character = characterDto.Adapt<GameObject.Character>();
 
-                character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = ServerManager.Instance.GetMapInstance(character.MapInstanceId);
+                character.MapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstances.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
+                character.Inventory = _inventory;
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
-                character.Inventory = new Inventory() { Configuration = _worldConfiguration };
                 inventories.ForEach(k => character.Inventory[k.Id] = k.Adapt<ItemInstance>());
                 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());

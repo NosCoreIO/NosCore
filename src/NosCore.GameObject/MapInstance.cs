@@ -124,7 +124,7 @@ namespace NosCore.GameObject
 
         public MapInstanceType MapInstanceType { get; set; }
 
-        internal void LoadMonsters()
+        public void LoadMonsters()
         {
             var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, monster =>
@@ -140,7 +140,7 @@ namespace NosCore.GameObject
             });
         }
 
-        internal void LoadNpcs()
+        public void LoadNpcs()
         {
             var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, npc =>

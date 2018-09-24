@@ -21,11 +21,6 @@ namespace NosCore.GameObject.Networking
     {
         private static ServerManager _instance;
 
-        private static readonly ConcurrentDictionary<Guid, MapInstance> Mapinstances =
-            new ConcurrentDictionary<Guid, MapInstance>();
-
-        private static readonly List<Map.Map> Maps = new List<Map.Map>();
-
         private ServerManager()
         {
         }
@@ -37,83 +32,11 @@ namespace NosCore.GameObject.Networking
         }
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
-        public List<NpcMonsterDTO> NpcMonsters { get; set; }
-        public List<Item.Item> Items { get; set; }
-
-        public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
-        {
-            var map = Maps.Find(m => m.MapId.Equals(mapId));
-            if (map == null)
-            {
-                return null;
-            }
-
-            var guid = Guid.NewGuid();
-            var mapInstance = new MapInstance(map, guid, false, type);
-            mapInstance.LoadPortals();
-            mapInstance.LoadMonsters();
-            mapInstance.LoadNpcs();
-            mapInstance.StartLife();
-            Mapinstances.TryAdd(guid, mapInstance);
-            return mapInstance;
-        }
-
         private void LaunchEvents()
         {
             Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => { SaveAll(); });
         }
-
-        public void Initialize()
-        {
-            // parse rates
-            try
-            {
-                var i = 0;
-                var monstercount = 0;
-                var npccount = 0;
-                OrderablePartitioner<ItemDTO> itemPartitioner = Partitioner.Create(DAOFactory.ItemDAO.LoadAll(), EnumerablePartitionerOptions.NoBuffering);
-                Items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item.Item>>();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), Items.Count));
-                NpcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
-                var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Adapt<List<Map.Map>>(),
-                    EnumerablePartitionerOptions.NoBuffering);
-                var mapList = new ConcurrentDictionary<short, Map.Map>();
-                Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
-                  {
-                      var guid = Guid.NewGuid();
-                      map.Initialize();
-                      mapList[map.MapId] = map;
-                      var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
-                      Mapinstances.TryAdd(guid, newMap);
-                      newMap.LoadPortals();
-                      newMap.LoadMonsters();
-                      newMap.LoadNpcs();
-                      newMap.StartLife();
-                      monstercount += newMap.Monsters.Count;
-                      npccount += newMap.Npcs.Count;
-                      i++;
-                  });
-                Maps.AddRange(mapList.Select(s => s.Value));
-                if (i != 0)
-                {
-                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED), i));
-                }
-                else
-                {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
-                }
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
-                    npccount));
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
-                    monstercount));
-                LaunchEvents();
-            }
-            catch (Exception ex)
-            {
-                Logger.Log.Error("General Error", ex);
-            }
-        }
-
+        
         public void SaveAll()
         {
             try
@@ -129,18 +52,7 @@ namespace NosCore.GameObject.Networking
                 Logger.Error(e);
             }
         }
-
-        public Guid GetBaseMapInstanceIdByMapId(short mapId)
-        {
-            return Mapinstances.FirstOrDefault(s =>
-                s.Value?.Map.MapId == mapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;
-        }
-
-        public MapInstance GetMapInstance(Guid id)
-        {
-            return Mapinstances.ContainsKey(id) ? Mapinstances[id] : null;
-        }
-
+        
         public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)
         {
             if (channelId == null)

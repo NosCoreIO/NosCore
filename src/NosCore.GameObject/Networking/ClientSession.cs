@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,15 +25,20 @@ namespace NosCore.GameObject.Networking
 
         private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
-
+        private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
         private readonly bool _isWorldClient;
 
         private Character _character;
         private int? _waitForPacketsAmount;
 
+        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers, ConcurrentDictionary<Guid, MapInstance> mapInstances) : this(configuration, packetControllers)
+        {
+            _mapInstances = mapInstances;
+        }
+
         public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
         {
-             _isWorldClient = configuration is WorldConfiguration;
+            _isWorldClient = configuration is WorldConfiguration;
             foreach (var controller in packetControllers)
             {
                 controller.RegisterSession(this);
@@ -118,12 +124,12 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
             {
-                ServerManager.Instance.GetMapInstance(Character.MapInstanceId);
+                _mapInstances.GetMapInstance(Character.MapInstanceId);
             }
             catch
             {
@@ -157,7 +163,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = ServerManager.Instance.GetMapInstance(mapInstanceId);
+                Character.MapInstance = _mapInstances.GetMapInstance(mapInstanceId);
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
