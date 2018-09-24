@@ -52,7 +52,6 @@ namespace NosCore.PathFinder.Gui
             InitializeLogger();
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
-            DAOFactory.RegisterMapping(typeof(Character).Assembly);
             try
             {
                 DataAccessHelper.Instance.Initialize(DatabaseConfiguration.Database);

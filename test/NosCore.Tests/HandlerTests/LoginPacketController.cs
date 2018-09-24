@@ -49,7 +49,6 @@ namespace NosCore.Tests.HandlerTests
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
             DataAccessHelper.Instance.Initialize(sqlconnect);
-            DAOFactory.RegisterMapping(typeof(GameObject.Character).Assembly);
             var map = new MapDTO {MapId = 1};
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             _acc = new AccountDTO {Name = Name, Password = EncryptionHelper.Sha512("test")};
