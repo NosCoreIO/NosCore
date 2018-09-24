@@ -13,6 +13,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using JetBrains.Annotations;
 using log4net;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -85,7 +86,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<ConcurrentDictionary<Guid, MapInstance>>();
             containerBuilder.Register(_ =>
             {
-                var items = DAOFactory.ItemDAO.LoadAll().Cast<Item>().ToList();
+                var items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item>>().ToList();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), items.Count));
                 return items;
             }).As<List<Item>>().SingleInstance();
@@ -106,7 +107,7 @@ namespace NosCore.WorldServer
         {
             var Maps = new List<Map>();
             var mapcount = 0;
-            var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map>(),
+            var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Adapt<List<Map>>(),
                 EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map>();
             Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
@@ -187,7 +188,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             containerBuilder.Register(c => new Inventory(configuration, c.Resolve<List<Item>>())).As<Inventory>();
-            _mapper = DAOFactory.RegisterMapping(typeof(Character).Assembly);
             services.AddSingleton(_ => _mapper);
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();
