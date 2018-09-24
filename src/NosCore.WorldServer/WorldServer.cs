@@ -38,7 +38,6 @@ namespace NosCore.WorldServer
             }
 
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
-            DAOFactory.RegisterMapping(typeof(Character).Assembly);
             ConnectMaster();
             try
             {
