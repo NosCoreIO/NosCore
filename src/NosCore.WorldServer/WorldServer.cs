@@ -13,7 +13,7 @@ using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.DAL;
-using NosCore.Database;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Map;
