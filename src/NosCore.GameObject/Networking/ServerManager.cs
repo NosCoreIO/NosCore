@@ -13,6 +13,7 @@ using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Mapster;
 
 namespace NosCore.GameObject.Networking
 {
@@ -71,10 +72,10 @@ namespace NosCore.GameObject.Networking
                 var monstercount = 0;
                 var npccount = 0;
                 OrderablePartitioner<ItemDTO> itemPartitioner = Partitioner.Create(DAOFactory.ItemDAO.LoadAll(), EnumerablePartitionerOptions.NoBuffering);
-                Items = DAOFactory.ItemDAO.LoadAll().Cast<Item.Item>().ToList();
+                Items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item.Item>>();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), Items.Count));
                 NpcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
-                var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(),
+                var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Adapt<List<Map.Map>>(),
                     EnumerablePartitionerOptions.NoBuffering);
                 var mapList = new ConcurrentDictionary<short, Map.Map>();
                 Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
@@ -152,7 +153,8 @@ namespace NosCore.GameObject.Networking
             else
             {
                 var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels", id: channelId.Value).FirstOrDefault();
-                if (channel != null) {
+                if (channel != null)
+                {
                     WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
                 }
             }

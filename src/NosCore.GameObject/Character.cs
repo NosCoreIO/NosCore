@@ -606,7 +606,7 @@ namespace NosCore.GameObject
                 var savedRelations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == CharacterId);
 
                 DAOFactory.CharacterRelationDAO.Delete(savedRelations.Except(CharacterRelations.Values));
-                DAOFactory.CharacterRelationDAO.InsertOrUpdate(CharacterRelations.Values);
+                DAOFactory.CharacterRelationDAO.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDTO>());
 
                 // load and concat inventory with equipment
                 var currentlySavedInventoryIds = DAOFactory.ItemInstanceDAO.Where(i => i.CharacterId.Equals(CharacterId)).Select(i => i.Id);
@@ -615,7 +615,7 @@ namespace NosCore.GameObject
                 DAOFactory.ItemInstanceDAO.Delete(todelete);
 
                 var itemInsts = Inventory.Select(s => s.Value);
-                DAOFactory.ItemInstanceDAO.InsertOrUpdate(itemInsts);
+                DAOFactory.ItemInstanceDAO.InsertOrUpdate(itemInsts.Cast<ItemInstanceDTO>());
             }
             catch (Exception e)
             {
