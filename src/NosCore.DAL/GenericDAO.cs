@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using AutoMapper;
+using Mapster;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 
@@ -13,26 +13,13 @@ namespace NosCore.DAL
 {
     public class GenericDAO<TEntity, TDTO> where TEntity : class
     {
-        private readonly IMapper _mapper;
-
         private readonly PropertyInfo _primaryKey;
 
-        public GenericDAO(IMapper mapper)
+        public GenericDAO()
         {
             try
             {
                 var targetType = typeof(TEntity);
-                if (mapper == null)
-                {
-                    var config = new MapperConfiguration(cfg => cfg.CreateMap(typeof(TDTO), targetType).ReverseMap());
-
-                    _mapper = config.CreateMapper();
-                }
-                else
-                {
-                    _mapper = mapper;
-                }
-
                 foreach (var pi in typeof(TDTO).GetProperties())
                 {
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
@@ -135,7 +122,7 @@ namespace NosCore.DAL
                 {
                     var dbset = context.Set<TEntity>();
                     var ent = dbset.FirstOrDefault(predicate);
-                    return _mapper.Map<TDTO>(ent);
+                    return ent.Adapt<TDTO>();
                 }
             }
             catch (Exception e)
@@ -151,7 +138,7 @@ namespace NosCore.DAL
             {
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var entity = _mapper.Map<TEntity>(dto);
+                    var entity = dto.Adapt<TEntity>();
                     var dbset = context.Set<TEntity>();
 
                     var value = _primaryKey.GetValue(dto, null);
@@ -164,11 +151,9 @@ namespace NosCore.DAL
                     {
                         entityfound = dbset.Find(value);
                     }
-
+                    entity = entity.Adapt<TDTO>().Adapt<TEntity>();
                     if (entityfound != null)
                     {
-                        _mapper.Map(entity, entityfound);
-
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                         context.SaveChanges();
                     }
@@ -179,7 +164,7 @@ namespace NosCore.DAL
                     }
 
                     context.SaveChanges();
-                    dto = _mapper.Map<TDTO>(entity);
+                    dto = entity.Adapt<TDTO>();
 
                     return SaveResult.Saved;
                 }
@@ -203,7 +188,7 @@ namespace NosCore.DAL
                     var entitytoadd = new List<TEntity>();
                     foreach (var dto in dtos)
                     {
-                        var entity = _mapper.Map<TEntity>(dto);
+                        var entity = dto.Adapt<TEntity>();
                         var value = _primaryKey.GetValue(dto, null);
 
                         TEntity entityfound = null;
@@ -215,11 +200,9 @@ namespace NosCore.DAL
                         {
                             entityfound = dbset.Find(value);
                         }
-
+                        entity = entity.Adapt<TDTO>().Adapt<TEntity>();
                         if (entityfound != null)
                         {
-                            _mapper.Map(entity, entityfound);
-
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
                         }
 
@@ -250,7 +233,7 @@ namespace NosCore.DAL
                 var dbset = context.Set<TEntity>();
                 foreach (var t in dbset)
                 {
-                    yield return _mapper.Map<TDTO>(t);
+                    yield return t.Adapt<TDTO>();
                 }
             }
         }
@@ -272,7 +255,7 @@ namespace NosCore.DAL
 
                 foreach (var t in entities)
                 {
-                    yield return _mapper.Map<TDTO>(t);
+                    yield return t.Adapt<TDTO>();
                 }
             }
         }
