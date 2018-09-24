@@ -20,21 +20,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NosCore.Shared.Enumerations.Character;
+using System.Collections.Concurrent;
 
 namespace NosCore.Controllers
 {
     public class DefaultPacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
 
         [UsedImplicitly]
         public DefaultPacketController()
         {
         }
 
-        public DefaultPacketController(WorldConfiguration worldConfiguration)
+        public DefaultPacketController(WorldConfiguration worldConfiguration, ConcurrentDictionary<Guid, MapInstance> mapInstances)
         {
             _worldConfiguration = worldConfiguration;
+            _mapInstances = mapInstances;
         }
 
         public void GameStart([UsedImplicitly] GameStartPacket packet)
@@ -229,9 +232,9 @@ namespace NosCore.Controllers
 
             Session.Character.LastPortal = currentRunningSeconds;
 
-            if (ServerManager.Instance.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
+            if (_mapInstances.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
                 != MapInstanceType.BaseMapInstance
-                && ServerManager.Instance.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
+                && _mapInstances.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
                 == MapInstanceType.BaseMapInstance)
             {
                 Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);

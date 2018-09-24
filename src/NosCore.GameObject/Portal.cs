@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
@@ -13,7 +15,7 @@ namespace NosCore.GameObject
             {
                 SourceX = SourceX,
                 SourceY = SourceY,
-                MapId = ServerManager.Instance.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
+                MapId = _mapInstances.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
                 PortalType = Type,
                 PortalId = PortalId,
                 IsDisabled = IsDisabled ? 1 : 0
@@ -39,7 +41,7 @@ namespace NosCore.GameObject
             {
                 if (_destinationMapInstanceId == default(Guid) && DestinationMapId != -1)
                 {
-                    _destinationMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(DestinationMapId);
+                    _destinationMapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(DestinationMapId);
                 }
 
                 return _destinationMapInstanceId;
@@ -53,7 +55,7 @@ namespace NosCore.GameObject
             {
                 if (_sourceMapInstanceId == default(Guid))
                 {
-                    _sourceMapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(SourceMapId);
+                    _sourceMapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(SourceMapId);
                 }
 
                 return _sourceMapInstanceId;

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
@@ -13,6 +15,8 @@ using NosCore.Core.Networking;
 using NosCore.DAL;
 using NosCore.Database;
 using NosCore.GameObject;
+using NosCore.GameObject.Item;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -24,11 +28,17 @@ namespace NosCore.WorldServer
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly NetworkManager _networkManager;
+        private readonly List<Item> _items;
+        private readonly List<NpcMonsterDTO> _npcmonsters;
+        private readonly List<Map> _maps;
 
-        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager)
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
+            _items = items;
+            _npcmonsters = npcmonsters;
+            _maps = maps;
         }
 
 
@@ -40,10 +50,10 @@ namespace NosCore.WorldServer
             }
 
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+
             ConnectMaster();
             try
-            {
-                ServerManager.Instance.Initialize();
+            { 
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port));
                 Console.Title +=

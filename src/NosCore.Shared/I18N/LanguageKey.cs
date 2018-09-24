@@ -122,6 +122,7 @@ namespace NosCore.Shared.I18N
         BLACKLIST_BLOCKED,
         FRIEND_DELETED,
         FRIEND_OFFLINE,
-        CANT_FIND_CHARACTER
+        CANT_FIND_CHARACTER,
+        NPCMONSTERS_LOADED
     }
 }

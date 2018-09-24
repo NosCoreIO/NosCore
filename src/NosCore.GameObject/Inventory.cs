@@ -12,8 +12,12 @@ namespace NosCore.GameObject
 {
     public class Inventory : ConcurrentDictionary<Guid, ItemInstance>
     {
-        public WorldConfiguration Configuration { get; set; }
+        private WorldConfiguration _configuration { get; }
+
+        private readonly List<Item.Item> _items;
+
         public bool IsExpanded { get; set; }
+
 
         public T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance
         {
@@ -46,7 +50,7 @@ namespace NosCore.GameObject
 
         public bool CanAddItem(short itemVnum)
         {
-            var type = ServerManager.Instance.Items.Find(item => item.VNum == itemVnum).Type;
+            var type = _items.Find(item => item.VNum == itemVnum).Type;
             return GetFreeSlot(type).HasValue;
         }
 
@@ -73,15 +77,15 @@ namespace NosCore.GameObject
             // check if item can be stapled
             if (slot == null && newItem.Type != PocketType.Bazaar && (newItem.Item.Type == PocketType.Etc || newItem.Item.Type == PocketType.Main))
             {
-                var slotNotFull = this.ToList().Select(s => s.Value).Where(i => i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < Configuration.MaxItemAmount);
-                var freeslot = Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12 - this.Count(s => s.Value.Type == newItem.Type);
+                var slotNotFull = this.ToList().Select(s => s.Value).Where(i => i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < _configuration.MaxItemAmount);
+                var freeslot = _configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12 - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<ItemInstance> itemInstances = slotNotFull as IList<ItemInstance> ?? slotNotFull.ToList();
-                if (newItem.Amount <= freeslot * Configuration.MaxItemAmount + itemInstances.Sum(s => Configuration.MaxItemAmount - s.Amount))
+                if (newItem.Amount <= freeslot * _configuration.MaxItemAmount + itemInstances.Sum(s => _configuration.MaxItemAmount - s.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
                         var max = slotToAdd.Amount + newItem.Amount;
-                        max = max > Configuration.MaxItemAmount ? Configuration.MaxItemAmount : max;
+                        max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
                         newItem.Amount = (short)(slotToAdd.Amount + newItem.Amount - max);
                         newItem.Amount = newItem.Amount;
                         slotToAdd.Amount = (short)max;
@@ -111,7 +115,7 @@ namespace NosCore.GameObject
                 return null;
             }
 
-            if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type) || newItem.Slot >= Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
+            if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type) || newItem.Slot >= _configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
             {
                 return null;
             }
@@ -135,9 +139,9 @@ namespace NosCore.GameObject
             var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
             IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
             var nextFreeSlot = instanceSlotsByType.Any()
-                ? Enumerable.Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
+                ? Enumerable.Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
                 : 0;
-            return (short?)nextFreeSlot < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
+            return (short?)nextFreeSlot < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
         }
 
         public ItemInstance DeleteById(Guid id)
@@ -257,7 +261,7 @@ namespace NosCore.GameObject
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
 
-            if (sourceSlot == destinationSlot || amount == 0 || destinationSlot > Configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
+            if (sourceSlot == destinationSlot || amount == 0 || destinationSlot > _configuration.BackpackSize + (IsExpanded ? 1 : 0) * 12)
             {
                 return;
             }
@@ -278,11 +282,11 @@ namespace NosCore.GameObject
                     default:
                         if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (sourcePocket.Item.Type == PocketType.Main || sourcePocket.Item.Type == PocketType.Etc))
                         {
-                            if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
+                            if (destinationPocket.Amount + amount > _configuration.MaxItemAmount)
                             {
                                 var saveItemCount = destinationPocket.Amount;
-                                destinationPocket.Amount = Configuration.MaxItemAmount;
-                                sourcePocket.Amount = (short)(saveItemCount + sourcePocket.Amount - Configuration.MaxItemAmount);
+                                destinationPocket.Amount = _configuration.MaxItemAmount;
+                                sourcePocket.Amount = (short)(saveItemCount + sourcePocket.Amount - _configuration.MaxItemAmount);
                             }
                             else
                             {

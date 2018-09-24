@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using NosCore.Data.AliveEntities;
@@ -43,7 +44,7 @@ namespace NosCore.GameObject
 
         internal void Initialize()
         {
-            NpcMonster = ServerManager.Instance.NpcMonsters.FirstOrDefault(s=>s.NpcMonsterVNum == VNum);
+            NpcMonster = _npcMonsters.Find(s=>s.NpcMonsterVNum == VNum);
             Mp = NpcMonster.MaxMP;
             Hp = NpcMonster.MaxHP;
             PositionX = MapX;

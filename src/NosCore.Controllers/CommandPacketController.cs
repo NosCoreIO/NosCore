@@ -22,10 +22,11 @@ namespace NosCore.Controllers
     public class CommandPacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
-
-        public CommandPacketController(WorldConfiguration worldConfiguration)
+        private readonly List<Item> _items;
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items)
         {
             _worldConfiguration = worldConfiguration;
+            _items = items;
         }
 
         [UsedImplicitly]
@@ -81,7 +82,7 @@ namespace NosCore.Controllers
                 {
                     return; // cannot create gold as item, use $Gold instead
                 }
-                var iteminfo = ServerManager.Instance.Items.Find(item => item.VNum == vnum);
+                var iteminfo = _items.Find(item => item.VNum == vnum);
                 if (iteminfo != null)
                 {
                     if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
