@@ -5,11 +5,13 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.DAL;
+using NosCore.Database;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -32,8 +34,9 @@ namespace NosCore.LoginServer
             ConnectMaster();
             try
             {
-                DataAccessHelper.Instance.Initialize(_loginConfiguration.Database);
-
+                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+                optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
+                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port));
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";

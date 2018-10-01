@@ -5,11 +5,13 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.DAL;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
@@ -41,8 +43,6 @@ namespace NosCore.WorldServer
             ConnectMaster();
             try
             {
-                DataAccessHelper.Instance.Initialize(_worldConfiguration.Database);
-
                 ServerManager.Instance.Initialize();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port));
