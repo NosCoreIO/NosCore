@@ -21,6 +21,9 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.GameObject;
+using NosCore.Database;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -38,17 +41,11 @@ namespace NosCore.Tests.HandlerTests
         {
             PacketFactory.Initialize<NoS0575Packet>();
             var builder = new ConfigurationBuilder();
-            var databaseConfiguration = new SqlConnectionConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(databaseConfiguration);
-            databaseConfiguration.Database = "postgresunittest";
-            var sqlconnect = databaseConfiguration;
-            DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
+            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
-            DataAccessHelper.Instance.Initialize(sqlconnect);
             var map = new MapDTO {MapId = 1};
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             _acc = new AccountDTO {Name = Name, Password = EncryptionHelper.Sha512("test")};
