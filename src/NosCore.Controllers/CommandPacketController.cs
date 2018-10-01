@@ -127,7 +127,7 @@ namespace NosCore.Controllers
                         amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
 
-                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(_items.Find(item => item.VNum == vnum), Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
                     if (inv.Count > 0)
                     {

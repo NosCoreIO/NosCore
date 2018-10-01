@@ -25,8 +25,9 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDTO, ICharacterEntity
     {
-        public Character()
+        public Character(Inventory inventory)
         {
+            Inventory = inventory;
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<long, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<long, CharacterRelation>();

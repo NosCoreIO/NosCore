@@ -82,6 +82,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<Portal>();
+            containerBuilder.RegisterType<Inventory>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<ConcurrentDictionary<Guid, MapInstance>>();
             containerBuilder.Register(_ =>
@@ -98,12 +99,12 @@ namespace NosCore.WorldServer
                 return monsters;
             }).As<List<NpcMonsterDTO>>().SingleInstance();
 
-            containerBuilder.Register(c => LoadMapInstances(mapInstances: c.Resolve<ConcurrentDictionary<Guid, MapInstance>>())).As<List<Map>>().SingleInstance();
+            containerBuilder.Register(c => LoadMapInstances(mapInstances: c.Resolve<ConcurrentDictionary<Guid, MapInstance>>(), npcMonsters: c.Resolve<List<NpcMonsterDTO>>())).As<List<Map>>().SingleInstance();
 
             containerBuilder.Populate(services);
         }
 
-        public List<Map> LoadMapInstances(ConcurrentDictionary<Guid, MapInstance> mapInstances)
+        public List<Map> LoadMapInstances(ConcurrentDictionary<Guid, MapInstance> mapInstances, List<NpcMonsterDTO> npcMonsters)
         {
             var Maps = new List<Map>();
             var mapcount = 0;
@@ -115,7 +116,7 @@ namespace NosCore.WorldServer
                 var guid = Guid.NewGuid();
                 map.Initialize();
                 mapList[map.MapId] = map;
-                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
+                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters);
                 mapInstances.TryAdd(guid, newMap);
                 newMap.LoadPortals();
                 newMap.LoadMonsters();
@@ -187,7 +188,6 @@ namespace NosCore.WorldServer
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
-            containerBuilder.Register(c => new Inventory(configuration, c.Resolve<List<Item>>())).As<Inventory>();
             services.AddSingleton(_ => _mapper);
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();

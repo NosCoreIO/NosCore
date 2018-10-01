@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -18,15 +20,17 @@ namespace NosCore.Controllers
     public class InventoryPacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly List<Item> _items;
 
         [UsedImplicitly]
         public InventoryPacketController()
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration)
+        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items)
         {
             _worldConfiguration = worldConfiguration;
+            _items = items;
         }
 
         [UsedImplicitly]
@@ -89,7 +93,7 @@ namespace NosCore.Controllers
                 {
                     return;
                 }
-                ItemInstance mapItemInstance = ItemInstance.Create(mapItem.VNum, mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
+                ItemInstance mapItemInstance = ItemInstance.Create(_items.Find(item => item.VNum == mapItem.VNum), mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
                 //TODO not your item
                 if (mapItem.VNum != 1046)
                 {

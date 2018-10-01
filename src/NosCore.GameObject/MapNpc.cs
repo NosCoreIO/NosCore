@@ -38,9 +38,9 @@ namespace NosCore.GameObject
         public bool IsAlive { get; set; }
         public IDisposable Life { get; private set; }
 
-        internal void Initialize()
+        internal void Initialize(NpcMonsterDTO npcMonster)
         {
-            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            NpcMonster = npcMonster;
             Mp = NpcMonster.MaxMP;
             Hp = NpcMonster.MaxHP;
             PositionX = MapX;

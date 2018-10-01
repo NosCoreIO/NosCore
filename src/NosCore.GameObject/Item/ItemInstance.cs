@@ -1,26 +1,28 @@
 ﻿using NosCore.Data;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Item
 {
     public class ItemInstance : ItemInstanceDTO
     {
+        public ItemInstance(List<Item> items)
+        {
+            _items = items;
+        }
         public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor && Item.ItemType != ItemType.Weapon;
         private Item _item;
-        public Item Item => _item ?? (_item = ServerManager.Instance.Items.Find(item => item.VNum == ItemVNum));
+        private List<Item> _items;
+
+        public Item Item => _item ?? (_item = _items.Find(item => item.VNum == ItemVNum));
         public ItemInstance(Item item)
         {
             ItemVNum = item.VNum;
         }
-
-        public ItemInstance()
+        
+        public static ItemInstance Create(Item itemToCreate, long characterId, short amount = 1, sbyte rare = 0, byte upgrade = 0, byte design = 0)
         {
-        }
-
-        public static ItemInstance Create(short itemVNum, long characterId, short amount = 1, sbyte rare = 0, byte upgrade = 0, byte design = 0)
-        {
-            var itemToCreate = ServerManager.Instance.Items.Find(item => item.VNum == itemVNum);
             switch (itemToCreate.Type)
             {
                 case PocketType.Miniland:
