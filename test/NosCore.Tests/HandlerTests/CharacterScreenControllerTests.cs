@@ -22,6 +22,9 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
+using NosCore.Database;
+using Microsoft.EntityFrameworkCore;
+using Mapster;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -39,17 +42,11 @@ namespace NosCore.Tests.HandlerTests
         {
             PacketFactory.Initialize<NoS0575Packet>();
             var builder = new ConfigurationBuilder();
-            var databaseConfiguration = new SqlConnectionConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(databaseConfiguration);
-            databaseConfiguration.Database = "postgresunittest";
-            var sqlconnect = databaseConfiguration;
-            DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
+            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(CharacterScreenControllerTests)));
-            DataAccessHelper.Instance.Initialize(sqlconnect);
             var map = new MapDTO {MapId = 1};
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
             _acc = new AccountDTO {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
@@ -71,7 +68,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
-            _session.SetCharacter((Character) _chara);
+            _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestCharacter";
@@ -166,7 +163,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            _session.SetCharacter((Character) _chara);
+            _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
             const string name = "TestExistingCharacter";

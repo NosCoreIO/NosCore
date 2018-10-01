@@ -30,8 +30,6 @@ namespace NosCore.MasterServer
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             try
             {
-                DataAccessHelper.Instance.Initialize(_masterConfiguration.Database);
-
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _masterConfiguration.Port));
                 Console.Title +=

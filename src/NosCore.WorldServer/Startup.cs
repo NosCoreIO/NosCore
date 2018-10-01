@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,8 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
+using NosCore.DAL;
+using NosCore.Database;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
@@ -115,6 +118,9 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             var container = containerBuilder.Build();
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }

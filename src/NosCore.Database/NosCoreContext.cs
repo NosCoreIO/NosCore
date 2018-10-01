@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Database.Entities;
@@ -6,6 +7,9 @@ namespace NosCore.Database
 {
     public class NosCoreContext : DbContext
     {
+        public NosCoreContext(DbContextOptions options) : base(options)
+        {
+        }
         #region Methods
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -474,22 +478,6 @@ namespace NosCore.Database
 
         #endregion
 
-        #region Instantiation
-
-        private readonly SqlConnectionConfiguration _conn;
-
-        public NosCoreContext(SqlConnectionConfiguration conn)
-        {
-            _conn = conn;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(_conn.ConnectionString);
-            base.OnConfiguring(optionsBuilder);
-        }
-
-        #endregion
 
         #region Properties
 
