@@ -16,6 +16,11 @@ namespace NosCore.GameObject
 
         private readonly List<Item.Item> _items;
 
+        public Inventory(List<Item.Item> items, WorldConfiguration configuration) {
+            _items = items;
+            _configuration = configuration;
+        }
+
         public bool IsExpanded { get; set; }
 
 

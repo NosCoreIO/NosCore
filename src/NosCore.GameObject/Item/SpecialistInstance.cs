@@ -2,9 +2,6 @@
 {
     public class SpecialistInstance : WearableInstance
     {
-        public SpecialistInstance()
-        {
-        }
         public SpecialistInstance(Item item) : base(item)
         {
         }

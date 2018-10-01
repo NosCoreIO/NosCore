@@ -36,7 +36,7 @@ namespace NosCore.Tests.HandlerTests
         private AccountDTO _acc;
         private CharacterDTO _chara;
         private CharacterScreenPacketController _handler;
-
+        private readonly List<NpcMonsterDTO> _npcMonsters = new List<NpcMonsterDTO>();
         [TestInitialize]
         public void Setup()
         {
@@ -70,7 +70,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -165,7 +165,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

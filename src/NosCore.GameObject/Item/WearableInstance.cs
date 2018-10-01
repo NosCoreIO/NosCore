@@ -6,9 +6,6 @@ namespace NosCore.GameObject.Item
 {
     public class WearableInstance : ItemInstance
     {
-        public WearableInstance()
-        {
-        }
         public WearableInstance(Item item) : base(item)
         {
         }

@@ -9,6 +9,13 @@ namespace NosCore.GameObject
 {
     public class Portal : PortalDTO
     {
+        private ConcurrentDictionary<Guid, MapInstance> _mapInstances;
+
+        public Portal(ConcurrentDictionary<Guid, MapInstance> mapInstances)
+        {
+            _mapInstances = mapInstances;
+        }
+
         public GpPacket GenerateGp()
         {
             return new GpPacket
