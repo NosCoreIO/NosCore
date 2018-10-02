@@ -3,31 +3,13 @@ mono: none
 sudo: required
 dist: trusty
 dotnet: 2.1
-env:
-  global:
-    - PGUSER=postgres
-    - PGPASSWORD='password'
-    - PGHOST=localhost
-addons:
-  apt:
-    packages:
-    - gettext
-    - libcurl4-openssl-dev
-    - libicu-dev
-    - libssl-dev
-    - libunwind8
-    - zlib1g
-stages:
-    - compile
-    - test
-services:
-    - postgresql
 install:
     - dotnet restore
 script: 
     - dotnet build
+    - dotnet test test/NosCore.Tests/NosCore.csproj --filter TestCategory!=OPTIONAL-TEST
 after_script:
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
+    - dotnet test test/NosCore.TestsLanguage/NosCore.TestsLanguage.csproj --filter TestCategory=OPTIONAL-TEST
     - pip install --user awscli
     - export PATH=$PATH:$HOME/.local/bin
     - aws ecr get-login --region us-west-2 --no-include-email
