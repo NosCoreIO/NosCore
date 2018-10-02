@@ -11,11 +11,9 @@
 
   <ItemGroup>
     <PackageReference Include="Mapster" Version="3.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>

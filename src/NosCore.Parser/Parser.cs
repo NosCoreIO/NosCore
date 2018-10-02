@@ -5,9 +5,11 @@ using System.Reflection;
 using System.Threading;
 using log4net;
 using log4net.Config;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.DAL;
+using NosCore.Database;
 using NosCore.Shared.I18N;
 
 // ReSharper disable LocalizableElement
@@ -54,7 +56,9 @@ namespace NosCore.Parser
             InitializeConfiguration();
             try
             {
-                DataAccessHelper.Instance.Initialize(ParserConfiguration.Database);
+                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+                optionsBuilder.UseNpgsql(ParserConfiguration.Database.ConnectionString);
+                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
                 try
                 {

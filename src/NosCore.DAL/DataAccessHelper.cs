@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Configuration;
 using NosCore.Database;
 using NosCore.Shared.I18N;
 
@@ -12,7 +11,7 @@ namespace NosCore.DAL
 
         #region Members
 
-        private SqlConnectionConfiguration _conn;
+        private DbContextOptions _option;
 
         #endregion
 
@@ -29,12 +28,16 @@ namespace NosCore.DAL
         /// </summary>
         public NosCoreContext CreateContext()
         {
-            return new NosCoreContext(_conn);
+            return new NosCoreContext(_option);
+        }
+        public void InitializeForTest(DbContextOptions option)
+        {
+            _option = option;
         }
 
-        public void Initialize(SqlConnectionConfiguration Database)
+        public void Initialize(DbContextOptions option)
         {
-            _conn = Database;
+            _option = option;
             using (var context = CreateContext())
             {
                 try
@@ -49,15 +52,6 @@ namespace NosCore.DAL
                     Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
                     throw;
                 }
-            }
-        }
-
-        public void EnsureDeleted(SqlConnectionConfiguration Database)
-        {
-            _conn = Database;
-            using (var context = CreateContext())
-            {
-                context.Database.EnsureDeleted();
             }
         }
 

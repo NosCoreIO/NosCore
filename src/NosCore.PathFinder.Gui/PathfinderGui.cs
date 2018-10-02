@@ -4,9 +4,11 @@ using System.Reflection;
 using System.Threading;
 using log4net;
 using log4net.Config;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.DAL;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
@@ -54,7 +56,9 @@ namespace NosCore.PathFinder.Gui
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
             {
-                DataAccessHelper.Instance.Initialize(DatabaseConfiguration.Database);
+                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database.ConnectionString);
+                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
                 while (true)
                 {
