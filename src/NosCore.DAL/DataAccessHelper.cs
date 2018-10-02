@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Configuration;
 using NosCore.Database;
 using NosCore.Shared.I18N;
 
