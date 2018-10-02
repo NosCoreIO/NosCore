@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
 	<TieredCompilation>true</TieredCompilation>
   </PropertyGroup>
 
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="4.1.0" />
+    <PackageReference Include="System.Reactive" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>

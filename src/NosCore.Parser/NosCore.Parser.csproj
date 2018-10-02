@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
 	<TieredCompilation>true</TieredCompilation>
   </PropertyGroup>
 
@@ -23,7 +23,6 @@
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
-    <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
     <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 

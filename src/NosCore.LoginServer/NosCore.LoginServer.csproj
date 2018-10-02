@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
 	<TieredCompilation>true</TieredCompilation>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Autofac" Version="4.9.0-beta1" />
+	<PackageReference Include="Autofac" Version="4.8.1" />
 	<PackageReference Include="Polly" Version="6.1.0" />
   </ItemGroup>
   
