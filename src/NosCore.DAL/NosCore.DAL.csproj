@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
 	<TieredCompilation>true</TieredCompilation>
   </PropertyGroup>
 
@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>
