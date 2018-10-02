@@ -67,7 +67,7 @@ namespace NosCore.Controllers
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
-                    CharacterDTO chara = new GameObject.Character
+                    CharacterDTO chara = new CharacterDTO
                     {
                         Class = (byte)CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,

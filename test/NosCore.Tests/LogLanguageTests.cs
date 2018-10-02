@@ -10,6 +10,7 @@ namespace NosCore.Tests
     [TestClass]
     public class LogLanguageTests
     {
+        [TestCategory("OPTIONAL-TEST")]
         [DataTestMethod]
         [DataRow(RegionType.EN)]
         [DataRow(RegionType.CS)]
