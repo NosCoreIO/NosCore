@@ -21,21 +21,21 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Mapster;
 using System.Collections.Concurrent;
+using NosCore.GameObject.Services;
 
 namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-
-        private readonly WorldConfiguration _worldConfiguration;
         private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
-        private readonly Inventory _inventory;
+        private readonly ICharacterCreatorService _characterCreatorService;
+        private readonly IItemCreatorService _itemCreatorService;
 
-        public CharacterScreenPacketController(WorldConfiguration worldConfiguration, ConcurrentDictionary<Guid, MapInstance> mapInstances, Inventory inventory)
+        public CharacterScreenPacketController(ConcurrentDictionary<Guid, MapInstance> mapInstances, ICharacterCreatorService characterCreatorService, IItemCreatorService itemCreatorService)
         {
-            _worldConfiguration = worldConfiguration;
             _mapInstances = mapInstances;
-            _inventory = inventory;
+            _characterCreatorService = characterCreatorService;
+            _itemCreatorService = itemCreatorService;
         }
 
         [UsedImplicitly]
@@ -94,7 +94,7 @@ namespace NosCore.Controllers
                         MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
-                    var insertResult = DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
+                    DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
                     LoadCharacters(null);
                 }
                 else
@@ -229,7 +229,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket { Type = 0 });
-            foreach (GameObject.Character character in characters.Adapt<List<GameObject.Character>>())
+            foreach (GameObject.Character character in characters.Select(_characterCreatorService.LoadCharacter))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -314,18 +314,17 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                GameObject.Character character = characterDto.Adapt<GameObject.Character>();
-
+                GameObject.Character character = _characterCreatorService.LoadCharacter(characterDto);
+              
                 character.MapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstances.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
-                character.Inventory = _inventory;
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = k.Adapt<ItemInstance>());
+                inventories.ForEach(k => character.Inventory[k.Id] = _itemCreatorService.Convert(k));
                 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
                 #pragma warning restore CS0618

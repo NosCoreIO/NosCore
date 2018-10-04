@@ -10,6 +10,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -23,10 +24,13 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items)
+        private readonly IItemCreatorService _itemCreatorService;
+
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemCreatorService itemCreatorService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
+            _itemCreatorService = itemCreatorService;
         }
 
         [UsedImplicitly]
@@ -127,7 +131,7 @@ namespace NosCore.Controllers
                         amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
 
-                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(_items.Find(item => item.VNum == vnum), Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(_itemCreatorService.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
                     if (inv.Count > 0)
                     {
