@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -38,9 +39,9 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Cast<MapMonster>().ToList();
+            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
             _npcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
-            var mapInstance = new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance);
+            var mapInstance = new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, _npcMonsters);
             mapInstance.IsSleeping = false;
             foreach (var mapMonster in _monsters)
             {

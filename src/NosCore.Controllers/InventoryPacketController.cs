@@ -6,6 +6,7 @@ using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Item;
+using NosCore.GameObject.Services;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -21,14 +22,16 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
+        private IItemCreatorService _itemCreatorService;
 
         [UsedImplicitly]
         public InventoryPacketController()
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items)
+        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemCreatorService itemCreatorService)
         {
+            _itemCreatorService = itemCreatorService;
             _worldConfiguration = worldConfiguration;
             _items = items;
         }
@@ -93,7 +96,7 @@ namespace NosCore.Controllers
                 {
                     return;
                 }
-                ItemInstance mapItemInstance = ItemInstance.Create(_items.Find(item => item.VNum == mapItem.VNum), mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
+                ItemInstance mapItemInstance = _itemCreatorService.Create( mapItem.VNum, mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
                 //TODO not your item
                 if (mapItem.VNum != 1046)
                 {
