@@ -5,7 +5,7 @@
 # NosCore #
 [![Travis build status](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.org/NosCoreIO/NosCore)
 
-# You like our work ? #
+## You like our work ? ##
 [![ko-fi](https://www.ko-fi.com/img/donate_sm.png)](https://ko-fi.com/A3562BQV)
 or
 <a href="https://www.patreon.com/bePatron?u=6503887" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
