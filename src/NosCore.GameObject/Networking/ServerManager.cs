@@ -19,19 +19,6 @@ namespace NosCore.GameObject.Networking
 {
     public sealed class ServerManager : BroadcastableBase
     {
-        private static ServerManager _instance;
-
-        private ServerManager()
-        {
-        }
-        private static int _seed = Environment.TickCount;
-        private static readonly ThreadLocal<Random> Random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
-        public int RandomNumber(int min = 0, int max = 100)
-        {
-            return Random.Value.Next(min, max);
-        }
-        public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
-
         private void LaunchEvents()
         {
             Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => { SaveAll(); });

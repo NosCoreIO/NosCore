@@ -92,7 +92,7 @@ namespace NosCore.GameObject
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(s => ServerManager.Instance.RandomNumber()))
+            foreach (MapCell possibility in possibilities.OrderBy(s => _randomizerService.RandomNumber()))
             {
                 mapX = (short)(session.Character.PositionX + possibility.X);
                 mapY = (short)(session.Character.PositionY + possibility.Y);
