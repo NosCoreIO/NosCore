@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NosCore.GameObject.Services
 {
-    public interface IItemCreatorService
+    public interface IItemBuilderService
     {
         ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
             byte upgrade = 0, byte design = 0);

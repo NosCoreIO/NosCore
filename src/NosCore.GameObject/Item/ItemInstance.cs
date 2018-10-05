@@ -13,6 +13,7 @@ namespace NosCore.GameObject.Item
         public ItemInstance(Item item)
         {
             Item = item;
+            ItemVNum = item.VNum;
         }
         public ItemInstance()
         {

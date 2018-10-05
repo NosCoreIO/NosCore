@@ -5,7 +5,7 @@ using NosCore.Data.AliveEntities;
 
 namespace NosCore.GameObject.Services
 {
-    public interface ICharacterCreatorService
+    public interface ICharacterBuilderService
     {
         Character LoadCharacter(CharacterDTO characterDto);
     }
