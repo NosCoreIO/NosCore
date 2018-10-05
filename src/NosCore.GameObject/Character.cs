@@ -116,7 +116,7 @@ namespace NosCore.GameObject
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
-        public Inventory Inventory { get; set; }
+        public IInventoryService Inventory { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public FdPacket GenerateFd()

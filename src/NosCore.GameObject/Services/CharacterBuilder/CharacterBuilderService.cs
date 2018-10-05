@@ -6,11 +6,11 @@ using NosCore.Data.AliveEntities;
 
 namespace NosCore.GameObject.Services
 {
-    public class CharacterCreatorService : ICharacterCreatorService
+    public class CharacterBuilderService : ICharacterBuilderService
     {
-        private Inventory _inventory;
+        private readonly IInventoryService _inventory;
 
-        public CharacterCreatorService(Inventory inventory)
+        public CharacterBuilderService(IInventoryService inventory)
         {
             _inventory = inventory;
         }

@@ -18,6 +18,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
@@ -31,14 +32,15 @@ namespace NosCore.WorldServer
         private readonly List<Item> _items;
         private readonly List<NpcMonsterDTO> _npcmonsters;
         private readonly List<Map> _maps;
-
-        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps)
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _items = items;
             _npcmonsters = npcmonsters;
             _maps = maps;
+            _mapInstanceAccessService = mapInstanceAccessService;
         }
 
 

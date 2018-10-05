@@ -3,17 +3,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject
 {
     public class Portal : PortalDTO
     {
-        private ConcurrentDictionary<Guid, MapInstance> _mapInstances;
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
 
-        public Portal(ConcurrentDictionary<Guid, MapInstance> mapInstances)
+        public Portal(MapInstanceAccessService mapInstanceAccessService)
         {
-            _mapInstances = mapInstances;
+            _mapInstanceAccessService = mapInstanceAccessService;
         }
 
         public GpPacket GenerateGp()
@@ -22,7 +23,7 @@ namespace NosCore.GameObject
             {
                 SourceX = SourceX,
                 SourceY = SourceY,
-                MapId = _mapInstances.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
+                MapId = _mapInstanceAccessService.GetMapInstance(DestinationMapInstanceId)?.Map.MapId ?? 0,
                 PortalType = Type,
                 PortalId = PortalId,
                 IsDisabled = IsDisabled ? 1 : 0
@@ -48,7 +49,7 @@ namespace NosCore.GameObject
             {
                 if (_destinationMapInstanceId == default(Guid) && DestinationMapId != -1)
                 {
-                    _destinationMapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(DestinationMapId);
+                    _destinationMapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(DestinationMapId);
                 }
 
                 return _destinationMapInstanceId;
@@ -62,7 +63,7 @@ namespace NosCore.GameObject
             {
                 if (_sourceMapInstanceId == default(Guid))
                 {
-                    _sourceMapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(SourceMapId);
+                    _sourceMapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(SourceMapId);
                 }
 
                 return _sourceMapInstanceId;

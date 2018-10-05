@@ -11,6 +11,7 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
@@ -25,15 +26,15 @@ namespace NosCore.GameObject.Networking
 
         private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
-        private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
         private readonly bool _isWorldClient;
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
 
         private Character _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers, ConcurrentDictionary<Guid, MapInstance> mapInstances) : this(configuration, packetControllers)
+        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers, MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
         {
-            _mapInstances = mapInstances;
+            _mapInstanceAccessService = mapInstanceAccessService;
         }
 
         public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
@@ -124,12 +125,12 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
             {
-                _mapInstances.GetMapInstance(Character.MapInstanceId);
+                _mapInstanceAccessService.GetMapInstance(Character.MapInstanceId);
             }
             catch
             {
@@ -163,7 +164,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstances.GetMapInstance(mapInstanceId);
+                Character.MapInstance = _mapInstanceAccessService.GetMapInstance(mapInstanceId);
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using NosCore.Database;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
+using NosCore.GameObject.Services;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -61,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController();
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null);
             _handler.RegisterSession(_session);
         }
 

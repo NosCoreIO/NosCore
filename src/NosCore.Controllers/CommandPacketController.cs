@@ -24,13 +24,13 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
-        private readonly IItemCreatorService _itemCreatorService;
+        private readonly IItemBuilderService _itemBuilderService;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemCreatorService itemCreatorService)
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
-            _itemCreatorService = itemCreatorService;
+            _itemBuilderService = itemBuilderService;
         }
 
         [UsedImplicitly]
@@ -131,7 +131,7 @@ namespace NosCore.Controllers
                         amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
 
-                    var inv = Session.Character.Inventory.AddItemToPocket(_itemCreatorService.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
                     if (inv.Count > 0)
                     {

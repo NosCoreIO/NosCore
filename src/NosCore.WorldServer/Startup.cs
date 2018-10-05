@@ -38,6 +38,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -50,9 +51,6 @@ namespace NosCore.WorldServer
     {
         private const string ConfigurationPath = @"../../../configuration";
         private const string Title = "NosCore - WorldServer";
-        private int npccount;
-        private int monstercount;
-        private IMapper _mapper;
         private void PrintHeader()
         {
             Console.Title = Title;
@@ -79,72 +77,47 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(Inventory).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
 
-            containerBuilder.RegisterType<ClientSession>();
-            containerBuilder.RegisterType<NetworkManager>();
-            containerBuilder.RegisterType<Portal>();
-            containerBuilder.RegisterType<Inventory>();
-            containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.Register(_ =>
             {
                 var items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item>>().ToList();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), items.Count));
                 return items;
             }).As<List<Item>>().SingleInstance();
-            
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDTO> monsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count));
                 return monsters;
             }).As<List<NpcMonsterDTO>>().SingleInstance();
+            containerBuilder.Register(_ =>
+            {
+                List<Map> maps = DAOFactory.MapDAO.LoadAll().Adapt<List<Map>>();
+                if (maps.Count != 0)
+                {
+                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED), maps.Count));
+                }
+                else
+                {
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
+                }
+                return maps;
+            }).As<List<Map>>().SingleInstance();
+            containerBuilder.RegisterType<MapInstanceAccessService>()
+                .As<MapInstanceAccessService>()
+                .SingleInstance()
+                .PropertiesAutowired();
 
             containerBuilder.Populate(services);
         }
-
-        //public Tuple<List<Map>, ConcurrentDictionary<Guid, MapInstance>> LoadMapInstances( List<NpcMonsterDTO> npcMonsters)
-        //{
-        //    var mapInstances = new ConcurrentDictionary<Guid, MapInstance>();
-        //    var maps = new List<Map>();
-        //    var mapcount = 0;
-        //    var mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Adapt<List<Map>>(),
-        //        EnumerablePartitionerOptions.NoBuffering);
-        //    var mapList = new ConcurrentDictionary<short, Map>();
-        //    Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
-        //    {
-        //        var guid = Guid.NewGuid();
-        //        map.Initialize();
-        //        mapList[map.MapId] = map;
-        //        var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters);
-        //        mapInstances.TryAdd(guid, newMap);
-        //        newMap.LoadPortals();
-        //        newMap.LoadMonsters();
-        //        newMap.LoadNpcs();
-        //        newMap.StartLife();
-        //        monstercount += newMap.Monsters.Count;
-        //        npccount += newMap.Npcs.Count;
-        //        mapcount++;
-        //    });
-        //    maps.AddRange(mapList.Select(s => s.Value));
-        //    if (mapcount != 0)
-        //    {
-        //        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED), mapcount));
-        //    }
-        //    else
-        //    {
-        //        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
-        //    }
-        //    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
-        //        npccount));
-        //    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
-        //        monstercount));
-        //    return new Tuple<List<Map>, ConcurrentDictionary<Guid, MapInstance>>(maps, mapInstances);
-        //}
 
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -191,7 +164,6 @@ namespace NosCore.WorldServer
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
-            services.AddSingleton(_ => _mapper);
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

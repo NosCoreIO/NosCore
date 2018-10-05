@@ -10,13 +10,13 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
-    public class Inventory : ConcurrentDictionary<Guid, ItemInstance>
+    public class InventoryService : ConcurrentDictionary<Guid, ItemInstance>, IInventoryService
     {
         private WorldConfiguration _configuration { get; }
 
         private readonly List<Item.Item> _items;
 
-        public Inventory(List<Item.Item> items, WorldConfiguration configuration) {
+        public InventoryService(List<Item.Item> items, WorldConfiguration configuration) {
             _items = items;
             _configuration = configuration;
         }

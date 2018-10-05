@@ -22,20 +22,21 @@ using NosCore.Shared.I18N;
 using Mapster;
 using System.Collections.Concurrent;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-        private readonly ConcurrentDictionary<Guid, MapInstance> _mapInstances;
-        private readonly ICharacterCreatorService _characterCreatorService;
-        private readonly IItemCreatorService _itemCreatorService;
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly ICharacterBuilderService _characterBuilderService;
+        private readonly IItemBuilderService _itemBuilderService;
 
-        public CharacterScreenPacketController(ConcurrentDictionary<Guid, MapInstance> mapInstances, ICharacterCreatorService characterCreatorService, IItemCreatorService itemCreatorService)
+        public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService, IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
-            _mapInstances = mapInstances;
-            _characterCreatorService = characterCreatorService;
-            _itemCreatorService = itemCreatorService;
+            _mapInstanceAccessService = mapInstanceAccessService;
+            _characterBuilderService = characterBuilderService;
+            _itemBuilderService = itemBuilderService;
         }
 
         [UsedImplicitly]
@@ -229,7 +230,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket { Type = 0 });
-            foreach (GameObject.Character character in characters.Select(_characterCreatorService.LoadCharacter))
+            foreach (GameObject.Character character in characters.Select(_characterBuilderService.LoadCharacter))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -314,17 +315,17 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                GameObject.Character character = _characterCreatorService.LoadCharacter(characterDto);
+                GameObject.Character character = _characterBuilderService.LoadCharacter(characterDto);
               
-                character.MapInstanceId = _mapInstances.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = _mapInstances.GetMapInstance(character.MapInstanceId);
+                character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = _itemCreatorService.Convert(k));
+                inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
                 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
                 #pragma warning restore CS0618

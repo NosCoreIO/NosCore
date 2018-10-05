@@ -9,11 +9,11 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Services
 { 
-    public class ItemCreatorService : IItemCreatorService
+    public class ItemBuilderService : IItemBuilderService
     {
         private List<Item.Item> _items;
 
-        public ItemCreatorService(List<Item.Item> items)
+        public ItemBuilderService(List<Item.Item> items)
         {
             _items = items;
         }

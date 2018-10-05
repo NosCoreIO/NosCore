@@ -22,16 +22,16 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
-        private IItemCreatorService _itemCreatorService;
+        private IItemBuilderService _itemBuilderService;
 
         [UsedImplicitly]
         public InventoryPacketController()
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemCreatorService itemCreatorService)
+        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService)
         {
-            _itemCreatorService = itemCreatorService;
+            _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
             _items = items;
         }
@@ -96,7 +96,7 @@ namespace NosCore.Controllers
                 {
                     return;
                 }
-                ItemInstance mapItemInstance = _itemCreatorService.Create( mapItem.VNum, mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
+                ItemInstance mapItemInstance = _itemBuilderService.Create( mapItem.VNum, mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
                 //TODO not your item
                 if (mapItem.VNum != 1046)
                 {
