@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.Randomizer;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
-    public class MapInstanceAccessService
+    public class MapInstanceAccessService : ISingletonService
     {
         public readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();

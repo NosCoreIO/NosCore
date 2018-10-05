@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Item
                         {
                             for (int i = 0; i < point; i++)
                             {
-                                int rndn = ServerManager.Instance.RandomNumber(0, 3);
+                                int rndn = _randomizerService.RandomNumber(0, 3);
                                 if (rndn == 0)
                                 {
                                     Concentrate++;
@@ -123,7 +123,7 @@ namespace NosCore.GameObject.Item
                         {
                             for (int i = 0; i < point; i++)
                             {
-                                int rndn = ServerManager.Instance.RandomNumber(0, 3);
+                                int rndn = _randomizerService.RandomNumber(0, 3);
                                 if (rndn == 0)
                                 {
                                     DefenceDodge++;

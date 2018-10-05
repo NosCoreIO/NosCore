@@ -23,6 +23,7 @@ using Mapster;
 using System.Collections.Concurrent;
 using NosCore.GameObject.Services;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.Randomizer;
 
 namespace NosCore.Controllers
 {
@@ -31,12 +32,15 @@ namespace NosCore.Controllers
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly ICharacterBuilderService _characterBuilderService;
         private readonly IItemBuilderService _itemBuilderService;
+        private readonly RandomizerService _randomizerService;
 
-        public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService, IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
+        public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService,
+            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService, RandomizerService randomizerService)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
             _characterBuilderService = characterBuilderService;
             _itemBuilderService = itemBuilderService;
+            _randomizerService = randomizerService;
         }
 
         [UsedImplicitly]
@@ -83,8 +87,8 @@ namespace NosCore.Controllers
                         JobLevel = 1,
                         Level = 1,
                         MapId = 1,
-                        MapX = (short)ServerManager.Instance.RandomNumber(78, 81),
-                        MapY = (short)ServerManager.Instance.RandomNumber(114, 118),
+                        MapX = (short)_randomizerService.RandomNumber(78, 81),
+                        MapY = (short)_randomizerService.RandomNumber(114, 118),
                         Mp = 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
@@ -316,7 +320,7 @@ namespace NosCore.Controllers
                 }
 
                 GameObject.Character character = _characterBuilderService.LoadCharacter(characterDto);
-              
+
                 character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
@@ -326,9 +330,9 @@ namespace NosCore.Controllers
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
                 inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
-                #pragma warning disable CS0618
+#pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
-                #pragma warning restore CS0618
+#pragma warning restore CS0618
 
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {

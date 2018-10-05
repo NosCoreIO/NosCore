@@ -82,7 +82,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<PipelineFactory>();
 
             containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
-                .Where(t => t.Name.EndsWith("Service"))
+                .Where(t => t.Name.EndsWith("Service") && !t.Name.Contains("Singleton"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
 
@@ -111,8 +111,10 @@ namespace NosCore.WorldServer
                 }
                 return maps;
             }).As<List<Map>>().SingleInstance();
-            containerBuilder.RegisterType<MapInstanceAccessService>()
-                .As<MapInstanceAccessService>()
+
+            containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
+                .Where(t => t.Name.EndsWith("SingletonService"))
+                .AsSelf()
                 .SingleInstance()
                 .PropertiesAutowired();
 
