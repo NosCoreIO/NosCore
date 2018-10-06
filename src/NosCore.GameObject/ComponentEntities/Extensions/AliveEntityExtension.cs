@@ -22,10 +22,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 var time = (DateTime.Now - nonPlayableEntity.LastMove).TotalMilliseconds;
 
-                if (time > ServerManager.Instance.RandomNumber(400, 3200))
+                if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
                     short mapX = nonPlayableEntity.MapX, mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY, (byte)ServerManager.Instance.RandomNumber(0, 3), (byte)ServerManager.Instance.RandomNumber(0, 3)))
+                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY, (byte)RandomFactory.Instance.RandomNumber(0, 3), (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
                         var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX), Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);

@@ -14,6 +14,8 @@ using System.Reactive.Linq;
 using NosCore.GameObject.Item;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations.Items;
+using Mapster;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject
 {
@@ -25,8 +27,9 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<long, MapItem> DroppedList { get; }
 
-        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type)
+        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type, List<NpcMonsterDTO> npcMonsters)
         {
+            _npcMonsters = npcMonsters;
             XpRate = 1;
             DropRate = 1;
             ShopAllowed = shopAllowed;
@@ -89,7 +92,7 @@ namespace NosCore.GameObject
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(s => ServerManager.Instance.RandomNumber()))
+            foreach (MapCell possibility in possibilities.OrderBy(s => RandomFactory.Instance.RandomNumber()))
             {
                 mapX = (short)(session.Character.PositionX + possibility.X);
                 mapY = (short)(session.Character.PositionY + possibility.Y);
@@ -124,32 +127,26 @@ namespace NosCore.GameObject
 
         public MapInstanceType MapInstanceType { get; set; }
 
-        internal void LoadMonsters()
+        public void LoadMonsters()
         {
             var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, monster =>
             {
-                if (!(monster is MapMonster mapMonster))
-                {
-                    return;
-                }
-                mapMonster.Initialize();
+                MapMonster mapMonster = monster.Adapt<MapMonster>();
+                mapMonster.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.VNum));
                 mapMonster.MapInstance = this;
                 mapMonster.MapInstanceId = MapInstanceId;
                 _monsters[mapMonster.MapMonsterId] = mapMonster;
             });
         }
 
-        internal void LoadNpcs()
+        public void LoadNpcs()
         {
             var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, npc =>
             {
-                if (!(npc is MapNpc mapNpc))
-                {
-                    return;
-                }
-                mapNpc.Initialize();
+                MapNpc mapNpc = npc.Adapt<MapNpc>();
+                mapNpc.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.VNum));
                 mapNpc.MapInstance = this;
                 mapNpc.MapInstanceId = MapInstanceId;
                 _npcs[mapNpc.MapNpcId] = mapNpc;
@@ -169,6 +166,8 @@ namespace NosCore.GameObject
         public List<Portal> Portals { get; set; }
 
         public bool ShopAllowed { get; }
+
+        private List<NpcMonsterDTO> _npcMonsters;
 
         public int XpRate { get; set; }
 

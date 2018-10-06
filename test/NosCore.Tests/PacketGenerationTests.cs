@@ -32,7 +32,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character { Name = "characterTest" };
+            var characterTest = new Character() { Name = "characterTest" };
 
             var packet = PacketFactory.Serialize(characterTest.GenerateIn());
             Assert.AreEqual(

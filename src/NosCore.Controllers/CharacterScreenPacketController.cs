@@ -20,17 +20,24 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Mapster;
+using System.Collections.Concurrent;
+using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly ICharacterBuilderService _characterBuilderService;
+        private readonly IItemBuilderService _itemBuilderService;
 
-        private readonly WorldConfiguration _worldConfiguration;
-
-        public CharacterScreenPacketController(WorldConfiguration worldConfiguration)
+        public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService,
+            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
-            _worldConfiguration = worldConfiguration;
+            _mapInstanceAccessService = mapInstanceAccessService;
+            _characterBuilderService = characterBuilderService;
+            _itemBuilderService = itemBuilderService;
         }
 
         [UsedImplicitly]
@@ -77,8 +84,8 @@ namespace NosCore.Controllers
                         JobLevel = 1,
                         Level = 1,
                         MapId = 1,
-                        MapX = (short)ServerManager.Instance.RandomNumber(78, 81),
-                        MapY = (short)ServerManager.Instance.RandomNumber(114, 118),
+                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
                         Mp = 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
@@ -89,7 +96,7 @@ namespace NosCore.Controllers
                         MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
-                    var insertResult = DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
+                    DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
                     LoadCharacters(null);
                 }
                 else
@@ -224,7 +231,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket { Type = 0 });
-            foreach (GameObject.Character character in characters.Adapt<List<GameObject.Character>>())
+            foreach (GameObject.Character character in characters.Select(_characterBuilderService.LoadCharacter))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -309,21 +316,20 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                GameObject.Character character = characterDto.Adapt<GameObject.Character>();
+                GameObject.Character character = _characterBuilderService.LoadCharacter(characterDto);
 
-                character.MapInstanceId = ServerManager.Instance.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = ServerManager.Instance.GetMapInstance(character.MapInstanceId);
+                character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
-                character.Inventory = new Inventory() { Configuration = _worldConfiguration };
-                inventories.ForEach(k => character.Inventory[k.Id] = k.Adapt<ItemInstance>());
-                #pragma warning disable CS0618
+                inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
+#pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
-                #pragma warning restore CS0618
+#pragma warning restore CS0618
 
                 if (Session.Character.Hp > Session.Character.HPLoad())
                 {
