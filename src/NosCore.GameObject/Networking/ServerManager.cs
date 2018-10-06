@@ -19,6 +19,12 @@ namespace NosCore.GameObject.Networking
 {
     public sealed class ServerManager : BroadcastableBase
     {
+        private static ServerManager _instance;
+        private ServerManager()
+        {
+        }
+        public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
+
         private void LaunchEvents()
         {
             Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => { SaveAll(); });

@@ -2,7 +2,6 @@
 using System.Reactive.Linq;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.Randomizer;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
@@ -12,7 +11,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static void Move(this INonPlayableEntity nonPlayableEntity,RandomizerService randomizerService)
+        public static void Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)
             {
@@ -23,10 +22,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 var time = (DateTime.Now - nonPlayableEntity.LastMove).TotalMilliseconds;
 
-                if (time > randomizerService.RandomNumber(400, 3200))
+                if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
                     short mapX = nonPlayableEntity.MapX, mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY, (byte)randomizerService.RandomNumber(0, 3), (byte)randomizerService.RandomNumber(0, 3)))
+                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY, (byte)RandomFactory.Instance.RandomNumber(0, 3), (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
                         var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX), Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
