@@ -351,6 +351,9 @@
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
   </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} NpcMonsters Loaded!</value>
+  </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
     <value>{0} NpcMonster Parsed!</value>
   </data>

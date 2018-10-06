@@ -349,6 +349,9 @@
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
   </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} NpcMonsters Caricati.</value>
+  </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
     <value>{0} NpcMonster Sincronizzati!</value>
   </data>
