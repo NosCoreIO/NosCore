@@ -6,9 +6,6 @@ namespace NosCore.GameObject.Item
 {
     public class WearableInstance : ItemInstance
     {
-        public WearableInstance()
-        {
-        }
         public WearableInstance(Item item) : base(item)
         {
         }
@@ -90,7 +87,7 @@ namespace NosCore.GameObject.Item
                         {
                             for (int i = 0; i < point; i++)
                             {
-                                int rndn = ServerManager.Instance.RandomNumber(0, 3);
+                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
                                 if (rndn == 0)
                                 {
                                     Concentrate++;
@@ -126,7 +123,7 @@ namespace NosCore.GameObject.Item
                         {
                             for (int i = 0; i < point; i++)
                             {
-                                int rndn = ServerManager.Instance.RandomNumber(0, 3);
+                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
                                 if (rndn == 0)
                                 {
                                     DefenceDodge++;

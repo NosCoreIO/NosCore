@@ -10,6 +10,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Item;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -22,10 +23,14 @@ namespace NosCore.Controllers
     public class CommandPacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly List<Item> _items;
+        private readonly IItemBuilderService _itemBuilderService;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration)
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService)
         {
             _worldConfiguration = worldConfiguration;
+            _items = items;
+            _itemBuilderService = itemBuilderService;
         }
 
         [UsedImplicitly]
@@ -81,7 +86,7 @@ namespace NosCore.Controllers
                 {
                     return; // cannot create gold as item, use $Gold instead
                 }
-                var iteminfo = ServerManager.Instance.Items.Find(item => item.VNum == vnum);
+                var iteminfo = _items.Find(item => item.VNum == vnum);
                 if (iteminfo != null)
                 {
                     if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
@@ -126,7 +131,7 @@ namespace NosCore.Controllers
                         amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
 
-                    var inv = Session.Character.Inventory.AddItemToPocket(ItemInstance.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
                     if (inv.Count > 0)
                     {

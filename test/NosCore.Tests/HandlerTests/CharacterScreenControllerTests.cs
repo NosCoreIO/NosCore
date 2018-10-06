@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using NosCore.Database;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
+using NosCore.GameObject.Services;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -32,11 +33,11 @@ namespace NosCore.Tests.HandlerTests
     public class CharacterScreenControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new CharacterScreenPacketController() });
+        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new CharacterScreenPacketController() }, null);
         private AccountDTO _acc;
         private CharacterDTO _chara;
         private CharacterScreenPacketController _handler;
-
+        private readonly List<NpcMonsterDTO> _npcMonsters = new List<NpcMonsterDTO>();
         [TestInitialize]
         public void Setup()
         {
@@ -61,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController();
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null);
             _handler.RegisterSession(_session);
         }
 
@@ -70,7 +71,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -165,7 +166,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {
