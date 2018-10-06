@@ -23,7 +23,6 @@ using Mapster;
 using System.Collections.Concurrent;
 using NosCore.GameObject.Services;
 using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.Randomizer;
 
 namespace NosCore.Controllers
 {
@@ -32,15 +31,13 @@ namespace NosCore.Controllers
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly ICharacterBuilderService _characterBuilderService;
         private readonly IItemBuilderService _itemBuilderService;
-        private readonly RandomizerService _randomizerService;
 
         public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService,
-            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService, RandomizerService randomizerService)
+            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
             _characterBuilderService = characterBuilderService;
             _itemBuilderService = itemBuilderService;
-            _randomizerService = randomizerService;
         }
 
         [UsedImplicitly]
@@ -87,8 +84,8 @@ namespace NosCore.Controllers
                         JobLevel = 1,
                         Level = 1,
                         MapId = 1,
-                        MapX = (short)_randomizerService.RandomNumber(78, 81),
-                        MapY = (short)_randomizerService.RandomNumber(114, 118),
+                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
                         Mp = 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,

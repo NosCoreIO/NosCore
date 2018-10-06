@@ -25,4 +25,8 @@
     <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Randomizer\" />
+  </ItemGroup>
+
 </Project>

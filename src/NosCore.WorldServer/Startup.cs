@@ -112,11 +112,7 @@ namespace NosCore.WorldServer
                 return maps;
             }).As<List<Map>>().SingleInstance();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
-                .Where(t => t.Name.EndsWith("SingletonService"))
-                .AsSelf()
-                .SingleInstance()
-                .PropertiesAutowired();
+            containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);
         }
