@@ -62,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null);
             _handler.RegisterSession(_session);
         }
 
