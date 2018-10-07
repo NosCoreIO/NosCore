@@ -218,7 +218,7 @@ namespace NosCore.Controllers
                         member.SendPacket(member.Character.GeneratePinit());
                     }
 
-                    //ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
+                    ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
                     break;
                 case GroupRequestType.Declined:
@@ -316,7 +316,7 @@ namespace NosCore.Controllers
                     member.SendPacket(member.Character.GeneratePinit());
                 }
 
-                //ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
+                ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
             }
         }
 

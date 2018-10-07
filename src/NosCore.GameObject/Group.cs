@@ -20,7 +20,7 @@ namespace NosCore.GameObject
         {
             Characters = new ConcurrentDictionary<long, ClientSession>();
             Type = type;
-            //GroupId = ServerManager.Instance.GetNextGroupId();
+            GroupId = ServerManager.Instance.GetNextGroupId();
         }
 
         public long GroupId { get; set; }
