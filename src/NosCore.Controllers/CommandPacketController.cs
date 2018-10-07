@@ -56,7 +56,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(sayPacket),
+                Packet = PacketFactory.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Data.WebApi.Character()
                 {
                     Name = Session.Character.Name,
@@ -66,7 +66,7 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(msgPacket)
+                Packet = PacketFactory.Serialize(new[] { msgPacket })
             };
 
             ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
