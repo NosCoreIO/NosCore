@@ -184,8 +184,8 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Group = new Group(GroupType.Group);
-                        Session.Character.Group.JoinGroup(targetSession);
                         Session.Character.Group.JoinGroup(Session);
+                        Session.Character.Group.JoinGroup(targetSession);
                         Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language)
@@ -279,9 +279,10 @@ namespace NosCore.Controllers
 
             if (group.Characters.Count > 2)
             {
+                group.LeaveGroup(Session);
+
                 if (group.IsGroupLeader(Session))
                 {
-                    group.LeaveGroup(Session);
                     ServerManager.Instance.Broadcast(Session, new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language) }, ReceiverType.OnlySomeone, string.Empty, group.Characters.Values.First().Character.CharacterId);
                 }
 
