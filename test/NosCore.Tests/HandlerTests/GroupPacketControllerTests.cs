@@ -35,36 +35,6 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            PacketFactory.Initialize<NoS0575Packet>();
-            var builder = new ConfigurationBuilder();
-            var databaseConfiguration = new SqlConnectionConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(databaseConfiguration);
-            databaseConfiguration.Database = "postgresunittest";
-            var sqlconnect = databaseConfiguration;
-            DataAccessHelper.Instance.EnsureDeleted(sqlconnect);
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(GroupPacketControllerTests)));
-            DataAccessHelper.Instance.Initialize(sqlconnect);
-            DAOFactory.RegisterMapping(typeof(Character).Assembly);
-            var map = new MapDTO { MapId = 1 };
-            DAOFactory.MapDAO.InsertOrUpdate(ref map);
-            _acc = new AccountDTO { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
-            DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
-            _chara = new CharacterDTO
-            {
-                Name = "TestExistingCharacter",
-                Slot = 1,
-                AccountId = _acc.AccountId,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-            DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
-            _session.InitializeAccount(_acc);
-            _handler = new GroupPacketController();
-            _handler.RegisterSession(_session);
         }
     }
 }
