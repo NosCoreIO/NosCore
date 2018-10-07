@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using FastExpressionCompiler;
 using NosCore.Core.Extensions;
 
 namespace NosCore.Core
@@ -10,7 +11,7 @@ namespace NosCore.Core
     {
         #region Methods
 
-        public static T BuildDelegate<T>(MethodInfo method, params object[] missingParamValues)
+        public static T BuildDelegate<T>(MethodInfo method, params object[] missingParamValues) where T : class
         {
             var queueMissingParams = new Queue<object>(missingParamValues);
 
@@ -33,7 +34,7 @@ namespace NosCore.Core
                     Expression.Call(method, paramsToPass),
                     paramsOfDelegate);
 
-                return expr.Compile();
+                return expr.CompileFast();
             }
             else
             {
@@ -47,7 +48,7 @@ namespace NosCore.Core
                     Expression.Call(paramThis, method, paramsToPass),
                     paramsOfDelegate);
 
-                return expr.Compile();
+                return expr.CompileFast();
             }
         }
 

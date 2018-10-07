@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Mapster;
+using NosCore.Database.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 
@@ -19,7 +20,6 @@ namespace NosCore.DAL
         {
             try
             {
-                var targetType = typeof(TEntity);
                 foreach (var pi in typeof(TDTO).GetProperties())
                 {
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
@@ -233,6 +233,22 @@ namespace NosCore.DAL
                 var dbset = context.Set<TEntity>();
                 foreach (var t in dbset)
                 {
+                    if (t is Item it)
+                    {
+                        TDTO test = default(TDTO);
+                        try
+                        {
+                            test = t.Adapt<TDTO>();
+                            Console.WriteLine(it.VNum);
+                        }
+                        catch
+                        {
+                            Console.WriteLine(it.VNum+"error");
+                            continue;
+                        }                        
+                    }
+                        
+                    
                     yield return t.Adapt<TDTO>();
                 }
             }

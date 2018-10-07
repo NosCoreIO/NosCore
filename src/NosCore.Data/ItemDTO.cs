@@ -98,7 +98,6 @@ namespace NosCore.Data
         public short LightResistance { get; set; }
 
         public short MagicDefence { get; set; }
-
         public byte MaxCellon { get; set; }
 
         public byte MaxCellonLvl { get; set; }
@@ -154,5 +153,6 @@ namespace NosCore.Data
         public short WaterResistance { get; set; }
 
         public byte Width { get; set; }
+
     }
 }

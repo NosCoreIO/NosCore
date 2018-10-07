@@ -5,8 +5,10 @@ using System.Reflection;
 using Autofac;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
+using FastExpressionCompiler;
 using log4net;
 using log4net.Config;
+using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Controllers;
@@ -66,6 +68,7 @@ namespace NosCore.LoginServer
             InitializePackets();
             var container = InitializeContainer();
             var loginServer = container.Resolve<LoginServer>();
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             loginServer.Run();
         }
 
