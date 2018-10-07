@@ -140,6 +140,7 @@ namespace NosCore.Shared.I18N
         LEAVE_GROUP,
         GROUP_LEFT,
         GROUP_CLOSED,
-        GROUP_INVITE
+        GROUP_INVITE,
+        NPCMONSTERS_LOADED
     }
 }
