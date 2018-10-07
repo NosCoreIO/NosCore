@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FastExpressionCompiler;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -26,7 +27,7 @@ namespace NosCore.Core
             if (callExpression.Type == typeof(void))
             {
                 var voidDelegate = Expression
-                    .Lambda<VoidDelegate>(callExpression, instanceExpression, argumentsExpression).Compile();
+                    .Lambda<VoidDelegate>(callExpression, instanceExpression, argumentsExpression).CompileFast();
                 Delegate = (instance, arguments) =>
                 {
                     voidDelegate(instance, arguments);
@@ -36,7 +37,7 @@ namespace NosCore.Core
             else
             {
                 Delegate = Expression.Lambda<ReturnValueDelegate>(Expression.Convert(callExpression, typeof(object)),
-                    instanceExpression, argumentsExpression).Compile();
+                    instanceExpression, argumentsExpression).CompileFast();
             }
         }
 

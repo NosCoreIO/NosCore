@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using FastExpressionCompiler;
 using JetBrains.Annotations;
 using log4net;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -105,6 +107,7 @@ namespace NosCore.MasterServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);
         }

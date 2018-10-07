@@ -114,7 +114,7 @@ namespace NosCore.Database.Entities
 
         public byte ItemSubType { get; set; }
 
-        public byte ItemType { get; set; }
+        public ItemType ItemType { get; set; }
 
         public long ItemValidTime { get; set; }
 
@@ -183,7 +183,7 @@ namespace NosCore.Database.Entities
 
         public byte SpType { get; set; }
 
-        public byte Type { get; set; }
+        public PocketType Type { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
