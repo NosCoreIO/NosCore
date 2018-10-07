@@ -230,25 +230,8 @@ namespace NosCore.DAL
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                var dbset = context.Set<TEntity>();
-                foreach (var t in dbset)
+                foreach (var t in context.Set<TEntity>())
                 {
-                    if (t is Item it)
-                    {
-                        TDTO test = default(TDTO);
-                        try
-                        {
-                            test = t.Adapt<TDTO>();
-                            Console.WriteLine(it.VNum);
-                        }
-                        catch
-                        {
-                            Console.WriteLine(it.VNum+"error");
-                            continue;
-                        }                        
-                    }
-                        
-                    
                     yield return t.Adapt<TDTO>();
                 }
             }
