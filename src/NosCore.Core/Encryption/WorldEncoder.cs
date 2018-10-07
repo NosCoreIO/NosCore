@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -11,26 +12,28 @@ namespace NosCore.Core.Encryption
     {
         protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
         {
-            var strBytes = Encoding.Default.GetBytes(message);
-            var bytesLength = strBytes.Length;
-
-            var encryptedData = new byte[bytesLength + (int) Math.Ceiling((decimal) bytesLength / 0x7E) + 1];
-
-            var j = 0;
-            for (var i = 0; i < bytesLength; i++)
+            output.Add(Unpooled.WrappedBuffer(message.Split('\uffff').SelectMany(packet =>
             {
-                if (i % 0x7E == 0)
+                var strBytes = Encoding.Default.GetBytes(packet).AsSpan();
+                var bytesLength = strBytes.Length;
+
+                var encryptedData = new byte[bytesLength + (int) Math.Ceiling((decimal) bytesLength / 0x7E) + 1];
+
+                var j = 0;
+                for (var i = 0; i < bytesLength; i++)
                 {
-                    encryptedData[i + j] = (byte) (bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
-                    j++;
+                    if (i % 0x7E == 0)
+                    {
+                        encryptedData[i + j] = (byte) (bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
+                        j++;
+                    }
+
+                    encryptedData[i + j] = (byte) ~strBytes[i];
                 }
 
-                encryptedData[i + j] = (byte) ~strBytes[i];
-            }
-
-            encryptedData[encryptedData.Length - 1] = 0xFF;
-
-            output.Add(Unpooled.WrappedBuffer(encryptedData));
+                encryptedData[encryptedData.Length - 1] = 0xFF;
+                return encryptedData;
+            }).ToArray()));
         }
     }
 }

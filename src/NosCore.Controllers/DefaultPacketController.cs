@@ -140,7 +140,7 @@ namespace NosCore.Controllers
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
-          
+
             Session.Character.SendRelationStatus(true);
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
@@ -414,7 +414,7 @@ namespace NosCore.Controllers
 
                 ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
-                    Packet = PacketFactory.Serialize(speakPacket),
+                    Packet = PacketFactory.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
                     SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
@@ -479,7 +479,7 @@ namespace NosCore.Controllers
 
             ServerManager.Instance.BroadcastPacket(new PostedPacket
             {
-                Packet = PacketFactory.Serialize(Session.Character.GenerateTalk(message)),
+                Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
                 SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,

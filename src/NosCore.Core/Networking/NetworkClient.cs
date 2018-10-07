@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Serializing;
@@ -31,31 +33,26 @@ namespace NosCore.Core.Networking
 
         #region Methods
 
-        private static volatile IChannelGroup _group;
-
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            var g = _group;
-            if (g == null)
-            {
-                lock (_channel)
-                {
-                    if (_group == null)
-                    {
-                        g = _group = new DefaultChannelGroup(context.Executor);
-                    }
-                }
-            }
-
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
                 ClientId));
-
-            g.Add(context.Channel);
         }
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
-            Logger.Log.Fatal(exception.StackTrace);
+            if (exception is SocketException sockException)
+            {
+                switch (sockException.SocketErrorCode)
+                {
+                    case SocketError.ConnectionReset:
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
+                            ClientId));
+                        break;
+                }
+            }
+            else { Logger.Log.Fatal(exception.StackTrace); }
+
             context.CloseAsync();
         }
 
@@ -68,23 +65,19 @@ namespace NosCore.Core.Networking
 
         public void SendPacket(PacketDefinition packet)
         {
-            if (packet == null)
-            {
-                return;
-            }
-
-            LastPacket = packet;
-            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packet));
-            _channel?.Flush();
+            SendPackets(new[] { packet });
         }
 
         public void SendPackets(IEnumerable<PacketDefinition> packets)
         {
-            // TODO: maybe send at once with delimiter
-            foreach (var packet in packets)
+            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
+            if (packetDefinitions.Length == 0)
             {
-                SendPacket(packet);
+                return;
             }
+
+            LastPacket = packetDefinitions.Last();
+            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
         }
 
         #endregion

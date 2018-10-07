@@ -101,55 +101,67 @@ namespace NosCore.Core.Serializing
         /// <typeparam name="TPacket">The type of the PacketDefinition</typeparam>
         /// <param name="packet">The object reference of the PacketDefinition</param>
         /// <returns>The serialized string.</returns>
-        public static string Serialize<TPacket>(TPacket packet) where TPacket : PacketDefinition
+        public static string Serialize<TPackets>(TPackets packets) where TPackets : IEnumerable<PacketDefinition>
         {
-            try
+            string deserializedPackets = null;
+            foreach (var packet in packets)
             {
-                // load pregenerated serialization information
-                var serializationInformation = GetSerializationInformation(packet.GetType());
-
-                var deserializedPacket = serializationInformation.Key.Item2; // set header
-
-                var lastIndex = 0;
-                foreach (var packetBasePropertyInfo in serializationInformation.Value)
+                try
                 {
-                    // check if we need to add a non mapped values (pseudovalues)
-                    if (packetBasePropertyInfo.Key.Index > lastIndex + 1)
-                    {
-                        var amountOfEmptyValuesToAdd = packetBasePropertyInfo.Key.Index - (lastIndex + 1);
+                    // load pregenerated serialization information
+                    var serializationInformation = GetSerializationInformation(packet.GetType());
 
-                        for (var i = 0; i < amountOfEmptyValuesToAdd; i++)
+                    var deserializedPacket = serializationInformation.Key.Item2; // set header
+
+                    var lastIndex = 0;
+                    foreach (var packetBasePropertyInfo in serializationInformation.Value)
+                    {
+                        // check if we need to add a non mapped values (pseudovalues)
+                        if (packetBasePropertyInfo.Key.Index > lastIndex + 1)
                         {
-                            deserializedPacket += " 0";
+                            var amountOfEmptyValuesToAdd = packetBasePropertyInfo.Key.Index - (lastIndex + 1);
+
+                            for (var i = 0; i < amountOfEmptyValuesToAdd; i++)
+                            {
+                                deserializedPacket += " 0";
+                            }
                         }
+
+                        // add value for current configuration
+                        deserializedPacket += SerializeValue(packetBasePropertyInfo.Value.PropertyType,
+                            packetBasePropertyInfo.Value.GetValue(packet),
+                            packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(),
+                            packetBasePropertyInfo.Key);
+
+                        // check if the value should be serialized to end
+                        if (packetBasePropertyInfo.Key.SerializeToEnd)
+                        {
+                            // we reached the end
+                            break;
+                        }
+
+                        // set new index
+                        lastIndex = packetBasePropertyInfo.Key.Index;
                     }
 
-                    // add value for current configuration
-                    deserializedPacket += SerializeValue(packetBasePropertyInfo.Value.PropertyType,
-                        packetBasePropertyInfo.Value.GetValue(packet),
-                        packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(),
-                        packetBasePropertyInfo.Key);
-
-                    // check if the value should be serialized to end
-                    if (packetBasePropertyInfo.Key.SerializeToEnd)
+                    if (deserializedPackets == null)
                     {
-                        // we reached the end
-                        break;
+                        deserializedPackets = deserializedPacket;
                     }
-
-                    // set new index
-                    lastIndex = packetBasePropertyInfo.Key.Index;
+                    else
+                    {
+                        deserializedPackets += '\uffff' + deserializedPacket;
+                    }
                 }
+                catch (Exception e)
+                {
+                    Logger.Log.Warn("Wrong Packet Format!", e);
+                    return string.Empty;
+                }
+            }
 
-                return deserializedPacket;
-            }
-            catch (Exception e)
-            {
-                Logger.Log.Warn("Wrong Packet Format!", e);
-                return string.Empty;
-            }
+            return deserializedPackets;
         }
-
 
         private static PacketDefinition Deserialize(string packetContent, PacketDefinition deserializedPacket,
             KeyValuePair<Tuple<Type, string>,
@@ -570,7 +582,7 @@ namespace NosCore.Core.Serializing
                 return Convert.ToBoolean(value) ? " 1" : " 0";
             }
 
-            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) ==  true)
+            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) == true)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,

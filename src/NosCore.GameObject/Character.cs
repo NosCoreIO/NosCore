@@ -226,14 +226,14 @@ namespace NosCore.GameObject
                 {
                     ServerManager.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new FinfoPacket
+                        Packet = PacketFactory.Serialize(new []{new FinfoPacket
                         {
                             FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
                             {
                                 CharacterId = CharacterId,
                                 IsConnected = status
                             }}
-                        }),
+                        }}),
                         ReceiverType = ReceiverType.OnlySomeone,
                         SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
                         ReceiverCharacter = new Data.WebApi.Character { Id = characterRelation.Value.RelatedCharacterId, Name = characterRelation.Value.CharacterName }
