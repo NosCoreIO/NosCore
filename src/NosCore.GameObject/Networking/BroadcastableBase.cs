@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
@@ -39,6 +40,8 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
+                clientSession.Character.Group?.LeaveGroup(clientSession);
+                clientSession.Character.MapInstance.Broadcast(clientSession.Character.GenerateOut());
 
                 clientSession.Character.Save();
             }
