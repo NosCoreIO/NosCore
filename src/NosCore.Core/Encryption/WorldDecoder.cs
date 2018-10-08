@@ -5,13 +5,17 @@ using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
+using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Encryption
 {
     public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>
     {
-        private static string DecryptPrivate(string str)
+        private int _sessionId = 0;
+        private RegionType region;
+        private string DecryptPrivate(string str)
         {
             var receiveData = new List<byte>();
             char[] table = {' ', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'n'};
@@ -82,8 +86,7 @@ namespace NosCore.Core.Encryption
                     }
                 }
             }
-
-            return Encoding.Default.GetString(Encoding.Convert(Encoding.Default, Encoding.Default, receiveData.ToArray()));
+            return region.GetEncoding().GetString(receiveData.ToArray());
         }
 
         public string DecryptCustomParameter(byte[] str)
@@ -161,16 +164,18 @@ namespace NosCore.Core.Encryption
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
             var encryptedString = "";
-            var sessionId = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
+            var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
+            region = mapper.RegionType;
+            _sessionId = mapper.SessionId;
             var str = ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
-            if (SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()] == 0)
+            if (_sessionId == 0)
             {
                 output.Add(DecryptCustomParameter(str));
                 return;
             }
 
-            var sessionKey = sessionId & 0xFF;
-            var sessionNumber = unchecked((byte) (sessionId >> 6));
+            var sessionKey = _sessionId & 0xFF;
+            var sessionNumber = unchecked((byte) (_sessionId >> 6));
             sessionNumber &= 0xFF;
             sessionNumber &= unchecked((byte) 0x80000003);
 

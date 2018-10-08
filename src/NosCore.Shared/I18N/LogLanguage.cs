@@ -9,12 +9,12 @@ namespace NosCore.Shared.I18N
     {
         private static LogLanguage _instance;
         private static CultureInfo _resourceCulture;
-        public static string Language = "en";
+        public static RegionType Language;
         private readonly ResourceManager _manager;
 
         private LogLanguage()
         {
-            _resourceCulture = new CultureInfo(Language);
+            _resourceCulture = new CultureInfo(Language.ToString());
             if (Assembly.GetExecutingAssembly() != null)
             {
                 _manager = new ResourceManager(
