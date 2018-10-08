@@ -54,6 +54,8 @@ namespace NosCore.GameObject
                 });
             }
 
+            Logger.Log.Error($"PstPacket: {PacketFactory.Serialize(packetList)}");
+
             return packetList;
 
         }
@@ -87,7 +89,15 @@ namespace NosCore.GameObject
 
             Characters.TryRemove(session.Character.CharacterId, out _);
 
-            if (!IsGroupLeader(session) || Characters.Count <= 1)
+            if (Characters.Count > 1)
+            {
+                foreach (var member in Characters.Values)
+                {
+                    member.SendPacket(member.Character.GeneratePinit());
+                }
+            }
+
+            if (!IsGroupLeader(session))
             {
                 return;
             }

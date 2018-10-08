@@ -93,9 +93,9 @@ namespace NosCore.Controllers
 
                     Session.Character.GroupRequestCharacterIds.Add(pjoinPacket.CharacterId);
 
-                    if (Session.Character.Group?.Type == GroupType.Group)
+                    if (Session.Character.Group == null || Session.Character.Group?.Type == GroupType.Group)
                     {
-                        if (targetSession.Character?.Group?.Type == GroupType.Group)
+                        if (targetSession.Character.Group == null || targetSession.Character?.Group?.Type == GroupType.Group)
                         {
                             Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE, Session.Account.Language) });
                             targetSession.SendPacket(new DlgPacket
@@ -210,10 +210,12 @@ namespace NosCore.Controllers
                     foreach (var member in currentGroup.Characters.Values)
                     {
                         member.SendPacket(member.Character.GeneratePinit());
+                        member.SendPackets(member.Character.Group.GeneratePst(member));
                     }
 
                     ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
+                    
                     break;
                 case GroupRequestType.Declined:
                     if (targetSession == null || !targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))

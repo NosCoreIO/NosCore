@@ -247,6 +247,24 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
+        /// ncif packet
+        /// </summary>
+        /// <param name="ncifPacket"></param>
+        public void GetNamedCharacterInformations(NcifPacket ncifPacket)
+        {
+            switch (ncifPacket.Type)
+            {
+                case VisualType.Player:
+                    Session.SendPacket(ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character.GenerateStatInfo());
+                    break;
+                case VisualType.Monster:
+                    break;
+                case VisualType.Npc:
+                    break;
+            }
+        }
+
+        /// <summary>
         ///     Walk Packet
         /// </summary>
         /// <param name="walkPacket"></param>

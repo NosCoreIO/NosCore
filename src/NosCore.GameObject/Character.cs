@@ -205,6 +205,22 @@ namespace NosCore.GameObject
             return 0;
         }
 
+        public StPacket GenerateStatInfo()
+        {
+            return new StPacket
+            {
+                Type = VisualType,
+                VisualId = VisualId,
+                Level = Level,
+                HeroLvl = HeroLevel,
+                HpPercentage = (int)(Hp / (float)HPLoad() * 100),
+                MpPercentage = (int)(Mp / (float)MPLoad() * 100),
+                CurrentHp = Hp,
+                CurrentMp = Mp,
+                BuffIds = new List<short>()
+            };
+        }
+
         public PinitPacket GeneratePinit()
         {
             var subPackets = new List<PinitSubPacket>();
@@ -231,6 +247,8 @@ namespace NosCore.GameObject
                     HeroLevel = member.Character.HeroLevel
                 });
             }
+
+            Logger.Log.Error($"Pinit packet: {PacketFactory.Serialize(new [] { new PinitPacket { GroupSize = i, PinitSubPackets = subPackets } })}");
 
             return new PinitPacket
             {
@@ -787,6 +805,8 @@ namespace NosCore.GameObject
                 IsMemberOfGroup = Group.IsMemberOfGroup(CharacterId),
                 VisualId = member.Character.CharacterId
             }));
+
+            Logger.Log.Error($"pidxPacket: {PacketFactory.Serialize(new [] { new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets } })}");
 
             return new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets };
         }

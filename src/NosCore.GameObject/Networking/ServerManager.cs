@@ -19,6 +19,7 @@ namespace NosCore.GameObject.Networking
 
         private ServerManager()
         {
+            Groups = new ConcurrentDictionary<long, Group>();
         }
 
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
