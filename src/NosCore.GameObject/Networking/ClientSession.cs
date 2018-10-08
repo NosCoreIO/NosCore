@@ -276,7 +276,7 @@ namespace NosCore.GameObject.Networking
         private void HandlePackets(string packetConcatenated, IChannelHandlerContext contex)
         {
             //determine first packet
-            if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] == 0)
+            if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId == 0)
             {
                 var sessionParts = packetConcatenated.Split(' ');
                 if (sessionParts.Length == 0)
@@ -303,7 +303,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 SessionId = sessid;
-                SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()] = SessionId;
+                SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
 
                 Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
 

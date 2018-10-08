@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using NosCore.Shared;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Networking
 {
@@ -8,7 +11,7 @@ namespace NosCore.Core.Networking
 
         private SessionFactory()
         {
-            Sessions = new ConcurrentDictionary<string, int>();
+            Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
         }
 
         #endregion
@@ -33,7 +36,7 @@ namespace NosCore.Core.Networking
 
         private static SessionFactory _instance;
         private int _sessionCounter;
-        public ConcurrentDictionary<string, int> Sessions;
+        public ConcurrentDictionary<string, RegionTypeMapping> Sessions;
 
         #endregion
     }

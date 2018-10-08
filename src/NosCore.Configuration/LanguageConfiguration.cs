@@ -1,7 +1,9 @@
-﻿namespace NosCore.Configuration
+﻿using NosCore.Shared.Enumerations;
+
+namespace NosCore.Configuration
 {
     public class LanguageConfiguration
     {
-        public string Language { get; set; }
+        public RegionType Language { get; set; }
     }
 }
