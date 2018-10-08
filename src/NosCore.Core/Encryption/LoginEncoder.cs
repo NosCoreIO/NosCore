@@ -41,7 +41,7 @@ namespace NosCore.Core.Encryption
             }
             catch(Exception ex)
             {
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT), ex);
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
             }
         }
     }
