@@ -50,7 +50,7 @@ namespace NosCore.Controllers
 
                 case GroupRequestType.Requested:
                 case GroupRequestType.Invited:
-                    if (pjoinPacket.CharacterId == 0 || targetSession == null || pjoinPacket.CharacterId == Session.Character.CharacterId)
+                    if (targetSession == null || pjoinPacket.CharacterId == Session.Character.CharacterId)
                     {
                         return;
                     }
