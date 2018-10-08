@@ -55,7 +55,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (targetSession.Character.Group != null && targetSession.Character.Group.IsGroupFull)
+                    if (targetSession.Character.Group?.IsGroupFull == true)
                     {
                         Session.SendPacket(new InfoPacket
                         {
@@ -93,9 +93,9 @@ namespace NosCore.Controllers
 
                     Session.Character.GroupRequestCharacterIds.Add(pjoinPacket.CharacterId);
 
-                    if (Session.Character.Group == null || Session.Character.Group.Type == GroupType.Group)
+                    if (Session.Character.Group?.Type == GroupType.Group)
                     {
-                        if (targetSession.Character?.Group == null || targetSession.Character?.Group.Type == GroupType.Group)
+                        if (targetSession.Character?.Group?.Type == GroupType.Group)
                         {
                             Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE, Session.Account.Language) });
                             targetSession.SendPacket(new DlgPacket
@@ -151,8 +151,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (Session.Character.Group != null && Session.Character.Group.IsGroupFull ||
-                        targetSession.Character.Group != null && targetSession.Character.Group.IsGroupFull)
+                    if (Session.Character.Group?.IsGroupFull == true || targetSession.Character.Group?.IsGroupFull == true)
                     {
                         Session.SendPacket(new InfoPacket
                         {
@@ -202,11 +201,6 @@ namespace NosCore.Controllers
                     }
 
                     if (Session.Character.Group?.Type != GroupType.Group)
-                    {
-                        return;
-                    }
-
-                    if (Session.Character.Group == null)
                     {
                         return;
                     }
