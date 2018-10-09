@@ -123,6 +123,7 @@ namespace NosCore.Shared.I18N
         FRIEND_DELETED,
         FRIEND_OFFLINE,
         CANT_FIND_CHARACTER,
-        NPCMONSTERS_LOADED
+        NPCMONSTERS_LOADED,
+        ENCODE_ERROR
     }
 }
