@@ -83,7 +83,7 @@ namespace NosCore.Tests.HandlerTests
 
                 DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
                 session.InitializeAccount(acc);
-                _handlers.Add(new GroupPacketController(null));
+                _handlers.Add(new GroupPacketController());
                 var handler = _handlers.ElementAt(i);
                 handler.RegisterSession(session);
 
@@ -91,18 +91,10 @@ namespace NosCore.Tests.HandlerTests
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
                 ServerManager.Instance.Sessions.TryAdd(chara.CharacterId, session);
             }
-
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues =
-                new Dictionary<string, object>
-                {
-                    { "api/channels", new List<WorldServerInfo> { new WorldServerInfo() } },
-                    { "api/connectedAccount", new List<ConnectedAccount>() }
-                };
         }
 
         [TestMethod]
-        public void Test_Create_Group()
+        public void Test_Accept_Group_Join()
         {
             _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
 
@@ -119,26 +111,20 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Join_Full_Group()
         {
-            _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            PjoinPacket pjoinPacket;
 
-            var pjoinPacket = new PjoinPacket
+            for (var i = 0; i < 3; i++)
             {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(1).Character.CharacterId
-            };
+                _sessions.ElementAt(i + 1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Accepted,
+                    CharacterId = _sessions.ElementAt(i + 1).Character.CharacterId
+                };
 
-            _sessions.ElementAt(2).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(2).Character.CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-
+                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            }
 
             Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull);
 
@@ -152,7 +138,7 @@ namespace NosCore.Tests.HandlerTests
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            Assert.IsNull(_sessions.ElementAt(3).Character.Group);
+            Assert.IsTrue(_sessions.ElementAt(3).Character.Group.IsEmpty);
         }
 
         [TestMethod]
@@ -182,7 +168,7 @@ namespace NosCore.Tests.HandlerTests
 
             _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(1).Character.Group == null);
+            Assert.IsTrue(_sessions.ElementAt(1).Character.Group.IsEmpty);
         }
 
         [TestMethod]
@@ -208,15 +194,15 @@ namespace NosCore.Tests.HandlerTests
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull && _sessions.ElementAt(0).Character.Group.IsGroupLeader(_sessions.ElementAt(0)));
+            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull && _sessions.ElementAt(0).Character.Group.IsGroupLeader(_sessions.ElementAt(0).Character.CharacterId));
 
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(1).Character.Group.IsGroupLeader(_sessions.ElementAt(1)));
+            Assert.IsTrue(_sessions.ElementAt(1).Character.Group.IsGroupLeader(_sessions.ElementAt(1).Character.CharacterId));
         }
 
         [TestMethod]
-        public void Test_Delete_Group()
+        public void Test_Leaveing_Two_Person_Group()
         {
             _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
 
@@ -231,7 +217,7 @@ namespace NosCore.Tests.HandlerTests
 
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group == null && _sessions.ElementAt(1).Character.Group == null);
+            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsEmpty && _sessions.ElementAt(1).Character.Group.IsEmpty);
         }
     }
 }

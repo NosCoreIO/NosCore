@@ -141,6 +141,7 @@ namespace NosCore.Shared.I18N
         GROUP_LEFT,
         GROUP_CLOSED,
         GROUP_INVITE,
-        NPCMONSTERS_LOADED
+        NPCMONSTERS_LOADED,
+        UNABLE_TO_REQUEST_GROUP
     }
 }

@@ -22,6 +22,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {
@@ -32,6 +33,8 @@ namespace NosCore.GameObject
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
+            GroupRequestCharacterIds = new List<long>();
+            Group = new Group(GroupType.Group);
         }
 
         private byte _speed;
@@ -49,6 +52,16 @@ namespace NosCore.GameObject
         public bool IsFriendListFull
         {
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
+        }
+
+        public int MaxHp
+        {
+            get => (int)HPLoad();
+        }
+
+        public int MaxMp
+        {
+            get => (int)MPLoad();
         }
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
@@ -80,8 +93,6 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
 
         public short PositionY { get; set; }
-
-        private byte _speed;
 
         public byte Speed
         {
@@ -226,12 +237,7 @@ namespace NosCore.GameObject
             var subPackets = new List<PinitSubPacket>();
             int i = 0;
 
-            if (Group == null)
-            {
-                return new PinitPacket { GroupSize = 0, PinitSubPackets = new List<PinitSubPacket>() };
-            }
-
-            foreach (var member in Group.Characters.Values)
+            foreach (var member in Group.Values)
             {
                 subPackets.Add(new PinitSubPacket
                 {
@@ -242,13 +248,11 @@ namespace NosCore.GameObject
                     Name = member.Character.Name,
                     Unknown = 0,
                     Gender = member.Character.Gender,
-                    Class = (CharacterClassType)member.Character.Class,
+                    Class = member.Character.Class,
                     Morph = member.Character.Morph,
                     HeroLevel = member.Character.HeroLevel
                 });
             }
-
-            Logger.Log.Error($"Pinit packet: {PacketFactory.Serialize(new [] { new PinitPacket { GroupSize = i, PinitSubPackets = subPackets } })}");
 
             return new PinitPacket
             {
@@ -793,20 +797,18 @@ namespace NosCore.GameObject
         public PidxPacket GeneratePidx(bool leaveGroup = false)
         {
             var subPackets = new List<PidxSubPacket>();
-            if (leaveGroup || Group == null)
+            if (leaveGroup || Group.IsEmpty)
             {
                 subPackets.Add(new PidxSubPacket { IsMemberOfGroup = true, VisualId = VisualId });
 
                 return new PidxPacket { GroupId = -1, SubPackets = subPackets };
             }
 
-            subPackets.AddRange(Group.Characters.Values.Select(member => new PidxSubPacket
+            subPackets.AddRange(Group.Values.Select(member => new PidxSubPacket
             {
                 IsMemberOfGroup = Group.IsMemberOfGroup(CharacterId),
                 VisualId = member.Character.CharacterId
             }));
-
-            Logger.Log.Error($"pidxPacket: {PacketFactory.Serialize(new [] { new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets } })}");
 
             return new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets };
         }

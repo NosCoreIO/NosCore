@@ -13,100 +13,75 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
-    public class Group
+    public class Group : ConcurrentDictionary<long, ClientSession>
     {
-
         public Group(GroupType type)
         {
-            Characters = new ConcurrentDictionary<long, ClientSession>();
             Type = type;
-            GroupId = ServerManager.Instance.GetNextGroupId();
         }
 
         public long GroupId { get; set; }
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Characters.Count == (long) Type;
-
-        public ConcurrentDictionary<long, ClientSession> Characters { get; set; }
-
-        public List<PstPacket> GeneratePst(ClientSession session)
-        {
-            var packetList = new List<PstPacket>();
-            int i = 0;
-
-            foreach (var member in Characters.Values)
-            {
-                packetList.Add(new PstPacket
-                {
-                    Type = member.Character.VisualType,
-                    VisualId = member.Character.VisualId,
-                    GroupOrder = ++i,
-                    HpLeft = (int)(member.Character.Hp / member.Character.HPLoad() * 100),
-                    MpLeft = (int)(member.Character.Mp / member.Character.MPLoad() * 100),
-                    HpLoad = (int)member.Character.HPLoad(),
-                    MpLoad = (int)member.Character.MPLoad(),
-                    Class = (CharacterClassType)member.Character.Class,
-                    Gender = member.Character.Gender,
-                    Morph = member.Character.Morph
-                    //TODO: Add buffs if member isn't equal to "session"
-                });
-            }
-
-            Logger.Log.Error($"PstPacket: {PacketFactory.Serialize(packetList)}");
-
-            return packetList;
-
-        }
-
-        public bool IsMemberOfGroup(ClientSession session)
-        {
-            return IsMemberOfGroup(session.Character.CharacterId);
-        }
+        public bool IsGroupFull => Count == (long) Type;
 
         public bool IsMemberOfGroup(long characterId)
         {
-            return Characters.Any(s => s.Value.Character.CharacterId == characterId);
+            return this.Any(s => s.Value.Character.CharacterId == characterId);
         }
 
-        public bool IsGroupLeader(ClientSession session)
+        public bool IsGroupLeader(long characterId)
         {
-            var leader = Characters.Values.OrderBy(s => s.Character.LastGroupJoin).FirstOrDefault();
-            return Characters.Count > 0 && leader != null && leader == session;
+            var leader = Values.OrderBy(s => s.Character.LastGroupJoin).FirstOrDefault();
+            return Count > 0 && leader != null && leader.Character.CharacterId == characterId;
         }
 
-        public void JoinGroup(ClientSession session)
+        public void JoinGroup(long characterId)
         {
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
+
+            if (session == null)
+            {
+                return;
+            }
+
             session.Character.Group = this;
             session.Character.LastGroupJoin = DateTime.Now;
-            Characters.TryAdd(session.Character.CharacterId, session);
+            TryAdd(session.Character.CharacterId, session);
         }
 
-        public void LeaveGroup(ClientSession session)
+        public void LeaveGroup(long characterId)
         {
-            session.Character.Group = null;
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
 
-            Characters.TryRemove(session.Character.CharacterId, out _);
-
-            if (Characters.Count > 1)
+            if (session == null)
             {
-                foreach (var member in Characters.Values)
+                return;
+            }
+
+            session.Character.Group = new Group(GroupType.Group);
+
+            TryRemove(session.Character.CharacterId, out _);
+
+            if (Count > 1)
+            {
+                foreach (var member in Values)
                 {
                     member.SendPacket(member.Character.GeneratePinit());
                 }
             }
 
-            if (!IsGroupLeader(session))
+            if (!IsGroupLeader(session.Character.CharacterId))
             {
                 return;
             }
 
-            foreach (var member in Characters)
+            foreach (var member in Values)
             {
-                member.Value.SendPacket(new MsgPacket
+                member.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEADER_CHANGE, member.Value.Account.Language),
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEADER_CHANGE, member.Account.Language),
                     Type = MessageType.Whisper
                 });
             }

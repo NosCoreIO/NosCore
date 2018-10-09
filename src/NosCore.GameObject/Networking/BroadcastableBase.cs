@@ -30,8 +30,6 @@ namespace NosCore.GameObject.Networking
 
         public void UnregisterSession(ClientSession clientSession)
         {
-            Sessions.TryRemove(clientSession.SessionId, out _);
-
             if (clientSession.Character != null)
             {
                 if (clientSession.Character.Hp < 1)
@@ -40,11 +38,13 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
-                clientSession.Character.Group?.LeaveGroup(clientSession);
+                clientSession.Character.Group?.LeaveGroup(clientSession.Character.CharacterId);
                 clientSession.Character.MapInstance.Broadcast(clientSession.Character.GenerateOut());
 
                 clientSession.Character.Save();
             }
+
+            Sessions.TryRemove(clientSession.SessionId, out _);
             LastUnregister = DateTime.Now;
         }
 
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Networking
                         session => session.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.Group:
-                    Parallel.ForEach(sentPacket.Sender.Character.Group.Characters.Values, session =>
+                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values, session =>
                     {
                         session.SendPacket(sentPacket.Packet);
                     });

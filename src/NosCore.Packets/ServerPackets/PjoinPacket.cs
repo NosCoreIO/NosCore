@@ -14,7 +14,7 @@ namespace NosCore.Packets.ServerPackets
         public GroupRequestType RequestType { get; set; }
 
         [PacketIndex(1)]
-        [Range(1, long.MaxValue)]
+        [Range(0, long.MaxValue)]
         public long CharacterId { get; set; }
     }
 }
