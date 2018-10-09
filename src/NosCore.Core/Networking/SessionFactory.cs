@@ -36,7 +36,7 @@ namespace NosCore.Core.Networking
 
         private static SessionFactory _instance;
         private int _sessionCounter;
-        public ConcurrentDictionary<string, RegionTypeMapping> Sessions;
+        public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
 
         #endregion
     }
