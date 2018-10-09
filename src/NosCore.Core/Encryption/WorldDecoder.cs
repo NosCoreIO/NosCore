@@ -14,7 +14,7 @@ namespace NosCore.Core.Encryption
     public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>
     {
         private int _sessionId;
-        private RegionType region;
+        private RegionType _region;
 
         private string DecryptPrivate(string str)
         {
@@ -87,7 +87,7 @@ namespace NosCore.Core.Encryption
                     }
                 }
             }
-            return region.GetEncoding().GetString(receiveData.ToArray());
+            return _region.GetEncoding().GetString(receiveData.ToArray());
         }
 
         public string DecryptCustomParameter(byte[] str)
@@ -166,7 +166,7 @@ namespace NosCore.Core.Encryption
         {
             var encryptedString = "";
             var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
-            region = mapper.RegionType;
+            _region = mapper.RegionType;
             _sessionId = mapper.SessionId;
             var str = ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
             if (_sessionId == 0)
