@@ -275,7 +275,7 @@ namespace NosCore.GameObject
             var subpackets = new List<FinitSubPacket>();
             foreach (var relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
             {
-                var account = accounts.FirstOrDefault(s =>
+                var account = accounts.Find(s =>
                     s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
                 subpackets.Add(new FinitSubPacket
                 {
@@ -360,7 +360,7 @@ namespace NosCore.GameObject
             var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
             foreach (var server in servers)
             {
-                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi).FirstOrDefault(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
+                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi).Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
 
                 if (account != null)
                 {
