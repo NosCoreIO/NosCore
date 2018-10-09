@@ -201,6 +201,7 @@ namespace NosCore.Controllers
                             Authority = account.Authority,
                             Language = account.Language
                         };
+                        SessionFactory.Instance.Sessions.FirstOrDefault(s=>s.Value.SessionId == Session.SessionId).Value.RegionType = account.Language;
                         Session.InitializeAccount(accountobject);
                         //Send Account Connected
                     }
