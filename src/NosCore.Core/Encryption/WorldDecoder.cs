@@ -13,8 +13,9 @@ namespace NosCore.Core.Encryption
 {
     public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>
     {
-        private int _sessionId = 0;
+        private int _sessionId;
         private RegionType region;
+
         private string DecryptPrivate(string str)
         {
             var receiveData = new List<byte>();
