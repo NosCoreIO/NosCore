@@ -9,5 +9,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         HairStyleType HairStyle { get; set; }
         HairColorType HairColor { get; set; }
         byte Equipment { get; set; }
+        Group Group { get; set; }
     }
 }

@@ -40,6 +40,16 @@ namespace NosCore.GameObject
         public bool IsAlive { get; set; }
         public IDisposable Life { get; private set; }
 
+        public int MaxHp
+        {
+            get => Hp;
+        }
+
+        public int MaxMp
+        {
+            get => Mp;
+        }
+
         internal void Initialize(NpcMonsterDTO npcMonster)
         {
             NpcMonster = npcMonster;

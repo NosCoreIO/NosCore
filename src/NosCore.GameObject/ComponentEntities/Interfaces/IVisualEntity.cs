@@ -21,5 +21,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         short PositionX { get; set; }
 
         short PositionY { get; set; }
+
+        int MaxHp { get; }
+
+        int MaxMp { get; }
     }
 }

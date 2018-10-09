@@ -33,7 +33,7 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(7)]
         public int CurrentMp { get; set; }
 
-        [PacketIndex(8)]
+        [PacketIndex(8, IsOptional = true)]
         public List<short> BuffIds { get; set; }
     }
 }
