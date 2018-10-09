@@ -18,7 +18,7 @@ namespace NosCore.Parser
 {
     public static class Parser
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Parser";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
 
@@ -44,7 +44,7 @@ namespace NosCore.Parser
         {
             Console.Title = Title;
             const string text = "PARSER SERVER - 0Lucifer0";
-            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
             var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -68,7 +68,7 @@ namespace NosCore.Parser
                     if (args.Length == 0)
                     {
                         folder = Console.ReadLine();
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ALL)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ALL)} [Y/n]");
                         key = Console.ReadKey(true);
                     }
                     else
@@ -106,7 +106,7 @@ namespace NosCore.Parser
                     }
                     else
                     {
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -131,14 +131,14 @@ namespace NosCore.Parser
                             factory.ImportAccounts();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_PORTALS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_PORTALS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportPortals();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_I18N)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_I18N)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -153,7 +153,7 @@ namespace NosCore.Parser
                             //factory.ImportScriptedInstances();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -184,21 +184,21 @@ namespace NosCore.Parser
                             //factory.ImportNpcMonsterData();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportCards();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SKILLS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportSkills();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPNPCS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPNPCS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -213,7 +213,7 @@ namespace NosCore.Parser
                             factory.ImportMapMonsters();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -244,14 +244,14 @@ namespace NosCore.Parser
                             //factory.ImportShopSkills();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             //factory.ImportRecipe();
                         }
 
-                        Console.WriteLine($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
+                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
