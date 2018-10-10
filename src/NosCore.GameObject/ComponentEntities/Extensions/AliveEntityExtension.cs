@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using log4net.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -7,12 +8,39 @@ using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static PinitSubPacket GenerateSubPinit(this IPlayableEntity playableEntity, int groupPosition)
+        {
+            return new PinitSubPacket
+            {
+                VisualType = playableEntity.VisualType,
+                VisualId = playableEntity.VisualId,
+                GroupPosition = groupPosition,
+                Level = playableEntity.Level,
+                Name = playableEntity.Name,
+                Unknown = 0,
+                Gender = (playableEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Class = playableEntity.Class,
+                Morph = playableEntity.Morph,
+                HeroLevel = playableEntity.HeroLevel
+            };
+        }
+
+        public static PidxSubPacket GenerateSubPidx(this IPlayableEntity playableEntity, bool isMemberOfGroup)
+        {
+            return new PidxSubPacket
+            {
+                IsMemberOfGroup = isMemberOfGroup,
+                VisualId = playableEntity.VisualId
+            };
+        }
+
         public static StPacket GenerateStatInfo(this IAliveEntity aliveEntity)
         {
             return new StPacket

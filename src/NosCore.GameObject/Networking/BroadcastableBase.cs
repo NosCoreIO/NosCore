@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
-                clientSession.Character.Group?.LeaveGroup(clientSession.Character.CharacterId);
+                clientSession.Character.Group.LeaveGroup(clientSession.Character.CharacterId);
                 clientSession.Character.MapInstance.Broadcast(clientSession.Character.GenerateOut());
 
                 clientSession.Character.Save();
@@ -115,8 +115,15 @@ namespace NosCore.GameObject.Networking
                         session => session.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.Group:
-                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values, session =>
+                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values, entity =>
                     {
+                        var session = Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == entity.VisualId);
+
+                        if (session == null)
+                        {
+                            return;
+                        }
+
                         session.SendPacket(sentPacket.Packet);
                     });
                     break;
