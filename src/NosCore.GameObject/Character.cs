@@ -40,6 +40,10 @@ namespace NosCore.GameObject
 
         private byte _speed;
 
+        public int ReputIcon => GetReputIco();
+
+        public int DignityIcon => GetDignityIco();
+
         public List<long> GroupRequestCharacterIds { get; set; }
 
         public AccountDTO Account { get; set; }
@@ -121,7 +125,8 @@ namespace NosCore.GameObject
         public bool NoMove { get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
-        public byte Authority { get; set; }
+
+        public AuthorityType Authority => Account.Authority;
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
@@ -133,6 +138,30 @@ namespace NosCore.GameObject
         public int MaxHp => (int)HPLoad();
 
         public int MaxMp => (int)MPLoad();
+
+        private double HeroXpLoad() => HeroLevel == 0 ? 1 : CharacterHelper.Instance.HeroXpData[HeroLevel - 1];
+
+        private double JobXpLoad() => Class == (byte)CharacterClassType.Adventurer ? CharacterHelper.Instance.FirstJobXpData[JobLevel - 1] : CharacterHelper.Instance.SecondJobXpData[JobLevel - 1];
+
+        private double XpLoad() => CharacterHelper.Instance.XpData[Level - 1];
+
+        public LevPacket GenerateLev()
+        {
+            return new LevPacket
+            {
+                Level = Level,
+                LevelXp = LevelXp,
+                JobLevel = JobLevel,
+                JobLevelXp = JobLevelXp,
+                XpLoad = (int)XpLoad(),
+                JobXpLoad = (int)JobXpLoad(),
+                Reputation = Reput,
+                SkillCp = 0,
+                HeroXp = HeroXp,
+                HeroLevel = HeroLevel,
+                HeroXpLoad = (int)HeroXpLoad()
+            };
+        }
 
         public void JoinGroup(Group group)
         {
@@ -717,20 +746,20 @@ namespace NosCore.GameObject
         {
             return new CInfoPacket
             {
-                Name = Account.Authority == AuthorityType.Moderator
-                    ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
-                Unknown1 = string.Empty,
+                Name = Account.Authority == AuthorityType.Moderator ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
+                Unknown1 = " - ",
                 Unknown2 = -1,
                 FamilyId = -1,
-                FamilyName = string.Empty,
+                FamilyName = " - ",
                 CharacterId = CharacterId,
                 Authority = (byte)Account.Authority,
                 Gender = (byte)Gender,
                 HairStyle = (byte)HairStyle,
                 HairColor = (byte)HairColor,
                 Class = Class,
-                Icon = 1,
+                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
                 Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,
                 MorphUpgrade = 0,

@@ -1,10 +1,11 @@
-﻿using NosCore.Shared.Enumerations.Character;
+﻿using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface ICharacterEntity : INamedEntity
     {
-        byte Authority { get; set; }
+        AuthorityType Authority { get; }
 
         GenderType Gender { get; set; }
 
@@ -13,5 +14,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         HairColorType HairColor { get; set; }
 
         byte Equipment { get; set; }
+
+        int ReputIcon { get; }
+
+        int DignityIcon { get; }
     }
 }
