@@ -2,7 +2,7 @@
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface ICharacterEntity : IPlayableEntity
+    public interface ICharacterEntity : INamedEntity
     {
         byte Authority { get; set; }
 

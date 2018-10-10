@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
-using NosCore.Core.Serializing;
-using NosCore.GameObject.ComponentEntities.Extensions;
+﻿using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.I18N;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
 {
-    public class Group : ConcurrentDictionary<long, IPlayableEntity>
+    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<DateTime, INamedEntity>>
     {
         public Group(GroupType type)
         {
@@ -27,7 +23,7 @@ namespace NosCore.GameObject
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Count == (long) Type;
+        public bool IsGroupFull => Count == (long)Type;
 
         public PinitPacket GeneratePinit()
         {
@@ -36,80 +32,44 @@ namespace NosCore.GameObject
             return new PinitPacket
             {
                 GroupSize = Count,
-                PinitSubPackets = Values.Select(s => s.GenerateSubPinit(++i)).ToList()
+                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(++i)).ToList()
             };
         }
 
         public List<PstPacket> GeneratePst()
         {
-            var packetList = new List<PstPacket>();
             var i = 0;
 
-            foreach (var member in Values)
+            return Values.Select(s => s.Item2).Select(member => new PstPacket
             {
-                packetList.Add(new PstPacket
-                {
-                    Type = member.VisualType,
-                    VisualId = member.VisualId,
-                    GroupOrder = ++i,
-                    HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
-                    MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
-                    HpLoad = member.MaxHp,
-                    MpLoad = member.MaxMp,
-                    Class = member.Class,
-                    Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
-                    Morph = member.Morph,
-                    BuffIds = null
-                });
-            }
-
-            return packetList;
+                Type = member.VisualType,
+                VisualId = member.VisualId,
+                GroupOrder = ++i,
+                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
+                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
+                HpLoad = member.MaxHp,
+                MpLoad = member.MaxMp,
+                Class = member.Class,
+                Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Morph = member.Morph,
+                BuffIds = null
+            }).ToList();
         }
 
-        public bool IsMemberOfGroup(long characterId)
+        public bool IsGroupLeader(long visualId)
         {
-            return this.Any(s => s.Value.VisualId == characterId);
+            var leader = Values.OrderBy(s => s.Item1).FirstOrDefault(s => s.Item2.VisualType == VisualType.Player);
+            return Count > 0 && leader?.Item2.VisualId == visualId;
         }
 
-        public bool IsGroupLeader(long characterId)
+        public void JoinGroup(VisualType visualType, INamedEntity namedEntity)
         {
-            var leader = Values.OrderBy(s => s.LastGroupJoin).FirstOrDefault();
-            return Count > 0 && leader != null && leader.VisualId == characterId;
+            TryAdd(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
-        public void JoinGroup(long characterId)
+        public void LeaveGroup(VisualType visualType, INamedEntity namedEntity)
         {
-            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
-
-            if (session == null)
-            {
-                return;
-            }
-
-            session.Character.Group = this;
-            session.Character.LastGroupJoin = DateTime.Now;
-            TryAdd(session.Character.CharacterId, session.Character);
-        }
-
-        public void LeaveGroup(long characterId)
-        {
-            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId);
-
-            if (session == null)
-            {
-                return;
-            }
-
-            session.Character.Group = new Group(GroupType.Group);
-
-            TryRemove(session.Character.CharacterId, out _);
-
-            foreach (var member in Values)
-            {
-                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
-
-                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
-            }
+            TryRemove(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), out _);
         }
     }
 }

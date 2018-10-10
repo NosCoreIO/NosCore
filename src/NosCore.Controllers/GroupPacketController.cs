@@ -115,16 +115,16 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO, Session.Account.Language)
                     });
 
-                    Session.Character.Group.Values.Where(s => s.VisualId != Session.Character.CharacterId).ToList().ForEach(s =>
+                    Session.Character.Group.Values.Where(s => s.Item2.VisualId != Session.Character.CharacterId).ToList().ForEach(s =>
                     {
-                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(v => v.Character.CharacterId == s.VisualId);
+                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(v => v.Character.CharacterId == s.Item2.VisualId);
 
                         if (session == null)
                         {
                             return;
                         }
 
-                        session.Character.GroupRequestCharacterIds.Add(s.VisualId);
+                        session.Character.GroupRequestCharacterIds.Add(s.Item2.VisualId);
                         session.SendPacket(new DlgPacket
                         {
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE, Session.Account.Language),
@@ -164,7 +164,7 @@ namespace NosCore.Controllers
 
                     if (!Session.Character.Group.IsEmpty)
                     {
-                        Session.Character.Group.JoinGroup(targetSession.Character.CharacterId);
+                        targetSession.Character.JoinGroup(Session.Character.Group);
                         targetSession.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, targetSession.Account.Language)
@@ -174,15 +174,17 @@ namespace NosCore.Controllers
                     {
                         if (targetSession.Character.Group.Type == GroupType.Group)
                         {
-                            targetSession.Character.Group.JoinGroup(Session.Character.CharacterId);
+                            Session.Character.JoinGroup(targetSession.Character.Group);
                         }
                     }
                     else
                     {
-                        Session.Character.Group.GroupId = ServerManager.Instance.GetNextGroupId();
-                        Session.Character.Group.Type = GroupType.Group;
-                        Session.Character.Group.JoinGroup(Session.Character.CharacterId);
-                        Session.Character.Group.JoinGroup(targetSession.Character.CharacterId);
+                        Session.Character.Group = new Group(GroupType.Group)
+                        {
+                            GroupId = ServerManager.Instance.GetNextGroupId()
+                        };
+                        Session.Character.JoinGroup(Session.Character.Group);
+                        targetSession.Character.JoinGroup(Session.Character.Group);
                         Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language)
@@ -205,9 +207,9 @@ namespace NosCore.Controllers
 
                     var currentGroup = Session.Character.Group;
 
-                    foreach (var member in currentGroup.Values.Where(s => s is ICharacterEntity))
+                    foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
                     {
-                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2.VisualId);
                         session?.SendPacket(currentGroup.GeneratePinit());
                         session?.SendPackets(currentGroup.GeneratePst());
                     }
@@ -274,11 +276,12 @@ namespace NosCore.Controllers
 
             if (group.Count > 2)
             {
-                group.LeaveGroup(Session.Character.CharacterId);
+                Session.Character.Group.LeaveGroup(Session.Character.VisualType, Session.Character);
+                Session.Character.LeaveGroup();
 
                 if (group.IsGroupLeader(Session.Character.CharacterId))
                 {
-                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == group.Values.First().VisualId);
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == group.Values.First().Item2.VisualId);
 
                     if (session == null)
                     {
@@ -296,9 +299,9 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                foreach (var member in group.Values.Where(s => s is ICharacterEntity))
+                foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
-                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2.VisualId);
                     session?.SendPacket(session.Character.Group.GeneratePinit());
                     session?.SendPacket(new MsgPacket
                     {
@@ -312,8 +315,8 @@ namespace NosCore.Controllers
             }
             else
             {
-                var memberList = new List<IPlayableEntity>();
-                memberList.AddRange(group.Values);
+                var memberList = new List<INamedEntity>();
+                memberList.AddRange(group.Values.Select(s => s.Item2));
 
                 foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
@@ -330,8 +333,9 @@ namespace NosCore.Controllers
                     });
 
                     ServerManager.Instance.Broadcast(session.Character.Group.GeneratePidx(session.Character));
-                    group.LeaveGroup(session.Character.CharacterId);
                     session.SendPacket(session.Character.Group.GeneratePinit());
+                    session.Character.Group.LeaveGroup(session.Character.VisualType, session.Character);
+                    session.Character.LeaveGroup();
                 }
 
                 ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
