@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -64,6 +65,11 @@ namespace NosCore.GameObject
 
         public void JoinGroup(VisualType visualType, INamedEntity namedEntity)
         {
+            if (visualType != VisualType.Player && visualType != VisualType.Npc)
+            {
+                return;
+            }
+
             TryAdd(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
