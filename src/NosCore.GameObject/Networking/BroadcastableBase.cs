@@ -38,6 +38,7 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
+                clientSession.Character.Group.LeaveGroup(clientSession.Character.VisualType, clientSession.Character);
                 clientSession.Character.LeaveGroup();
                 clientSession.Character.MapInstance.Broadcast(clientSession.Character.GenerateOut());
 
