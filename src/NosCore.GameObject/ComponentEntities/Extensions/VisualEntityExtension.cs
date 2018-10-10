@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using log4net.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
@@ -52,7 +55,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 Name = visualEntity.Name,
-                VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
+                VNum = visualEntity.VNum == 0 ? " - " : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
@@ -78,11 +81,32 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        HP = visualEntity.Hp,
-                        MP = visualEntity.Mp
+                        HP = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        MP = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = -1
+                    GroupId = -1, //TODO: Find a way to access group properly
+                    Fairy = 0,
+                    FairyElement = 0,
+                    Unknown = 0,
+                    Morph = 0,
+                    WeaponUpgrade = 0,
+                    WeaponRare = 0,
+                    ArmorUpgrade = 0,
+                    ArmorRare = 0,
+                    FamilyId = -1,
+                    FamilyName = " - ",
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon : -visualEntity.DignityIcon),
+                    Invisible = false,
+                    MorphUpgrade = 0,
+                    Faction = 0,
+                    MorphUpgrade2 = 0,
+                    Level = visualEntity.Level,
+                    FamilyLevel = 0,
+                    ArenaWinner = false,
+                    Compliment = 0,
+                    Size = 0,
+                    HeroLevel = visualEntity.HeroLevel
                 }
             };
         }
