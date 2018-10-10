@@ -33,15 +33,13 @@ This Website and Project is in no way affiliated with, authorized, maintained, s
 We recommend usage of [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 
 # Building the code #
-## 1. Install SSDT For Visual Studio ##
-http://go.microsoft.com/fwlink/?LinkID=393520&clcid=0x409
 
-## 2. Install or Configure PostgreSQL ##
+## 1. Install or Configure PostgreSQL ##
 - PostgreSQL: https://www.postgresql.org/
 - Use update-database
 - Parse all
 
-## 3. Use the NuGet Package Manager to Update the Database ##
+## 2. Use the NuGet Package Manager to Update the Database ##
 - Go to Tools -> NuGet Package Manager -> Package Manager Console
 - Choose Project NosCore.Database
 - Type 'update-database' and update the Database
