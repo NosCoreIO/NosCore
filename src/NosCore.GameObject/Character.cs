@@ -40,6 +40,8 @@ namespace NosCore.GameObject
 
         private byte _speed;
 
+        public long GroupId => Group.GroupId;
+
         public int ReputIcon => GetReputIco();
 
         public int DignityIcon => GetDignityIco();

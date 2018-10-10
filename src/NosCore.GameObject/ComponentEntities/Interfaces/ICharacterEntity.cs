@@ -18,5 +18,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         int ReputIcon { get; }
 
         int DignityIcon { get; }
+
+        long GroupId { get; }
     }
 }

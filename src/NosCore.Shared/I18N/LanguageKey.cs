@@ -143,6 +143,8 @@ namespace NosCore.Shared.I18N
         GROUP_INVITE,
         NPCMONSTERS_LOADED,
         UNABLE_TO_REQUEST_GROUP,
-        ENCODE_ERROR
+        ENCODE_ERROR,
+        USER_TELEPORTED_TO_NOT_EXISTING_MAP,
+        MAP_DONT_EXIST
     }
 }

@@ -18,6 +18,7 @@ namespace NosCore.GameObject
         public Group(GroupType type)
         {
             Type = type;
+            GroupId = -1;
         }
 
         public long GroupId { get; set; }
