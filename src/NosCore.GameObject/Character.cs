@@ -210,35 +210,6 @@ namespace NosCore.GameObject
             return 0;
         }
 
-        public PinitPacket GeneratePinit()
-        {
-            var subPackets = new List<PinitSubPacket>();
-            int i = 0;
-
-            foreach (var member in Group.Values)
-            {
-                subPackets.Add(new PinitSubPacket
-                {
-                    VisualType = member.Character.VisualType,
-                    VisualId = member.Character.CharacterId,
-                    GroupPosition = ++i,
-                    Level = member.Character.Level,
-                    Name = member.Character.Name,
-                    Unknown = 0,
-                    Gender = member.Character.Gender,
-                    Class = member.Character.Class,
-                    Morph = member.Character.Morph,
-                    HeroLevel = member.Character.HeroLevel
-                });
-            }
-
-            return new PinitPacket
-            {
-                GroupSize = i,
-                PinitSubPackets = subPackets
-            };
-        }
-
         public PacketDefinition GenerateSpPoint()
         {
             return new SpPacket()
@@ -770,25 +741,6 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 Message = message
             };
-        }
-
-        public PidxPacket GeneratePidx(bool leaveGroup = false)
-        {
-            var subPackets = new List<PidxSubPacket>();
-            if (leaveGroup || Group.IsEmpty)
-            {
-                subPackets.Add(new PidxSubPacket { IsMemberOfGroup = true, VisualId = VisualId });
-
-                return new PidxPacket { GroupId = -1, SubPackets = subPackets };
-            }
-
-            subPackets.AddRange(Group.Values.Select(member => new PidxSubPacket
-            {
-                IsMemberOfGroup = Group.IsMemberOfGroup(CharacterId),
-                VisualId = member.Character.CharacterId
-            }));
-
-            return new PidxPacket { GroupId = Group.GroupId, SubPackets = subPackets };
         }
     }
 }

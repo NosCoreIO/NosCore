@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
@@ -13,7 +16,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
-    public class Group : ConcurrentDictionary<long, ClientSession>
+    public class Group : ConcurrentDictionary<long, IPlayableEntity>
     {
         public Group(GroupType type)
         {
@@ -26,6 +29,17 @@ namespace NosCore.GameObject
 
         public bool IsGroupFull => Count == (long) Type;
 
+        public PinitPacket GeneratePinit()
+        {
+            var i = 0;
+
+            return new PinitPacket
+            {
+                GroupSize = Count,
+                PinitSubPackets = Values.Select(s => s.GenerateSubPinit(++i)).ToList()
+            };
+        }
+
         public List<PstPacket> GeneratePst()
         {
             var packetList = new List<PstPacket>();
@@ -35,16 +49,16 @@ namespace NosCore.GameObject
             {
                 packetList.Add(new PstPacket
                 {
-                    Type = member.Character.VisualType,
-                    VisualId = member.Character.VisualId,
+                    Type = member.VisualType,
+                    VisualId = member.VisualId,
                     GroupOrder = ++i,
-                    HpLeft = member.Character.Hp / member.Character.MaxHp * 100,
-                    MpLeft = member.Character.Mp / member.Character.MaxMp * 100,
-                    HpLoad = member.Character.MaxHp,
-                    MpLoad = member.Character.MaxMp,
-                    Class = member.Character.Class,
-                    Gender = member.Character.Gender,
-                    Morph = member.Character.Morph,
+                    HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
+                    MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
+                    HpLoad = member.MaxHp,
+                    MpLoad = member.MaxMp,
+                    Class = member.Class,
+                    Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
+                    Morph = member.Morph,
                     BuffIds = null
                 });
             }
@@ -54,13 +68,13 @@ namespace NosCore.GameObject
 
         public bool IsMemberOfGroup(long characterId)
         {
-            return this.Any(s => s.Value.Character.CharacterId == characterId);
+            return this.Any(s => s.Value.VisualId == characterId);
         }
 
         public bool IsGroupLeader(long characterId)
         {
-            var leader = Values.OrderBy(s => s.Character.LastGroupJoin).FirstOrDefault();
-            return Count > 0 && leader != null && leader.Character.CharacterId == characterId;
+            var leader = Values.OrderBy(s => s.LastGroupJoin).FirstOrDefault();
+            return Count > 0 && leader != null && leader.VisualId == characterId;
         }
 
         public void JoinGroup(long characterId)
@@ -74,7 +88,7 @@ namespace NosCore.GameObject
 
             session.Character.Group = this;
             session.Character.LastGroupJoin = DateTime.Now;
-            TryAdd(session.Character.CharacterId, session);
+            TryAdd(session.Character.CharacterId, session.Character);
         }
 
         public void LeaveGroup(long characterId)
@@ -90,26 +104,11 @@ namespace NosCore.GameObject
 
             TryRemove(session.Character.CharacterId, out _);
 
-            if (Count > 1)
-            {
-                foreach (var member in Values)
-                {
-                    member.SendPacket(member.Character.GeneratePinit());
-                }
-            }
-
-            if (!IsGroupLeader(session.Character.CharacterId))
-            {
-                return;
-            }
-
             foreach (var member in Values)
             {
-                member.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEADER_CHANGE, member.Account.Language),
-                    Type = MessageType.Whisper
-                });
+                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+
+                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
             }
         }
     }

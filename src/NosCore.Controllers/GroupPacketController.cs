@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -114,10 +115,17 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO, Session.Account.Language)
                     });
 
-                    Session.Character.Group.Values.Where(s => s.Character.CharacterId != Session.Character.CharacterId).ToList().ForEach(s =>
+                    Session.Character.Group.Values.Where(s => s.VisualId != Session.Character.CharacterId).ToList().ForEach(s =>
                     {
-                        s.Character.GroupRequestCharacterIds.Add(s.Character.CharacterId);
-                        s.SendPacket(new DlgPacket
+                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(v => v.Character.CharacterId == s.VisualId);
+
+                        if (session == null)
+                        {
+                            return;
+                        }
+
+                        session.Character.GroupRequestCharacterIds.Add(s.VisualId);
+                        session.SendPacket(new DlgPacket
                         {
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE, Session.Account.Language),
                             YesPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.AcceptedShare },
@@ -197,14 +205,15 @@ namespace NosCore.Controllers
 
                     var currentGroup = Session.Character.Group;
 
-                    foreach (var member in currentGroup.Values)
+                    foreach (var member in currentGroup.Values.Where(s => s is ICharacterEntity))
                     {
-                        member.SendPacket(member.Character.GeneratePinit());
-                        member.SendPackets(member.Character.Group.GeneratePst());
+                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+                        session?.SendPacket(currentGroup.GeneratePinit());
+                        session?.SendPackets(currentGroup.GeneratePst());
                     }
 
                     ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
-                    Session.Character.MapInstance?.Broadcast(Session.Character.GeneratePidx());
+                    Session.Character.MapInstance?.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
                     
                     break;
                 case GroupRequestType.Declined:
@@ -269,7 +278,17 @@ namespace NosCore.Controllers
 
                 if (group.IsGroupLeader(Session.Character.CharacterId))
                 {
-                    ServerManager.Instance.Broadcast(Session, new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language) }, ReceiverType.OnlySomeone, string.Empty, group.Values.First().Character.CharacterId);
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == group.Values.First().VisualId);
+
+                    if (session == null)
+                    {
+                        return;
+                    }
+
+                    ServerManager.Instance.Broadcast(Session, new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language)
+                    }, ReceiverType.OnlySomeone, string.Empty, session.Character.CharacterId);
                 }
 
                 if (group.Type != GroupType.Group)
@@ -277,30 +296,42 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                foreach (var member in group.Values)
+                foreach (var member in group.Values.Where(s => s is ICharacterEntity))
                 {
-                    member.SendPacket(member.Character.GeneratePinit());
-                    member.SendPacket(new MsgPacket
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+                    session?.SendPacket(session.Character.Group.GeneratePinit());
+                    session?.SendPacket(new MsgPacket
                     {
                         Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language), Session.Character.Name)
                     });
                 }
 
-                Session.SendPacket(Session.Character.GeneratePinit());
-                ServerManager.Instance.Broadcast(Session.Character.GeneratePidx(true));
+                Session.SendPacket(Session.Character.Group.GeneratePinit());
+                ServerManager.Instance.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
                 Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
             }
             else
             {
-                var memberList = new List<ClientSession>();
+                var memberList = new List<IPlayableEntity>();
                 memberList.AddRange(group.Values);
 
-                foreach (var member in memberList)
+                foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
-                    member.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, member.Account.Language), Type = MessageType.Whisper });
-                    ServerManager.Instance.Broadcast(member.Character.GeneratePidx(true));
-                    group.LeaveGroup(member.Character.CharacterId);
-                    member.SendPacket(member.Character.GeneratePinit());
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+
+                    if (session == null)
+                    {
+                        continue;
+                    }
+
+                    session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, session.Account.Language), Type = MessageType.Whisper
+                    });
+
+                    ServerManager.Instance.Broadcast(session.Character.Group.GeneratePidx(session.Character));
+                    group.LeaveGroup(session.Character.CharacterId);
+                    session.SendPacket(session.Character.Group.GeneratePinit());
                 }
 
                 ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
