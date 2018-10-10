@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
+using log4net.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
@@ -11,6 +13,22 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static StPacket GenerateStatInfo(this IAliveEntity aliveEntity)
+        {
+            return new StPacket
+            {
+                Type = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Level = aliveEntity.Level,
+                HeroLvl = aliveEntity.HeroLevel,
+                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
+                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                CurrentHp = aliveEntity.Hp,
+                CurrentMp = aliveEntity.Mp,
+                BuffIds = null
+            };
+        }
+
         public static void Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)

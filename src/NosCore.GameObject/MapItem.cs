@@ -32,10 +32,6 @@ namespace NosCore.GameObject
 
         public short VNum { get; set; }
 
-        public int MaxHp { get; }
-
-        public int MaxMp { get; }
-
         public byte Direction { get; set; }
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
