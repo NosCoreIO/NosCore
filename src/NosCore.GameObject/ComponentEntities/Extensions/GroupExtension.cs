@@ -13,8 +13,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new PidxPacket
             {
-                GroupId = group?.GroupId ?? -1,
-                SubPackets = group == null ? new List<PidxSubPacket> { entity.GenerateSubPidx(false) } : group.Values.Select(s => s.Item2.GenerateSubPidx(true)).ToList()
+                GroupId = group.IsEmpty ? -1 : group.GroupId,
+                SubPackets = group.IsEmpty ? new List<PidxSubPacket> { entity.GenerateSubPidx(true) } : group.Values.Select(s => s.Item2.GenerateSubPidx(false)).ToList()
             };
         }
     }

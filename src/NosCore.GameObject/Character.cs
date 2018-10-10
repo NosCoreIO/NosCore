@@ -9,6 +9,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
@@ -147,6 +148,7 @@ namespace NosCore.GameObject
 
                 groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
             }
+            Group.LeaveGroup(VisualType, this);
             Group = new Group(GroupType.Group);
         }
 
