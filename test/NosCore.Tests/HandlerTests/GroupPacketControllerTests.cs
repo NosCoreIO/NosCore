@@ -137,7 +137,6 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Console.WriteLine(_sessions.ElementAt(3).Character.Group.Count);
             Assert.IsTrue(_sessions.ElementAt(3).Character.Group.IsEmpty);
         }
 
