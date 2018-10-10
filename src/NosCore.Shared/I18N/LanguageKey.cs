@@ -142,6 +142,7 @@ namespace NosCore.Shared.I18N
         GROUP_CLOSED,
         GROUP_INVITE,
         NPCMONSTERS_LOADED,
-        UNABLE_TO_REQUEST_GROUP
+        UNABLE_TO_REQUEST_GROUP,
+        ENCODE_ERROR
     }
 }
