@@ -68,8 +68,6 @@ namespace NosCore.GameObject
 
         public DateTime LastMove { get; set; }
 
-        public DateTime LastGroupJoin { get; set; }
-
         public bool InvisibleGm { get; set; }
 
         public VisualType VisualType => VisualType.Player;
@@ -134,6 +132,23 @@ namespace NosCore.GameObject
         public int MaxHp => (int)HPLoad();
 
         public int MaxMp => (int)MPLoad();
+
+        public void JoinGroup(Group group)
+        {
+            Group = group;
+            group.JoinGroup(VisualType, this);
+        }
+
+        public void LeaveGroup()
+        {
+            foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
+            {
+                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
+
+                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
+            }
+            Group = new Group(GroupType.Group);
+        }
 
         public FdPacket GenerateFd()
         {

@@ -15,24 +15,24 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static PinitSubPacket GenerateSubPinit(this IPlayableEntity playableEntity, int groupPosition)
+        public static PinitSubPacket GenerateSubPinit(this INamedEntity namedEntity, int groupPosition)
         {
             return new PinitSubPacket
             {
-                VisualType = playableEntity.VisualType,
-                VisualId = playableEntity.VisualId,
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
                 GroupPosition = groupPosition,
-                Level = playableEntity.Level,
-                Name = playableEntity.Name,
+                Level = namedEntity.Level,
+                Name = namedEntity.Name,
                 Unknown = 0,
-                Gender = (playableEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
-                Class = playableEntity.Class,
-                Morph = playableEntity.Morph,
-                HeroLevel = playableEntity.HeroLevel
+                Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Class = namedEntity.Class,
+                Morph = namedEntity.Morph,
+                HeroLevel = namedEntity.HeroLevel
             };
         }
 
-        public static PidxSubPacket GenerateSubPidx(this IPlayableEntity playableEntity, bool isMemberOfGroup)
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
         {
             return new PidxSubPacket
             {

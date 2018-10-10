@@ -115,12 +115,12 @@ namespace NosCore.Tests.HandlerTests
 
             for (var i = 0; i < 3; i++)
             {
-                _sessions.ElementAt(i + 1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+                _sessions.ElementAt(i).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
 
                 pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions.ElementAt(i + 1).Character.CharacterId
+                    CharacterId = _sessions.ElementAt(i).Character.CharacterId
                 };
 
                 _handlers.ElementAt(0).ManageGroup(pjoinPacket);
@@ -137,7 +137,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-
+            Console.WriteLine(_sessions.ElementAt(3).Character.Group.Count);
             Assert.IsTrue(_sessions.ElementAt(3).Character.Group.IsEmpty);
         }
 
