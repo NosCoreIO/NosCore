@@ -276,7 +276,6 @@ namespace NosCore.Controllers
 
             if (group.Count > 2)
             {
-                Session.Character.Group.LeaveGroup(Session.Character.VisualType, Session.Character);
                 Session.Character.LeaveGroup();
 
                 if (group.IsGroupLeader(Session.Character.CharacterId))
@@ -310,8 +309,8 @@ namespace NosCore.Controllers
                 }
 
                 Session.SendPacket(Session.Character.Group.GeneratePinit());
-                ServerManager.Instance.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
                 Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
+                Session.Character.MapInstance.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
             }
             else
             {
@@ -332,10 +331,9 @@ namespace NosCore.Controllers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, session.Account.Language), Type = MessageType.Whisper
                     });
 
-                    ServerManager.Instance.Broadcast(session.Character.Group.GeneratePidx(session.Character));
-                    session.SendPacket(session.Character.Group.GeneratePinit());
-                    session.Character.Group.LeaveGroup(session.Character.VisualType, session.Character);
                     session.Character.LeaveGroup();
+                    session.SendPacket(session.Character.Group.GeneratePinit());
+                    ServerManager.Instance.Broadcast(session.Character.Group.GeneratePidx(session.Character));
                 }
 
                 ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
