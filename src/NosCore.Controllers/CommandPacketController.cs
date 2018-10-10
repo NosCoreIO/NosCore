@@ -10,12 +10,14 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
@@ -26,12 +28,14 @@ namespace NosCore.Controllers
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
         private readonly IItemBuilderService _itemBuilderService;
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService)
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemBuilderService = itemBuilderService;
+            _mapInstanceAccessService = mapInstanceAccessService;
         }
 
         [UsedImplicitly]

@@ -199,7 +199,7 @@ namespace NosCore.GameObject.Networking
 
                 if (Character.Group.Type == GroupType.Group && !Character.Group.IsEmpty)
                 {
-                    SendPacket(Character.Group.GeneratePidx(Character));
+                    Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
                 }
 
                 Parallel.ForEach(
