@@ -45,32 +45,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         //in 1 {IsSitting} {GroupId} {HaveFairy} {FairyElement} 0 {FairyMorph} 0 {Morph} {EqRare} {FamilyId} {SecondName} {Reput} {Invisible} {MorphUpgrade} {faction} {MorphUpgrade2} {Level} {FamilyLevel} {ArenaWinner} {Compliment} {Size} {HeroLevel}
         //in 1 Carlosta - 754816 71 105 2 0 1 0 14 3 340.4855.4867.4864.4846.802.4150.4142 100 37 0 -1 4 3 0 0 0 7 86 86 2340 ~Luna~(Membre) -2 0 5 0 0 88 10 0 0 10 1
 
-        public static List<PstPacket> GeneratePst(this ICharacterEntity visualEntity)
-        {
-            var packetList = new List<PstPacket>();
-            int i = 0;
-
-            foreach (var member in visualEntity.Group.Values)
-            {
-                packetList.Add(new PstPacket
-                {
-                    Type = member.Character.VisualType,
-                    VisualId = member.Character.VisualId,
-                    GroupOrder = ++i,
-                    HpLeft = (int)(member.Character.Hp / member.Character.HPLoad() * 100),
-                    MpLeft = (int)(member.Character.Mp / member.Character.MPLoad() * 100),
-                    HpLoad = (int)member.Character.HPLoad(),
-                    MpLoad = (int)member.Character.MPLoad(),
-                    Class = member.Character.Class,
-                    Gender = member.Character.Gender,
-                    Morph = member.Character.Morph
-                    //TODO: Add buffs if member isn't equal to "session"
-                });
-            }
-
-            return packetList;
-        }
-
         //Character in packet
         public static InPacket GenerateIn(this ICharacterEntity visualEntity)
         {

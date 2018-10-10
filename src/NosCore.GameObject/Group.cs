@@ -26,6 +26,32 @@ namespace NosCore.GameObject
 
         public bool IsGroupFull => Count == (long) Type;
 
+        public List<PstPacket> GeneratePst()
+        {
+            var packetList = new List<PstPacket>();
+            var i = 0;
+
+            foreach (var member in Values)
+            {
+                packetList.Add(new PstPacket
+                {
+                    Type = member.Character.VisualType,
+                    VisualId = member.Character.VisualId,
+                    GroupOrder = ++i,
+                    HpLeft = member.Character.Hp / member.Character.MaxHp * 100,
+                    MpLeft = member.Character.Mp / member.Character.MaxMp * 100,
+                    HpLoad = member.Character.MaxHp,
+                    MpLoad = member.Character.MaxMp,
+                    Class = member.Character.Class,
+                    Gender = member.Character.Gender,
+                    Morph = member.Character.Morph,
+                    BuffIds = null
+                });
+            }
+
+            return packetList;
+        }
+
         public bool IsMemberOfGroup(long characterId)
         {
             return this.Any(s => s.Value.Character.CharacterId == characterId);

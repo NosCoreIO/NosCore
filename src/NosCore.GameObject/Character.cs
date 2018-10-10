@@ -54,16 +54,6 @@ namespace NosCore.GameObject
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
         }
 
-        public int MaxHp
-        {
-            get => (int)HPLoad();
-        }
-
-        public int MaxMp
-        {
-            get => (int)MPLoad();
-        }
-
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public MapInstance MapInstance { get; set; }
@@ -141,6 +131,10 @@ namespace NosCore.GameObject
 
         public Group Group { get; set; }
 
+        public int MaxHp => (int)HPLoad();
+
+        public int MaxMp => (int)MPLoad();
+
         public FdPacket GenerateFd()
         {
             return new FdPacket
@@ -214,22 +208,6 @@ namespace NosCore.GameObject
             //    }
             //}
             return 0;
-        }
-
-        public StPacket GenerateStatInfo()
-        {
-            return new StPacket
-            {
-                Type = VisualType,
-                VisualId = VisualId,
-                Level = Level,
-                HeroLvl = HeroLevel,
-                HpPercentage = (int)(Hp / (float)HPLoad() * 100),
-                MpPercentage = (int)(Mp / (float)MPLoad() * 100),
-                CurrentHp = Hp,
-                CurrentMp = Mp,
-                BuffIds = new List<short>()
-            };
         }
 
         public PinitPacket GeneratePinit()

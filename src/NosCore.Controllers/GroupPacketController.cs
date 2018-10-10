@@ -200,7 +200,7 @@ namespace NosCore.Controllers
                     foreach (var member in currentGroup.Values)
                     {
                         member.SendPacket(member.Character.GeneratePinit());
-                        member.SendPackets(member.Character.GeneratePst());
+                        member.SendPackets(member.Character.Group.GeneratePst());
                     }
 
                     ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;

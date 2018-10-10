@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NosCore.Shared.Enumerations.Character;
+using System.Collections.Concurrent;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers
@@ -252,16 +254,25 @@ namespace NosCore.Controllers
         /// <param name="ncifPacket"></param>
         public void GetNamedCharacterInformations(NcifPacket ncifPacket)
         {
+            IAliveEntity entity;
+
+
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    Session.SendPacket(ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character.GenerateStatInfo());
+                    entity = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character;
                     break;
                 case VisualType.Monster:
+                    entity = Session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Npc:
+                    entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+
+            Session.SendPacket(entity?.GenerateStatInfo());
         }
 
         /// <summary>
