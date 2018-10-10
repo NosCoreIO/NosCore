@@ -4,14 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using log4net;
 using log4net.Config;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -26,7 +23,6 @@ using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
@@ -40,20 +36,16 @@ namespace NosCore.Tests.HandlerTests
     public class DefaultPacketControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new DefaultPacketController() }, null);
-        private ClientSession _targetSession = new ClientSession(null, new List<PacketController>() { new DefaultPacketController() }, null);
-        private AccountDTO _acc;
-        private AccountDTO _targetAcc;
+        private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
+        private readonly ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
         private CharacterDTO _chara;
         private CharacterDTO _targetChar;
         private DefaultPacketController _handler;
-        private DefaultPacketController _targetHandler;
 
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var builder = new ConfigurationBuilder();
             var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -61,16 +53,16 @@ namespace NosCore.Tests.HandlerTests
             Logger.InitializeLogger(LogManager.GetLogger(typeof(DefaultPacketControllerTests)));
             var map = new MapDTO { MapId = 1 };
             DAOFactory.MapDAO.InsertOrUpdate(ref map);
-            _acc = new AccountDTO { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
-            _targetAcc = new AccountDTO { Name = "test2", Password = EncryptionHelper.Sha512("test") };
-            DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
-            DAOFactory.AccountDAO.InsertOrUpdate(ref _targetAcc);
+            var account = new AccountDTO { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var targetAccount = new AccountDTO { Name = "test2", Password = EncryptionHelper.Sha512("test") };
+            DAOFactory.AccountDAO.InsertOrUpdate(ref account);
+            DAOFactory.AccountDAO.InsertOrUpdate(ref targetAccount);
 
             _chara = new CharacterDTO
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
-                AccountId = _acc.AccountId,
+                AccountId = account.AccountId,
                 MapId = 1,
                 State = CharacterState.Active
             };
@@ -79,20 +71,18 @@ namespace NosCore.Tests.HandlerTests
             {
                 Name = "TestChar2",
                 Slot = 1,
-                AccountId = _targetAcc.AccountId,
+                AccountId = targetAccount.AccountId,
                 MapId = 1,
                 State = CharacterState.Active
             };
 
             DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
-            _session.InitializeAccount(_acc);
+            _session.InitializeAccount(account);
             _handler = new DefaultPacketController(null, null);
             _handler.RegisterSession(_session);
 
             DAOFactory.CharacterDAO.InsertOrUpdate(ref _targetChar);
-            _targetSession.InitializeAccount(_targetAcc);
-            _targetHandler = new DefaultPacketController(null, null);
-            _targetHandler.RegisterSession(_targetSession);
+            _targetSession.InitializeAccount(targetAccount);
 
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
