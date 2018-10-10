@@ -40,17 +40,15 @@ namespace NosCore.Tests.HandlerTests
     public class GroupPacketControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        //private readonly List<ClientSession> _sessions = new List<ClientSession>();
-        private readonly List<AccountDTO> _accounts = new List<AccountDTO>();
-        private readonly List<CharacterDTO> _characters = new List<CharacterDTO>();
         private readonly List<GroupPacketController> _handlers = new List<GroupPacketController>();
 
         [TestInitialize]
         public void Setup()
         {
+            var accountList = new List<AccountDTO>();
+            var characterList = new List<CharacterDTO>();
             PacketFactory.Initialize<NoS0575Packet>();
-            var builder = new ConfigurationBuilder();
-            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
@@ -60,17 +58,16 @@ namespace NosCore.Tests.HandlerTests
 
             ServerManager.Instance.Sessions = new ConcurrentDictionary<long, ClientSession>();
             ServerManager.Instance.Groups = new ConcurrentDictionary<long, Group>();
-            // So we don't have to modify this for raid tests
-            for (byte i = 0; i < (byte)GroupType.GiantTeam; i++)
+            for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 ServerManager.Instance.Sessions.TryAdd(i, new ClientSession(null, new List<PacketController>() { new GroupPacketController() }, null));
                 var session = ServerManager.Instance.Sessions.Values.ElementAt(i);
 
-                _accounts.Add(new AccountDTO { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") });
-                var acc = _accounts.ElementAt(i);
+                accountList.Add(new AccountDTO { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") });
+                var acc = accountList.ElementAt(i);
                 DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
 
-                _characters.Add(new CharacterDTO
+                characterList.Add(new CharacterDTO
                 {
                     Name = $"TestExistingCharacter{i}",
                     Slot = 1,
@@ -79,7 +76,7 @@ namespace NosCore.Tests.HandlerTests
                     State = CharacterState.Active
                 });
 
-                var chara = _characters.ElementAt(i);
+                var chara = characterList.ElementAt(i);
 
                 DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
                 session.InitializeAccount(acc);
@@ -142,25 +139,18 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Leave_Group()
         {
-            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            var pjoinPacket = new PjoinPacket
+            for (var i = 0; i < 3; i++)
             {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
-            };
+                ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Accepted,
+                    CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(i).Character.CharacterId
+                };
 
-            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            }
 
             Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull);
 
@@ -172,25 +162,18 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Leader_Change()
         {
-            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            var pjoinPacket = new PjoinPacket
+            for (var i = 0; i < 3; i++)
             {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
-            };
+                ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Accepted,
+                    CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(i).Character.CharacterId
+                };
 
-            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            }
 
             Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId));
 
@@ -202,26 +185,18 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Leaveing_Two_Person_Group()
         {
-            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            var pjoinPacket = new PjoinPacket
+            for (var i = 0; i < 3; i++)
             {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
-            };
+                ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group != null && _sessions.ElementAt(1).Character.Group != null && _sessions.ElementAt(0).Character.Group.GroupId == _sessions.ElementAt(1).Character.Group.GroupId);
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Accepted,
+                    CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(i).Character.CharacterId
+                };
 
-            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            }
 
             Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId));
 
