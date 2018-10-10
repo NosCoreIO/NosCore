@@ -40,7 +40,7 @@ namespace NosCore.Tests.HandlerTests
     public class GroupPacketControllerTests
     {
         private const string ConfigurationPath = "../../../configuration";
-        private readonly List<ClientSession> _sessions = new List<ClientSession>();
+        //private readonly List<ClientSession> _sessions = new List<ClientSession>();
         private readonly List<AccountDTO> _accounts = new List<AccountDTO>();
         private readonly List<CharacterDTO> _characters = new List<CharacterDTO>();
         private readonly List<GroupPacketController> _handlers = new List<GroupPacketController>();
@@ -63,8 +63,8 @@ namespace NosCore.Tests.HandlerTests
             // So we don't have to modify this for raid tests
             for (byte i = 0; i < (byte)GroupType.GiantTeam; i++)
             {
-                _sessions.Add(new ClientSession(null, new List<PacketController>() { new GroupPacketController() }, null));
-                var session = _sessions.ElementAt(i);
+                ServerManager.Instance.Sessions.TryAdd(i, new ClientSession(null, new List<PacketController>() { new GroupPacketController() }, null));
+                var session = ServerManager.Instance.Sessions.Values.ElementAt(i);
 
                 _accounts.Add(new AccountDTO { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") });
                 var acc = _accounts.ElementAt(i);
@@ -89,23 +89,22 @@ namespace NosCore.Tests.HandlerTests
 
                 session.SetCharacter(chara.Adapt<Character>());
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
-                ServerManager.Instance.Sessions.TryAdd(chara.CharacterId, session);
             }
         }
 
         [TestMethod]
         public void Test_Accept_Group_Join()
         {
-            _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(1).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group != null && _sessions.ElementAt(1).Character.Group != null && _sessions.ElementAt(0).Character.Group.GroupId == _sessions.ElementAt(1).Character.Group.GroupId);
+            Assert.IsTrue(!ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && !ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
         }
 
         [TestMethod]
@@ -115,108 +114,154 @@ namespace NosCore.Tests.HandlerTests
 
             for (var i = 0; i < 3; i++)
             {
-                _sessions.ElementAt(i).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+                ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
                 pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions.ElementAt(i).Character.CharacterId
+                    CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(i).Character.CharacterId
                 };
 
                 _handlers.ElementAt(0).ManageGroup(pjoinPacket);
             }
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull);
 
-            _sessions.ElementAt(3).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(3).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(3).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(3).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_sessions.ElementAt(3).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(3).Character.Group.IsEmpty);
         }
 
         [TestMethod]
         public void Test_Leave_Group()
         {
-            _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(1).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            _sessions.ElementAt(2).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(2).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull);
 
             _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(1).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
         }
 
         [TestMethod]
         public void Test_Leader_Change()
         {
-            _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(1).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            _sessions.ElementAt(2).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(2).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsGroupFull && _sessions.ElementAt(1).Character.Group.IsGroupFull && _sessions.ElementAt(2).Character.Group.IsGroupFull && _sessions.ElementAt(0).Character.Group.IsGroupLeader(_sessions.ElementAt(0).Character.CharacterId));
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId));
 
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(1).Character.Group.IsGroupLeader(_sessions.ElementAt(1).Character.CharacterId));
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId));
         }
 
         [TestMethod]
         public void Test_Leaveing_Two_Person_Group()
         {
-            _sessions.ElementAt(1).Character.GroupRequestCharacterIds.Add(_sessions.ElementAt(0).Character.CharacterId);
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions.ElementAt(1).Character.CharacterId
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
             Assert.IsTrue(_sessions.ElementAt(0).Character.Group != null && _sessions.ElementAt(1).Character.Group != null && _sessions.ElementAt(0).Character.Group.GroupId == _sessions.ElementAt(1).Character.Group.GroupId);
 
+            ServerManager.Instance.Sessions.Values.ElementAt(2).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
+
+            pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Accepted,
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(2).Character.CharacterId
+            };
+
+            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(2).Character.Group.IsGroupFull && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId));
+
+            _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
+
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsGroupLeader(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId));
+        }
+
+        [TestMethod]
+        public void Test_Rejected_Group_Join()
+        {
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
+
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Declined,
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
+            };
+
+            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
+        }
+
+        [TestMethod]
+        public void Test_Leaving_Two_Person_Group()
+        {
+            ServerManager.Instance.Sessions.Values.ElementAt(1).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
+
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Accepted,
+                CharacterId = ServerManager.Instance.Sessions.Values.ElementAt(1).Character.CharacterId
+            };
+
+            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            Assert.IsTrue(!ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && !ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
+
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(_sessions.ElementAt(0).Character.Group.IsEmpty && _sessions.ElementAt(1).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
         }
     }
 }
