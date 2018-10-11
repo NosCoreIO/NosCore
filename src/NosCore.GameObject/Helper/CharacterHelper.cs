@@ -85,6 +85,21 @@ namespace NosCore.GameObject.Helper
 
         #region Methods
 
+        public double HeroXpLoad(byte heroLevel)
+        {
+            return heroLevel == 0 ? 1 : HeroXpData[heroLevel - 1];
+        }
+
+        public double JobXpLoad(byte jobLevel, byte classType)
+        {
+            return classType == (byte)CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1] : SecondJobXpData[jobLevel - 1];
+        }
+
+        public double XpLoad(byte level)
+        {
+            return XpData[level - 1];;
+        }
+
         public static float ExperiencePenalty(byte playerLevel, byte monsterLevel)
         {
             var leveldifference = playerLevel - monsterLevel;

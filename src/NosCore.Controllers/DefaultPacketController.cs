@@ -256,7 +256,6 @@ namespace NosCore.Controllers
         {
             IAliveEntity entity;
 
-
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:

@@ -80,7 +80,7 @@ namespace NosCore.Tests
 
             _group.JoinGroup(_entity.VisualType, _entity);
 
-            Assert.IsTrue(_group.IsEmpty);
+            Assert.IsTrue(!_group.IsEmpty);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace NosCore.Packets.ServerPackets
         public bool IsSitting { get; set; }
 
         [PacketIndex(8)]
-        public long GroupId { get; set; }
+        public long? GroupId { get; set; }
 
         [PacketIndex(9)]
         [UsedImplicitly]

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
@@ -38,9 +39,8 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
-                clientSession.Character.Group.LeaveGroup(clientSession.Character.VisualType, clientSession.Character);
                 clientSession.Character.LeaveGroup();
-                clientSession.Character.MapInstance.Broadcast(clientSession.Character.GenerateOut());
+                clientSession.Character.MapInstance?.Broadcast(clientSession.Character.GenerateOut());
 
                 clientSession.Character.Save();
             }
@@ -116,16 +116,11 @@ namespace NosCore.GameObject.Networking
                         session => session.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.Group:
-                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values, entity =>
+                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values.Where(s => s.Item2.VisualType == VisualType.Player), entity =>
                     {
                         var session = Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == entity.Item2.VisualId);
 
-                        if (session == null)
-                        {
-                            return;
-                        }
-
-                        session.SendPacket(sentPacket.Packet);
+                        session?.SendPacket(sentPacket.Packet);
                     });
                     break;
                 case ReceiverType.AllExceptGroup:

@@ -36,10 +36,6 @@
 
         byte Level { get; set; }
 
-        long LevelXp { get; set; }
-
         byte HeroLevel { get; set; }
-
-        long HeroXp { get; set; }
     }
 }

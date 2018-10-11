@@ -141,12 +141,6 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MPLoad();
 
-        private double HeroXpLoad() => HeroLevel == 0 ? 1 : CharacterHelper.Instance.HeroXpData[HeroLevel - 1];
-
-        private double JobXpLoad() => Class == (byte)CharacterClassType.Adventurer ? CharacterHelper.Instance.FirstJobXpData[JobLevel - 1] : CharacterHelper.Instance.SecondJobXpData[JobLevel - 1];
-
-        private double XpLoad() => CharacterHelper.Instance.XpData[Level - 1];
-
         public LevPacket GenerateLev()
         {
             return new LevPacket
@@ -155,13 +149,13 @@ namespace NosCore.GameObject
                 LevelXp = LevelXp,
                 JobLevel = JobLevel,
                 JobLevelXp = JobLevelXp,
-                XpLoad = (int)XpLoad(),
-                JobXpLoad = (int)JobXpLoad(),
+                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
+                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
                 Reputation = Reput,
                 SkillCp = 0,
                 HeroXp = HeroXp,
                 HeroLevel = HeroLevel,
-                HeroXpLoad = (int)HeroXpLoad()
+                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
             };
         }
 
@@ -749,10 +743,10 @@ namespace NosCore.GameObject
             return new CInfoPacket
             {
                 Name = Account.Authority == AuthorityType.Moderator ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
-                Unknown1 = " - ",
+                Unknown1 = string.Empty,
                 Unknown2 = -1,
                 FamilyId = -1,
-                FamilyName = " - ",
+                FamilyName = string.Empty,
                 CharacterId = CharacterId,
                 Authority = (byte)Account.Authority,
                 Gender = (byte)Gender,

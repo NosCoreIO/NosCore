@@ -66,11 +66,6 @@ namespace NosCore.GameObject
 
         public void JoinGroup(VisualType visualType, INamedEntity namedEntity)
         {
-            if (visualType != VisualType.Player && visualType != VisualType.Npc)
-            {
-                return;
-            }
-
             TryAdd(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
