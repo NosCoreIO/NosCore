@@ -43,6 +43,7 @@ namespace NosCore.Controllers
         public CharacterScreenPacketController()
         {
         }
+
         /// <summary>
         ///     Char_NEW character creation character
         /// </summary>
@@ -349,13 +350,13 @@ namespace NosCore.Controllers
 
                 foreach (CharacterRelation relation in relations)
                 {
-                    relation.CharacterName = characters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    relation.CharacterName = characters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
                 }
 
                 foreach (CharacterRelation relation in relationsWithCharacter)
                 {
-                    relation.CharacterName = relatedCharacters.FirstOrDefault(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
+                    relation.CharacterName = relatedCharacters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;
                 }
 

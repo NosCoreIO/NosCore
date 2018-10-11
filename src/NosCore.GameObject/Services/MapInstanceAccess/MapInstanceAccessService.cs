@@ -16,6 +16,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     {
         public readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
+
         public MapInstanceAccessService(List<NpcMonsterDTO> npcMonsters, List<Map.Map> maps)
         {
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);

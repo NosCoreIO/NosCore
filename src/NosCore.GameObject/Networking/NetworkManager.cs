@@ -30,10 +30,7 @@ namespace NosCore.GameObject.Networking
                 bootstrap
                     .Group(bossGroup, workerGroup)
                     .Channel<TcpServerSocketChannel>()
-                    .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                    {
-                        _pipelineFactory(channel).CreatePipeline();
-                    }));
+                    .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel => _pipelineFactory(channel).CreatePipeline()));
 
                 var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port);
 

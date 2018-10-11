@@ -141,7 +141,6 @@ namespace NosCore.Controllers
                         {
                             Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, Session.Account.Language), Type = 0 });
                         }
-
                     }
                 }
                 else
@@ -175,7 +174,7 @@ namespace NosCore.Controllers
             lock (Session.Character.Inventory)
             {
                 var invitem = Session.Character.Inventory.LoadBySlotAndType<ItemInstance>(putPacket.Slot, putPacket.PocketType);
-                if (invitem != null && invitem.Item.IsDroppable && invitem.Item.IsTradable && !Session.Character.InExchangeOrTrade)
+                if (invitem?.Item.IsDroppable == true && invitem.Item.IsTradable && !Session.Character.InExchangeOrTrade)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                     {

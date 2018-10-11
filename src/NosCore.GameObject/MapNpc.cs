@@ -55,7 +55,7 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(x =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
             {
                 try
                 {

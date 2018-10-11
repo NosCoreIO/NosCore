@@ -476,7 +476,6 @@ namespace NosCore.Database
 
         #endregion
 
-
         #region Properties
 
         public virtual DbSet<Account> Account { get; set; }

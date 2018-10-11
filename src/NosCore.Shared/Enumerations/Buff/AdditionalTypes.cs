@@ -59,6 +59,7 @@ namespace NosCore.Shared.Enumerations.Buff
 
             CallParticipant2 =
                 12, // propably we will need to fix "Their" Mistake soo CallParticipant1 = 11 and 12, CallParticipant2 = 21 and 22 :D
+
             CallParticipant2Negated = 21,
             CallParticipant2NegatedNegated = 22,
             CallParticipant3 = 31,

@@ -67,8 +67,8 @@ namespace NosCore.Parser.Parsers
                             }
 
                             if (DAOFactory.ComboDAO.FirstOrDefault(s =>
-                                s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit) &&
-                                s.Effect.Equals(comb.Effect)) == null)
+                                s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
+                                && s.Effect.Equals(comb.Effect)) == null)
                             {
                                 combo.Add(comb);
                             }
@@ -84,7 +84,7 @@ namespace NosCore.Parser.Parsers
                         skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte) 0;
                         if (skill.Class > 31)
                         {
-                            var firstskill = skills.FirstOrDefault(s => s.Class == skill.Class);
+                            var firstskill = skills.Find(s => s.Class == skill.Class);
                             if (firstskill == null || skill.SkillVNum <= firstskill.SkillVNum + 10)
                             {
                                 switch (skill.Class)
@@ -241,7 +241,7 @@ namespace NosCore.Parser.Parsers
                         {
                             SkillVNum = skill.SkillVNum,
                             Type = type,
-                            SubType = (byte) ((int.Parse(currentLine[4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                            SubType = (byte) (((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                             IsLevelScaled = Convert.ToBoolean(first % 4),
                             IsLevelDivided = first % 4 == 2,
                             FirstData = (short) (first > 0 ? first : -first / 4),
@@ -295,7 +295,6 @@ namespace NosCore.Parser.Parsers
                 IEnumerable<SkillDTO> skillDtos = skills;
                 IEnumerable<ComboDTO> comboDtos = combo;
                 IEnumerable<BCardDTO> bCardDtos = skillCards;
-
 
                 DAOFactory.SkillDAO.InsertOrUpdate(skillDtos);
                 DAOFactory.ComboDAO.InsertOrUpdate(comboDtos);

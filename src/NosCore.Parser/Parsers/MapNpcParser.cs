@@ -81,9 +81,9 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null ||
-                    DAOFactory.MapNpcDAO.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null ||
-                    npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
+                if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || DAOFactory.MapNpcDAO.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
+                    || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
                     continue;
                 }

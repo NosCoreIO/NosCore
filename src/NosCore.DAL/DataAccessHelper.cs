@@ -30,6 +30,7 @@ namespace NosCore.DAL
         {
             return new NosCoreContext(_option);
         }
+
         public void InitializeForTest(DbContextOptions option)
         {
             _option = option;

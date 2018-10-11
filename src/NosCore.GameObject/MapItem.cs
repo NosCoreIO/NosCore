@@ -10,6 +10,7 @@ namespace NosCore.GameObject
     public class MapItem : ICountableEntity
     {
         private long _visualId;
+
         public long VisualId
         {
             get
@@ -24,6 +25,7 @@ namespace NosCore.GameObject
 
             set => _visualId = value;
         }
+
         public short Amount { get; set; }
 
         public VisualType VisualType => VisualType.Object;

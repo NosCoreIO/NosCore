@@ -15,20 +15,20 @@ namespace NosCore.Parser.Parsers
             for (var i = 1; i < 300; i++)
             {
                 var objectset = false;
-                if (i < 3 || i > 48 && i < 53 || i > 67 && i < 76 || i == 102 || i > 103 && i < 105 ||
-                    i > 144 && i < 149)
+                if (i < 3 || (i > 48 && i < 53) || (i > 67 && i < 76) || i == 102 || (i > 103 && i < 105)
+                    || (i > 144 && i < 149))
                 {
                     // "act1"
                     mapTypeId = (short) MapTypeEnum.Act1;
                     objectset = true;
                 }
-                else if (i > 19 && i < 34 || i > 52 && i < 68 || i > 84 && i < 101)
+                else if ((i > 19 && i < 34) || (i > 52 && i < 68) || (i > 84 && i < 101))
                 {
                     // "act2"
                     mapTypeId = (short) MapTypeEnum.Act2;
                     objectset = true;
                 }
-                else if (i > 40 && i < 45 || i > 45 && i < 48 || i > 99 && i < 102 || i > 104 && i < 128)
+                else if ((i > 40 && i < 45) || (i > 45 && i < 48) || (i > 99 && i < 102) || (i > 104 && i < 128))
                 {
                     // "act3"
                     mapTypeId = (short) MapTypeEnum.Act3;
@@ -40,7 +40,7 @@ namespace NosCore.Parser.Parsers
                     mapTypeId = (short) MapTypeEnum.Act32;
                     objectset = true;
                 }
-                else if (i > 129 && i <= 134 || i == 135 || i == 137 || i == 139 || i == 141 || i > 150 && i < 153)
+                else if ((i > 129 && i <= 134) || i == 135 || i == 137 || i == 139 || i == 141 || (i > 150 && i < 153))
                 {
                     // "act4"
                     mapTypeId = (short) MapTypeEnum.Act4;
@@ -76,13 +76,13 @@ namespace NosCore.Parser.Parsers
                     mapTypeId = (short) MapTypeEnum.Act61;
                     objectset = true;
                 }
-                else if (i > 239 && i < 251 || i == 299)
+                else if ((i > 239 && i < 251) || i == 299)
                 {
                     // "act6.2"
                     mapTypeId = (short) MapTypeEnum.Act62;
                     objectset = true;
                 }
-                else if (i > 260 && i < 264 || i > 2614 && i < 2621)
+                else if ((i > 260 && i < 264) || (i > 2614 && i < 2621))
                 {
                     // "Oasis"
                     mapTypeId = (short) MapTypeEnum.Oasis;
@@ -124,7 +124,7 @@ namespace NosCore.Parser.Parsers
                     mapTypeId = (short) MapTypeEnum.Fernon;
                     objectset = true;
                 }
-                else if (i > 9 && i < 19 || i > 79 && i < 85)
+                else if ((i > 9 && i < 19) || (i > 79 && i < 85))
                 {
                     // "FernonF"
                     mapTypeId = (short) MapTypeEnum.FernonF;
@@ -163,8 +163,8 @@ namespace NosCore.Parser.Parsers
                 // add "act6.1a" and "act6.1d" when ids found
                 var i1 = (short) i;
                 var id = mapTypeId;
-                if (objectset && DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals((short) i)) != null &&
-                    DAOFactory.MapTypeMapDAO.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id)) == null)
+                if (objectset && DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals((short)i)) != null
+                    && DAOFactory.MapTypeMapDAO.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id)) == null)
                 {
                     maptypemaps.Add(new MapTypeMapDTO {MapId = (short) i, MapTypeId = mapTypeId});
                 }

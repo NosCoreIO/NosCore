@@ -56,7 +56,7 @@ namespace NosCore.Tests
         {
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 999));
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0));
-            Assert.IsTrue(items.First().Amount == 1);
+            Assert.IsTrue(items[0].Amount == 1);
         }
 
         [TestMethod]
@@ -64,7 +64,7 @@ namespace NosCore.Tests
         {
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 29));
-            Assert.IsTrue(items.First().Amount == 999 && items.Last().Amount == 20);
+            Assert.IsTrue(items[0].Amount == 999 && items.Last().Amount == 20);
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace NosCore.Tests
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             Assert.IsTrue(Inventory.Count == 2);
-            var item = Inventory.DeleteById(items.First().Id);
+            var item = Inventory.DeleteById(items[0].Id);
             Assert.IsNotNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }

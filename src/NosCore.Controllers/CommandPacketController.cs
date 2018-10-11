@@ -38,6 +38,7 @@ namespace NosCore.Controllers
         public CommandPacketController()
         {
         }
+
         public void Shout(ShoutPacket shoutPacket)
         {
             var sayPacket = new SayPacket
@@ -80,7 +81,7 @@ namespace NosCore.Controllers
             {
                 var vnum = createItemPacket.VNum;
                 sbyte rare = 0;
-                short boxEffect = 999;
+                const short boxEffect = 999;
                 byte upgrade = 0, design = 0;
                 short amount = 1;
                 if (vnum == 1046)
@@ -137,7 +138,7 @@ namespace NosCore.Controllers
                     if (inv.Count > 0)
                     {
                         Session.SendPacket(inv.GeneratePocketChange());
-                        var firstItem = inv.First();
+                        var firstItem = inv[0];
                         var wearable = Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot, firstItem.Type);
                         if (wearable != null)
                         {

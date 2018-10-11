@@ -21,10 +21,7 @@ namespace NosCore.Database.Migrations
                     RegistrationIP = table.Column<string>(maxLength: 45, nullable: true),
                     VerificationToken = table.Column<string>(maxLength: 32, nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Account", x => x.AccountId);
-                });
+                constraints: table => table.PrimaryKey("PK_Account", x => x.AccountId));
 
             migrationBuilder.CreateTable(
                 name: "Card",
@@ -41,10 +38,7 @@ namespace NosCore.Database.Migrations
                     BuffType = table.Column<byte>(nullable: false),
                     Propability = table.Column<byte>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Card", x => x.CardId);
-                });
+                constraints: table => table.PrimaryKey("PK_Card", x => x.CardId));
 
             migrationBuilder.CreateTable(
                 name: "Family",
@@ -68,10 +62,7 @@ namespace NosCore.Database.Migrations
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     WarehouseSize = table.Column<byte>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Family", x => x.FamilyId);
-                });
+                constraints: table => table.PrimaryKey("PK_Family", x => x.FamilyId));
 
             migrationBuilder.CreateTable(
                 name: "Item",
@@ -156,10 +147,7 @@ namespace NosCore.Database.Migrations
                     WaterResistance = table.Column<short>(nullable: false),
                     Width = table.Column<byte>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Item", x => x.VNum);
-                });
+                constraints: table => table.PrimaryKey("PK_Item", x => x.VNum));
 
             migrationBuilder.CreateTable(
                 name: "Map",
@@ -171,10 +159,7 @@ namespace NosCore.Database.Migrations
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     ShopAllowed = table.Column<bool>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Map", x => x.MapId);
-                });
+                constraints: table => table.PrimaryKey("PK_Map", x => x.MapId));
 
             migrationBuilder.CreateTable(
                 name: "NpcMonster",
@@ -226,10 +211,7 @@ namespace NosCore.Database.Migrations
                     TakeDamages = table.Column<int>(nullable: false),
                     GiveDamagePercentage = table.Column<int>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_NpcMonster", x => x.NpcMonsterVNum);
-                });
+                constraints: table => table.PrimaryKey("PK_NpcMonster", x => x.NpcMonsterVNum));
 
             migrationBuilder.CreateTable(
                 name: "Quest",
@@ -249,10 +231,7 @@ namespace NosCore.Database.Migrations
                     IsDaily = table.Column<bool>(nullable: false),
                     SpecialData = table.Column<int>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Quest", x => x.QuestId);
-                });
+                constraints: table => table.PrimaryKey("PK_Quest", x => x.QuestId));
 
             migrationBuilder.CreateTable(
                 name: "Skill",
@@ -289,10 +268,7 @@ namespace NosCore.Database.Migrations
                     UpgradeSkill = table.Column<short>(nullable: false),
                     UpgradeType = table.Column<short>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Skill", x => x.SkillVNum);
-                });
+                constraints: table => table.PrimaryKey("PK_Skill", x => x.SkillVNum));
 
             migrationBuilder.CreateTable(
                 name: "PenaltyLog",

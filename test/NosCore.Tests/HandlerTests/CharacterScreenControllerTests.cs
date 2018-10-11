@@ -39,6 +39,7 @@ namespace NosCore.Tests.HandlerTests
         private CharacterDTO _chara;
         private CharacterScreenPacketController _handler;
         private readonly List<NpcMonsterDTO> _npcMonsters = new List<NpcMonsterDTO>();
+
         [TestInitialize]
         public void Setup()
         {

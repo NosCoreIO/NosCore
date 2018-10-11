@@ -46,18 +46,19 @@ namespace NosCore.WorldServer
 {
     public class Startup
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
-        private void PrintHeader()
+
+        private static void PrintHeader()
         {
             Console.Title = Title;
             const string text = "WORLD SERVER - 0Lucifer0";
-            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
             var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
-        private WorldConfiguration InitializeConfiguration()
+        private static WorldConfiguration InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
             var worldConfiguration = new WorldConfiguration();
@@ -67,7 +68,7 @@ namespace NosCore.WorldServer
             return worldConfiguration;
         }
 
-        private void InitializeContainer(ref ContainerBuilder containerBuilder, IServiceCollection services)
+        private static void InitializeContainer(ref ContainerBuilder containerBuilder, IServiceCollection services)
         {
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();

@@ -208,7 +208,7 @@ namespace NosCore.Controllers
         ///     PreqPacket packet
         /// </summary>
         /// <param name="packet"></param>
-        public void Preq([UsedImplicitly] PreqPacket packet)
+        public void Preq([UsedImplicitly]PreqPacket packet)
         {
             var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
             var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
@@ -225,7 +225,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (portal.DestinationMapInstanceId == default(Guid))
+            if (portal.DestinationMapInstanceId == default)
             {
                 return;
             }
@@ -252,13 +252,11 @@ namespace NosCore.Controllers
         /// <param name="walkPacket"></param>
         public void Walk(WalkPacket walkPacket)
         {
-            var currentRunningSeconds =
-                (DateTime.Now - Process.GetCurrentProcess().StartTime.AddSeconds(-50)).TotalSeconds;
             var distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
-            if (Session.Character.Speed < walkPacket.Speed &&
-                Session.Character.LastSpeedChange.AddSeconds(5) <= DateTime.Now || distance > 60)
+            if ((Session.Character.Speed < walkPacket.Speed
+                && Session.Character.LastSpeedChange.AddSeconds(5) <= DateTime.Now) || distance > 60)
             {
                 return;
             }
@@ -283,8 +281,8 @@ namespace NosCore.Controllers
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-            if (guriPacket.Type != 10 || guriPacket.Data < 973 || guriPacket.Data > 999 ||
-                Session.Character.EmoticonsBlocked)
+            if (guriPacket.Type != 10 || guriPacket.Data < 973 || guriPacket.Data > 999
+                || Session.Character.EmoticonsBlocked)
             {
                 return;
             }
@@ -313,7 +311,7 @@ namespace NosCore.Controllers
         public void SayPacket(ClientSayPacket sayPacket)
         {
             //TODO: Add a penalty check when it will be ready
-            var type = SayColorType.White;
+            const SayColorType type = SayColorType.White;
             Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
             {
                 Message = sayPacket.Message,
@@ -362,7 +360,6 @@ namespace NosCore.Controllers
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                     {
-
                         receiverSession.SendPacket(new SayPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
@@ -423,8 +420,6 @@ namespace NosCore.Controllers
                 Session.SendPacket(Session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
                         Session.Account.Language), SayColorType.Purple));
-
-
             }
             catch (Exception e)
             {

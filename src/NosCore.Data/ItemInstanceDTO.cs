@@ -32,6 +32,5 @@ namespace NosCore.Data
         public PocketType Type { get; set; }
 
         public byte Upgrade { get; set; }
-
     }
 }

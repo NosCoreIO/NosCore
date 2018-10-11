@@ -29,6 +29,7 @@ namespace NosCore.WorldServer
         private readonly List<NpcMonsterDTO> _npcmonsters;
         private readonly List<Map> _maps;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
+
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
@@ -38,7 +39,6 @@ namespace NosCore.WorldServer
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
         }
-
 
         public void Run()
         {
@@ -51,7 +51,7 @@ namespace NosCore.WorldServer
 
             ConnectMaster();
             try
-            { 
+            {
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port));
                 Console.Title +=
@@ -87,7 +87,7 @@ namespace NosCore.WorldServer
                         pipeline.AddLast(new StringEncoder(), new StringDecoder());
                         pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
                     }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port)).ConfigureAwait(false);
 
                 await connection.WriteAndFlushAsync(new Channel
                 {
@@ -99,7 +99,7 @@ namespace NosCore.WorldServer
                     ServerGroup = serverGroup,
                     Host = serverHost,
                     WebApi = webApi
-                });
+                }).ConfigureAwait(false);
             }
 
             WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);

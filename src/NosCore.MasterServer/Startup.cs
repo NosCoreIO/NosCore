@@ -31,14 +31,14 @@ namespace NosCore.MasterServer
 {
     public class Startup
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
 
         private void PrintHeader()
         {
             Console.Title = Title;
             const string text = "MASTER SERVER - 0Lucifer0";
-            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
             var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
@@ -110,7 +110,6 @@ namespace NosCore.MasterServer
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);
         }
-
 
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)

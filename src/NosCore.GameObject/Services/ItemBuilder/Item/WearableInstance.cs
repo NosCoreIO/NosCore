@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public short WaterResistance { get; set; }
 
         public long XP { get; set; }
+
         public void SetRarityPoint()
         {
             switch (Item.EquipmentSlot)
@@ -150,7 +151,5 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                     break;
             }
         }
-
-
     }
 }

@@ -17,6 +17,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(3)]
         public byte DestinationSlot { get; set; }
-
     }
 }
