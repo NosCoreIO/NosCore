@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using Newtonsoft.Json;
@@ -9,7 +8,7 @@ namespace NosCore.Core.Networking
 {
     public class MasterClientSession : MasterServerSession
     {
-        Action _onConnectionLost;
+        readonly Action _onConnectionLost;
         public MasterClientSession(string password, Action onConnectionLost) : base(password)
         {
             _onConnectionLost = onConnectionLost;

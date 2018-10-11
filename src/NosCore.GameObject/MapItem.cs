@@ -1,6 +1,7 @@
 ﻿using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 

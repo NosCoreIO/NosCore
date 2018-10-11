@@ -3,9 +3,10 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.GameObject;
-using NosCore.GameObject.Item;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
@@ -21,7 +22,7 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            _items = new List<GameObject.Item.Item>()
+            _items = new List<Item>()
             {
                 new Item(){Type = PocketType.Main, VNum = 1012,  },
                 new Item(){Type = PocketType.Main, VNum = 1013,  },

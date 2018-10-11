@@ -3,20 +3,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Configuration;
-using NosCore.GameObject.Item;
-using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Services.Inventory
 {
     public class InventoryService : ConcurrentDictionary<Guid, ItemInstance>, IInventoryService
     {
         private WorldConfiguration _configuration { get; }
 
-        private readonly List<Item.Item> _items;
+        private readonly List<Item> _items;
 
-        public InventoryService(List<Item.Item> items, WorldConfiguration configuration) {
+        public InventoryService(List<Item> items, WorldConfiguration configuration) {
             _items = items;
             _configuration = configuration;
         }

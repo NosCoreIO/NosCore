@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NosCore.Shared.Enumerations.Character;
-using System.Collections.Concurrent;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers

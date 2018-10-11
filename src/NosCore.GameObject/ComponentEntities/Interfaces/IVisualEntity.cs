@@ -1,4 +1,5 @@
 ﻿using System;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces

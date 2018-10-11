@@ -6,7 +6,6 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
-using NosCore.DAL;
 using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer

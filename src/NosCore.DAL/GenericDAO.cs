@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Mapster;
-using NosCore.Database.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 

@@ -1,4 +1,4 @@
-﻿namespace NosCore.GameObject.Item
+﻿namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
     public class SpecialistInstance : WearableInstance
     {

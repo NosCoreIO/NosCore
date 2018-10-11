@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Mapster;
+﻿using Mapster;
 using NosCore.Data.AliveEntities;
+using NosCore.GameObject.Services.Inventory;
 
-namespace NosCore.GameObject.Services
+namespace NosCore.GameObject.Services.CharacterBuilder
 {
     public class CharacterBuilderService : ICharacterBuilderService
     {

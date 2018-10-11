@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using NosCore.Shared;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Networking
 {

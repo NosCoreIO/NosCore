@@ -3,8 +3,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Mapster;
+using NosCore.DAL;
+using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
@@ -27,12 +29,27 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 mapList[map.MapId] = map;
                 var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters);
                 MapInstances.TryAdd(guid, newMap);
-                newMap.LoadPortals();
                 newMap.LoadMonsters();
                 newMap.LoadNpcs();
                 newMap.StartLife();
                 monstercount += newMap.Monsters.Count;
                 npccount += newMap.Npcs.Count;
+            });
+            var mapInstancePartitioner = Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
+            Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
+            {
+                var partitioner = Partitioner.Create(
+                    DAOFactory.PortalDAO.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
+                    EnumerablePartitionerOptions.None);
+                var portalList = new ConcurrentDictionary<int, Portal>();
+                Parallel.ForEach(partitioner, portalDto =>
+                {
+                    Portal portal = portalDto.Adapt<Portal>();
+                    portal.SourceMapInstanceId = mapInstance.MapInstanceId;
+                    portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
+                    portalList[portal.PortalId] = portal;
+                });
+                mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
             });
             maps.AddRange(mapList.Select(s => s.Value));
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),

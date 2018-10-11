@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DotNetty.Buffers;
-using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
-using NosCore.Core;
-using NosCore.Core.Networking;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking

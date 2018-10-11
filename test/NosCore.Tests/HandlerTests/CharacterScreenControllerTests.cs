@@ -6,7 +6,6 @@ using log4net;
 using log4net.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
@@ -26,6 +25,8 @@ using NosCore.Database;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.CharacterBuilder;
+using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Tests.HandlerTests
 {

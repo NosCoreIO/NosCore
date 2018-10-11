@@ -20,7 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.DAL;
 using NosCore.Database;
