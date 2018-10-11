@@ -39,11 +39,12 @@ namespace NosCore.GameObject.Map
             }
         }
 
-        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * XLength + x, 1)[0];
+        public byte this[short x, short y] => Data.AsSpan().Slice(4 + (y * XLength) + x, 1)[0];
 
         public void Initialize()
         {
         }
+
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
             var minX = (short)(-xpoint + firstX);
@@ -80,7 +81,7 @@ namespace NosCore.GameObject.Map
         {
             for (var i = 1; i <= Math.Abs(mapX - firstX); i++)
             {
-                if (!IsWalkable(this[(short)(firstX + Math.Sign(mapX - firstX) * i), firstY]))
+                if (!IsWalkable(this[(short)(firstX + (Math.Sign(mapX - firstX) * i)), firstY]))
                 {
                     return true;
                 }
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Map
 
             for (var i = 1; i <= Math.Abs(mapY - firstY); i++)
             {
-                if (!IsWalkable(this[firstX, (short)(firstY + Math.Sign(mapY - firstY) * i)]))
+                if (!IsWalkable(this[firstX, (short)(firstY + (Math.Sign(mapY - firstY) * i))]))
                 {
                     return true;
                 }
@@ -98,7 +99,7 @@ namespace NosCore.GameObject.Map
 
         public bool IsWalkable(byte value)
         {
-            return value == 0 || value == 2 || value >= 16 && value <= 19;
+            return value == 0 || value == 2 || (value >= 16 && value <= 19);
         }
     }
 }

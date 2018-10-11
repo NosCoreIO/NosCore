@@ -23,6 +23,7 @@ namespace NosCore.LoginServer
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
+
         public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager)
         {
             _loginConfiguration = loginConfiguration;

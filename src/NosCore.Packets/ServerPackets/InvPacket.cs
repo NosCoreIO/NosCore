@@ -12,6 +12,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(1)]
         public List<IvnSubPacket> IvnSubPackets { get; set; }
-   
     }
 }

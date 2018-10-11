@@ -31,7 +31,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
                             .Subscribe(
-                                x =>
+                                _ =>
                                 {
                                     nonPlayableEntity.PositionX = mapX;
                                     nonPlayableEntity.PositionY = mapY;

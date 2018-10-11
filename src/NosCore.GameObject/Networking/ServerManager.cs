@@ -13,32 +13,31 @@ namespace NosCore.GameObject.Networking
     public sealed class ServerManager : BroadcastableBase
     {
         private static ServerManager _instance;
+
         private ServerManager()
         {
         }
+
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
         private void LaunchEvents()
         {
-            Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => { SaveAll(); });
+            Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => SaveAll());
         }
-        
+
         public void SaveAll()
         {
             try
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
-                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session =>
-                {
-                    session.Character.Save();
-                });
+                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session => session.Character.Save());
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
         }
-        
+
         public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)
         {
             if (channelId == null)

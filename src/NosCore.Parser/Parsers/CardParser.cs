@@ -25,20 +25,20 @@ namespace NosCore.Parser.Parsers
         {
             for (var i = 0; i < 3; i++)
             {
-                if (currentLine[2 + i * 6] == "-1" || currentLine[2 + i * 6] == "0")
+                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
                 {
                     continue;
                 }
 
-                var first = int.Parse(currentLine[i * 6 + 6]);
+                var first = int.Parse(currentLine[(i * 6) + 6]);
                 var bcard = new BCardDTO
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + (i * 6)]),
+                    SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
+                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = Math.Abs(first % 4) == 2
                 };
@@ -50,20 +50,20 @@ namespace NosCore.Parser.Parsers
         {
             for (var i = 0; i < 2; i++)
             {
-                if (currentLine[2 + i * 6] == "-1" || currentLine[2 + i * 6] == "0")
+                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
                 {
                     continue;
                 }
 
-                var first = int.Parse(currentLine[i * 6 + 6]);
+                var first = int.Parse(currentLine[(i * 6) + 6]);
                 var bcard = new BCardDTO
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + (i * 6)]),
+                    SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
+                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = first % 4 == 2
                 };

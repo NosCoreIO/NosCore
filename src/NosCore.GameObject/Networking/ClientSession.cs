@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Networking
 
         private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
+
         private readonly bool _isWorldClient;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
 
@@ -193,7 +194,7 @@ namespace NosCore.GameObject.Networking
 
                 Parallel.ForEach(
                     Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
-                    s => { SendPacket(s.Character.GenerateIn()); });
+                    s => SendPacket(s.Character.GenerateIn()));
 
                 Character.MapInstance.IsSleeping = false;
                 Character.MapInstance.Sessions.TryAdd(SessionId, this);

@@ -17,10 +17,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_ActDesc", x => x.I18N_ActDescId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_ActDesc", x => x.I18N_ActDescId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_BCard",
@@ -32,10 +29,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_BCard", x => x.I18N_BCardId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_BCard", x => x.I18N_BCardId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_Card",
@@ -47,10 +41,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_Card", x => x.I18N_CardId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_Card", x => x.I18N_CardId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_Item",
@@ -62,10 +53,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_Item", x => x.I18N_ItemId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_Item", x => x.I18N_ItemId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_MapIdData",
@@ -77,10 +65,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_MapIdData", x => x.I18N_MapIdDataId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_MapIdData", x => x.I18N_MapIdDataId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_MapPointData",
@@ -92,10 +77,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_MapPointData", x => x.I18N_MapPointDataId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_MapPointData", x => x.I18N_MapPointDataId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_NpcMonster",
@@ -107,10 +89,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_NpcMonster", x => x.I18N_NpcMonsterId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_NpcMonster", x => x.I18N_NpcMonsterId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_NpcMonsterTalk",
@@ -122,10 +101,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_NpcMonsterTalk", x => x.I18N_NpcMonsterTalkId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_NpcMonsterTalk", x => x.I18N_NpcMonsterTalkId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_Quest",
@@ -137,10 +113,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_Quest", x => x.I18N_QuestId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_Quest", x => x.I18N_QuestId));
 
             migrationBuilder.CreateTable(
                 name: "I18N_Skill",
@@ -152,10 +125,7 @@ namespace NosCore.Database.Migrations
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_I18N_Skill", x => x.I18N_SkillId);
-                });
+                constraints: table => table.PrimaryKey("PK_I18N_Skill", x => x.I18N_SkillId));
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_ActDesc_Key_RegionType",

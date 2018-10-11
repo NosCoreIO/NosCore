@@ -45,6 +45,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private bool _isSleeping;
         private bool _isSleepingRequest;
+
         public bool IsSleeping
         {
             get
@@ -73,6 +74,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 }
             }
         }
+
         public int DropRate { get; set; }
 
         public MapItem PutItem(short amount, ref ItemInstance inv, ClientSession session)
@@ -176,14 +178,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var packets = new List<PacketDefinition>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
-            Monsters.ForEach(s =>
-            {
-                packets.Add(s.GenerateIn());
-            });
-            Npcs.ForEach(s =>
-            {
-                packets.Add(s.GenerateIn());
-            });
+            Monsters.ForEach(s => packets.Add(s.GenerateIn()));
+            Npcs.ForEach(s => packets.Add(s.GenerateIn()));
             return packets;
         }
 
@@ -217,7 +213,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                    }
                });
         }
-
 
         private IDisposable Life { get; set; }
     }

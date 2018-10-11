@@ -114,7 +114,7 @@ namespace NosCore.DAL
             {
                 if (predicate == null)
                 {
-                    return default(TDTO);
+                    return default;
                 }
 
                 using (var context = DataAccessHelper.Instance.CreateContext())
@@ -127,7 +127,7 @@ namespace NosCore.DAL
             catch (Exception e)
             {
                 Logger.Error(e);
-                return default(TDTO);
+                return default;
             }
         }
 

@@ -8,11 +8,13 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor && Item.ItemType != ItemType.Weapon;
 
         public Item Item;
+
         public ItemInstance(Item item)
         {
             Item = item;
             ItemVNum = item.VNum;
         }
+
         public ItemInstance()
         {
         }

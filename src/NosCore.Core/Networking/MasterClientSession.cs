@@ -8,7 +8,8 @@ namespace NosCore.Core.Networking
 {
     public class MasterClientSession : MasterServerSession
     {
-        readonly Action _onConnectionLost;
+        private readonly Action _onConnectionLost;
+
         public MasterClientSession(string password, Action onConnectionLost) : base(password)
         {
             _onConnectionLost = onConnectionLost;

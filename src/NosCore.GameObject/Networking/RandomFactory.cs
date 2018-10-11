@@ -14,10 +14,10 @@ namespace NosCore.GameObject.Networking
         public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
         private static int _seed = Environment.TickCount;
         private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
+
         public int RandomNumber(int min = 0, int max = 100)
         {
             return _random.Value.Next(min, max);
         }
-
     }
 }
