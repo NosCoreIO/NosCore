@@ -73,6 +73,16 @@ namespace NosCore.GameObject
         {
             TryRemove(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), out _);
         }
+
+        public int CountEntitiesByType(VisualType visualType = VisualType.Player)
+        {
+            return Keys.Count(s => s.Item1 == visualType);
+        }
+
+        public bool IsEmptyByType(VisualType visualType = VisualType.Player)
+        {
+            return Keys.All(s => s.Item1 != visualType);
+        }
     }
 }
 
