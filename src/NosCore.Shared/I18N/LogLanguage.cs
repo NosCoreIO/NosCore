@@ -9,7 +9,7 @@ namespace NosCore.Shared.I18N
     {
         private static LogLanguage _instance;
         private static CultureInfo _resourceCulture;
-        public static RegionType Language;
+        public static RegionType Language { get; set; }
         private readonly ResourceManager _manager;
 
         private LogLanguage()
