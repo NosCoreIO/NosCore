@@ -55,7 +55,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 Name = visualEntity.Name,
-                VNum = visualEntity.VNum == 0 ? "-" : visualEntity.VNum.ToString(),
+                VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
@@ -95,7 +95,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgrade = 0,
                     ArmorRare = 0,
                     FamilyId = -1,
-                    FamilyName = "-",
+                    FamilyName = string.Empty,
                     ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,

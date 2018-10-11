@@ -24,7 +24,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 GroupPosition = groupPosition,
                 Level = namedEntity.Level,
                 Name = namedEntity.Name,
-                Unknown = 0,
                 Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
                 Class = namedEntity.Class,
                 Morph = namedEntity.Morph,
@@ -32,11 +31,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup = false)
         {
             return new PidxSubPacket
             {
-                IsMemberOfGroup = isMemberOfGroup,
+                IsGrouped = isMemberOfGroup,
                 VisualId = playableEntity.VisualId
             };
         }

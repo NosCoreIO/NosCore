@@ -46,11 +46,7 @@ namespace NosCore.GameObject
 
         public byte Level { get; set; }
 
-        public long LevelXp { get; set; }
-
         public byte HeroLevel { get; set; }
-
-        public long HeroXp { get; set; }
 
         internal void Initialize(NpcMonsterDTO npcMonster)
         {

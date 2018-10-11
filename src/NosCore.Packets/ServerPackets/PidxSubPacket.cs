@@ -9,7 +9,7 @@ namespace NosCore.Packets.ServerPackets
     public class PidxSubPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public bool IsMemberOfGroup { get; set; }
+        public bool IsGrouped { get; set; }
 
         [PacketIndex(1)]
         public long VisualId { get; set; }
