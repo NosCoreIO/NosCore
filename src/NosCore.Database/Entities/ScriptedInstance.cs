@@ -1,5 +1,5 @@
-﻿using NosCore.Domain.Interaction;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Database.Entities
 {

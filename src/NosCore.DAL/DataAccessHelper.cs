@@ -1,68 +1,58 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NosCore.Core.Logger;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using NosCore.Database;
-using System;
-using System.Data.SqlClient;
+using NosCore.Shared.I18N;
 
 namespace NosCore.DAL
 {
-    public class DataAccessHelper
+    public sealed class DataAccessHelper
     {
         private static DataAccessHelper instance;
 
-        private DataAccessHelper() { }
-
-        public static DataAccessHelper Instance
-        {
-            get
-            {
-                return instance ?? (instance = new DataAccessHelper());
-            }
-        }
-
         #region Members
 
-        private SqlConnectionStringBuilder _conn;
+        private DbContextOptions _option;
 
         #endregion
+
+        private DataAccessHelper()
+        {
+        }
+
+        public static DataAccessHelper Instance => instance ?? (instance = new DataAccessHelper());
 
         #region Methods
 
         /// <summary>
-        /// Creates new instance of database context.
+        ///     Creates new instance of database context.
         /// </summary>
         public NosCoreContext CreateContext()
         {
-            return new NosCoreContext(_conn);
+            return new NosCoreContext(_option);
         }
 
-        public bool Initialize(SqlConnectionStringBuilder Database)
+        public void InitializeForTest(DbContextOptions option)
         {
-            _conn = Database;
-            using (NosCoreContext context = CreateContext())
+            _option = option;
+        }
+
+        public void Initialize(DbContextOptions option)
+        {
+            _option = option;
+            using (var context = CreateContext())
             {
                 try
                 {
                     context.Database.Migrate();
                     context.Database.GetDbConnection().Open();
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)
                 {
                     Logger.Log.Error("Database Error", ex);
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
-                    return false;
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
+                    throw;
                 }
-                return true;
-            }
-        }
-
-        public void EnsureDeleted(SqlConnectionStringBuilder Database)
-        {
-            _conn = Database;
-            using (NosCoreContext context = CreateContext())
-            {
-                context.Database.EnsureDeleted();
             }
         }
 

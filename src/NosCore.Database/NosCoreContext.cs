@@ -1,138 +1,13 @@
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 using NosCore.Database.Entities;
-using System.Data.SqlClient;
-using System.IO;
 
 namespace NosCore.Database
 {
-    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
-    {
-        private const string _configurationPath = @"..\..\..\configuration";
-
-        public NosCoreContext CreateDbContext(string[] args)
-        {
-            SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
-            var builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
-            builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(_databaseConfiguration);
-            return new NosCoreContext(_databaseConfiguration);
-        }
-    }
-
     public class NosCoreContext : DbContext
     {
-        #region Instantiation
-        private readonly SqlConnectionStringBuilder _conn;
-
-        public NosCoreContext(SqlConnectionStringBuilder conn)
+        public NosCoreContext(DbContextOptions options) : base(options)
         {
-            _conn = conn;
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_conn.ConnectionString);
-            base.OnConfiguring(optionsBuilder);
-        }
-
-        #endregion
-
-        #region Properties
-
-        public virtual DbSet<Account> Account { get; set; }
-
-        public virtual DbSet<BazaarItem> BazaarItem { get; set; }
-
-        public virtual DbSet<Card> Card { get; set; }
-
-        public virtual DbSet<BCard> BCard { get; set; }
-
-        public virtual DbSet<EquipmentOption> EquipmentOption { get; set; }
-
-        public virtual DbSet<Character> Character { get; set; }
-
-        public virtual DbSet<CharacterQuest> CharacterQuest { get; set; }
-
-        public virtual DbSet<CharacterRelation> CharacterRelation { get; set; }
-
-        public virtual DbSet<CharacterSkill> CharacterSkill { get; set; }
-
-        public virtual DbSet<RollGeneratedItem> RollGeneratedItem { get; set; }
-
-        public virtual DbSet<Combo> Combo { get; set; }
-
-        public virtual DbSet<Drop> Drop { get; set; }
-
-        public virtual DbSet<Family> Family { get; set; }
-
-        public virtual DbSet<FamilyCharacter> FamilyCharacter { get; set; }
-
-        public virtual DbSet<FamilyLog> FamilyLog { get; set; }
-
-        public virtual DbSet<Item> Item { get; set; }
-
-        public virtual DbSet<ItemInstance> ItemInstance { get; set; }
-
-        public virtual DbSet<Mail> Mail { get; set; }
-
-        public virtual DbSet<Map> Map { get; set; }
-
-        public virtual DbSet<MapMonster> MapMonster { get; set; }
-
-        public virtual DbSet<MapNpc> MapNpc { get; set; }
-
-        public virtual DbSet<MapType> MapType { get; set; }
-
-        public virtual DbSet<MapTypeMap> MapTypeMap { get; set; }
-
-        public virtual DbSet<Mate> Mate { get; set; }
-
-        public virtual DbSet<MinilandObject> MinilandObject { get; set; }
-
-        public virtual DbSet<NpcMonster> NpcMonster { get; set; }
-
-        public virtual DbSet<NpcMonsterSkill> NpcMonsterSkill { get; set; }
-
-        public virtual DbSet<PenaltyLog> PenaltyLog { get; set; }
-
-        public virtual DbSet<Portal> Portal { get; set; }
-
-        public virtual DbSet<Quest> Quest { get; set; }
-
-        public virtual DbSet<QuestReward> QuestReward { get; set; }
-
-        public virtual DbSet<QuicklistEntry> QuicklistEntry { get; set; }
-
-        public virtual DbSet<Recipe> Recipe { get; set; }
-
-        public virtual DbSet<RecipeItem> RecipeItem { get; set; }
-
-        public virtual DbSet<Respawn> Respawn { get; set; }
-
-        public virtual DbSet<RespawnMapType> RespawnMapType { get; set; }
-
-        public virtual DbSet<ScriptedInstance> ScriptedInstance { get; set; }
-
-        public virtual DbSet<Shop> Shop { get; set; }
-
-        public virtual DbSet<ShopItem> ShopItem { get; set; }
-
-        public virtual DbSet<ShopSkill> ShopSkill { get; set; }
-
-        public virtual DbSet<Skill> Skill { get; set; }
-
-        public virtual DbSet<StaticBonus> StaticBonus { get; set; }
-
-        public virtual DbSet<Teleporter> Teleporter { get; set; }
-
-        public virtual DbSet<StaticBuff> StaticBuff { get; set; }
-
-        #endregion
-
         #region Methods
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -147,12 +22,57 @@ namespace NosCore.Database
                 .HasValue<SpecialistInstance>("SpecialistInstance")
                 .HasValue<UsableInstance>("UsableInstance")
                 .HasValue<BoxInstance>("BoxInstance");
+
             modelBuilder.Entity<ItemInstance>()
-                .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
+                .HasIndex(e => new {e.CharacterId, e.Slot, e.Type})
                 .IsUnique();
 
             modelBuilder.Entity<MapTypeMap>()
-                .HasIndex(e => new { e.MapId, e.MapTypeId })
+                .HasIndex(e => new {e.MapId, e.MapTypeId})
+                .IsUnique();
+
+            modelBuilder.Entity<Account>()
+                .HasIndex(e => new {e.Name})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_ActDesc>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_BCard>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Card>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Item>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_MapIdData>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_MapPointData>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_NpcMonster>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_NpcMonsterTalk>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Quest>()
+                .HasIndex(e => new {e.Key, e.RegionType})
+                .IsUnique();
+
+            modelBuilder.Entity<I18N_Skill>()
+                .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
             modelBuilder.Entity<Map>()
@@ -306,7 +226,7 @@ namespace NosCore.Database
             modelBuilder.Entity<Item>()
                 .HasMany(e => e.Drop)
                 .WithOne(e => e.Item)
-                .HasForeignKey(e => e.ItemVNum)
+                .HasForeignKey(e => e.VNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()
@@ -372,7 +292,7 @@ namespace NosCore.Database
             modelBuilder.Entity<RespawnMapType>()
                 .HasOne(e => e.Map)
                 .WithMany(e => e.RespawnMapType)
-                .HasForeignKey(e => e.DefaultMapId)
+                .HasForeignKey(e => e.MapId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MapType>()
@@ -434,9 +354,9 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Quest>()
-                 .HasMany(e => e.QuestObjective)
-                 .WithOne(e => e.Quest)
-                 .OnDelete(DeleteBehavior.Restrict);
+                .HasMany(e => e.QuestObjective)
+                .WithOne(e => e.Quest)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<QuestObjective>()
                 .HasOne(e => e.Quest)
@@ -496,10 +416,10 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Quest>()
-              .HasMany(e => e.CharacterQuest)
-              .WithOne(e => e.Quest)
-              .HasForeignKey(e => e.QuestId)
-              .OnDelete(DeleteBehavior.Restrict);
+                .HasMany(e => e.CharacterQuest)
+                .WithOne(e => e.Quest)
+                .HasForeignKey(e => e.QuestId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<NpcMonster>()
                 .HasMany(e => e.MapMonster)
@@ -553,6 +473,118 @@ namespace NosCore.Database
                 .WithOne(e => e.Skill)
                 .OnDelete(DeleteBehavior.Restrict);
         }
+
+        #endregion
+
+        #region Properties
+
+        public virtual DbSet<Account> Account { get; set; }
+
+        public virtual DbSet<BazaarItem> BazaarItem { get; set; }
+
+        public virtual DbSet<Card> Card { get; set; }
+
+        public virtual DbSet<BCard> BCard { get; set; }
+
+        public virtual DbSet<EquipmentOption> EquipmentOption { get; set; }
+
+        public virtual DbSet<Character> Character { get; set; }
+
+        public virtual DbSet<CharacterQuest> CharacterQuest { get; set; }
+
+        public virtual DbSet<CharacterRelation> CharacterRelation { get; set; }
+
+        public virtual DbSet<CharacterSkill> CharacterSkill { get; set; }
+
+        public virtual DbSet<RollGeneratedItem> RollGeneratedItem { get; set; }
+
+        public virtual DbSet<Combo> Combo { get; set; }
+
+        public virtual DbSet<Drop> Drop { get; set; }
+
+        public virtual DbSet<Family> Family { get; set; }
+
+        public virtual DbSet<FamilyCharacter> FamilyCharacter { get; set; }
+
+        public virtual DbSet<FamilyLog> FamilyLog { get; set; }
+
+        public virtual DbSet<Item> Item { get; set; }
+
+        public virtual DbSet<ItemInstance> ItemInstance { get; set; }
+
+        public virtual DbSet<Mail> Mail { get; set; }
+
+        public virtual DbSet<Map> Map { get; set; }
+
+        public virtual DbSet<MapMonster> MapMonster { get; set; }
+
+        public virtual DbSet<MapNpc> MapNpc { get; set; }
+
+        public virtual DbSet<MapType> MapType { get; set; }
+
+        public virtual DbSet<MapTypeMap> MapTypeMap { get; set; }
+
+        public virtual DbSet<Mate> Mate { get; set; }
+
+        public virtual DbSet<MinilandObject> MinilandObject { get; set; }
+
+        public virtual DbSet<NpcMonster> NpcMonster { get; set; }
+
+        public virtual DbSet<NpcMonsterSkill> NpcMonsterSkill { get; set; }
+
+        public virtual DbSet<PenaltyLog> PenaltyLog { get; set; }
+
+        public virtual DbSet<Portal> Portal { get; set; }
+
+        public virtual DbSet<Quest> Quest { get; set; }
+
+        public virtual DbSet<QuestReward> QuestReward { get; set; }
+
+        public virtual DbSet<QuicklistEntry> QuicklistEntry { get; set; }
+
+        public virtual DbSet<Recipe> Recipe { get; set; }
+
+        public virtual DbSet<RecipeItem> RecipeItem { get; set; }
+
+        public virtual DbSet<Respawn> Respawn { get; set; }
+
+        public virtual DbSet<RespawnMapType> RespawnMapType { get; set; }
+
+        public virtual DbSet<ScriptedInstance> ScriptedInstance { get; set; }
+
+        public virtual DbSet<Shop> Shop { get; set; }
+
+        public virtual DbSet<ShopItem> ShopItem { get; set; }
+
+        public virtual DbSet<ShopSkill> ShopSkill { get; set; }
+
+        public virtual DbSet<Skill> Skill { get; set; }
+
+        public virtual DbSet<StaticBonus> StaticBonus { get; set; }
+
+        public virtual DbSet<Teleporter> Teleporter { get; set; }
+
+        public virtual DbSet<StaticBuff> StaticBuff { get; set; }
+
+        public virtual DbSet<I18N_ActDesc> I18N_ActDesc { get; set; }
+
+        public virtual DbSet<I18N_BCard> I18N_BCard { get; set; }
+
+        public virtual DbSet<I18N_Card> I18N_Card { get; set; }
+
+        public virtual DbSet<I18N_Item> I18N_Item { get; set; }
+
+        public virtual DbSet<I18N_MapIdData> I18N_MapIdData { get; set; }
+
+        public virtual DbSet<I18N_MapPointData> I18N_MapPointData { get; set; }
+
+        public virtual DbSet<I18N_NpcMonster> I18N_NpcMonster { get; set; }
+
+        public virtual DbSet<I18N_NpcMonsterTalk> I18N_NpcMonsterTalk { get; set; }
+
+        public virtual DbSet<I18N_Quest> I18N_Quest { get; set; }
+
+        public virtual DbSet<I18N_Skill> I18N_Skill { get; set; }
 
         #endregion
     }

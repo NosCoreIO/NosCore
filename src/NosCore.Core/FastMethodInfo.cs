@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FastExpressionCompiler;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -6,9 +7,6 @@ namespace NosCore.Core
 {
     public class FastMethodInfo
     {
-        private delegate object ReturnValueDelegate(object instance, object[] arguments);
-        private delegate void VoidDelegate(object instance, object[] arguments);
-
         public FastMethodInfo(MethodInfo methodInfo)
         {
             var instanceExpression = Expression.Parameter(typeof(object), "instance");
@@ -18,17 +16,28 @@ namespace NosCore.Core
             for (var i = 0; i < parameterInfos.Length; ++i)
             {
                 var parameterInfo = parameterInfos[i];
-                argumentExpressions.Add(Expression.Convert(Expression.ArrayIndex(argumentsExpression, Expression.Constant(i)), parameterInfo.ParameterType));
+                argumentExpressions.Add(Expression.Convert(
+                    Expression.ArrayIndex(argumentsExpression, Expression.Constant(i)), parameterInfo.ParameterType));
             }
-            var callExpression = Expression.Call(!methodInfo.IsStatic ? Expression.Convert(instanceExpression, methodInfo.ReflectedType) : null, methodInfo, argumentExpressions);
+
+            var callExpression =
+                Expression.Call(
+                    !methodInfo.IsStatic ? Expression.Convert(instanceExpression, methodInfo.ReflectedType) : null,
+                    methodInfo, argumentExpressions);
             if (callExpression.Type == typeof(void))
             {
-                var voidDelegate = Expression.Lambda<VoidDelegate>(callExpression, instanceExpression, argumentsExpression).Compile();
-                Delegate = (instance, arguments) => { voidDelegate(instance, arguments); return null; };
+                var voidDelegate = Expression
+                    .Lambda<VoidDelegate>(callExpression, instanceExpression, argumentsExpression).CompileFast();
+                Delegate = (instance, arguments) =>
+                {
+                    voidDelegate(instance, arguments);
+                    return null;
+                };
             }
             else
             {
-                Delegate = Expression.Lambda<ReturnValueDelegate>(Expression.Convert(callExpression, typeof(object)), instanceExpression, argumentsExpression).Compile();
+                Delegate = Expression.Lambda<ReturnValueDelegate>(Expression.Convert(callExpression, typeof(object)),
+                    instanceExpression, argumentsExpression).CompileFast();
             }
         }
 
@@ -38,5 +47,9 @@ namespace NosCore.Core
         {
             return Delegate(instance, arguments);
         }
+
+        private delegate object ReturnValueDelegate(object instance, object[] arguments);
+
+        private delegate void VoidDelegate(object instance, object[] arguments);
     }
 }

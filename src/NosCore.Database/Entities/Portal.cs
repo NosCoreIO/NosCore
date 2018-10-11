@@ -1,3 +1,5 @@
+using NosCore.Shared.Enumerations.Map;
+
 namespace NosCore.Database.Entities
 {
     public class Portal
@@ -24,7 +26,7 @@ namespace NosCore.Database.Entities
 
         public short SourceY { get; set; }
 
-        public short Type { get; set; }
+        public PortalType Type { get; set; }
 
         #endregion
     }

@@ -3,5 +3,5 @@
     public interface INamedEntity : IAliveEntity
     {
         string Name { get; set; }
-   }
+    }
 }

@@ -2,31 +2,11 @@
 
 namespace NosCore.Core.Serializing
 {
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.All)]
     public class PacketIndexAttribute : Attribute
     {
-        /// <summary> Specify the Index of the packet to parse this property to. </summary>
-        /// <param
-        ///     name="index">
-        ///     The zero based index starting from header (exclusive).
-        /// </param>
-        /// <param
-        ///     name="isReturnPacket">
-        ///     Adds an # to the Header and replaces Spaces with ^ if set to
-        ///     true.
-        /// </param>
-        /// <param name="serializeToEnd">
-        ///     Defines if everything from this index should
-        ///     be serialized into the underlying property
-        /// </param>
-        /// <param name="removeSeparator">
-        ///     Removes
-        ///     the separator (.) for List<PacketDefinition> packets.
-        /// </param>
-        /// <param name="specialSeparator">
-        ///       the separator (.) for List<PacketDefinition> packets.
-        /// </param>
-        public PacketIndexAttribute(int index, bool isReturnPacket = false, bool serializeToEnd = false, bool removeSeparator = false, string specialSeparator = ".")
+        public PacketIndexAttribute(int index, bool isReturnPacket = false, bool serializeToEnd = false,
+            bool removeSeparator = false, string specialSeparator = ".")
         {
             Index = index;
             IsReturnPacket = isReturnPacket;
@@ -35,32 +15,16 @@ namespace NosCore.Core.Serializing
             SpecialSeparator = specialSeparator;
         }
 
-        /// <summary>
-        ///     The zero based index starting from the header (exclusive).
-        /// </summary>
         public int Index { get; set; }
 
-        /// <summary>
-        ///     Adds an # to the Header and replaces Spaces with ^
-        /// </summary>
         public bool IsReturnPacket { get; set; }
 
-        /// <summary> Removes the separator (.) for List<PacketDefinition> packets. </summary>
         public bool RemoveSeparator { get; set; }
 
-        /// <summary>
-        ///     Defines if everything from this index should be serialized into the underlying property.
-        /// </summary>
         public bool SerializeToEnd { get; set; }
 
-        /// <summary>
-        ///     Defines if everything from this index should be serialized into the underlying property.
-        /// </summary>
         public bool IsOptional { get; set; }
 
-        /// <summary>
-        ///    the separator (.) for List<PacketDefinition> packets.
-        /// </summary>
         public string SpecialSeparator { get; set; }
     }
 }

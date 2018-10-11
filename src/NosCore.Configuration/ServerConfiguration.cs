@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.Configuration
+﻿namespace NosCore.Configuration
 {
-    public class ServerConfiguration
+    public class ServerConfiguration : LanguageConfiguration
     {
         public string Host { get; set; }
         public int Port { get; set; }

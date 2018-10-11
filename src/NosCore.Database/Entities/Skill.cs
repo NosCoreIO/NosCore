@@ -8,15 +8,6 @@ namespace NosCore.Database.Entities
     {
         #region Instantiation
 
-        public Skill()
-        {
-            CharacterSkill = new HashSet<CharacterSkill>();
-            Combo = new HashSet<Combo>();
-            NpcMonsterSkill = new HashSet<NpcMonsterSkill>();
-            ShopSkill = new HashSet<ShopSkill>();
-            BCards = new HashSet<BCard>();
-        }
-
         #endregion
 
         #region Properties
@@ -31,11 +22,11 @@ namespace NosCore.Database.Entities
 
         public short CastTime { get; set; }
 
-        public virtual ICollection<CharacterSkill> CharacterSkill { get; set; }
+        public virtual ICollection<CharacterSkill> CharacterSkill { get; set; } = new HashSet<CharacterSkill>();
 
         public byte Class { get; set; }
 
-        public virtual ICollection<Combo> Combo { get; set; }
+        public virtual ICollection<Combo> Combo { get; set; } = new HashSet<Combo>();
 
         public short Cooldown { get; set; }
 
@@ -68,13 +59,13 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string Name { get; set; }
 
-        public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; }
+        public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; } = new HashSet<NpcMonsterSkill>();
 
         public int Price { get; set; }
 
         public byte Range { get; set; }
-        
-        public virtual ICollection<ShopSkill> ShopSkill { get; set; }
+
+        public virtual ICollection<ShopSkill> ShopSkill { get; set; } = new HashSet<ShopSkill>();
 
         public byte SkillType { get; set; }
 
@@ -92,7 +83,7 @@ namespace NosCore.Database.Entities
 
         public short UpgradeType { get; set; }
 
-        public virtual ICollection<BCard> BCards { get; set; }
+        public virtual ICollection<BCard> BCards { get; set; } = new HashSet<BCard>();
 
         #endregion
     }

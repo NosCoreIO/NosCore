@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using NosCore.Domain;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using NosCore.Domain.Account;
+using Microsoft.AspNetCore.Authorization;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Core
 {
@@ -11,9 +9,9 @@ namespace NosCore.Core
     {
         public AuthorizeRoleAttribute(AuthorityType allowedRole)
         {
-            var allowedRolesAsStrings = string.Empty;
-            IEnumerable<AuthorityType> enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList().Where(s => s >= allowedRole);
-            Roles = String.Join(",", enums.ToArray());
+            var enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList()
+                .Where(s => s >= allowedRole);
+            Roles = string.Join(",", enums.ToArray());
         }
     }
 }

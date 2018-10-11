@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+	<TieredCompilation>true</TieredCompilation>
+	<LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,14 +17,14 @@
 
   <ItemGroup>
     <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-	<PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 
 </Project>

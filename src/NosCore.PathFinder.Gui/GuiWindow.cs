@@ -1,42 +1,79 @@
-﻿using log4net;
-using log4net.Config;
-using log4net.Repository;
-using Microsoft.Extensions.Configuration;
-using NosCore.Core.Logger;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Mapster;
+using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.GameObject.Map;
-using NosCore.Mapping;
+using NosCore.GameObject;
+using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Shared.Enumerations.Map;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Reflection;
-using System.Threading;
+using Map = NosCore.GameObject.Map.Map;
+using MapMonster = NosCore.GameObject.MapMonster;
+using MapNpc = NosCore.GameObject.MapNpc;
 
 namespace NosCore.PathFinder.Gui
 {
     public class GuiWindow : GameWindow
     {
+        private readonly byte _gridsize;
         private readonly Map _map;
+        private readonly int _originalHeight;
+        private readonly int _originalWidth;
+        private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
         private double _gridsizeX;
         private double _gridsizeY;
-        private int originalWidth;
-        private int originalHeight;
-        private byte _gridsize;
-        List<Tuple<short, short, byte>> walls = new List<Tuple<short, short, byte>>();
-        public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(width * gridsize, height * gridsize, mode, title)
+        private readonly List<MapMonster> _monsters;
+        private readonly List<MapNpc> _npcs;
+        private readonly List<NpcMonsterDTO> _npcMonsters;
+
+        public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
+            width * gridsize, height * gridsize, mode, title)
         {
-            originalWidth = width * gridsize;
-            originalHeight = height * gridsize;
+            _originalWidth = width * gridsize;
+            _originalHeight = height * gridsize;
             _map = map;
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            GetMap(_map);
+            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
+            _npcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
+            var mapInstance =
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, _npcMonsters)
+                {
+                    IsSleeping = false
+                };
+            foreach (var mapMonster in _monsters)
+            {
+                mapMonster.PositionX = mapMonster.MapX;
+                mapMonster.PositionY = mapMonster.MapY;
+                mapMonster.MapInstance = mapInstance;
+                mapMonster.MapInstanceId = mapInstance.MapInstanceId;
+                mapMonster.Mp = 100;
+                mapMonster.Hp = 100;
+                mapMonster.Speed = _npcMonsters.Find(s=>s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
+                mapMonster.IsAlive = true;
+            }
+            _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            foreach (var mapNpc in _npcs)
+            {
+                mapNpc.PositionX = mapNpc.MapX;
+                mapNpc.PositionY = mapNpc.MapY;
+                mapNpc.MapInstance = mapInstance;
+                mapNpc.MapInstanceId = mapInstance.MapInstanceId;
+                mapNpc.Mp = 100;
+                mapNpc.Hp = 100;
+                mapNpc.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
+                mapNpc.IsAlive = true;
+            }
+            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
+            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
+            GetMap();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -44,7 +81,9 @@ namespace NosCore.PathFinder.Gui
             base.OnUpdateFrame(e);
 
             if (Keyboard[Key.Escape])
+            {
                 Exit();
+            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -53,21 +92,32 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)originalHeight);
-            Matrix4 world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
+            var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             //walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable
-            foreach(Tuple<short, short, byte> wall in walls)
+            foreach (var wall in _walls)
             {
-                DrawPixel(wall.Item1, wall.Item2, Color.Blue);//TODO iswalkable
+                DrawPixel(wall.Item1, wall.Item2, Color.Blue); //TODO iswalkable
             }
+
+            foreach (var monster in _monsters)
+            {
+                DrawPixel(monster.PositionX, monster.PositionY, Color.Red);
+            }
+
+            foreach (var npc in _npcs)
+            {
+                DrawPixel(npc.PositionX, npc.PositionY, Color.Yellow);
+            }
+
             GL.Flush();
             SwapBuffers();
             Thread.Sleep(32);
         }
 
-        private void GetMap(Map map)
+        private void GetMap()
         {
             for (short i = 0; i < _map.YLength; i++)
             {
@@ -76,7 +126,7 @@ namespace NosCore.PathFinder.Gui
                     var value = _map[t, i];
                     if (_map[t, i] > 0)
                     {
-                        walls.Add(new Tuple<short, short, byte>(t, i, value));
+                        _walls.Add(new Tuple<short, short, byte>(t, i, value));
                     }
                 }
             }

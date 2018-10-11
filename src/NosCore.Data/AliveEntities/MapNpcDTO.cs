@@ -3,7 +3,7 @@
 namespace NosCore.Data.AliveEntities
 {
     public class MapNpcDTO : IDTO
-    {  
+    {
         public short Dialog { get; set; }
 
         public short Effect { get; set; }
@@ -28,10 +28,5 @@ namespace NosCore.Data.AliveEntities
         public short VNum { get; set; }
 
         public byte Direction { get; set; }
-
-        public void Initialize()
-        {
-
-        }
     }
 }

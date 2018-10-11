@@ -1,52 +1,49 @@
-﻿using log4net;
-using log4net.Config;
-using log4net.Repository;
-using Microsoft.Extensions.Configuration;
-using NosCore.Core.Logger;
-using NosCore.DAL;
-using NosCore.GameObject.Map;
-using NosCore.Mapping;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using log4net;
+using log4net.Config;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using NosCore.Configuration;
+using NosCore.DAL;
+using NosCore.Database;
+using NosCore.GameObject.Map;
+using NosCore.Shared.I18N;
+using OpenTK.Graphics;
 
 namespace NosCore.PathFinder.Gui
 {
     public static class PathFinderGui
     {
-        private const string _configurationPath = @"..\..\..\configuration";
-        private static readonly SqlConnectionStringBuilder _databaseConfiguration = new SqlConnectionStringBuilder();
-        private static GuiWindow guiWindow;
+        private const string ConfigurationPath = @"../../../configuration";
+        private const string Title = "NosCore - Pathfinder GUI";
+        private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
+        private static GuiWindow _guiWindow;
 
         private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("pathfinder.json", false);
-            builder.Build().Bind(_databaseConfiguration);
+            builder.Build().Bind(DatabaseConfiguration);
         }
 
         private static void InitializeLogger()
         {
             // LOGGER
-            ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
         }
 
         private static void PrintHeader()
         {
-            Console.Title = "NosCore - Pathfinder GUI";
+            Console.Title = Title;
             const string text = "PATHFINDER GUI - 0Lucifer0";
-            int offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            string separator = new string('=', Console.WindowWidth);
+            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
+            var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
@@ -55,36 +52,46 @@ namespace NosCore.PathFinder.Gui
             PrintHeader();
             InitializeLogger();
             InitializeConfiguration();
-            Mapper.InitializeMapping();
-            if (DataAccessHelper.Instance.Initialize(_databaseConfiguration))
+            LogLanguage.Language = DatabaseConfiguration.Language;
+            try
             {
-                do
+                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database.ConnectionString);
+                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+
+                while (true)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
-                    string input = Console.ReadLine();
-                    if (input == null || !double.TryParse(input, out double askMapId))
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
+                    var input = Console.ReadLine();
+                    if (input == null || !int.TryParse(input, out var askMapId))
                     {
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
+                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
-                    Map map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
-                    if (map != null && map.XLength > 0 && map.YLength > 0)
+                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+
+                    if (map?.XLength > 0 && map.YLength > 0)
                     {
                         map.Initialize();
 
-                        if (guiWindow?.Exists == true)
+                        if (_guiWindow?.Exists == true)
                         {
-                            guiWindow.Exit();
+                            _guiWindow.Exit();
                         }
 
                         new Thread(() =>
                         {
-                            guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default, $"NosCore Pathfinder GUI - Map {map.MapId}");
-                            guiWindow.Run(30);
+                            _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
+                                $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            _guiWindow.Run(30);
                         }).Start();
                     }
-                } while (true);
+                }
+            }
+            catch
+            {
+                Console.ReadKey();
             }
         }
     }

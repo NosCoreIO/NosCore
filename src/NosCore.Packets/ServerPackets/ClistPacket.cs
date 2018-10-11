@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using NosCore.Core.Serializing;
-using NosCore.Domain.Character;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -8,6 +8,7 @@ namespace NosCore.Packets.ServerPackets
     public class ClistPacket : PacketDefinition
     {
         #region Properties
+
         [PacketIndex(0)]
         public byte Slot { get; set; }
 
@@ -15,7 +16,7 @@ namespace NosCore.Packets.ServerPackets
         public string Name { get; set; }
 
         [PacketIndex(2)]
-        public byte Unknown { get; set; }
+        public byte Unknown { get; set; } //TODO to find
 
         [PacketIndex(3)]
         public byte Gender { get; set; }
@@ -27,7 +28,7 @@ namespace NosCore.Packets.ServerPackets
         public byte HairColor { get; set; }
 
         [PacketIndex(6)]
-        public byte Unknown1 { get; set; }
+        public byte Unknown1 { get; set; } //TODO to find
 
         [PacketIndex(7)]
         public CharacterClassType Class { get; set; }
@@ -42,7 +43,7 @@ namespace NosCore.Packets.ServerPackets
         public List<short?> Equipments { get; set; }
 
         [PacketIndex(11)]
-        public byte JobLevel { get; set; } 
+        public byte JobLevel { get; set; }
 
         [PacketIndex(12)]
         public byte QuestCompletion { get; set; }
@@ -57,7 +58,7 @@ namespace NosCore.Packets.ServerPackets
         public int Design { get; set; }
 
         [PacketIndex(16)]
-        public byte Unknown3 { get; set; }
+        public byte Unknown3 { get; set; } //TODO to find
 
         #endregion
     }

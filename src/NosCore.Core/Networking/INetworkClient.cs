@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 
 namespace NosCore.Core.Networking

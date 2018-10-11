@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Character;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Data.AliveEntities
 {
@@ -19,8 +19,10 @@ namespace NosCore.Data.AliveEntities
         public string Biography { get; set; }
 
         public bool BuffBlocked { get; set; }
+
         [Key]
         public long CharacterId { get; set; }
+
         public byte Class { get; set; }
 
         public short Compliment { get; set; }

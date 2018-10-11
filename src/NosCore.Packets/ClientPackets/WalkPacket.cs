@@ -1,6 +1,7 @@
-﻿using NosCore.Core.Serializing;
+﻿using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
-namespace NosCore.GameObject
+namespace NosCore.Packets.ClientPackets
 {
     [PacketHeader("walk")]
     public class WalkPacket : PacketDefinition
@@ -14,7 +15,8 @@ namespace NosCore.GameObject
         public short YCoordinate { get; set; }
 
         [PacketIndex(2)]
-        public short Unknown { get; set; }
+        [UsedImplicitly]
+        public short Unknown { get; set; } //TODO to find
 
         [PacketIndex(3)]
         public short Speed { get; set; }

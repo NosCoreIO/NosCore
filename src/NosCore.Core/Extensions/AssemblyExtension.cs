@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace NosCore.Core.Extensions
@@ -8,7 +7,7 @@ namespace NosCore.Core.Extensions
     {
         public static IEnumerable<T> GetInstancesOfImplementingTypes<T>(this Assembly assembly)
         {
-            foreach (Type t in assembly.GetTypes())
+            foreach (var t in assembly.GetTypes())
             {
                 if (typeof(T).IsAssignableFrom(t))
                 {

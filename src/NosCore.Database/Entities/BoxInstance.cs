@@ -1,5 +1,4 @@
-﻿
-namespace NosCore.Database.Entities
+﻿namespace NosCore.Database.Entities
 {
     public class BoxInstance : SpecialistInstance
     {

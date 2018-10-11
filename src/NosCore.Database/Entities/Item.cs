@@ -1,12 +1,12 @@
-using NosCore.Domain.Items;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Database.Entities
 {
     /// <summary>
-    /// Do Not forget to change Mapping in Item GO when changing this class
+    ///     Do Not forget to change Mapping in Item GO when changing this class
     /// </summary>
     public class Item
     {
@@ -114,7 +114,7 @@ namespace NosCore.Database.Entities
 
         public byte ItemSubType { get; set; }
 
-        public byte ItemType { get; set; }
+        public ItemType ItemType { get; set; }
 
         public long ItemValidTime { get; set; }
 
@@ -183,7 +183,7 @@ namespace NosCore.Database.Entities
 
         public byte SpType { get; set; }
 
-        public byte Type { get; set; }
+        public PocketType Type { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

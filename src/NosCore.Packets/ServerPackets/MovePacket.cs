@@ -1,6 +1,7 @@
 ﻿using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.Packets.ServerPackets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("mv")]
     public class MovePacket : PacketDefinition
@@ -8,7 +9,7 @@ namespace NosCore.GameObject.Packets.ServerPackets
         #region Properties
 
         [PacketIndex(0)]
-        public byte VisualType { get; set; }
+        public VisualType VisualType { get; set; }
 
         [PacketIndex(1)]
         public long VisualEntityId { get; set; }

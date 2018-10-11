@@ -1,6 +1,6 @@
 ﻿using NosCore.Core.Networking;
 
-namespace NosCore.Core
+namespace NosCore.Core.Handling
 {
     public interface IPacketController
     {

@@ -1,0 +1,477 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Účet se SessionID {0} se připojil</value>
+  </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Administrátor</value>
+  </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Dobrodruh</value>
+  </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Už jste přátelé</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>Tohle jméno je obsazené!</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Lukostřelec</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>Chcete tento předmět smazat?</value>
+  </data>
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
+    <value>Nejméně jeden z požadovaných souborů chybí</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Chyba při přihlášení</value>
+    <comment>check</comment>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Přihlášení proběhlo úspěšně</value>
+    <comment>check</comment>
+  </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Chybné Přihlášení</value>
+  </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Nesprávné přihlášení</value>
+  </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>Špatné množství k vyhození!</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Špatné Heslo</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Byl přidát na černou listinu</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Černá listina Blokována!</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>Nemůžeš si zablokovat kamarády!</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>Nemůžu najít Postavu!</value>
+  </data>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>{0} Kart bylo Nahráno</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Kanál</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Charakter se nenačetl</value>
+    <comment>check</comment>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>Postava je Offline</value>
+  </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Uživatel se připojil, SessionId: {0} </value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Nový hráč se připojil ClientId = {0}</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Klient se Odpojil</value>
+  </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Poškozený KeepAlive vna klientovi {0}</value>
+  </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Paket s hlavičkou {0} je poškozen nebo definice paketu je neplatná. Obsah: {1}</value>
+  </data>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>Databáze byla Initializována</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>Databáze nemusí být aktuální. Zvažte aktualizaci</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>Parsování dokončeno</value>
+  </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>Mapa je plná předmětů více jich zde nemůže být!</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Zadejte složku se soubory, které chcete nahrát</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>Seznam Přátel je plný</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>Chceš si jej přidat jako kamaráda?</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Kamarád byl přidán</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Kamarád smazán!</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Kamarád je offline!</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Žádost o přátelství byla zamítnuta!</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Žádosti o přátelství jsou blokovány!</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Chyba Obsluhy</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
+  </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} I18N ActDescs Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} I18N BCards Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} I18N Cards Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} I18N Item Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MAPIDDATA Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} I18N MAPPOINTDATA Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} I18N MPCMONSTER Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} I18N NPCMONSTERTALK Nahráno! Region: {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} I18N Úkoly Nahrány! Region: {1}</value>
+  </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} I18N Skilly Nahrány! Region: {1}</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Neexistující ID</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Nevhodné Jméno Charakteru!</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Špatné Heslo</value>
+  </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>Předměty načteny!</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>Bylo Nahráno {0} Itemů</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>Získal si předmět!</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>Obdržel si předmět v Země Mrtvích!</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>Předmět nelze vyhodit!</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>Tento předmět zde nejde vyhodit!</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Poslech Portu {0}</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Mág</value>
+  </data>
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} MAPMONSTERS načteny</value>
+  </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>MAPNPC byla úspěšně nahrána!</value>
+  </data>
+  <data name="MAPS_LOADED" xml:space="preserve">
+    <value>{0}  Mapy Načteny</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0}  Mapy Nahrány</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapType bylo úspěšně nahráno!</value>
+  </data>
+  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
+    <value>Master Server Se spustil správně</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Znovu připojení k Master Serveru</value>
+  </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>Máš maximální počet Zlata!</value>
+  </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} Monstra byla úspěšně nahrána!</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>Nemáš dostatek místa!</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Není ve vaší černé listině</value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>Nebyly nalezeny žádné předměty!</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} NPMonstra byla úspěšně nahrána!</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} NPC byly úspěšně nahrány!</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Chceš nahrát účty?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Chceš nahrát vše?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Chceš nahrát Karty?</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>{0} Drop byl úspěšně nahrán!</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>Chceš nahrát I18N Data?</value>
+  </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Chceš nahrát Itemy?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Chceš nahrát MapNPC?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Chceš nahrát Mapy?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Chceš nahrát MapType? Doporučuji použít s MapTypeMap</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Chceš nahrát Monstra?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Chceš nahrát NPCMonsterData?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Chceš nahrát NPCMonsters?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Chceš nahrát Portály?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Chceš nahrát Úkoly?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Chceš nahrát Recepty?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Chceš nahrát Itemy v Obchodech?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Chceš nahrát Obchody?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Chceš nahrát Skilly do Obchodu?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Chceš nahrát Skilly?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Chceš nahrát Teleporty?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Chceš nahrát Časoprostory</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0}  Portály Nahrány</value>
+  </data>
+  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Registrováno na Master Serveru</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Registrováno na Master Serveru</value>
+    <comment>check</comment>
+  </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnType bylo úspěšně nahráno!</value>
+  </data>
+  <data name="SAVING_ALL" xml:space="preserve">
+    <value>Ukládání všeho!</value>
+  </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Prosím vybere ID Mapy</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Zpráva odeslána na {0}</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Útoky byly úspěšně nahrány!</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Body SP Byly přidány!</value>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>Úspeštně načtena!</value>
+  </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Podpora</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>Opravdu chcete tento item smazat?</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Bojovník s Mečem</value>
+  </data>
+  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
+    <value>Neznámý Master Packet</value>
+    <comment>check</comment>
+  </data>
+  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
+    <value>Neregistrováno na Master Serveru</value>
+    <comment>check</comment>
+  </data>
+  <data name="WRESTLER" xml:space="preserve">
+    <value>Wrestler</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Špatně vybrané ID Mapy</value>
+  </data>
+</root>

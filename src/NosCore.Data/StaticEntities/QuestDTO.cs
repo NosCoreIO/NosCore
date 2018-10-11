@@ -6,12 +6,6 @@ namespace NosCore.Data.StaticEntities
 {
     public class QuestDTO : IDTO
     {
-
-        public void Initialize()
-        {
-
-        }
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short QuestId { get; set; }
@@ -43,5 +37,9 @@ namespace NosCore.Data.StaticEntities
         public bool IsDaily { get; set; }
 
         public int? SpecialData { get; set; }
+
+        public void Initialize()
+        {
+        }
     }
 }

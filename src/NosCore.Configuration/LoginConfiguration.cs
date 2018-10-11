@@ -1,10 +1,12 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using NosCore.Shared.Enumerations;
 
 namespace NosCore.Configuration
 {
     public class LoginConfiguration : GameServerConfiguration
     {
-        public SqlConnectionStringBuilder Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; }
+
+        public RegionType UserLanguage { get; set; }
+        public string ClientData { get; set; }
     }
 }

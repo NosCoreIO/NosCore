@@ -6,6 +6,7 @@ namespace NosCore.Packets.ServerPackets
     public class FdPacket : PacketDefinition
     {
         #region Properties
+
         [PacketIndex(0)]
         public long Reput { get; set; }
 
@@ -17,7 +18,7 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(3)]
         public int DignityIcon { get; set; }
-        
+
         #endregion
     }
 }

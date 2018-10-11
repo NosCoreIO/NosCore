@@ -2,34 +2,18 @@
 mono: none
 sudo: required
 dist: trusty
-dotnet: 2.1.101
-addons:
-  apt:
-    packages:
-    - gettext
-    - libcurl4-openssl-dev
-    - libicu-dev
-    - libssl-dev
-    - libunwind8
-    - zlib1g
-stages:
-    - compile
-    - test
-services:
-    - docker
+dotnet: 2.1
 install:
     - dotnet restore
 script: 
     - dotnet build
-before_install:
-    - chmod +x ./tools/launch-mssql-in-docker.sh
-    - ./tools/launch-mssql-in-docker.sh -p password
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory!=OPTIONAL-TEST
 after_script:
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory=OPTIONAL-TEST
     - pip install --user awscli
     - export PATH=$PATH:$HOME/.local/bin
     - aws ecr get-login --region us-west-2 --no-include-email
-    - aws lambda invoke --function-name noscore-travis --region us-west-2 --payload '{"Build_Id":"'"$TRAVIS_JOB_ID"'", "Travis_Branch":"'"$TRAVIS_BRANCH"'", "Travis_Commit":"'"$TRAVIS_COMMIT"'", "Travis_Repo_Slug":"'"$TRAVIS_REPO_SLUG"'", "Travis_Pull_Request":"'"$TRAVIS_PULL_REQUEST"'"}' outputfile
+    - aws lambda invoke --function-name noscore-travis --region us-west-2 --payload '{"Build_Id":"'"$TRAVIS_JOB_ID"'", "Travis_Branch":"'"$TRAVIS_BRANCH"'", "Travis_Test_Result":"'"$TRAVIS_TEST_RESULT"'", "Travis_Commit":"'"$TRAVIS_COMMIT"'", "Travis_Repo_Slug":"'"$TRAVIS_REPO_SLUG"'", "Travis_Pull_Request":"'"$TRAVIS_PULL_REQUEST"'"}' outputfile
 global:
     - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
     - DOTNET_CLI_TELEMETRY_OPTOUT=1

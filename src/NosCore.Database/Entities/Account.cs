@@ -1,7 +1,7 @@
-using NosCore.Domain;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Account;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Database.Entities
 {
@@ -18,6 +18,7 @@ namespace NosCore.Database.Entities
         #endregion
 
         #region Properties
+
         public long AccountId { get; set; }
 
         public AuthorityType Authority { get; set; }
@@ -40,6 +41,8 @@ namespace NosCore.Database.Entities
 
         [MaxLength(32)]
         public string VerificationToken { get; set; }
+
+        public RegionType Language { get; set; }
 
         #endregion
     }

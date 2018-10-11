@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Text;
-
-namespace NosCore.Configuration
+﻿namespace NosCore.Configuration
 {
-    public class ParserConfiguration
+    public class ParserConfiguration : LanguageConfiguration
     {
-        public SqlConnectionStringBuilder Database { get; set; }
-
-        public string Lang { get; set; }
+        public SqlConnectionConfiguration Database { get; set; }
     }
 }

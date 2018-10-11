@@ -5,10 +5,12 @@
 		"Host": "http://+",
 		"Port": 5000
   },
-"Database": {
-	  "DataSource" : "localhost",
-      "InitialCatalog" : "NosCore",
-      "IntegratedSecurity" : true,
-      "MultipleActiveResultSets" : false,
-  }
+  "Language" : "en",
+  "Database": {
+		"Host" : "localhost",
+		"Port" : 5432,
+		"Database" : "postgres",
+		"Username" : "postgres",
+		"Password" : "password",
+	}
 }

@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+	<TieredCompilation>true</TieredCompilation>
+	<LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -9,12 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="6.2.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.3" />
+    <PackageReference Include="Mapster" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>

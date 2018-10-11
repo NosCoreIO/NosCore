@@ -1,80 +1,170 @@
-﻿using Newtonsoft.Json;
-using NosCore.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
+using Newtonsoft.Json;
+using NosCore.Configuration;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.Networking
 {
     public class WebApiAccess
     {
-        private static WebApiAccess instance;
+        private static WebApiAccess _instance;
 
-        private static Uri _baseAddress { get; set; }
+        private static Uri BaseAddress { get; set; }
 
-        private static string _token { get; set; }
+        private static string Token { get; set; }
+
+        public Dictionary<string, object> MockValues { get; set; } = new Dictionary<string, object>();
 
         public static WebApiAccess Instance
         {
             get
             {
-                if (_baseAddress == null)
-                    throw new NullReferenceException("baseAddress can't be null");
-
-                if (instance == null)
+                if (BaseAddress == null)
                 {
-                    instance = new WebApiAccess();
+                    throw new NullReferenceException("baseAddress can't be null");
                 }
-                return instance;
+
+                return _instance ?? (_instance = new WebApiAccess());
             }
         }
 
-        public static void RegisterBaseAdress(string address)
+        public static StringContent Content { get; private set; }
+
+        public static void RegisterBaseAdress(string address = null, string token = null)
         {
-            _baseAddress = new Uri(address);
+            if (address == null)
+            {
+                BaseAddress = new Uri("http://localhost");
+                return;
+            }
+
+            BaseAddress = new Uri(address);
+            Content = new StringContent(JsonConvert.SerializeObject(new WebApiToken {ServerToken = token}),
+                Encoding.Default, "application/json");
         }
 
-        public T Get<T>(string route, ServerConfiguration webApi = null)
+        private void AssignToken(HttpResponseMessage response, ref HttpClient client)
         {
-            try
+            if (Token == null)
             {
-                HttpClient client = new HttpClient();
-                HttpResponseMessage response;
-                client.BaseAddress = webApi == null ? _baseAddress : new Uri(webApi.ToString());
-                if (_token == null)
-                {
-                    var values = new Dictionary<string, string>
-                    {
-                        { "ServerToken", "NosCorePassword" }//TODO replace by configured one
-                    };
-                    var content = new FormUrlEncodedContent(values);
+                response = client.PostAsync("api/token/connectserver", Content).Result;
 
-                    response = client.PostAsync("api/token/connectserver", content).Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        _token = response.Content.ReadAsStringAsync().Result;
-                    }
-                    else
-                    {
-                        throw new HttpRequestException(response.Headers.ToString());
-                    }
-                }
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-                response = client.GetAsync(route).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
-                }
-                else
+                if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException(response.Headers.ToString());
                 }
+
+                Token = response.Content.ReadAsStringAsync().Result;
             }
-            catch
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+        }
+
+        public T Delete<T>(string route, ServerConfiguration webApi = null, object id = null)
+        {
+            if (MockValues.ContainsKey(route))
             {
-                throw;
+                return (T) MockValues[route];
             }
+
+            var client = new HttpClient();
+            var response = new HttpResponseMessage();
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            AssignToken(response, ref client);
+            response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(response.Headers.ToString());
+        }
+
+        public T Get<T>(string route, ServerConfiguration webApi = null, object id = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T) MockValues[route];
+            }
+
+            var client = new HttpClient();
+            var response = new HttpResponseMessage();
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            AssignToken(response, ref client);
+            response = client.GetAsync(route + "?id=" + id ?? "").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(response.Headers.ToString());
+        }
+
+        public T Post<T>(string route, object data, ServerConfiguration webApi = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T) MockValues[route];
+            }
+
+            var client = new HttpClient();
+            var response = new HttpResponseMessage();
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            AssignToken(response, ref client);
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
+            var postResponse = client.PostAsync(route, content).Result;
+            if (postResponse.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(postResponse.Headers.ToString());
+        }
+
+        public T Put<T>(string route, object data, ServerConfiguration webApi = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T) MockValues[route];
+            }
+
+            var client = new HttpClient();
+            var response = new HttpResponseMessage();
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            AssignToken(response, ref client);
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
+            var postResponse = client.PutAsync(route, content).Result;
+            if (postResponse.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(postResponse.Headers.ToString());
+        }
+
+        public T Patch<T>(string route, object data, ServerConfiguration webApi = null)
+        {
+            if (MockValues.ContainsKey(route))
+            {
+                return (T) MockValues[route];
+            }
+
+            var client = new HttpClient();
+            var response = new HttpResponseMessage();
+            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            AssignToken(response, ref client);
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
+            var postResponse = client.PatchAsync(route, content).Result;
+            if (postResponse.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new HttpRequestException(postResponse.Headers.ToString());
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,9 +8,10 @@ namespace NosCore.Core.Encryption
     {
         public static string Sha512(string inputString)
         {
-            using (SHA512 hash = SHA512.Create())
+            using (var hash = SHA512.Create())
             {
-                return string.Concat(hash.ComputeHash(Encoding.UTF8.GetBytes(inputString)).Select(item => item.ToString("x2")));
+                return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
+                    .Select(item => item.ToString("x2")));
             }
         }
     }

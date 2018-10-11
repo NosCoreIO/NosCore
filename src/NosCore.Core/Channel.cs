@@ -1,5 +1,6 @@
-﻿using NosCore.Configuration;
-using System;
+﻿using System;
+using NosCore.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core
 {
@@ -16,10 +17,14 @@ namespace NosCore.Core
 
         public byte ServerGroup { get; set; }
 
+        public int ChannelId { get; set; }
+
         public string Host { get; set; }
 
-        public int ConnectedAccountsLimit { get; set; }
+        public int connectedAccountLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
+
+        public RegionType UserLanguage { get; set; }
     }
 }

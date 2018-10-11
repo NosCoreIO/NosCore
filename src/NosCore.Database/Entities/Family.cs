@@ -1,7 +1,7 @@
-﻿using NosCore.Domain.Character;
-using NosCore.Domain.Family;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Family;
 
 namespace NosCore.Database.Entities
 {

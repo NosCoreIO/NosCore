@@ -4,11 +4,6 @@ namespace NosCore.Data.StaticEntities
 {
     public class QuestObjectiveDTO : IDTO
     {
-        public void Initialize()
-        {
-
-        }
-
         [Key]
         public short QuestObjectiveId { get; set; }
 
@@ -19,5 +14,9 @@ namespace NosCore.Data.StaticEntities
         public int? SpecialData { get; set; }
 
         public short QuestId { get; set; }
+
+        public void Initialize()
+        {
+        }
     }
 }

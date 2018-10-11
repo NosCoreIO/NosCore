@@ -1,6 +1,5 @@
-﻿
-using NosCore.Domain.Family;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations.Family;
 
 namespace NosCore.Database.Entities
 {

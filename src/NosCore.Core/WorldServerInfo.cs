@@ -1,8 +1,4 @@
 ﻿using NosCore.Configuration;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Core
 {
@@ -13,7 +9,7 @@ namespace NosCore.Core
         public string Host { get; set; }
         public int Port { get; set; }
 
-        public int ConnectedAccountsLimit { get; set; }
+        public int connectedAccountLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
     }

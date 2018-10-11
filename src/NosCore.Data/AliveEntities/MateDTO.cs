@@ -44,7 +44,6 @@ namespace NosCore.Data.AliveEntities
 
         public void Initialize()
         {
-            
         }
     }
 }

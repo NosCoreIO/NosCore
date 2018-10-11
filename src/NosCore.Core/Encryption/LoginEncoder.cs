@@ -1,35 +1,45 @@
-﻿using DotNetty.Buffers;
+﻿using System;
+using System.Collections.Generic;
+using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using NosCore.Configuration;
+using NosCore.Core.Extensions;
+using NosCore.Shared.I18N;
+using Logger = NosCore.Shared.I18N.Logger;
 
 namespace NosCore.Core.Encryption
 {
-    public class LoginEncoder : MessageToMessageEncoder<string>, IEncoder
+    public class LoginEncoder : MessageToMessageEncoder<string>
     {
+        private readonly LoginConfiguration _loginServerConfiguration;
+
+        public LoginEncoder(LoginConfiguration loginServerConfiguration)
+        {
+            _loginServerConfiguration = loginServerConfiguration;
+        }
+
         protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
         {
             try
             {
-                byte[] tmp = Encoding.Default.GetBytes(message);
-                for (int i = 0; i < message.Length; i++)
+                var tmp = _loginServerConfiguration.UserLanguage.GetEncoding().GetBytes($"{message} ");
+                for (var i = 0; i < message.Length; i++)
                 {
                     tmp[i] = Convert.ToByte(tmp[i] + 15);
                 }
+
                 tmp[tmp.Length - 1] = 25;
                 if (tmp.Length == 0)
                 {
                     return;
                 }
-                output.Add(Unpooled.WrappedBuffer(tmp)); 
+
+                output.Add(Unpooled.WrappedBuffer(tmp));
             }
-            catch
+            catch(Exception ex)
             {
-               
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
             }
         }
     }

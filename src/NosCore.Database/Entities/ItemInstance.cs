@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Database.Entities.Base;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Database.Entities
 {
@@ -19,7 +20,7 @@ namespace NosCore.Database.Entities
 
         #region Properties
 
-        public int Amount { get; set; }
+        public short Amount { get; set; }
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 
@@ -31,7 +32,7 @@ namespace NosCore.Database.Entities
         public long? BoundCharacterId { get; set; }
 
         public virtual Character Character { get; set; }
-        
+
         public long CharacterId { get; set; }
 
         public short Design { get; set; }
@@ -47,10 +48,10 @@ namespace NosCore.Database.Entities
         public virtual ICollection<MinilandObject> MinilandObject { get; set; }
 
         public short Rare { get; set; }
-        
+
         public short Slot { get; set; }
-        
-        public byte Type { get; set; }
+
+        public PocketType Type { get; set; }
 
         public byte Upgrade { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿using NosCore.Database.Entities.Base;
-using System.Collections.Generic;
 
 namespace NosCore.Database.Entities
 {

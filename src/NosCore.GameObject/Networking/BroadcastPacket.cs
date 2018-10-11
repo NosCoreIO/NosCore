@@ -1,13 +1,12 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Interaction;
+using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.GameObject.Networking
 {
     public class BroadcastPacket
     {
-        #region Instantiation
-
-        public BroadcastPacket(ClientSession session, PacketDefinition packet, ReceiverType receiver, string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
+        public BroadcastPacket(ClientSession session, PacketDefinition packet, ReceiverType receiver,
+            string someonesCharacterName = "", long someonesCharacterId = -1, int xCoordinate = 0, int yCoordinate = 0)
         {
             Sender = session;
             Packet = packet;
@@ -17,10 +16,6 @@ namespace NosCore.GameObject.Networking
             XCoordinate = xCoordinate;
             YCoordinate = yCoordinate;
         }
-
-        #endregion
-
-        #region Properties
 
         public PacketDefinition Packet { get; set; }
 
@@ -35,7 +30,5 @@ namespace NosCore.GameObject.Networking
         public int XCoordinate { get; set; }
 
         public int YCoordinate { get; set; }
-
-        #endregion
     }
 }

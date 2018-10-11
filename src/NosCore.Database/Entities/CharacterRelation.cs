@@ -1,4 +1,4 @@
-﻿using NosCore.Domain.Character;
+﻿using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Database.Entities
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NosCore.Configuration
+﻿namespace NosCore.Configuration
 {
     public class MasterCommunicationConfiguration : ServerConfiguration
     {

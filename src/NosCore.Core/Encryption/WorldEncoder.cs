@@ -1,37 +1,41 @@
-﻿using DotNetty.Buffers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using NosCore.Core.Extensions;
+using NosCore.Core.Networking;
 
 namespace NosCore.Core.Encryption
 {
-    public class WorldEncoder : MessageToMessageEncoder<string>, IEncoder
+    public class WorldEncoder : MessageToMessageEncoder<string>
     {
         protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
         {
-            byte[] strBytes = Encoding.Default.GetBytes(message);
-            int bytesLength = strBytes.Length;
-
-            byte[] encryptedData = new byte[bytesLength + (int)Math.Ceiling((decimal)bytesLength / 0x7E) + 1];
-
-            int j = 0;
-            for (int i = 0; i < bytesLength; i++)
+            output.Add(Unpooled.WrappedBuffer(message.Split('\uffff').SelectMany(packet =>
             {
-                if ((i % 0x7E) == 0)
+                var region = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding();
+                var strBytes = region.GetBytes(packet).AsSpan();
+                var bytesLength = strBytes.Length;
+
+                var encryptedData = new byte[bytesLength + (int)Math.Ceiling((decimal)bytesLength / 0x7E) + 1];
+
+                var j = 0;
+                for (var i = 0; i < bytesLength; i++)
                 {
-                    encryptedData[i + j] = (byte)(bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
-                    j++;
+                    if (i % 0x7E == 0)
+                    {
+                        encryptedData[i + j] = (byte)(bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
+                        j++;
+                    }
+
+                    encryptedData[i + j] = (byte)~strBytes[i];
                 }
-                encryptedData[i + j] = (byte)~strBytes[i];
-            }
-            encryptedData[encryptedData.Length - 1] = 0xFF;
 
-            output.Add(Unpooled.WrappedBuffer(encryptedData));
+                encryptedData[encryptedData.Length - 1] = 0xFF;
+                return encryptedData;
+            }).ToArray()));
         }
-
     }
 }

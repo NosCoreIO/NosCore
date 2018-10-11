@@ -1,12 +1,9 @@
 ﻿using NosCore.Core.Serializing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("NsTeST")]
-    public class NsTeSTSubPacket : PacketDefinition
+    public class NsTeStSubPacket : PacketDefinition
     {
         #region Properties
 
@@ -27,7 +24,7 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(5)]
         public string Name { get; set; }
+
         #endregion
     }
-
 }

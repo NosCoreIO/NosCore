@@ -12,7 +12,7 @@ namespace NosCore.Database.Entities
 
         public virtual Item Item { get; set; }
 
-        public short ItemVNum { get; set; }
+        public short VNum { get; set; }
 
         public virtual MapType MapType { get; set; }
 

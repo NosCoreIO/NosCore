@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NosCore.Core.Logger;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.Domain.Items;
+using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     public class ItemParser
     {
-        private readonly List<ItemDTO> _items = new List<ItemDTO>();
         private readonly List<BCardDTO> _itemCards = new List<BCardDTO>();
-        private ItemDTO _item;
+        private readonly List<ItemDTO> _items = new List<ItemDTO>();
 
         private bool _itemAreaBegin;
         private int _itemCounter;
 
-        public void Parse(string folder, List<string[]> packetList)
+        public void Parse(string folder)
         {
-            string fileId = $"{folder}\\Item.dat";
+            var fileId = $"{folder}\\Item.dat";
 
-            using (StreamReader npcIdStream = new StreamReader(fileId, CodePagesEncodingProvider.Instance.GetEncoding(1252)))
+            using (var npcIdStream = new StreamReader(fileId, Encoding.Default))
             {
-                ItemDTO item = new ItemDTO();
+                var item = new ItemDTO();
 
                 string line;
                 while ((line = npcIdStream.ReadLine()) != null)
                 {
-                    string[] currentLine = line.Split('\t');
+                    var currentLine = line.Split('\t');
 
                     if (currentLine.Length > 3 && currentLine[1] == "VNUM")
                     {
@@ -46,13 +45,13 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (DAOFactory.ItemDAO.FirstOrDefault(s => s.VNum == _item.VNum) == null)
+                        if (DAOFactory.ItemDAO.FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
-                            _items.Add(_item);
+                            _items.Add(item);
                             _itemCounter++;
                         }
 
-                        _item = new ItemDTO();
+                        item = new ItemDTO();
                         _itemAreaBegin = false;
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "NAME")
@@ -64,29 +63,32 @@ namespace NosCore.Parser.Parsers
                         switch (Convert.ToByte(currentLine[2]))
                         {
                             case 4:
-                                item.Type = InventoryType.Equipment;
+                                item.Type = PocketType.Equipment;
                                 break;
 
                             case 8:
-                                item.Type = InventoryType.Equipment;
+                                item.Type = PocketType.Equipment;
                                 break;
 
                             case 9:
-                                item.Type = InventoryType.Main;
+                                item.Type = PocketType.Main;
                                 break;
 
                             case 10:
-                                item.Type = InventoryType.Etc;
+                                item.Type = PocketType.Etc;
                                 break;
 
                             default:
-                                item.Type = (InventoryType) Enum.Parse(typeof(InventoryType), currentLine[2]);
+                                item.Type = (PocketType) Enum.Parse(typeof(PocketType), currentLine[2]);
                                 break;
                         }
 
-                        item.ItemType = currentLine[3] != "-1" ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}") : ItemType.Weapon;
+                        item.ItemType = currentLine[3] != "-1"
+                            ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}")
+                            : ItemType.Weapon;
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
-                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType), currentLine[5] != "-1" ? currentLine[5] : "0");
+                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType),
+                            currentLine[5] != "-1" ? currentLine[5] : "0");
 
                         switch (item.VNum)
                         {
@@ -464,34 +466,105 @@ namespace NosCore.Parser.Parsers
                     else if (currentLine.Length > 3 && currentLine[1] == "TYPE")
                     {
                         // currentLine[2] 0-range 2-range 3-magic
-                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte) 15 : Convert.ToByte(currentLine[3]);
+                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte) 15
+                            : Convert.ToByte(currentLine[3]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "FLAG")
+                    else if (currentLine.Length > 1 && currentLine[1] == "FLAG")
                     {
-                        item.IsSoldable = currentLine[5] == "0";
-                        item.IsDroppable = currentLine[6] == "0";
-                        item.IsTradable = currentLine[7] == "0";
-                        item.IsMinilandActionable = currentLine[8] == "1";
-                        item.IsWarehouse = currentLine[9] == "1";
-                        item.Flag9 = currentLine[10] == "1";
-                        item.Flag1 = currentLine[11] == "1";
-                        item.Flag2 = currentLine[12] == "1";
-                        item.Flag3 = currentLine[13] == "1";
-                        item.Flag4 = currentLine[14] == "1";
-                        item.Flag5 = currentLine[15] == "1";
-                        item.IsColored = currentLine[16] == "1";
-                        item.Sex = currentLine[18] == "1" ? (byte) 1 :
-                            currentLine[17] == "1" ? (byte) 2 : (byte) 0;
-                        //not used item.Flag6 = currentLine[19] == "1";
-                        item.Flag6 = currentLine[20] == "1";
-                        if (currentLine[21] == "1")
+                        if (currentLine.Length > 5)
                         {
-                            item.ReputPrice = item.Price;
+                            item.IsSoldable = currentLine[5] == "0";
                         }
 
-                        item.IsHeroic = currentLine[22] == "1";
-                        item.Flag7 = currentLine[23] == "1";
-                        item.Flag8 = currentLine[24] == "1";
+                        if (currentLine.Length > 6)
+                        {
+                            item.IsDroppable = currentLine[6] == "0";
+                        }
+
+                        if (currentLine.Length > 7)
+                        {
+                            item.IsTradable = currentLine[7] == "0";
+                        }
+
+                        if (currentLine.Length > 8)
+                        {
+                            item.IsMinilandActionable = currentLine[8] == "1";
+                        }
+
+                        if (currentLine.Length > 9)
+                        {
+                            item.IsWarehouse = currentLine[9] == "1";
+                        }
+
+                        if (currentLine.Length > 10)
+                        {
+                            item.Flag9 = currentLine[10] == "1";
+                        }
+
+                        if (currentLine.Length > 11)
+                        {
+                            item.Flag1 = currentLine[11] == "1";
+                        }
+
+                        if (currentLine.Length > 12)
+                        {
+                            item.Flag2 = currentLine[12] == "1";
+                        }
+
+                        if (currentLine.Length > 13)
+                        {
+                            item.Flag3 = currentLine[13] == "1";
+                        }
+
+                        if (currentLine.Length > 14)
+                        {
+                            item.Flag4 = currentLine[14] == "1";
+                        }
+
+                        if (currentLine.Length > 15)
+                        {
+                            item.Flag5 = currentLine[15] == "1";
+                        }
+
+                        if (currentLine.Length > 16)
+                        {
+                            item.IsColored = currentLine[16] == "1";
+                        }
+
+                        if (currentLine.Length > 18)
+                        {
+                            item.Sex = currentLine[18] == "1" ? (byte) 1 :
+                                currentLine[17] == "1" ? (byte) 2 : (byte) 0;
+                        }
+
+                        //not used item.Flag6 = currentLine[19] == "1";
+                        if (currentLine.Length > 20)
+                        {
+                            item.Flag6 = currentLine[20] == "1";
+                        }
+
+                        if (currentLine.Length > 21)
+                        {
+                            if (currentLine[21] == "1")
+                            {
+                                item.ReputPrice = item.Price;
+                            }
+                        }
+
+                        if (currentLine.Length > 22)
+                        {
+                            item.IsHeroic = currentLine[22] == "1";
+                        }
+
+                        if (currentLine.Length > 23)
+                        {
+                            item.Flag7 = currentLine[23] == "1";
+                        }
+
+                        if (currentLine.Length > 24)
+                        {
+                            item.Flag8 = currentLine[24] == "1";
+                        }
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "DATA")
                     {
@@ -567,7 +640,8 @@ namespace NosCore.Parser.Parsers
                                 item.DistanceDefence = Convert.ToInt16(currentLine[4]);
                                 item.MagicDefence = Convert.ToInt16(currentLine[5]);
                                 item.DefenceDodge = Convert.ToInt16(currentLine[6]);
-                                if (item.EquipmentSlot.Equals(EquipmentType.CostumeHat) || item.EquipmentSlot.Equals(EquipmentType.CostumeSuit))
+                                if (item.EquipmentSlot.Equals(EquipmentType.CostumeHat)
+                                    || item.EquipmentSlot.Equals(EquipmentType.CostumeSuit))
                                 {
                                     item.ItemValidTime = Convert.ToInt32(currentLine[13]) * 3600;
                                 }
@@ -584,11 +658,13 @@ namespace NosCore.Parser.Parsers
                                 {
                                     case EquipmentType.Amulet:
                                         item.LevelMinimum = Convert.ToByte(currentLine[2]);
-                                        if ((item.VNum > 4055 && item.VNum < 4061) || (item.VNum > 4172 && item.VNum < 4176))
+                                        if ((item.VNum > 4055 && item.VNum < 4061)
+                                            || (item.VNum > 4172 && item.VNum < 4176))
                                         {
                                             item.ItemValidTime = 10800;
                                         }
-                                        else if ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967 || item.VNum == 968)
+                                        else if ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967
+                                            || item.VNum == 968)
                                         {
                                             // (item.VNum > 8104 && item.VNum < 8115) <= disaled for now
                                             // because doesn't work!
@@ -948,9 +1024,11 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     default:
-                                        if ((item.VNum > 5891 && item.VNum < 5900) || (item.VNum > 9100 && item.VNum < 9109))
+                                        if ((item.VNum > 5891 && item.VNum < 5900)
+                                            || (item.VNum > 9100 && item.VNum < 9109))
                                         {
-                                            item.Effect = 69; // imagined number as for I = √(-1), complex z = a + bi
+                                            item.Effect =
+                                                69; // imagined number as for I = √(-1), complex z = a + bi
                                         }
                                         else
                                         {
@@ -993,7 +1071,8 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     default:
-                                        item.EffectValue = item.EffectValue == 0 ? Convert.ToInt32(currentLine[4]) : item.EffectValue;
+                                        item.EffectValue = item.EffectValue == 0 ? Convert.ToInt32(currentLine[4])
+                                            : item.EffectValue;
                                         break;
                                 }
 
@@ -1030,7 +1109,7 @@ namespace NosCore.Parser.Parsers
                                 item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
                                 item.ReputationMinimum = Convert.ToByte(currentLine[21]);
 
-                                Dictionary<int, int> elementdic = new Dictionary<int, int> {{0, 0}};
+                                var elementdic = new Dictionary<int, int> {{0, 0}};
                                 if (item.FireResistance != 0)
                                 {
                                     elementdic.Add(1, item.FireResistance);
@@ -1052,9 +1131,11 @@ namespace NosCore.Parser.Parsers
                                 }
 
                                 item.Element = (byte) elementdic.OrderByDescending(s => s.Value).First().Key;
-                                if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
+                                if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
+                                    == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
                                 {
-                                    item.SecondaryElement = (byte) elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
+                                    item.SecondaryElement =
+                                        (byte) elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
                                 }
 
                                 // needs to be hardcoded
@@ -1184,7 +1265,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                         }
 
-                        if (item.Type == InventoryType.Miniland)
+                        if (item.Type == PocketType.Miniland)
                         {
                             item.MinilandObjectPoint = int.Parse(currentLine[2]);
                             item.EffectValue = short.Parse(currentLine[8]);
@@ -1192,7 +1273,9 @@ namespace NosCore.Parser.Parsers
                             item.Height = Convert.ToByte(currentLine[10]);
                         }
 
-                        if ((item.EquipmentSlot != EquipmentType.Boots && item.EquipmentSlot != EquipmentType.Gloves) || item.Type != 0)
+                        if ((item.EquipmentSlot != EquipmentType.Boots
+                            && item.EquipmentSlot != EquipmentType.Gloves)
+                            || item.Type != 0)
                         {
                             continue;
                         }
@@ -1204,25 +1287,25 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "BUFF")
                     {
-                        for (int i = 0; i < 5; i++)
+                        for (var i = 0; i < 5; i++)
                         {
-                            byte type = (byte) int.Parse(currentLine[2 + (5 * i)]);
+                            var type = (byte) int.Parse(currentLine[2 + (5 * i)]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
                             }
 
-                            int first = int.Parse(currentLine[3 + (5 * i)]);
-                            BCardDTO itemCard = new BCardDTO
+                            var first = int.Parse(currentLine[3 + (5 * i)]);
+                            var itemCard = new BCardDTO
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
                                 SubType = (byte) (((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = (first % 4) == 2,
+                                IsLevelDivided = first % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
                                 SecondData = (short) (int.Parse(currentLine[4 + (5 * i)]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[6 + (5 * i)]) / 4),
+                                ThirdData = (short) (int.Parse(currentLine[6 + (5 * i)]) / 4)
                             };
                             _itemCards.Add(itemCard);
                         }
@@ -1231,8 +1314,8 @@ namespace NosCore.Parser.Parsers
 
                 DAOFactory.ItemDAO.InsertOrUpdate(_items);
                 DAOFactory.BcardDAO.InsertOrUpdate(_itemCards);
-                Logger.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED), _itemCounter));
-                npcIdStream.Close();
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
+                    _itemCounter));
             }
         }
     }

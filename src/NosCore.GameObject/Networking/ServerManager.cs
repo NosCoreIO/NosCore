@@ -1,101 +1,68 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.Logger;
-using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Domain.Map;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-    public class ServerManager : BroadcastableBase
+    public sealed class ServerManager : BroadcastableBase
     {
-        private static ServerManager instance;
+        private static ServerManager _instance;
 
-        private ServerManager() { }
-
-        public static ServerManager Instance
+        private ServerManager()
         {
-            get
-            {
-                return instance ?? (instance = new ServerManager());
-            }
         }
 
-        private static readonly ConcurrentDictionary<Guid, MapInstance> _mapinstances = new ConcurrentDictionary<Guid, MapInstance>();
+        public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
-        private static readonly List<Map.Map> _maps = new List<Map.Map>();
-
-        public MapInstance GenerateMapInstance(short mapId, MapInstanceType type)
+        private void LaunchEvents()
         {
-            Map.Map map = _maps.Find(m => m.MapId.Equals(mapId));
-            if (map == null)
-            {
-                return null;
-            }
-            Guid guid = Guid.NewGuid();
-            MapInstance mapInstance = new MapInstance(map, guid, false, type);
-            _mapinstances.TryAdd(guid, mapInstance);
-            return mapInstance;
+            Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => SaveAll());
         }
 
-        public void Initialize()
+        public void SaveAll()
         {
-            // parse rates
             try
             {
-                int i = 0;
-                int monstercount = 0;
-                OrderablePartitioner<Map.Map> mapPartitioner = Partitioner.Create(DAOFactory.MapDAO.LoadAll().Cast<Map.Map>(), EnumerablePartitionerOptions.NoBuffering);
-                ConcurrentDictionary<short, Map.Map> _mapList = new ConcurrentDictionary<short, Map.Map>();
-                Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
-                {
-                    Guid guid = Guid.NewGuid();
-                    map.Initialize();
-                    _mapList[map.MapId] = map;
-                    MapInstance newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance);
-                    _mapinstances.TryAdd(guid, newMap);
-
-                    monstercount += newMap.Monsters.Count;
-                    i++;
-                });
-                _maps.AddRange(_mapList.Select(s => s.Value));
-                if (i != 0)
-                {
-                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED), i));
-                }
-                else
-                {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
-                }
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monstercount));
+                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
+                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session => session.Character.Save());
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Logger.Log.Error("General Error", ex);
+                Logger.Error(e);
             }
         }
 
-        public Guid GetBaseMapInstanceIdByMapId(short MapId)
+        public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)
         {
-            return _mapinstances.FirstOrDefault(s => s.Value?.Map.MapId == MapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;
+            if (channelId == null)
+            {
+                foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
+                {
+                    WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                }
+            }
+            else
+            {
+                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels", id: channelId.Value).FirstOrDefault();
+                if (channel != null)
+                {
+                    WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                }
+            }
         }
 
-        public MapInstance GetMapInstance(Guid id)
+        public void BroadcastPackets(List<PostedPacket> packets, int? channelId = null)
         {
-            return _mapinstances.ContainsKey(id) ? _mapinstances[id] : null;
-        }
-
-        internal void RegisterSession(ClientSession clientSession)
-        {
-            Sessions.TryAdd(clientSession.SessionId, clientSession);
-        }
-
-        internal void UnregisterSession(ClientSession clientSession)
-        {
-           Sessions.TryRemove(clientSession.SessionId, out ClientSession clientSessionuseless);
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet, channelId);
+            }
         }
     }
 }

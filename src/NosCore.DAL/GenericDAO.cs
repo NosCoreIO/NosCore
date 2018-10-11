@@ -1,55 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
 using System.Collections;
-using Microsoft.EntityFrameworkCore;
-using NosCore.Domain;
-using NosCore.Core.Logger;
-using NosCore.Database;
-using NosCore.Data;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Mapster;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.DAL
 {
     public class GenericDAO<TEntity, TDTO> where TEntity : class
     {
-        private readonly IMapper _mapper;
-
         private readonly PropertyInfo _primaryKey;
 
-        public GenericDAO(IMapper mapper)
+        public GenericDAO()
         {
             try
             {
-                Type targetType = typeof(TEntity);
-                if (mapper == null)
+                foreach (var pi in typeof(TDTO).GetProperties())
                 {
-                    MapperConfiguration config = new MapperConfiguration(cfg => cfg.CreateMap(typeof(TDTO), targetType).ReverseMap());
-
-                    _mapper = config.CreateMapper();
-                }
-                else
-                {
-                    _mapper = mapper;
-                }
-
-                foreach (PropertyInfo pi in typeof(TDTO).GetProperties())
-                {
-                    object[] attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
+                    var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
                     if (attrs.Length != 1)
                     {
                         continue;
                     }
+
                     _primaryKey = pi;
                     break;
                 }
+
                 if (_primaryKey != null)
                 {
                     return;
                 }
+
                 throw new KeyNotFoundException();
             }
             catch (Exception e)
@@ -60,32 +46,62 @@ namespace NosCore.DAL
 
         public SaveResult Delete(object dtokey)
         {
-            using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                DbSet<TEntity> dbset = context.Set<TEntity>();
+                var dbset = context.Set<TEntity>();
 
-                if (dtokey is IEnumerable)
+                if (dtokey is IEnumerable enumerable)
                 {
-                    foreach (object key in dtokey as IEnumerable)
+                    foreach (var dto in enumerable)
                     {
-                        TEntity entityfound = dbset.Find(key);
-
-                        if (entityfound != null)
+                        object value;
+                        try
                         {
-                            dbset.Remove(entityfound);
-                            context.SaveChanges();
+                            value = _primaryKey.GetValue(dto, null);
                         }
+                        catch
+                        {
+                            value = dto;
+                        }
+
+                        TEntity entityfound = null;
+                        if (value is object[] objects)
+                        {
+                            entityfound = dbset.Find(objects);
+                        }
+                        else
+                        {
+                            entityfound = dbset.Find(value);
+                        }
+
+                        if (entityfound == null)
+                        {
+                            continue;
+                        }
+
+                        dbset.Remove(entityfound);
+                        context.SaveChanges();
                     }
                 }
                 else
                 {
-                    TEntity entityfound = dbset.Find(dtokey);
+                    object value;
+                    try
+                    {
+                        value = _primaryKey.GetValue(dtokey, null);
+                    }
+                    catch
+                    {
+                        value = dtokey;
+                    }
+                    var entityfound = dbset.Find(value);
 
                     if (entityfound != null)
                     {
                         dbset.Remove(entityfound);
                     }
                 }
+
                 context.SaveChanges();
 
                 return SaveResult.Saved;
@@ -96,18 +112,22 @@ namespace NosCore.DAL
         {
             try
             {
-                using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+                if (predicate == null)
                 {
-                    DbSet<TEntity> dbset = context.Set<TEntity>();
-                    IEnumerable<TEntity> entities = Enumerable.Empty<TEntity>();
-                    TEntity ent = dbset.FirstOrDefault(predicate);
-                    return _mapper.Map<TDTO>(ent);
+                    return default;
+                }
+
+                using (var context = DataAccessHelper.Instance.CreateContext())
+                {
+                    var dbset = context.Set<TEntity>();
+                    var ent = dbset.FirstOrDefault(predicate);
+                    return ent.Adapt<TDTO>();
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                return default(TDTO);
+                return default;
             }
         }
 
@@ -115,34 +135,35 @@ namespace NosCore.DAL
         {
             try
             {
-                using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    TEntity entity = _mapper.Map<TEntity>(dto);
-                    DbSet<TEntity> dbset = context.Set<TEntity>();
+                    var entity = dto.Adapt<TEntity>();
+                    var dbset = context.Set<TEntity>();
 
-                    object value = _primaryKey.GetValue(dto, null);
+                    var value = _primaryKey.GetValue(dto, null);
                     TEntity entityfound = null;
-                    if (value is object[])
+                    if (value is object[] objects)
                     {
-                        entityfound = dbset.Find((object[])value);
+                        entityfound = dbset.Find(objects);
                     }
                     else
                     {
                         entityfound = dbset.Find(value);
                     }
+                    entity = entity.Adapt<TDTO>().Adapt<TEntity>();
                     if (entityfound != null)
                     {
-                        _mapper.Map(entity, entityfound);
-
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                         context.SaveChanges();
                     }
+
                     if (value == null || entityfound == null)
                     {
                         dbset.Add(entity);
                     }
+
                     context.SaveChanges();
-                    dto = _mapper.Map<TDTO>(entity);
+                    dto = entity.Adapt<TDTO>();
 
                     return SaveResult.Saved;
                 }
@@ -158,31 +179,29 @@ namespace NosCore.DAL
         {
             try
             {
-                using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
                     context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                    DbSet<TEntity> dbset = context.Set<TEntity>();
-                    List<TEntity> entitytoadd = new List<TEntity>();
-                    foreach (TDTO dto in dtos)
+                    var dbset = context.Set<TEntity>();
+                    var entitytoadd = new List<TEntity>();
+                    foreach (var dto in dtos)
                     {
-                        TEntity entity = _mapper.Map<TEntity>(dto);
-                        object value = _primaryKey.GetValue(dto, null);
+                        var entity = dto.Adapt<TEntity>();
+                        var value = _primaryKey.GetValue(dto, null);
 
                         TEntity entityfound = null;
-                        if (value is object[])
+                        if (value is object[] objects)
                         {
-                            entityfound = dbset.Find((object[])value);
+                            entityfound = dbset.Find(objects);
                         }
                         else
                         {
                             entityfound = dbset.Find(value);
                         }
-
+                        entity = entity.Adapt<TDTO>().Adapt<TEntity>();
                         if (entityfound != null)
                         {
-                            _mapper.Map(entity, entityfound);
-
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
                         }
 
@@ -208,22 +227,21 @@ namespace NosCore.DAL
 
         public IEnumerable<TDTO> LoadAll()
         {
-            using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                DbSet<TEntity> dbset = context.Set<TEntity>();
-                foreach (TEntity t in dbset)
+                foreach (var t in context.Set<TEntity>())
                 {
-                    yield return _mapper.Map<TDTO>(t);
+                    yield return t.Adapt<TDTO>();
                 }
             }
         }
 
         public IEnumerable<TDTO> Where(Expression<Func<TEntity, bool>> predicate)
         {
-            using (NosCoreContext context = DataAccessHelper.Instance.CreateContext())
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                DbSet<TEntity> dbset = context.Set<TEntity>();
-                IEnumerable<TEntity> entities = Enumerable.Empty<TEntity>();
+                var dbset = context.Set<TEntity>();
+                var entities = Enumerable.Empty<TEntity>();
                 try
                 {
                     entities = dbset.Where(predicate).ToList();
@@ -232,9 +250,10 @@ namespace NosCore.DAL
                 {
                     Logger.Error(e);
                 }
-                foreach (TEntity t in entities)
+
+                foreach (var t in entities)
                 {
-                    yield return _mapper.Map<TDTO>(t);
+                    yield return t.Adapt<TDTO>();
                 }
             }
         }

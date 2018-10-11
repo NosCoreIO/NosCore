@@ -1,5 +1,5 @@
-﻿using NosCore.Domain.Buff;
-using System;
+﻿using System;
+using NosCore.Shared.Enumerations.Buff;
 
 namespace NosCore.Database.Entities
 {

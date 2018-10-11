@@ -2,8 +2,13 @@
   "MasterCommunication": {
     "Password": "NosCorePassword",
     "Host": "127.0.0.1",
-    "Port": 6969
+    "Port": 6969,
+	 "WebApi": {
+		"Host": "http://localhost",
+		"Port": 5000
+	},
   },
+  "ServerName": "S1-NosCore",
   "Host": "127.0.0.1",
   "Port": 1337,
   "ConnectedAccountLimit": 100,
@@ -13,10 +18,15 @@
 		"Host": "http://localhost",
 		"Port": 5001
   },
+  "Language" : "en",
   "Database": {
-	  "DataSource" : "localhost",
-      "InitialCatalog" : "NosCore",
-      "IntegratedSecurity" : true,
-      "MultipleActiveResultSets" : false,
-  }
+	  "Host" : "localhost",
+	  "Port" : 5432,
+	  "Database" : "postgres",
+	  "Username" : "postgres",
+	  "Password" : "password",
+	},
+	"BackpackSize":48,
+	"MaxItemAmount":999,
+	"MaxGoldAmount":1000000000
 }

@@ -1,49 +1,55 @@
-﻿using Autofac;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using Autofac;
+using DotNetty.Buffers;
+using DotNetty.Codecs;
+using FastExpressionCompiler;
 using log4net;
 using log4net.Config;
-using log4net.Repository;
+using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Controllers;
-using NosCore.Core;
-using NosCore.Core.Logger;
+using NosCore.Core.Encryption;
+using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
-using NosCore.GameObject;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
-using System;
-using System.IO;
-using System.Reflection;
+using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
-    public static class WorldServerBootstrap
+    public static class LoginServerBootstrap
     {
-        private const string _configurationPath = @"..\..\..\configuration";
+        private const string ConfigurationPath = @"../../../configuration";
+        private const string Title = "NosCore - LoginServer";
 
         private static void PrintHeader()
         {
-            Console.Title = "NosCore - LoginServer";
+            Console.Title = Title;
             const string text = "LOGIN SERVER - 0Lucifer0";
-            int offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            string separator = new string('=', Console.WindowWidth);
+            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
+            var separator = new string('=', Console.WindowWidth);
             Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
         }
 
         private static LoginConfiguration InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
-            LoginConfiguration loginConfiguration = new LoginConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            var loginConfiguration = new LoginConfiguration();
+            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(loginConfiguration);
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            LogLanguage.Language = loginConfiguration.Language;
+            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
         }
 
         private static void InitializeLogger()
         {
             // LOGGER
-            ILoggerRepository logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginServer)));
         }
@@ -53,28 +59,29 @@ namespace NosCore.LoginServer
             PacketFactory.Initialize<NoS0575Packet>();
         }
 
-        private static void InitializeControllers(IContainer container)
-        {
-            PacketControllerFactory.Initialize(container);
-        }
-
         public static void Main()
         {
             PrintHeader();
             InitializeLogger();
             InitializePackets();
             var container = InitializeContainer();
-            InitializeControllers(container);
             var loginServer = container.Resolve<LoginServer>();
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             loginServer.Run();
         }
 
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>();
+            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>().As<GameServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
+            containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>();
+
             return containerBuilder.Build();
         }
     }

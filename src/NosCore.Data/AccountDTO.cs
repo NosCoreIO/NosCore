@@ -1,6 +1,6 @@
-﻿using NosCore.Domain;
-using System.ComponentModel.DataAnnotations;
-using NosCore.Domain.Account;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Data
 {
@@ -25,6 +25,6 @@ namespace NosCore.Data
 
         public long ItemShopMoney { get; set; }
 
-        public RegionType RegionType { get; set; }
+        public RegionType Language { get; set; }
     }
 }

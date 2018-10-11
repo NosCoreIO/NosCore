@@ -1,12 +1,17 @@
 ﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Account;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
     [PacketHeader("$Speed", Authority = AuthorityType.GameMaster)]
-    public class SpeedPacket : PacketDefinition
+    public class SpeedPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
         public byte Speed { get; set; }
+
+        public string Help()
+        {
+            return "$Speed value";
+        }
     }
 }

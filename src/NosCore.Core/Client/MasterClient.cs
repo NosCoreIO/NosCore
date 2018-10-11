@@ -1,5 +1,5 @@
 ﻿using NosCore.Configuration;
-using NosCore.Domain;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Client
 {

@@ -1,8 +1,10 @@
 {
-	  "DataSource" : "localhost",
-      "InitialCatalog" : "NosCore",
-      "IntegratedSecurity" : true,
-      "MultipleActiveResultSets" : false,
-      "UserID" : "",
-      "Password" : ""
+  "Language" : "en",
+  "Database": {
+	  "Host" : "localhost",
+	  "Port" : 5432,
+	  "Database" : "postgres",
+	  "Username" : "postgres",
+	  "Password" : "password",
+	}
 }

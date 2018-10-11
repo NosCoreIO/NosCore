@@ -1,14 +1,10 @@
-﻿using NosCore.Domain.Items;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Data
 {
     public class ItemDTO : IDTO
     {
-        public void Initialize()
-        {
-        }
-
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }
         public bool Flag2 { get; set; }
@@ -102,7 +98,6 @@ namespace NosCore.Data
         public short LightResistance { get; set; }
 
         public short MagicDefence { get; set; }
-
         public byte MaxCellon { get; set; }
 
         public byte MaxCellonLvl { get; set; }
@@ -146,7 +141,7 @@ namespace NosCore.Data
 
         public byte SpType { get; set; }
 
-        public InventoryType Type { get; set; }
+        public PocketType Type { get; set; }
 
         [Key]
         public short VNum { get; set; }

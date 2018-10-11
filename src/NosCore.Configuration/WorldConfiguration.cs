@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace NosCore.Configuration
 {
     public class WorldConfiguration : WebApiConfiguration
     {
-        public SqlConnectionStringBuilder Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; }
 
         public short ConnectedAccountLimit { get; set; }
 
@@ -15,5 +12,10 @@ namespace NosCore.Configuration
 
         public bool WorldInformation { get; set; }
         public bool SceneOnCreate { get; set; }
+        public string ServerName { get; set; }
+        public Dictionary<FeatureFlag, bool> FeatureFlags { get; set; } = new Dictionary<FeatureFlag, bool>();
+        public short MaxItemAmount { get; set; }
+        public byte BackpackSize { get; set; }
+        public long MaxGoldAmount { get; set; }
     }
 }

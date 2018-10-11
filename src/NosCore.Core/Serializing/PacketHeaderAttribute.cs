@@ -1,10 +1,9 @@
-﻿using NosCore.Domain;
-using System;
-using NosCore.Domain.Account;
+﻿using System;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Core.Serializing
 {
-    [AttributeUsageAttribute(AttributeTargets.All, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.All)]
     public class PacketHeaderAttribute : Attribute
     {
         public PacketHeaderAttribute(string identification)
@@ -32,6 +31,7 @@ namespace NosCore.Core.Serializing
         ///     Amount of tcp message to create the Packet
         /// </summary>
         public byte Amount { get; set; }
+
         public bool AnonymousAccess { get; set; }
     }
 }

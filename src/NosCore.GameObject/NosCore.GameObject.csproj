@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+	<TieredCompilation>true</TieredCompilation>
+	<LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -13,11 +15,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NosCore.DAL\NosCore.DAL.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
-    <ProjectReference Include="..\NosCore.Domain\NosCore.Domain.csproj" />
-    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
     <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
+    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
+    <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
   </ItemGroup>
 
 </Project>

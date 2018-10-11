@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "2a1742ee-c773-4210-90b1-2f6f07ceec39",
+		"name": "NosCore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Bearer Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "55bf7691-9fc9-4eba-8271-f2b32d83ae2a",
+						"type": "text/javascript",
+						"exec": [
+							"postman.setEnvironmentVariable(\"Token\", responseBody);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"ServerToken\": \"NosCorePassword\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/token/connectServer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"token",
+						"connectServer"
+					]
+				},
+				"description": "Post on NosCore API"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Channel List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/channels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"channels"
+					]
+				},
+				"description": "Post on NosCore API"
+			},
+			"response": []
+		},
+		{
+			"name": "Post Packet",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \r\n   \"Packet\":\"finfo 6 1\",\r\n   \"ReceiverType\": 4,\r\n   \"SenderCharacter\":{\"Name\":\"test\",\"Id\":6},\r\n   \"ReceiverCharacter\":{\"Name\":\"Elendan\",\"Id\":5},\r\n   \"OriginWorldId\":0\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/packet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"packet"
+					]
+				},
+				"description": "Post on NosCore API"
+			},
+			"response": []
+		}
+	]
+}

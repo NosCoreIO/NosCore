@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
@@ -41,6 +40,7 @@ namespace NosCore.Database.Entities
         public bool IsLevelScaled { get; set; }
 
         public bool IsLevelDivided { get; set; }
+
         #endregion
     }
 }

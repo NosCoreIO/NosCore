@@ -20,16 +20,17 @@ namespace NosCore.Packets.ServerPackets
         public short PositionY { get; set; }
 
         [PacketIndex(4)]
-        public byte Unknown1 { get; set; }
+        public byte Unknown1 { get; set; } //TODO to find
 
         [PacketIndex(5)]
-        public byte Unknown2 { get; set; }
+        public byte Unknown2 { get; set; } //TODO to find
 
         [PacketIndex(6)]
         public int Music { get; set; }
 
         [PacketIndex(7)]
-        public short Unknown3 { get; set; }
+        public short Unknown3 { get; set; } //TODO to find
+
         #endregion
     }
 }

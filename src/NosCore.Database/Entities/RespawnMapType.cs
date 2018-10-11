@@ -19,7 +19,7 @@ namespace NosCore.Database.Entities
 
         #region Properties
 
-        public short DefaultMapId { get; set; }
+        public short MapId { get; set; }
 
         public short DefaultX { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -11,9 +11,11 @@ namespace NosCore.MasterServer.Controllers
     {
         // GET api/channels
         [HttpGet]
-        [AllowAnonymous]
-        public List<WorldServerInfo> Get()
+        public List<WorldServerInfo> GetChannels(long? id)
         {
+            if (id != null) {
+                return MasterClientListSingleton.Instance.WorldServers.Where(s=>s.Id == id).ToList();
+            }
             return MasterClientListSingleton.Instance.WorldServers;
         }
     }

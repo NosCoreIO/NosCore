@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Groups;
-using NosCore.Core.Logger;
 using NosCore.Core.Serializing;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
-        private readonly IChannel _channel;
+        private IChannel _channel;
 
         #region Members
 
@@ -20,8 +21,9 @@ namespace NosCore.Core.Networking
         public int SessionId { get; set; }
 
         public long ClientId { get; set; }
+        public PacketDefinition LastPacket { get; private set; }
 
-        public NetworkClient(IChannel channel)
+        public void RegisterChannel(IChannel channel)
         {
             _channel = channel;
         }
@@ -30,59 +32,53 @@ namespace NosCore.Core.Networking
 
         #region Methods
 
-        private static volatile IChannelGroup _group;
-
-        public override void ChannelRegistered(IChannelHandlerContext context)
+        public override void ChannelActive(IChannelHandlerContext context)
         {
-            IChannelGroup g = _group;
-            if (g == null)
-            {
-                lock (_channel)
-                {
-                    if (_group == null)
-                    {
-                        g = _group = new DefaultChannelGroup(context.Executor);
-                    }
-                }
-            }
-
-            Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED)));
-
-            g.Add(context.Channel);
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
+                ClientId));
         }
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
-            Console.WriteLine("{0}", exception.StackTrace);
+            if (exception is SocketException sockException)
+            {
+                switch (sockException.SocketErrorCode)
+                {
+                    case SocketError.ConnectionReset:
+                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
+                            ClientId));
+                        break;
+                }
+            }
+            else { Logger.Log.Fatal(exception.StackTrace); }
 
             context.CloseAsync();
         }
 
         public void Disconnect()
         {
-            Logger.Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION)));
-            _channel.DisconnectAsync();
+            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
+                ClientId));
+            _channel?.DisconnectAsync();
         }
 
         public void SendPacket(PacketDefinition packet)
         {
-            if (packet == null)
-            {
-                return;
-            }
-            _channel.WriteAndFlushAsync(PacketFactory.Serialize(packet));
-            _channel.Flush();
+            SendPackets(new[] { packet });
         }
 
         public void SendPackets(IEnumerable<PacketDefinition> packets)
         {
-            // TODO: maybe send at once with delimiter
-            foreach (PacketDefinition packet in packets)
+            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
+            if (packetDefinitions.Length == 0)
             {
-                SendPacket(packet);
+                return;
             }
-        }
-        #endregion
 
+            LastPacket = packetDefinitions.Last();
+            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+        }
+
+        #endregion
     }
 }

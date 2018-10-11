@@ -6,12 +6,16 @@ namespace NosCore.Packets.ServerPackets
     public class InItemSubPacket : PacketDefinition
     {
         #region Properties
+
         [PacketIndex(0)]
         public int Amount { get; set; }
 
         [PacketIndex(1)]
         public bool IsQuestRelative { get; set; }
-        
+
+        [PacketIndex(2)]
+        public long Owner { get; set; }
+
         #endregion
     }
 }

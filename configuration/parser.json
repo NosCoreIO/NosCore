@@ -1,9 +1,10 @@
 {
-  "Lang": "uk",
+  "Language" : "en",
   "Database": {
-    "DataSource": "localhost",
-    "InitialCatalog": "NosCore",
-    "IntegratedSecurity": true,
-    "MultipleActiveResultSets": false
-  }
+	  "Host" : "localhost",
+	  "Port" : 5432,
+	  "Database" : "postgres",
+	  "Username" : "postgres",
+	  "Password" : "password",
+	}
 }

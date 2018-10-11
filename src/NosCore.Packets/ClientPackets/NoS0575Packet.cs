@@ -1,4 +1,6 @@
-﻿using NosCore.Core.Serializing;
+﻿using System;
+using JetBrains.Annotations;
+using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -8,6 +10,7 @@ namespace NosCore.Packets.ClientPackets
         #region Properties
 
         [PacketIndex(0)]
+        [UsedImplicitly]
         public int Number { get; set; }
 
         [PacketIndex(1)]
@@ -17,6 +20,9 @@ namespace NosCore.Packets.ClientPackets
         public string Password { get; set; }
 
         [PacketIndex(3)]
+        public Guid? ClientId { get; set; }
+
+        [PacketIndex(4)]
         public string ClientData { get; set; }
 
         #endregion

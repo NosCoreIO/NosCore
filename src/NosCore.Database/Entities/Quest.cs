@@ -7,6 +7,7 @@ namespace NosCore.Database.Entities
     public class Quest
     {
         #region Properties
+
         public Quest()
         {
             CharacterQuest = new HashSet<CharacterQuest>();
@@ -28,7 +29,7 @@ namespace NosCore.Database.Entities
 
         public int? EndDialogId { get; set; }
 
-        public HashSet<QuestObjective> QuestObjective {get;set;}
+        public HashSet<QuestObjective> QuestObjective { get; set; }
 
         public short? TargetMap { get; set; }
 

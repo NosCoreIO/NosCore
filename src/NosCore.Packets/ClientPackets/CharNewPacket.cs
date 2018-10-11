@@ -1,6 +1,6 @@
-﻿using NosCore.Core.Serializing;
-using NosCore.Domain.Character;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Packets.ClientPackets
 {
