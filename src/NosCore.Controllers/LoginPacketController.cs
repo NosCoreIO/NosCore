@@ -8,6 +8,7 @@ using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;

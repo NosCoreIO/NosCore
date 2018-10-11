@@ -1,10 +1,7 @@
 ﻿using NosCore.Data;
-using NosCore.GameObject.Item;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 
-namespace NosCore.GameObject.Services
+namespace NosCore.GameObject.Services.ItemBuilder
 {
     public interface IItemBuilderService
     {

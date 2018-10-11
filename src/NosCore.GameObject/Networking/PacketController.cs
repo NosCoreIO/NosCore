@@ -1,8 +1,7 @@
 ﻿using NosCore.Core.Handling;
 using NosCore.Core.Networking;
-using NosCore.GameObject.Networking;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Networking
 {
     public class PacketController : IPacketController
     {

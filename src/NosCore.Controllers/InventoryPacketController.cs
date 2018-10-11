@@ -5,8 +5,10 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Item;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -14,7 +16,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using ItemInstance = NosCore.GameObject.Item.ItemInstance;
+using ItemInstance = NosCore.GameObject.Services.ItemBuilder.Item.ItemInstance;
 
 namespace NosCore.Controllers
 {
@@ -22,7 +24,7 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
-        private IItemBuilderService _itemBuilderService;
+        private readonly IItemBuilderService _itemBuilderService;
 
         [UsedImplicitly]
         public InventoryPacketController()
@@ -179,7 +181,7 @@ namespace NosCore.Controllers
                     {
                         if (Session.Character.MapInstance.DroppedList.Count < 200)
                         {
-                            var droppedItem = Session.Character.MapInstance.PutItem(putPacket.PocketType, putPacket.Slot, putPacket.Amount, ref invitem, Session);
+                            var droppedItem = Session.Character.MapInstance.PutItem(putPacket.Amount, ref invitem, Session);
                             if (droppedItem == null)
                             {
                                 Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE, Session.Account.Language), Type = 0 });

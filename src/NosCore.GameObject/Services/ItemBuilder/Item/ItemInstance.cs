@@ -1,9 +1,7 @@
 ﻿using NosCore.Data;
-using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
-using System.Collections.Generic;
 
-namespace NosCore.GameObject.Item
+namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
     public class ItemInstance : ItemInstanceDTO
     {

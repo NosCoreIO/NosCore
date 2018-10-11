@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
-using log4net.Repository.Hierarchy;
 using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;

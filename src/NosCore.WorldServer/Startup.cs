@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoMapper;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -27,21 +25,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Controllers;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
 using NosCore.DAL;
-using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.GameObject;
-using NosCore.GameObject.Item;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
@@ -83,7 +79,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<PipelineFactory>();
 
             containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
-                .Where(t => t.Name.EndsWith("Service") && !t.Name.Contains("Singleton"))
+                .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
 

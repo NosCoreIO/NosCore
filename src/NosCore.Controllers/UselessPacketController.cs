@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using NosCore.GameObject;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 
 namespace NosCore.Controllers

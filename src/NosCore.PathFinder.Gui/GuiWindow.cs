@@ -7,6 +7,7 @@ using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;
 using OpenTK.Graphics;
@@ -27,9 +28,9 @@ namespace NosCore.PathFinder.Gui
         private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
         private double _gridsizeX;
         private double _gridsizeY;
-        private List<MapMonster> _monsters;
-        private List<MapNpc> _npcs;
-        private List<NpcMonsterDTO> _npcMonsters;
+        private readonly List<MapMonster> _monsters;
+        private readonly List<MapNpc> _npcs;
+        private readonly List<NpcMonsterDTO> _npcMonsters;
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
         {

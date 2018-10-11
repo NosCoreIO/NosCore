@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Shared.Enumerations;
+﻿using NosCore.Shared.Enumerations;
 
 namespace NosCore.Shared
 {

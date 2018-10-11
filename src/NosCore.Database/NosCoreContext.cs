@@ -1,6 +1,4 @@
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Configuration;
 using NosCore.Database.Entities;
 
 namespace NosCore.Database

@@ -12,6 +12,9 @@ using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
@@ -19,7 +22,6 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.GameObject.Item;
 
 namespace NosCore.GameObject
 {

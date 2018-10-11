@@ -2,22 +2,22 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Mapster;
 using NosCore.Core.Serializing;
+using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Packets.ServerPackets;
+using NosCore.PathFinder;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using System.Reactive.Linq;
-using NosCore.GameObject.Item;
-using NosCore.PathFinder;
-using NosCore.Shared.Enumerations.Items;
-using Mapster;
-using NosCore.Data.StaticEntities;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Services.MapInstanceAccess
 {
     public class MapInstance : BroadcastableBase
     {
@@ -75,7 +75,7 @@ namespace NosCore.GameObject
         }
         public int DropRate { get; set; }
 
-        public MapItem PutItem(PocketType type, short slot, short amount, ref ItemInstance inv, ClientSession session)
+        public MapItem PutItem(short amount, ref ItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
             MapItem droppedItem = null;
@@ -92,7 +92,7 @@ namespace NosCore.GameObject
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(s => RandomFactory.Instance.RandomNumber()))
+            foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
             {
                 mapX = (short)(session.Character.PositionX + possibility.X);
                 mapY = (short)(session.Character.PositionY + possibility.Y);
@@ -167,27 +167,9 @@ namespace NosCore.GameObject
 
         public bool ShopAllowed { get; }
 
-        private List<NpcMonsterDTO> _npcMonsters;
+        private readonly List<NpcMonsterDTO> _npcMonsters;
 
         public int XpRate { get; set; }
-
-        public void LoadPortals()
-        {
-            var partitioner = Partitioner.Create(DAOFactory.PortalDAO.Where(s => s.SourceMapId.Equals(Map.MapId)),
-                EnumerablePartitionerOptions.None);
-            var portalList = new ConcurrentDictionary<int, Portal>();
-            Parallel.ForEach(partitioner, portal =>
-            {
-                if (!(portal is Portal portal2))
-                {
-                    return;
-                }
-
-                portal2.SourceMapInstanceId = MapInstanceId;
-                portalList[portal2.PortalId] = portal2;
-            });
-            Portals.AddRange(portalList.Select(s => s.Value));
-        }
 
         public List<PacketDefinition> GetMapItems()
         {

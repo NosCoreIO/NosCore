@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NosCore.GameObject.Item;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
 

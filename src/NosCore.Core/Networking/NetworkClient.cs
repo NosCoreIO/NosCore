@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Serializing;
 using NosCore.Shared.I18N;
 

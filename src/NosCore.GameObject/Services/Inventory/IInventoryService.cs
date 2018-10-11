@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using NosCore.GameObject.Item;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Services.Inventory
 {
     public interface IInventoryService : IDictionary<Guid, ItemInstance>
     {

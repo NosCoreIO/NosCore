@@ -2,7 +2,7 @@
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject.Item
+namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
     public class WearableInstance : ItemInstance
     {

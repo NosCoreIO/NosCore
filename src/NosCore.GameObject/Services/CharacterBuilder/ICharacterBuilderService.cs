@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Data.AliveEntities;
+﻿using NosCore.Data.AliveEntities;
 
-namespace NosCore.GameObject.Services
+namespace NosCore.GameObject.Services.CharacterBuilder
 {
     public interface ICharacterBuilderService
     {

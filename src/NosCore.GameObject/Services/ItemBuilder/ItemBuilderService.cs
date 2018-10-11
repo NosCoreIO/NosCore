@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Mapster;
 using NosCore.Data;
-using NosCore.GameObject.Item;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject.Services
-{ 
+namespace NosCore.GameObject.Services.ItemBuilder
+{
     public class ItemBuilderService : IItemBuilderService
     {
-        private List<Item.Item> _items;
+        private readonly List<Item.Item> _items;
 
         public ItemBuilderService(List<Item.Item> items)
         {

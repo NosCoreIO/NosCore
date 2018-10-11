@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.DAL;
 using NosCore.Database;
-using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
 using OpenTK.Graphics;
