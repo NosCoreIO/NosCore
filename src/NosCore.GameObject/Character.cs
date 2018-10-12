@@ -228,7 +228,7 @@ namespace NosCore.GameObject
                 {
                     ServerManager.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new []{new FinfoPacket
+                        Packet = PacketFactory.Serialize(new[]{new FinfoPacket
                         {
                             FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
                             {
@@ -449,29 +449,6 @@ namespace NosCore.GameObject
 
         public int GetReputIco()
         {
-            if (Reput >= 5000001)
-            {
-                switch (IsReputHero())
-                {
-                    case 1:
-                        return 28;
-
-                    case 2:
-                        return 29;
-
-                    case 3:
-                        return 30;
-
-                    case 4:
-                        return 31;
-
-                    case 5:
-                        return 32;
-                    default:
-                        break;
-                }
-            }
-
             if (Reput <= 50)
             {
                 return 1;
@@ -597,7 +574,31 @@ namespace NosCore.GameObject
                 return 25;
             }
 
-            return Reput <= 5000000 ? 26 : 27;
+            if (Reput <= 5000000)
+            {
+                return 26;
+            }
+
+            if (Reput >= 5000001)
+            {
+                switch (IsReputHero())
+                {
+                    case 1:
+                        return 28;
+                    case 2:
+                        return 29;
+                    case 3:
+                        return 30;
+                    case 4:
+                        return 31;
+                    case 5:
+                        return 32;
+                    default:
+                        return 27;
+                }
+            }
+
+            return 0;
         }
 
         public void Save()

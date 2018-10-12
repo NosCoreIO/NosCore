@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NosCore.Core.Serializing
@@ -103,7 +104,7 @@ namespace NosCore.Core.Serializing
         /// <returns>The serialized string.</returns>
         public static string Serialize<TPackets>(TPackets packets) where TPackets : IEnumerable<PacketDefinition>
         {
-            string deserializedPackets = null;
+            var deserializedPackets = new StringBuilder();
             foreach (var packet in packets)
             {
                 try
@@ -111,7 +112,7 @@ namespace NosCore.Core.Serializing
                     // load pregenerated serialization information
                     var serializationInformation = GetSerializationInformation(packet.GetType());
 
-                    var deserializedPacket = serializationInformation.Key.Item2; // set header
+                    var deserializedPacket = new StringBuilder(serializationInformation.Key.Item2); // set header
 
                     var lastIndex = 0;
                     foreach (var packetBasePropertyInfo in serializationInformation.Value)
@@ -123,15 +124,15 @@ namespace NosCore.Core.Serializing
 
                             for (var i = 0; i < amountOfEmptyValuesToAdd; i++)
                             {
-                                deserializedPacket += " 0";
+                                deserializedPacket.Append(" 0");
                             }
                         }
 
                         // add value for current configuration
-                        deserializedPacket += SerializeValue(packetBasePropertyInfo.Value.PropertyType,
+                        deserializedPacket.Append(SerializeValue(packetBasePropertyInfo.Value.PropertyType,
                             packetBasePropertyInfo.Value.GetValue(packet),
                             packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(),
-                            packetBasePropertyInfo.Key);
+                            packetBasePropertyInfo.Key));
 
                         // check if the value should be serialized to end
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
@@ -144,14 +145,11 @@ namespace NosCore.Core.Serializing
                         lastIndex = packetBasePropertyInfo.Key.Index;
                     }
 
-                    if (deserializedPackets == null)
+                    if (deserializedPackets.Length != 0)
                     {
-                        deserializedPackets = deserializedPacket;
+                        deserializedPackets.Append('\uffff');
                     }
-                    else
-                    {
-                        deserializedPackets += '\uffff' + deserializedPacket;
-                    }
+                    deserializedPackets.Append(deserializedPacket);
                 }
                 catch (Exception e)
                 {
@@ -160,7 +158,7 @@ namespace NosCore.Core.Serializing
                 }
             }
 
-            return deserializedPackets;
+            return deserializedPackets.ToString();
         }
 
         private static PacketDefinition Deserialize(string packetContent, PacketDefinition deserializedPacket,

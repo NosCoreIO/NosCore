@@ -19,7 +19,7 @@ namespace NosCore.Shared.I18N
             var offset = ((Console.WindowWidth - 20) / 2) + (text.Length / 2);
             var separator = new string('=', Console.WindowWidth - 20);
             Logger.Log.Info(separator);
-            Logger.Log.Info(string.Format("{0," + (offset) + "}", text));
+            Logger.Log.Info(string.Format("{0," + offset + "}", text));
             Logger.Log.Info(separator);
         }
 

@@ -501,84 +501,42 @@ namespace NosCore.GameObject.Helper
 
         public int SpPoint(short spLevel, short upgrade)
         {
-            var point = (spLevel - 20) * 3;
-            if (spLevel <= 20)
-            {
-                point = 0;
-            }
-
+            var point = spLevel <= 20 ? 0 : (spLevel - 20) * 3;
             switch (upgrade)
             {
                 case 1:
-                    point += 5;
-                    break;
-
+                   return point +  5;
                 case 2:
-                    point += 10;
-                    break;
-
+                   return point +  10;
                 case 3:
-                    point += 15;
-                    break;
-
+                   return point +  15;
                 case 4:
-                    point += 20;
-                    break;
-
+                   return point +  20;
                 case 5:
-                    point += 28;
-                    break;
-
+                   return point +  28;
                 case 6:
-                    point += 36;
-                    break;
-
+                   return point +  36;
                 case 7:
-                    point += 46;
-                    break;
-
+                   return point +  46;
                 case 8:
-                    point += 56;
-                    break;
-
+                   return point +  56;
                 case 9:
-                    point += 68;
-                    break;
-
+                   return point +  68;
                 case 10:
-                    point += 80;
-                    break;
-
+                   return point +  80;
                 case 11:
-                    point += 95;
-                    break;
-
+                   return point +  95;
                 case 12:
-                    point += 110;
-                    break;
-
+                   return point +  110;
                 case 13:
-                    point += 128;
-                    break;
-
+                   return point +  128;
                 case 14:
-                    point += 148;
-                    break;
-
+                   return point +  148;
                 case 15:
-                    point += 173;
-                    break;
-
+                   return point +  173;
                 default:
-                    break;
+                    return upgrade > 15 ? point + 173 + 25 + (5 * (upgrade - 15)) : point;
             }
-
-            if (upgrade > 15)
-            {
-                point += 173 + 25 + (5 * (upgrade - 15));
-            }
-
-            return point;
         }
 
         internal int DarkResistance(CharacterClassType @class, byte level)
