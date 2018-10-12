@@ -48,6 +48,9 @@ namespace NosCore.Core.Networking
                         Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
                             ClientId));
                         break;
+                    default:
+                        Logger.Log.Fatal(exception.StackTrace);
+                        break;
                 }
             }
             else { Logger.Log.Fatal(exception.StackTrace); }

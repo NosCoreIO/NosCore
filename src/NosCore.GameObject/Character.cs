@@ -34,8 +34,6 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<long, CharacterRelation>();
         }
 
-        private byte _speed;
-
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
@@ -75,6 +73,8 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
 
         public short PositionY { get; set; }
+
+        private byte _speed;
 
         public byte Speed
         {
@@ -166,7 +166,7 @@ namespace NosCore.GameObject
 
         public int IsReputHero()
         {
-            const int i = 0;
+            //const int i = 0;
             //foreach (CharacterDTO characterDto in ServerManager.Instance.TopReputation)
             //{
             //    Character character = (Character)characterDto;
@@ -432,6 +432,9 @@ namespace NosCore.GameObject
                                 inv7.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = costumeInstance.Rare, UpgradeDesign = costumeInstance.Upgrade });
                             }
                             break;
+                        default:
+                            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
+                            break;
                     }
                 }
             }
@@ -464,6 +467,8 @@ namespace NosCore.GameObject
 
                     case 5:
                         return 32;
+                    default:
+                        break;
                 }
             }
 

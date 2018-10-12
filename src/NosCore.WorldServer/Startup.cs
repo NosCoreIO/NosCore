@@ -48,15 +48,7 @@ namespace NosCore.WorldServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
-
-        private static void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "WORLD SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
+        const string consoleText = "WORLD SERVER - NosCoreIO";
 
         private static WorldConfiguration InitializeConfiguration()
         {
@@ -118,10 +110,11 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            PrintHeader();
+            Console.Title = Title;
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
+            Logger.PrintHeader(consoleText);
             PacketFactory.Initialize<NoS0575Packet>();
             var configuration = InitializeConfiguration();
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
 
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {

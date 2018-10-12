@@ -47,11 +47,11 @@ namespace NosCore.Core.Networking
                 Encoding.Default, "application/json");
         }
 
-        private void AssignToken(HttpResponseMessage response, ref HttpClient client)
+        private void AssignToken(ref HttpClient client)
         {
             if (Token == null)
             {
-                response = client.PostAsync("api/token/connectserver", Content).Result;
+                HttpResponseMessage response = client.PostAsync("api/token/connectserver", Content).Result;
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -74,7 +74,7 @@ namespace NosCore.Core.Networking
             var client = new HttpClient();
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            AssignToken(response, ref client);
+            AssignToken(ref client);
             response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -94,7 +94,7 @@ namespace NosCore.Core.Networking
             var client = new HttpClient();
             var response = new HttpResponseMessage();
             client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            AssignToken(response, ref client);
+            AssignToken(ref client);
             response = client.GetAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -111,10 +111,11 @@ namespace NosCore.Core.Networking
                 return (T) MockValues[route];
             }
 
-            var client = new HttpClient();
-            var response = new HttpResponseMessage();
-            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            AssignToken(response, ref client);
+            var client = new HttpClient
+            {
+                BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
+            };
+            AssignToken(ref client);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PostAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
@@ -132,10 +133,11 @@ namespace NosCore.Core.Networking
                 return (T) MockValues[route];
             }
 
-            var client = new HttpClient();
-            var response = new HttpResponseMessage();
-            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            AssignToken(response, ref client);
+            var client = new HttpClient
+            {
+                BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
+            };
+            AssignToken(ref client);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PutAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)
@@ -153,10 +155,11 @@ namespace NosCore.Core.Networking
                 return (T) MockValues[route];
             }
 
-            var client = new HttpClient();
-            var response = new HttpResponseMessage();
-            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
-            AssignToken(response, ref client);
+            var client = new HttpClient
+            {
+                BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
+            };
+            AssignToken(ref client);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
             var postResponse = client.PatchAsync(route, content).Result;
             if (postResponse.IsSuccessStatusCode)

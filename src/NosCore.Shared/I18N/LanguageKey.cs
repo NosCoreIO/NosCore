@@ -124,6 +124,8 @@ namespace NosCore.Shared.I18N
         FRIEND_OFFLINE,
         CANT_FIND_CHARACTER,
         NPCMONSTERS_LOADED,
-        ENCODE_ERROR
+        ENCODE_ERROR,
+        UNKNOWN_PICKERTYPE,
+        POCKETTYPE_UNKNOWN
     }
 }

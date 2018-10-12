@@ -40,7 +40,6 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var builder = new ConfigurationBuilder();
             var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());

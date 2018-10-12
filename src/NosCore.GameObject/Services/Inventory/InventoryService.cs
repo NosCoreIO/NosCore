@@ -90,7 +90,6 @@ namespace NosCore.GameObject.Services.Inventory
                         var max = slotToAdd.Amount + newItem.Amount;
                         max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
                         newItem.Amount = (short)(slotToAdd.Amount + newItem.Amount - max);
-                        newItem.Amount = newItem.Amount;
                         slotToAdd.Amount = (short)max;
                         invlist.Add(slotToAdd);
                     }

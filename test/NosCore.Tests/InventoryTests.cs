@@ -14,7 +14,6 @@ namespace NosCore.Tests
     [TestClass]
     public class InventoryTests
     {
-        private List<Item> _items;
         private ItemBuilderService _itemBuilderService;
 
         private IInventoryService Inventory { get; set; }
@@ -22,16 +21,16 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            _items = new List<Item>()
+            var items = new List<Item>()
             {
-                new Item(){Type = PocketType.Main, VNum = 1012,  },
-                new Item(){Type = PocketType.Main, VNum = 1013,  },
-                new Item(){Type = PocketType.Equipment, VNum = 1, ItemType  = ItemType.Weapon },
-                new Item(){Type = PocketType.Equipment, VNum = 912, ItemType  = ItemType.Specialist },
-                new Item(){Type = PocketType.Equipment, VNum = 924, ItemType  = ItemType.Fashion }
+                new Item{Type = PocketType.Main, VNum = 1012,  },
+                new Item{Type = PocketType.Main, VNum = 1013,  },
+                new Item{Type = PocketType.Equipment, VNum = 1, ItemType  = ItemType.Weapon },
+                new Item{Type = PocketType.Equipment, VNum = 912, ItemType  = ItemType.Specialist },
+                new Item{Type = PocketType.Equipment, VNum = 924, ItemType  = ItemType.Fashion }
             };
-            _itemBuilderService = new ItemBuilderService(_items);
-            Inventory = new InventoryService(_items, new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999 });
+            _itemBuilderService = new ItemBuilderService(items);
+            Inventory = new InventoryService(items, new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999 });
         }
 
         #region AddItemToPocket
@@ -97,7 +96,7 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
-        public void CreateDoesntStackOnWrontItem()
+        public void CreateDoesntStackOnWrongItem()
         {
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             Inventory.AddItemToPocket(_itemBuilderService.Create(1013, 0, 990));

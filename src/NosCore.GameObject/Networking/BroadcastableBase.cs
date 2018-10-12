@@ -119,6 +119,8 @@ namespace NosCore.GameObject.Networking
                 case ReceiverType.All:
                     Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session => session.Value.SendPacket(sentPacket.Packet));
                     break;
+                default:
+                    return;
             }
         }
     }
