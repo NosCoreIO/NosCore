@@ -13,9 +13,9 @@ namespace NosCore.Packets.CommandPackets
         public string TeleportArgument { get; set; }
 
         [PacketIndex(1)]
-        public short MapX { get; set; }
+        public short? MapX { get; set; }
 
         [PacketIndex(2)]
-        public short MapY { get; set; }
+        public short? MapY { get; set; }
     }
 }
