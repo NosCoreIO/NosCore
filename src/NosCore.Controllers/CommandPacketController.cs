@@ -44,6 +44,34 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Teleport(TeleportPacket teleportPacket)
+        {
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == teleportPacket.TeleportArgument);
+
+            if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
+            {
+                if (session == null)
+                {
+                    Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                    return;
+                }
+
+                Session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
+                return;
+            }
+
+            var mapInstance = _mapInstanceAccessService.MapInstances.Values.FirstOrDefault(s => s.Map.MapId == mapId);
+
+            if (mapInstance == null)
+            {
+                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
+                return;
+            }
+
+            Session.ChangeMap(mapId, teleportPacket.MapX, teleportPacket.MapY);
+        }
+
+        [UsedImplicitly]
         public void Gold(GoldCommandPacket goldPacket)
         {
             if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
