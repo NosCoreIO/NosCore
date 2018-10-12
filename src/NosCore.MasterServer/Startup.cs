@@ -33,15 +33,7 @@ namespace NosCore.MasterServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
-
-        private void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "MASTER SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
+        const string consoleText = "MASTER SERVER - NosCoreIO";
 
         private MasterConfiguration InitializeConfiguration()
         {
@@ -65,7 +57,9 @@ namespace NosCore.MasterServer
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            PrintHeader();
+            Console.Title = Title;
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
+            Logger.PrintHeader(consoleText);
             var configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
@@ -102,7 +96,6 @@ namespace NosCore.MasterServer
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>().As<WebApiConfiguration>();
             var container = containerBuilder.Build();
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);

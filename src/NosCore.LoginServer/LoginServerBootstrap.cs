@@ -24,15 +24,7 @@ namespace NosCore.LoginServer
     {
         private const string ConfigurationPath = @"../../../configuration";
         private const string Title = "NosCore - LoginServer";
-
-        private static void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "LOGIN SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
+        const string consoleText = "LOGIN SERVER - NosCoreIO";
 
         private static LoginConfiguration InitializeConfiguration()
         {
@@ -61,8 +53,9 @@ namespace NosCore.LoginServer
 
         public static void Main()
         {
-            PrintHeader();
+            Console.Title = Title;
             InitializeLogger();
+            Logger.PrintHeader(consoleText);
             InitializePackets();
             var container = InitializeContainer();
             var loginServer = container.Resolve<LoginServer>();

@@ -21,6 +21,7 @@ namespace NosCore.PathFinder.Gui
         private const string Title = "NosCore - Pathfinder GUI";
         private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
         private static GuiWindow _guiWindow;
+        const string consoleText = "PATHFINDER GUI - NosCoreIO";
 
         private static void InitializeConfiguration()
         {
@@ -38,19 +39,11 @@ namespace NosCore.PathFinder.Gui
             Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
         }
 
-        private static void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "PATHFINDER GUI - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
-
         public static void Main()
         {
-            PrintHeader();
+            Console.Title = Title;
             InitializeLogger();
+            Logger.PrintHeader(consoleText);
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
@@ -69,7 +62,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

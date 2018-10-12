@@ -90,8 +90,11 @@ namespace NosCore.Controllers
                         break;
 
                     case PickerType.Mate:
+                        return;
 
-                        break;
+                    default:
+                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
+                        return;
                 }
 
                 if (!canpick)
@@ -247,6 +250,8 @@ namespace NosCore.Controllers
                     var item = Session.Character.Inventory.DeleteFromTypeAndSlot(bIPacket.PocketType, bIPacket.Slot);
                     Session.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
+                default:
+                    return;
             }
         }
     }

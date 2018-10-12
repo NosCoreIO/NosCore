@@ -568,6 +568,9 @@ namespace NosCore.GameObject.Helper
                 case 15:
                     point += 173;
                     break;
+
+                default:
+                    break;
             }
 
             if (upgrade > 15)
