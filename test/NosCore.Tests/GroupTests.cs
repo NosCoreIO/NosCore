@@ -44,7 +44,7 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity.VisualType, _entity);
+            _group.JoinGroup(_entity);
 
             Assert.IsFalse(_group.IsEmpty);
         }
@@ -61,11 +61,11 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity.VisualType, _entity);
+            _group.JoinGroup(_entity);
 
             Assert.IsFalse(_group.IsEmpty);
 
-            _group.LeaveGroup(_entity.VisualType, _entity);
+            _group.LeaveGroup(_entity);
 
             Assert.IsTrue(_group.IsEmpty);
         }
@@ -78,7 +78,7 @@ namespace NosCore.Tests
                 Name = "test"
             };
 
-            _group.JoinGroup(_entity.VisualType, _entity);
+            _group.JoinGroup(_entity);
 
             Assert.IsTrue(!_group.IsEmpty);
         }
