@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -22,19 +23,19 @@ namespace NosCore.Tests
         [DataRow(RegionType.TR)]
         public void CheckEveryLanguageValueSet(RegionType type)
         {
-            var unfound = string.Empty;
+            var unfound = new StringBuilder();
             foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
             {
                 var value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
                 if (value == $"#<{val.ToString()}>")
                 {
-                    unfound += $"\nvalue {value} not defined";
+                    unfound.Append($"\nvalue {value} not defined");
                 }
             }
 
-            if (!string.IsNullOrEmpty(unfound))
+            if (unfound.Length != 0)
             {
-                Assert.Fail(unfound);
+                Assert.Fail(unfound.ToString());
             }
         }
 

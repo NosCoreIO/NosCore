@@ -30,7 +30,7 @@ namespace NosCore.Tests
                 new Item{Type = PocketType.Equipment, VNum = 924, ItemType  = ItemType.Fashion }
             };
             _itemBuilderService = new ItemBuilderService(items);
-            Inventory = new InventoryService(items, new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999 });
+            Inventory = new InventoryService(items, new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 });
         }
 
         #region AddItemToPocket
