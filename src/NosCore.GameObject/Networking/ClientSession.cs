@@ -112,8 +112,8 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             ServerManager.Instance.UnregisterSession(this);
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
 

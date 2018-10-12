@@ -64,24 +64,14 @@ namespace NosCore.GameObject
             return Count > 0 && leader?.Item2.VisualId == visualId;
         }
 
-        public void JoinGroup(VisualType visualType, INamedEntity namedEntity)
+        public void JoinGroup(INamedEntity namedEntity)
         {
-            TryAdd(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
+            TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
-        public void LeaveGroup(VisualType visualType, INamedEntity namedEntity)
+        public void LeaveGroup(INamedEntity namedEntity)
         {
-            TryRemove(new Tuple<VisualType, long>(visualType, namedEntity.VisualId), out _);
-        }
-
-        public int CountEntitiesByType(VisualType visualType = VisualType.Player)
-        {
-            return Keys.Count(s => s.Item1 == visualType);
-        }
-
-        public bool IsEmptyByType(VisualType visualType = VisualType.Player)
-        {
-            return Keys.All(s => s.Item1 != visualType);
+            TryRemove(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), out _);
         }
     }
 }

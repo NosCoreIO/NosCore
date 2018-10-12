@@ -162,18 +162,26 @@ namespace NosCore.GameObject
         public void JoinGroup(Group group)
         {
             Group = group;
-            group.JoinGroup(VisualType, this);
+            group.JoinGroup(this);
         }
 
         public void LeaveGroup()
         {
+            Group.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
             {
                 var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
 
+                if (Group.Count == 1)
+                {
+                    groupMember?.Character.LeaveGroup();
+                    groupMember?.SendPacket(Group.GeneratePidx(groupMember.Character));
+                    groupMember?.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, groupMember.Account.Language), Type = MessageType.Whisper });
+                }
+
+
                 groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
             }
-            Group.LeaveGroup(VisualType, this);
             Group = new Group(GroupType.Group);
         }
 
