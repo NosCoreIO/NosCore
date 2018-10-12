@@ -489,12 +489,34 @@ namespace NosCore.Core.Serializing
             return resultListPacket;
         }
 
+        //TODO move this to a proper extension and extend for other char
+        private static StringBuilder TrimEndWhiteSpace(this StringBuilder sb)
+        {
+            if (sb == null || sb.Length == 0) { return sb; }
+
+            var i = sb.Length - 1;
+            for (; i >= 0; i--)
+            {
+                if (!char.IsWhiteSpace(sb[i]))
+                {
+                    break;
+                }
+            }
+
+            if (i < sb.Length - 1)
+            {
+                sb.Length = i + 1;
+            }
+
+            return sb;
+        }
+
         private static string SerializeSubpacket(object value,
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
                 subpacketSerializationInfo, bool isReturnPacket,
             bool shouldRemoveSeparator, string specialSeparator)
         {
-            var serializedSubpacket = isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ";
+            var serializedSubpacket = new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
 
             // iterate thru configure subpacket properties
             foreach (var subpacketPropertyInfo in subpacketSerializationInfo.Value)
@@ -502,8 +524,8 @@ namespace NosCore.Core.Serializing
                 // first element
                 if (subpacketPropertyInfo.Key.Index != 0)
                 {
-                    serializedSubpacket += isReturnPacket ? "^" : shouldRemoveSeparator ? " "
-                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator);
+                    serializedSubpacket.Append(isReturnPacket ? "^" : shouldRemoveSeparator ? " "
+                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
                 }
 
                 if (typeof(PacketDefinition).IsAssignableFrom(subpacketPropertyInfo.Value.PropertyType))
@@ -511,18 +533,18 @@ namespace NosCore.Core.Serializing
                     var subpacketSerializationInfo2 =
                         GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
-                    serializedSubpacket = serializedSubpacket.TrimEnd(' ');
-                    serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
-                        subpacketPropertyInfo.Key.RemoveSeparator, specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator);
+                    serializedSubpacket = serializedSubpacket.TrimEndWhiteSpace();
+                    serializedSubpacket.Append(SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
+                        subpacketPropertyInfo.Key.RemoveSeparator, specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator));
                     continue;
                 }
 
-                serializedSubpacket += SerializeValue(subpacketPropertyInfo.Value.PropertyType,
+                serializedSubpacket.Append(SerializeValue(subpacketPropertyInfo.Value.PropertyType,
                     subpacketPropertyInfo.Value.GetValue(value),
-                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", "");
+                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
             }
 
-            return serializedSubpacket;
+            return serializedSubpacket.ToString();
         }
 
         private static string SerializeSubpackets(IList listValues, Type packetBasePropertyType,
