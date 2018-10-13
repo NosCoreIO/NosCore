@@ -8,5 +8,10 @@ namespace NosCore.Packets.CommandPackets
     {
         [PacketIndex(0)]
         public long Gold { get; set; }
+
+        public string Help()
+        {
+            return "$Gold value";
+        }
     }
 }
