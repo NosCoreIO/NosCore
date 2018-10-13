@@ -47,7 +47,7 @@ namespace NosCore.Controllers
                 VisualId = 0,
                 Type = SayColorType.Yellow,
                 Message =
-                    $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}){shoutPacket.Message}"
+                    $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}"
             };
 
             var msgPacket = new MsgPacket

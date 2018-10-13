@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -360,10 +360,9 @@ namespace NosCore.Controllers
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == Session.Character.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                     {
-                        receiverSession.SendPacket(new SayPacket
+                        Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
-                            Type = SayColorType.Yellow
                         });
                         return;
                     }
@@ -433,6 +432,12 @@ namespace NosCore.Controllers
         /// <param name="btkPacket"></param>
         public void FriendTalk(BtkPacket btkPacket)
         {
+            if (!Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            {
+                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND, Session.Account.Language));
+                return;
+            }
+
             var message = btkPacket.Message;
             if (message.Length > 60)
             {
@@ -546,6 +551,11 @@ namespace NosCore.Controllers
 
             if (!targetSession.Character.FriendRequestCharacters.Values.Contains(Session.Character.CharacterId))
             {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT, Session.Account.Language)
+                });
+
                 targetSession.SendPacket(new DlgPacket
                 {
                     Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language), Session.Character.Name),
@@ -603,6 +613,15 @@ namespace NosCore.Controllers
                 return;
             }
 
+            if (Session.Character.CharacterRelations.Values.Any(s => s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED, Session.Account.Language)
+                });
+                return;
+            }
+
             Session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
             Session.SendPacket(new InfoPacket
             {
@@ -634,7 +653,7 @@ namespace NosCore.Controllers
         /// <param name="flPacket"></param>
         public void AddDistantFriend(FlPacket flPacket)
         {
-            ClientSession target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
+            var target = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
 
             if (target == null)
             {
