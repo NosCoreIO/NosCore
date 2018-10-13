@@ -44,7 +44,7 @@ namespace NosCore.Controllers
         {
             if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
             {
-                Session.SendPacket(Session.Character.GenerateSay(GoldCommandPacket.Help(), SayColorType.White));
+                Session.SendPacket(Session.Character.GenerateSay(goldPacket.Help(), SayColorType.White));
                 return;
             }
             Session.Character.Gold += goldPacket.Gold;
