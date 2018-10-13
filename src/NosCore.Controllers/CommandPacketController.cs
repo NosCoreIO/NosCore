@@ -39,6 +39,17 @@ namespace NosCore.Controllers
         {
         }
 
+        [UsedImplicitly]
+        public void Gold(GoldCommandPacket goldPacket)
+        {
+            if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            {
+                return;
+            }
+            Session.Character.Gold += goldPacket.Gold;
+            Session.SendPacket(Session.Character.GenerateGold());
+        }
+
         public void Shout(ShoutPacket shoutPacket)
         {
             var sayPacket = new SayPacket
