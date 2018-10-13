@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20181013221253_Aphrodite4")]
+    partial class Aphrodite4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -308,26 +310,6 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("QuestId");
 
                     b.ToTable("CharacterQuest");
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.CharacterRelation", b =>
-                {
-                    b.Property<Guid>("CharacterRelationId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<long>("CharacterId");
-
-                    b.Property<long>("RelatedCharacterId");
-
-                    b.Property<short>("RelationType");
-
-                    b.HasKey("CharacterRelationId");
-
-                    b.HasIndex("CharacterId");
-
-                    b.HasIndex("RelatedCharacterId");
-
-                    b.ToTable("CharacterRelation");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterSkill", b =>
@@ -1973,19 +1955,6 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Quest", "Quest")
                         .WithMany("CharacterQuest")
                         .HasForeignKey("QuestId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.CharacterRelation", b =>
-                {
-                    b.HasOne("NosCore.Database.Entities.Character", "Character1")
-                        .WithMany("CharacterRelation1")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("NosCore.Database.Entities.Character", "Character2")
-                        .WithMany("CharacterRelation2")
-                        .HasForeignKey("RelatedCharacterId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
