@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
@@ -317,7 +318,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                GameObject.Character character = _characterBuilderService.LoadCharacter(characterDto);
+                var character = _characterBuilderService.LoadCharacter(characterDto);
 
                 character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
@@ -342,19 +343,19 @@ namespace NosCore.Controllers
                     Session.Character.Mp = (int)Session.Character.MPLoad();
                 }
 
-                IEnumerable<CharacterRelation> relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
-                IEnumerable<CharacterRelation> relationsWithCharacter = DAOFactory.CharacterRelationDAO.Where(s => s.RelatedCharacterId == Session.Character.CharacterId).Cast<CharacterRelation>();
+                var relations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId);
+                var relationsWithCharacter = DAOFactory.CharacterRelationDAO.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
 
-                List<CharacterDTO> characters = DAOFactory.CharacterDAO.Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-                List<CharacterDTO> relatedCharacters = DAOFactory.CharacterDAO.Where(s => relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+                var characters = DAOFactory.CharacterDAO.Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
+                var relatedCharacters = DAOFactory.CharacterDAO.Where(s => relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
-                foreach (CharacterRelation relation in relations)
+                foreach (var relation in relations.Adapt<IEnumerable<CharacterRelation>>())
                 {
                     relation.CharacterName = characters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
                 }
 
-                foreach (CharacterRelation relation in relationsWithCharacter)
+                foreach (var relation in relationsWithCharacter.Adapt<IEnumerable<CharacterRelation>>())
                 {
                     relation.CharacterName = relatedCharacters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;

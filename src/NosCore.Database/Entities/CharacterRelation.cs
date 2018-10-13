@@ -1,4 +1,5 @@
-﻿using NosCore.Shared.Enumerations.Character;
+﻿using System;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Database.Entities
 {
@@ -12,7 +13,7 @@ namespace NosCore.Database.Entities
 
         public long CharacterId { get; set; }
 
-        public long CharacterRelationId { get; set; }
+        public Guid CharacterRelationId { get; set; }
 
         public long RelatedCharacterId { get; set; }
 

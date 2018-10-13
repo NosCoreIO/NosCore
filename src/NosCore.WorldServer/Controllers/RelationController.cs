@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.GameObject.Networking;
@@ -12,7 +13,7 @@ namespace NosCore.WorldServer.Controllers
     {
         // DELETE api/relation
         [HttpDelete]
-        public IActionResult DeleteRelation(long id)
+        public IActionResult DeleteRelation(Guid id)
         {
             if (!ModelState.IsValid)
             {
