@@ -4,12 +4,12 @@ using NosCore.Shared.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [PacketHeader("$Gold", Authority = AuthorityType.GameMaster)]
-    public class GoldCommandPacket : PacketDefinition
+    public class GoldCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
         public long Gold { get; set; }
 
-        public static string Help()
+        public string Help()
         {
             return "$Gold value";
         }
