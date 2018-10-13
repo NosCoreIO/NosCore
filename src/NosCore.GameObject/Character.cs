@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,17 +30,17 @@ namespace NosCore.GameObject
         public Character()
         {
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
-            CharacterRelations = new ConcurrentDictionary<long, CharacterRelation>();
-            RelationWithCharacter = new ConcurrentDictionary<long, CharacterRelation>();
+            CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
+            RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
         }
 
         public AccountDTO Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelation> CharacterRelations { get; set; }
+        public ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelation> RelationWithCharacter { get; set; }
+        public ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; set; }
 
         public bool IsFriendListFull
         {
@@ -315,7 +315,8 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType,
-                CharacterName = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name
+                CharacterName = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name,
+                CharacterRelationId = Guid.NewGuid()
             };
 
             CharacterRelations[relation.CharacterRelationId] = relation;

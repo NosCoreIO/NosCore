@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Data
@@ -6,7 +7,7 @@ namespace NosCore.Data
     public class CharacterRelationDTO : IDTO
     {
         [Key]
-        public long CharacterRelationId { get; set; }
+        public Guid CharacterRelationId { get; set; }
 
         public long CharacterId { get; set; }
 
