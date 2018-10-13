@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -107,12 +108,14 @@ namespace NosCore.Controllers
                 {
                     Name = Session.Character.Name,
                     Id = Session.Character.CharacterId
-                }
+                },
+                ReceiverType = ReceiverType.All
             };
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { msgPacket })
+                Packet = PacketFactory.Serialize(new[] { msgPacket }),
+                ReceiverType = ReceiverType.All
             };
 
             ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
