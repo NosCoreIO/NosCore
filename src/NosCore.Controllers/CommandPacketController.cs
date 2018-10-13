@@ -86,7 +86,7 @@ namespace NosCore.Controllers
 
         public void Shout(ShoutPacket shoutPacket)
         {
-            var message = $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}){shoutPacket.Message}";
+            var message = $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
             var sayPacket = new SayPacket
             {
                 VisualType = VisualType.Player,
