@@ -65,7 +65,7 @@ namespace NosCore.GameObject
         public bool IsGroupLeader(long visualId)
         {
             var leader = Values.OrderBy(s => s.Item1).FirstOrDefault(s => s.Item2.VisualType == VisualType.Player);
-            return Count > 0 && leader?.Item2.VisualId == visualId;
+            return Count > 1 && leader?.Item2.VisualId == visualId;
         }
 
         public void JoinGroup(INamedEntity namedEntity)
