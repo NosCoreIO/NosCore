@@ -183,6 +183,7 @@ namespace NosCore.GameObject
                 groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
             }
             Group = new Group(GroupType.Group);
+            Group.JoinGroup(this);
         }
 
         public FdPacket GenerateFd()
