@@ -1,5 +1,6 @@
 ﻿using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Account;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.CommandPackets
 {
@@ -7,6 +8,7 @@ namespace NosCore.Packets.CommandPackets
     public class GoldCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
+        [Range(1, 1000000000)]
         public long Gold { get; set; }
 
         public string Help()
