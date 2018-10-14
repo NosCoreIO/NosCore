@@ -42,7 +42,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Gold(GoldCommandPacket goldPacket)
         {
-            if (goldPacket.Gold <= 0 || goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
             {
                 Session.SendPacket(Session.Character.GenerateSay(goldPacket.Help(), SayColorType.Yellow));
                 return;
