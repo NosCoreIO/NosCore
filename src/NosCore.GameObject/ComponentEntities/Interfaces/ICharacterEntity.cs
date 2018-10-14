@@ -3,7 +3,7 @@ using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface ICharacterEntity : INamedEntity
+    public interface ICharacterEntity : INamedEntity, IExperiencedEntity
     {
         AuthorityType Authority { get; }
 
