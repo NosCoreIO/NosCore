@@ -325,6 +325,7 @@ namespace NosCore.Controllers
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
+                character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();

@@ -197,7 +197,7 @@ namespace NosCore.GameObject.Networking
                 SendPacket(Character.Group.GeneratePinit());
                 SendPackets(Character.Group.GeneratePst());
 
-                if (Character.Group.Type == GroupType.Group && !Character.Group.IsEmpty)
+                if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
                     Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
                 }

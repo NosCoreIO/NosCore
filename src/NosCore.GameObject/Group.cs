@@ -27,14 +27,18 @@ namespace NosCore.GameObject
 
         public bool IsGroupFull => Count == (long)Type;
 
+        public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Monster) == 0;
+
+        public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
+
         public PinitPacket GeneratePinit()
         {
             var i = 0;
 
             return new PinitPacket
             {
-                GroupSize = Count,
-                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(++i)).ToList()
+                GroupSize = Count == 1 ? 0 : Count,
+                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList()
             };
         }
 

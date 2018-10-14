@@ -56,7 +56,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (!targetSession.Character.Group.IsEmpty && !Session.Character.Group.IsEmpty)
+                    if (targetSession.Character.Group.Count > 1 && Session.Character.Group.Count > 1)
                     {
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP, Session.Account.Language) });
                         return;
@@ -76,9 +76,9 @@ namespace NosCore.Controllers
 
                     Session.Character.GroupRequestCharacterIds.Add(pjoinPacket.CharacterId);
 
-                    if (Session.Character.Group.IsEmpty || Session.Character.Group.Type == GroupType.Group)
+                    if (Session.Character.Group.Count == 1 || Session.Character.Group.Type == GroupType.Group)
                     {
-                        if (targetSession.Character.Group.IsEmpty || targetSession.Character?.Group.Type == GroupType.Group)
+                        if (targetSession.Character.Group.Count == 1 || targetSession.Character?.Group.Type == GroupType.Group)
                         {
                             Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE, Session.Account.Language) });
                             targetSession.SendPacket(new DlgPacket
@@ -93,7 +93,7 @@ namespace NosCore.Controllers
                     break;
                 case GroupRequestType.Sharing:
 
-                    if (Session.Character.Group.IsEmpty)
+                    if (Session.Character.Group.Count == 1)
                     {
                         return;
                     }
@@ -128,7 +128,7 @@ namespace NosCore.Controllers
 
                     targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
 
-                    if (!Session.Character.Group.IsEmpty && !targetSession.Character.Group.IsEmpty)
+                    if (Session.Character.Group.Count > 1 && targetSession.Character.Group.Count > 1)
                     {
                         return;
                     }
@@ -141,12 +141,12 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (!Session.Character.Group.IsEmpty)
+                    if (Session.Character.Group.Count > 1)
                     {
                         targetSession.Character.JoinGroup(Session.Character.Group);
                         targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, targetSession.Account.Language) });
                     }
-                    else if (!targetSession.Character.Group.IsEmpty)
+                    else if (targetSession.Character.Group.Count > 1)
                     {
                         if (targetSession.Character.Group.Type == GroupType.Group)
                         {
@@ -156,7 +156,6 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Group.GroupId = ServerManager.Instance.GetNextGroupId();
-                        Session.Character.JoinGroup(Session.Character.Group);
                         targetSession.Character.JoinGroup(Session.Character.Group);
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language) });
 
@@ -200,7 +199,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (Session.Character.Group.IsEmpty)
+                    if (Session.Character.Group.Count == 1)
                     {
                         return;
                     }
@@ -226,7 +225,7 @@ namespace NosCore.Controllers
         {
             var group = Session.Character.Group;
 
-            if (group.IsEmpty)
+            if (group.Count == 1)
             {
                 return;
             }
@@ -293,7 +292,7 @@ namespace NosCore.Controllers
 
         public void GroupTalk(GroupTalkPacket groupTalkPacket)
         {
-            if (Session.Character.Group.IsEmpty)
+            if (Session.Character.Group.Count == 1)
             {
                 return;
             }

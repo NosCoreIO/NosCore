@@ -46,7 +46,7 @@ namespace NosCore.Tests
 
             _group.JoinGroup(_entity);
 
-            Assert.IsFalse(_group.IsEmpty);
+            Assert.IsFalse(_group.Count == 2);
         }
 
         [TestMethod]
@@ -63,11 +63,11 @@ namespace NosCore.Tests
 
             _group.JoinGroup(_entity);
 
-            Assert.IsFalse(_group.IsEmpty);
+            Assert.IsFalse(_group.Count == 2);
 
             _group.LeaveGroup(_entity);
 
-            Assert.IsTrue(_group.IsEmpty);
+            Assert.IsTrue(_group.Count == 0);
         }
 
         [TestMethod]

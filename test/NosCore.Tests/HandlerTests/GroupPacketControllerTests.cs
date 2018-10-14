@@ -77,15 +77,18 @@ namespace NosCore.Tests.HandlerTests
                     State = CharacterState.Active
                 });
 
-                var chara = characterList.ElementAt(i);
+                var charaDto = characterList.ElementAt(i);
 
-                DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
+                DAOFactory.CharacterDAO.InsertOrUpdate(ref charaDto);
                 session.InitializeAccount(acc);
                 _handlers.Add(new GroupPacketController());
                 var handler = _handlers.ElementAt(i);
                 handler.RegisterSession(session);
 
-                session.SetCharacter(chara.Adapt<Character>());
+                var chara = charaDto.Adapt<Character>();
+
+                chara.Group.JoinGroup(chara);
+                session.SetCharacter(chara);
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
             }
         }
@@ -102,7 +105,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(!ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && !ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.Count > 1 && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.Count > 1 && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
         }
 
         [TestMethod]
@@ -110,7 +113,7 @@ namespace NosCore.Tests.HandlerTests
         {
             PjoinPacket pjoinPacket;
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 1; i < 3; i++)
             {
                 ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
@@ -134,13 +137,13 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(3).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(3).Character.Group.Count == 1);
         }
 
         [TestMethod]
         public void Test_Leave_Group()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 1; i < 3; i++)
             {
                 ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
@@ -157,13 +160,13 @@ namespace NosCore.Tests.HandlerTests
 
             _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.Count == 1);
         }
 
         [TestMethod]
         public void Test_Leader_Change()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 1; i < 3; i++)
             {
                 ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
@@ -186,7 +189,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Leaveing_Two_Person_Group()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 1; i < 3; i++)
             {
                 ServerManager.Instance.Sessions.Values.ElementAt(i).Character.GroupRequestCharacterIds.Add(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.CharacterId);
 
@@ -218,7 +221,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.Count == 1 && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.Count == 1);
         }
 
         [TestMethod]
@@ -233,11 +236,11 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(!ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && !ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.Count > 1 && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.Count > 1 && ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.GroupId == ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.GroupId);
 
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
 
-            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.IsEmpty && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.IsEmpty);
+            Assert.IsTrue(ServerManager.Instance.Sessions.Values.ElementAt(0).Character.Group.Count == 1 && ServerManager.Instance.Sessions.Values.ElementAt(1).Character.Group.Count == 1);
         }
     }
 }
