@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Threading.Tasks;
 using DotNetty.Transport.Bootstrapping;
@@ -31,7 +32,8 @@ namespace NosCore.GameObject.Networking
         private readonly GameServerConfiguration _configuration;
         private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
 
-        public NetworkManager(GameServerConfiguration configuration, Func<ISocketChannel, PipelineFactory> pipelineFactory)
+        public NetworkManager(GameServerConfiguration configuration,
+            Func<ISocketChannel, PipelineFactory> pipelineFactory)
         {
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
@@ -48,7 +50,8 @@ namespace NosCore.GameObject.Networking
                 bootstrap
                     .Group(bossGroup, workerGroup)
                     .Channel<TcpServerSocketChannel>()
-                    .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel => _pipelineFactory(channel).CreatePipeline()));
+                    .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
+                        _pipelineFactory(channel).CreatePipeline()));
 
                 var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port);
 

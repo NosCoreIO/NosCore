@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using Autofac;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
@@ -167,6 +168,7 @@ namespace NosCore.Core.Serializing
                     {
                         deserializedPackets.Append('\uffff');
                     }
+
                     deserializedPackets.Append(deserializedPacket);
                 }
                 catch (Exception e)
@@ -233,7 +235,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            var subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
+            var subpackets = (IList) Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (var currentValue in splittedValues)
@@ -275,7 +277,7 @@ namespace NosCore.Core.Serializing
             var splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
             var subpackets =
-                (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
+                (IList) Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             var subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
@@ -415,7 +417,8 @@ namespace NosCore.Core.Serializing
                     return Enum.Parse(packetPropertyType.GenericTypeArguments[0], currentValue);
                 }
 
-                return TypeDescriptor.GetConverter(packetPropertyType.GenericTypeArguments[0]).ConvertFromInvariantString(currentValue);
+                return TypeDescriptor.GetConverter(packetPropertyType.GenericTypeArguments[0])
+                    .ConvertFromInvariantString(currentValue);
             }
 
             if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)
@@ -510,7 +513,10 @@ namespace NosCore.Core.Serializing
         //TODO move this to a proper extension and extend for other char
         private static StringBuilder TrimEndWhiteSpace(this StringBuilder sb)
         {
-            if (sb == null || sb.Length == 0) { return sb; }
+            if (sb == null || sb.Length == 0)
+            {
+                return sb;
+            }
 
             var i = sb.Length - 1;
             for (; i >= 0; i--)
@@ -534,7 +540,8 @@ namespace NosCore.Core.Serializing
                 subpacketSerializationInfo, bool isReturnPacket,
             bool shouldRemoveSeparator, string specialSeparator)
         {
-            var serializedSubpacket = new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
+            var serializedSubpacket =
+                new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
 
             // iterate thru configure subpacket properties
             foreach (var subpacketPropertyInfo in subpacketSerializationInfo.Value)
@@ -553,7 +560,8 @@ namespace NosCore.Core.Serializing
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
                     serializedSubpacket = serializedSubpacket.TrimEndWhiteSpace();
                     serializedSubpacket.Append(SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
-                        subpacketPropertyInfo.Key.RemoveSeparator, specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator));
+                        subpacketPropertyInfo.Key.RemoveSeparator,
+                        specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator));
                     continue;
                 }
 
@@ -624,28 +632,30 @@ namespace NosCore.Core.Serializing
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
+                    packetIndexAttribute?.SpecialSeparator);
             }
 
             if (value is PacketDefinition)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(value.GetType());
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
+                    packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList)value, propertyType,
+                return SerializeSubpackets((IList) value, propertyType,
                     packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
             {
-                return SerializeSimpleList((IList)value, propertyType);
+                return SerializeSimpleList((IList) value, propertyType);
             }
 
             return $" {value}";

@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -149,7 +150,7 @@ namespace NosCore.Controllers
                         }
 
                         var channelcolor =
-                            (int)Math.Round((double)connectedAccount[i].Count / server.connectedAccountLimit * 20)
+                            (int) Math.Round((double) connectedAccount[i].Count / server.connectedAccountLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {

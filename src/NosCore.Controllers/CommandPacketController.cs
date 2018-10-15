@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -49,7 +50,8 @@ namespace NosCore.Controllers
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
+            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
@@ -65,13 +67,16 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Teleport(TeleportPacket teleportPacket)
         {
-            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == teleportPacket.TeleportArgument);
+            var session =
+                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                    s.Character.Name == teleportPacket.TeleportArgument);
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
                 if (session == null)
                 {
-                    Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                    Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                        Session.Account.Language));
                     return;
                 }
 
@@ -83,7 +88,8 @@ namespace NosCore.Controllers
 
             if (mapInstance == null)
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
+                Logger.Log.Error(
+                    Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
                 return;
             }
 
@@ -98,13 +104,15 @@ namespace NosCore.Controllers
                 Session.SendPacket(Session.Character.GenerateSay(goldPacket.Help(), SayColorType.Yellow));
                 return;
             }
+
             Session.Character.Gold += goldPacket.Gold;
             Session.SendPacket(Session.Character.GenerateGold());
         }
 
         public void Shout(ShoutPacket shoutPacket)
         {
-            var message = $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
+            var message =
+                $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
             var sayPacket = new SayPacket
             {
                 VisualType = VisualType.Player,
@@ -121,7 +129,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { sayPacket }),
+                Packet = PacketFactory.Serialize(new[] {sayPacket}),
                 SenderCharacter = new Data.WebApi.Character()
                 {
                     Name = Session.Character.Name,
@@ -132,11 +140,11 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { msgPacket }),
+                Packet = PacketFactory.Serialize(new[] {msgPacket}),
                 ReceiverType = ReceiverType.All
             };
 
-            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
         }
 
         [UsedImplicitly]
@@ -153,6 +161,7 @@ namespace NosCore.Controllers
                 {
                     return; // cannot create gold as item, use $Gold instead
                 }
+
                 var iteminfo = _items.Find(item => item.VNum == vnum);
                 if (iteminfo != null)
                 {
@@ -160,9 +169,11 @@ namespace NosCore.Controllers
                     {
                         if (createItemPacket.DesignOrAmount.HasValue)
                         {
-                            design = (byte)createItemPacket.DesignOrAmount.Value;
+                            design = (byte) createItemPacket.DesignOrAmount.Value;
                         }
-                        rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect ? (sbyte)createItemPacket.Upgrade.Value : rare;
+
+                        rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect
+                            ? (sbyte) createItemPacket.Upgrade.Value : rare;
                     }
                     else if (iteminfo.Type == PocketType.Equipment)
                     {
@@ -176,35 +187,43 @@ namespace NosCore.Controllers
                             {
                                 design = createItemPacket.Upgrade.Value;
                             }
-                            if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0 && iteminfo.BasicUpgrade != 0)
+
+                            if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0 &&
+                                iteminfo.BasicUpgrade != 0)
                             {
                                 upgrade = iteminfo.BasicUpgrade;
                             }
                         }
+
                         if (createItemPacket.DesignOrAmount.HasValue)
                         {
                             if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                             {
-                                upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                                upgrade = (byte) createItemPacket.DesignOrAmount.Value;
                             }
                             else
                             {
-                                rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                                rare = (sbyte) createItemPacket.DesignOrAmount.Value;
                             }
                         }
                     }
+
                     if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
                     {
-                        amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
+                        amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount
+                            ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
                     }
 
-                    var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum, Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                    var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum,
+                        Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
                     if (inv.Count > 0)
                     {
                         Session.SendPacket(inv.GeneratePocketChange());
                         var firstItem = inv[0];
-                        var wearable = Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot, firstItem.Type);
+                        var wearable =
+                            Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
+                                firstItem.Type);
                         if (wearable != null)
                         {
                             switch (wearable.Item.EquipmentSlot)
@@ -217,24 +236,35 @@ namespace NosCore.Controllers
 
                                 case EquipmentType.Boots:
                                 case EquipmentType.Gloves:
-                                    wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
-                                    wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
-                                    wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
-                                    wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                                    wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
+                                    wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
+                                    wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
+                                    wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
                                     break;
                             }
                         }
 
-                        Session.SendPacket(Session.Character.GenerateSay($"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}", SayColorType.Green));
+                        Session.SendPacket(Session.Character.GenerateSay(
+                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}",
+                            SayColorType.Green));
                     }
                     else
                     {
-                        Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, Session.Account.Language), Type = 0 });
+                        Session.SendPacket(new MsgPacket()
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                                Session.Account.Language),
+                            Type = 0
+                        });
                     }
                 }
                 else
                 {
-                    Session.SendPacket(new MsgPacket() { Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language), Type = 0 });
+                    Session.SendPacket(new MsgPacket()
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language),
+                        Type = 0
+                    });
                 }
             }
             else
@@ -248,7 +278,7 @@ namespace NosCore.Controllers
         {
             if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
             {
-                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
+                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
                 Session.SendPacket(Session.Character.GenerateCond());
             }
             else

@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -97,13 +98,15 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 var items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item>>().ToList();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED), items.Count));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
+                    items.Count));
                 return items;
             }).As<List<Item>>().SingleInstance();
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDTO> monsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count));
+                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED),
+                    monsters.Count));
                 return monsters;
             }).As<List<NpcMonsterDTO>>().SingleInstance();
             containerBuilder.Register(_ =>
@@ -111,12 +114,14 @@ namespace NosCore.WorldServer
                 List<Map> maps = DAOFactory.MapDAO.LoadAll().Adapt<List<Map>>();
                 if (maps.Count != 0)
                 {
-                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED), maps.Count));
+                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
+                        maps.Count));
                 }
                 else
                 {
                     Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
                 }
+
                 return maps;
             }).As<List<Map>>().SingleInstance();
 
@@ -137,10 +142,10 @@ namespace NosCore.WorldServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { configuration.WebApi.ToString() }
+                Addresses = {configuration.WebApi.ToString()}
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
             var keyByteArray =
                 Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);

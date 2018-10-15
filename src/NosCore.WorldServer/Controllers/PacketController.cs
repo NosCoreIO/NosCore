@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -57,7 +58,8 @@ namespace NosCore.WorldServer.Controllers
                     }
                     else
                     {
-                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
+                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                            s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
                     }
 
                     if (receiverSession == null)

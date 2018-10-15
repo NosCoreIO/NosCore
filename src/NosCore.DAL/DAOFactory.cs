@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.I18N;
@@ -162,6 +163,7 @@ namespace NosCore.DAL
             _mapMonsterDAO ?? (_mapMonsterDAO = new GenericDAO<MapMonster, MapMonsterDTO>());
 
         public static GenericDAO<CharacterRelation, CharacterRelationDTO> CharacterRelationDAO =>
-            _characterRelationDAO ?? (_characterRelationDAO = new GenericDAO<CharacterRelation, CharacterRelationDTO>());
+            _characterRelationDAO ??
+            (_characterRelationDAO = new GenericDAO<CharacterRelation, CharacterRelationDTO>());
     }
 }

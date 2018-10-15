@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -148,61 +149,61 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_ActDesc_Key_RegionType",
                 table: "I18N_ActDesc",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_BCard_Key_RegionType",
                 table: "I18N_BCard",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_Card_Key_RegionType",
                 table: "I18N_Card",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_Item_Key_RegionType",
                 table: "I18N_Item",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_MapIdData_Key_RegionType",
                 table: "I18N_MapIdData",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_MapPointData_Key_RegionType",
                 table: "I18N_MapPointData",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_NpcMonster_Key_RegionType",
                 table: "I18N_NpcMonster",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_NpcMonsterTalk_Key_RegionType",
                 table: "I18N_NpcMonsterTalk",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_Quest_Key_RegionType",
                 table: "I18N_Quest",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_I18N_Skill_Key_RegionType",
                 table: "I18N_Skill",
-                columns: new[] { "Key", "RegionType" },
+                columns: new[] {"Key", "RegionType"},
                 unique: true);
         }
 

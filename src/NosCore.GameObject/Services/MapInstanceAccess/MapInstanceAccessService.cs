@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.Data.StaticEntities;
 using System;
 using System.Collections.Concurrent;
@@ -41,7 +42,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var mapList = new ConcurrentDictionary<short, Map.Map>();
             var npccount = 0;
             var monstercount = 0;
-            Parallel.ForEach(mapPartitioner, new ParallelOptions { MaxDegreeOfParallelism = 8 }, map =>
+            Parallel.ForEach(mapPartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, map =>
             {
                 var guid = Guid.NewGuid();
                 map.Initialize();
@@ -54,7 +55,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 monstercount += newMap.Monsters.Count;
                 npccount += newMap.Npcs.Count;
             });
-            var mapInstancePartitioner = Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
+            var mapInstancePartitioner =
+                Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
             Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
             {
                 var partitioner = Partitioner.Create(
@@ -77,13 +79,13 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 monstercount));
         }
 
-        public  Guid GetBaseMapInstanceIdByMapId(short mapId)
+        public Guid GetBaseMapInstanceIdByMapId(short mapId)
         {
             return MapInstances.FirstOrDefault(s =>
                 s.Value?.Map.MapId == mapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Key;
         }
 
-        public  MapInstance GetMapInstance(Guid id)
+        public MapInstance GetMapInstance(Guid id)
         {
             return MapInstances.ContainsKey(id) ? MapInstances[id] : null;
         }

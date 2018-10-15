@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -60,7 +61,11 @@ namespace NosCore.GameObject
 
         public DropPacket GenerateDrop()
         {
-            return new DropPacket() { VNum = VNum, VisualId = VisualId, PositionX = PositionX, PositionY = PositionY, Amount = Amount, OwnerId = OwnerId };
+            return new DropPacket()
+            {
+                VNum = VNum, VisualId = VisualId, PositionX = PositionX, PositionY = PositionY, Amount = Amount,
+                OwnerId = OwnerId
+            };
         }
     }
 }

@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +64,8 @@ namespace NosCore.Core.Networking
                 switch (sockException.SocketErrorCode)
                 {
                     case SocketError.ConnectionReset:
-                        Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
+                        Logger.Log.Info(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
                             ClientId));
                         break;
                     default:
@@ -71,7 +73,10 @@ namespace NosCore.Core.Networking
                         break;
                 }
             }
-            else { Logger.Log.Fatal(exception.StackTrace); }
+            else
+            {
+                Logger.Log.Fatal(exception.StackTrace);
+            }
 
             context.CloseAsync();
         }
@@ -85,7 +90,7 @@ namespace NosCore.Core.Networking
 
         public void SendPacket(PacketDefinition packet)
         {
-            SendPackets(new[] { packet });
+            SendPackets(new[] {packet});
         }
 
         public void SendPackets(IEnumerable<PacketDefinition> packets)

@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -43,7 +44,7 @@ namespace NosCore.GameObject
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Count == (long)Type;
+        public bool IsGroupFull => Count == (long) Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Monster) == 0;
 
@@ -69,8 +70,8 @@ namespace NosCore.GameObject
                 Type = member.VisualType,
                 VisualId = member.VisualId,
                 GroupOrder = ++i,
-                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
-                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
+                HpLeft = (int) (member.Hp / (float) member.MaxHp * 100),
+                MpLeft = (int) (member.Mp / (float) member.MaxMp * 100),
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
                 Class = member.Class,
@@ -88,7 +89,8 @@ namespace NosCore.GameObject
 
         public void JoinGroup(INamedEntity namedEntity)
         {
-            TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
+            TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
+                new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
         public void LeaveGroup(INamedEntity namedEntity)
@@ -97,4 +99,3 @@ namespace NosCore.GameObject
         }
     }
 }
-

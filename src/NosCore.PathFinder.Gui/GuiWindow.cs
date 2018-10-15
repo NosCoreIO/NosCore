@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,9 +75,10 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.MapInstanceId = mapInstance.MapInstanceId;
                 mapMonster.Mp = 100;
                 mapMonster.Hp = 100;
-                mapMonster.Speed = _npcMonsters.Find(s=>s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
+                mapMonster.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
                 mapMonster.IsAlive = true;
             }
+
             _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
@@ -89,6 +91,7 @@ namespace NosCore.PathFinder.Gui
                 mapNpc.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
                 mapNpc.IsAlive = true;
             }
+
             Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
             Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
             GetMap();
@@ -110,8 +113,8 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             //walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable

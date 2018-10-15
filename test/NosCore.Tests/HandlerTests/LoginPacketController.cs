@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -50,7 +51,10 @@ namespace NosCore.Tests.HandlerTests
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Name = "TestExistingCharacter";
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new LoginPacketController() }, null);
+
+        private readonly ClientSession _session =
+            new ClientSession(null, new List<PacketController>() {new LoginPacketController()}, null);
+
         private AccountDTO _acc;
         private LoginPacketController _handler;
 
@@ -58,7 +62,9 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            var contextBuilder =
+                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                    databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));

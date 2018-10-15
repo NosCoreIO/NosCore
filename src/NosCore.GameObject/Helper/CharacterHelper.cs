@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using NosCore.Shared.Enumerations.Character;
 
@@ -110,12 +111,14 @@ namespace NosCore.GameObject.Helper
 
         public double JobXpLoad(byte jobLevel, byte classType)
         {
-            return classType == (byte)CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1] : SecondJobXpData[jobLevel - 1];
+            return classType == (byte) CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1]
+                : SecondJobXpData[jobLevel - 1];
         }
 
         public double XpLoad(byte level)
         {
-            return XpData[level - 1];;
+            return XpData[level - 1];
+            ;
         }
 
         public static float ExperiencePenalty(byte playerLevel, byte monsterLevel)
@@ -538,35 +541,35 @@ namespace NosCore.GameObject.Helper
             switch (upgrade)
             {
                 case 1:
-                   return point +  5;
+                    return point + 5;
                 case 2:
-                   return point +  10;
+                    return point + 10;
                 case 3:
-                   return point +  15;
+                    return point + 15;
                 case 4:
-                   return point +  20;
+                    return point + 20;
                 case 5:
-                   return point +  28;
+                    return point + 28;
                 case 6:
-                   return point +  36;
+                    return point + 36;
                 case 7:
-                   return point +  46;
+                    return point + 46;
                 case 8:
-                   return point +  56;
+                    return point + 56;
                 case 9:
-                   return point +  68;
+                    return point + 68;
                 case 10:
-                   return point +  80;
+                    return point + 80;
                 case 11:
-                   return point +  95;
+                    return point + 95;
                 case 12:
-                   return point +  110;
+                    return point + 110;
                 case 13:
-                   return point +  128;
+                    return point + 128;
                 case 14:
-                   return point +  148;
+                    return point + 148;
                 case 15:
-                   return point +  173;
+                    return point + 173;
                 default:
                     return upgrade > 15 ? point + 173 + 25 + (5 * (upgrade - 15)) : point;
             }
@@ -952,8 +955,10 @@ namespace NosCore.GameObject.Helper
                 _hitRate[(int) CharacterClassType.Swordman, i] = i + 27; // approx
                 _hitDef[(int) CharacterClassType.Swordman, i] = i + 2; // approx
 
-                _minHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
-                _maxHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
+                _minHit[(int) CharacterClassType.Swordman, i] =
+                    (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
+                _maxHit[(int) CharacterClassType.Swordman, i] =
+                    (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
                 _distDef[(int) CharacterClassType.Swordman, i] = i; // approx
 
                 // MAGICIAN

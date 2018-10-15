@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -1592,7 +1593,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ItemInstance_CharacterId_Slot_Type",
                 table: "ItemInstance",
-                columns: new[] { "CharacterId", "Slot", "Type" },
+                columns: new[] {"CharacterId", "Slot", "Type"},
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1648,7 +1649,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MapTypeMap_MapId_MapTypeId",
                 table: "MapTypeMap",
-                columns: new[] { "MapId", "MapTypeId" },
+                columns: new[] {"MapId", "MapTypeId"},
                 unique: true);
 
             migrationBuilder.CreateIndex(

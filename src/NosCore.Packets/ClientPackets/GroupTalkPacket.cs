@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,6 +28,6 @@ namespace NosCore.Packets.ClientPackets
     public class GroupTalkPacket : PacketDefinition
     {
         [PacketIndex(0, SerializeToEnd = true)]
-         public string Message { get; set; }
+        public string Message { get; set; }
     }
 }

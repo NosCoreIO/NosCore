@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -48,7 +49,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         private bool _isSleeping;
         private bool _isSleepingRequest;
 
-        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type, List<NpcMonsterDTO> npcMonsters)
+        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
+            List<NpcMonsterDTO> npcMonsters)
         {
             _npcMonsters = npcMonsters;
             XpRate = 1;
@@ -74,6 +76,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 {
                     return _isSleeping;
                 }
+
                 _isSleeping = true;
                 _isSleepingRequest = false;
                 Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => monster.StopLife());
@@ -131,7 +134,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 for (short y = -2; y < 3; y++)
                 {
-                    possibilities.Add(new MapCell { X = x, Y = y });
+                    possibilities.Add(new MapCell {X = x, Y = y});
                 }
             }
 
@@ -140,12 +143,13 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var niceSpot = false;
             foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
             {
-                mapX = (short)(session.Character.PositionX + possibility.X);
-                mapY = (short)(session.Character.PositionY + possibility.Y);
+                mapX = (short) (session.Character.PositionX + possibility.X);
+                mapY = (short) (session.Character.PositionY + possibility.Y);
                 if (!Map.IsWalkable(Map[mapX, mapY]))
                 {
                     continue;
                 }
+
                 niceSpot = true;
                 break;
             }
@@ -154,14 +158,19 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 return null;
             }
+
             if (amount <= 0 || amount > inv.Amount)
             {
                 return null;
             }
+
             var newItemInstance = inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
-            droppedItem = new MapItem{MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX,PositionY = mapY, Amount = amount};
+            droppedItem = new MapItem
+            {
+                MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX, PositionY = mapY, Amount = amount
+            };
             DroppedList[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
             return droppedItem;
@@ -169,7 +178,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public void LoadMonsters()
         {
-            var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId),
+                EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, monster =>
             {
                 MapMonster mapMonster = monster.Adapt<MapMonster>();
@@ -182,7 +192,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public void LoadNpcs()
         {
-            var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
+            var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId),
+                EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, npc =>
             {
                 MapNpc mapNpc = npc.Adapt<MapNpc>();
@@ -216,22 +227,22 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         public void StartLife()
         {
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
-               {
-                   try
-                   {
-                       if (IsSleeping)
-                       {
-                           return;
-                       }
+            {
+                try
+                {
+                    if (IsSleeping)
+                    {
+                        return;
+                    }
 
-                       Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
-                       Parallel.ForEach(Npcs.Where(s=>s.Life == null), npc => npc.StartLife());
-                   }
-                   catch (Exception e)
-                   {
-                       Logger.Log.Error(e);
-                   }
-               });
+                    Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
+                    Parallel.ForEach(Npcs.Where(s => s.Life == null), npc => npc.StartLife());
+                }
+                catch (Exception e)
+                {
+                    Logger.Log.Error(e);
+                }
+            });
         }
     }
 }

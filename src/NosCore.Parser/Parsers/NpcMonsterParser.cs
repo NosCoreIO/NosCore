@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -551,7 +552,8 @@ namespace NosCore.Parser.Parsers
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1 + (first > 0 ? 0 : 1)),
+                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1 +
+                                    (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),

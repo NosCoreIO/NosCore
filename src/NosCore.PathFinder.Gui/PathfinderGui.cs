@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -80,7 +81,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map)DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

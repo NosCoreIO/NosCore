@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -33,27 +34,35 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket>{new IvnSubPacket()
+                    IvnSubPackets = new List<IvnSubPacket>
                     {
-                        Slot = slot,
-                        VNum = -1,
-                        RareAmount = 0,
-                        UpgradeDesign = 0,
-                        SecondUpgrade = 0
-                    }}
+                        new IvnSubPacket()
+                        {
+                            Slot = slot,
+                            VNum = -1,
+                            RareAmount = 0,
+                            UpgradeDesign = 0,
+                            SecondUpgrade = 0
+                        }
+                    }
                 };
             }
+
             return new IvnPacket
             {
                 Type = type,
-                IvnSubPackets = new List<IvnSubPacket>{new IvnSubPacket()
+                IvnSubPackets = new List<IvnSubPacket>
                 {
-                    Slot = slot,
-                    VNum = itemInstance.ItemVNum,
-                    RareAmount = itemInstance.Type != PocketType.Equipment ? itemInstance.Amount : itemInstance.Rare,
-                    UpgradeDesign = itemInstance.Upgrade,
-                    SecondUpgrade = 0
-                }}
+                    new IvnSubPacket()
+                    {
+                        Slot = slot,
+                        VNum = itemInstance.ItemVNum,
+                        RareAmount =
+                            itemInstance.Type != PocketType.Equipment ? itemInstance.Amount : itemInstance.Rare,
+                        UpgradeDesign = itemInstance.Upgrade,
+                        SecondUpgrade = 0
+                    }
+                }
             };
         }
 
