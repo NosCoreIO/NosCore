@@ -1,4 +1,22 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,12 +41,12 @@ namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        private readonly WorldConfiguration _worldConfiguration;
-        private readonly NetworkManager _networkManager;
         private readonly List<Item> _items;
-        private readonly List<NpcMonsterDTO> _npcmonsters;
-        private readonly List<Map> _maps;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly List<Map> _maps;
+        private readonly NetworkManager _networkManager;
+        private readonly List<NpcMonsterDTO> _npcmonsters;
+        private readonly WorldConfiguration _worldConfiguration;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {

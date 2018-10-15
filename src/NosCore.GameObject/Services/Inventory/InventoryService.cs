@@ -1,4 +1,22 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +29,14 @@ namespace NosCore.GameObject.Services.Inventory
 {
     public class InventoryService : ConcurrentDictionary<Guid, ItemInstance>, IInventoryService
     {
-        private WorldConfiguration _configuration { get; }
-
         private readonly List<Item> _items;
 
         public InventoryService(List<Item> items, WorldConfiguration configuration) {
             _items = items;
             _configuration = configuration;
         }
+
+        private WorldConfiguration _configuration { get; }
 
         public bool IsExpanded { get; set; }
 
@@ -133,17 +151,6 @@ namespace NosCore.GameObject.Services.Inventory
             invlist.Add(newItem);
 
             return invlist;
-        }
-
-        private short? GetFreeSlot(PocketType type)
-        {
-            var backPack = IsExpanded ? 1 : 0;
-            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
-            IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
-            var nextFreeSlot = instanceSlotsByType.Any()
-                ? Enumerable.Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
-                : 0;
-            return (short?)nextFreeSlot < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
         }
 
         public ItemInstance DeleteById(Guid id)
@@ -327,6 +334,17 @@ namespace NosCore.GameObject.Services.Inventory
             }
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
+        }
+
+        private short? GetFreeSlot(PocketType type)
+        {
+            var backPack = IsExpanded ? 1 : 0;
+            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
+            IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
+            var nextFreeSlot = instanceSlotsByType.Any()
+                ? Enumerable.Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
+                : 0;
+            return (short?)nextFreeSlot < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
         }
 
         //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)

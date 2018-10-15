@@ -1,4 +1,22 @@
-﻿using Autofac;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using Autofac;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
 using System;
@@ -99,8 +117,8 @@ namespace NosCore.Core.Serializing
         /// <summary>
         ///     Serializes a PacketDefinition to string.
         /// </summary>
-        /// <typeparam name="TPacket">The type of the PacketDefinition</typeparam>
-        /// <param name="packet">The object reference of the PacketDefinition</param>
+        /// <typeparam name="TPackets">The type of the PacketDefinition IEnumerable</typeparam>
+        /// <param name="packets">The object reference of the PacketDefinition</param>
         /// <returns>The serialized string.</returns>
         public static string Serialize<TPackets>(TPackets packets) where TPackets : IEnumerable<PacketDefinition>
         {
@@ -392,7 +410,7 @@ namespace NosCore.Core.Serializing
 
             if (Nullable.GetUnderlyingType(packetPropertyType) != null) // nullable value
             {
-                if (packetPropertyType.GenericTypeArguments[0]?.BaseType == typeof(Enum) == true)
+                if (packetPropertyType.GenericTypeArguments[0]?.BaseType == typeof(Enum))
                 {
                     return Enum.Parse(packetPropertyType.GenericTypeArguments[0], currentValue);
                 }

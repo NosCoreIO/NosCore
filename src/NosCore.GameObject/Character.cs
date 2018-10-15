@@ -1,3 +1,21 @@
+//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,6 +47,8 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDTO, ICharacterEntity
     {
+        private byte _speed;
+
         public Character()
         {
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
@@ -37,14 +57,6 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new List<long>();
             Group = new Group(GroupType.Group);
         }
-
-        private byte _speed;
-
-        public long GroupId => Group.GroupId;
-
-        public int ReputIcon => GetReputIco();
-
-        public int DignityIcon => GetDignityIco();
 
         public List<long> GroupRequestCharacterIds { get; set; }
 
@@ -63,8 +75,6 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
-        public MapInstance MapInstance { get; set; }
-
         public double LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
@@ -76,6 +86,18 @@ namespace NosCore.GameObject
         public DateTime LastMove { get; set; }
 
         public bool InvisibleGm { get; set; }
+        public IInventoryService Inventory { get; set; }
+        public bool InExchangeOrTrade { get; set; }
+
+        public Group Group { get; set; }
+
+        public long GroupId => Group.GroupId;
+
+        public int ReputIcon => GetReputIco();
+
+        public int DignityIcon => GetDignityIco();
+
+        public MapInstance MapInstance { get; set; }
 
         public VisualType VisualType => VisualType.Player;
 
@@ -132,10 +154,6 @@ namespace NosCore.GameObject
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
-        public IInventoryService Inventory { get; set; }
-        public bool InExchangeOrTrade { get; set; }
-
-        public Group Group { get; set; }
 
         public int MaxHp => (int)HPLoad();
 

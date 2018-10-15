@@ -1,4 +1,22 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +41,12 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     {
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
+        private readonly List<NpcMonsterDTO> _npcMonsters;
+
         private readonly ConcurrentDictionary<long, MapNpc> _npcs;
 
-        public ConcurrentDictionary<long, MapItem> DroppedList { get; }
+        private bool _isSleeping;
+        private bool _isSleepingRequest;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type, List<NpcMonsterDTO> npcMonsters)
         {
@@ -43,8 +64,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _isSleeping = true;
         }
 
-        private bool _isSleeping;
-        private bool _isSleepingRequest;
+        public ConcurrentDictionary<long, MapItem> DroppedList { get; }
 
         public bool IsSleeping
         {
@@ -76,6 +96,30 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         }
 
         public int DropRate { get; set; }
+
+        public Map.Map Map { get; set; }
+
+        public Guid MapInstanceId { get; set; }
+
+        public MapInstanceType MapInstanceType { get; set; }
+
+        public List<MapMonster> Monsters
+        {
+            get { return _monsters.Select(s => s.Value).ToList(); }
+        }
+
+        public List<MapNpc> Npcs
+        {
+            get { return _npcs.Select(s => s.Value).ToList(); }
+        }
+
+        public List<Portal> Portals { get; set; }
+
+        public bool ShopAllowed { get; }
+
+        public int XpRate { get; set; }
+
+        private IDisposable Life { get; set; }
 
         public MapItem PutItem(short amount, ref ItemInstance inv, ClientSession session)
         {
@@ -123,12 +167,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             return droppedItem;
         }
 
-        public Map.Map Map { get; set; }
-
-        public Guid MapInstanceId { get; set; }
-
-        public MapInstanceType MapInstanceType { get; set; }
-
         public void LoadMonsters()
         {
             var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
@@ -154,24 +192,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 _npcs[mapNpc.MapNpcId] = mapNpc;
             });
         }
-
-        public List<MapMonster> Monsters
-        {
-            get { return _monsters.Select(s => s.Value).ToList(); }
-        }
-
-        public List<MapNpc> Npcs
-        {
-            get { return _npcs.Select(s => s.Value).ToList(); }
-        }
-
-        public List<Portal> Portals { get; set; }
-
-        public bool ShopAllowed { get; }
-
-        private readonly List<NpcMonsterDTO> _npcMonsters;
-
-        public int XpRate { get; set; }
 
         public List<PacketDefinition> GetMapItems()
         {
@@ -213,7 +233,5 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                    }
                });
         }
-
-        private IDisposable Life { get; set; }
     }
 }

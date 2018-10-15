@@ -1,4 +1,22 @@
-﻿using System.Collections.Generic;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -103,9 +121,11 @@ namespace NosCore.Tests
             Inventory.AddItemToPocket(_itemBuilderService.Create(1013, 0, 19));
             Assert.IsTrue(Inventory.Values.First(item => item.Slot == 0).Amount == 990);
         }
+
         #endregion
 
         #region LoadBySlotAndType  
+
         [TestMethod]
         public void LoadItemOnAnNotEmptySlot()
         {
@@ -121,6 +141,7 @@ namespace NosCore.Tests
             var item = Inventory.LoadBySlotAndType<ItemInstance>(1, PocketType.Main);
             Assert.IsNull(item);
         }
+
         #endregion
 
         #region Delete
@@ -150,6 +171,7 @@ namespace NosCore.Tests
         #endregion
 
         #region Move
+
         [TestMethod]
         public void MoveFullSlot()
         {
@@ -187,9 +209,11 @@ namespace NosCore.Tests
             Assert.IsTrue(originItem?.Amount == 500 && originItem.Slot == 0);
             Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
         }
+
         #endregion
 
         #region MoveInPocket
+
         [TestMethod]
         public void MoveFashionToFashionPocket()
         {
@@ -229,6 +253,7 @@ namespace NosCore.Tests
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear);
             Assert.IsTrue(item.Type == PocketType.Wear);
         }
+
         #endregion
     }
 }
