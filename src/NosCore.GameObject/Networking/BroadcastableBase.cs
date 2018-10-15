@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
@@ -29,8 +31,6 @@ namespace NosCore.GameObject.Networking
 
         public void UnregisterSession(ClientSession clientSession)
         {
-            Sessions.TryRemove(clientSession.SessionId, out _);
-
             if (clientSession.Character != null)
             {
                 if (clientSession.Character.Hp < 1)
@@ -39,9 +39,13 @@ namespace NosCore.GameObject.Networking
                 }
 
                 clientSession.Character.SendRelationStatus(false);
+                clientSession.Character.LeaveGroup();
+                clientSession.Character.MapInstance?.Broadcast(clientSession.Character.GenerateOut());
 
                 clientSession.Character.Save();
             }
+
+            Sessions.TryRemove(clientSession.SessionId, out _);
             LastUnregister = DateTime.Now;
         }
 
@@ -111,10 +115,17 @@ namespace NosCore.GameObject.Networking
                         Sessions.Values.Where(s => s.HasSelectedCharacter && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session => session.SendPacket(sentPacket.Packet));
                     break;
+                case ReceiverType.Group:
+                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values.Where(s => s.Item2.VisualType == VisualType.Player), entity =>
+                    {
+                        var session = Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == entity.Item2.VisualId);
+
+                        session?.SendPacket(sentPacket.Packet);
+                    });
+                    break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
                 case ReceiverType.AllNoHeroBlocked:
-                case ReceiverType.Group:
                 case ReceiverType.AllInRange:
                 case ReceiverType.All:
                     Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session => session.Value.SendPacket(sentPacket.Packet));

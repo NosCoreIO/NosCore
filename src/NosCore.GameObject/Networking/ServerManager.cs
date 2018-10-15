@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,17 +13,22 @@ namespace NosCore.GameObject.Networking
 {
     public sealed class ServerManager : BroadcastableBase
     {
+        private long _lastGroupId = 1;
+
         private static ServerManager _instance;
 
-        private ServerManager()
-        {
-        }
-
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
+
+        public ConcurrentDictionary<long, Group> Groups { get; set; } = new ConcurrentDictionary<long, Group>();
 
         private void LaunchEvents()
         {
             Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => SaveAll());
+        }
+
+        public long GetNextGroupId()
+        {
+            return ++_lastGroupId;
         }
 
         public void SaveAll()
