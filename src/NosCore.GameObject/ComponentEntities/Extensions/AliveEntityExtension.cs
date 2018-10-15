@@ -1,16 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
+using log4net.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static PinitSubPacket GenerateSubPinit(this INamedEntity namedEntity, int groupPosition)
+        {
+            return new PinitSubPacket
+            {
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
+                GroupPosition = groupPosition,
+                Level = namedEntity.Level,
+                Name = namedEntity.Name,
+                Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Class = namedEntity.Class,
+                Morph = namedEntity.Morph,
+                HeroLevel = namedEntity.HeroLevel
+            };
+        }
+
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup = false)
+        {
+            return new PidxSubPacket
+            {
+                IsGrouped = isMemberOfGroup,
+                VisualId = playableEntity.VisualId
+            };
+        }
+
+        public static StPacket GenerateStatInfo(this IAliveEntity aliveEntity)
+        {
+            return new StPacket
+            {
+                Type = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Level = aliveEntity.Level,
+                HeroLvl = aliveEntity.HeroLevel,
+                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
+                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                CurrentHp = aliveEntity.Hp,
+                CurrentMp = aliveEntity.Mp,
+                BuffIds = null
+            };
+        }
+
         public static void Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)

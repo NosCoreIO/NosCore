@@ -10,12 +10,15 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
@@ -26,17 +29,47 @@ namespace NosCore.Controllers
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<Item> _items;
         private readonly IItemBuilderService _itemBuilderService;
+        private readonly MapInstanceAccessService _mapInstanceAccessService;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService)
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items, IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemBuilderService = itemBuilderService;
+            _mapInstanceAccessService = mapInstanceAccessService;
         }
 
         [UsedImplicitly]
         public CommandPacketController()
         {
+        }
+
+        [UsedImplicitly]
+        public void Teleport(TeleportPacket teleportPacket)
+        {
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == teleportPacket.TeleportArgument);
+
+            if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
+            {
+                if (session == null)
+                {
+                    Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                    return;
+                }
+
+                Session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
+                return;
+            }
+
+            var mapInstance = _mapInstanceAccessService.MapInstances.Values.FirstOrDefault(s => s.Map.MapId == mapId);
+
+            if (mapInstance == null)
+            {
+                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
+                return;
+            }
+
+            Session.ChangeMap(mapId, teleportPacket.MapX, teleportPacket.MapY);
         }
 
         [UsedImplicitly]
@@ -53,19 +86,19 @@ namespace NosCore.Controllers
 
         public void Shout(ShoutPacket shoutPacket)
         {
+            var message = $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
             var sayPacket = new SayPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 0,
                 Type = SayColorType.Yellow,
-                Message =
-                    $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}"
+                Message = message
             };
 
             var msgPacket = new MsgPacket
             {
                 Type = MessageType.Shout,
-                Message = shoutPacket.Message
+                Message = message
             };
 
             var sayPostedPacket = new PostedPacket
@@ -75,12 +108,14 @@ namespace NosCore.Controllers
                 {
                     Name = Session.Character.Name,
                     Id = Session.Character.CharacterId
-                }
+                },
+                ReceiverType = ReceiverType.All
             };
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { msgPacket })
+                Packet = PacketFactory.Serialize(new[] { msgPacket }),
+                ReceiverType = ReceiverType.All
             };
 
             ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));

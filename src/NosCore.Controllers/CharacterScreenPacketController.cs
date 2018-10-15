@@ -75,7 +75,7 @@ namespace NosCore.Controllers
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
-                    CharacterDTO chara = new CharacterDTO
+                    var chara = new CharacterDTO
                     {
                         Class = (byte)CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
@@ -233,7 +233,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket { Type = 0 });
-            foreach (GameObject.Character character in characters.Select(_characterBuilderService.LoadCharacter))
+            foreach (var character in characters.Select(_characterBuilderService.LoadCharacter))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -325,6 +325,7 @@ namespace NosCore.Controllers
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Account = Session.Account;
+                character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
 
                 var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId).ToList();

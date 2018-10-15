@@ -1,9 +1,11 @@
-﻿namespace NosCore.GameObject.ComponentEntities.Interfaces
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IExperiencedEntity
     {
-        byte Level { get; set; }
-
         long LevelXp { get; set; }
     }
 }

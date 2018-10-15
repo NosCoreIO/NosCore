@@ -9,6 +9,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
@@ -22,6 +23,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {
@@ -32,7 +34,19 @@ namespace NosCore.GameObject
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
+            GroupRequestCharacterIds = new List<long>();
+            Group = new Group(GroupType.Group);
         }
+
+        private byte _speed;
+
+        public long GroupId => Group.GroupId;
+
+        public int ReputIcon => GetReputIco();
+
+        public int DignityIcon => GetDignityIco();
+
+        public List<long> GroupRequestCharacterIds { get; set; }
 
         public AccountDTO Account { get; set; }
 
@@ -60,6 +74,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
+
         public bool InvisibleGm { get; set; }
 
         public VisualType VisualType => VisualType.Player;
@@ -73,8 +88,6 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
 
         public short PositionY { get; set; }
-
-        private byte _speed;
 
         public byte Speed
         {
@@ -114,12 +127,64 @@ namespace NosCore.GameObject
         public bool NoMove { get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
-        public byte Authority { get; set; }
+
+        public AuthorityType Authority => Account.Authority;
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
         public IInventoryService Inventory { get; set; }
         public bool InExchangeOrTrade { get; set; }
+
+        public Group Group { get; set; }
+
+        public int MaxHp => (int)HPLoad();
+
+        public int MaxMp => (int)MPLoad();
+
+        public LevPacket GenerateLev()
+        {
+            return new LevPacket
+            {
+                Level = Level,
+                LevelXp = LevelXp,
+                JobLevel = JobLevel,
+                JobLevelXp = JobLevelXp,
+                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
+                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
+                Reputation = Reput,
+                SkillCp = 0,
+                HeroXp = HeroXp,
+                HeroLevel = HeroLevel,
+                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
+            };
+        }
+
+        public void JoinGroup(Group group)
+        {
+            Group = group;
+            group.JoinGroup(this);
+        }
+
+        public void LeaveGroup()
+        {
+            Group.LeaveGroup(this);
+            foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
+            {
+                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
+
+                if (Group.Count == 1)
+                {
+                    groupMember?.Character.LeaveGroup();
+                    groupMember?.SendPacket(Group.GeneratePidx(groupMember.Character));
+                    groupMember?.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, groupMember.Account.Language), Type = MessageType.Whisper });
+                }
+
+
+                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
+            }
+            Group = new Group(GroupType.Group);
+            Group.JoinGroup(this);
+        }
 
         public FdPacket GenerateFd()
         {
@@ -387,7 +452,7 @@ namespace NosCore.GameObject
 
             if (Inventory != null)
             {
-                foreach (ItemInstance inv in Inventory.Select(s => s.Value))
+                foreach (var inv in Inventory.Select(s => s.Value))
                 {
                     switch (inv.Type)
                     {
@@ -686,8 +751,7 @@ namespace NosCore.GameObject
         {
             return new CInfoPacket
             {
-                Name = Account.Authority == AuthorityType.Moderator
-                    ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
+                Name = Account.Authority == AuthorityType.Moderator ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
                 Unknown1 = string.Empty,
                 Unknown2 = -1,
                 FamilyId = -1,
@@ -698,8 +762,9 @@ namespace NosCore.GameObject
                 HairStyle = (byte)HairStyle,
                 HairColor = (byte)HairColor,
                 Class = Class,
-                Icon = 1,
+                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
                 Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,
                 MorphUpgrade = 0,

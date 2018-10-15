@@ -17,7 +17,7 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(2)]
         public SayColorType Type { get; set; }
 
-        [PacketIndex(3)]
+        [PacketIndex(3, SerializeToEnd = true)]
         public string Message { get; set; }
 
         #endregion

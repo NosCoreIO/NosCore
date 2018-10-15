@@ -12,6 +12,7 @@ using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -111,8 +112,8 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             ServerManager.Instance.UnregisterSession(this);
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
 
@@ -183,6 +184,8 @@ namespace NosCore.GameObject.Networking
 
                 SendPacket(Character.GenerateCInfo());
                 SendPacket(Character.GenerateCMode());
+                SendPacket(Character.GenerateLev());
+                SendPacket(Character.GenerateStat());
                 SendPacket(Character.GenerateAt());
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
@@ -190,6 +193,13 @@ namespace NosCore.GameObject.Networking
                 if (!Character.InvisibleGm)
                 {
                     Character.MapInstance.Broadcast(Character.GenerateIn());
+                }
+                SendPacket(Character.Group.GeneratePinit());
+                SendPackets(Character.Group.GeneratePst());
+
+                if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
+                {
+                    Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
                 }
 
                 Parallel.ForEach(

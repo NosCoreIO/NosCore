@@ -23,10 +23,19 @@
         bool NoAttack { get; set; }
 
         bool NoMove { get; set; }
+
         bool IsAlive { get; set; }
 
         short MapX { get; set; }
 
         short MapY { get; set; }
+
+        int MaxHp { get; }
+
+        int MaxMp { get; }
+
+        byte Level { get; set; }
+
+        byte HeroLevel { get; set; }
     }
 }

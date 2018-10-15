@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -9,7 +10,7 @@ namespace NosCore.Packets.ServerPackets
         #region Properties
 
         [PacketIndex(0)]
-        public byte Authority { get; set; }
+        public AuthorityType Authority { get; set; }
 
         [PacketIndex(1)]
         public byte Gender { get; set; }
@@ -33,7 +34,7 @@ namespace NosCore.Packets.ServerPackets
         public bool IsSitting { get; set; }
 
         [PacketIndex(8)]
-        public int? GroupId { get; set; }
+        public long? GroupId { get; set; }
 
         [PacketIndex(9)]
         [UsedImplicitly]
