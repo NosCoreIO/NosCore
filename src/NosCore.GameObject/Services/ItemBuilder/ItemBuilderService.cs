@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using Mapster;
 using NosCore.Data;
@@ -40,7 +41,8 @@ namespace NosCore.GameObject.Services.ItemBuilder
             return item;
         }
 
-        public ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0, byte upgrade = 0, byte design = 0)
+        public ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
+            byte upgrade = 0, byte design = 0)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);
             switch (itemToCreate.Type)

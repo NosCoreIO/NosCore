@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -31,9 +32,11 @@ namespace NosCore.MasterServer.Controllers
         [HttpGet]
         public List<WorldServerInfo> GetChannels(long? id)
         {
-            if (id != null) {
-                return MasterClientListSingleton.Instance.WorldServers.Where(s=>s.Id == id).ToList();
+            if (id != null)
+            {
+                return MasterClientListSingleton.Instance.WorldServers.Where(s => s.Id == id).ToList();
             }
+
             return MasterClientListSingleton.Instance.WorldServers;
         }
     }

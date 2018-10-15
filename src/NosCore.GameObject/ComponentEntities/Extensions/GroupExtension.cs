@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new PidxPacket
             {
                 GroupId = group.Count == 1 ? -1 : group.GroupId,
-                SubPackets = group.Count == 1 ? new List<PidxSubPacket> { entity.GenerateSubPidx(true) } : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList()
+                SubPackets = group.Count == 1 ? new List<PidxSubPacket> {entity.GenerateSubPidx(true)}
+                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList()
             };
         }
     }

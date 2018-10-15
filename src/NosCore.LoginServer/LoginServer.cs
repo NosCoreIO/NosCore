@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -94,7 +95,7 @@ namespace NosCore.LoginServer
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte)clientType.Type,
+                    ClientType = (byte) clientType.Type,
                     connectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
@@ -102,15 +103,19 @@ namespace NosCore.LoginServer
                 });
             }
 
-            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
+            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
+                _loginConfiguration.MasterCommunication.Password);
             Policy
                 .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        Logger.Log.Error(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
                     _loginConfiguration.MasterCommunication.Password,
-                    new MasterClient { Name = "LoginServer", Type = ServerType.LoginServer })
+                    new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer})
                 ).Wait();
         }
     }

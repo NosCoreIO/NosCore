@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
@@ -33,7 +34,8 @@ namespace NosCore.GameObject.Networking
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<string> _encoder;
 
-        public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder, MessageToMessageEncoder<string> encoder, ClientSession clientSession, GameServerConfiguration configuration)
+        public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
+            MessageToMessageEncoder<string> encoder, ClientSession clientSession, GameServerConfiguration configuration)
         {
             _channel = channel;
             _decoder = decoder;
@@ -44,7 +46,8 @@ namespace NosCore.GameObject.Networking
 
         public void CreatePipeline()
         {
-            SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] = new RegionTypeMapping(0, _configuration.Language);
+            SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
+                new RegionTypeMapping(0, _configuration.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);
             _clientSession.RegisterChannel(_channel);

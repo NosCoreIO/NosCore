@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,11 +66,11 @@ namespace NosCore.GameObject.Map
 
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
-            var minX = (short)(-xpoint + firstX);
-            var maxX = (short)(xpoint + firstX);
+            var minX = (short) (-xpoint + firstX);
+            var maxX = (short) (xpoint + firstX);
 
-            var minY = (short)(-ypoint + firstY);
-            var maxY = (short)(ypoint + firstY);
+            var minY = (short) (-ypoint + firstY);
+            var maxY = (short) (ypoint + firstY);
 
             var cells = new List<MapCell>();
             for (var y = minY; y <= maxY; y++)
@@ -78,20 +79,23 @@ namespace NosCore.GameObject.Map
                 {
                     if (x != firstX || y != firstY)
                     {
-                        cells.Add(new MapCell { X = x, Y = y });
+                        cells.Add(new MapCell {X = x, Y = y});
                     }
                 }
             }
+
             foreach (var cell in cells.OrderBy(mapCell => RandomFactory.Instance.RandomNumber(0, int.MaxValue)))
             {
                 if (IsBlockedZone(firstX, firstY, cell.X, cell.Y))
                 {
                     continue;
                 }
+
                 firstX = cell.X;
                 firstY = cell.Y;
                 return true;
             }
+
             return false;
         }
 
@@ -99,7 +103,7 @@ namespace NosCore.GameObject.Map
         {
             for (var i = 1; i <= Math.Abs(mapX - firstX); i++)
             {
-                if (!IsWalkable(this[(short)(firstX + (Math.Sign(mapX - firstX) * i)), firstY]))
+                if (!IsWalkable(this[(short) (firstX + (Math.Sign(mapX - firstX) * i)), firstY]))
                 {
                     return true;
                 }
@@ -107,11 +111,12 @@ namespace NosCore.GameObject.Map
 
             for (var i = 1; i <= Math.Abs(mapY - firstY); i++)
             {
-                if (!IsWalkable(this[firstX, (short)(firstY + (Math.Sign(mapY - firstY) * i))]))
+                if (!IsWalkable(this[firstX, (short) (firstY + (Math.Sign(mapY - firstY) * i))]))
                 {
                     return true;
                 }
             }
+
             return false;
         }
 

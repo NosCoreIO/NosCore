@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1292,7 +1293,7 @@ namespace NosCore.Parser.Parsers
                         }
 
                         if ((item.EquipmentSlot != EquipmentType.Boots
-                            && item.EquipmentSlot != EquipmentType.Gloves)
+                                && item.EquipmentSlot != EquipmentType.Gloves)
                             || item.Type != 0)
                         {
                             continue;

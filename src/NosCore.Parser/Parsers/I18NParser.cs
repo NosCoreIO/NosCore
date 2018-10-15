@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,7 +62,7 @@ namespace NosCore.Parser.Parsers
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(ActDescTxt, region),
-                         Encoding.Default))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {

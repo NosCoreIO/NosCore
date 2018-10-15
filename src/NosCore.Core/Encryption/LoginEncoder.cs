@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using DotNetty.Buffers;
@@ -55,7 +56,7 @@ namespace NosCore.Core.Encryption
 
                 output.Add(Unpooled.WrappedBuffer(tmp));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
             }

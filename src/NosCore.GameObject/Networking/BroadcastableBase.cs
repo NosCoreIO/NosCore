@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -124,29 +125,37 @@ namespace NosCore.GameObject.Networking
             {
                 case ReceiverType.AllExceptMeAndBlacklisted:
                     Parallel.ForEach(
-                        Sessions.Where(s => s.Value.HasSelectedCharacter && s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId
-                            && !s.Value.Character.IsRelatedToCharacter(sentPacket.Sender.Character.CharacterId, CharacterRelationType.Blocked)),
+                        Sessions.Where(s => s.Value.HasSelectedCharacter &&
+                            s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId
+                            && !s.Value.Character.IsRelatedToCharacter(sentPacket.Sender.Character.CharacterId,
+                                CharacterRelationType.Blocked)),
                         session => session.Value.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.AllExceptMe:
                     Parallel.ForEach(
-                        Sessions.Values.Where(s => s.HasSelectedCharacter && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                        Sessions.Values.Where(s =>
+                            s.HasSelectedCharacter &&
+                            s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session => session.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.Group:
-                    Parallel.ForEach(sentPacket.Sender.Character.Group.Values.Where(s => s.Item2.VisualType == VisualType.Player), entity =>
-                    {
-                        var session = Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == entity.Item2.VisualId);
+                    Parallel.ForEach(
+                        sentPacket.Sender.Character.Group.Values.Where(s => s.Item2.VisualType == VisualType.Player),
+                        entity =>
+                        {
+                            var session =
+                                Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == entity.Item2.VisualId);
 
-                        session?.SendPacket(sentPacket.Packet);
-                    });
+                            session?.SendPacket(sentPacket.Packet);
+                        });
                     break;
                 case ReceiverType.AllExceptGroup:
                 case ReceiverType.AllNoEmoBlocked:
                 case ReceiverType.AllNoHeroBlocked:
                 case ReceiverType.AllInRange:
                 case ReceiverType.All:
-                    Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter), session => session.Value.SendPacket(sentPacket.Packet));
+                    Parallel.ForEach(Sessions.Where(s => s.Value.HasSelectedCharacter),
+                        session => session.Value.SendPacket(sentPacket.Packet));
                     break;
                 default:
                     return;

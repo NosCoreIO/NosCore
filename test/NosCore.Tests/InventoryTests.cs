@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -41,14 +42,14 @@ namespace NosCore.Tests
         {
             var items = new List<Item>()
             {
-                new Item{Type = PocketType.Main, VNum = 1012,  },
-                new Item{Type = PocketType.Main, VNum = 1013,  },
-                new Item{Type = PocketType.Equipment, VNum = 1, ItemType  = ItemType.Weapon },
-                new Item{Type = PocketType.Equipment, VNum = 912, ItemType  = ItemType.Specialist },
-                new Item{Type = PocketType.Equipment, VNum = 924, ItemType  = ItemType.Fashion }
+                new Item {Type = PocketType.Main, VNum = 1012,},
+                new Item {Type = PocketType.Main, VNum = 1013,},
+                new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
+                new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
+                new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemBuilderService = new ItemBuilderService(items);
-            Inventory = new InventoryService(items, new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 });
+            Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999});
         }
 
         #region AddItemToPocket

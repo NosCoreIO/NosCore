@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,8 @@ namespace NosCore.WorldServer.Controllers
                     Name = s.Account.Name,
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Character == null ? null : new Character() { Name = s.Character.Name, Id = s.Character.CharacterId },
+                    ConnectedCharacter = s.Character == null ? null : new Character()
+                        {Name = s.Character.Name, Id = s.Character.CharacterId},
                 }).ToList();
         }
     }

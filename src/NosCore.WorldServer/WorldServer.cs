@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -48,7 +49,8 @@ namespace NosCore.WorldServer
         private readonly List<NpcMonsterDTO> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
+            List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -105,13 +107,14 @@ namespace NosCore.WorldServer
                         pipeline.AddLast(new StringEncoder(), new StringDecoder());
                         pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
                     }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port)).ConfigureAwait(false);
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
+                    .ConfigureAwait(false);
 
                 await connection.WriteAndFlushAsync(new Channel
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte)clientType.Type,
+                    ClientType = (byte) clientType.Type,
                     connectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
@@ -120,11 +123,15 @@ namespace NosCore.WorldServer
                 }).ConfigureAwait(false);
             }
 
-            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);
+            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(),
+                _worldConfiguration.MasterCommunication.Password);
             Policy
                 .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        Logger.Log.Error(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
                     _worldConfiguration.MasterCommunication.Password,

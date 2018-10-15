@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -35,7 +36,11 @@ namespace NosCore.GameObject.Services.Inventory
         ItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
         T LoadByItemInstanceId<T>(Guid id) where T : ItemInstance;
         T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance;
-        ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot = null, bool wear = true);
-        void MoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket);
+
+        ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+            short? targetSlot = null, bool wear = true);
+
+        void MoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+            out ItemInstance sourcePocket, out ItemInstance destinationPocket);
     }
 }

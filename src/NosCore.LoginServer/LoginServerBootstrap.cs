@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -84,7 +85,8 @@ namespace NosCore.LoginServer
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>().As<GameServerConfiguration>();
+            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
+                .As<GameServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();

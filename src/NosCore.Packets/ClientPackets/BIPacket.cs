@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
@@ -31,7 +32,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(1)]
         public byte Slot { get; set; }
 
-        [PacketIndex(2,IsOptional = true)]
+        [PacketIndex(2, IsOptional = true)]
         public RequestDeletionType? Option { get; set; }
     }
 }

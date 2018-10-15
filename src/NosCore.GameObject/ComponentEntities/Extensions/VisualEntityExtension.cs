@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,9 +82,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte)visualEntity.Gender,
-                    HairStyle = (byte)visualEntity.HairStyle,
-                    HairColor = (byte)visualEntity.HairColor,
+                    Gender = (byte) visualEntity.Gender,
+                    HairStyle = (byte) visualEntity.HairStyle,
+                    HairColor = (byte) visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = new InEquipmentSubPacket
                     {
@@ -99,8 +100,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        HP = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
-                        MP = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
+                        HP = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
+                        MP = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.GroupId,
@@ -114,7 +115,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorRare = 0,
                     FamilyId = -1,
                     FamilyName = string.Empty,
-                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon : -visualEntity.DignityIcon),
+                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                        : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
                     Faction = 0,
@@ -146,8 +148,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        MP = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMP ?? 1) * 100),
-                        HP = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHP ?? 1) * 100)
+                        MP = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMP ?? 1) * 100),
+                        HP = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHP ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }

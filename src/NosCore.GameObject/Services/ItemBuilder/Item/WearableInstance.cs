@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
@@ -96,76 +97,78 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
+                {
+                    int point = CharacterHelper.Instance.RarityPoint(Rare,
+                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                    Concentrate = 0;
+                    HitRate = 0;
+                    DamageMinimum = 0;
+                    DamageMaximum = 0;
+                    if (Rare >= 0)
                     {
-                        int point = CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
-                        Concentrate = 0;
-                        HitRate = 0;
-                        DamageMinimum = 0;
-                        DamageMaximum = 0;
-                        if (Rare >= 0)
+                        for (int i = 0; i < point; i++)
                         {
-                            for (int i = 0; i < point; i++)
+                            int rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                            if (rndn == 0)
                             {
-                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
-                                if (rndn == 0)
-                                {
-                                    Concentrate++;
-                                    HitRate++;
-                                }
-                                else
-                                {
-                                    DamageMinimum++;
-                                    DamageMaximum++;
-                                }
+                                Concentrate++;
+                                HitRate++;
                             }
-                        }
-                        else
-                        {
-                            for (int i = 0; i > Rare * 10; i--)
+                            else
                             {
-                                DamageMinimum--;
-                                DamageMaximum--;
+                                DamageMinimum++;
+                                DamageMaximum++;
                             }
                         }
                     }
+                    else
+                    {
+                        for (int i = 0; i > Rare * 10; i--)
+                        {
+                            DamageMinimum--;
+                            DamageMaximum--;
+                        }
+                    }
+                }
                     break;
 
                 case EquipmentType.Armor:
+                {
+                    int point = CharacterHelper.Instance.RarityPoint(Rare,
+                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                    DefenceDodge = 0;
+                    DistanceDefenceDodge = 0;
+                    DistanceDefence = 0;
+                    MagicDefence = 0;
+                    CloseDefence = 0;
+                    if (Rare >= 0)
                     {
-                        int point = CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
-                        DefenceDodge = 0;
-                        DistanceDefenceDodge = 0;
-                        DistanceDefence = 0;
-                        MagicDefence = 0;
-                        CloseDefence = 0;
-                        if (Rare >= 0)
+                        for (int i = 0; i < point; i++)
                         {
-                            for (int i = 0; i < point; i++)
+                            int rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                            if (rndn == 0)
                             {
-                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
-                                if (rndn == 0)
-                                {
-                                    DefenceDodge++;
-                                    DistanceDefenceDodge++;
-                                }
-                                else
-                                {
-                                    DistanceDefence++;
-                                    MagicDefence++;
-                                    CloseDefence++;
-                                }
+                                DefenceDodge++;
+                                DistanceDefenceDodge++;
                             }
-                        }
-                        else
-                        {
-                            for (int i = 0; i > Rare * 10; i--)
+                            else
                             {
-                                DistanceDefence--;
-                                MagicDefence--;
-                                CloseDefence--;
+                                DistanceDefence++;
+                                MagicDefence++;
+                                CloseDefence++;
                             }
                         }
                     }
+                    else
+                    {
+                        for (int i = 0; i > Rare * 10; i--)
+                        {
+                            DistanceDefence--;
+                            MagicDefence--;
+                            CloseDefence--;
+                        }
+                    }
+                }
                     break;
             }
         }

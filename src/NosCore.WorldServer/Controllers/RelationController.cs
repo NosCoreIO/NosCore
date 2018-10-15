@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -38,16 +39,19 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.CharacterRelations.Any(r => r.Key == id) == true);
-     
+            var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                s.Character?.CharacterRelations.Any(r => r.Key == id) == true);
+
             if (session == null)
             {
                 return Ok();
             }
 
             session.Character.CharacterRelations.TryRemove(id, out var relation);
-            session.Character.CharacterRelations.TryRemove(session.Character.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId).CharacterRelationId, out _);
-        
+            session.Character.CharacterRelations.TryRemove(
+                session.Character.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId)
+                    .CharacterRelationId, out _);
+
             session.SendPacket(session.Character.GenerateFinit());
 
             return Ok(relation);

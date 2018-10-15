@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
@@ -181,8 +182,9 @@ namespace NosCore.Parser.Parsers
                 // add "act6.1a" and "act6.1d" when ids found
                 var i1 = (short) i;
                 var id = mapTypeId;
-                if (objectset && DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals((short)i)) != null
-                    && DAOFactory.MapTypeMapDAO.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id)) == null)
+                if (objectset && DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals((short) i)) != null
+                    && DAOFactory.MapTypeMapDAO.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id)) ==
+                    null)
                 {
                     maptypemaps.Add(new MapTypeMapDTO {MapId = (short) i, MapTypeId = mapTypeId});
                 }

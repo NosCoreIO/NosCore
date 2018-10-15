@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,8 +67,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
-                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
+                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -88,9 +89,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
                     short mapX = nonPlayableEntity.MapX, mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY, (byte)RandomFactory.Instance.RandomNumber(0, 3), (byte)RandomFactory.Instance.RandomNumber(0, 3)))
+                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX), Math.Abs(nonPlayableEntity.PositionY - mapY));
+                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                            Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
                             .Subscribe(
@@ -101,7 +105,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.Broadcast(new BroadcastPacket(null, nonPlayableEntity.GenerateMove(mapX, mapY), ReceiverType.All));
+                        nonPlayableEntity.MapInstance.Broadcast(new BroadcastPacket(null,
+                            nonPlayableEntity.GenerateMove(mapX, mapY), ReceiverType.All));
                     }
                 }
             }
@@ -148,8 +153,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new MovePacket
             {
                 VisualEntityId = aliveEntity.VisualId,
-                MapX =  mapX ?? aliveEntity.PositionX,
-                MapY =  mapY ?? aliveEntity.PositionY,
+                MapX = mapX ?? aliveEntity.PositionX,
+                MapY = mapY ?? aliveEntity.PositionY,
                 Speed = aliveEntity.Speed,
                 VisualType = aliveEntity.VisualType
             };

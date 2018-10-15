@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using NosCore.Data;
 using NosCore.Shared.Enumerations.Items;
 
@@ -33,13 +34,14 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         {
         }
 
-        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor && Item.ItemType != ItemType.Weapon;
+        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor &&
+            Item.ItemType != ItemType.Weapon;
 
         public Item Item { get; set; }
 
         public ItemInstance Clone()
         {
-            return (ItemInstance)MemberwiseClone();
+            return (ItemInstance) MemberwiseClone();
         }
     }
 }

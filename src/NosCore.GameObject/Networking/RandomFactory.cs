@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Threading;
 
@@ -25,7 +26,9 @@ namespace NosCore.GameObject.Networking
     {
         private static RandomFactory _instance;
         private static int _seed = Environment.TickCount;
-        private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
+
+        private readonly ThreadLocal<Random> _random =
+            new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
 
         private RandomFactory()
         {

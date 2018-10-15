@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,8 @@ namespace NosCore.GameObject.Networking
         private Character _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers, MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
+        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
+            MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
         }
@@ -66,7 +68,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -144,7 +146,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short) mapId);
             }
 
             try
@@ -189,15 +191,15 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short)mapX;
-                        Character.MapY = (short)mapY;
+                        Character.MapX = (short) mapX;
+                        Character.MapY = (short) mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short)mapX;
-                    Character.PositionY = (short)mapY;
+                    Character.PositionX = (short) mapX;
+                    Character.PositionY = (short) mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -212,6 +214,7 @@ namespace NosCore.GameObject.Networking
                 {
                     Character.MapInstance.Broadcast(Character.GenerateIn());
                 }
+
                 SendPacket(Character.Group.GeneratePinit());
                 SendPackets(Character.Group.GeneratePst());
 
@@ -268,7 +271,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
+                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
                     {
                         return;
                     }
@@ -343,7 +346,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');

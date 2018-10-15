@@ -16,6 +16,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,6 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public GroupPacketController()
         {
-
         }
 
         /// <summary>
@@ -50,17 +50,19 @@ namespace NosCore.Controllers
         /// <param name="pjoinPacket"></param>
         public void ManageGroup(PjoinPacket pjoinPacket)
         {
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == pjoinPacket.CharacterId);
+            var targetSession =
+                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                    s.Character.CharacterId == pjoinPacket.CharacterId);
 
             if (targetSession == null && pjoinPacket.RequestType != GroupRequestType.Sharing)
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP, Session.Account.Language));
+                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                    Session.Account.Language));
                 return;
             }
 
             switch (pjoinPacket.RequestType)
             {
-
                 case GroupRequestType.Requested:
                 case GroupRequestType.Invited:
                     if (pjoinPacket.CharacterId == Session.Character.CharacterId)
@@ -70,25 +72,41 @@ namespace NosCore.Controllers
 
                     if (targetSession.Character.Group.IsGroupFull)
                     {
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                                Session.Account.Language)
+                        });
                         return;
                     }
 
                     if (targetSession.Character.Group.Count > 1 && Session.Character.Group.Count > 1)
                     {
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
+                                Session.Account.Language)
+                        });
                         return;
                     }
 
                     if (Session.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
                     {
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                                Session.Account.Language)
+                        });
                         return;
                     }
 
                     if (targetSession.Character.GroupRequestBlocked)
                     {
-                        Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED, Session.Account.Language) });
+                        Session.SendPacket(new MsgPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
+                                Session.Account.Language)
+                        });
                         return;
                     }
 
@@ -96,14 +114,26 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Group.Count == 1 || Session.Character.Group.Type == GroupType.Group)
                     {
-                        if (targetSession.Character.Group.Count == 1 || targetSession.Character?.Group.Type == GroupType.Group)
+                        if (targetSession.Character.Group.Count == 1 ||
+                            targetSession.Character?.Group.Type == GroupType.Group)
                         {
-                            Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE, Session.Account.Language) });
+                            Session.SendPacket(new InfoPacket
+                            {
+                                Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_INVITE,
+                                    Session.Account.Language)
+                            });
                             targetSession.SendPacket(new DlgPacket
                             {
-                                Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP, targetSession.Account.Language),
-                                YesPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Accepted },
-                                NoPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Declined }
+                                Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP,
+                                    targetSession.Account.Language),
+                                YesPacket = new PjoinPacket
+                                {
+                                    CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Accepted
+                                },
+                                NoPacket = new PjoinPacket
+                                {
+                                    CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.Declined
+                                }
                             });
                         }
                     }
@@ -116,25 +146,41 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO, Session.Account.Language) });
-
-                    Session.Character.Group.Values.Where(s => s.Item2.VisualId != Session.Character.CharacterId).ToList().ForEach(s =>
+                    Session.SendPacket(new InfoPacket
                     {
-                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(v => v.Character.CharacterId == s.Item2.VisualId);
-
-                        if (session == null)
-                        {
-                            return;
-                        }
-
-                        session.Character.GroupRequestCharacterIds.Add(s.Item2.VisualId);
-                        session.SendPacket(new DlgPacket
-                        {
-                            Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE, Session.Account.Language),
-                            YesPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.AcceptedShare },
-                            NoPacket = new PjoinPacket { CharacterId = Session.Character.CharacterId, RequestType = GroupRequestType.DeclinedShare }
-                        });
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO,
+                            Session.Account.Language)
                     });
+
+                    Session.Character.Group.Values.Where(s => s.Item2.VisualId != Session.Character.CharacterId)
+                        .ToList().ForEach(s =>
+                        {
+                            var session =
+                                ServerManager.Instance.Sessions.Values.FirstOrDefault(v =>
+                                    v.Character.CharacterId == s.Item2.VisualId);
+
+                            if (session == null)
+                            {
+                                return;
+                            }
+
+                            session.Character.GroupRequestCharacterIds.Add(s.Item2.VisualId);
+                            session.SendPacket(new DlgPacket
+                            {
+                                Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE,
+                                    Session.Account.Language),
+                                YesPacket = new PjoinPacket
+                                {
+                                    CharacterId = Session.Character.CharacterId,
+                                    RequestType = GroupRequestType.AcceptedShare
+                                },
+                                NoPacket = new PjoinPacket
+                                {
+                                    CharacterId = Session.Character.CharacterId,
+                                    RequestType = GroupRequestType.DeclinedShare
+                                }
+                            });
+                        });
 
 
                     break;
@@ -153,16 +199,28 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Group.IsGroupFull || targetSession.Character.Group.IsGroupFull)
                     {
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                                Session.Account.Language)
+                        });
 
-                        targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, targetSession.Account.Language) });
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                                targetSession.Account.Language)
+                        });
                         return;
                     }
 
                     if (Session.Character.Group.Count > 1)
                     {
                         targetSession.Character.JoinGroup(Session.Character.Group);
-                        targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, targetSession.Account.Language) });
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
+                                targetSession.Account.Language)
+                        });
                     }
                     else if (targetSession.Character.Group.Count > 1)
                     {
@@ -175,9 +233,17 @@ namespace NosCore.Controllers
                     {
                         Session.Character.Group.GroupId = ServerManager.Instance.GetNextGroupId();
                         targetSession.Character.JoinGroup(Session.Character.Group);
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
+                                Session.Account.Language)
+                        });
 
-                        targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN, targetSession.Account.Language) });
+                        targetSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN,
+                                targetSession.Account.Language)
+                        });
 
                         targetSession.Character.Group = Session.Character.Group;
                         Session.Character.GroupRequestCharacterIds.Clear();
@@ -193,7 +259,9 @@ namespace NosCore.Controllers
 
                     foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
                     {
-                        var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2.VisualId);
+                        var session =
+                            ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                                s.Character.CharacterId == member.Item2.VisualId);
                         session?.SendPacket(currentGroup.GeneratePinit());
                         session?.SendPackets(currentGroup.GeneratePst());
                     }
@@ -209,7 +277,11 @@ namespace NosCore.Controllers
                     }
 
                     targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
-                    targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED, targetSession.Account.Language) });
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED,
+                            targetSession.Account.Language)
+                    });
                     break;
                 case GroupRequestType.AcceptedShare:
                     if (!targetSession.Character.GroupRequestCharacterIds.Contains(Session.Character.CharacterId))
@@ -223,7 +295,12 @@ namespace NosCore.Controllers
                     }
 
                     targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
-                    Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE, Session.Account.Language), Type = MessageType.Whisper });
+                    Session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
+                            Session.Account.Language),
+                        Type = MessageType.Whisper
+                    });
 
                     //TODO: add a way to change respawn points when system will be done
                     break;
@@ -234,7 +311,11 @@ namespace NosCore.Controllers
                     }
 
                     targetSession.Character.GroupRequestCharacterIds.Remove(Session.Character.CharacterId);
-                    targetSession.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED, targetSession.Account.Language) });
+                    targetSession.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED,
+                            targetSession.Account.Language)
+                    });
                     break;
             }
         }
@@ -254,7 +335,8 @@ namespace NosCore.Controllers
 
                 if (group.IsGroupLeader(Session.Character.CharacterId))
                 {
-                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == group.Values.First().Item2.VisualId);
+                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                        s.Character.CharacterId == group.Values.First().Item2.VisualId);
 
                     if (session == null)
                     {
@@ -274,13 +356,21 @@ namespace NosCore.Controllers
 
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
-                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.Item2.VisualId);
+                    var session =
+                        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                            s.Character.CharacterId == member.Item2.VisualId);
                     session?.SendPacket(session.Character.Group.GeneratePinit());
-                    session?.SendPacket(new MsgPacket { Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language), Session.Character.Name) });
+                    session?.SendPacket(new MsgPacket
+                    {
+                        Message = string.Format(
+                            Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, Session.Account.Language),
+                            Session.Character.Name)
+                    });
                 }
 
                 Session.SendPacket(Session.Character.Group.GeneratePinit());
-                Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
+                Session.SendPacket(new MsgPacket
+                    {Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language)});
                 Session.Character.MapInstance.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
             }
             else
@@ -290,14 +380,21 @@ namespace NosCore.Controllers
 
                 foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
-                    var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == member.VisualId);
+                    var session =
+                        ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                            s.Character.CharacterId == member.VisualId);
 
                     if (session == null)
                     {
                         continue;
                     }
 
-                    session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, session.Account.Language), Type = MessageType.Whisper });
+                    session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                            session.Account.Language),
+                        Type = MessageType.Whisper
+                    });
 
                     session.Character.LeaveGroup();
                     session.SendPacket(session.Character.Group.GeneratePinit());
@@ -315,7 +412,9 @@ namespace NosCore.Controllers
                 return;
             }
 
-            ServerManager.Instance.Broadcast(Session, Session.Character.GenerateSpk(new SpeakPacket { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }), ReceiverType.Group);
+            ServerManager.Instance.Broadcast(Session,
+                Session.Character.GenerateSpk(new SpeakPacket
+                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}), ReceiverType.Group);
         }
     }
 }
