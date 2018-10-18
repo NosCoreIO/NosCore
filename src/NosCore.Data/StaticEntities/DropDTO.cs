@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class DropDTO : IDTO
+    public class DropDto : IDto
     {
         public int Amount { get; set; }
 

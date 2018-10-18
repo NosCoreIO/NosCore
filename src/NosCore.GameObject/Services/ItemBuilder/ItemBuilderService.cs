@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.ItemBuilder
             _items = items;
         }
 
-        public ItemInstance Convert(ItemInstanceDTO k)
+        public ItemInstance Convert(ItemInstanceDto k)
         {
             ItemInstance item = k.Adapt<ItemInstance>();
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);

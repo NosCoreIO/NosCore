@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public short SlElement { get; set; }
 
-        public short SlHP { get; set; }
+        public short SlHp { get; set; }
 
         public byte SpDamage { get; set; }
 
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public byte SpFire { get; set; }
 
-        public byte SpHP { get; set; }
+        public byte SpHp { get; set; }
 
         public byte SpLevel { get; set; }
 

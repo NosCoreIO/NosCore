@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class BCardDTO : IDTO
+    public class BCardDto : IDto
     {
         [Key]
         public short BCardId { get; set; }

@@ -27,12 +27,15 @@ namespace NosCore.Shared.I18N
     public sealed class LogLanguage
     {
         private static LogLanguage _instance;
-        private static CultureInfo _resourceCulture;
+
+        public static RegionType Language { get; set; }
+
+        private static CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
+
         private readonly ResourceManager _manager;
 
         private LogLanguage()
         {
-            _resourceCulture = new CultureInfo(Language.ToString());
             if (Assembly.GetExecutingAssembly() != null)
             {
                 _manager = new ResourceManager(
@@ -40,8 +43,6 @@ namespace NosCore.Shared.I18N
                     Assembly.GetExecutingAssembly());
             }
         }
-
-        public static RegionType Language { get; set; }
 
         public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 

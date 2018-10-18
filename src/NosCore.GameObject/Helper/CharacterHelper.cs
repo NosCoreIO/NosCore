@@ -118,7 +118,6 @@ namespace NosCore.GameObject.Helper
         public double XpLoad(byte level)
         {
             return XpData[level - 1];
-            ;
         }
 
         public static float ExperiencePenalty(byte playerLevel, byte monsterLevel)

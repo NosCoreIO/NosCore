@@ -19,7 +19,7 @@
 
 namespace NosCore.Configuration
 {
-    public class PathfinderGUIConfiguration : LanguageConfiguration
+    public class PathfinderGuiConfiguration : LanguageConfiguration
     {
         public SqlConnectionConfiguration Database { get; set; }
     }

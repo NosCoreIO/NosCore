@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class QuestObjectiveDTO : IDTO
+    public class QuestObjectiveDto : IDto
     {
         [Key]
         public short QuestObjectiveId { get; set; }

@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class ItemInstance : ItemInstanceDTO
+    public class ItemInstance : ItemInstanceDto
     {
         public ItemInstance(Item item)
         {

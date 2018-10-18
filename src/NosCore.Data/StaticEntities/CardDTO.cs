@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Buff;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class CardDTO : IDTO
+    public class CardDto : IDto
     {
         [Key]
         public short CardId { get; set; }
@@ -47,6 +47,6 @@ namespace NosCore.Data.StaticEntities
 
         public byte Propability { get; set; }
 
-        public ICollection<BCardDTO> BCards { get; set; }
+        public ICollection<BCardDto> BCards { get; set; }
     }
 }

@@ -21,11 +21,11 @@ namespace NosCore.Shared.Enumerations.Items
 {
     public enum JewelOptionType : byte
     {
-        MaximumAugmentationHP = 0,
-        MaximumAugmentationMP = 1,
-        MaximumRegenerationHP = 2,
-        MaximumRegenerationMP = 3,
-        MinimiseUsedMP = 4,
+        MaximumAugmentationHp = 0,
+        MaximumAugmentationMp = 1,
+        MaximumRegenerationHp = 2,
+        MaximumRegenerationMp = 3,
+        MinimiseUsedMp = 4,
         MinimiseCriticalHit = 5
     }
 }

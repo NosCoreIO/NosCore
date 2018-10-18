@@ -39,11 +39,6 @@ namespace NosCore.Controllers
 {
     public class GroupPacketController : PacketController
     {
-        [UsedImplicitly]
-        public GroupPacketController()
-        {
-        }
-
         /// <summary>
         ///     pjoin packet
         /// </summary>

@@ -21,9 +21,9 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities
 {
-    public class I18N_Item
+    public class I18NItem
     {
-        public int I18N_ItemId { get; set; }
+        public int I18NItemId { get; set; }
         public string Key { get; set; }
         public RegionType RegionType { get; set; }
         public string Text { get; set; }

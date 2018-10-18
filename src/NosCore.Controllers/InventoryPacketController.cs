@@ -230,7 +230,7 @@ namespace NosCore.Controllers
             {
                 var invitem =
                     Session.Character.Inventory.LoadBySlotAndType<ItemInstance>(putPacket.Slot, putPacket.PocketType);
-                if (invitem?.Item.IsDroppable == true && invitem.Item.IsTradable &&
+                if ((invitem?.Item.IsDroppable ?? false) && invitem.Item.IsTradable &&
                     !Session.Character.InExchangeOrTrade)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
@@ -291,7 +291,7 @@ namespace NosCore.Controllers
             }
         }
 
-        public void AskToDelete(BIPacket bIPacket)
+        public void AskToDelete(BiPacket bIPacket)
         {
             switch (bIPacket.Option)
             {
@@ -299,12 +299,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BIPacket()
+                            YesPacket = new BiPacket()
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Requested
                             },
-                            NoPacket = new BIPacket()
+                            NoPacket = new BiPacket()
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
@@ -318,12 +318,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BIPacket()
+                            YesPacket = new BiPacket()
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Confirmed
                             },
-                            NoPacket = new BIPacket()
+                            NoPacket = new BiPacket()
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined

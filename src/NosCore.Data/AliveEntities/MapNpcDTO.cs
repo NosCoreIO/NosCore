@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.AliveEntities
 {
-    public class MapNpcDTO : IDTO
+    public class MapNpcDto : IDto
     {
         public short Dialog { get; set; }
 

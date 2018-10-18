@@ -32,7 +32,7 @@ namespace NosCore.Parser.Parsers
         {
             var npcCounter = 0;
             short map = 0;
-            var npcs = new List<MapNpcDTO>();
+            var npcs = new List<MapNpcDto>();
             var npcMvPacketsList = new List<int>();
             var effPacketsDictionary = new Dictionary<int, short>();
 
@@ -75,7 +75,7 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var npctest = new MapNpcDTO
+                var npctest = new MapNpcDto
                 {
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
@@ -100,8 +100,8 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || DAOFactory.MapNpcDAO.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
+                if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || DaoFactory.MapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
                     continue;
@@ -111,8 +111,8 @@ namespace NosCore.Parser.Parsers
                 npcCounter++;
             }
 
-            IEnumerable<MapNpcDTO> npcDtos = npcs;
-            DAOFactory.MapNpcDAO.InsertOrUpdate(npcDtos);
+            IEnumerable<MapNpcDto> npcDtos = npcs;
+            DaoFactory.MapNpcDao.InsertOrUpdate(npcDtos);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCS_PARSED), npcCounter));
         }
     }

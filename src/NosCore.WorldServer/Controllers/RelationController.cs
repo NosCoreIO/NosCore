@@ -40,7 +40,7 @@ namespace NosCore.WorldServer.Controllers
             }
 
             var session = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                s.Character?.CharacterRelations.Any(r => r.Key == id) == true);
+                s.Character?.CharacterRelations.Any(r => r.Key == id) ?? false);
 
             if (session == null)
             {

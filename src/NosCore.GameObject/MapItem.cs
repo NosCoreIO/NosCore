@@ -47,7 +47,7 @@ namespace NosCore.GameObject
             set => _visualId = value;
         }
 
-        public short Amount { get; set; }
+        public short Amount { get; set; } = 1;
 
         public VisualType VisualType => VisualType.Object;
 

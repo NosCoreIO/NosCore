@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Services.CharacterBuilder
             _inventory = inventory;
         }
 
-        public Character LoadCharacter(CharacterDTO characterDto)
+        public Character LoadCharacter(CharacterDto characterDto)
         {
             Character character = characterDto.Adapt<Character>();
             character.Inventory = _inventory;

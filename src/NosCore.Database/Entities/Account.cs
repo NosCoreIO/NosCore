@@ -56,7 +56,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<PenaltyLog> PenaltyLog { get; set; }
 
         [MaxLength(45)]
-        public string RegistrationIP { get; set; }
+        public string RegistrationIp { get; set; }
 
         [MaxLength(32)]
         public string VerificationToken { get; set; }

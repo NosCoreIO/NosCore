@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Data
 {
-    public class ItemDTO : IDTO
+    public class ItemDto : IDto
     {
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }

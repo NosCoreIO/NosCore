@@ -22,10 +22,10 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.I18N
 {
-    public class I18N_CardDTO : IDTO
+    public class I18NCardDto : IDto
     {
         [Key]
-        public int I18N_CardId { get; set; }
+        public int I18NCardId { get; set; }
 
         public string Key { get; set; }
         public RegionType RegionType { get; set; }

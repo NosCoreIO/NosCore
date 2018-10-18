@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.AliveEntities
 {
-    public class MapMonsterDTO : IDTO
+    public class MapMonsterDto : IDto
     {
         public bool IsDisabled { get; set; }
 

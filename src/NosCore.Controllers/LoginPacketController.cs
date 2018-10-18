@@ -26,7 +26,6 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -72,7 +71,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var acc = DAOFactory.AccountDAO.FirstOrDefault(s =>
+                var acc = DaoFactory.AccountDao.FirstOrDefault(s =>
                     string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (acc != null && acc.Name != loginPacket.Name)
@@ -133,10 +132,18 @@ namespace NosCore.Controllers
                 }
 
                 acc.Language = _loginConfiguration.UserLanguage;
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-                if (servers.Count > 0)
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc);
+                if (servers.Count <= 0)
                 {
-                    var subpacket = new List<NsTeStSubPacket>();
+                    Session.SendPacket(new FailcPacket
+                    {
+                        Type = LoginFailType.CantConnect
+                    });
+                    Session.Disconnect();
+                    return;
+                }
+
+                var subpacket = new List<NsTeStSubPacket>();
                     i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
@@ -150,7 +157,7 @@ namespace NosCore.Controllers
                         }
 
                         var channelcolor =
-                            (int) Math.Round((double) connectedAccount[i].Count / server.connectedAccountLimit * 20)
+                            (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {
@@ -181,14 +188,6 @@ namespace NosCore.Controllers
                         SessionId = newSessionId
                     });
                     Session.Disconnect();
-                    return;
-                }
-
-                Session.SendPacket(new FailcPacket
-                {
-                    Type = LoginFailType.CantConnect
-                });
-                Session.Disconnect();
             }
             catch
             {
