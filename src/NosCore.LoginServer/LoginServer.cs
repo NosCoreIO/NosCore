@@ -96,7 +96,7 @@ namespace NosCore.LoginServer
                     Password = password,
                     ClientName = clientType.Name,
                     ClientType = (byte) clientType.Type,
-                    connectedAccountLimit = connectedAccountLimit,
+                    ConnectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost

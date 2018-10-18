@@ -152,8 +152,6 @@ namespace NosCore.Core.Encryption
                     switch (firstbyte)
                     {
                         case 0:
-                            encryptedStringBuilder.Append(' ');
-                            break;
 
                         case 1:
                             encryptedStringBuilder.Append(' ');

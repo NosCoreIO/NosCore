@@ -25,145 +25,145 @@ using NosCore.Database.Entities;
 
 namespace NosCore.DAL
 {
-    public static class DAOFactory
+    public static class DaoFactory
     {
-        private static GenericDAO<Account, AccountDTO> _accountDAO;
-        private static GenericDAO<Character, CharacterDTO> _characterDAO;
-        private static GenericDAO<Map, MapDTO> _mapDAO;
-        private static GenericDAO<MapNpc, MapNpcDTO> _mapNpcDAO;
-        private static GenericDAO<NpcMonster, NpcMonsterDTO> _npcMonsterDAO;
-        private static GenericDAO<Card, CardDTO> _cardDAO;
-        private static GenericDAO<Drop, DropDTO> _dropDAO;
-        private static GenericDAO<BCard, BCardDTO> _bcardDAO;
-        private static GenericDAO<Item, ItemDTO> _itemDAO;
-        private static GenericDAO<Quest, QuestDTO> _questDAO;
-        private static GenericDAO<QuestReward, QuestRewardDTO> _questRewardDAO;
-        private static GenericDAO<QuestObjective, QuestObjectiveDTO> _questObjectiveDAO;
-        private static GenericDAO<Mate, MateDTO> _mateDAO;
-        private static GenericDAO<Portal, PortalDTO> _portalDAO;
-        private static GenericDAO<Database.Entities.MapType, MapTypeDTO> _mapTypeDAO;
-        private static GenericDAO<Combo, ComboDTO> _comboDAO;
-        private static GenericDAO<BCard, BCardDTO> _bCardDAO;
-        private static GenericDAO<RespawnMapType, RespawnMapTypeDTO> _respawnMapTypeDAO;
-        private static GenericDAO<MapTypeMap, MapTypeMapDTO> _mapTypeMapDAO;
-        private static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> _i18N_ActDescDAO;
-        private static GenericDAO<I18N_Card, I18N_CardDTO> _i18N_CardDAO;
-        private static GenericDAO<I18N_BCard, I18N_BCardDTO> _i18N_BCardDAO;
-        private static GenericDAO<I18N_Item, I18N_ItemDTO> _i18N_ItemDAO;
-        private static GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO> _i18N_MapIdDataDAO;
-        private static GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO> _i18N_MapPointDataDAO;
-        private static GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO> _i18N_NpcMonsterDAO;
-        private static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> _i18N_NpcMonsterTalkDAO;
-        private static GenericDAO<I18N_Quest, I18N_QuestDTO> _i18N_QuestDAO;
-        private static GenericDAO<I18N_Skill, I18N_SkillDTO> _iI18N_SkillDAO;
-        private static GenericDAO<Skill, SkillDTO> _skillDAO;
-        private static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> _npcMonsterSkillDAO;
-        private static GenericDAO<MapMonster, MapMonsterDTO> _mapMonsterDAO;
-        private static GenericDAO<CharacterRelation, CharacterRelationDTO> _characterRelationDAO;
-        private static GenericDAO<ItemInstance, ItemInstanceDTO> _itemInstanceDAO;
+        private static GenericDao<Account, AccountDto> _accountDao;
+        private static GenericDao<Character, CharacterDto> _characterDao;
+        private static GenericDao<Map, MapDto> _mapDao;
+        private static GenericDao<MapNpc, MapNpcDto> _mapNpcDao;
+        private static GenericDao<NpcMonster, NpcMonsterDto> _npcMonsterDao;
+        private static GenericDao<Card, CardDto> _cardDao;
+        private static GenericDao<Drop, DropDto> _dropDao;
+        private static GenericDao<BCard, BCardDto> _bcardDao;
+        private static GenericDao<Item, ItemDto> _itemDao;
+        private static GenericDao<Quest, QuestDto> _questDao;
+        private static GenericDao<QuestReward, QuestRewardDto> _questRewardDao;
+        private static GenericDao<QuestObjective, QuestObjectiveDto> _questObjectiveDao;
+        private static GenericDao<Mate, MateDto> _mateDao;
+        private static GenericDao<Portal, PortalDto> _portalDao;
+        private static GenericDao<Database.Entities.MapType, MapTypeDto> _mapTypeDao;
+        private static GenericDao<Combo, ComboDto> _comboDao;
+        private static GenericDao<BCard, BCardDto> _bCardDao;
+        private static GenericDao<RespawnMapType, RespawnMapTypeDto> _respawnMapTypeDao;
+        private static GenericDao<MapTypeMap, MapTypeMapDto> _mapTypeMapDao;
+        private static GenericDao<I18NActDesc, I18NActDescDto> _i18NActDescDao;
+        private static GenericDao<I18NCard, I18NCardDto> _i18NCardDao;
+        private static GenericDao<I18NBCard, I18NBCardDto> _i18NBCardDao;
+        private static GenericDao<I18NItem, I18NItemDto> _i18NItemDao;
+        private static GenericDao<I18NMapIdData, I18NMapIdDataDto> _i18NMapIdDataDao;
+        private static GenericDao<I18NMapPointData, I18NMapPointDataDto> _i18NMapPointDataDao;
+        private static GenericDao<I18NNpcMonster, I18NNpcMonsterDto> _i18NNpcMonsterDao;
+        private static GenericDao<I18NNpcMonsterTalk, I18NNpcMonsterTalkDto> _i18NNpcMonsterTalkDao;
+        private static GenericDao<I18NQuest, I18NQuestDto> _i18NQuestDao;
+        private static GenericDao<I18NSkill, I18NSkillDto> _iI18NSkillDao;
+        private static GenericDao<Skill, SkillDto> _skillDao;
+        private static GenericDao<NpcMonsterSkill, NpcMonsterSkillDto> _npcMonsterSkillDao;
+        private static GenericDao<MapMonster, MapMonsterDto> _mapMonsterDao;
+        private static GenericDao<CharacterRelation, CharacterRelationDto> _characterRelationDao;
+        private static GenericDao<ItemInstance, ItemInstanceDto> _itemInstanceDao;
 
-        public static GenericDAO<Drop, DropDTO> DropDAO => _dropDAO ??
-            (_dropDAO = new GenericDAO<Drop, DropDTO>());
+        public static GenericDao<Drop, DropDto> DropDao => _dropDao ??
+            (_dropDao = new GenericDao<Drop, DropDto>());
 
-        public static GenericDAO<RespawnMapType, RespawnMapTypeDTO> RespawnMapTypeDAO => _respawnMapTypeDAO ??
-            (_respawnMapTypeDAO = new GenericDAO<RespawnMapType, RespawnMapTypeDTO>());
+        public static GenericDao<RespawnMapType, RespawnMapTypeDto> RespawnMapTypeDao => _respawnMapTypeDao ??
+            (_respawnMapTypeDao = new GenericDao<RespawnMapType, RespawnMapTypeDto>());
 
-        public static GenericDAO<Combo, ComboDTO> ComboDAO => _comboDAO ??
-            (_comboDAO = new GenericDAO<Combo, ComboDTO>());
+        public static GenericDao<Combo, ComboDto> ComboDao => _comboDao ??
+            (_comboDao = new GenericDao<Combo, ComboDto>());
 
-        public static GenericDAO<BCard, BCardDTO> BCardDAO => _bCardDAO ??
-            (_bCardDAO = new GenericDAO<BCard, BCardDTO>());
+        public static GenericDao<BCard, BCardDto> BCardDao => _bCardDao ??
+            (_bCardDao = new GenericDao<BCard, BCardDto>());
 
-        public static GenericDAO<ItemInstance, ItemInstanceDTO> ItemInstanceDAO => _itemInstanceDAO ??
-            (_itemInstanceDAO = new GenericDAO<ItemInstance, ItemInstanceDTO>());
+        public static GenericDao<ItemInstance, ItemInstanceDto> ItemInstanceDao => _itemInstanceDao ??
+            (_itemInstanceDao = new GenericDao<ItemInstance, ItemInstanceDto>());
 
-        public static GenericDAO<Skill, SkillDTO> SkillDAO => _skillDAO ??
-            (_skillDAO = new GenericDAO<Skill, SkillDTO>());
+        public static GenericDao<Skill, SkillDto> SkillDao => _skillDao ??
+            (_skillDao = new GenericDao<Skill, SkillDto>());
 
-        public static GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO> NpcMonsterSkillDAO => _npcMonsterSkillDAO ??
-            (_npcMonsterSkillDAO = new GenericDAO<NpcMonsterSkill, NpcMonsterSkillDTO>());
+        public static GenericDao<NpcMonsterSkill, NpcMonsterSkillDto> NpcMonsterSkillDao => _npcMonsterSkillDao ??
+            (_npcMonsterSkillDao = new GenericDao<NpcMonsterSkill, NpcMonsterSkillDto>());
 
-        public static GenericDAO<Database.Entities.MapType, MapTypeDTO> MapTypeDAO => _mapTypeDAO ??
-            (_mapTypeDAO = new GenericDAO<Database.Entities.MapType, MapTypeDTO>());
+        public static GenericDao<Database.Entities.MapType, MapTypeDto> MapTypeDao => _mapTypeDao ??
+            (_mapTypeDao = new GenericDao<Database.Entities.MapType, MapTypeDto>());
 
-        public static GenericDAO<MapTypeMap, MapTypeMapDTO> MapTypeMapDAO => _mapTypeMapDAO ??
-            (_mapTypeMapDAO = new GenericDAO<MapTypeMap, MapTypeMapDTO>());
+        public static GenericDao<MapTypeMap, MapTypeMapDto> MapTypeMapDao => _mapTypeMapDao ??
+            (_mapTypeMapDao = new GenericDao<MapTypeMap, MapTypeMapDto>());
 
-        public static GenericDAO<I18N_ActDesc, I18N_ActDescDTO> I18N_ActDescDAO => _i18N_ActDescDAO ??
-            (_i18N_ActDescDAO = new GenericDAO<I18N_ActDesc, I18N_ActDescDTO>());
+        public static GenericDao<I18NActDesc, I18NActDescDto> I18NActDescDao => _i18NActDescDao ??
+            (_i18NActDescDao = new GenericDao<I18NActDesc, I18NActDescDto>());
 
-        public static GenericDAO<I18N_Card, I18N_CardDTO> I18N_CardDAO =>
-            _i18N_CardDAO ?? (_i18N_CardDAO = new GenericDAO<I18N_Card, I18N_CardDTO>());
+        public static GenericDao<I18NCard, I18NCardDto> I18NCardDao =>
+            _i18NCardDao ?? (_i18NCardDao = new GenericDao<I18NCard, I18NCardDto>());
 
-        public static GenericDAO<I18N_BCard, I18N_BCardDTO> I18N_BCardDAO => _i18N_BCardDAO ??
-            (_i18N_BCardDAO = new GenericDAO<I18N_BCard, I18N_BCardDTO>());
+        public static GenericDao<I18NBCard, I18NBCardDto> I18NBCardDao => _i18NBCardDao ??
+            (_i18NBCardDao = new GenericDao<I18NBCard, I18NBCardDto>());
 
-        public static GenericDAO<Account, AccountDTO> AccountDAO =>
-            _accountDAO ?? (_accountDAO = new GenericDAO<Account, AccountDTO>());
+        public static GenericDao<Account, AccountDto> AccountDao =>
+            _accountDao ?? (_accountDao = new GenericDao<Account, AccountDto>());
 
-        public static GenericDAO<I18N_Item, I18N_ItemDTO> I18N_ItemDAO =>
-            _i18N_ItemDAO ?? (_i18N_ItemDAO = new GenericDAO<I18N_Item, I18N_ItemDTO>());
+        public static GenericDao<I18NItem, I18NItemDto> I18NItemDao =>
+            _i18NItemDao ?? (_i18NItemDao = new GenericDao<I18NItem, I18NItemDto>());
 
-        public static GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO> I18N_MapIdDataDAO => _i18N_MapIdDataDAO ??
-            (_i18N_MapIdDataDAO = new GenericDAO<I18N_MapIdData, I18N_MapIdDataDTO>());
+        public static GenericDao<I18NMapIdData, I18NMapIdDataDto> I18NMapIdDataDao => _i18NMapIdDataDao ??
+            (_i18NMapIdDataDao = new GenericDao<I18NMapIdData, I18NMapIdDataDto>());
 
-        public static GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO> I18N_MapPointDataDAO =>
-            _i18N_MapPointDataDAO ??
-            (_i18N_MapPointDataDAO = new GenericDAO<I18N_MapPointData, I18N_MapPointDataDTO>());
+        public static GenericDao<I18NMapPointData, I18NMapPointDataDto> I18NMapPointDataDao =>
+            _i18NMapPointDataDao ??
+            (_i18NMapPointDataDao = new GenericDao<I18NMapPointData, I18NMapPointDataDto>());
 
-        public static GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO> I18N_NpcMonsterDAO => _i18N_NpcMonsterDAO ??
-            (_i18N_NpcMonsterDAO = new GenericDAO<I18N_NpcMonster, I18N_NpcMonsterDTO>());
+        public static GenericDao<I18NNpcMonster, I18NNpcMonsterDto> I18NNpcMonsterDao => _i18NNpcMonsterDao ??
+            (_i18NNpcMonsterDao = new GenericDao<I18NNpcMonster, I18NNpcMonsterDto>());
 
-        public static GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO> I18N_NpcMonsterTalkDAO =>
-            _i18N_NpcMonsterTalkDAO ?? (_i18N_NpcMonsterTalkDAO =
-                new GenericDAO<I18N_NpcMonsterTalk, I18N_NpcMonsterTalkDTO>());
+        public static GenericDao<I18NNpcMonsterTalk, I18NNpcMonsterTalkDto> I18NNpcMonsterTalkDao =>
+            _i18NNpcMonsterTalkDao ?? (_i18NNpcMonsterTalkDao =
+                new GenericDao<I18NNpcMonsterTalk, I18NNpcMonsterTalkDto>());
 
-        public static GenericDAO<I18N_Quest, I18N_QuestDTO> I18N_QuestDAO => _i18N_QuestDAO ??
-            (_i18N_QuestDAO = new GenericDAO<I18N_Quest, I18N_QuestDTO>());
+        public static GenericDao<I18NQuest, I18NQuestDto> I18NQuestDao => _i18NQuestDao ??
+            (_i18NQuestDao = new GenericDao<I18NQuest, I18NQuestDto>());
 
-        public static GenericDAO<I18N_Skill, I18N_SkillDTO> I18N_SkillDAO => _iI18N_SkillDAO ??
-            (_iI18N_SkillDAO = new GenericDAO<I18N_Skill, I18N_SkillDTO>());
+        public static GenericDao<I18NSkill, I18NSkillDto> I18NSkillDao => _iI18NSkillDao ??
+            (_iI18NSkillDao = new GenericDao<I18NSkill, I18NSkillDto>());
 
-        public static GenericDAO<Mate, MateDTO> MateDAO =>
-            _mateDAO ?? (_mateDAO = new GenericDAO<Mate, MateDTO>());
+        public static GenericDao<Mate, MateDto> MateDao =>
+            _mateDao ?? (_mateDao = new GenericDao<Mate, MateDto>());
 
-        public static GenericDAO<Character, CharacterDTO> CharacterDAO =>
-            _characterDAO ?? (_characterDAO = new GenericDAO<Character, CharacterDTO>());
+        public static GenericDao<Character, CharacterDto> CharacterDao =>
+            _characterDao ?? (_characterDao = new GenericDao<Character, CharacterDto>());
 
-        public static GenericDAO<Map, MapDTO> MapDAO => _mapDAO ?? (_mapDAO = new GenericDAO<Map, MapDTO>());
+        public static GenericDao<Map, MapDto> MapDao => _mapDao ?? (_mapDao = new GenericDao<Map, MapDto>());
 
-        public static GenericDAO<MapNpc, MapNpcDTO> MapNpcDAO =>
-            _mapNpcDAO ?? (_mapNpcDAO = new GenericDAO<MapNpc, MapNpcDTO>());
+        public static GenericDao<MapNpc, MapNpcDto> MapNpcDao =>
+            _mapNpcDao ?? (_mapNpcDao = new GenericDao<MapNpc, MapNpcDto>());
 
-        public static GenericDAO<NpcMonster, NpcMonsterDTO> NpcMonsterDAO => _npcMonsterDAO ??
-            (_npcMonsterDAO = new GenericDAO<NpcMonster, NpcMonsterDTO>());
+        public static GenericDao<NpcMonster, NpcMonsterDto> NpcMonsterDao => _npcMonsterDao ??
+            (_npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto>());
 
-        public static GenericDAO<Card, CardDTO> CardDAO =>
-            _cardDAO ?? (_cardDAO = new GenericDAO<Card, CardDTO>());
+        public static GenericDao<Card, CardDto> CardDao =>
+            _cardDao ?? (_cardDao = new GenericDao<Card, CardDto>());
 
-        public static GenericDAO<BCard, BCardDTO> BcardDAO =>
-            _bcardDAO ?? (_bcardDAO = new GenericDAO<BCard, BCardDTO>());
+        public static GenericDao<BCard, BCardDto> BcardDao =>
+            _bcardDao ?? (_bcardDao = new GenericDao<BCard, BCardDto>());
 
-        public static GenericDAO<Item, ItemDTO> ItemDAO =>
-            _itemDAO ?? (_itemDAO = new GenericDAO<Item, ItemDTO>());
+        public static GenericDao<Item, ItemDto> ItemDao =>
+            _itemDao ?? (_itemDao = new GenericDao<Item, ItemDto>());
 
-        public static GenericDAO<Quest, QuestDTO> QuestDAO =>
-            _questDAO ?? (_questDAO = new GenericDAO<Quest, QuestDTO>());
+        public static GenericDao<Quest, QuestDto> QuestDao =>
+            _questDao ?? (_questDao = new GenericDao<Quest, QuestDto>());
 
-        public static GenericDAO<QuestReward, QuestRewardDTO> QuestRewardDAO => _questRewardDAO ??
-            (_questRewardDAO = new GenericDAO<QuestReward, QuestRewardDTO>());
+        public static GenericDao<QuestReward, QuestRewardDto> QuestRewardDao => _questRewardDao ??
+            (_questRewardDao = new GenericDao<QuestReward, QuestRewardDto>());
 
-        public static GenericDAO<QuestObjective, QuestObjectiveDTO> QuestObjectiveDAO => _questObjectiveDAO ??
-            (_questObjectiveDAO = new GenericDAO<QuestObjective, QuestObjectiveDTO>());
+        public static GenericDao<QuestObjective, QuestObjectiveDto> QuestObjectiveDao => _questObjectiveDao ??
+            (_questObjectiveDao = new GenericDao<QuestObjective, QuestObjectiveDto>());
 
-        public static GenericDAO<Portal, PortalDTO> PortalDAO =>
-            _portalDAO ?? (_portalDAO = new GenericDAO<Portal, PortalDTO>());
+        public static GenericDao<Portal, PortalDto> PortalDao =>
+            _portalDao ?? (_portalDao = new GenericDao<Portal, PortalDto>());
 
-        public static GenericDAO<MapMonster, MapMonsterDTO> MapMonsterDAO =>
-            _mapMonsterDAO ?? (_mapMonsterDAO = new GenericDAO<MapMonster, MapMonsterDTO>());
+        public static GenericDao<MapMonster, MapMonsterDto> MapMonsterDao =>
+            _mapMonsterDao ?? (_mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>());
 
-        public static GenericDAO<CharacterRelation, CharacterRelationDTO> CharacterRelationDAO =>
-            _characterRelationDAO ??
-            (_characterRelationDAO = new GenericDAO<CharacterRelation, CharacterRelationDTO>());
+        public static GenericDao<CharacterRelation, CharacterRelationDto> CharacterRelationDao =>
+            _characterRelationDao ??
+            (_characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>());
     }
 }

@@ -65,8 +65,8 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            var accountList = new List<AccountDTO>();
-            var characterList = new List<CharacterDTO>();
+            var accountList = new List<AccountDto>();
+            var characterList = new List<CharacterDto>();
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
@@ -74,8 +74,8 @@ namespace NosCore.Tests.HandlerTests
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(GroupPacketControllerTests)));
-            var map = new MapDTO {MapId = 1};
-            DAOFactory.MapDAO.InsertOrUpdate(ref map);
+            var map = new MapDto {MapId = 1};
+            DaoFactory.MapDao.InsertOrUpdate(ref map);
 
             ServerManager.Instance.Sessions = new ConcurrentDictionary<long, ClientSession>();
             ServerManager.Instance.Groups = new ConcurrentDictionary<long, Group>();
@@ -85,11 +85,11 @@ namespace NosCore.Tests.HandlerTests
                     new ClientSession(null, new List<PacketController>() {new GroupPacketController()}, null));
                 var session = ServerManager.Instance.Sessions.Values.ElementAt(i);
 
-                accountList.Add(new AccountDTO {Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test")});
+                accountList.Add(new AccountDto {Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test")});
                 var acc = accountList.ElementAt(i);
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc);
 
-                characterList.Add(new CharacterDTO
+                characterList.Add(new CharacterDto
                 {
                     Name = $"TestExistingCharacter{i}",
                     Slot = 1,
@@ -100,7 +100,7 @@ namespace NosCore.Tests.HandlerTests
 
                 var charaDto = characterList.ElementAt(i);
 
-                DAOFactory.CharacterDAO.InsertOrUpdate(ref charaDto);
+                DaoFactory.CharacterDao.InsertOrUpdate(ref charaDto);
                 session.InitializeAccount(acc);
                 _handlers.Add(new GroupPacketController());
                 var handler = _handlers.ElementAt(i);

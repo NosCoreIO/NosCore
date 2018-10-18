@@ -32,8 +32,8 @@ namespace NosCore.Parser.Parsers
 {
     public class ItemParser
     {
-        private readonly List<BCardDTO> _itemCards = new List<BCardDTO>();
-        private readonly List<ItemDTO> _items = new List<ItemDTO>();
+        private readonly List<BCardDto> _itemCards = new List<BCardDto>();
+        private readonly List<ItemDto> _items = new List<ItemDto>();
 
         private bool _itemAreaBegin;
         private int _itemCounter;
@@ -44,7 +44,7 @@ namespace NosCore.Parser.Parsers
 
             using (var npcIdStream = new StreamReader(fileId, Encoding.Default))
             {
-                var item = new ItemDTO();
+                var item = new ItemDto();
 
                 string line;
                 while ((line = npcIdStream.ReadLine()) != null)
@@ -64,13 +64,13 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (DAOFactory.ItemDAO.FirstOrDefault(s => s.VNum == item.VNum) == null)
+                        if (DaoFactory.ItemDao.FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
                             _items.Add(item);
                             _itemCounter++;
                         }
 
-                        item = new ItemDTO();
+                        item = new ItemDto();
                         _itemAreaBegin = false;
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "NAME")
@@ -82,9 +82,6 @@ namespace NosCore.Parser.Parsers
                         switch (Convert.ToByte(currentLine[2]))
                         {
                             case 4:
-                                item.Type = PocketType.Equipment;
-                                break;
-
                             case 8:
                                 item.Type = PocketType.Equipment;
                                 break;
@@ -1169,9 +1166,6 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     case 906:
-                                        item.Element = 3;
-                                        break;
-
                                     case 909:
                                         item.Element = 3;
                                         break;
@@ -1293,7 +1287,7 @@ namespace NosCore.Parser.Parsers
                         }
 
                         if ((item.EquipmentSlot != EquipmentType.Boots
-                                && item.EquipmentSlot != EquipmentType.Gloves)
+                            && item.EquipmentSlot != EquipmentType.Gloves)
                             || item.Type != 0)
                         {
                             continue;
@@ -1315,7 +1309,7 @@ namespace NosCore.Parser.Parsers
                             }
 
                             var first = int.Parse(currentLine[3 + (5 * i)]);
-                            var itemCard = new BCardDTO
+                            var itemCard = new BCardDto
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
@@ -1331,8 +1325,8 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                DAOFactory.ItemDAO.InsertOrUpdate(_items);
-                DAOFactory.BcardDAO.InsertOrUpdate(_itemCards);
+                DaoFactory.ItemDao.InsertOrUpdate(_items);
+                DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
                     _itemCounter));
             }

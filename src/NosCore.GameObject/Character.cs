@@ -46,7 +46,7 @@ using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {
-    public class Character : CharacterDTO, ICharacterEntity
+    public class Character : CharacterDto, ICharacterEntity
     {
         private byte _speed;
 
@@ -61,7 +61,7 @@ namespace NosCore.GameObject
 
         public List<long> GroupRequestCharacterIds { get; set; }
 
-        public AccountDTO Account { get; set; }
+        public AccountDto Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
@@ -71,8 +71,8 @@ namespace NosCore.GameObject
 
         public bool IsFriendListFull
         {
-            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >=
-                80;
+            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
+                >= 80;
         }
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
@@ -157,9 +157,9 @@ namespace NosCore.GameObject
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
 
-        public int MaxHp => (int) HPLoad();
+        public int MaxHp => (int) HpLoad();
 
-        public int MaxMp => (int) MPLoad();
+        public int MaxMp => (int) MpLoad();
 
         public LevPacket GenerateLev()
         {
@@ -204,7 +204,6 @@ namespace NosCore.GameObject
                         Type = MessageType.Whisper
                     });
                 }
-
 
                 groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
             }
@@ -433,12 +432,12 @@ namespace NosCore.GameObject
             };
 
             CharacterRelations[relation.CharacterRelationId] = relation;
-            CharacterRelationDTO relationDto = relation;
+            CharacterRelationDto relationDto = relation;
 
-            if (DAOFactory.CharacterRelationDAO.FirstOrDefault(s =>
+            if (DaoFactory.CharacterRelationDao.FirstOrDefault(s =>
                 s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
             {
-                DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relationDto);
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(ref relationDto);
             }
 
             if (relationType == CharacterRelationType.Blocked)
@@ -492,7 +491,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            DAOFactory.CharacterRelationDAO.Delete(targetCharacterRelation);
+            DaoFactory.CharacterRelationDao.Delete(targetCharacterRelation);
         }
 
         [Obsolete(
@@ -591,8 +590,8 @@ namespace NosCore.GameObject
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
         {
             return CharacterRelations.Values.Any(s =>
-                s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId) &&
-                s.CharacterId.Equals(CharacterId));
+                s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId)
+                && s.CharacterId.Equals(CharacterId));
         }
 
         public int GetReputIco()
@@ -754,25 +753,25 @@ namespace NosCore.GameObject
             try
             {
                 var account = Session.Account;
-                DAOFactory.AccountDAO.InsertOrUpdate(ref account);
+                DaoFactory.AccountDao.InsertOrUpdate(ref account);
 
-                CharacterDTO character = (Character) MemberwiseClone();
-                DAOFactory.CharacterDAO.InsertOrUpdate(ref character);
+                CharacterDto character = (Character) MemberwiseClone();
+                DaoFactory.CharacterDao.InsertOrUpdate(ref character);
 
-                var savedRelations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == CharacterId);
+                var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
 
-                DAOFactory.CharacterRelationDAO.Delete(savedRelations.Except(CharacterRelations.Values));
-                DAOFactory.CharacterRelationDAO.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDTO>());
+                DaoFactory.CharacterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDto>());
 
                 // load and concat inventory with equipment
-                var currentlySavedInventoryIds = DAOFactory.ItemInstanceDAO
+                var currentlySavedInventoryIds = DaoFactory.ItemInstanceDao
                     .Where(i => i.CharacterId.Equals(CharacterId)).Select(i => i.Id);
 
                 var todelete = currentlySavedInventoryIds.Except(Inventory.Select(i => i.Value.Id));
-                DAOFactory.ItemInstanceDAO.Delete(todelete);
+                DaoFactory.ItemInstanceDao.Delete(todelete);
 
                 var itemInsts = Inventory.Select(s => s.Value);
-                DAOFactory.ItemInstanceDAO.InsertOrUpdate(itemInsts.Cast<ItemInstanceDTO>());
+                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts.Cast<ItemInstanceDto>());
             }
             catch (Exception e)
             {
@@ -790,14 +789,14 @@ namespace NosCore.GameObject
             Speed = CharacterHelper.Instance.SpeedData[Class];
         }
 
-        public double MPLoad()
+        public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
             return (int) ((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
         }
 
-        public double HPLoad()
+        public double HpLoad()
         {
             const double multiplicator = 1.0;
             const int hp = 0;
@@ -860,10 +859,10 @@ namespace NosCore.GameObject
         {
             return new StatPacket
             {
-                HP = Hp,
-                HPMaximum = HPLoad(),
-                MP = Mp,
-                MPMaximum = MPLoad(),
+                Hp = Hp,
+                HpMaximum = HpLoad(),
+                Mp = Mp,
+                MpMaximum = MpLoad(),
                 Unknown = 0,
                 Option = 0
             };

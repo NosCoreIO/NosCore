@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class MapDTO : IDTO
+    public class MapDto : IDto
     {
         [Key]
         public short MapId { get; set; }

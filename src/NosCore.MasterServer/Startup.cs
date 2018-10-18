@@ -52,7 +52,7 @@ namespace NosCore.MasterServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
-        const string consoleText = "MASTER SERVER - NosCoreIO";
+        const string ConsoleText = "MASTER SERVER - NosCoreIO";
 
         private MasterConfiguration InitializeConfiguration()
         {
@@ -78,7 +78,7 @@ namespace NosCore.MasterServer
         {
             Console.Title = Title;
             Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
-            Logger.PrintHeader(consoleText);
+            Logger.PrintHeader(ConsoleText);
             var configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {

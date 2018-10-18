@@ -25,16 +25,16 @@ namespace NosCore.Packets.ServerPackets
     public class StatPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public int HP { get; set; }
+        public int Hp { get; set; }
 
         [PacketIndex(1)]
-        public double HPMaximum { get; set; }
+        public double HpMaximum { get; set; }
 
         [PacketIndex(2)]
-        public int MP { get; set; }
+        public int Mp { get; set; }
 
         [PacketIndex(3)]
-        public double MPMaximum { get; set; }
+        public double MpMaximum { get; set; }
 
         [PacketIndex(4)]
         public int Unknown { get; set; } //TODO to find

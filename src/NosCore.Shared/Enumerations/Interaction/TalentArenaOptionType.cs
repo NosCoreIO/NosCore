@@ -1,9 +1,8 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+﻿// Copyright (C) 2018 - NosCore
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
-// 
-// Copyright (C) 2018 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

@@ -89,11 +89,11 @@ namespace NosCore.Database.Entities
 
         public byte HeroLevel { get; set; }
 
-        public int HeroXP { get; set; }
+        public int HeroXp { get; set; }
 
         public bool IsHostile { get; set; }
 
-        public int JobXP { get; set; }
+        public int JobXp { get; set; }
 
         public byte Level { get; set; }
 
@@ -107,9 +107,9 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Mate> Mate { get; set; }
 
-        public int MaxHP { get; set; }
+        public int MaxHp { get; set; }
 
-        public int MaxMP { get; set; }
+        public int MaxMp { get; set; }
 
         public MonsterType MonsterType { get; set; }
 
@@ -138,7 +138,7 @@ namespace NosCore.Database.Entities
 
         public short WaterResistance { get; set; }
 
-        public int XP { get; set; }
+        public int Xp { get; set; }
 
         public bool IsPercent { get; set; }
 

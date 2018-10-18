@@ -21,9 +21,9 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities
 {
-    public class I18N_Skill
+    public class I18NSkill
     {
-        public int I18N_SkillId { get; set; }
+        public int I18NSkillId { get; set; }
         public string Key { get; set; }
         public RegionType RegionType { get; set; }
         public string Text { get; set; }

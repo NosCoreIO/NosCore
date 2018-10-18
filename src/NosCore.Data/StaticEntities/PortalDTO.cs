@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class PortalDTO : IDTO
+    public class PortalDto : IDto
     {
         public short DestinationMapId { get; set; }
 

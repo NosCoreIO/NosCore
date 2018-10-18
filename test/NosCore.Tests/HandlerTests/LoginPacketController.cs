@@ -55,7 +55,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly ClientSession _session =
             new ClientSession(null, new List<PacketController>() {new LoginPacketController()}, null);
 
-        private AccountDTO _acc;
+        private AccountDto _acc;
         private LoginPacketController _handler;
 
         [TestInitialize]
@@ -69,10 +69,10 @@ namespace NosCore.Tests.HandlerTests
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
-            var map = new MapDTO {MapId = 1};
-            DAOFactory.MapDAO.InsertOrUpdate(ref map);
-            _acc = new AccountDTO {Name = Name, Password = EncryptionHelper.Sha512("test")};
-            DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
+            var map = new MapDto {MapId = 1};
+            DaoFactory.MapDao.InsertOrUpdate(ref map);
+            _acc = new AccountDto {Name = Name, Password = EncryptionHelper.Sha512("test")};
+            DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
             _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);

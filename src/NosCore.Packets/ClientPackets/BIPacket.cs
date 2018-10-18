@@ -24,7 +24,7 @@ using NosCore.Shared.Enumerations.Items;
 namespace NosCore.Packets.ClientPackets
 {
     [PacketHeader("b_i")]
-    public class BIPacket : PacketDefinition
+    public class BiPacket : PacketDefinition
     {
         [PacketIndex(0)]
         public PocketType PocketType { get; set; }

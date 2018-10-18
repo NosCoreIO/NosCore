@@ -49,8 +49,8 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum AbsorptionAndPowerSkill : byte
         {
-            AddDamageToHP = 11,
-            RemoveDamnageFromHP = 12,
+            AddDamageToHp = 11,
+            RemoveDamnageFromHp = 12,
 
             // Unknown = 21, Unknown2 = 22, Unknown3 = 31, Unknown4 = 32,
             DamageIncreasedSkill = 41,
@@ -64,8 +64,8 @@ namespace NosCore.Shared.Enumerations.Buff
         {
             AttackInRangeNotLocation = 11,
             AttackInRangeNotLocationNegated = 12,
-            ReduceEnemyHPChance = 21,
-            ReduceEnemyHPByDamageChance = 22,
+            ReduceEnemyHpChance = 21,
+            ReduceEnemyHpByDamageChance = 22,
             BlockGoodEffect = 31,
             BlockGoodEffectNegated = 32,
             OnlyNormalAttacks = 41,
@@ -105,13 +105,13 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum BearSpirit : byte
         {
-            IncreaseMaximumMP = 11,
-            DecreaseMaximumMP = 12,
+            IncreaseMaximumMp = 11,
+            DecreaseMaximumMp = 12,
 
             // Unknown = 21, Unknown2 = 22,
-            IncreaseMaximumHP = 31,
+            IncreaseMaximumHp = 31,
 
-            DecreaseMaximumHP = 32
+            DecreaseMaximumHp = 32
         }
 
         public enum Block : byte
@@ -212,8 +212,8 @@ namespace NosCore.Shared.Enumerations.Buff
             TransferInflictedDamageNegated = 12,
             IncreaseDamageTransfered = 21,
             DecreaseDamageTransfered = 22,
-            HPRecoveryIncreased = 31,
-            HPRecoveryDecreased = 32,
+            HpRecoveryIncreased = 31,
+            HpRecoveryDecreased = 32,
             AdditionalDamageCombo = 41,
             AdditionalDamageComboNegated = 42,
             ReflectMaximumReceivedDamage = 51,
@@ -226,8 +226,8 @@ namespace NosCore.Shared.Enumerations.Buff
             SummonDarkCloneChanceNegated = 12,
             ConvertRecoveryToDamage = 21,
             ConvertRecoveryToDamageNegated = 22,
-            ConvertDamageToHPChance = 31,
-            ConvertDamageToHPChanceNegated = 32,
+            ConvertDamageToHpChance = 31,
+            ConvertDamageToHpChanceNegated = 32,
             IncreaseEnemyCooldownChance = 41,
             IncreaseEnemyCooldownChanceNegated = 42,
             DarkElementDamageIncreaseChance = 51,
@@ -278,23 +278,23 @@ namespace NosCore.Shared.Enumerations.Buff
         {
             CastDrain = 11,
             CastDrainNegated = 12,
-            TransferEnemyHP = 21,
-            TransferEnemyHPNegated = 22
+            TransferEnemyHp = 21,
+            TransferEnemyHpNegated = 22
         }
 
         // 21-40
         public enum DrainAndSteal : byte
         {
-            ReceiveHpFromMP = 11,
-            ReceiveHpFromMPNegated = 12,
-            ReceiveMpFromHP = 21,
-            ReceiveMpFromHPNegated = 22,
-            GiveEnemyHP = 31,
-            LeechEnemyHP = 32,
-            GiveEnemyMP = 41,
-            LeechEnemyMP = 42,
-            ConvertEnemyMPToHP = 51,
-            ConvertEnemyHPToMP = 52
+            ReceiveHpFromMp = 11,
+            ReceiveHpFromMpNegated = 12,
+            ReceiveMpFromHp = 21,
+            ReceiveMpFromHpNegated = 22,
+            GiveEnemyHp = 31,
+            LeechEnemyHp = 32,
+            GiveEnemyMp = 41,
+            LeechEnemyMp = 42,
+            ConvertEnemyMptoHp = 51,
+            ConvertEnemyHptoMp = 52
         }
 
         public enum Element : byte
@@ -339,12 +339,12 @@ namespace NosCore.Shared.Enumerations.Buff
             DarkDecreased = 52
         }
 
-        public enum FairyXPIncrease : byte
+        public enum FairyXpIncrease : byte
         {
             TeleportToLocation = 11,
             TeleportToLocationNegated = 12,
-            IncreaseFairyXPPoints = 21,
-            IncreaseFairyXPPointsNegated = 22
+            IncreaseFairyXpPoints = 21,
+            IncreaseFairyXpPointsNegated = 22
         }
 
         public enum FalconSkill : byte
@@ -357,14 +357,14 @@ namespace NosCore.Shared.Enumerations.Buff
             AmbushNegated = 32,
             FalconFollowing = 41,
             FalconFollowingNegated = 42,
-            FalconFocusLowestHP = 51,
-            FalconFocusLowestHPNegated = 52
+            FalconFocusLowestHp = 51,
+            FalconFocusLowestHpNegated = 52
         }
 
         public enum FearSkill : byte
         {
-            RestoreRemainingEnemyHP = 11,
-            DecreaseRemainingEnemyHP = 12,
+            RestoreRemainingEnemyHp = 11,
+            DecreaseRemainingEnemyHp = 12,
             TimesUsed = 21,
             TimesUsedNegated = 22,
             AttackRangedIncreased = 31,
@@ -377,8 +377,8 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum FireCannoneerRangeBuff : byte
         {
-            AOEIncreased = 11,
-            AOEDecreased = 12,
+            AoeIncreased = 11,
+            AoeDecreased = 12,
             Flinch = 21,
             FlinchNegated = 22
         }
@@ -418,16 +418,16 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum HealingBurningAndCasting : byte
         {
-            RestoreHP = 11,
-            DecreaseHP = 12,
-            RestoreMP = 21,
-            DecreaseMP = 22,
-            RestoreHPWhenCasting = 31,
-            DecreaseHPWhenCasting = 32,
-            RestoreHPWhenCastingInterrupted = 41,
-            DecreaseHPWhenCastingInterrupted = 42,
-            HPIncreasedByConsumingMP = 51,
-            HPDecreasedByConsumingMP = 52
+            RestoreHp = 11,
+            DecreaseHp = 12,
+            RestoreMp = 21,
+            DecreaseMp = 22,
+            RestoreHpWhenCasting = 31,
+            DecreaseHpWhenCasting = 32,
+            RestoreHpWhenCastingInterrupted = 41,
+            DecreaseHpWhenCastingInterrupted = 42,
+            HpIncreasedByConsumingMp = 51,
+            HpDecreasedByConsumingMp = 52
         }
 
         // 61-80
@@ -439,22 +439,22 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum HideBarrelSkill : byte
         {
-            NoHPConsumption = 11,
-            NoHPRecovery = 12
+            NoHpConsumption = 11,
+            NoHpRecovery = 12
         }
 
-        public enum HPMP : byte
+        public enum Hpmp : byte
         {
-            RestoreDecreasedHP = 11,
-            DecreaseRemainingHP = 12,
-            RestoreDecreasedMP = 21,
-            DecreaseRemainingMP = 22,
-            HPRestored = 31,
-            HPReduced = 32,
-            MPRestored = 41,
-            MPReduced = 42,
-            ReceiveAdditionalHP = 51,
-            ReceiveAdditionalMP = 52
+            RestoreDecreasedHp = 11,
+            DecreaseRemainingHp = 12,
+            RestoreDecreasedMp = 21,
+            DecreaseRemainingMp = 22,
+            HpRestored = 31,
+            HpReduced = 32,
+            MpRestored = 41,
+            MpReduced = 42,
+            ReceiveAdditionalHp = 51,
+            ReceiveAdditionalMp = 52
         }
 
         public enum HugeSnowman : byte
@@ -487,8 +487,8 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum Item : byte
         {
-            EXPIncreased = 11,
-            EXPIncreasedNegated = 12,
+            ExpIncreased = 11,
+            ExpIncreasedNegated = 12,
             AttackIncreased = 21,
             DefenceIncreased = 22,
             DropItemsWhenAttacked = 31,
@@ -521,18 +521,18 @@ namespace NosCore.Shared.Enumerations.Buff
             DecreaseDamageAgainst = 12,
             IncreaseRecoveryItems = 21,
             DecreaseRecoveryItems = 22,
-            OnSPWearCausing = 31,
-            OnSPWearRemoving = 32,
-            DefenceIncreasedInPVP = 41,
-            DefenceDecreasedInPVP = 42,
-            AttackIncreasedInPVP = 51,
-            AttackDecreasedInPVP = 52
+            OnSpWearCausing = 31,
+            OnSpWearRemoving = 32,
+            DefenceIncreasedInPvp = 41,
+            DefenceDecreasedInPvp = 42,
+            AttackIncreasedInPvp = 51,
+            AttackDecreasedInPvp = 52
         }
 
         public enum LightAndShadow : byte
         {
-            InflictDamageToMP = 11,
-            IncreaseMPByAbsorbedDamage = 12,
+            InflictDamageToMp = 11,
+            IncreaseMpByAbsorbedDamage = 12,
             RemoveBadEffects = 21,
             RemoveGoodEffects = 22,
             InflictDamageOnUndead = 31,
@@ -553,18 +553,18 @@ namespace NosCore.Shared.Enumerations.Buff
             InflictDamageAtLocationNegated = 12
         }
 
-        public enum MaxHPMP : byte
+        public enum MaxHpmp : byte
         {
-            MaximumHPIncreased = 11,
-            MaximumHPDecreased = 12,
-            MaximumMPIncreased = 21,
-            MaximumMPDecreased = 22,
-            IncreasesMaximumHP = 31,
-            DecreasesMaximumHP = 32,
-            IncreasesMaximumMP = 41,
-            DecreasesMaximumMP = 42,
-            MaximumHPMPIncreased = 51,
-            MaximumHPMPDecreased = 52
+            MaximumHpIncreased = 11,
+            MaximumHpDecreased = 12,
+            MaximumMpIncreased = 21,
+            MaximumMpDecreased = 22,
+            IncreasesMaximumHp = 31,
+            DecreasesMaximumHp = 32,
+            IncreasesMaximumMp = 41,
+            DecreasesMaximumMp = 42,
+            MaximumHpmpIncreased = 51,
+            MaximumHpmpDecreased = 52
         }
 
         public enum MeditationSkill : byte
@@ -678,8 +678,8 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum NoDefeatAndNoDamage : byte
         {
-            DecreaseHPNoDeath = 11,
-            DecreaseHPNoKill = 12,
+            DecreaseHpNoDeath = 11,
+            DecreaseHpNoKill = 12,
             NeverReceiveDamage = 21,
             NeverCauseDamage = 22,
             TransferAttackPower = 31,
@@ -694,35 +694,35 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum Recovery : byte
         {
-            HPRecoveryIncreased = 11,
-            HPRecoveryDecreased = 12,
-            MPRecoveryIncreased = 21,
-            MPRecoveryDecreased = 22
+            HpRecoveryIncreased = 11,
+            HpRecoveryDecreased = 12,
+            MpRecoveryIncreased = 21,
+            MpRecoveryDecreased = 22
         }
 
         public enum RecoveryAndDamagePercent : byte
         {
-            HPRecovered = 11,
-            HPReduced = 12,
-            MPRecovered = 21,
-            MPReduced = 22,
-            DecreaseEnemyHP = 31,
-            DecreaseSelfHP = 32
+            HpRecovered = 11,
+            HpReduced = 12,
+            MpRecovered = 21,
+            MpReduced = 22,
+            DecreaseEnemyHp = 31,
+            DecreaseSelfHp = 32
         }
 
         public enum Reflection : byte
         {
-            HPIncreased = 11,
-            HPDecreased = 12,
-            MPIncreased = 21,
-            MPDecreased = 22,
-            EnemyHPIncreased = 31,
-            EnemyHPDecreased = 32,
-            EnemyMPIncreased = 41,
-            EnemyMPDecreased = 42
+            HpIncreased = 11,
+            HpDecreased = 12,
+            MpIncreased = 21,
+            MpDecreased = 22,
+            EnemyHpIncreased = 31,
+            EnemyHpDecreased = 32,
+            EnemyMpIncreased = 41,
+            EnemyMpDecreased = 42
         }
 
-        public enum SecondSPCard : byte
+        public enum SecondSpCard : byte
         {
             PlantBomb = 11,
             SetBombWhenAttack = 12, // Same as 22!
@@ -734,13 +734,13 @@ namespace NosCore.Shared.Enumerations.Buff
             HitAttackerNegated = 42
         }
 
-        public enum SESpecialist : byte
+        public enum SeSpecialist : byte
         {
             EnterNumberOfBuffsAndDamage = 12,
             EnterNumberOfBuffs = 22,
             MovingAura = 31,
             DontNeedToEnter = 32, // Same as 42
-            LowerHPStrongerEffect = 41,
+            LowerHpStrongerEffect = 41,
             DoNotNeedToEnter = 42 // Same as 32
         }
 
@@ -752,18 +752,18 @@ namespace NosCore.Shared.Enumerations.Buff
             AmbushRangeIncreasedNegated = 22,
             ProduceChance = 31,
             ProduceChanceNegated = 32,
-            KillerHPReducing = 41,
-            KillerHPIncreasing = 42,
+            KillerHpReducing = 41,
+            KillerHpIncreasing = 42,
             ReceiveCriticalFromSniper = 51,
             ReceiveCriticalFromSniperNegated = 52
         }
 
-        public enum SPCardUpgrade : byte
+        public enum SpCardUpgrade : byte
         {
-            LowerSPScroll = 11,
-            LowerSPScrollNegated = 12,
-            HigherSPScroll = 21,
-            HigherSPScrollNegated = 22
+            LowerSpScroll = 11,
+            LowerSpScrollNegated = 12,
+            HigherSpScroll = 21,
+            HigherSpScrollNegated = 22
         }
 
         public enum SpecialActions : byte
@@ -847,14 +847,14 @@ namespace NosCore.Shared.Enumerations.Buff
 
         public enum SpecialEffects : byte
         {
-            DecreaseKillerHP = 11,
-            IncreaseKillerHP = 12,
+            DecreaseKillerHp = 11,
+            IncreaseKillerHp = 12,
             ToPrefferedAttack = 21,
             ToNonPrefferedAttack = 22,
             Gibberish = 31,
             GibberishNegated = 32,
-            AbleToFightPVP = 41,
-            AbleToFightPVPNegated = 42,
+            AbleToFightPvp = 41,
+            AbleToFightPvpNegated = 42,
             ShadowAppears = 51,
             ShadowAppearsNegated = 52
         }
@@ -881,17 +881,17 @@ namespace NosCore.Shared.Enumerations.Buff
             ReduceCriticalAgainst = 22,
             ResistanceToEffect = 31,
             ResistanceToEffectNegated = 32,
-            IncreaseDamageInPVP = 41,
-            DecreaseDamageInPVP = 42,
+            IncreaseDamageInPvp = 41,
+            DecreaseDamageInPvp = 42,
             RemoveBadEffects = 52
         }
 
-        public enum SPSL : byte
+        public enum Spsl : byte
         {
             Attack,
             Defense,
             Element,
-            HPMP,
+            Hpmp,
             All
         }
 
@@ -907,12 +907,12 @@ namespace NosCore.Shared.Enumerations.Buff
             StealGoodEffectNegated = 42
         }
 
-        public enum SummonAndRecoverHP : byte
+        public enum SummonAndRecoverHp : byte
         {
             ChanceSummon = 11,
             ChanceSummonNegated = 12,
-            RestoreHP = 21,
-            ReduceHP = 22
+            RestoreHp = 21,
+            ReduceHp = 22
         }
 
         public enum SummonedMonsterAttack : byte
@@ -931,8 +931,8 @@ namespace NosCore.Shared.Enumerations.Buff
             SummonTrainingDummyChance = 32,
             SummonTimedMonsters = 41,
             SummonTimedMonstersChance = 42,
-            SummonGhostMP = 51,
-            SummonGhostMPChance = 52
+            SummonGhostMp = 51,
+            SummonGhostMpChance = 52
         }
 
         public enum SummonSkill : byte
@@ -981,10 +981,10 @@ namespace NosCore.Shared.Enumerations.Buff
         {
             GatherEnergy = 11,
             GatherEnergyNegated = 12,
-            DisableHPConsumption = 21,
-            DisableHPRecovery = 22,
-            DisableMPConsumption = 31,
-            DisableMPRecovery = 32,
+            DisableHpConsumption = 21,
+            DisableHpRecovery = 22,
+            DisableMpConsumption = 31,
+            DisableMpRecovery = 32,
             CancelAllBuff = 41,
             CancelAllBuffNegated = 42,
             ItemCannotBeUsed = 51,

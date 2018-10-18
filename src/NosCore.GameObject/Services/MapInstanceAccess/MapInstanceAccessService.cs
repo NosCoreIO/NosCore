@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         public readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
-        public MapInstanceAccessService(List<NpcMonsterDTO> npcMonsters, List<Map.Map> maps)
+        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps)
         {
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map.Map>();
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
             {
                 var partitioner = Partitioner.Create(
-                    DAOFactory.PortalDAO.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
+                    DaoFactory.PortalDao.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
                     EnumerablePartitionerOptions.None);
                 var portalList = new ConcurrentDictionary<int, Portal>();
                 Parallel.ForEach(partitioner, portalDto =>

@@ -51,9 +51,8 @@ namespace NosCore.MasterServer.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
             }
 
-            var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == userName);
-
-            if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) != true)
+            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
+            if (!(account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }

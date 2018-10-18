@@ -36,7 +36,7 @@ namespace NosCore.Parser.Parsers
         {
             var fileMapIdDat = folder + _fileMapIdDat;
             var folderMap = folder + _folderMap;
-            var maps = new List<MapDTO>();
+            var maps = new List<MapDto>();
             var dictionaryId = new Dictionary<int, string>();
             var dictionaryMusic = new Dictionary<int, int>();
 
@@ -96,7 +96,7 @@ namespace NosCore.Parser.Parsers
                     music = dictionaryMusic[int.Parse(file.Name)];
                 }
 
-                var map = new MapDTO
+                var map = new MapDto
                 {
                     Name = name,
                     Music = music,
@@ -104,7 +104,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (DaoFactory.MapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }
@@ -113,8 +113,8 @@ namespace NosCore.Parser.Parsers
                 i++;
             }
 
-            IEnumerable<MapDTO> mapDtos = maps;
-            DAOFactory.MapDAO.InsertOrUpdate(mapDtos);
+            IEnumerable<MapDto> mapDtos = maps;
+            DaoFactory.MapDao.InsertOrUpdate(mapDtos);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i));
         }
     }

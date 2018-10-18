@@ -43,7 +43,7 @@ namespace NosCore.PathFinder.Gui
         private readonly byte _gridsize;
         private readonly Map _map;
         private readonly List<MapMonster> _monsters;
-        private readonly List<NpcMonsterDTO> _npcMonsters;
+        private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly List<MapNpc> _npcs;
         private readonly int _originalHeight;
         private readonly int _originalWidth;
@@ -60,8 +60,8 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
-            _npcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
+            _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
+            _npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, _npcMonsters)
                 {
@@ -79,7 +79,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            _npcs = DaoFactory.MapNpcDao.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
