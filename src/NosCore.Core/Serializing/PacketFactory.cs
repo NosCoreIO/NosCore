@@ -358,7 +358,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (packetPropertyType.BaseType?.Equals(typeof(Enum)) == true)
+            if (packetPropertyType.BaseType?.Equals(typeof(Enum)) ?? false)
             {
                 object convertedValue = null;
                 try
@@ -382,7 +382,7 @@ namespace NosCore.Core.Serializing
                 return currentValue != "0";
             }
 
-            if (packetPropertyType.BaseType?.Equals(typeof(PacketDefinition)) == true) // subpacket
+            if (packetPropertyType.BaseType?.Equals(typeof(PacketDefinition)) ?? false) // subpacket
             {
                 var subpacketSerializationInfo = GetSerializationInformation(packetPropertyType);
                 return DeserializeSubpacket(currentValue, packetPropertyType, subpacketSerializationInfo,
@@ -600,7 +600,7 @@ namespace NosCore.Core.Serializing
                 return string.Empty;
             }
 
-            if (packetIndexAttribute?.IsOptional == true && string.IsNullOrEmpty(Convert.ToString(value)))
+            if ((packetIndexAttribute?.IsOptional ?? false) && string.IsNullOrEmpty(Convert.ToString(value)))
             {
                 return string.Empty;
             }
@@ -617,7 +617,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (propertyType.BaseType?.Equals(typeof(Enum)) == true)
+            if (propertyType.BaseType?.Equals(typeof(Enum)) ?? false)
             {
                 return $" {Convert.ToInt16(value)}";
             }
@@ -628,7 +628,7 @@ namespace NosCore.Core.Serializing
                 return Convert.ToBoolean(value) ? " 1" : " 0";
             }
 
-            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) == true)
+            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) ?? false)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,

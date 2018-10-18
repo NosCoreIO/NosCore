@@ -52,7 +52,7 @@ namespace NosCore.Shared.Enumerations.Buff
             DrainAndSteal = 21,
 
             HealingBurningAndCasting = 22,
-            HPMP = 23,
+            Hpmp = 23,
             SpecialisationBuffResistance = 24,
             Buff = 25,
             Summons = 26,
@@ -62,7 +62,7 @@ namespace NosCore.Shared.Enumerations.Buff
             SpecialEffects2 = 30,
             CalculatingLevel = 31,
             Recovery = 32,
-            MaxHPMP = 33,
+            MaxHpmp = 33,
             MultAttack = 34,
             MultDefence = 35,
             TimeCircleSkills = 36,
@@ -80,14 +80,14 @@ namespace NosCore.Shared.Enumerations.Buff
             DebuffResistance = 45,
             SpecialBehaviour = 46,
             Quest = 47,
-            SecondSPCard = 48,
-            SPCardUpgrade = 49,
+            SecondSpCard = 48,
+            SpCardUpgrade = 49,
             HugeSnowman = 50,
             Drain = 51,
             BossMonstersSkill = 52,
             LordHatus = 53,
             LordCalvinas = 54,
-            SESpecialist = 55,
+            SeSpecialist = 55,
             SummonedMonsterAttack = 56,
             FourthGlacernonFamilyRaid = 57,
             BearSpirit = 58,
@@ -110,8 +110,8 @@ namespace NosCore.Shared.Enumerations.Buff
             SniperAttack = 73,
             FrozenDebuff = 74,
             JumpBackPush = 75,
-            FairyXPIncrease = 76,
-            SummonAndRecoverHP = 77,
+            FairyXpIncrease = 76,
+            SummonAndRecoverHp = 77,
             TeamArenaBuff = 78,
             ArenaCamera = 79,
             DarkCloneSummon = 80,
@@ -123,7 +123,7 @@ namespace NosCore.Shared.Enumerations.Buff
             MeteoriteTeleport = 83,
             StealBuff = 84,
 
-            SPSL = 200
+            Spsl = 200
         }
     }
 

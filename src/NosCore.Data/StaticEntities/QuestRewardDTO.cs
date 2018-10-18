@@ -19,7 +19,7 @@
 
 namespace NosCore.Data.StaticEntities
 {
-    public class QuestRewardDTO : IDTO
+    public class QuestRewardDto : IDto
     {
         public long QuestRewardId { get; set; }
 

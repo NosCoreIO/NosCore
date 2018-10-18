@@ -30,19 +30,19 @@ namespace NosCore.Parser.Parsers
 {
     internal class SkillParser
     {
-        private readonly string fileSkillId = "\\Skill.dat";
+        private readonly string _fileSkillId = "\\Skill.dat";
         private string _folder;
 
         internal void InsertSkills(string folder)
         {
             _folder = folder;
-            var skills = new List<SkillDTO>();
-            var skill = new SkillDTO();
-            var combo = new List<ComboDTO>();
-            var skillCards = new List<BCardDTO>();
+            var skills = new List<SkillDto>();
+            var skill = new SkillDto();
+            var combo = new List<ComboDto>();
+            var skillCards = new List<BCardDto>();
             var counter = 0;
 
-            using (var skillIdStream = new StreamReader(_folder + fileSkillId, Encoding.Default))
+            using (var skillIdStream = new StreamReader(_folder + _fileSkillId, Encoding.Default))
             {
                 string line;
                 while ((line = skillIdStream.ReadLine()) != null)
@@ -51,7 +51,7 @@ namespace NosCore.Parser.Parsers
 
                     if (currentLine.Length > 2 && currentLine[1] == "VNUM")
                     {
-                        skill = new SkillDTO
+                        skill = new SkillDto
                         {
                             SkillVNum = short.Parse(currentLine[2])
                         };
@@ -72,7 +72,7 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 3; i < currentLine.Length - 4; i += 3)
                         {
-                            var comb = new ComboDTO
+                            var comb = new ComboDto
                             {
                                 SkillVNum = skill.SkillVNum,
                                 Hit = short.Parse(currentLine[i]),
@@ -85,7 +85,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            if (DAOFactory.ComboDAO.FirstOrDefault(s =>
+                            if (DaoFactory.ComboDao.FirstOrDefault(s =>
                                 s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
                                 && s.Effect.Equals(comb.Effect)) == null)
                             {
@@ -95,7 +95,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "COST")
                     {
-                        skill.CPCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
+                        skill.CpCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
                         skill.Price = int.Parse(currentLine[3]);
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "LEVEL")
@@ -256,7 +256,7 @@ namespace NosCore.Parser.Parsers
                         }
 
                         var first = int.Parse(currentLine[5]);
-                        var itemCard = new BCardDTO
+                        var itemCard = new BCardDto
                         {
                             SkillVNum = skill.SkillVNum,
                             Type = type,
@@ -269,30 +269,6 @@ namespace NosCore.Parser.Parsers
                         };
                         skillCards.Add(itemCard);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "FCOMBO")
-                    {
-                        // investigate
-                        /*
-                        if (currentLine[2] == "1")
-                        {
-                            combo.FirstActivationHit = byte.Parse(currentLine[3]);
-                            combo.FirstComboAttackAnimation = short.Parse(currentLine[4]);
-                            combo.FirstComboEffect = short.Parse(currentLine[5]);
-                            combo.SecondActivationHit = byte.Parse(currentLine[3]);
-                            combo.SecondComboAttackAnimation = short.Parse(currentLine[4]);
-                            combo.SecondComboEffect = short.Parse(currentLine[5]);
-                            combo.ThirdActivationHit = byte.Parse(currentLine[3]);
-                            combo.ThirdComboAttackAnimation = short.Parse(currentLine[4]);
-                            combo.ThirdComboEffect = short.Parse(currentLine[5]);
-                            combo.FourthActivationHit = byte.Parse(currentLine[3]);
-                            combo.FourthComboAttackAnimation = short.Parse(currentLine[4]);
-                            combo.FourthComboEffect = short.Parse(currentLine[5]);
-                            combo.FifthActivationHit = byte.Parse(currentLine[3]);
-                            combo.FifthComboAttackAnimation = short.Parse(currentLine[4]);
-                            combo.FifthComboEffect = short.Parse(currentLine[5]);
-                        }
-                        */
-                    }
                     else if (currentLine.Length > 2 && currentLine[1] == "CELL")
                     {
                         // investigate
@@ -301,7 +277,7 @@ namespace NosCore.Parser.Parsers
                     {
                         // investigate
                         var skill1 = skill;
-                        if (DAOFactory.SkillDAO.FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
+                        if (DaoFactory.SkillDao.FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
                         }
@@ -311,13 +287,13 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                IEnumerable<SkillDTO> skillDtos = skills;
-                IEnumerable<ComboDTO> comboDtos = combo;
-                IEnumerable<BCardDTO> bCardDtos = skillCards;
+                IEnumerable<SkillDto> skillDtos = skills;
+                IEnumerable<ComboDto> comboDtos = combo;
+                IEnumerable<BCardDto> bCardDtos = skillCards;
 
-                DAOFactory.SkillDAO.InsertOrUpdate(skillDtos);
-                DAOFactory.ComboDAO.InsertOrUpdate(comboDtos);
-                DAOFactory.BCardDAO.InsertOrUpdate(bCardDtos);
+                DaoFactory.SkillDao.InsertOrUpdate(skillDtos);
+                DaoFactory.ComboDao.InsertOrUpdate(comboDtos);
+                DaoFactory.BCardDao.InsertOrUpdate(bCardDtos);
 
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SKILLS_PARSED),
                     counter));

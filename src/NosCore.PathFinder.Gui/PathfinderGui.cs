@@ -38,8 +38,8 @@ namespace NosCore.PathFinder.Gui
     {
         private const string ConfigurationPath = @"../../../configuration";
         private const string Title = "NosCore - Pathfinder GUI";
-        const string consoleText = "PATHFINDER GUI - NosCoreIO";
-        private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
+        const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
+        private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
 
         private static void InitializeConfiguration()
@@ -62,7 +62,7 @@ namespace NosCore.PathFinder.Gui
         {
             Console.Title = Title;
             InitializeLogger();
-            Logger.PrintHeader(consoleText);
+            Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
@@ -81,13 +81,13 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) DaoFactory.MapDao.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {
                         map.Initialize();
 
-                        if (_guiWindow?.Exists == true)
+                        if (_guiWindow?.Exists ?? false)
                         {
                             _guiWindow.Exit();
                         }

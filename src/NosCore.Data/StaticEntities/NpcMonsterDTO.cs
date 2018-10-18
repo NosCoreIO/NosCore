@@ -24,7 +24,7 @@ using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class NpcMonsterDTO : IDTO
+    public class NpcMonsterDto : IDto
     {
         public byte AmountRequired { get; set; }
 
@@ -62,7 +62,7 @@ namespace NosCore.Data.StaticEntities
 
         public short DistanceDefenceDodge { get; set; }
 
-        public virtual ICollection<DropDTO> Drop { get; set; }
+        public virtual ICollection<DropDto> Drop { get; set; }
 
         public byte Element { get; set; }
 
@@ -72,11 +72,11 @@ namespace NosCore.Data.StaticEntities
 
         public byte HeroLevel { get; set; }
 
-        public int HeroXP { get; set; }
+        public int HeroXp { get; set; }
 
         public bool IsHostile { get; set; }
 
-        public int JobXP { get; set; }
+        public int JobXp { get; set; }
 
         public byte Level { get; set; }
 
@@ -84,15 +84,15 @@ namespace NosCore.Data.StaticEntities
 
         public short MagicDefence { get; set; }
 
-        public virtual ICollection<MapMonsterDTO> MapMonster { get; set; }
+        public virtual ICollection<MapMonsterDto> MapMonster { get; set; }
 
-        public virtual ICollection<MapNpcDTO> MapNpc { get; set; }
+        public virtual ICollection<MapNpcDto> MapNpc { get; set; }
 
-        public virtual ICollection<MateDTO> Mate { get; set; }
+        public virtual ICollection<MateDto> Mate { get; set; }
 
-        public int MaxHP { get; set; }
+        public int MaxHp { get; set; }
 
-        public int MaxMP { get; set; }
+        public int MaxMp { get; set; }
 
         public MonsterType MonsterType { get; set; }
 
@@ -103,7 +103,7 @@ namespace NosCore.Data.StaticEntities
 
         public byte NoticeRange { get; set; }
 
-        public virtual ICollection<NpcMonsterSkillDTO> NpcMonsterSkill { get; set; }
+        public virtual ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
 
         [Key]
         public short NpcMonsterVNum { get; set; }
@@ -120,7 +120,7 @@ namespace NosCore.Data.StaticEntities
 
         public short WaterResistance { get; set; }
 
-        public int XP { get; set; }
+        public int Xp { get; set; }
 
         public bool IsPercent { get; set; }
 
@@ -128,7 +128,7 @@ namespace NosCore.Data.StaticEntities
 
         public int GiveDamagePercentage { get; set; }
 
-        public virtual ICollection<BCardDTO> BCards { get; set; }
+        public virtual ICollection<BCardDto> BCards { get; set; }
 
         public void Initialize()
         {

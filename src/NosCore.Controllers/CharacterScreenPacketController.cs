@@ -79,7 +79,7 @@ namespace NosCore.Controllers
             var accountId = Session.Account.AccountId;
             var slot = characterCreatePacket.Slot;
             var characterName = characterCreatePacket.Name;
-            if (DAOFactory.CharacterDAO.FirstOrDefault(s =>
+            if (DaoFactory.CharacterDao.FirstOrDefault(s =>
                 s.AccountId == accountId && s.Slot == slot && s.State == CharacterState.Active) != null)
             {
                 return;
@@ -90,11 +90,11 @@ namespace NosCore.Controllers
             if (rg.Matches(characterName).Count == 1)
             {
                 var character =
-                    DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                    DaoFactory.CharacterDao.FirstOrDefault(s =>
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
-                    var chara = new CharacterDTO
+                    var chara = new CharacterDto
                     {
                         Class = (byte) CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
@@ -116,7 +116,7 @@ namespace NosCore.Controllers
                         MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
-                    DAOFactory.CharacterDAO.InsertOrUpdate(ref chara);
+                    DaoFactory.CharacterDao.InsertOrUpdate(ref chara);
                     LoadCharacters(null);
                 }
                 else
@@ -147,7 +147,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.AccountId.Equals(Session.Account.AccountId));
+            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.AccountId.Equals(Session.Account.AccountId));
             if (account == null)
             {
                 return;
@@ -155,7 +155,7 @@ namespace NosCore.Controllers
 
             if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
             {
-                var character = DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                var character = DaoFactory.CharacterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
                     && s.State == CharacterState.Active);
                 if (character == null)
@@ -164,7 +164,7 @@ namespace NosCore.Controllers
                 }
 
                 character.State = CharacterState.Inactive;
-                DAOFactory.CharacterDAO.InsertOrUpdate(ref character);
+                DaoFactory.CharacterDao.InsertOrUpdate(ref character);
 
                 LoadCharacters(null);
             }
@@ -206,14 +206,14 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == name);
+                var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == name);
 
                 if (account != null)
                 {
                     if (account.Password.Equals(EncryptionHelper.Sha512(packet.Password),
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        var accountobject = new AccountDTO
+                        var accountobject = new AccountDto
                         {
                             AccountId = account.AccountId,
                             Name = account.Name,
@@ -246,7 +246,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var characters = DAOFactory.CharacterDAO.Where(s =>
+            var characters = DaoFactory.CharacterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
             Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),
                 Session.Account.Name);
@@ -268,7 +268,7 @@ namespace NosCore.Controllers
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = DAOFactory.MateDAO.Where(s => s.CharacterId == character.CharacterId).ToList();
+                var mates = DaoFactory.MateDao.Where(s => s.CharacterId == character.CharacterId).ToList();
                 for (var i = 0; i < 26; i++)
                 {
                     if (mates.Count > i)
@@ -311,7 +311,7 @@ namespace NosCore.Controllers
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored == true
+                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored ?? false
                         ? equipment[(byte) EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });
@@ -330,7 +330,7 @@ namespace NosCore.Controllers
                 }
 
                 var characterDto =
-                    DAOFactory.CharacterDAO.FirstOrDefault(s =>
+                    DaoFactory.CharacterDao.FirstOrDefault(s =>
                         s.AccountId == Session.Account.AccountId && s.Slot == selectPacket.Slot
                         && s.State == CharacterState.Active);
                 if (characterDto == null)
@@ -348,31 +348,31 @@ namespace NosCore.Controllers
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
 
-                var inventories = DAOFactory.ItemInstanceDAO.Where(s => s.CharacterId == character.CharacterId)
+                var inventories = DaoFactory.ItemInstanceDao.Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
 #pragma warning restore CS0618
 
-                if (Session.Character.Hp > Session.Character.HPLoad())
+                if (Session.Character.Hp > Session.Character.HpLoad())
                 {
-                    Session.Character.Hp = (int) Session.Character.HPLoad();
+                    Session.Character.Hp = (int) Session.Character.HpLoad();
                 }
 
-                if (Session.Character.Mp > Session.Character.MPLoad())
+                if (Session.Character.Mp > Session.Character.MpLoad())
                 {
-                    Session.Character.Mp = (int) Session.Character.MPLoad();
+                    Session.Character.Mp = (int) Session.Character.MpLoad();
                 }
 
                 var relations =
-                    DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == Session.Character.CharacterId);
+                    DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == Session.Character.CharacterId);
                 var relationsWithCharacter =
-                    DAOFactory.CharacterRelationDAO.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
+                    DaoFactory.CharacterRelationDao.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
 
-                var characters = DAOFactory.CharacterDAO
+                var characters = DaoFactory.CharacterDao
                     .Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-                var relatedCharacters = DAOFactory.CharacterDAO.Where(s =>
+                var relatedCharacters = DaoFactory.CharacterDao.Where(s =>
                     relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
                 foreach (var relation in relations.Adapt<IEnumerable<CharacterRelation>>())

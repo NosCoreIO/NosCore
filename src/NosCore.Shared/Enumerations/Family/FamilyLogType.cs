@@ -27,7 +27,7 @@ namespace NosCore.Shared.Enumerations.Family
         DailyMessage = 1,
         RaidWon = 2,
         RainbowBattle = 3,
-        FamilyXP = 4,
+        FamilyXp = 4,
         FamilyLevelUp = 5,
         LevelUp = 6,
         ItemUpgraded = 7,

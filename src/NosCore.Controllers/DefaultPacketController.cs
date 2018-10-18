@@ -74,7 +74,7 @@ namespace NosCore.Controllers
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                Session.SendPacket(new ScenePacket {SceneId = 40});
+                Session.SendPacket(new ScenePacket { SceneId = 40 });
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -234,7 +234,7 @@ namespace NosCore.Controllers
         {
             var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
             var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
-            if (!(timeSpanSinceLastPortal >= 4))
+            if (timeSpanSinceLastPortal < 4)
             {
                 return;
             }
@@ -289,7 +289,8 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
+                    return;
             }
 
             Session.SendPacket(entity?.GenerateStatInfo());
@@ -301,7 +302,7 @@ namespace NosCore.Controllers
         /// <param name="walkPacket"></param>
         public void Walk(WalkPacket walkPacket)
         {
-            var distance = (int) Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
+            var distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if ((Session.Character.Speed < walkPacket.Speed
@@ -463,9 +464,9 @@ namespace NosCore.Controllers
 
                 ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
-                    Packet = PacketFactory.Serialize(new[] {speakPacket}),
-                    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
-                    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
+                    Packet = PacketFactory.Serialize(new[] { speakPacket }),
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -536,11 +537,11 @@ namespace NosCore.Controllers
 
             ServerManager.Instance.BroadcastPacket(new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {Session.Character.GenerateTalk(message)}),
+                Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character
-                    {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
                 SenderCharacter = new Data.WebApi.Character
-                    {Name = Session.Character.Name, Id = Session.Character.CharacterId},
+                { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.ChannelId);
@@ -627,9 +628,9 @@ namespace NosCore.Controllers
                         Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language),
                         Session.Character.Name),
                     YesPacket = new FinsPacket
-                        {Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId},
+                    { Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId },
                     NoPacket = new FinsPacket
-                        {Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId}
+                    { Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId }
                 });
                 Session.Character.FriendRequestCharacters[Session.Character.CharacterId] = finsPacket.CharacterId;
                 return;

@@ -23,7 +23,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class QuestDTO : IDTO
+    public class QuestDto : IDto
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -39,9 +39,9 @@ namespace NosCore.Data.StaticEntities
 
         public int? EndDialogId { get; set; }
 
-        public ICollection<QuestObjectiveDTO> QuestObjective { get; set; }
+        public ICollection<QuestObjectiveDto> QuestObjective { get; set; }
 
-        public ICollection<QuestRewardDTO> QuestRewards { get; set; }
+        public ICollection<QuestRewardDto> QuestRewards { get; set; }
 
         public short? TargetMap { get; set; }
 

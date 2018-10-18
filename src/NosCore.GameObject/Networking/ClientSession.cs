@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Networking
 
         public int LastPulse { get; set; }
 
-        public AccountDTO Account { get; set; }
+        public AccountDto Account { get; set; }
 
         public Character Character
         {
@@ -106,9 +106,9 @@ namespace NosCore.GameObject.Networking
 
         public bool HasCurrentMapInstance => Character?.MapInstance != null;
 
-        public void InitializeAccount(AccountDTO accountDTO)
+        public void InitializeAccount(AccountDto accountDto)
         {
-            Account = accountDTO;
+            Account = accountDto;
             IsAuthenticated = true;
             ServerManager.Instance.RegisterSession(this);
         }

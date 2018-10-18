@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Data
 {
-    public class CharacterRelationDTO : IDTO
+    public class CharacterRelationDto : IDto
     {
         [Key]
         public Guid CharacterRelationId { get; set; }

@@ -23,7 +23,7 @@ using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.Services.PortalGeneration
 {
-    public class Portal : PortalDTO
+    public class Portal : PortalDto
     {
         public short MapId { get; set; }
         public Guid DestinationMapInstanceId { get; set; }

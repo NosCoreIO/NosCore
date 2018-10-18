@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Data
 {
-    public class AccountDTO : IDTO
+    public class AccountDto : IDto
     {
         [Key]
         public long AccountId { get; set; }
@@ -36,7 +36,7 @@ namespace NosCore.Data
 
         public string Password { get; set; }
 
-        public string RegistrationIP { get; set; }
+        public string RegistrationIp { get; set; }
 
         public string VerificationToken { get; set; }
 

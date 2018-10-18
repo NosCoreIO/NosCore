@@ -171,6 +171,7 @@ namespace NosCore.Shared.I18N
         USER_NOT_CONNECTED,
         FRIEND_REQUEST_SENT,
         ALREADY_BLACKLISTED,
-        USER_IS_NOT_A_FRIEND
+        USER_IS_NOT_A_FRIEND,
+        VISUALTYPE_UNKNOWN
     }
 }

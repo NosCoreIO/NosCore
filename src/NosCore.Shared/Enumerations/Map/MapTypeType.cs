@@ -17,12 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace NosCore.Shared.Enumerations.Map
 {
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum MapTypeEnum : short
+    public enum MapTypeType : short
     {
         // Act
         Act1 = 1,

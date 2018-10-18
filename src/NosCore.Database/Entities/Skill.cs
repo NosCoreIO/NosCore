@@ -49,7 +49,7 @@ namespace NosCore.Database.Entities
 
         public short Cooldown { get; set; }
 
-        public byte CPCost { get; set; }
+        public byte CpCost { get; set; }
 
         public short Duration { get; set; }
 

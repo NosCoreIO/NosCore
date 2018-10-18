@@ -21,7 +21,7 @@ namespace NosCore.Shared.Enumerations.Interaction
 {
     public enum ArenaTeamType : byte
     {
-        ZENAS = 1,
-        ERENIA = 2
+        Zenas = 1,
+        Erenia = 2
     }
 }
