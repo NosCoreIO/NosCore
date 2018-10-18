@@ -41,7 +41,7 @@ namespace NosCore.Parser.Parsers
             var combo = new List<ComboDto>();
             var skillCards = new List<BCardDto>();
             var counter = 0;
-
+            var stringNotParsed = new List<string>();
             using (var skillIdStream = new StreamReader(_folder + _fileSkillId, Encoding.Default))
             {
                 string line;

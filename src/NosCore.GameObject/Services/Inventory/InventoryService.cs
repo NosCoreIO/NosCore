@@ -290,7 +290,7 @@ namespace NosCore.GameObject.Services.Inventory
             return sourceInstance;
         }
 
-        public void MoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+        public void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out ItemInstance sourcePocket, out ItemInstance destinationPocket)
         {
             // load source and destination slots

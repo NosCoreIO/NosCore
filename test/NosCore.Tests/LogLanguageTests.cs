@@ -69,20 +69,20 @@ namespace NosCore.Tests
         [DataRow(RegionType.TR)]
         public void CheckEveryLanguageAreUsefull(RegionType type)
         {
-            var unfound = string.Empty;
+            var unfound = new StringBuilder();
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
             {
                 var resourceKey = entry.Key.ToString();
                 if (!values.Contains(resourceKey))
                 {
-                    unfound += $"key {resourceKey} is useless\n";
+                    unfound.Append($"key {resourceKey} is useless\n");
                 }
             }
 
-            if (!string.IsNullOrEmpty(unfound))
+            if (!string.IsNullOrEmpty(unfound.ToString()))
             {
-                Assert.Fail(unfound);
+                Assert.Fail(unfound.ToString());
             }
         }
     }

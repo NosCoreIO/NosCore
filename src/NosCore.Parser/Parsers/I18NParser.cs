@@ -42,7 +42,7 @@ namespace NosCore.Parser.Parsers
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
 
-        private static string _line;
+        private string _line;
         private string _folder;
 
         private string I18NTextFileName(string textfilename, RegionType region)
