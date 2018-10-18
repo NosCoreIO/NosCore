@@ -40,6 +40,7 @@ using System.Diagnostics;
 using System.Linq;
 using NosCore.Shared.Enumerations.Character;
 using System.Collections.Concurrent;
+using System.Text;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
@@ -377,7 +378,7 @@ namespace NosCore.Controllers
         {
             try
             {
-                var message = string.Empty;
+                var messageBuilder = new StringBuilder();
 
                 //Todo: review this
                 var messageData = whisperPacket.Message.Split(' ');
@@ -385,23 +386,22 @@ namespace NosCore.Controllers
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {
-                    message += $"{messageData[i]} ";
+                    messageBuilder.Append($"{messageData[i]} ");
                 }
 
-                message = whisperPacket.Message.Length > 60 ? whisperPacket.Message.Substring(0, 60) : message;
-                message = message.Trim();
+                var message = new StringBuilder(messageBuilder.ToString().Length > 60 ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
                 Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
-                    Message = message
+                    Message = message.ToString()
                 }));
 
                 var speakPacket = Session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
                         : SpeakType.Player,
-                    Message = message
+                    Message = message.ToString()
                 });
 
                 var receiverSession =

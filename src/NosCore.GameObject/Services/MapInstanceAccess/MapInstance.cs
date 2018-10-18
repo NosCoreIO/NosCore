@@ -124,7 +124,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private IDisposable Life { get; set; }
 
-        public MapItem PutItem(short amount, ref ItemInstance inv, ClientSession session)
+        public MapItem PutItem(short amount, ItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
             MapItem droppedItem = null;

@@ -31,11 +31,12 @@ namespace NosCore.Shared.I18N
 
         private Language()
         {
-            if (Assembly.GetExecutingAssembly() != null)
+            Assembly assem = typeof(Language).Assembly;
+            if (assem != null)
             {
                 _manager = new ResourceManager(
-                    Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
-                    Assembly.GetExecutingAssembly());
+                    assem.GetName().Name + ".Resource.LocalizedResources",
+                    assem);
             }
         }
 
