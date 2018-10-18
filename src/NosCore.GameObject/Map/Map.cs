@@ -26,7 +26,7 @@ using NosCore.PathFinder;
 
 namespace NosCore.GameObject.Map
 {
-    public class Map : MapDTO
+    public class Map : MapDto
     {
         private short _xLength;
 

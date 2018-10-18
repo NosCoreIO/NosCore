@@ -33,7 +33,7 @@ namespace NosCore.Parser.Parsers
             var monsterCounter = 0;
             short map = 0;
             var mobMvPacketsList = new List<int>();
-            var monsters = new List<MapMonsterDTO>();
+            var monsters = new List<MapMonsterDto>();
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3")))
             {
@@ -56,7 +56,7 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var monster = new MapMonsterDTO
+                var monster = new MapMonsterDto
                 {
                     MapId = map,
                     VNum = short.Parse(currentPacket[2]),
@@ -68,8 +68,8 @@ namespace NosCore.Parser.Parsers
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
-                    || DAOFactory.MapMonsterDAO.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
+                if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
+                    || DaoFactory.MapMonsterDao.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
                     || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
                 {
                     continue;
@@ -80,8 +80,8 @@ namespace NosCore.Parser.Parsers
             }
 
 
-            IEnumerable<MapMonsterDTO> mapMonsterDtos = monsters;
-            DAOFactory.MapMonsterDAO.InsertOrUpdate(mapMonsterDtos);
+            IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
+            DaoFactory.MapMonsterDao.InsertOrUpdate(mapMonsterDtos);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MONSTERS_PARSED),
                 monsterCounter));
         }

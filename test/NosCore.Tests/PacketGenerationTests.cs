@@ -54,7 +54,7 @@ namespace NosCore.Tests
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
             var characterTest = new Character()
-                {Name = "characterTest", Account = new AccountDTO {Authority = AuthorityType.Administrator}, Level = 1};
+                {Name = "characterTest", Account = new AccountDto {Authority = AuthorityType.Administrator}, Level = 1};
 
             var packet = PacketFactory.Serialize(new[] {characterTest.GenerateIn()});
             Assert.AreEqual(
@@ -143,7 +143,7 @@ namespace NosCore.Tests
             var mapItemTest = new MapItem();
 
             var packet = PacketFactory.Serialize(new[] {mapItemTest.GenerateIn()});
-            Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 0 0 0 0", packet);
+            Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 0 {mapItemTest.Amount} 0 0", packet);
         }
 
         [TestMethod]

@@ -19,7 +19,7 @@
 
 namespace NosCore.Data
 {
-    public class StaticBuffDTO : IDTO
+    public class StaticBuffDto : IDto
     {
     }
 }

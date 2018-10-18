@@ -27,17 +27,17 @@ namespace NosCore.Database
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
-        private const string _configurationPath = @"../../../configuration";
+        private const string ConfigurationPath = @"../../../configuration";
 
         public NosCoreContext CreateDbContext(string[] args)
         {
-            var _databaseConfiguration = new SqlConnectionConfiguration();
+            var databaseConfiguration = new SqlConnectionConfiguration();
             var builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + _configurationPath);
+            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(_databaseConfiguration);
+            builder.Build().Bind(databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(_databaseConfiguration.ConnectionString);
+            optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString);
             return new NosCoreContext(optionsBuilder.Options);
         }
     }

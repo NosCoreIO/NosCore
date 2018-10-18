@@ -19,7 +19,7 @@
 
 namespace NosCore.Data
 {
-    public interface IDTO
+    public interface IDto
     {
     }
 }

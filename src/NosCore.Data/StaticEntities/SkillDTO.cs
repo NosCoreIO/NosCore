@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class SkillDTO : IDTO
+    public class SkillDto : IDto
     {
         public short AttackAnimation { get; set; }
 
@@ -37,7 +37,7 @@ namespace NosCore.Data.StaticEntities
 
         public short Cooldown { get; set; }
 
-        public byte CPCost { get; set; }
+        public byte CpCost { get; set; }
 
         public short Duration { get; set; }
 

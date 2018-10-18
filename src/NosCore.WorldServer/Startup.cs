@@ -67,7 +67,7 @@ namespace NosCore.WorldServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
-        const string consoleText = "WORLD SERVER - NosCoreIO";
+        const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
         private static WorldConfiguration InitializeConfiguration()
         {
@@ -97,21 +97,21 @@ namespace NosCore.WorldServer
 
             containerBuilder.Register(_ =>
             {
-                var items = DAOFactory.ItemDAO.LoadAll().Adapt<List<Item>>().ToList();
+                var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
                     items.Count));
                 return items;
             }).As<List<Item>>().SingleInstance();
             containerBuilder.Register(_ =>
             {
-                List<NpcMonsterDTO> monsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
+                List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED),
                     monsters.Count));
                 return monsters;
-            }).As<List<NpcMonsterDTO>>().SingleInstance();
+            }).As<List<NpcMonsterDto>>().SingleInstance();
             containerBuilder.Register(_ =>
             {
-                List<Map> maps = DAOFactory.MapDAO.LoadAll().Adapt<List<Map>>();
+                List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
                 if (maps.Count != 0)
                 {
                     Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
@@ -135,7 +135,7 @@ namespace NosCore.WorldServer
         {
             Console.Title = Title;
             Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
-            Logger.PrintHeader(consoleText);
+            Logger.PrintHeader(ConsoleText);
             PacketFactory.Initialize<NoS0575Packet>();
             var configuration = InitializeConfiguration();
 

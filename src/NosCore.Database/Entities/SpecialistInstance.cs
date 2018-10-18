@@ -29,7 +29,7 @@ namespace NosCore.Database.Entities
 
         public short? SlElement { get; set; }
 
-        public short? SlHP { get; set; }
+        public short? SlHp { get; set; }
 
         public byte? SpDamage { get; set; }
 
@@ -41,7 +41,7 @@ namespace NosCore.Database.Entities
 
         public byte? SpFire { get; set; }
 
-        public byte? SpHP { get; set; }
+        public byte? SpHp { get; set; }
 
         public byte? SpLevel { get; set; }
 

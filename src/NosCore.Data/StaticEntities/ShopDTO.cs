@@ -19,7 +19,7 @@
 
 namespace NosCore.Data.StaticEntities
 {
-    public class ShopDTO : IDTO
+    public class ShopDto : IDto
     {
     }
 }

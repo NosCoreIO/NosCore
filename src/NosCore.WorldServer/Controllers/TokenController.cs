@@ -51,9 +51,9 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
             }
 
-            var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == client.Username);
+            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == client.Username);
 
-            if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) != true)
+            if (!(account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }

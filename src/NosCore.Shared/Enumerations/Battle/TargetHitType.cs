@@ -23,8 +23,8 @@ namespace NosCore.Shared.Enumerations.Battle
     {
         SingleTargetHit = 0,
         SingleTargetHitCombo = 1,
-        SingleAOETargetHit = 2,
-        AOETargetHit = 3,
+        SingleAoeTargetHit = 2,
+        AoeTargetHit = 3,
         ZoneHit = 4,
         SpecialZoneHit = 5
     }

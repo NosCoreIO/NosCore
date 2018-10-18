@@ -29,7 +29,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDTO, INonPlayableEntity
+    public class MapMonster : MapMonsterDto, INonPlayableEntity
     {
         public IDisposable Life { get; private set; }
         public bool IsSitting { get; set; }
@@ -54,24 +54,24 @@ namespace NosCore.GameObject
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public string Name { get; set; }
-        public NpcMonsterDTO NpcMonster { get; set; }
+        public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
 
-        public int MaxHp => NpcMonster.MaxHP;
+        public int MaxHp => NpcMonster.MaxHp;
 
-        public int MaxMp => NpcMonster.MaxMP;
+        public int MaxMp => NpcMonster.MaxMp;
 
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
 
-        internal void Initialize(NpcMonsterDTO npcMonster)
+        internal void Initialize(NpcMonsterDto npcMonster)
         {
             NpcMonster = npcMonster;
-            Mp = NpcMonster.MaxMP;
-            Hp = NpcMonster.MaxHP;
+            Mp = NpcMonster.MaxMp;
+            Hp = NpcMonster.MaxHp;
             PositionX = MapX;
             PositionY = MapY;
             Speed = NpcMonster.Speed;

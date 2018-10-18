@@ -26,7 +26,7 @@ namespace NosCore.DAL
 {
     public sealed class DataAccessHelper
     {
-        private static DataAccessHelper instance;
+        private static DataAccessHelper _instance;
 
         #region Members
 
@@ -38,7 +38,7 @@ namespace NosCore.DAL
         {
         }
 
-        public static DataAccessHelper Instance => instance ?? (instance = new DataAccessHelper());
+        public static DataAccessHelper Instance => _instance ?? (_instance = new DataAccessHelper());
 
         #region Methods
 

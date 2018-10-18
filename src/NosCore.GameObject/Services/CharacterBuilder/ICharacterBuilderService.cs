@@ -23,6 +23,6 @@ namespace NosCore.GameObject.Services.CharacterBuilder
 {
     public interface ICharacterBuilderService
     {
-        Character LoadCharacter(CharacterDTO characterDto);
+        Character LoadCharacter(CharacterDto characterDto);
     }
 }

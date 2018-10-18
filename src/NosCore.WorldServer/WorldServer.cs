@@ -46,11 +46,11 @@ namespace NosCore.WorldServer
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
-        private readonly List<NpcMonsterDTO> _npcmonsters;
+        private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -115,7 +115,7 @@ namespace NosCore.WorldServer
                     Password = password,
                     ClientName = clientType.Name,
                     ClientType = (byte) clientType.Type,
-                    connectedAccountLimit = connectedAccountLimit,
+                    ConnectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost,

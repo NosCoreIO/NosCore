@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.AliveEntities
 {
-    public class MateDTO : IDTO
+    public class MateDto : IDto
     {
         public byte Attack { get; set; }
 

@@ -129,7 +129,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {sayPacket}),
+                Packet = PacketFactory.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Data.WebApi.Character()
                 {
                     Name = Session.Character.Name,
@@ -140,137 +140,126 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {msgPacket}),
+                Packet = PacketFactory.Serialize(new[] { msgPacket }),
                 ReceiverType = ReceiverType.All
             };
 
-            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]
         public void CreateItem(CreateItemPacket createItemPacket)
         {
-            if (createItemPacket != null)
+            var vnum = createItemPacket.VNum;
+            sbyte rare = 0;
+            const short boxEffect = 999;
+            byte upgrade = 0, design = 0;
+            short amount = 1;
+            if (vnum == 1046)
             {
-                var vnum = createItemPacket.VNum;
-                sbyte rare = 0;
-                const short boxEffect = 999;
-                byte upgrade = 0, design = 0;
-                short amount = 1;
-                if (vnum == 1046)
+                return; // cannot create gold as item, use $Gold instead
+            }
+
+            var iteminfo = _items.Find(item => item.VNum == vnum);
+            if (iteminfo == null)
+            {
+                Session.SendPacket(new MsgPacket()
                 {
-                    return; // cannot create gold as item, use $Gold instead
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+
+            if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
+            {
+                if (createItemPacket.DesignOrAmount.HasValue)
+                {
+                    design = (byte)createItemPacket.DesignOrAmount.Value;
                 }
 
-                var iteminfo = _items.Find(item => item.VNum == vnum);
-                if (iteminfo != null)
+                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect
+                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
+            }
+            else if (iteminfo.Type == PocketType.Equipment)
+            {
+                if (createItemPacket.Upgrade.HasValue)
                 {
-                    if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
+                    if (iteminfo.EquipmentSlot != EquipmentType.Sp)
                     {
-                        if (createItemPacket.DesignOrAmount.HasValue)
-                        {
-                            design = (byte) createItemPacket.DesignOrAmount.Value;
-                        }
-
-                        rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect
-                            ? (sbyte) createItemPacket.Upgrade.Value : rare;
-                    }
-                    else if (iteminfo.Type == PocketType.Equipment)
-                    {
-                        if (createItemPacket.Upgrade.HasValue)
-                        {
-                            if (iteminfo.EquipmentSlot != EquipmentType.Sp)
-                            {
-                                upgrade = createItemPacket.Upgrade.Value;
-                            }
-                            else
-                            {
-                                design = createItemPacket.Upgrade.Value;
-                            }
-
-                            if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0 &&
-                                iteminfo.BasicUpgrade != 0)
-                            {
-                                upgrade = iteminfo.BasicUpgrade;
-                            }
-                        }
-
-                        if (createItemPacket.DesignOrAmount.HasValue)
-                        {
-                            if (iteminfo.EquipmentSlot == EquipmentType.Sp)
-                            {
-                                upgrade = (byte) createItemPacket.DesignOrAmount.Value;
-                            }
-                            else
-                            {
-                                rare = (sbyte) createItemPacket.DesignOrAmount.Value;
-                            }
-                        }
-                    }
-
-                    if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
-                    {
-                        amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount
-                            ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
-                    }
-
-                    var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum,
-                        Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
-
-                    if (inv.Count > 0)
-                    {
-                        Session.SendPacket(inv.GeneratePocketChange());
-                        var firstItem = inv[0];
-                        var wearable =
-                            Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
-                                firstItem.Type);
-                        if (wearable != null)
-                        {
-                            switch (wearable.Item.EquipmentSlot)
-                            {
-                                case EquipmentType.Armor:
-                                case EquipmentType.MainWeapon:
-                                case EquipmentType.SecondaryWeapon:
-                                    wearable.SetRarityPoint();
-                                    break;
-
-                                case EquipmentType.Boots:
-                                case EquipmentType.Gloves:
-                                    wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
-                                    wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
-                                    wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
-                                    wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
-                                    break;
-                            }
-                        }
-
-                        Session.SendPacket(Session.Character.GenerateSay(
-                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}",
-                            SayColorType.Green));
+                        upgrade = createItemPacket.Upgrade.Value;
                     }
                     else
                     {
-                        Session.SendPacket(new MsgPacket()
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                                Session.Account.Language),
-                            Type = 0
-                        });
+                        design = createItemPacket.Upgrade.Value;
+                    }
+
+                    if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0
+                        && iteminfo.BasicUpgrade != 0)
+                    {
+                        upgrade = iteminfo.BasicUpgrade;
                     }
                 }
-                else
+
+                if (createItemPacket.DesignOrAmount.HasValue)
                 {
-                    Session.SendPacket(new MsgPacket()
+                    if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language),
-                        Type = 0
-                    });
+                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                    }
+                    else
+                    {
+                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                    }
                 }
             }
-            else
+
+            if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
             {
-                Session.SendPacket(Session.Character.GenerateSay(CreateItemPacket.ReturnHelp(), SayColorType.Yellow));
+                amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount
+                    ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
+
+            var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum,
+                Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+
+            if (inv.Count <= 0)
+            {
+                Session.SendPacket(new MsgPacket()
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        Session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+
+            Session.SendPacket(inv.GeneratePocketChange());
+            var firstItem = inv[0];
+            var wearable =
+                Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
+                    firstItem.Type);
+
+            switch (wearable?.Item.EquipmentSlot)
+            {
+                case EquipmentType.Armor:
+                case EquipmentType.MainWeapon:
+                case EquipmentType.SecondaryWeapon:
+                    wearable.SetRarityPoint();
+                    break;
+
+                case EquipmentType.Boots:
+                case EquipmentType.Gloves:
+                    wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
+                    wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
+                    wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
+                    wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                    break;
+            }
+
+            Session.SendPacket(Session.Character.GenerateSay(
+                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}",
+                SayColorType.Green));
         }
 
         [UsedImplicitly]
@@ -278,7 +267,7 @@ namespace NosCore.Controllers
         {
             if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
             {
-                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
+                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
                 Session.SendPacket(Session.Character.GenerateCond());
             }
             else

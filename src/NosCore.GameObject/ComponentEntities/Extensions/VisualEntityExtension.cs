@@ -100,8 +100,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        HP = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        MP = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
+                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.GroupId,
@@ -148,8 +148,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        MP = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMP ?? 1) * 100),
-                        HP = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHP ?? 1) * 100)
+                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }

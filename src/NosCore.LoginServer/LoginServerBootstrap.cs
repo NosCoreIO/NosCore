@@ -43,7 +43,7 @@ namespace NosCore.LoginServer
     {
         private const string ConfigurationPath = @"../../../configuration";
         private const string Title = "NosCore - LoginServer";
-        const string consoleText = "LOGIN SERVER - NosCoreIO";
+        const string ConsoleText = "LOGIN SERVER - NosCoreIO";
 
         private static LoginConfiguration InitializeConfiguration()
         {
@@ -74,7 +74,7 @@ namespace NosCore.LoginServer
         {
             Console.Title = Title;
             InitializeLogger();
-            Logger.PrintHeader(consoleText);
+            Logger.PrintHeader(ConsoleText);
             InitializePackets();
             var container = InitializeContainer();
             var loginServer = container.Resolve<LoginServer>();

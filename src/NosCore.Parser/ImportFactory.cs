@@ -55,28 +55,28 @@ namespace NosCore.Parser
 
         public void ImportAccounts()
         {
-            var acc1 = new AccountDTO
+            var acc1 = new AccountDto
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
                 Password = EncryptionHelper.Sha512("test")
             };
 
-            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc1);
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc1);
             }
 
-            var acc2 = new AccountDTO
+            var acc2 = new AccountDto
             {
                 Authority = AuthorityType.User,
                 Name = "test",
                 Password = EncryptionHelper.Sha512("test")
             };
 
-            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc2);
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc2);
             }
         }
 

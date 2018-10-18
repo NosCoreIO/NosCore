@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     {
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
-        private readonly List<NpcMonsterDTO> _npcMonsters;
+        private readonly List<NpcMonsterDto> _npcMonsters;
 
         private readonly ConcurrentDictionary<long, MapNpc> _npcs;
 
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         private bool _isSleepingRequest;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            List<NpcMonsterDTO> npcMonsters)
+            List<NpcMonsterDto> npcMonsters)
         {
             _npcMonsters = npcMonsters;
             XpRate = 1;
@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public void LoadMonsters()
         {
-            var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId),
+            var partitioner = Partitioner.Create(DaoFactory.MapMonsterDao.Where(s => s.MapId == Map.MapId),
                 EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, monster =>
             {
@@ -192,7 +192,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public void LoadNpcs()
         {
-            var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId),
+            var partitioner = Partitioner.Create(DaoFactory.MapNpcDao.Where(s => s.MapId == Map.MapId),
                 EnumerablePartitionerOptions.None);
             Parallel.ForEach(partitioner, npc =>
             {

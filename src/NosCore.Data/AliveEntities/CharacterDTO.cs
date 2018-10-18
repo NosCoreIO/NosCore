@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Data.AliveEntities
 {
-    public class CharacterDTO : IDTO
+    public class CharacterDto : IDto
     {
         public long AccountId { get; set; }
 

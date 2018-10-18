@@ -27,10 +27,10 @@ namespace NosCore.Packets.ServerPackets
         #region Properties
 
         [PacketIndex(0)]
-        public int HP { get; set; }
+        public int Hp { get; set; }
 
         [PacketIndex(1)]
-        public int MP { get; set; }
+        public int Mp { get; set; }
 
         #endregion
     }

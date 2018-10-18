@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public short HitRate { get; set; }
 
-        public short HP { get; set; }
+        public short Hp { get; set; }
 
         public bool IsEmpty { get; set; }
 
@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public byte MaxElementRate { get; set; }
 
-        public short MP { get; set; }
+        public short Mp { get; set; }
 
         public sbyte? ShellRarity { get; set; }
 
@@ -89,7 +89,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public short WaterResistance { get; set; }
 
-        public long XP { get; set; }
+        public long Xp { get; set; }
 
         public void SetRarityPoint()
         {
