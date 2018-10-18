@@ -177,7 +177,7 @@ namespace NosCore.Tests
         public void MoveFullSlot()
         {
             var item = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 999)).First();
-            Inventory.MoveItem(item.Type, item.Slot, 999, 1, out var originItem, out var destinationItem);
+            Inventory.TryMoveItem(item.Type, item.Slot, 999, 1, out var originItem, out var destinationItem);
             Assert.IsTrue(originItem == null);
             Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
         }
@@ -186,7 +186,7 @@ namespace NosCore.Tests
         public void MoveHalfSlot()
         {
             var item = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 999)).First();
-            Inventory.MoveItem(item.Type, item.Slot, 499, 1, out var originItem, out var destinationItem);
+            Inventory.TryMoveItem(item.Type, item.Slot, 499, 1, out var originItem, out var destinationItem);
             Assert.IsTrue(originItem?.Amount == 500 && originItem.Slot == 0);
             Assert.IsTrue(destinationItem?.Amount == 499 && destinationItem.Slot == 1);
         }
@@ -195,8 +195,8 @@ namespace NosCore.Tests
         public void MoveHalfSlotAndMergeThem()
         {
             var item = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 999)).First();
-            Inventory.MoveItem(item.Type, item.Slot, 499, 1, out _, out _);
-            Inventory.MoveItem(item.Type, 0, 500, 1, out var originItem, out var destinationItem);
+            Inventory.TryMoveItem(item.Type, item.Slot, 499, 1, out _, out _);
+            Inventory.TryMoveItem(item.Type, 0, 500, 1, out var originItem, out var destinationItem);
             Assert.IsTrue(originItem == null);
             Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
         }
@@ -206,7 +206,7 @@ namespace NosCore.Tests
         {
             var item = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 999)).First();
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 500)).First();
-            Inventory.MoveItem(item.Type, item.Slot, 600, 1, out var originItem, out var destinationItem);
+            Inventory.TryMoveItem(item.Type, item.Slot, 600, 1, out var originItem, out var destinationItem);
             Assert.IsTrue(originItem?.Amount == 500 && originItem.Slot == 0);
             Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
         }

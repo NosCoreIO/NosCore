@@ -30,17 +30,18 @@ namespace NosCore.Shared.I18N
 
         public static RegionType Language { get; set; }
 
-        private static CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
+        private static readonly CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
 
         private readonly ResourceManager _manager;
 
         private LogLanguage()
         {
-            if (Assembly.GetExecutingAssembly() != null)
+            Assembly assem = typeof(LogLanguage).Assembly;
+            if (assem != null)
             {
                 _manager = new ResourceManager(
-                    Assembly.GetExecutingAssembly().GetName().Name + ".Resource.LocalizedResources",
-                    Assembly.GetExecutingAssembly());
+                    assem.GetName().Name + ".Resource.LocalizedResources",
+                    assem);
             }
         }
 

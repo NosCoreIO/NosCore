@@ -32,12 +32,12 @@ namespace NosCore.Parser.Parsers
     public class CardParser
     {
         private const string FileCardDat = "\\Card.dat";
-        private static string _line;
-        private static int _counter;
-        private static CardDto _card = new CardDto();
-        private static bool _itemAreaBegin;
-        private static readonly List<CardDto> Cards = new List<CardDto>();
-        private static readonly List<BCardDto> Bcards = new List<BCardDto>();
+        private string _line;
+        private int _counter;
+        private CardDto _card = new CardDto();
+        private bool _itemAreaBegin;
+        private readonly List<CardDto> Cards = new List<CardDto>();
+        private readonly List<BCardDto> Bcards = new List<BCardDto>();
         private string _folder;
 
         public void AddFirstData(string[] currentLine)
