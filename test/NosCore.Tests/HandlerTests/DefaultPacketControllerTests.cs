@@ -23,6 +23,7 @@ using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
@@ -38,8 +39,8 @@ namespace NosCore.Tests.HandlerTests
         private const string ConfigurationPath = "../../../configuration";
         private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
         private readonly ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
-        private CharacterDTO _chara;
-        private CharacterDTO _targetChar;
+        private CharacterDto _chara;
+        private CharacterDto _targetChar;
         private DefaultPacketController _handler;
 
         [TestInitialize]
@@ -51,14 +52,14 @@ namespace NosCore.Tests.HandlerTests
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(DefaultPacketControllerTests)));
-            var map = new MapDTO { MapId = 1 };
-            DAOFactory.MapDAO.InsertOrUpdate(ref map);
-            var account = new AccountDTO { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
-            var targetAccount = new AccountDTO { Name = "test2", Password = EncryptionHelper.Sha512("test") };
-            DAOFactory.AccountDAO.InsertOrUpdate(ref account);
-            DAOFactory.AccountDAO.InsertOrUpdate(ref targetAccount);
+            var map = new MapDto { MapId = 1 };
+            DaoFactory.MapDao.InsertOrUpdate(ref map);
+            var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
+            DaoFactory.AccountDao.InsertOrUpdate(ref account);
+            DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
 
-            _chara = new CharacterDTO
+            _chara = new CharacterDto
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -67,7 +68,7 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            _targetChar = new CharacterDTO
+            _targetChar = new CharacterDto
             {
                 Name = "TestChar2",
                 Slot = 1,
@@ -76,12 +77,12 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            DAOFactory.CharacterDAO.InsertOrUpdate(ref _chara);
+            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(account);
             _handler = new DefaultPacketController(null, null);
             _handler.RegisterSession(_session);
 
-            DAOFactory.CharacterDAO.InsertOrUpdate(ref _targetChar);
+            DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
             _targetSession.InitializeAccount(targetAccount);
 
             WebApiAccess.RegisterBaseAdress();
