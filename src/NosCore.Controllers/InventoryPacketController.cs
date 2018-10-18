@@ -82,7 +82,7 @@ namespace NosCore.Controllers
             }
 
             // actually move the item from source to destination
-            Session.Character.Inventory.MoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
+            Session.Character.Inventory.TryMoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             Session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
             Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
@@ -238,7 +238,7 @@ namespace NosCore.Controllers
                         if (Session.Character.MapInstance.DroppedList.Count < 200)
                         {
                             var droppedItem =
-                                Session.Character.MapInstance.PutItem(putPacket.Amount, ref invitem, Session);
+                                Session.Character.MapInstance.PutItem(putPacket.Amount, invitem, Session);
                             if (droppedItem == null)
                             {
                                 Session.SendPacket(new MsgPacket()

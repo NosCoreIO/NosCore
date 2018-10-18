@@ -20,6 +20,7 @@
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
@@ -97,52 +98,62 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
-                {
-                    int point = CharacterHelper.Instance.RarityPoint(Rare,
-                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
-                    Concentrate = 0;
-                    HitRate = 0;
-                    DamageMinimum = 0;
-                    DamageMaximum = 0;
-                    if (Rare >= 0)
                     {
-                        for (int i = 0; i < point; i++)
+                        int point = CharacterHelper.Instance.RarityPoint(Rare,
+                            Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        Concentrate = 0;
+                        HitRate = 0;
+                        DamageMinimum = 0;
+                        DamageMaximum = 0;
+                        if (Rare >= 0)
                         {
-                            int rndn = RandomFactory.Instance.RandomNumber(0, 3);
-                            if (rndn == 0)
+                            for (int i = 0; i < point; i++)
                             {
-                                Concentrate++;
-                                HitRate++;
+                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                                if (rndn == 0)
+                                {
+                                    Concentrate++;
+                                    HitRate++;
+                                }
+                                else
+                                {
+                                    DamageMinimum++;
+                                    DamageMaximum++;
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            for (int i = 0; i > Rare * 10; i--)
                             {
-                                DamageMinimum++;
-                                DamageMaximum++;
+                                DamageMinimum--;
+                                DamageMaximum--;
                             }
                         }
                     }
-                    else
-                    {
-                        for (int i = 0; i > Rare * 10; i--)
-                        {
-                            DamageMinimum--;
-                            DamageMaximum--;
-                        }
-                    }
-                }
                     break;
 
                 case EquipmentType.Armor:
-                {
-                    int point = CharacterHelper.Instance.RarityPoint(Rare,
-                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
-                    DefenceDodge = 0;
-                    DistanceDefenceDodge = 0;
-                    DistanceDefence = 0;
-                    MagicDefence = 0;
-                    CloseDefence = 0;
-                    if (Rare >= 0)
                     {
+                        int point = CharacterHelper.Instance.RarityPoint(Rare,
+                            Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        DefenceDodge = 0;
+                        DistanceDefenceDodge = 0;
+                        DistanceDefence = 0;
+                        MagicDefence = 0;
+                        CloseDefence = 0;
+                        if (Rare < 0)
+                        {
+                            for (int i = 0; i > Rare * 10; i--)
+                            {
+                                DistanceDefence--;
+                                MagicDefence--;
+                                CloseDefence--;
+                            }
+
+                            return;
+                        }
+
                         for (int i = 0; i < point; i++)
                         {
                             int rndn = RandomFactory.Instance.RandomNumber(0, 3);
@@ -159,16 +170,10 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                             }
                         }
                     }
-                    else
-                    {
-                        for (int i = 0; i > Rare * 10; i--)
-                        {
-                            DistanceDefence--;
-                            MagicDefence--;
-                            CloseDefence--;
-                        }
-                    }
-                }
+                    break;
+
+                default:
+                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_EQUIPMENTTYPE), Item.EquipmentSlot);
                     break;
             }
         }
