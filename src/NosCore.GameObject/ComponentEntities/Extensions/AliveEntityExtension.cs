@@ -88,7 +88,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
                 if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
-                    short mapX = nonPlayableEntity.MapX, mapY = nonPlayableEntity.MapY;
+                    short mapX = nonPlayableEntity.MapX;
+                    short mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
                         (byte) RandomFactory.Instance.RandomNumber(0, 3),
                         (byte) RandomFactory.Instance.RandomNumber(0, 3)))

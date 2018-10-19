@@ -255,7 +255,7 @@ namespace NosCore.Parser.Parsers
                             continue;
                         }
 
-                        var first = int.Parse(currentLine[5]);
+                        var first = uint.Parse(currentLine[5]);
                         var itemCard = new BCardDto
                         {
                             SkillVNum = skill.SkillVNum,

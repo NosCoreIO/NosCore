@@ -74,13 +74,13 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var first = int.Parse(currentLine[(i * 6) + 6]);
+               var first = uint.Parse(currentLine[(i * 6) + 6]);
                 var bcard = new BCardDto
                 {
                     CardId = _card.CardId,
                     Type = byte.Parse(currentLine[2 + (i * 6)]),
                     SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                    FirstData = (first > 0 ? first : -first) / 4,
+                    FirstData = (int)((first > 0 ? first : -first) / 4),
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),

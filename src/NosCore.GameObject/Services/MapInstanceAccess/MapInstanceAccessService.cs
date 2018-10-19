@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 {
     public class MapInstanceAccessService
     {
-        public readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
+        private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
         public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps)
@@ -45,7 +45,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             Parallel.ForEach(mapPartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, map =>
             {
                 var guid = Guid.NewGuid();
-                map.Initialize();
                 mapList[map.MapId] = map;
                 var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters);
                 MapInstances.TryAdd(guid, newMap);
@@ -88,6 +87,12 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         public MapInstance GetMapInstance(Guid id)
         {
             return MapInstances.ContainsKey(id) ? MapInstances[id] : null;
+        }
+
+        public MapInstance GetBaseMapById(short mapId)
+        {
+            return MapInstances.FirstOrDefault(s =>
+                s.Value?.Map.MapId == mapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Value;
         }
     }
 }

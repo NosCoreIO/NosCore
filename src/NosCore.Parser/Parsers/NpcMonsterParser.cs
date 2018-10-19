@@ -79,7 +79,7 @@ namespace NosCore.Parser.Parsers
             var isStable = true;
             var isDouble = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
@@ -133,11 +133,11 @@ namespace NosCore.Parser.Parsers
             var secondaryBasup = 18;
             var boostup = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
                     continue;
                 }
 
@@ -547,7 +547,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[(5 * i) + 3]);
+                            var first = uint.Parse(currentLine[(5 * i) + 3]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,

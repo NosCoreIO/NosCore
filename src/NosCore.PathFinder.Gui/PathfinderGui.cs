@@ -85,8 +85,6 @@ namespace NosCore.PathFinder.Gui
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {
-                        map.Initialize();
-
                         if (_guiWindow?.Exists ?? false)
                         {
                             _guiWindow.Exit();
