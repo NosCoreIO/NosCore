@@ -3,7 +3,7 @@ using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Shout", Authority = AuthorityType.GameMaster)]
+    [PacketHeader("$Shout", Authority = AuthorityType.Moderator)]
     public class ShoutPacket : PacketDefinition
     {
         [PacketIndex(0, SerializeToEnd = true)]
