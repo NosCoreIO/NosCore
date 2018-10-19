@@ -127,7 +127,8 @@ namespace NosCore.Parser.Parsers
                                 item.Speed = 20;
                                 item.WaitDelay = 3000;
                                 break;
-
+                                
+                            case 9058:
                             case 1965:
                                 item.Morph = 2406;
                                 item.Speed = 20;
@@ -140,12 +141,14 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9070:
                             case 5117:
                                 item.Morph = 2429;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9073:
                             case 5152:
                                 item.Morph = 2432;
                                 item.Speed = 21;
@@ -164,6 +167,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 5238:
                             case 5226: // Invisible locomotion, only 5 seconds with booster
                                 item.Morph = 1817;
                                 item.Speed = 20;
@@ -176,6 +180,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9078:
                             case 5232:
                                 item.Morph = 2520;
                                 item.Speed = 21;
@@ -194,11 +199,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
-                            case 5238:
-                                item.Morph = 1817;
-                                item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
+                       
 
                             case 5240:
                                 item.Morph = 1819;
@@ -248,6 +249,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9091:
                             case 5387:
                                 item.Morph = 2936;
                                 item.Speed = 21;
@@ -260,12 +262,14 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9093:
                             case 5389:
                                 item.Morph = 2940;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9094:
                             case 5390:
                                 item.Morph = 2942;
                                 item.Speed = 21;
@@ -302,33 +306,9 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
-                            case 9058:
-                                item.Morph = 2406;
-                                item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
-
                             case 9065:
                                 item.Morph = 2411;
                                 item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9070:
-                                item.Morph = 2429;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9073:
-                                item.Morph = 2432;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9078:
-                                item.Morph = 2520;
-                                item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
@@ -398,26 +378,8 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
-                            case 9091:
-                                item.Morph = 2936;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
                             case 9092:
                                 item.Morph = 2938;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9093:
-                                item.Morph = 2940;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9094:
-                                item.Morph = 2942;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
@@ -751,6 +713,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5108;
                                         break;
 
+                                    case 9032:
                                     case 1333:
                                         item.EffectValue = 5109;
                                         break;
@@ -759,14 +722,12 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5111;
                                         break;
 
-                                    case 1335:
-                                        item.EffectValue = 5107;
-                                        break;
-
+                                    case 9035:
                                     case 1336:
                                         item.EffectValue = 5106;
                                         break;
 
+                                    case 9036:
                                     case 1337:
                                         item.EffectValue = 5110;
                                         break;
@@ -779,24 +740,13 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5108;
                                         break;
 
-                                    case 9032:
-                                        item.EffectValue = 5109;
-                                        break;
-
                                     case 9033:
                                         item.EffectValue = 5011;
                                         break;
 
+                                    case 1335:
                                     case 9034:
                                         item.EffectValue = 5107;
-                                        break;
-
-                                    case 9035:
-                                        item.EffectValue = 5106;
-                                        break;
-
-                                    case 9036:
-                                        item.EffectValue = 5110;
                                         break;
 
                                     case 9038:
@@ -812,6 +762,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 861;
                                         break;
 
+                                    case 9044:
                                     case 1585:
                                         item.EffectValue = 859;
                                         break;
@@ -820,10 +771,12 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 875;
                                         break;
 
+                                    case 9060:
                                     case 1984:
                                         item.EffectValue = 876;
                                         break;
 
+                                    case 9061:
                                     case 1985:
                                         item.EffectValue = 877;
                                         break;
@@ -836,24 +789,8 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 879;
                                         break;
 
-                                    case 1988:
-                                        item.EffectValue = 880;
-                                        break;
-
-                                    case 9044:
-                                        item.EffectValue = 859;
-                                        break;
-
                                     case 9059:
                                         item.EffectValue = 875;
-                                        break;
-
-                                    case 9060:
-                                        item.EffectValue = 876;
-                                        break;
-
-                                    case 9061:
-                                        item.EffectValue = 877;
                                         break;
 
                                     case 9062:
@@ -864,6 +801,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 879;
                                         break;
 
+                                    case 1988:
                                     case 9064:
                                         item.EffectValue = 880;
                                         break;
@@ -1177,6 +1115,8 @@ namespace NosCore.Parser.Parsers
                                 // item.ShellType = Convert.ToByte(linesave[5]); // 3 shells of each type
                                 break;
 
+                            case ItemType.Production:
+                            case ItemType.Map:
                             case ItemType.Main:
                                 item.Effect = Convert.ToInt16(currentLine[2]);
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
@@ -1222,21 +1162,7 @@ namespace NosCore.Parser.Parsers
 
                                 break;
 
-                            case ItemType.Production:
-                                item.Effect = Convert.ToInt16(currentLine[2]);
-                                item.EffectValue = Convert.ToInt32(currentLine[4]);
-                                break;
-
-                            case ItemType.Map:
-                                item.Effect = Convert.ToInt16(currentLine[2]);
-                                item.EffectValue = Convert.ToInt32(currentLine[4]);
-                                break;
-
                             case ItemType.Potion:
-                                item.Hp = Convert.ToInt16(currentLine[2]);
-                                item.Mp = Convert.ToInt16(currentLine[4]);
-                                break;
-
                             case ItemType.Snack:
                                 item.Hp = Convert.ToInt16(currentLine[2]);
                                 item.Mp = Convert.ToInt16(currentLine[4]);
@@ -1250,28 +1176,10 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             case ItemType.Part:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Sell:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Quest2:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Quest1:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Ammo:
-
-                                // nothing to parse
                                 break;
                         }
 
