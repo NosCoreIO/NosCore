@@ -60,9 +60,5 @@ namespace NosCore.Data.AliveEntities
         public short VNum { get; set; }
 
         public short Skin { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }
