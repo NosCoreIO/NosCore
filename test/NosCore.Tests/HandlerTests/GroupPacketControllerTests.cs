@@ -82,7 +82,7 @@ namespace NosCore.Tests.HandlerTests
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
             {
                 ServerManager.Instance.Sessions.TryAdd(i,
-                    new ClientSession(null, new List<PacketController>() {new GroupPacketController()}, null));
+                    new ClientSession(null, new List<PacketController> {new GroupPacketController()}, null));
                 var session = ServerManager.Instance.Sessions.Values.ElementAt(i);
 
                 accountList.Add(new AccountDto {Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test")});

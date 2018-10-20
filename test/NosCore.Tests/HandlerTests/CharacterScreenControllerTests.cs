@@ -56,7 +56,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController>() {new CharacterScreenPacketController()}, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null);
 
         private AccountDto _acc;
         private CharacterDto _chara;

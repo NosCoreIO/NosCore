@@ -40,7 +40,7 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            var items = new List<Item>()
+            var items = new List<Item>
             {
                 new Item {Type = PocketType.Main, VNum = 1012,},
                 new Item {Type = PocketType.Main, VNum = 1013,},

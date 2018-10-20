@@ -130,7 +130,7 @@ namespace NosCore.Controllers
             var sayPostedPacket = new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { sayPacket }),
-                SenderCharacter = new Data.WebApi.Character()
+                SenderCharacter = new Data.WebApi.Character
                 {
                     Name = Session.Character.Name,
                     Id = Session.Character.CharacterId
@@ -164,7 +164,7 @@ namespace NosCore.Controllers
             var iteminfo = _items.Find(item => item.VNum == vnum);
             if (iteminfo == null)
             {
-                Session.SendPacket(new MsgPacket()
+                Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, Session.Account.Language),
                     Type = 0
@@ -226,7 +226,7 @@ namespace NosCore.Controllers
 
             if (inv.Count <= 0)
             {
-                Session.SendPacket(new MsgPacket()
+                Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         Session.Account.Language),
