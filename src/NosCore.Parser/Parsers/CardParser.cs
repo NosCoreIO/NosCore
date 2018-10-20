@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                     CardId = _card.CardId,
                     Type = byte.Parse(currentLine[2 + (i * 6)]),
                     SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                    FirstData = (int)((first > 0 ? first : -first) / 4),
+                    FirstData = (first > 0 ? first : -first) / 4,
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
                     IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
