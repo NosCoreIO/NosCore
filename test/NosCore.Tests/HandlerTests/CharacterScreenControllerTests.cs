@@ -18,12 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using log4net;
 using log4net.Config;
-using Microsoft.Extensions.Configuration;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
@@ -31,21 +33,17 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
+using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.CharacterBuilder;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using System.Collections.Generic;
-using NosCore.Database;
-using Microsoft.EntityFrameworkCore;
-using Mapster;
-using NosCore.GameObject.Services;
-using NosCore.GameObject.Services.CharacterBuilder;
-using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -56,7 +54,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController>() {new CharacterScreenPacketController()}, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null);
 
         private AccountDto _acc;
         private CharacterDto _chara;

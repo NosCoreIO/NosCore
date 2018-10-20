@@ -29,6 +29,6 @@ namespace NosCore.Shared.Enumerations.Interaction
         AllNoHeroBlocked = 6,
         Group = 7,
         AllExceptGroup = 8,
-        AllExceptMeAndBlacklisted = 9,
+        AllExceptMeAndBlacklisted = 9
     }
 }

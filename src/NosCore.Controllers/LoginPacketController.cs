@@ -124,7 +124,7 @@ namespace NosCore.Controllers
                 var i = 1;
                 foreach (var server in servers)
                 {
-                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>($"api/connectedAccount",
+                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount",
                         server.WebApi);
                     connectedAccount.Add(i, channelList);
                     i++;

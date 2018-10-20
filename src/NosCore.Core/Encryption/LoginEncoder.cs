@@ -25,7 +25,6 @@ using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
-using Logger = NosCore.Shared.I18N.Logger;
 
 namespace NosCore.Core.Encryption
 {
