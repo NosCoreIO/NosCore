@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 
@@ -24,6 +25,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface ICharacterEntity : INamedEntity, IExperiencedEntity
     {
+        ClientSession Session { get; set; }
+
         AuthorityType Authority { get; }
 
         GenderType Gender { get; set; }
