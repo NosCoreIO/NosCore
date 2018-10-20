@@ -53,7 +53,8 @@ namespace NosCore.Core.Networking
 
         public static StringContent Content { get; private set; }
 
-        public static void RegisterBaseAdress(string address = null, string token = null)
+        public static void RegisterBaseAdress() => RegisterBaseAdress(null,null);
+        public static void RegisterBaseAdress(string address, string token)
         {
             if (address == null)
             {
