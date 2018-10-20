@@ -239,10 +239,12 @@ namespace NosCore.Parser.Parsers
                                 npc.HeroXp = 879;
                                 break;
 
+                            case 2510:
                             case 2501:
                                 npc.HeroXp = 881;
                                 break;
 
+                            case 2512:
                             case 2502:
                                 npc.HeroXp = 884;
                                 break;
@@ -268,19 +270,8 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             case 2509:
-                                npc.HeroXp = 789;
-                                break;
-
-                            case 2510:
-                                npc.HeroXp = 881;
-                                break;
-
                             case 2511:
                                 npc.HeroXp = 879;
-                                break;
-
-                            case 2512:
-                                npc.HeroXp = 884;
                                 break;
 
                             case 2513:
@@ -547,7 +538,7 @@ namespace NosCore.Parser.Parsers
                                 SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
                                     + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = first % 4 == 2,
+                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
                                 SecondData = (short) (int.Parse(currentLine[(5 * i) + 4]) / 4),
                                 ThirdData = (short) (int.Parse(currentLine[(5 * i) + 6]) / 4)

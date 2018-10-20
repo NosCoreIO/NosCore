@@ -49,8 +49,11 @@ namespace NosCore.Core.Serializing
         ///     Include the keep alive identity or exclude it
         /// </param>
         /// <returns>The deserialized packet.</returns>
+        public static PacketDefinition Deserialize(string packetContent, Type packetType) =>
+            Deserialize(packetContent, packetType, false);
+
         public static PacketDefinition Deserialize(string packetContent, Type packetType,
-            bool includesKeepAliveIdentity = false)
+            bool includesKeepAliveIdentity)
         {
             try
             {

@@ -174,6 +174,7 @@ namespace NosCore.Shared.I18N
         USER_IS_NOT_A_FRIEND,
         VISUALTYPE_UNKNOWN,
         UNKNOWN_EQUIPMENTTYPE,
+        ERROR_DECODING,
         LANGUAGE_MISSING
     }
 }

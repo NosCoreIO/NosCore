@@ -40,7 +40,6 @@ namespace NosCore.Controllers
     public class InventoryPacketController : PacketController
     {
         private readonly IItemBuilderService _itemBuilderService;
-        private readonly List<Item> _items;
         private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
@@ -48,12 +47,11 @@ namespace NosCore.Controllers
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items,
+        public InventoryPacketController(WorldConfiguration worldConfiguration,
             IItemBuilderService itemBuilderService)
         {
             _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
-            _items = items;
         }
 
         [UsedImplicitly]

@@ -830,7 +830,7 @@ namespace NosCore.GameObject
             return new TitPacket
             {
                 ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
-                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper())),
+                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpperInvariant())),
                 Name = Name
             };
         }
