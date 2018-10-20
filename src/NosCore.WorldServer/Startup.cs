@@ -67,7 +67,7 @@ namespace NosCore.WorldServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
-        const string ConsoleText = "WORLD SERVER - NosCoreIO";
+        private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
         private static WorldConfiguration InitializeConfiguration()
         {

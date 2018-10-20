@@ -41,7 +41,6 @@ namespace NosCore.Parser.Parsers
             var combo = new List<ComboDto>();
             var skillCards = new List<BCardDto>();
             var counter = 0;
-            var stringNotParsed = new List<string>();
             using (var skillIdStream = new StreamReader(_folder + _fileSkillId, Encoding.Default))
             {
                 string line;
@@ -261,8 +260,8 @@ namespace NosCore.Parser.Parsers
                             SkillVNum = skill.SkillVNum,
                             Type = type,
                             SubType = (byte) (((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                            IsLevelScaled = Convert.ToBoolean(first % 4),
-                            IsLevelDivided = first % 4 == 2,
+                            IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
+                            IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
                             FirstData = (short) (first > 0 ? first : -first / 4),
                             SecondData = (short) (int.Parse(currentLine[6]) / 4),
                             ThirdData = (short) (int.Parse(currentLine[7]) / 4)

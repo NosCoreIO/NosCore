@@ -79,7 +79,7 @@ namespace NosCore.Parser.Parsers
             var isStable = true;
             var isDouble = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
@@ -133,11 +133,11 @@ namespace NosCore.Parser.Parsers
             var secondaryBasup = 18;
             var boostup = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
                     continue;
                 }
 
@@ -455,15 +455,7 @@ namespace NosCore.Parser.Parsers
                             case -2147483616:
                             case -2147483647:
                             case -2147483646:
-                                if (npc.Race == 8 && npc.RaceType == 0)
-                                {
-                                    npc.NoAggresiveIcon = true;
-                                }
-                                else
-                                {
-                                    npc.NoAggresiveIcon = false;
-                                }
-
+                                npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
                                 break;
                         }
 
@@ -547,13 +539,13 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[(5 * i) + 3]);
+                            var first = uint.Parse(currentLine[(5 * i) + 3]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1 +
-                                    (first > 0 ? 0 : 1)),
+                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
+                                    + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),

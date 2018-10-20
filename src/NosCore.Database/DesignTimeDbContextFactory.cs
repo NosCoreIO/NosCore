@@ -27,7 +27,7 @@ namespace NosCore.Database
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
 
         public NosCoreContext CreateDbContext(string[] args)
         {
