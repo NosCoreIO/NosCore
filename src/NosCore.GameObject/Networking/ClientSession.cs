@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +31,7 @@ using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -32,7 +52,8 @@ namespace NosCore.GameObject.Networking
         private Character _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers, MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
+        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
+            MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
         }
@@ -47,7 +68,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -64,7 +85,7 @@ namespace NosCore.GameObject.Networking
 
         public int LastPulse { get; set; }
 
-        public AccountDTO Account { get; set; }
+        public AccountDto Account { get; set; }
 
         public Character Character
         {
@@ -85,9 +106,9 @@ namespace NosCore.GameObject.Networking
 
         public bool HasCurrentMapInstance => Character?.MapInstance != null;
 
-        public void InitializeAccount(AccountDTO accountDTO)
+        public void InitializeAccount(AccountDto accountDto)
         {
-            Account = accountDTO;
+            Account = accountDto;
             IsAuthenticated = true;
             ServerManager.Instance.RegisterSession(this);
         }
@@ -111,8 +132,8 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             ServerManager.Instance.UnregisterSession(this);
+            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
 
@@ -125,7 +146,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short) mapId);
             }
 
             try
@@ -170,19 +191,21 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short)mapX;
-                        Character.MapY = (short)mapY;
+                        Character.MapX = (short) mapX;
+                        Character.MapY = (short) mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short)mapX;
-                    Character.PositionY = (short)mapY;
+                    Character.PositionX = (short) mapX;
+                    Character.PositionY = (short) mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
                 SendPacket(Character.GenerateCMode());
+                SendPacket(Character.GenerateLev());
+                SendPacket(Character.GenerateStat());
                 SendPacket(Character.GenerateAt());
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
@@ -190,6 +213,14 @@ namespace NosCore.GameObject.Networking
                 if (!Character.InvisibleGm)
                 {
                     Character.MapInstance.Broadcast(Character.GenerateIn());
+                }
+
+                SendPacket(Character.Group.GeneratePinit());
+                SendPackets(Character.Group.GeneratePst());
+
+                if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
+                {
+                    Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
                 }
 
                 Parallel.ForEach(
@@ -240,7 +271,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
+                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
                     {
                         return;
                     }
@@ -315,7 +346,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');

@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,15 +30,15 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.DAL
 {
-    public class GenericDAO<TEntity, TDTO> where TEntity : class
+    public class GenericDao<TEntity, TDto> where TEntity : class
     {
         private readonly PropertyInfo _primaryKey;
 
-        public GenericDAO()
+        public GenericDao()
         {
             try
             {
-                foreach (var pi in typeof(TDTO).GetProperties())
+                foreach (var pi in typeof(TDto).GetProperties())
                 {
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
                     if (attrs.Length != 1)
@@ -94,6 +113,7 @@ namespace NosCore.DAL
                     {
                         value = dtokey;
                     }
+
                     var entityfound = dbset.Find(value);
 
                     if (entityfound != null)
@@ -108,7 +128,7 @@ namespace NosCore.DAL
             }
         }
 
-        public TDTO FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
+        public TDto FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
             try
             {
@@ -121,7 +141,7 @@ namespace NosCore.DAL
                 {
                     var dbset = context.Set<TEntity>();
                     var ent = dbset.FirstOrDefault(predicate);
-                    return ent.Adapt<TDTO>();
+                    return ent.Adapt<TDto>();
                 }
             }
             catch (Exception e)
@@ -131,7 +151,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(ref TDTO dto)
+        public SaveResult InsertOrUpdate(ref TDto dto)
         {
             try
             {
@@ -150,7 +170,8 @@ namespace NosCore.DAL
                     {
                         entityfound = dbset.Find(value);
                     }
-                    entity = entity.Adapt<TDTO>().Adapt<TEntity>();
+
+                    entity = entity.Adapt<TDto>().Adapt<TEntity>();
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
@@ -163,7 +184,7 @@ namespace NosCore.DAL
                     }
 
                     context.SaveChanges();
-                    dto = entity.Adapt<TDTO>();
+                    dto = entity.Adapt<TDto>();
 
                     return SaveResult.Saved;
                 }
@@ -175,7 +196,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(IEnumerable<TDTO> dtos)
+        public SaveResult InsertOrUpdate(IEnumerable<TDto> dtos)
         {
             try
             {
@@ -199,7 +220,8 @@ namespace NosCore.DAL
                         {
                             entityfound = dbset.Find(value);
                         }
-                        entity = entity.Adapt<TDTO>().Adapt<TEntity>();
+
+                        entity = entity.Adapt<TDto>().Adapt<TEntity>();
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
@@ -225,18 +247,18 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<TDTO> LoadAll()
+        public IEnumerable<TDto> LoadAll()
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
                 foreach (var t in context.Set<TEntity>())
                 {
-                    yield return t.Adapt<TDTO>();
+                    yield return t.Adapt<TDto>();
                 }
             }
         }
 
-        public IEnumerable<TDTO> Where(Expression<Func<TEntity, bool>> predicate)
+        public IEnumerable<TDto> Where(Expression<Func<TEntity, bool>> predicate)
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
@@ -253,7 +275,7 @@ namespace NosCore.DAL
 
                 foreach (var t in entities)
                 {
-                    yield return t.Adapt<TDTO>();
+                    yield return t.Adapt<TDto>();
                 }
             }
         }

@@ -1,6 +1,26 @@
-﻿using NosCore.GameObject.Helper;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
@@ -48,7 +68,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public short HitRate { get; set; }
 
-        public short HP { get; set; }
+        public short Hp { get; set; }
 
         public bool IsEmpty { get; set; }
 
@@ -62,7 +82,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public byte MaxElementRate { get; set; }
 
-        public short MP { get; set; }
+        public short Mp { get; set; }
 
         public sbyte? ShellRarity { get; set; }
 
@@ -70,7 +90,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public short WaterResistance { get; set; }
 
-        public long XP { get; set; }
+        public long Xp { get; set; }
 
         public void SetRarityPoint()
         {
@@ -79,7 +99,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
                     {
-                        int point = CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        int point = CharacterHelper.Instance.RarityPoint(Rare,
+                            Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
                         Concentrate = 0;
                         HitRate = 0;
                         DamageMinimum = 0;
@@ -114,31 +135,14 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
                 case EquipmentType.Armor:
                     {
-                        int point = CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        int point = CharacterHelper.Instance.RarityPoint(Rare,
+                            Item.IsHeroic ? (short)(95 + Item.LevelMinimum) : Item.LevelMinimum);
                         DefenceDodge = 0;
                         DistanceDefenceDodge = 0;
                         DistanceDefence = 0;
                         MagicDefence = 0;
                         CloseDefence = 0;
-                        if (Rare >= 0)
-                        {
-                            for (int i = 0; i < point; i++)
-                            {
-                                int rndn = RandomFactory.Instance.RandomNumber(0, 3);
-                                if (rndn == 0)
-                                {
-                                    DefenceDodge++;
-                                    DistanceDefenceDodge++;
-                                }
-                                else
-                                {
-                                    DistanceDefence++;
-                                    MagicDefence++;
-                                    CloseDefence++;
-                                }
-                            }
-                        }
-                        else
+                        if (Rare < 0)
                         {
                             for (int i = 0; i > Rare * 10; i--)
                             {
@@ -146,8 +150,30 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                                 MagicDefence--;
                                 CloseDefence--;
                             }
+
+                            return;
+                        }
+
+                        for (int i = 0; i < point; i++)
+                        {
+                            int rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                            if (rndn == 0)
+                            {
+                                DefenceDodge++;
+                                DistanceDefenceDodge++;
+                            }
+                            else
+                            {
+                                DistanceDefence++;
+                                MagicDefence++;
+                                CloseDefence++;
+                            }
                         }
                     }
+                    break;
+
+                default:
+                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_EQUIPMENTTYPE), Item.EquipmentSlot);
                     break;
             }
         }

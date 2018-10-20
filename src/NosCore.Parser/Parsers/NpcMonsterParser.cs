@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +31,7 @@ namespace NosCore.Parser.Parsers
 {
     internal class NpcMonsterParser
     {
-        private const string fileNpcId = "\\monster.dat";
+        private const string FileNpcId = "\\monster.dat";
         private string _folder;
 
         internal void InsertNpcMonsters(string folder)
@@ -26,17 +45,17 @@ namespace NosCore.Parser.Parsers
 
             // basicHPLoad
             var baseHp = 138;
-            var HPbasup = 18;
+            var hPbasup = 18;
             for (var i = 0; i < 100; i++)
             {
                 basicHp[i] = baseHp;
-                HPbasup++;
-                baseHp += HPbasup;
+                hPbasup++;
+                baseHp += hPbasup;
 
                 if (i == 37)
                 {
                     baseHp = 1765;
-                    HPbasup = 65;
+                    hPbasup = 65;
                 }
 
                 if (i < 41)
@@ -46,7 +65,7 @@ namespace NosCore.Parser.Parsers
 
                 if ((99 - i) % 8 == 0)
                 {
-                    HPbasup++;
+                    hPbasup++;
                 }
             }
 
@@ -60,7 +79,7 @@ namespace NosCore.Parser.Parsers
             var isStable = true;
             var isDouble = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
@@ -114,11 +133,11 @@ namespace NosCore.Parser.Parsers
             var secondaryBasup = 18;
             var boostup = false;
 
-            for (var i = 3; i < 100; i++)
+            for (uint i = 3; i < 100; i++)
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
                     continue;
                 }
 
@@ -148,18 +167,18 @@ namespace NosCore.Parser.Parsers
                 basicJXp[i] = 360;
             }
 
-            var npcs = new List<NpcMonsterDTO>();
+            var npcs = new List<NpcMonsterDto>();
 
             // Store like this: (vnum, (name, level))
-            var npc = new NpcMonsterDTO();
-            var drops = new List<DropDTO>();
-            var monstercards = new List<BCardDTO>();
-            var skills = new List<NpcMonsterSkillDTO>();
+            var npc = new NpcMonsterDto();
+            var drops = new List<DropDto>();
+            var monstercards = new List<BCardDto>();
+            var skills = new List<NpcMonsterSkillDto>();
             var itemAreaBegin = false;
             var counter = 0;
             long unknownData = 0;
 
-            using (var npcIdStream = new StreamReader(_folder + fileNpcId, Encoding.Default))
+            using (var npcIdStream = new StreamReader(_folder + FileNpcId, Encoding.Default))
             {
                 string line;
                 while ((line = npcIdStream.ReadLine()) != null)
@@ -168,7 +187,7 @@ namespace NosCore.Parser.Parsers
 
                     if (currentLine.Length > 2 && currentLine[1] == "VNUM")
                     {
-                        npc = new NpcMonsterDTO
+                        npc = new NpcMonsterDto
                         {
                             NpcMonsterVNum = Convert.ToInt16(currentLine[2])
                         };
@@ -204,184 +223,184 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "HP/MP")
                     {
-                        npc.MaxHP = Convert.ToInt32(currentLine[2]) + basicHp[npc.Level];
-                        npc.MaxMP = Convert.ToInt32(currentLine[3]) + npc.Race == 0 ? basicPrimaryMp[npc.Level]
+                        npc.MaxHp = Convert.ToInt32(currentLine[2]) + basicHp[npc.Level];
+                        npc.MaxMp = Convert.ToInt32(currentLine[3]) + npc.Race == 0 ? basicPrimaryMp[npc.Level]
                             : basicSecondaryMp[npc.Level];
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "EXP")
                     {
-                        npc.XP = Math.Abs(Convert.ToInt32(currentLine[2]) + basicXp[npc.Level]);
-                        npc.JobXP = Convert.ToInt32(currentLine[3]) + basicJXp[npc.Level];
+                        npc.Xp = Math.Abs(Convert.ToInt32(currentLine[2]) + basicXp[npc.Level]);
+                        npc.JobXp = Convert.ToInt32(currentLine[3]) + basicJXp[npc.Level];
 
                         //TODO find HeroXP algorithm
                         switch (npc.NpcMonsterVNum)
                         {
                             case 2500:
-                                npc.HeroXP = 879;
+                                npc.HeroXp = 879;
                                 break;
 
                             case 2501:
-                                npc.HeroXP = 881;
+                                npc.HeroXp = 881;
                                 break;
 
                             case 2502:
-                                npc.HeroXP = 884;
+                                npc.HeroXp = 884;
                                 break;
 
                             case 2503:
-                                npc.HeroXP = 1013;
+                                npc.HeroXp = 1013;
                                 break;
 
                             case 2505:
-                                npc.HeroXP = 871;
+                                npc.HeroXp = 871;
                                 break;
 
                             case 2506:
-                                npc.HeroXP = 765;
+                                npc.HeroXp = 765;
                                 break;
 
                             case 2507:
-                                npc.HeroXP = 803;
+                                npc.HeroXp = 803;
                                 break;
 
                             case 2508:
-                                npc.HeroXP = 825;
+                                npc.HeroXp = 825;
                                 break;
 
                             case 2509:
-                                npc.HeroXP = 789;
+                                npc.HeroXp = 789;
                                 break;
 
                             case 2510:
-                                npc.HeroXP = 881;
+                                npc.HeroXp = 881;
                                 break;
 
                             case 2511:
-                                npc.HeroXP = 879;
+                                npc.HeroXp = 879;
                                 break;
 
                             case 2512:
-                                npc.HeroXP = 884;
+                                npc.HeroXp = 884;
                                 break;
 
                             case 2513:
-                                npc.HeroXP = 1075;
+                                npc.HeroXp = 1075;
                                 break;
 
                             case 2515:
-                                npc.HeroXP = 3803;
+                                npc.HeroXp = 3803;
                                 break;
 
                             case 2516:
-                                npc.HeroXP = 836;
+                                npc.HeroXp = 836;
                                 break;
 
                             case 2517:
-                                npc.HeroXP = 450;
+                                npc.HeroXp = 450;
                                 break;
 
                             case 2518:
-                                npc.HeroXP = 911;
+                                npc.HeroXp = 911;
                                 break;
 
                             case 2519:
-                                npc.HeroXP = 845;
+                                npc.HeroXp = 845;
                                 break;
 
                             case 2520:
-                                npc.HeroXP = 3682;
+                                npc.HeroXp = 3682;
                                 break;
 
                             case 2521:
-                                npc.HeroXP = 401;
+                                npc.HeroXp = 401;
                                 break;
 
                             case 2522:
-                                npc.HeroXP = 471;
+                                npc.HeroXp = 471;
                                 break;
 
                             case 2523:
-                                npc.HeroXP = 328;
+                                npc.HeroXp = 328;
                                 break;
 
                             case 2524:
-                                npc.HeroXP = 12718;
+                                npc.HeroXp = 12718;
                                 break;
 
                             case 2525:
-                                npc.HeroXP = 412;
+                                npc.HeroXp = 412;
                                 break;
 
                             case 2526:
-                                npc.HeroXP = 11157;
+                                npc.HeroXp = 11157;
                                 break;
 
                             case 2527:
-                                npc.HeroXP = 18057;
+                                npc.HeroXp = 18057;
                                 break;
 
                             case 2530:
-                                npc.HeroXP = 28756;
+                                npc.HeroXp = 28756;
                                 break;
 
                             case 2559:
-                                npc.HeroXP = 1308;
+                                npc.HeroXp = 1308;
                                 break;
 
                             case 2560:
-                                npc.HeroXP = 1234;
+                                npc.HeroXp = 1234;
                                 break;
 
                             case 2561:
-                                npc.HeroXP = 1168;
+                                npc.HeroXp = 1168;
                                 break;
 
                             case 2562:
-                                npc.HeroXP = 959;
+                                npc.HeroXp = 959;
                                 break;
 
                             case 2563:
-                                npc.HeroXP = 947;
+                                npc.HeroXp = 947;
                                 break;
 
                             case 2564:
-                                npc.HeroXP = 952;
+                                npc.HeroXp = 952;
                                 break;
 
                             case 2566:
-                                npc.HeroXP = 1097;
+                                npc.HeroXp = 1097;
                                 break;
 
                             case 2567:
-                                npc.HeroXP = 1096;
+                                npc.HeroXp = 1096;
                                 break;
 
                             case 2568:
-                                npc.HeroXP = 4340;
+                                npc.HeroXp = 4340;
                                 break;
 
                             case 2569:
-                                npc.HeroXP = 3534;
+                                npc.HeroXp = 3534;
                                 break;
 
                             case 2570:
-                                npc.HeroXP = 4343;
+                                npc.HeroXp = 4343;
                                 break;
 
                             case 2571:
-                                npc.HeroXP = 2205;
+                                npc.HeroXp = 2205;
                                 break;
 
                             case 2572:
-                                npc.HeroXP = 5632;
+                                npc.HeroXp = 5632;
                                 break;
 
                             case 2573:
-                                npc.HeroXP = 3756;
+                                npc.HeroXp = 3756;
                                 break;
 
                             default:
-                                npc.HeroXP = 0;
+                                npc.HeroXp = 0;
                                 break;
                         }
                     }
@@ -436,15 +455,7 @@ namespace NosCore.Parser.Parsers
                             case -2147483616:
                             case -2147483647:
                             case -2147483646:
-                                if (npc.Race == 8 && npc.RaceType == 0)
-                                {
-                                    npc.NoAggresiveIcon = true;
-                                }
-                                else
-                                {
-                                    npc.NoAggresiveIcon = false;
-                                }
-
+                                npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
                                 break;
                         }
 
@@ -503,14 +514,14 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (DAOFactory.SkillDAO.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) == null
-                                || DAOFactory.NpcMonsterSkillDAO.Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                            if (DaoFactory.SkillDao.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) == null
+                                || DaoFactory.NpcMonsterSkillDao.Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                                     .Count(s => s.SkillVNum == vnum) != 0)
                             {
                                 continue;
                             }
 
-                            skills.Add(new NpcMonsterSkillDTO
+                            skills.Add(new NpcMonsterSkillDto
                             {
                                 SkillVNum = vnum,
                                 Rate = Convert.ToInt16(currentLine[i + 1]),
@@ -528,12 +539,13 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[(5 * i) + 3]);
-                            var itemCard = new BCardDTO
+                            var first = uint.Parse(currentLine[(5 * i) + 3]);
+                            var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1 + (first > 0 ? 0 : 1)),
+                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
+                                    + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
@@ -554,7 +566,7 @@ namespace NosCore.Parser.Parsers
                             }
 
                             var first = int.Parse(currentLine[(5 * i) + 5]);
-                            var itemCard = new BCardDTO
+                            var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
@@ -572,7 +584,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
                     {
-                        if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                        if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                             == null)
                         {
                             npcs.Add(npc);
@@ -587,13 +599,13 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (DAOFactory.DropDAO.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
+                            if (DaoFactory.DropDao.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
                                 .Count(s => s.VNum == vnum) != 0)
                             {
                                 continue;
                             }
 
-                            drops.Add(new DropDTO
+                            drops.Add(new DropDto
                             {
                                 VNum = vnum,
                                 Amount = Convert.ToInt32(currentLine[i + 2]),
@@ -606,19 +618,19 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                IEnumerable<NpcMonsterDTO> npcMonsterDtos = npcs;
-                IEnumerable<NpcMonsterSkillDTO> npcMonsterSkillDtos = skills;
-                IEnumerable<BCardDTO> monsterBCardDtos = monstercards;
+                IEnumerable<NpcMonsterDto> npcMonsterDtos = npcs;
+                IEnumerable<NpcMonsterSkillDto> npcMonsterSkillDtos = skills;
+                IEnumerable<BCardDto> monsterBCardDtos = monstercards;
 
-                DAOFactory.NpcMonsterDAO.InsertOrUpdate(npcMonsterDtos);
-                DAOFactory.NpcMonsterSkillDAO.InsertOrUpdate(npcMonsterSkillDtos);
-                DAOFactory.BCardDAO.InsertOrUpdate(monsterBCardDtos);
+                DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
+                DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
+                DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
                     counter));
             }
 
-            IEnumerable<DropDTO> dropDtos = drops;
-            DAOFactory.DropDAO.InsertOrUpdate(dropDtos);
+            IEnumerable<DropDto> dropDtos = drops;
+            DaoFactory.DropDao.InsertOrUpdate(dropDtos);
         }
     }
 }

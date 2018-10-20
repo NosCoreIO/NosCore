@@ -30,7 +30,11 @@ This project is a community project not for commercial use. The emulator itself 
 This Website and Project is in no way affiliated with, authorized, maintained, sponsored or endorsed by Gameforge or any of its affiliates or subsidiaries. This is an independent and unofficial server for educational use ONLY. Using the Project might be against the TOS.
 
 ### Contribution is only possible with Visual Studio 2017 ###
-We recommend usage of [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
+We recommend usage of : 
+* [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
+* [Resharper](https://www.jetbrains.com/resharper/)
+* [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectforVS2017)
+
 
 # Building the code #
 

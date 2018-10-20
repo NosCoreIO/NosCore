@@ -1,4 +1,23 @@
-﻿using System.Collections.Generic;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,7 +36,7 @@ namespace NosCore.Parser.Parsers
         {
             var fileMapIdDat = folder + _fileMapIdDat;
             var folderMap = folder + _folderMap;
-            var maps = new List<MapDTO>();
+            var maps = new List<MapDto>();
             var dictionaryId = new Dictionary<int, string>();
             var dictionaryMusic = new Dictionary<int, int>();
 
@@ -77,7 +96,7 @@ namespace NosCore.Parser.Parsers
                     music = dictionaryMusic[int.Parse(file.Name)];
                 }
 
-                var map = new MapDTO
+                var map = new MapDto
                 {
                     Name = name,
                     Music = music,
@@ -85,7 +104,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (DAOFactory.MapDAO.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (DaoFactory.MapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }
@@ -94,8 +113,8 @@ namespace NosCore.Parser.Parsers
                 i++;
             }
 
-            IEnumerable<MapDTO> mapDtos = maps;
-            DAOFactory.MapDAO.InsertOrUpdate(mapDtos);
+            IEnumerable<MapDto> mapDtos = maps;
+            DaoFactory.MapDao.InsertOrUpdate(mapDtos);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i));
         }
     }

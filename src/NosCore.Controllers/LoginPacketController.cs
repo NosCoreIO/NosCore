@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -7,7 +26,6 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -54,7 +72,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var acc = DAOFactory.AccountDAO.FirstOrDefault(s =>
+                var acc = DaoFactory.AccountDao.FirstOrDefault(s =>
                     string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (acc != null && acc.Name != loginPacket.Name)
@@ -127,10 +145,18 @@ namespace NosCore.Controllers
                 }
 
                 acc.Language = _loginConfiguration.UserLanguage;
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc);
-                if (servers.Count > 0)
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc);
+                if (servers.Count <= 0)
                 {
-                    var subpacket = new List<NsTeStSubPacket>();
+                    Session.SendPacket(new FailcPacket
+                    {
+                        Type = LoginFailType.CantConnect
+                    });
+                    Session.Disconnect();
+                    return;
+                }
+
+                var subpacket = new List<NsTeStSubPacket>();
                     i = 1;
                     var servergroup = string.Empty;
                     var worldCount = 1;
@@ -144,7 +170,7 @@ namespace NosCore.Controllers
                         }
 
                         var channelcolor =
-                            (int)Math.Round((double)connectedAccount[i].Count / server.connectedAccountLimit * 20)
+                            (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                             + 1;
                         subpacket.Add(new NsTeStSubPacket
                         {
@@ -175,14 +201,6 @@ namespace NosCore.Controllers
                         SessionId = newSessionId
                     });
                     Session.Disconnect();
-                    return;
-                }
-
-                Session.SendPacket(new FailcPacket
-                {
-                    Type = LoginFailType.CantConnect
-                });
-                Session.Disconnect();
             }
             catch
             {

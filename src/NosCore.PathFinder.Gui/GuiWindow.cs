@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,14 +42,14 @@ namespace NosCore.PathFinder.Gui
     {
         private readonly byte _gridsize;
         private readonly Map _map;
+        private readonly List<MapMonster> _monsters;
+        private readonly List<NpcMonsterDto> _npcMonsters;
+        private readonly List<MapNpc> _npcs;
         private readonly int _originalHeight;
         private readonly int _originalWidth;
         private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
         private double _gridsizeX;
         private double _gridsizeY;
-        private readonly List<MapMonster> _monsters;
-        private readonly List<MapNpc> _npcs;
-        private readonly List<NpcMonsterDTO> _npcMonsters;
 
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
@@ -41,8 +60,8 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DAOFactory.MapMonsterDAO.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
-            _npcMonsters = DAOFactory.NpcMonsterDAO.LoadAll().ToList();
+            _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
+            _npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, _npcMonsters)
                 {
@@ -56,10 +75,11 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.MapInstanceId = mapInstance.MapInstanceId;
                 mapMonster.Mp = 100;
                 mapMonster.Hp = 100;
-                mapMonster.Speed = _npcMonsters.Find(s=>s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
+                mapMonster.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
                 mapMonster.IsAlive = true;
             }
-            _npcs = DAOFactory.MapNpcDAO.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+
+            _npcs = DaoFactory.MapNpcDao.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
@@ -71,6 +91,7 @@ namespace NosCore.PathFinder.Gui
                 mapNpc.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
                 mapNpc.IsAlive = true;
             }
+
             Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
             Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
             GetMap();
@@ -92,8 +113,8 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             //walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable

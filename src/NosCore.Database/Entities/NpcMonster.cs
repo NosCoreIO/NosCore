@@ -1,3 +1,22 @@
+//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -70,11 +89,11 @@ namespace NosCore.Database.Entities
 
         public byte HeroLevel { get; set; }
 
-        public int HeroXP { get; set; }
+        public int HeroXp { get; set; }
 
         public bool IsHostile { get; set; }
 
-        public int JobXP { get; set; }
+        public int JobXp { get; set; }
 
         public byte Level { get; set; }
 
@@ -88,9 +107,9 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Mate> Mate { get; set; }
 
-        public int MaxHP { get; set; }
+        public int MaxHp { get; set; }
 
-        public int MaxMP { get; set; }
+        public int MaxMp { get; set; }
 
         public MonsterType MonsterType { get; set; }
 
@@ -119,7 +138,7 @@ namespace NosCore.Database.Entities
 
         public short WaterResistance { get; set; }
 
-        public int XP { get; set; }
+        public int Xp { get; set; }
 
         public bool IsPercent { get; set; }
 

@@ -1,4 +1,23 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -32,9 +51,9 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
             }
 
-            var account = DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == client.Username);
+            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == client.Username);
 
-            if (account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) != true)
+            if (!(account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }

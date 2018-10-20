@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.AliveEntities;
@@ -13,7 +32,7 @@ namespace NosCore.Parser.Parsers
         {
             var npcCounter = 0;
             short map = 0;
-            var npcs = new List<MapNpcDTO>();
+            var npcs = new List<MapNpcDto>();
             var npcMvPacketsList = new List<int>();
             var effPacketsDictionary = new Dictionary<int, short>();
 
@@ -56,7 +75,7 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var npctest = new MapNpcDTO
+                var npctest = new MapNpcDto
                 {
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
@@ -81,8 +100,8 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DAOFactory.NpcMonsterDAO.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || DAOFactory.MapNpcDAO.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
+                if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || DaoFactory.MapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
                     continue;
@@ -92,8 +111,8 @@ namespace NosCore.Parser.Parsers
                 npcCounter++;
             }
 
-            IEnumerable<MapNpcDTO> npcDtos = npcs;
-            DAOFactory.MapNpcDAO.InsertOrUpdate(npcDtos);
+            IEnumerable<MapNpcDto> npcDtos = npcs;
+            DaoFactory.MapNpcDao.InsertOrUpdate(npcDtos);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCS_PARSED), npcCounter));
         }
     }

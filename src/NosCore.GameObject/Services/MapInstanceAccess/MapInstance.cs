@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,11 +42,15 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     {
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
+        private readonly List<NpcMonsterDto> _npcMonsters;
+
         private readonly ConcurrentDictionary<long, MapNpc> _npcs;
 
-        public ConcurrentDictionary<long, MapItem> DroppedList { get; }
+        private bool _isSleeping;
+        private bool _isSleepingRequest;
 
-        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type, List<NpcMonsterDTO> npcMonsters)
+        public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
+            List<NpcMonsterDto> npcMonsters)
         {
             _npcMonsters = npcMonsters;
             XpRate = 1;
@@ -43,8 +66,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _isSleeping = true;
         }
 
-        private bool _isSleeping;
-        private bool _isSleepingRequest;
+        public ConcurrentDictionary<long, MapItem> DroppedList { get; }
 
         public bool IsSleeping
         {
@@ -54,6 +76,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 {
                     return _isSleeping;
                 }
+
                 _isSleeping = true;
                 _isSleepingRequest = false;
                 Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => monster.StopLife());
@@ -77,83 +100,11 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public int DropRate { get; set; }
 
-        public MapItem PutItem(short amount, ref ItemInstance inv, ClientSession session)
-        {
-            Guid random2 = Guid.NewGuid();
-            MapItem droppedItem = null;
-            List<MapCell> possibilities = new List<MapCell>();
-
-            for (short x = -2; x < 3; x++)
-            {
-                for (short y = -2; y < 3; y++)
-                {
-                    possibilities.Add(new MapCell { X = x, Y = y });
-                }
-            }
-
-            short mapX = 0;
-            short mapY = 0;
-            var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
-            {
-                mapX = (short)(session.Character.PositionX + possibility.X);
-                mapY = (short)(session.Character.PositionY + possibility.Y);
-                if (!Map.IsWalkable(Map[mapX, mapY]))
-                {
-                    continue;
-                }
-                niceSpot = true;
-                break;
-            }
-
-            if (!niceSpot)
-            {
-                return null;
-            }
-            if (amount <= 0 || amount > inv.Amount)
-            {
-                return null;
-            }
-            var newItemInstance = inv.Clone();
-            newItemInstance.Id = random2;
-            newItemInstance.Amount = amount;
-            droppedItem = new MapItem{MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX,PositionY = mapY, Amount = amount};
-            DroppedList[droppedItem.VisualId] = droppedItem;
-            inv.Amount -= amount;
-            return droppedItem;
-        }
-
         public Map.Map Map { get; set; }
 
         public Guid MapInstanceId { get; set; }
 
         public MapInstanceType MapInstanceType { get; set; }
-
-        public void LoadMonsters()
-        {
-            var partitioner = Partitioner.Create(DAOFactory.MapMonsterDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
-            Parallel.ForEach(partitioner, monster =>
-            {
-                MapMonster mapMonster = monster.Adapt<MapMonster>();
-                mapMonster.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.VNum));
-                mapMonster.MapInstance = this;
-                mapMonster.MapInstanceId = MapInstanceId;
-                _monsters[mapMonster.MapMonsterId] = mapMonster;
-            });
-        }
-
-        public void LoadNpcs()
-        {
-            var partitioner = Partitioner.Create(DAOFactory.MapNpcDAO.Where(s => s.MapId == Map.MapId), EnumerablePartitionerOptions.None);
-            Parallel.ForEach(partitioner, npc =>
-            {
-                MapNpc mapNpc = npc.Adapt<MapNpc>();
-                mapNpc.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.VNum));
-                mapNpc.MapInstance = this;
-                mapNpc.MapInstanceId = MapInstanceId;
-                _npcs[mapNpc.MapNpcId] = mapNpc;
-            });
-        }
 
         public List<MapMonster> Monsters
         {
@@ -169,9 +120,89 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public bool ShopAllowed { get; }
 
-        private readonly List<NpcMonsterDTO> _npcMonsters;
-
         public int XpRate { get; set; }
+
+        private IDisposable Life { get; set; }
+
+        public MapItem PutItem(short amount, ItemInstance inv, ClientSession session)
+        {
+            Guid random2 = Guid.NewGuid();
+            MapItem droppedItem = null;
+            List<MapCell> possibilities = new List<MapCell>();
+
+            for (short x = -2; x < 3; x++)
+            {
+                for (short y = -2; y < 3; y++)
+                {
+                    possibilities.Add(new MapCell {X = x, Y = y});
+                }
+            }
+
+            short mapX = 0;
+            short mapY = 0;
+            var niceSpot = false;
+            foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
+            {
+                mapX = (short) (session.Character.PositionX + possibility.X);
+                mapY = (short) (session.Character.PositionY + possibility.Y);
+                if (!Map.IsWalkable(Map[mapX, mapY]))
+                {
+                    continue;
+                }
+
+                niceSpot = true;
+                break;
+            }
+
+            if (!niceSpot)
+            {
+                return null;
+            }
+
+            if (amount <= 0 || amount > inv.Amount)
+            {
+                return null;
+            }
+
+            var newItemInstance = inv.Clone();
+            newItemInstance.Id = random2;
+            newItemInstance.Amount = amount;
+            droppedItem = new MapItem
+            {
+                MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX, PositionY = mapY, Amount = amount
+            };
+            DroppedList[droppedItem.VisualId] = droppedItem;
+            inv.Amount -= amount;
+            return droppedItem;
+        }
+
+        public void LoadMonsters()
+        {
+            var partitioner = Partitioner.Create(DaoFactory.MapMonsterDao.Where(s => s.MapId == Map.MapId),
+                EnumerablePartitionerOptions.None);
+            Parallel.ForEach(partitioner, monster =>
+            {
+                MapMonster mapMonster = monster.Adapt<MapMonster>();
+                mapMonster.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.VNum));
+                mapMonster.MapInstance = this;
+                mapMonster.MapInstanceId = MapInstanceId;
+                _monsters[mapMonster.MapMonsterId] = mapMonster;
+            });
+        }
+
+        public void LoadNpcs()
+        {
+            var partitioner = Partitioner.Create(DaoFactory.MapNpcDao.Where(s => s.MapId == Map.MapId),
+                EnumerablePartitionerOptions.None);
+            Parallel.ForEach(partitioner, npc =>
+            {
+                MapNpc mapNpc = npc.Adapt<MapNpc>();
+                mapNpc.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.VNum));
+                mapNpc.MapInstance = this;
+                mapNpc.MapInstanceId = MapInstanceId;
+                _npcs[mapNpc.MapNpcId] = mapNpc;
+            });
+        }
 
         public List<PacketDefinition> GetMapItems()
         {
@@ -196,24 +227,22 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         public void StartLife()
         {
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
-               {
-                   try
-                   {
-                       if (IsSleeping)
-                       {
-                           return;
-                       }
+            {
+                try
+                {
+                    if (IsSleeping)
+                    {
+                        return;
+                    }
 
-                       Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
-                       Parallel.ForEach(Npcs.Where(s=>s.Life == null), npc => npc.StartLife());
-                   }
-                   catch (Exception e)
-                   {
-                       Logger.Log.Error(e);
-                   }
-               });
+                    Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
+                    Parallel.ForEach(Npcs.Where(s => s.Life == null), npc => npc.StartLife());
+                }
+                catch (Exception e)
+                {
+                    Logger.Log.Error(e);
+                }
+            });
         }
-
-        private IDisposable Life { get; set; }
     }
 }
