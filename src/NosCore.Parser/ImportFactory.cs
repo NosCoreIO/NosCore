@@ -1,4 +1,23 @@
-﻿using System.Collections.Generic;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NosCore.Core.Encryption;
@@ -36,28 +55,28 @@ namespace NosCore.Parser
 
         public void ImportAccounts()
         {
-            var acc1 = new AccountDTO
+            var acc1 = new AccountDto
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
                 Password = EncryptionHelper.Sha512("test")
             };
 
-            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc1);
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc1);
             }
 
-            var acc2 = new AccountDTO
+            var acc2 = new AccountDto
             {
                 Authority = AuthorityType.User,
                 Name = "test",
                 Password = EncryptionHelper.Sha512("test")
             };
 
-            if (DAOFactory.AccountDAO.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DAOFactory.AccountDAO.InsertOrUpdate(ref acc2);
+                DaoFactory.AccountDao.InsertOrUpdate(ref acc2);
             }
         }
 

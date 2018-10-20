@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
@@ -76,23 +95,27 @@ namespace NosCore.LoginServer
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte)clientType.Type,
-                    connectedAccountLimit = connectedAccountLimit,
+                    ClientType = (byte) clientType.Type,
+                    ConnectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost
                 });
             }
 
-            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(), _loginConfiguration.MasterCommunication.Password);
+            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
+                _loginConfiguration.MasterCommunication.Password);
             Policy
                 .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        Logger.Log.Error(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
                     _loginConfiguration.MasterCommunication.Password,
-                    new MasterClient { Name = "LoginServer", Type = ServerType.LoginServer })
+                    new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer})
                 ).Wait();
         }
     }

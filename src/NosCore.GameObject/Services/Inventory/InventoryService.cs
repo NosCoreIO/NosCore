@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +30,15 @@ namespace NosCore.GameObject.Services.Inventory
 {
     public class InventoryService : ConcurrentDictionary<Guid, ItemInstance>, IInventoryService
     {
-        private WorldConfiguration _configuration { get; }
-
         private readonly List<Item> _items;
 
-        public InventoryService(List<Item> items, WorldConfiguration configuration) {
+        public InventoryService(List<Item> items, WorldConfiguration configuration)
+        {
             _items = items;
-            _configuration = configuration;
+            Configuration = configuration;
         }
+
+        private WorldConfiguration Configuration { get; }
 
         public bool IsExpanded { get; set; }
 
@@ -27,7 +47,8 @@ namespace NosCore.GameObject.Services.Inventory
             T retItem = null;
             try
             {
-                retItem = (T)this.Select(s => s.Value).SingleOrDefault(i => i is T && i.Slot == slot && i.Type == type);
+                retItem = (T) this.Select(s => s.Value)
+                    .SingleOrDefault(i => i is T && i.Slot == slot && i.Type == type);
             }
             catch (InvalidOperationException ioEx)
             {
@@ -37,17 +58,20 @@ namespace NosCore.GameObject.Services.Inventory
                 {
                     if (isFirstItem)
                     {
-                        retItem = (T)item;
+                        retItem = (T) item;
                         isFirstItem = false;
                         continue;
                     }
-                    var iteminstance = this.Select(s => s.Value).FirstOrDefault(i => i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
+
+                    var iteminstance = this.Select(s => s.Value).FirstOrDefault(i =>
+                        i != null && i.GetType() == typeof(T) && i.Slot == slot && i.Type == type);
                     if (iteminstance != null)
                     {
                         TryRemove(iteminstance.Id, out var value);
                     }
                 }
             }
+
             return retItem;
         }
 
@@ -78,38 +102,47 @@ namespace NosCore.GameObject.Services.Inventory
             }
 
             // check if item can be stapled
-            if (slot == null && newItem.Type != PocketType.Bazaar && (newItem.Item.Type == PocketType.Etc || newItem.Item.Type == PocketType.Main))
+            if (slot == null && newItem.Type != PocketType.Bazaar
+                && (newItem.Item.Type == PocketType.Etc || newItem.Item.Type == PocketType.Main))
             {
-                var slotNotFull = this.ToList().Select(s => s.Value).Where(i => i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < _configuration.MaxItemAmount);
-                var freeslot = _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12) - this.Count(s => s.Value.Type == newItem.Type);
+                var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
+                    i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse
+                    && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse
+                    && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < Configuration.MaxItemAmount);
+                var freeslot = Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12)
+                    - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<ItemInstance> itemInstances = slotNotFull as IList<ItemInstance> ?? slotNotFull.ToList();
-                if (newItem.Amount <= (freeslot * _configuration.MaxItemAmount) + itemInstances.Sum(s => _configuration.MaxItemAmount - s.Amount))
+                if (newItem.Amount <= (freeslot * Configuration.MaxItemAmount)
+                    + itemInstances.Sum(s => Configuration.MaxItemAmount - s.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
                         var max = slotToAdd.Amount + newItem.Amount;
-                        max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
-                        newItem.Amount = (short)(slotToAdd.Amount + newItem.Amount - max);
-                        slotToAdd.Amount = (short)max;
+                        max = max > Configuration.MaxItemAmount ? Configuration.MaxItemAmount : max;
+                        newItem.Amount = (short) (slotToAdd.Amount + newItem.Amount - max);
+                        slotToAdd.Amount = (short) max;
                         invlist.Add(slotToAdd);
                     }
                 }
             }
+
             if (newItem.Amount <= 0)
             {
                 return invlist;
             }
+
             // create new item
-            var freeSlot = newItem.Type == PocketType.Wear ? (LoadBySlotAndType<ItemInstance>((short)newItem.Item.EquipmentSlot, PocketType.Wear) == null
-                    ? (short?)newItem.Item.EquipmentSlot
+            var freeSlot = newItem.Type == PocketType.Wear
+                ? (LoadBySlotAndType<ItemInstance>((short) newItem.Item.EquipmentSlot, PocketType.Wear) == null
+                    ? (short?) newItem.Item.EquipmentSlot
                     : null)
                 : GetFreeSlot(newItem.Type);
             if (!slot.HasValue && !freeSlot.HasValue)
             {
                 return invlist;
             }
+
             newItem.Slot = slot ?? freeSlot.Value;
-            newItem.Type = newItem.Type;
 
             if (ContainsKey(newItem.Id))
             {
@@ -117,33 +150,29 @@ namespace NosCore.GameObject.Services.Inventory
                 return null;
             }
 
-            if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type) || newItem.Slot >= _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
+            if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type)
+                || newItem.Slot >= Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
             {
                 return null;
             }
+
             if (newItem.Type == PocketType.Specialist && !(newItem is SpecialistInstance))
             {
-                Logger.Error(new Exception("Cannot add an item of type Specialist without beeing a SpecialistInstance."));
+                Logger.Error(
+                    new Exception("Cannot add an item of type Specialist without beeing a SpecialistInstance."));
             }
-            if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear) && !(newItem is WearableInstance))
+
+            if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear)
+                && !(newItem is WearableInstance))
             {
-                Logger.Error(new Exception("Cannot add an item of type Equipment or Wear without beeing a WearableInstance."));
+                Logger.Error(
+                    new Exception("Cannot add an item of type Equipment or Wear without beeing a WearableInstance."));
             }
+
             this[newItem.Id] = newItem;
             invlist.Add(newItem);
 
             return invlist;
-        }
-
-        private short? GetFreeSlot(PocketType type)
-        {
-            var backPack = IsExpanded ? 1 : 0;
-            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot).Select(i => (int)i.Slot);
-            IEnumerable<int> instanceSlotsByType = itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
-            var nextFreeSlot = instanceSlotsByType.Any()
-                ? Enumerable.Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1).Except(instanceSlotsByType).FirstOrDefault()
-                : 0;
-            return (short?)nextFreeSlot < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) ? (short?)nextFreeSlot : null;
         }
 
         public ItemInstance DeleteById(Guid id)
@@ -164,7 +193,7 @@ namespace NosCore.GameObject.Services.Inventory
 
         public T LoadByItemInstanceId<T>(Guid id) where T : ItemInstance
         {
-            return (T)this[id];
+            return (T) this[id];
         }
 
         public ItemInstance DeleteFromTypeAndSlot(PocketType type, short slot)
@@ -176,17 +205,20 @@ namespace NosCore.GameObject.Services.Inventory
                 TryRemove(inv.Id, out var value);
                 return value;
             }
+
             Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
             return null;
         }
 
-        public ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot = null, bool wear = true)
+        public ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+            short? targetSlot = null, bool wear = true)
         {
             if (sourceSlot == targetSlot && sourceType == targetType)
             {
                 Logger.Error(new InvalidOperationException("SourceInstance can't be moved on the same spot"));
                 return null;
             }
+
             var sourceInstance = LoadBySlotAndType<ItemInstance>(sourceSlot, sourceType);
             if (!(sourceInstance is WearableInstance))
             {
@@ -223,6 +255,7 @@ namespace NosCore.GameObject.Services.Inventory
                     {
                         return sourceInstance;
                     }
+
                     sourceInstance.Slot = freeTargetSlot.Value;
                     sourceInstance.Type = targetType;
                 }
@@ -235,9 +268,9 @@ namespace NosCore.GameObject.Services.Inventory
             if (targetType == PocketType.Wear)
             {
                 nextFreeSlot =
-                    LoadBySlotAndType<ItemInstance>((short)sourceInstance.Item.EquipmentSlot, targetType) == null
-                        ? (short)sourceInstance.Item.EquipmentSlot
-                        : (short)-1;
+                    LoadBySlotAndType<ItemInstance>((short) sourceInstance.Item.EquipmentSlot, targetType) == null
+                        ? (short) sourceInstance.Item.EquipmentSlot
+                        : (short) -1;
             }
             else
             {
@@ -257,16 +290,19 @@ namespace NosCore.GameObject.Services.Inventory
             return sourceInstance;
         }
 
-        public void MoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot, out ItemInstance sourcePocket, out ItemInstance destinationPocket)
+        public void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+            out ItemInstance sourcePocket, out ItemInstance destinationPocket)
         {
             // load source and destination slots
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
 
-            if (sourceSlot == destinationSlot || amount == 0 || destinationSlot > _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
+            if (sourceSlot == destinationSlot || amount == 0
+                || destinationSlot > Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
             {
                 return;
             }
+
             if (sourcePocket != null && amount <= sourcePocket.Amount)
             {
                 switch (destinationPocket)
@@ -282,13 +318,15 @@ namespace NosCore.GameObject.Services.Inventory
                         AddItemToPocket(itemDest, sourcetype, destinationSlot);
                         break;
                     default:
-                        if (destinationPocket.ItemVNum == sourcePocket.ItemVNum && (sourcePocket.Item.Type == PocketType.Main || sourcePocket.Item.Type == PocketType.Etc))
+                        if (destinationPocket.ItemVNum == sourcePocket.ItemVNum
+                            && (sourcePocket.Item.Type == PocketType.Main || sourcePocket.Item.Type == PocketType.Etc))
                         {
-                            if (destinationPocket.Amount + amount > _configuration.MaxItemAmount)
+                            if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
                             {
                                 var saveItemCount = destinationPocket.Amount;
-                                destinationPocket.Amount = _configuration.MaxItemAmount;
-                                sourcePocket.Amount = (short)(saveItemCount + sourcePocket.Amount - _configuration.MaxItemAmount);
+                                destinationPocket.Amount = Configuration.MaxItemAmount;
+                                sourcePocket.Amount =
+                                    (short) (saveItemCount + sourcePocket.Amount - Configuration.MaxItemAmount);
                             }
                             else
                             {
@@ -310,6 +348,7 @@ namespace NosCore.GameObject.Services.Inventory
                             {
                                 return;
                             }
+
                             destinationPocket.Slot = sourceSlot;
                             destinationPocket.Type = sourcetype;
                             sourcePocket = TakeItem(sourcePocket.Slot, sourcePocket.Type);
@@ -317,6 +356,7 @@ namespace NosCore.GameObject.Services.Inventory
                             {
                                 return;
                             }
+
                             sourcePocket.Slot = destinationSlot;
                             this[destinationPocket.Id] = destinationPocket;
                             this[sourcePocket.Id] = sourcePocket;
@@ -325,8 +365,26 @@ namespace NosCore.GameObject.Services.Inventory
                         break;
                 }
             }
+
             sourcePocket = LoadBySlotAndType<ItemInstance>(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType<ItemInstance>(destinationSlot, sourcetype);
+        }
+
+        private short? GetFreeSlot(PocketType type)
+        {
+            var backPack = IsExpanded ? 1 : 0;
+            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)
+                .Select(i => (int) i.Slot);
+            IEnumerable<int> instanceSlotsByType =
+                itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
+            var nextFreeSlot = instanceSlotsByType.Any()
+                ? Enumerable
+                    .Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) + 1)
+                    .Except(instanceSlotsByType).FirstOrDefault()
+                : 0;
+            return (short?)nextFreeSlot
+                < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50)
+                    ? (short?) nextFreeSlot : null;
         }
 
         //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
@@ -446,6 +504,7 @@ namespace NosCore.GameObject.Services.Inventory
             {
                 return null;
             }
+
             TryRemove(itemInstance.Id, out _);
             return itemInstance;
         }
