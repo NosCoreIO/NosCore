@@ -129,9 +129,5 @@ namespace NosCore.Data.StaticEntities
         public int GiveDamagePercentage { get; set; }
 
         public virtual ICollection<BCardDto> BCards { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }

@@ -56,9 +56,5 @@ namespace NosCore.Data.StaticEntities
         public bool IsDaily { get; set; }
 
         public int? SpecialData { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }

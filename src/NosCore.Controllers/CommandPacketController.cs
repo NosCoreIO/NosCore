@@ -84,7 +84,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var mapInstance = _mapInstanceAccessService.MapInstances.Values.FirstOrDefault(s => s.Map.MapId == mapId);
+            var mapInstance = _mapInstanceAccessService.GetBaseMapById(mapId);
 
             if (mapInstance == null)
             {
@@ -153,7 +153,8 @@ namespace NosCore.Controllers
             var vnum = createItemPacket.VNum;
             sbyte rare = 0;
             const short boxEffect = 999;
-            byte upgrade = 0, design = 0;
+            byte upgrade = 0;
+            byte design = 0;
             short amount = 1;
             if (vnum == 1046)
             {

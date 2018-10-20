@@ -34,8 +34,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         {
         }
 
-        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor &&
-            Item.ItemType != ItemType.Weapon;
+        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor
+            && Item.ItemType != ItemType.Weapon;
 
         public Item Item { get; set; }
 

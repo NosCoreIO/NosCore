@@ -74,7 +74,7 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var first = int.Parse(currentLine[(i * 6) + 6]);
+               var first = int.Parse(currentLine[(i * 6) + 6]);
                 var bcard = new BCardDto
                 {
                     CardId = _card.CardId,
@@ -83,8 +83,8 @@ namespace NosCore.Parser.Parsers
                     FirstData = (first > 0 ? first : -first) / 4,
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
-                    IsLevelScaled = Convert.ToBoolean(first % 4),
-                    IsLevelDivided = first % 4 == 2
+                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
+                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2
                 };
                 Bcards.Add(bcard);
             }

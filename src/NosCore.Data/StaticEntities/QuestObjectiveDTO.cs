@@ -33,9 +33,5 @@ namespace NosCore.Data.StaticEntities
         public int? SpecialData { get; set; }
 
         public short QuestId { get; set; }
-
-        public void Initialize()
-        {
-        }
     }
 }

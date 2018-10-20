@@ -107,16 +107,18 @@ namespace NosCore.Tests
         [TestMethod]
         public void GeneratePacketWithDefaultSplitter()
         {
-            var subpacket = new List<NsTeStSubPacket>();
-            subpacket.Add(new NsTeStSubPacket
+            var subpacket = new List<NsTeStSubPacket>
             {
-                Host = "-1",
-                Port = null,
-                Color = null,
-                WorldCount = 10000,
-                WorldId = 10000,
-                Name = "1"
-            });
+                new NsTeStSubPacket
+                {
+                    Host = "-1",
+                    Port = null,
+                    Color = null,
+                    WorldCount = 10000,
+                    WorldId = 10000,
+                    Name = "1"
+                }
+            };
             var nstestpacket = new NsTestPacket
             {
                 AccountName = "test",
