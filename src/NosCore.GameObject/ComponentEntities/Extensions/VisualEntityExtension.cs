@@ -19,6 +19,7 @@
 
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
-                Name = visualEntity.Name,
+                Name = visualEntity.Authority == AuthorityType.Moderator ? "[Support]" + visualEntity.Name : visualEntity.Name,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
@@ -75,9 +76,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte) visualEntity.Gender,
-                    HairStyle = (byte) visualEntity.HairStyle,
-                    HairColor = (byte) visualEntity.HairColor,
+                    Gender = (byte)visualEntity.Gender,
+                    HairStyle = (byte)visualEntity.HairStyle,
+                    HairColor = (byte)visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = new InEquipmentSubPacket
                     {
@@ -93,8 +94,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.GroupId,
@@ -108,7 +109,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorRare = 0,
                     FamilyId = -1,
                     FamilyName = string.Empty,
-                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -117,7 +118,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
                     ArenaWinner = false,
-                    Compliment = 0,
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = 0,
                     HeroLevel = visualEntity.HeroLevel
                 }
