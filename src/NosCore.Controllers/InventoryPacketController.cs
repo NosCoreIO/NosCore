@@ -140,7 +140,7 @@ namespace NosCore.Controllers
                                 Session.Character.SpPoint = 10000;
                             }
 
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = string.Format(
                                     Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
@@ -180,7 +180,7 @@ namespace NosCore.Controllers
                         }
                         else
                         {
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                                     Session.Account.Language),
@@ -208,7 +208,7 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Gold = maxGold;
-                        Session.SendPacket(new MsgPacket()
+                        Session.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                                 Session.Account.Language),
@@ -241,7 +241,7 @@ namespace NosCore.Controllers
                                 Session.Character.MapInstance.PutItem(putPacket.Amount, invitem, Session);
                             if (droppedItem == null)
                             {
-                                Session.SendPacket(new MsgPacket()
+                                Session.SendPacket(new MsgPacket
                                 {
                                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                                         Session.Account.Language),
@@ -261,7 +261,7 @@ namespace NosCore.Controllers
                         }
                         else
                         {
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
                                     Session.Account.Language),
@@ -271,7 +271,7 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Session.SendPacket(new MsgPacket()
+                        Session.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
                                 Session.Account.Language),
@@ -281,7 +281,7 @@ namespace NosCore.Controllers
                 }
                 else
                 {
-                    Session.SendPacket(new MsgPacket()
+                    Session.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                             Session.Account.Language),
@@ -299,12 +299,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BiPacket()
+                            YesPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Requested
                             },
-                            NoPacket = new BiPacket()
+                            NoPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
@@ -318,12 +318,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BiPacket()
+                            YesPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Confirmed
                             },
-                            NoPacket = new BiPacket()
+                            NoPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined

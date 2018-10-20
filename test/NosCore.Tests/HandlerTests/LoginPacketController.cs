@@ -53,7 +53,7 @@ namespace NosCore.Tests.HandlerTests
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =
-            new ClientSession(null, new List<PacketController>() {new LoginPacketController()}, null);
+            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null);
 
         private AccountDto _acc;
         private LoginPacketController _handler;
