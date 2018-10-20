@@ -1,6 +1,22 @@
-﻿using Autofac;
-using NosCore.Core.Extensions;
-using NosCore.Shared.I18N;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +24,10 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using NosCore.Core.Extensions;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Serializing
 {
@@ -98,12 +117,12 @@ namespace NosCore.Core.Serializing
         /// <summary>
         ///     Serializes a PacketDefinition to string.
         /// </summary>
-        /// <typeparam name="TPacket">The type of the PacketDefinition</typeparam>
-        /// <param name="packet">The object reference of the PacketDefinition</param>
+        /// <typeparam name="TPackets">The type of the PacketDefinition IEnumerable</typeparam>
+        /// <param name="packets">The object reference of the PacketDefinition</param>
         /// <returns>The serialized string.</returns>
         public static string Serialize<TPackets>(TPackets packets) where TPackets : IEnumerable<PacketDefinition>
         {
-            string deserializedPackets = null;
+            var deserializedPackets = new StringBuilder();
             foreach (var packet in packets)
             {
                 try
@@ -111,7 +130,7 @@ namespace NosCore.Core.Serializing
                     // load pregenerated serialization information
                     var serializationInformation = GetSerializationInformation(packet.GetType());
 
-                    var deserializedPacket = serializationInformation.Key.Item2; // set header
+                    var deserializedPacket = new StringBuilder(serializationInformation.Key.Item2); // set header
 
                     var lastIndex = 0;
                     foreach (var packetBasePropertyInfo in serializationInformation.Value)
@@ -123,15 +142,15 @@ namespace NosCore.Core.Serializing
 
                             for (var i = 0; i < amountOfEmptyValuesToAdd; i++)
                             {
-                                deserializedPacket += " 0";
+                                deserializedPacket.Append(" 0");
                             }
                         }
 
                         // add value for current configuration
-                        deserializedPacket += SerializeValue(packetBasePropertyInfo.Value.PropertyType,
+                        deserializedPacket.Append(SerializeValue(packetBasePropertyInfo.Value.PropertyType,
                             packetBasePropertyInfo.Value.GetValue(packet),
                             packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(),
-                            packetBasePropertyInfo.Key);
+                            packetBasePropertyInfo.Key));
 
                         // check if the value should be serialized to end
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
@@ -144,14 +163,12 @@ namespace NosCore.Core.Serializing
                         lastIndex = packetBasePropertyInfo.Key.Index;
                     }
 
-                    if (deserializedPackets == null)
+                    if (deserializedPackets.Length != 0)
                     {
-                        deserializedPackets = deserializedPacket;
+                        deserializedPackets.Append('\uffff');
                     }
-                    else
-                    {
-                        deserializedPackets += '\uffff' + deserializedPacket;
-                    }
+
+                    deserializedPackets.Append(deserializedPacket);
                 }
                 catch (Exception e)
                 {
@@ -160,7 +177,7 @@ namespace NosCore.Core.Serializing
                 }
             }
 
-            return deserializedPackets;
+            return deserializedPackets.ToString();
         }
 
         private static PacketDefinition Deserialize(string packetContent, PacketDefinition deserializedPacket,
@@ -217,7 +234,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            var subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
+            var subpackets = (IList) Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (var currentValue in splittedValues)
@@ -259,7 +276,7 @@ namespace NosCore.Core.Serializing
             var splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
             var subpackets =
-                (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
+                (IList) Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             var subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
@@ -275,7 +292,7 @@ namespace NosCore.Core.Serializing
                 var splittedSubpacketParts = packetMatchCollections.Select(m => m.Value).ToList();
                 splittedSubpackets = new List<string>();
 
-                var generatedPseudoDelimitedString = string.Empty;
+                var generatedPseudoDelimitedString = new StringBuilder();
                 var subPacketTypePropertiesCount = subpacketSerializationInfo.Value.Count;
 
                 // check if the amount of properties can be serialized properly
@@ -291,18 +308,17 @@ namespace NosCore.Core.Serializing
                         for (j = i; j < i + subPacketTypePropertiesCount; j++)
                         {
                             // add delimited value
-                            generatedPseudoDelimitedString += splittedSubpacketParts[j] + ".";
+                            generatedPseudoDelimitedString.Append(splittedSubpacketParts[j]).Append(".");
                         }
 
                         i = j - 1;
 
                         //remove last added separator
-                        generatedPseudoDelimitedString =
-                            generatedPseudoDelimitedString.Substring(0, generatedPseudoDelimitedString.Length - 1);
+                        generatedPseudoDelimitedString.TrimEnd('.');
 
                         // add delimited values to list of values to serialize
-                        splittedSubpackets.Add(generatedPseudoDelimitedString);
-                        generatedPseudoDelimitedString = string.Empty;
+                        splittedSubpackets.Add(generatedPseudoDelimitedString.ToString());
+                        generatedPseudoDelimitedString = new StringBuilder();
                     }
                 }
                 else
@@ -340,7 +356,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (packetPropertyType.BaseType?.Equals(typeof(Enum)) == true)
+            if (packetPropertyType.BaseType?.Equals(typeof(Enum)) ?? false)
             {
                 object convertedValue = null;
                 try
@@ -364,7 +380,7 @@ namespace NosCore.Core.Serializing
                 return currentValue != "0";
             }
 
-            if (packetPropertyType.BaseType?.Equals(typeof(PacketDefinition)) == true) // subpacket
+            if (packetPropertyType.BaseType?.Equals(typeof(PacketDefinition)) ?? false) // subpacket
             {
                 var subpacketSerializationInfo = GetSerializationInformation(packetPropertyType);
                 return DeserializeSubpacket(currentValue, packetPropertyType, subpacketSerializationInfo,
@@ -394,12 +410,13 @@ namespace NosCore.Core.Serializing
 
             if (Nullable.GetUnderlyingType(packetPropertyType) != null) // nullable value
             {
-                if (packetPropertyType.GenericTypeArguments[0]?.BaseType == typeof(Enum) == true)
+                if (packetPropertyType.GenericTypeArguments[0]?.BaseType == typeof(Enum))
                 {
                     return Enum.Parse(packetPropertyType.GenericTypeArguments[0], currentValue);
                 }
 
-                return TypeDescriptor.GetConverter(packetPropertyType.GenericTypeArguments[0]).ConvertFromInvariantString(currentValue);
+                return TypeDescriptor.GetConverter(packetPropertyType.GenericTypeArguments[0])
+                    .ConvertFromInvariantString(currentValue);
             }
 
             if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)
@@ -474,21 +491,45 @@ namespace NosCore.Core.Serializing
 
         private static string SerializeSimpleList(IList listValues, Type propertyType)
         {
-            var resultListPacket = string.Empty;
+            var resultListPacket = new StringBuilder();
             var listValueCount = listValues.Count;
             if (listValueCount > 0)
             {
-                resultListPacket += SerializeValue(propertyType.GenericTypeArguments[0], listValues[0],
-                    propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>());
+                resultListPacket.Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[0],
+                    propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()));
 
                 for (var i = 1; i < listValueCount; i++)
                 {
-                    resultListPacket +=
-                        $".{SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", "")}";
+                    resultListPacket.Append(".").Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
                 }
             }
 
-            return resultListPacket;
+            return resultListPacket.ToString();
+        }
+
+        //TODO move this to a proper extension
+        private static StringBuilder TrimEnd(this StringBuilder sb, char character = ' ')
+        {
+            if (sb == null || sb.Length == 0)
+            {
+                return sb;
+            }
+
+            var i = sb.Length - 1;
+            for (; i >= 0; i--)
+            {
+                if (character != sb[i])
+                {
+                    break;
+                }
+            }
+
+            if (i < sb.Length - 1)
+            {
+                sb.Length = i + 1;
+            }
+
+            return sb;
         }
 
         private static string SerializeSubpacket(object value,
@@ -496,7 +537,8 @@ namespace NosCore.Core.Serializing
                 subpacketSerializationInfo, bool isReturnPacket,
             bool shouldRemoveSeparator, string specialSeparator)
         {
-            var serializedSubpacket = isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ";
+            var serializedSubpacket =
+                new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
 
             // iterate thru configure subpacket properties
             foreach (var subpacketPropertyInfo in subpacketSerializationInfo.Value)
@@ -504,8 +546,8 @@ namespace NosCore.Core.Serializing
                 // first element
                 if (subpacketPropertyInfo.Key.Index != 0)
                 {
-                    serializedSubpacket += isReturnPacket ? "^" : shouldRemoveSeparator ? " "
-                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator);
+                    serializedSubpacket.Append(isReturnPacket ? "^" : shouldRemoveSeparator ? " "
+                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
                 }
 
                 if (typeof(PacketDefinition).IsAssignableFrom(subpacketPropertyInfo.Value.PropertyType))
@@ -513,24 +555,25 @@ namespace NosCore.Core.Serializing
                     var subpacketSerializationInfo2 =
                         GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
-                    serializedSubpacket = serializedSubpacket.TrimEnd(' ');
-                    serializedSubpacket += SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
-                        subpacketPropertyInfo.Key.RemoveSeparator, specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator);
+                    serializedSubpacket = serializedSubpacket.TrimEnd();
+                    serializedSubpacket.Append(SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
+                        subpacketPropertyInfo.Key.RemoveSeparator,
+                        specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator));
                     continue;
                 }
 
-                serializedSubpacket += SerializeValue(subpacketPropertyInfo.Value.PropertyType,
+                serializedSubpacket.Append(SerializeValue(subpacketPropertyInfo.Value.PropertyType,
                     subpacketPropertyInfo.Value.GetValue(value),
-                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", "");
+                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
             }
 
-            return serializedSubpacket;
+            return serializedSubpacket.ToString();
         }
 
         private static string SerializeSubpackets(IList listValues, Type packetBasePropertyType,
             bool shouldRemoveSeparator, string specialSeparator)
         {
-            var serializedSubPacket = string.Empty;
+            var serializedSubPacket = new StringBuilder();
             var subpacketSerializationInfo =
                 GetSerializationInformation(packetBasePropertyType.GetGenericArguments()[0]);
 
@@ -538,12 +581,12 @@ namespace NosCore.Core.Serializing
             {
                 foreach (var listValue in listValues)
                 {
-                    serializedSubPacket += SerializeSubpacket(listValue, subpacketSerializationInfo, false,
-                        shouldRemoveSeparator, specialSeparator);
+                    serializedSubPacket.Append(SerializeSubpacket(listValue, subpacketSerializationInfo, false,
+                        shouldRemoveSeparator, specialSeparator));
                 }
             }
 
-            return serializedSubPacket;
+            return serializedSubPacket.ToString();
         }
 
         private static string SerializeValue(Type propertyType, object value,
@@ -554,7 +597,7 @@ namespace NosCore.Core.Serializing
                 return string.Empty;
             }
 
-            if (packetIndexAttribute?.IsOptional == true && string.IsNullOrEmpty(Convert.ToString(value)))
+            if ((packetIndexAttribute?.IsOptional ?? false) && string.IsNullOrEmpty(Convert.ToString(value)))
             {
                 return string.Empty;
             }
@@ -571,7 +614,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (propertyType.BaseType?.Equals(typeof(Enum)) == true)
+            if (propertyType.BaseType?.Equals(typeof(Enum)) ?? false)
             {
                 return $" {Convert.ToInt16(value)}";
             }
@@ -582,32 +625,34 @@ namespace NosCore.Core.Serializing
                 return Convert.ToBoolean(value) ? " 1" : " 0";
             }
 
-            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) == true)
+            if (propertyType.BaseType?.Equals(typeof(PacketDefinition)) ?? false)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
+                    packetIndexAttribute?.SpecialSeparator);
             }
 
             if (value is PacketDefinition)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(value.GetType());
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
+                    packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList)value, propertyType,
+                return SerializeSubpackets((IList) value, propertyType,
                     packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
             {
-                return SerializeSimpleList((IList)value, propertyType);
+                return SerializeSimpleList((IList) value, propertyType);
             }
 
             return $" {value}";

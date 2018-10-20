@@ -1,4 +1,23 @@
-﻿using System;
+//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +28,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
@@ -19,39 +39,43 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
-    public class Character : CharacterDTO, ICharacterEntity
+    public class Character : CharacterDto, ICharacterEntity
     {
+        private byte _speed;
+
         public Character()
         {
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
-            CharacterRelations = new ConcurrentDictionary<long, CharacterRelation>();
-            RelationWithCharacter = new ConcurrentDictionary<long, CharacterRelation>();
+            CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
+            RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
+            GroupRequestCharacterIds = new List<long>();
+            Group = new Group(GroupType.Group);
         }
 
-        private byte _speed;
+        public List<long> GroupRequestCharacterIds { get; set; }
 
-        public AccountDTO Account { get; set; }
+        public AccountDto Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelation> CharacterRelations { get; set; }
+        public ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; set; }
 
-        public ConcurrentDictionary<long, CharacterRelation> RelationWithCharacter { get; set; }
+        public ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; set; }
 
         public bool IsFriendListFull
         {
-            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count >= 80;
+            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
+                >= 80;
         }
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
-
-        public MapInstance MapInstance { get; set; }
 
         public double LastPortal { get; set; }
 
@@ -62,7 +86,20 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
+
         public bool InvisibleGm { get; set; }
+        public IInventoryService Inventory { get; set; }
+        public bool InExchangeOrTrade { get; set; }
+
+        public Group Group { get; set; }
+
+        public long GroupId => Group.GroupId;
+
+        public int ReputIcon => GetReputIco();
+
+        public int DignityIcon => GetDignityIco();
+
+        public MapInstance MapInstance { get; set; }
 
         public VisualType VisualType => VisualType.Player;
 
@@ -114,12 +151,66 @@ namespace NosCore.GameObject
         public bool NoMove { get; set; }
         public bool IsSitting { get; set; }
         public Guid MapInstanceId { get; set; }
-        public byte Authority { get; set; }
+
+        public AuthorityType Authority => Account.Authority;
 
         public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
-        public IInventoryService Inventory { get; set; }
-        public bool InExchangeOrTrade { get; set; }
+
+        public int MaxHp => (int)HpLoad();
+
+        public int MaxMp => (int)MpLoad();
+
+        public LevPacket GenerateLev()
+        {
+            return new LevPacket
+            {
+                Level = Level,
+                LevelXp = LevelXp,
+                JobLevel = JobLevel,
+                JobLevelXp = JobLevelXp,
+                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
+                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
+                Reputation = Reput,
+                SkillCp = 0,
+                HeroXp = HeroXp,
+                HeroLevel = HeroLevel,
+                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
+            };
+        }
+
+        public void JoinGroup(Group group)
+        {
+            Group = group;
+            group.JoinGroup(this);
+        }
+
+        public void LeaveGroup()
+        {
+            Group.LeaveGroup(this);
+            foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
+            {
+                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                    s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
+
+                if (Group.Count == 1)
+                {
+                    groupMember?.Character.LeaveGroup();
+                    groupMember?.SendPacket(Group.GeneratePidx(groupMember.Character));
+                    groupMember?.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                            groupMember.Account.Language),
+                        Type = MessageType.Whisper
+                    });
+                }
+
+                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
+            }
+
+            Group = new Group(GroupType.Group);
+            Group.JoinGroup(this);
+        }
 
         public FdPacket GenerateFd()
         {
@@ -166,7 +257,7 @@ namespace NosCore.GameObject
 
         public int IsReputHero()
         {
-            const int i = 0;
+            //const int i = 0;
             //foreach (CharacterDTO characterDto in ServerManager.Instance.TopReputation)
             //{
             //    Character character = (Character)characterDto;
@@ -198,7 +289,7 @@ namespace NosCore.GameObject
 
         public PacketDefinition GenerateSpPoint()
         {
-            return new SpPacket()
+            return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
                 MaxAdditionalPoint = 1000000,
@@ -211,34 +302,49 @@ namespace NosCore.GameObject
         {
             foreach (var characterRelation in CharacterRelations)
             {
-                var targetSession = ServerManager.Instance.Sessions.Where(s => s.Value.Character != null).FirstOrDefault(s => s.Value.Character.CharacterId == characterRelation.Value.RelatedCharacterId).Value;
+                var targetSession = ServerManager.Instance.Sessions.Where(s => s.Value.Character != null)
+                    .FirstOrDefault(s => s.Value.Character.CharacterId == characterRelation.Value.RelatedCharacterId)
+                    .Value;
 
                 if (targetSession != null)
                 {
                     targetSession.SendPacket(new FinfoPacket
                     {
-                        FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
+                        FriendList = new List<FinfoSubPackets>
                         {
-                            CharacterId = CharacterId,
-                            IsConnected = status
-                        }}
+                            new FinfoSubPackets
+                            {
+                                CharacterId = CharacterId,
+                                IsConnected = status
+                            }
+                        }
                     });
                 }
                 else
                 {
                     ServerManager.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new []{new FinfoPacket
+                        Packet = PacketFactory.Serialize(new[]
                         {
-                            FriendList = new List<FinfoSubPackets>() { new FinfoSubPackets
+                            new FinfoPacket
                             {
-                                CharacterId = CharacterId,
-                                IsConnected = status
-                            }}
-                        }}),
+                                FriendList = new List<FinfoSubPackets>
+                                {
+                                    new FinfoSubPackets
+                                    {
+                                        CharacterId = CharacterId,
+                                        IsConnected = status
+                                    }
+                                }
+                            }
+                        }),
                         ReceiverType = ReceiverType.OnlySomeone,
                         SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
-                        ReceiverCharacter = new Data.WebApi.Character { Id = characterRelation.Value.RelatedCharacterId, Name = characterRelation.Value.CharacterName }
+                        ReceiverCharacter = new Data.WebApi.Character
+                        {
+                            Id = characterRelation.Value.RelatedCharacterId,
+                            Name = characterRelation.Value.CharacterName
+                        }
                     });
                 }
             }
@@ -247,7 +353,8 @@ namespace NosCore.GameObject
         public BlinitPacket GenerateBlinit()
         {
             var subpackets = new List<BlinitSubPacket>();
-            foreach (var relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Blocked))
+            foreach (var relation in CharacterRelations.Values.Where(s =>
+                s.RelationType == CharacterRelationType.Blocked))
             {
                 if (relation.RelatedCharacterId == CharacterId)
                 {
@@ -271,11 +378,13 @@ namespace NosCore.GameObject
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers)
             {
-                accounts.AddRange(WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
+                accounts.AddRange(
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
             }
 
             var subpackets = new List<FinitSubPacket>();
-            foreach (var relation in CharacterRelations.Values.Where(s => s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            foreach (var relation in CharacterRelations.Values.Where(s =>
+                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
             {
                 var account = accounts.Find(s =>
                     s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
@@ -293,13 +402,15 @@ namespace NosCore.GameObject
 
         public void DeleteBlackList(long characterId)
         {
-            var relation = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == characterId && s.RelationType == CharacterRelationType.Blocked);
+            var relation = CharacterRelations.Values.FirstOrDefault(s =>
+                s.RelatedCharacterId == characterId && s.RelationType == CharacterRelationType.Blocked);
 
             if (relation == null)
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
@@ -315,15 +426,18 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType,
-                CharacterName = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name
+                CharacterName = ServerManager.Instance.Sessions.Values
+                    .FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name,
+                CharacterRelationId = Guid.NewGuid()
             };
 
             CharacterRelations[relation.CharacterRelationId] = relation;
-            CharacterRelationDTO relationDto = relation;
+            CharacterRelationDto relationDto = relation;
 
-            if (DAOFactory.CharacterRelationDAO.FirstOrDefault(s => s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
+            if (DaoFactory.CharacterRelationDao.FirstOrDefault(s =>
+                s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
             {
-                DAOFactory.CharacterRelationDAO.InsertOrUpdate(ref relationDto);
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(ref relationDto);
             }
 
             if (relationType == CharacterRelationType.Blocked)
@@ -338,8 +452,10 @@ namespace NosCore.GameObject
 
         public void DeleteRelation(long relatedCharacterId)
         {
-            var characterRelation = CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
-            var targetCharacterRelation = RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
+            var characterRelation =
+                CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
+            var targetCharacterRelation =
+                RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
 
             if (characterRelation == null || targetCharacterRelation == null)
             {
@@ -350,10 +466,12 @@ namespace NosCore.GameObject
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
 
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.CharacterId == targetCharacterRelation.CharacterId);
+            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                s.Character.CharacterId == targetCharacterRelation.CharacterId);
             if (targetSession != null)
             {
-                targetSession.Character.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
+                targetSession.Character.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
+                    out _);
                 targetSession.Character.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
                 targetSession.SendPacket(targetSession.Character.GenerateFinit());
                 return;
@@ -362,31 +480,34 @@ namespace NosCore.GameObject
             var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
             foreach (var server in servers)
             {
-                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi).Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
+                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                    .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
 
                 if (account != null)
                 {
-                    WebApiAccess.Instance.Delete<CharacterRelation>("api/relation", server.WebApi, targetCharacterRelation.CharacterRelationId);
+                    WebApiAccess.Instance.Delete<CharacterRelation>("api/relation", server.WebApi,
+                        targetCharacterRelation.CharacterRelationId);
                     return;
                 }
             }
 
-            DAOFactory.CharacterRelationDAO.Delete(targetCharacterRelation);
+            DaoFactory.CharacterRelationDao.Delete(targetCharacterRelation);
         }
 
-        [Obsolete("GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
+        [Obsolete(
+            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public IEnumerable<PacketDefinition> GenerateInv()
         {
-            InvPacket inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() },
-            inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() },
-            inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() },
-            inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() },
-            inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() },
-            inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
 
             if (Inventory != null)
             {
-                foreach (ItemInstance inv in Inventory.Select(s => s.Value))
+                foreach (var inv in Inventory.Select(s => s.Value))
                 {
                     switch (inv.Type)
                     {
@@ -395,78 +516,92 @@ namespace NosCore.GameObject
                             {
                                 if (inv is SpecialistInstance specialistInstance)
                                 {
-                                    inv7.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = specialistInstance.Rare, UpgradeDesign = specialistInstance.Upgrade, SecondUpgrade = specialistInstance.SpStoneUpgrade });
+                                    inv7.IvnSubPackets.Add(new IvnSubPacket
+                                    {
+                                        Slot = inv.Slot,
+                                        VNum = inv.ItemVNum,
+                                        RareAmount = specialistInstance.Rare,
+                                        UpgradeDesign = specialistInstance.Upgrade,
+                                        SecondUpgrade = specialistInstance.SpStoneUpgrade
+                                    });
                                 }
                             }
                             else
                             {
                                 if (inv is WearableInstance wearableInstance)
                                 {
-                                    inv0.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = wearableInstance.Rare, UpgradeDesign = inv.Item.IsColored ? wearableInstance.Design : wearableInstance.Upgrade });
+                                    inv0.IvnSubPackets.Add(new IvnSubPacket
+                                    {
+                                        Slot = inv.Slot,
+                                        VNum = inv.ItemVNum,
+                                        RareAmount = wearableInstance.Rare,
+                                        UpgradeDesign = inv.Item.IsColored ? wearableInstance.Design
+                                            : wearableInstance.Upgrade
+                                    });
                                 }
                             }
+
                             break;
 
                         case PocketType.Main:
-                            inv1.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv1.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Etc:
-                            inv2.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv2.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Miniland:
-                            inv3.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv3.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Specialist:
                             if (inv is SpecialistInstance specialist)
                             {
-                                inv6.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = specialist.Rare, UpgradeDesign = specialist.Upgrade, SecondUpgrade = specialist.SpStoneUpgrade });
+                                inv6.IvnSubPackets.Add(new IvnSubPacket
+                                {
+                                    Slot = inv.Slot,
+                                    VNum = inv.ItemVNum,
+                                    RareAmount = specialist.Rare,
+                                    UpgradeDesign = specialist.Upgrade,
+                                    SecondUpgrade = specialist.SpStoneUpgrade
+                                });
                             }
+
                             break;
 
                         case PocketType.Costume:
                             if (inv is WearableInstance costumeInstance)
                             {
-                                inv7.IvnSubPackets.Add(new IvnSubPacket() { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = costumeInstance.Rare, UpgradeDesign = costumeInstance.Upgrade });
+                                inv7.IvnSubPackets.Add(new IvnSubPacket
+                                {
+                                    Slot = inv.Slot,
+                                    VNum = inv.ItemVNum,
+                                    RareAmount = costumeInstance.Rare,
+                                    UpgradeDesign = costumeInstance.Upgrade
+                                });
                             }
+
+                            break;
+                        default:
+                            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
                             break;
                     }
                 }
             }
 
-            return new List<PacketDefinition>() { inv0, inv1, inv2, inv3, inv6, inv7 };
+            return new List<PacketDefinition> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
         {
-            return CharacterRelations.Values.Any(s => s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId) && s.CharacterId.Equals(CharacterId));
+            return CharacterRelations.Values.Any(s =>
+                s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId)
+                && s.CharacterId.Equals(CharacterId));
         }
 
         public int GetReputIco()
         {
-            if (Reput >= 5000001)
-            {
-                switch (IsReputHero())
-                {
-                    case 1:
-                        return 28;
-
-                    case 2:
-                        return 29;
-
-                    case 3:
-                        return 30;
-
-                    case 4:
-                        return 31;
-
-                    case 5:
-                        return 32;
-                }
-            }
-
             if (Reput <= 50)
             {
                 return 1;
@@ -592,7 +727,31 @@ namespace NosCore.GameObject
                 return 25;
             }
 
-            return Reput <= 5000000 ? 26 : 27;
+            if (Reput <= 5000000)
+            {
+                return 26;
+            }
+
+            if (Reput >= 5000001)
+            {
+                switch (IsReputHero())
+                {
+                    case 1:
+                        return 28;
+                    case 2:
+                        return 29;
+                    case 3:
+                        return 30;
+                    case 4:
+                        return 31;
+                    case 5:
+                        return 32;
+                    default:
+                        return 27;
+                }
+            }
+
+            return 0;
         }
 
         public void Save()
@@ -600,24 +759,25 @@ namespace NosCore.GameObject
             try
             {
                 var account = Session.Account;
-                DAOFactory.AccountDAO.InsertOrUpdate(ref account);
+                DaoFactory.AccountDao.InsertOrUpdate(ref account);
 
-                CharacterDTO character = (Character)MemberwiseClone();
-                DAOFactory.CharacterDAO.InsertOrUpdate(ref character);
+                CharacterDto character = (Character)MemberwiseClone();
+                DaoFactory.CharacterDao.InsertOrUpdate(ref character);
 
-                var savedRelations = DAOFactory.CharacterRelationDAO.Where(s => s.CharacterId == CharacterId);
+                var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
 
-                DAOFactory.CharacterRelationDAO.Delete(savedRelations.Except(CharacterRelations.Values));
-                DAOFactory.CharacterRelationDAO.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDTO>());
+                DaoFactory.CharacterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
-                var currentlySavedInventoryIds = DAOFactory.ItemInstanceDAO.Where(i => i.CharacterId.Equals(CharacterId)).Select(i => i.Id);
+                var currentlySavedInventoryIds = DaoFactory.ItemInstanceDao
+                    .Where(i => i.CharacterId.Equals(CharacterId)).Select(i => i.Id);
 
                 var todelete = currentlySavedInventoryIds.Except(Inventory.Select(i => i.Value.Id));
-                DAOFactory.ItemInstanceDAO.Delete(todelete);
+                DaoFactory.ItemInstanceDao.Delete(todelete);
 
                 var itemInsts = Inventory.Select(s => s.Value);
-                DAOFactory.ItemInstanceDAO.InsertOrUpdate(itemInsts.Cast<ItemInstanceDTO>());
+                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts);
             }
             catch (Exception e)
             {
@@ -627,7 +787,7 @@ namespace NosCore.GameObject
 
         public GoldPacket GenerateGold()
         {
-            return new GoldPacket() { Gold = Gold };
+            return new GoldPacket { Gold = Gold };
         }
 
         public void LoadSpeed()
@@ -635,19 +795,19 @@ namespace NosCore.GameObject
             Speed = CharacterHelper.Instance.SpeedData[Class];
         }
 
-        public double MPLoad()
+        public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int)((CharacterHelper.Instance.MpData[Class, Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData[Class][Level] + mp) * multiplicator);
         }
 
-        public double HPLoad()
+        public double HpLoad()
         {
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int)((CharacterHelper.Instance.HpData[Class, Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData[Class][Level] + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -691,8 +851,9 @@ namespace NosCore.GameObject
                 HairStyle = (byte)HairStyle,
                 HairColor = (byte)HairColor,
                 Class = Class,
-                Icon = 1,
+                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
                 Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,
                 MorphUpgrade = 0,
@@ -704,10 +865,10 @@ namespace NosCore.GameObject
         {
             return new StatPacket
             {
-                HP = Hp,
-                HPMaximum = HPLoad(),
-                MP = Mp,
-                MPMaximum = MPLoad(),
+                Hp = Hp,
+                HpMaximum = HpLoad(),
+                Mp = Mp,
+                MpMaximum = MpLoad(),
                 Unknown = 0,
                 Option = 0
             };

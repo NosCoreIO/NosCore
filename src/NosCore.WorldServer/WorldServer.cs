@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,14 +42,15 @@ namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        private readonly WorldConfiguration _worldConfiguration;
-        private readonly NetworkManager _networkManager;
         private readonly List<Item> _items;
-        private readonly List<NpcMonsterDTO> _npcmonsters;
-        private readonly List<Map> _maps;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly List<Map> _maps;
+        private readonly NetworkManager _networkManager;
+        private readonly List<NpcMonsterDto> _npcmonsters;
+        private readonly WorldConfiguration _worldConfiguration;
 
-        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items, List<NpcMonsterDTO> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -87,14 +107,15 @@ namespace NosCore.WorldServer
                         pipeline.AddLast(new StringEncoder(), new StringDecoder());
                         pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
                     }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port)).ConfigureAwait(false);
+                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
+                    .ConfigureAwait(false);
 
                 await connection.WriteAndFlushAsync(new Channel
                 {
                     Password = password,
                     ClientName = clientType.Name,
-                    ClientType = (byte)clientType.Type,
-                    connectedAccountLimit = connectedAccountLimit,
+                    ClientType = (byte) clientType.Type,
+                    ConnectedAccountLimit = connectedAccountLimit,
                     Port = clientPort,
                     ServerGroup = serverGroup,
                     Host = serverHost,
@@ -102,11 +123,15 @@ namespace NosCore.WorldServer
                 }).ConfigureAwait(false);
             }
 
-            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(), _worldConfiguration.MasterCommunication.Password);
+            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(),
+                _worldConfiguration.MasterCommunication.Password);
             Policy
                 .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (_, __, timeSpan) =>
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY), timeSpan.TotalSeconds))
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        Logger.Log.Error(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
                     _worldConfiguration.MasterCommunication.Password,

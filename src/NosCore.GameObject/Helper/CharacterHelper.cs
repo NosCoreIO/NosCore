@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.GameObject.Helper
@@ -31,23 +50,23 @@ namespace NosCore.GameObject.Helper
 
         #region Members
 
-        private int[,] _criticalDist;
-        private int[,] _criticalDistRate;
-        private int[,] _criticalHit;
-        private int[,] _criticalHitRate;
-        private int[,] _distDef;
-        private int[,] _distDodge;
-        private int[,] _distRate;
-        private int[,] _hitDef;
-        private int[,] _hitDodge;
-        private int[,] _hitRate;
-        private int[,] _magicalDef;
-        private int[,] _maxDist;
-        private int[,] _maxHit;
-        private int[,] _minDist;
+        private int[][] _criticalDist;
+        private int[][] _criticalDistRate;
+        private int[][] _criticalHit;
+        private int[][] _criticalHitRate;
+        private int[][] _distDef;
+        private int[][] _distDodge;
+        private int[][] _distRate;
+        private int[][] _hitDef;
+        private int[][] _hitDodge;
+        private int[][] _hitRate;
+        private int[][] _magicalDef;
+        private int[][] _maxDist;
+        private int[][] _maxHit;
+        private int[][] _minDist;
 
         // difference between class
-        private int[,] _minHit;
+        private int[][] _minHit;
 
         // STAT DATA
 
@@ -61,13 +80,13 @@ namespace NosCore.GameObject.Helper
 
         public double[] HeroXpData { get; private set; }
 
-        public int[,] HpData { get; private set; }
+        public int[][] HpData { get; private set; }
 
         public int[] HpHealth { get; private set; }
 
         public int[] HpHealthStand { get; private set; }
 
-        public int[,] MpData { get; private set; }
+        public int[][] MpData { get; private set; }
 
         public int[] MpHealth { get; private set; }
 
@@ -84,6 +103,22 @@ namespace NosCore.GameObject.Helper
         #endregion
 
         #region Methods
+
+        public double HeroXpLoad(byte heroLevel)
+        {
+            return heroLevel == 0 ? 1 : HeroXpData[heroLevel - 1];
+        }
+
+        public double JobXpLoad(byte jobLevel, byte classType)
+        {
+            return classType == (byte)CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1]
+                : SecondJobXpData[jobLevel - 1];
+        }
+
+        public double XpLoad(byte level)
+        {
+            return XpData[level - 1];
+        }
 
         public static float ExperiencePenalty(byte playerLevel, byte monsterLevel)
         {
@@ -259,27 +294,27 @@ namespace NosCore.GameObject.Helper
 
         public int MagicalDefence(CharacterClassType @class, byte level)
         {
-            return _magicalDef[(byte) @class, level];
+            return _magicalDef[(byte)@class][level];
         }
 
         public int MaxDistance(CharacterClassType @class, byte level)
         {
-            return _maxDist[(byte) @class, level];
+            return _maxDist[(byte)@class][level];
         }
 
         public int MaxHit(CharacterClassType @class, byte level)
         {
-            return _maxHit[(byte) @class, level];
+            return _maxHit[(byte)@class][level];
         }
 
         public int MinDistance(CharacterClassType @class, byte level)
         {
-            return _minDist[(byte) @class, level];
+            return _minDist[(byte)@class][level];
         }
 
         public int MinHit(CharacterClassType @class, byte level)
         {
-            return _minHit[(int) @class, level];
+            return _minHit[(int)@class][level];
         }
 
         public int RarityPoint(short rarity, short lvl)
@@ -335,7 +370,7 @@ namespace NosCore.GameObject.Helper
         {
             try
             {
-                var point = 0;
+                int point;
                 switch (mode)
                 {
                     case 0:
@@ -379,6 +414,10 @@ namespace NosCore.GameObject.Helper
                         {
                             point = 99 + ((spPoint - 400) / 10);
                         }
+                        else
+                        {
+                            point = 0;
+                        }
 
                         break;
 
@@ -411,7 +450,10 @@ namespace NosCore.GameObject.Helper
                         {
                             point = 80 + ((spPoint - 270) / 7);
                         }
-
+                        else
+                        {
+                            point = 0;
+                        }
                         break;
 
                     case 1:
@@ -451,7 +493,10 @@ namespace NosCore.GameObject.Helper
                         {
                             point = 99 + ((spPoint - 400) / 10);
                         }
-
+                        else
+                        {
+                            point = 0;
+                        }
                         break;
 
                     case 3:
@@ -487,7 +532,13 @@ namespace NosCore.GameObject.Helper
                         {
                             point = 90 + ((spPoint - 330) / 8);
                         }
-
+                        else
+                        {
+                            point = 0;
+                        }
+                        break;
+                    default:
+                        point = 0;
                         break;
                 }
 
@@ -501,81 +552,42 @@ namespace NosCore.GameObject.Helper
 
         public int SpPoint(short spLevel, short upgrade)
         {
-            var point = (spLevel - 20) * 3;
-            if (spLevel <= 20)
-            {
-                point = 0;
-            }
-
+            var point = spLevel <= 20 ? 0 : (spLevel - 20) * 3;
             switch (upgrade)
             {
                 case 1:
-                    point += 5;
-                    break;
-
+                    return point + 5;
                 case 2:
-                    point += 10;
-                    break;
-
+                    return point + 10;
                 case 3:
-                    point += 15;
-                    break;
-
+                    return point + 15;
                 case 4:
-                    point += 20;
-                    break;
-
+                    return point + 20;
                 case 5:
-                    point += 28;
-                    break;
-
+                    return point + 28;
                 case 6:
-                    point += 36;
-                    break;
-
+                    return point + 36;
                 case 7:
-                    point += 46;
-                    break;
-
+                    return point + 46;
                 case 8:
-                    point += 56;
-                    break;
-
+                    return point + 56;
                 case 9:
-                    point += 68;
-                    break;
-
+                    return point + 68;
                 case 10:
-                    point += 80;
-                    break;
-
+                    return point + 80;
                 case 11:
-                    point += 95;
-                    break;
-
+                    return point + 95;
                 case 12:
-                    point += 110;
-                    break;
-
+                    return point + 110;
                 case 13:
-                    point += 128;
-                    break;
-
+                    return point + 128;
                 case 14:
-                    point += 148;
-                    break;
-
+                    return point + 148;
                 case 15:
-                    point += 173;
-                    break;
+                    return point + 173;
+                default:
+                    return upgrade > 15 ? point + 173 + 25 + (5 * (upgrade - 15)) : point;
             }
-
-            if (upgrade > 15)
-            {
-                point += 173 + 25 + (5 * (upgrade - 15));
-            }
-
-            return point;
         }
 
         internal int DarkResistance(CharacterClassType @class, byte level)
@@ -585,7 +597,7 @@ namespace NosCore.GameObject.Helper
 
         internal int Defence(CharacterClassType @class, byte level)
         {
-            return _hitDef[(byte) @class, level];
+            return _hitDef[(byte)@class][level];
         }
 
         /// <summary>
@@ -596,7 +608,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DefenceRate(CharacterClassType @class, byte level)
         {
-            return _hitDodge[(byte) @class, level];
+            return _hitDodge[(byte)@class][level];
         }
 
         /// <summary>
@@ -607,7 +619,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceDefence(CharacterClassType @class, byte level)
         {
-            return _distDef[(byte) @class, level];
+            return _distDef[(byte)@class][level];
         }
 
         /// <summary>
@@ -618,7 +630,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceDefenceRate(CharacterClassType @class, byte level)
         {
-            return _distDodge[(byte) @class, level];
+            return _distDodge[(byte)@class][level];
         }
 
         /// <summary>
@@ -629,17 +641,17 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceRate(CharacterClassType @class, byte level)
         {
-            return _distRate[(byte) @class, level];
+            return _distRate[(byte)@class][level];
         }
 
         internal int DistCritical(CharacterClassType @class, byte level)
         {
-            return _criticalDist[(byte) @class, level];
+            return _criticalDist[(byte)@class][level];
         }
 
         internal int DistCriticalRate(CharacterClassType @class, byte level)
         {
-            return _criticalDistRate[(byte) @class, level];
+            return _criticalDistRate[(byte)@class][level];
         }
 
         internal int Element(CharacterClassType @class, byte level)
@@ -659,17 +671,17 @@ namespace NosCore.GameObject.Helper
 
         internal int HitCritical(CharacterClassType @class, byte level)
         {
-            return _criticalHit[(byte) @class, level];
+            return _criticalHit[(byte)@class][level];
         }
 
         internal int HitCriticalRate(CharacterClassType @class, byte level)
         {
-            return _criticalHitRate[(byte) @class, level];
+            return _criticalHitRate[(byte)@class][level];
         }
 
         internal int HitRate(CharacterClassType @class, byte level)
         {
-            return _hitRate[(byte) @class, level];
+            return _hitRate[(byte)@class][level];
         }
 
         internal int LightResistance(CharacterClassType @class, byte level)
@@ -713,18 +725,24 @@ namespace NosCore.GameObject.Helper
 
         private void LoadHpData()
         {
-            HpData = new int[4, 256];
+            HpData = new [] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
 
             // Adventurer HP
-            for (var i = 1; i < HpData.GetLength(1); i++)
+            for (var i = 1; i < 256; i++)
             {
-                HpData[(int) CharacterClassType.Adventurer, i] = (int) ((1 / 2.0 * i * i) + (31 / 2.0 * i) + 205);
+                HpData[(int)CharacterClassType.Adventurer][i] = (int)((1 / 2.0 * i * i) + (31 / 2.0 * i) + 205);
             }
 
             // Swordsman HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
-                var j = 16;
+                uint j = 16;
                 var hp = 946;
                 var inc = 85;
                 while (j <= i)
@@ -743,21 +761,21 @@ namespace NosCore.GameObject.Helper
                     ++j;
                 }
 
-                HpData[(int) CharacterClassType.Swordman, i] = hp;
+                HpData[(int)CharacterClassType.Swordman][i] = hp;
             }
 
             // Magician HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
-                HpData[(int) CharacterClassType.Magician, i] = (int) (((i + 15) * (i + 15)) + i + 15.0 - 465 + 550);
+                HpData[(int)CharacterClassType.Magician][i] = (int)(((i + 15) * (i + 15)) + i + 15.0 - 465 + 550);
             }
 
             // Archer HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
                 var hp = 680;
                 var inc = 35;
-                var j = 16;
+                uint j = 16;
                 while (j <= i)
                 {
                     hp += inc;
@@ -771,26 +789,26 @@ namespace NosCore.GameObject.Helper
                     ++j;
                 }
 
-                HpData[(int) CharacterClassType.Archer, i] = hp;
+                HpData[(int)CharacterClassType.Archer][i] = hp;
             }
         }
 
         private void LoadHpHealth()
         {
             HpHealth = new int[4];
-            HpHealth[(int) CharacterClassType.Archer] = 60;
-            HpHealth[(int) CharacterClassType.Adventurer] = 30;
-            HpHealth[(int) CharacterClassType.Swordman] = 90;
-            HpHealth[(int) CharacterClassType.Magician] = 30;
+            HpHealth[(int)CharacterClassType.Archer] = 60;
+            HpHealth[(int)CharacterClassType.Adventurer] = 30;
+            HpHealth[(int)CharacterClassType.Swordman] = 90;
+            HpHealth[(int)CharacterClassType.Magician] = 30;
         }
 
         private void LoadHpHealthStand()
         {
             HpHealthStand = new int[4];
-            HpHealthStand[(int) CharacterClassType.Archer] = 32;
-            HpHealthStand[(int) CharacterClassType.Adventurer] = 25;
-            HpHealthStand[(int) CharacterClassType.Swordman] = 26;
-            HpHealthStand[(int) CharacterClassType.Magician] = 20;
+            HpHealthStand[(int)CharacterClassType.Archer] = 32;
+            HpHealthStand[(int)CharacterClassType.Adventurer] = 25;
+            HpHealthStand[(int)CharacterClassType.Swordman] = 26;
+            HpHealthStand[(int)CharacterClassType.Magician] = 20;
         }
 
         private void LoadJobXpData()
@@ -824,69 +842,74 @@ namespace NosCore.GameObject.Helper
 
         private void LoadMpData()
         {
-            MpData = new int[4, 257];
-
+            MpData = new[] {
+                new int[257],
+                new int[257],
+                new int[257],
+                new int[257],
+                new int[257]
+            };
             // ADVENTURER MP
-            MpData[(int) CharacterClassType.Adventurer, 0] = 60;
+            MpData[(int)CharacterClassType.Adventurer][0] = 60;
             var baseAdventurer = 9;
-            for (var i = 1; i < MpData.GetLength(1); i += 4)
+            for (var i = 1; i < 256; i += 4)
             {
-                MpData[(int) CharacterClassType.Adventurer, i] =
-                    MpData[(int) CharacterClassType.Adventurer, i - 1] + baseAdventurer;
-                MpData[(int) CharacterClassType.Adventurer, i + 1] =
-                    MpData[(int) CharacterClassType.Adventurer, i] + baseAdventurer;
-                MpData[(int) CharacterClassType.Adventurer, i + 2] =
-                    MpData[(int) CharacterClassType.Adventurer, i + 1] + baseAdventurer;
+                MpData[(int)CharacterClassType.Adventurer][i] =
+                    MpData[(int)CharacterClassType.Adventurer][i - 1] + baseAdventurer;
+                MpData[(int)CharacterClassType.Adventurer][i + 1] =
+                    MpData[(int)CharacterClassType.Adventurer][i] + baseAdventurer;
+                MpData[(int)CharacterClassType.Adventurer][i + 2] =
+                    MpData[(int)CharacterClassType.Adventurer][i + 1] + baseAdventurer;
                 baseAdventurer++;
-                MpData[(int) CharacterClassType.Adventurer, i + 3] =
-                    MpData[(int) CharacterClassType.Adventurer, i + 2] + baseAdventurer;
+                MpData[(int)CharacterClassType.Adventurer][i + 3] =
+                    MpData[(int)CharacterClassType.Adventurer][i + 2] + baseAdventurer;
                 baseAdventurer++;
             }
 
             // SWORDSMAN MP
-            for (var i = 1; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 1; i < 256; i++)
             {
-                MpData[(int) CharacterClassType.Swordman, i] = MpData[(int) CharacterClassType.Adventurer, i];
+                MpData[(int)CharacterClassType.Swordman][i] = MpData[(int)CharacterClassType.Adventurer][i];
             }
 
             // ARCHER MP
-            for (var i = 0; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 0; i < 256; i++)
             {
-                MpData[(int) CharacterClassType.Archer, i] = MpData[(int) CharacterClassType.Adventurer, i + 1];
+                MpData[(int)CharacterClassType.Archer][i] = MpData[(int)CharacterClassType.Adventurer][i + 1];
             }
 
             // MAGICIAN MP
-            for (var i = 0; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 0; i < 256; i++)
             {
-                MpData[(int) CharacterClassType.Magician, i] = 3 * MpData[(int) CharacterClassType.Adventurer, i];
+                MpData[(int)CharacterClassType.Magician][i] = 3 * MpData[(int)CharacterClassType.Adventurer][i];
             }
         }
 
         private void LoadMpHealth()
         {
             MpHealth = new int[4];
-            MpHealth[(int) CharacterClassType.Adventurer] = 10;
-            MpHealth[(int) CharacterClassType.Swordman] = 30;
-            MpHealth[(int) CharacterClassType.Archer] = 50;
-            MpHealth[(int) CharacterClassType.Magician] = 80;
+            MpHealth[(int)CharacterClassType.Adventurer] = 10;
+            MpHealth[(int)CharacterClassType.Swordman] = 30;
+            MpHealth[(int)CharacterClassType.Archer] = 50;
+            MpHealth[(int)CharacterClassType.Magician] = 80;
         }
 
         private void LoadMpHealthStand()
         {
             MpHealthStand = new int[4];
-            MpHealthStand[(int) CharacterClassType.Adventurer] = 5;
-            MpHealthStand[(int) CharacterClassType.Swordman] = 16;
-            MpHealthStand[(int) CharacterClassType.Archer] = 28;
-            MpHealthStand[(int) CharacterClassType.Magician] = 40;
+            MpHealthStand[(int)CharacterClassType.Adventurer] = 5;
+            MpHealthStand[(int)CharacterClassType.Swordman] = 16;
+            MpHealthStand[(int)CharacterClassType.Archer] = 28;
+            MpHealthStand[(int)CharacterClassType.Magician] = 40;
         }
 
         private void LoadSpeedData()
         {
             SpeedData = new byte[4];
-            SpeedData[(int) CharacterClassType.Adventurer] = 11;
-            SpeedData[(int) CharacterClassType.Swordman] = 11;
-            SpeedData[(int) CharacterClassType.Archer] = 12;
-            SpeedData[(int) CharacterClassType.Magician] = 10;
+            SpeedData[(int)CharacterClassType.Adventurer] = 11;
+            SpeedData[(int)CharacterClassType.Swordman] = 11;
+            SpeedData[(int)CharacterClassType.Archer] = 12;
+            SpeedData[(int)CharacterClassType.Magician] = 10;
         }
 
         private void LoadSpxpData()
@@ -909,100 +932,192 @@ namespace NosCore.GameObject.Helper
         // TODO: Change or Verify
         private void LoadStats()
         {
-            _minHit = new int[4, 256];
-            _maxHit = new int[4, 256];
-            _hitRate = new int[4, 256];
-            _criticalHitRate = new int[4, 256];
-            _criticalHit = new int[4, 256];
-            _minDist = new int[4, 256];
-            _maxDist = new int[4, 256];
-            _distRate = new int[4, 256];
-            _criticalDistRate = new int[4, 256];
-            _criticalDist = new int[4, 256];
-            _hitDef = new int[4, 256];
-            _hitDodge = new int[4, 256];
-            _distDef = new int[4, 256];
-            _distDodge = new int[4, 256];
-            _magicalDef = new int[4, 256];
+            _minHit = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _maxHit = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _hitRate = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _criticalHitRate = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _criticalHit = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _minDist = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _maxDist = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _distRate = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _criticalDistRate = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _criticalDist = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _hitDef = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _hitDodge = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _distDef = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _distDodge = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
+            _magicalDef = new[] {
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256],
+                new int[256]
+            };
 
             for (var i = 0; i < 256; i++)
             {
                 // ADVENTURER
-                _minHit[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _maxHit[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _hitRate[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _criticalHitRate[(int) CharacterClassType.Adventurer, i] = 0; // sure
-                _criticalHit[(int) CharacterClassType.Adventurer, i] = 0; // sure
-                _minDist[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _maxDist[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _distRate[(int) CharacterClassType.Adventurer, i] = (i + 9) * 2; // approx
-                _criticalDistRate[(int) CharacterClassType.Adventurer, i] = 0; // sure
-                _criticalDist[(int) CharacterClassType.Adventurer, i] = 0; // sure
-                _hitDef[(int) CharacterClassType.Adventurer, i] = i + (9 / 2); // approx
-                _hitDodge[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _distDef[(int) CharacterClassType.Adventurer, i] = (i + 9) / 2; // approx
-                _distDodge[(int) CharacterClassType.Adventurer, i] = i + 9; // approx
-                _magicalDef[(int) CharacterClassType.Adventurer, i] = (i + 9) / 2; // approx
+                _minHit[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _maxHit[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _hitRate[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _criticalHitRate[(int)CharacterClassType.Adventurer][i] = 0; // sure
+                _criticalHit[(int)CharacterClassType.Adventurer][i] = 0; // sure
+                _minDist[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _maxDist[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _distRate[(int)CharacterClassType.Adventurer][i] = (i + 9) * 2; // approx
+                _criticalDistRate[(int)CharacterClassType.Adventurer][i] = 0; // sure
+                _criticalDist[(int)CharacterClassType.Adventurer][i] = 0; // sure
+                _hitDef[(int)CharacterClassType.Adventurer][i] = i + (9 / 2); // approx
+                _hitDodge[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _distDef[(int)CharacterClassType.Adventurer][i] = (i + 9) / 2; // approx
+                _distDodge[(int)CharacterClassType.Adventurer][i] = i + 9; // approx
+                _magicalDef[(int)CharacterClassType.Adventurer][i] = (i + 9) / 2; // approx
 
                 // SWORDMAN
-                _criticalHitRate[(int) CharacterClassType.Swordman, i] = 0; // approx
-                _criticalHit[(int) CharacterClassType.Swordman, i] = 0; // approx
-                _criticalDist[(int) CharacterClassType.Swordman, i] = 0; // approx
-                _criticalDistRate[(int) CharacterClassType.Swordman, i] = 0; // approx
-                _minDist[(int) CharacterClassType.Swordman, i] = i + 12; // approx
-                _maxDist[(int) CharacterClassType.Swordman, i] = i + 12; // approx
-                _distRate[(int) CharacterClassType.Swordman, i] = 2 * (i + 12); // approx
-                _hitDodge[(int) CharacterClassType.Swordman, i] = i + 12; // approx
-                _distDodge[(int) CharacterClassType.Swordman, i] = i + 12; // approx
-                _magicalDef[(int) CharacterClassType.Swordman, i] = (i + 9) / 2; // approx
-                _hitRate[(int) CharacterClassType.Swordman, i] = i + 27; // approx
-                _hitDef[(int) CharacterClassType.Swordman, i] = i + 2; // approx
+                _criticalHitRate[(int)CharacterClassType.Swordman][i] = 0; // approx
+                _criticalHit[(int)CharacterClassType.Swordman][i] = 0; // approx
+                _criticalDist[(int)CharacterClassType.Swordman][i] = 0; // approx
+                _criticalDistRate[(int)CharacterClassType.Swordman][i] = 0; // approx
+                _minDist[(int)CharacterClassType.Swordman][i] = i + 12; // approx
+                _maxDist[(int)CharacterClassType.Swordman][i] = i + 12; // approx
+                _distRate[(int)CharacterClassType.Swordman][i] = 2 * (i + 12); // approx
+                _hitDodge[(int)CharacterClassType.Swordman][i] = i + 12; // approx
+                _distDodge[(int)CharacterClassType.Swordman][i] = i + 12; // approx
+                _magicalDef[(int)CharacterClassType.Swordman][i] = (i + 9) / 2; // approx
+                _hitRate[(int)CharacterClassType.Swordman][i] = i + 27; // approx
+                _hitDef[(int)CharacterClassType.Swordman][i] = i + 2; // approx
 
-                _minHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
-                _maxHit[(int) CharacterClassType.Swordman, i] = (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
-                _distDef[(int) CharacterClassType.Swordman, i] = i; // approx
+                _minHit[(int)CharacterClassType.Swordman][i] =
+                    (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
+                _maxHit[(int)CharacterClassType.Swordman][i] =
+                    (2 * i) + 5; // approx Numbers n such that 10n+9 is prime.
+                _distDef[(int)CharacterClassType.Swordman][i] = i; // approx
 
                 // MAGICIAN
-                _hitRate[(int) CharacterClassType.Magician, i] = 0; // sure
-                _criticalHitRate[(int) CharacterClassType.Magician, i] = 0; // sure
-                _criticalHit[(int) CharacterClassType.Magician, i] = 0; // sure
-                _criticalDistRate[(int) CharacterClassType.Magician, i] = 0; // sure
-                _criticalDist[(int) CharacterClassType.Magician, i] = 0; // sure
+                _hitRate[(int)CharacterClassType.Magician][i] = 0; // sure
+                _criticalHitRate[(int)CharacterClassType.Magician][i] = 0; // sure
+                _criticalHit[(int)CharacterClassType.Magician][i] = 0; // sure
+                _criticalDistRate[(int)CharacterClassType.Magician][i] = 0; // sure
+                _criticalDist[(int)CharacterClassType.Magician][i] = 0; // sure
 
-                _minDist[(int) CharacterClassType.Magician, i] = 14 + i; // approx
-                _maxDist[(int) CharacterClassType.Magician, i] = 14 + i; // approx
-                _distRate[(int) CharacterClassType.Magician, i] = (14 + i) * 2; // approx
-                _hitDef[(int) CharacterClassType.Magician, i] = (i + 11) / 2; // approx
-                _magicalDef[(int) CharacterClassType.Magician, i] = i + 4; // approx
-                _hitDodge[(int) CharacterClassType.Magician, i] = 24 + i; // approx
-                _distDodge[(int) CharacterClassType.Magician, i] = 14 + i; // approx
+                _minDist[(int)CharacterClassType.Magician][i] = 14 + i; // approx
+                _maxDist[(int)CharacterClassType.Magician][i] = 14 + i; // approx
+                _distRate[(int)CharacterClassType.Magician][i] = (14 + i) * 2; // approx
+                _hitDef[(int)CharacterClassType.Magician][i] = (i + 11) / 2; // approx
+                _magicalDef[(int)CharacterClassType.Magician][i] = i + 4; // approx
+                _hitDodge[(int)CharacterClassType.Magician][i] = 24 + i; // approx
+                _distDodge[(int)CharacterClassType.Magician][i] = 14 + i; // approx
 
-                _minHit[(int) CharacterClassType.Magician, i] =
+                _minHit[(int)CharacterClassType.Magician][i] =
                     (2 * i) + 9; // approx Numbers n such that n^2 is of form x^ 2 + 40y ^ 2 with positive x,y.
-                _maxHit[(int) CharacterClassType.Magician, i] =
+                _maxHit[(int)CharacterClassType.Magician][i] =
                     (2 * i) + 9; // approx Numbers n such that n^2 is of form x^2+40y^2 with positive x,y.
-                _distDef[(int) CharacterClassType.Magician, i] = 20 + i; // approx
+                _distDef[(int)CharacterClassType.Magician][i] = 20 + i; // approx
 
                 // ARCHER
-                _criticalHitRate[(int) CharacterClassType.Archer, i] = 0; // sure
-                _criticalHit[(int) CharacterClassType.Archer, i] = 0; // sure
-                _criticalDistRate[(int) CharacterClassType.Archer, i] = 0; // sure
-                _criticalDist[(int) CharacterClassType.Archer, i] = 0; // sure
+                _criticalHitRate[(int)CharacterClassType.Archer][i] = 0; // sure
+                _criticalHit[(int)CharacterClassType.Archer][i] = 0; // sure
+                _criticalDistRate[(int)CharacterClassType.Archer][i] = 0; // sure
+                _criticalDist[(int)CharacterClassType.Archer][i] = 0; // sure
 
-                _minHit[(int) CharacterClassType.Archer, i] = 9 + (i * 3); // approx
-                _maxHit[(int) CharacterClassType.Archer, i] = 9 + (i * 3); // approx
+                _minHit[(int)CharacterClassType.Archer][i] = 9 + (i * 3); // approx
+                _maxHit[(int)CharacterClassType.Archer][i] = 9 + (i * 3); // approx
                 var add = i % 2 == 0 ? 2 : 4;
-                _hitRate[(int) CharacterClassType.Archer, 1] = 41;
-                _hitRate[(int) CharacterClassType.Archer, i] += add; // approx
-                _minDist[(int) CharacterClassType.Archer, i] = 2 * i; // approx
-                _maxDist[(int) CharacterClassType.Archer, i] = 2 * i; // approx
+                _hitRate[(int)CharacterClassType.Archer][1] = 41;
+                _hitRate[(int)CharacterClassType.Archer][i] += add; // approx
+                _minDist[(int)CharacterClassType.Archer][i] = 2 * i; // approx
+                _maxDist[(int)CharacterClassType.Archer][i] = 2 * i; // approx
 
-                _distRate[(int) CharacterClassType.Archer, i] = 20 + (2 * i); // approx
-                _hitDef[(int) CharacterClassType.Archer, i] = i; // approx
-                _magicalDef[(int) CharacterClassType.Archer, i] = i + 2; // approx
-                _hitDodge[(int) CharacterClassType.Archer, i] = 41 + i; // approx
-                _distDodge[(int) CharacterClassType.Archer, i] = i + 2; // approx
-                _distDef[(int) CharacterClassType.Archer, i] = i; // approx
+                _distRate[(int)CharacterClassType.Archer][i] = 20 + (2 * i); // approx
+                _hitDef[(int)CharacterClassType.Archer][i] = i; // approx
+                _magicalDef[(int)CharacterClassType.Archer][i] = i + 2; // approx
+                _hitDodge[(int)CharacterClassType.Archer][i] = 41 + i; // approx
+                _distDodge[(int)CharacterClassType.Archer][i] = i + 2; // approx
+                _distDef[(int)CharacterClassType.Archer][i] = i; // approx
             }
         }
 

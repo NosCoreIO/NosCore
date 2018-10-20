@@ -1,4 +1,23 @@
-﻿using NosCore.GameObject.ComponentEntities.Interfaces;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
@@ -11,7 +30,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 VisualId = visualEntity.VisualId,
-                ItemId = itemId,
+                ItemId = itemId
             };
         }
 
@@ -56,9 +75,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte)visualEntity.Gender,
-                    HairStyle = (byte)visualEntity.HairStyle,
-                    HairColor = (byte)visualEntity.HairColor,
+                    Gender = (byte) visualEntity.Gender,
+                    HairStyle = (byte) visualEntity.HairStyle,
+                    HairColor = (byte) visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = new InEquipmentSubPacket
                     {
@@ -74,11 +93,33 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        HP = visualEntity.Hp,
-                        MP = visualEntity.Mp
+                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
+                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = -1
+                    GroupId = visualEntity.GroupId,
+                    Fairy = 0,
+                    FairyElement = 0,
+                    Unknown = 0,
+                    Morph = 0,
+                    WeaponUpgrade = 0,
+                    WeaponRare = 0,
+                    ArmorUpgrade = 0,
+                    ArmorRare = 0,
+                    FamilyId = -1,
+                    FamilyName = string.Empty,
+                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                        : -visualEntity.DignityIcon),
+                    Invisible = false,
+                    MorphUpgrade = 0,
+                    Faction = 0,
+                    MorphUpgrade2 = 0,
+                    Level = visualEntity.Level,
+                    FamilyLevel = 0,
+                    ArenaWinner = false,
+                    Compliment = 0,
+                    Size = 0,
+                    HeroLevel = visualEntity.HeroLevel
                 }
             };
         }
@@ -100,8 +141,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        MP = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMP ?? 1) * 100),
-                        HP = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHP ?? 1) * 100)
+                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }
