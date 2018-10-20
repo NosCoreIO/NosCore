@@ -22,7 +22,7 @@ using System.Threading;
 
 namespace NosCore.GameObject.Networking
 {
-    public class RandomFactory
+    public class RandomFactory : IDisposable
     {
         private static RandomFactory _instance;
         private static int _seed = Environment.TickCount;
@@ -39,6 +39,11 @@ namespace NosCore.GameObject.Networking
         public int RandomNumber(int min = 0, int max = 100)
         {
             return _random.Value.Next(min, max);
+        }
+
+        public void Dispose()
+        {
+            _random?.Dispose();
         }
     }
 }
