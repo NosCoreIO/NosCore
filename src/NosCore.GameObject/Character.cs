@@ -39,10 +39,10 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
-using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Group;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -289,7 +289,7 @@ namespace NosCore.GameObject
 
         public PacketDefinition GenerateSpPoint()
         {
-            return new SpPacket()
+            return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
                 MaxAdditionalPoint = 1000000,
@@ -310,7 +310,7 @@ namespace NosCore.GameObject
                 {
                     targetSession.SendPacket(new FinfoPacket
                     {
-                        FriendList = new List<FinfoSubPackets>()
+                        FriendList = new List<FinfoSubPackets>
                         {
                             new FinfoSubPackets
                             {
@@ -328,7 +328,7 @@ namespace NosCore.GameObject
                         {
                             new FinfoPacket
                             {
-                                FriendList = new List<FinfoSubPackets>()
+                                FriendList = new List<FinfoSubPackets>
                                 {
                                     new FinfoSubPackets
                                     {
@@ -516,7 +516,7 @@ namespace NosCore.GameObject
                             {
                                 if (inv is SpecialistInstance specialistInstance)
                                 {
-                                    inv7.IvnSubPackets.Add(new IvnSubPacket()
+                                    inv7.IvnSubPackets.Add(new IvnSubPacket
                                     {
                                         Slot = inv.Slot,
                                         VNum = inv.ItemVNum,
@@ -530,7 +530,7 @@ namespace NosCore.GameObject
                             {
                                 if (inv is WearableInstance wearableInstance)
                                 {
-                                    inv0.IvnSubPackets.Add(new IvnSubPacket()
+                                    inv0.IvnSubPackets.Add(new IvnSubPacket
                                     {
                                         Slot = inv.Slot,
                                         VNum = inv.ItemVNum,
@@ -544,24 +544,21 @@ namespace NosCore.GameObject
                             break;
 
                         case PocketType.Main:
-                            inv1.IvnSubPackets.Add(new IvnSubPacket()
-                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv1.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Etc:
-                            inv2.IvnSubPackets.Add(new IvnSubPacket()
-                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv2.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Miniland:
-                            inv3.IvnSubPackets.Add(new IvnSubPacket()
-                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
+                            inv3.IvnSubPackets.Add(new IvnSubPacket { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Specialist:
                             if (inv is SpecialistInstance specialist)
                             {
-                                inv6.IvnSubPackets.Add(new IvnSubPacket()
+                                inv6.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
                                     VNum = inv.ItemVNum,
@@ -576,7 +573,7 @@ namespace NosCore.GameObject
                         case PocketType.Costume:
                             if (inv is WearableInstance costumeInstance)
                             {
-                                inv7.IvnSubPackets.Add(new IvnSubPacket()
+                                inv7.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
                                     VNum = inv.ItemVNum,
@@ -593,7 +590,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            return new List<PacketDefinition>() { inv0, inv1, inv2, inv3, inv6, inv7 };
+            return new List<PacketDefinition> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
@@ -770,7 +767,7 @@ namespace NosCore.GameObject
                 var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
 
                 DaoFactory.CharacterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
-                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDto>());
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
                 var currentlySavedInventoryIds = DaoFactory.ItemInstanceDao
@@ -780,7 +777,7 @@ namespace NosCore.GameObject
                 DaoFactory.ItemInstanceDao.Delete(todelete);
 
                 var itemInsts = Inventory.Select(s => s.Value);
-                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts.Cast<ItemInstanceDto>());
+                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts);
             }
             catch (Exception e)
             {
@@ -790,7 +787,7 @@ namespace NosCore.GameObject
 
         public GoldPacket GenerateGold()
         {
-            return new GoldPacket() { Gold = Gold };
+            return new GoldPacket { Gold = Gold };
         }
 
         public void LoadSpeed()

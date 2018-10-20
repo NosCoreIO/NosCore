@@ -36,7 +36,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Type = type,
                     IvnSubPackets = new List<IvnSubPacket>
                     {
-                        new IvnSubPacket()
+                        new IvnSubPacket
                         {
                             Slot = slot,
                             VNum = -1,
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Type = type,
                 IvnSubPackets = new List<IvnSubPacket>
                 {
-                    new IvnSubPacket()
+                    new IvnSubPacket
                     {
                         Slot = slot,
                         VNum = itemInstance.ItemVNum,
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = itemInstance[0].Type,
-                    IvnSubPackets = itemInstance.Select(item => new IvnSubPacket()
+                    IvnSubPackets = itemInstance.Select(item => new IvnSubPacket
                     {
                         Slot = item.Slot,
                         VNum = item.ItemVNum,

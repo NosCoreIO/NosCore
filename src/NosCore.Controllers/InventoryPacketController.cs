@@ -22,20 +22,18 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using ItemInstance = NosCore.GameObject.Services.ItemBuilder.Item.ItemInstance;
 
 namespace NosCore.Controllers
 {
@@ -108,7 +106,7 @@ namespace NosCore.Controllers
                 switch (getPacket.PickerType)
                 {
                     case PickerType.Character:
-                        canpick = PathFinder.Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
+                        canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
                             Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
                         break;
 
@@ -140,7 +138,7 @@ namespace NosCore.Controllers
                                 Session.Character.SpPoint = 10000;
                             }
 
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = string.Format(
                                     Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
@@ -180,7 +178,7 @@ namespace NosCore.Controllers
                         }
                         else
                         {
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                                     Session.Account.Language),
@@ -208,7 +206,7 @@ namespace NosCore.Controllers
                     else
                     {
                         Session.Character.Gold = maxGold;
-                        Session.SendPacket(new MsgPacket()
+                        Session.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                                 Session.Account.Language),
@@ -241,7 +239,7 @@ namespace NosCore.Controllers
                                 Session.Character.MapInstance.PutItem(putPacket.Amount, invitem, Session);
                             if (droppedItem == null)
                             {
-                                Session.SendPacket(new MsgPacket()
+                                Session.SendPacket(new MsgPacket
                                 {
                                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                                         Session.Account.Language),
@@ -261,7 +259,7 @@ namespace NosCore.Controllers
                         }
                         else
                         {
-                            Session.SendPacket(new MsgPacket()
+                            Session.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
                                     Session.Account.Language),
@@ -271,7 +269,7 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Session.SendPacket(new MsgPacket()
+                        Session.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
                                 Session.Account.Language),
@@ -281,7 +279,7 @@ namespace NosCore.Controllers
                 }
                 else
                 {
-                    Session.SendPacket(new MsgPacket()
+                    Session.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                             Session.Account.Language),
@@ -299,12 +297,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BiPacket()
+                            YesPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Requested
                             },
-                            NoPacket = new BiPacket()
+                            NoPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
@@ -318,12 +316,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(
                         new DlgPacket
                         {
-                            YesPacket = new BiPacket()
+                            YesPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Confirmed
                             },
-                            NoPacket = new BiPacket()
+                            NoPacket = new BiPacket
                             {
                                 PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined

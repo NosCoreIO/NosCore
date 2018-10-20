@@ -17,32 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using NosCore.Shared.Enumerations.Character;
-using System.Collections.Concurrent;
-using System.Text;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers
 {
@@ -82,7 +80,7 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(Session.Character.GenerateSay("-------------------[NosCore]---------------",
                     SayColorType.Yellow));
-                Session.SendPacket(Session.Character.GenerateSay($"Github : https://github.com/NosCoreIO/NosCore/",
+                Session.SendPacket(Session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
                     SayColorType.Purple));
                 Session.SendPacket(Session.Character.GenerateSay("-----------------------------------------------",
                     SayColorType.Yellow));
@@ -415,7 +413,7 @@ namespace NosCore.Controllers
                         Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                Session.Account.Language),
+                                Session.Account.Language)
                         });
                         return;
                     }
@@ -430,7 +428,7 @@ namespace NosCore.Controllers
                 foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
+                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
@@ -465,8 +463,8 @@ namespace NosCore.Controllers
                 ServerManager.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
-                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
+                    ReceiverCharacter = new Character { Name = receiverName },
+                    SenderCharacter = new Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -518,7 +516,7 @@ namespace NosCore.Controllers
             foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi);
+                    .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
 
                 if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
                 {
@@ -538,9 +536,9 @@ namespace NosCore.Controllers
             ServerManager.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
-                ReceiverCharacter = new Data.WebApi.Character
+                ReceiverCharacter = new Character
                 { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
-                SenderCharacter = new Data.WebApi.Character
+                SenderCharacter = new Character
                 { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
@@ -556,7 +554,7 @@ namespace NosCore.Controllers
             Session.Character.DeleteRelation(fdelPacket.CharacterId);
             Session.SendPacket(new InfoPacket
             {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, Session.Account.Language),
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, Session.Account.Language)
             });
         }
 
