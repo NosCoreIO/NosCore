@@ -37,7 +37,7 @@ namespace NosCore.Database.Migrations
                     Email = table.Column<string>(maxLength: 255, nullable: true),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     Password = table.Column<string>(unicode: false, maxLength: 255, nullable: true),
-                    RegistrationIP = table.Column<string>(maxLength: 45, nullable: true),
+                    RegistrationIp = table.Column<string>(maxLength: 45, nullable: true),
                     VerificationToken = table.Column<string>(maxLength: 32, nullable: true)
                 },
                 constraints: table => table.PrimaryKey("PK_Account", x => x.AccountId));
@@ -206,14 +206,14 @@ namespace NosCore.Database.Migrations
                     ElementRate = table.Column<short>(nullable: false),
                     FireResistance = table.Column<short>(nullable: false),
                     HeroLevel = table.Column<byte>(nullable: false),
-                    HeroXP = table.Column<int>(nullable: false),
+                    HeroXp = table.Column<int>(nullable: false),
                     IsHostile = table.Column<bool>(nullable: false),
-                    JobXP = table.Column<int>(nullable: false),
+                    JobXp = table.Column<int>(nullable: false),
                     Level = table.Column<byte>(nullable: false),
                     LightResistance = table.Column<short>(nullable: false),
                     MagicDefence = table.Column<short>(nullable: false),
-                    MaxHP = table.Column<int>(nullable: false),
-                    MaxMP = table.Column<int>(nullable: false),
+                    MaxHp = table.Column<int>(nullable: false),
+                    MaxMp = table.Column<int>(nullable: false),
                     MonsterType = table.Column<byte>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     NoAggresiveIcon = table.Column<bool>(nullable: false),
@@ -225,7 +225,7 @@ namespace NosCore.Database.Migrations
                     Speed = table.Column<byte>(nullable: false),
                     VNumRequired = table.Column<short>(nullable: false),
                     WaterResistance = table.Column<short>(nullable: false),
-                    XP = table.Column<int>(nullable: false),
+                    Xp = table.Column<int>(nullable: false),
                     IsPercent = table.Column<bool>(nullable: false),
                     TakeDamages = table.Column<int>(nullable: false),
                     GiveDamagePercentage = table.Column<int>(nullable: false)
@@ -263,7 +263,7 @@ namespace NosCore.Database.Migrations
                     CastTime = table.Column<short>(nullable: false),
                     Class = table.Column<byte>(nullable: false),
                     Cooldown = table.Column<short>(nullable: false),
-                    CPCost = table.Column<byte>(nullable: false),
+                    CpCost = table.Column<byte>(nullable: false),
                     Duration = table.Column<short>(nullable: false),
                     Effect = table.Column<short>(nullable: false),
                     Element = table.Column<byte>(nullable: false),
@@ -1593,7 +1593,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ItemInstance_CharacterId_Slot_Type",
                 table: "ItemInstance",
-                columns: new[] {"CharacterId", "Slot", "Type"},
+                columns: new[] { "CharacterId", "Slot", "Type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1649,7 +1649,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MapTypeMap_MapId_MapTypeId",
                 table: "MapTypeMap",
-                columns: new[] {"MapId", "MapTypeId"},
+                columns: new[] { "MapId", "MapTypeId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

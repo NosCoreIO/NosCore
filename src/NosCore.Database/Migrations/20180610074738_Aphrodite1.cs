@@ -27,183 +27,183 @@ namespace NosCore.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "I18N_ActDesc",
+                name: "I18NActDesc",
                 columns: table => new
                 {
-                    I18N_ActDescId = table.Column<int>(nullable: false)
+                    I18NActDescId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_ActDesc", x => x.I18N_ActDescId));
+                constraints: table => table.PrimaryKey("PK_I18NActDesc", x => x.I18NActDescId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_BCard",
+                name: "I18NBCard",
                 columns: table => new
                 {
-                    I18N_BCardId = table.Column<int>(nullable: false)
+                    I18NBCardId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_BCard", x => x.I18N_BCardId));
+                constraints: table => table.PrimaryKey("PK_I18NBCard", x => x.I18NBCardId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_Card",
+                name: "I18NCard",
                 columns: table => new
                 {
-                    I18N_CardId = table.Column<int>(nullable: false)
+                    I18NCardId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_Card", x => x.I18N_CardId));
+                constraints: table => table.PrimaryKey("PK_I18NCard", x => x.I18NCardId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_Item",
+                name: "I18NItem",
                 columns: table => new
                 {
-                    I18N_ItemId = table.Column<int>(nullable: false)
+                    I18NItemId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_Item", x => x.I18N_ItemId));
+                constraints: table => table.PrimaryKey("PK_I18NItem", x => x.I18NItemId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_MapIdData",
+                name: "I18NMapIdData",
                 columns: table => new
                 {
-                    I18N_MapIdDataId = table.Column<int>(nullable: false)
+                    I18NMapIdDataId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_MapIdData", x => x.I18N_MapIdDataId));
+                constraints: table => table.PrimaryKey("PK_I18NMapIdData", x => x.I18NMapIdDataId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_MapPointData",
+                name: "I18NMapPointData",
                 columns: table => new
                 {
-                    I18N_MapPointDataId = table.Column<int>(nullable: false)
+                    I18NMapPointDataId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_MapPointData", x => x.I18N_MapPointDataId));
+                constraints: table => table.PrimaryKey("PK_I18NMapPointData", x => x.I18NMapPointDataId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_NpcMonster",
+                name: "I18NNpcMonster",
                 columns: table => new
                 {
-                    I18N_NpcMonsterId = table.Column<int>(nullable: false)
+                    I18NNpcMonsterId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_NpcMonster", x => x.I18N_NpcMonsterId));
+                constraints: table => table.PrimaryKey("PK_I18NNpcMonster", x => x.I18NNpcMonsterId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_NpcMonsterTalk",
+                name: "I18NNpcMonsterTalk",
                 columns: table => new
                 {
-                    I18N_NpcMonsterTalkId = table.Column<int>(nullable: false)
+                    I18NNpcMonsterTalkId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_NpcMonsterTalk", x => x.I18N_NpcMonsterTalkId));
+                constraints: table => table.PrimaryKey("PK_I18NNpcMonsterTalk", x => x.I18NNpcMonsterTalkId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_Quest",
+                name: "I18NQuest",
                 columns: table => new
                 {
-                    I18N_QuestId = table.Column<int>(nullable: false)
+                    I18NQuestId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_Quest", x => x.I18N_QuestId));
+                constraints: table => table.PrimaryKey("PK_I18NQuest", x => x.I18NQuestId));
 
             migrationBuilder.CreateTable(
-                name: "I18N_Skill",
+                name: "I18NSkill",
                 columns: table => new
                 {
-                    I18N_SkillId = table.Column<int>(nullable: false)
+                    I18NSkillId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Key = table.Column<string>(nullable: true),
                     RegionType = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_I18N_Skill", x => x.I18N_SkillId));
+                constraints: table => table.PrimaryKey("PK_I18NSkill", x => x.I18NSkillId));
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_ActDesc_Key_RegionType",
-                table: "I18N_ActDesc",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NActDesc_Key_RegionType",
+                table: "I18NActDesc",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_BCard_Key_RegionType",
-                table: "I18N_BCard",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NBCard_Key_RegionType",
+                table: "I18NBCard",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_Card_Key_RegionType",
-                table: "I18N_Card",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NCard_Key_RegionType",
+                table: "I18NCard",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_Item_Key_RegionType",
-                table: "I18N_Item",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NItem_Key_RegionType",
+                table: "I18NItem",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_MapIdData_Key_RegionType",
-                table: "I18N_MapIdData",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NMapIdData_Key_RegionType",
+                table: "I18NMapIdData",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_MapPointData_Key_RegionType",
-                table: "I18N_MapPointData",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NMapPointData_Key_RegionType",
+                table: "I18NMapPointData",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_NpcMonster_Key_RegionType",
-                table: "I18N_NpcMonster",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NNpcMonster_Key_RegionType",
+                table: "I18NNpcMonster",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_NpcMonsterTalk_Key_RegionType",
-                table: "I18N_NpcMonsterTalk",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NNpcMonsterTalk_Key_RegionType",
+                table: "I18NNpcMonsterTalk",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_Quest_Key_RegionType",
-                table: "I18N_Quest",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NQuest_Key_RegionType",
+                table: "I18NQuest",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_I18N_Skill_Key_RegionType",
-                table: "I18N_Skill",
-                columns: new[] {"Key", "RegionType"},
+                name: "IX_I18NSkill_Key_RegionType",
+                table: "I18NSkill",
+                columns: new[] { "Key", "RegionType" },
                 unique: true);
         }
 
