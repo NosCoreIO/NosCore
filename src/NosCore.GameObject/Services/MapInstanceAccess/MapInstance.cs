@@ -141,17 +141,17 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
+            var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
+            for (var i =0; i < orderedPossibilities.Count || niceSpot; i++)
             {
-                mapX = (short) (session.Character.PositionX + possibility.X);
-                mapY = (short) (session.Character.PositionY + possibility.Y);
+                mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
+                mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
                 if (!Map.IsWalkable(Map[mapX, mapY]))
                 {
                     continue;
                 }
 
                 niceSpot = true;
-                break;
             }
 
             if (!niceSpot)
