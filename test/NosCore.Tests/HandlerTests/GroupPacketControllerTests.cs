@@ -23,23 +23,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using log4net;
 using log4net.Config;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Configuration;
 using NosCore.Controllers;
-using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -52,7 +46,6 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.HandlerTests
 {

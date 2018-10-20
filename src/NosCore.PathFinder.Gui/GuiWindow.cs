@@ -26,15 +26,13 @@ using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using Map = NosCore.GameObject.Map.Map;
-using MapMonster = NosCore.GameObject.MapMonster;
-using MapNpc = NosCore.GameObject.MapNpc;
 
 namespace NosCore.PathFinder.Gui
 {

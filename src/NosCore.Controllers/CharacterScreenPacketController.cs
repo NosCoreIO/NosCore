@@ -32,16 +32,15 @@ using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.CharacterBuilder;
+using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
-using NosCore.GameObject.Services;
-using NosCore.GameObject.Services.CharacterBuilder;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.Controllers
 {
@@ -192,7 +191,7 @@ namespace NosCore.Controllers
                 foreach (var server in servers)
                 {
                     if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>($"api/connectedAccount", server.WebApi)
+                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;

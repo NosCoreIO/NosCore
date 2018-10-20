@@ -25,19 +25,16 @@ using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Controllers
@@ -130,7 +127,7 @@ namespace NosCore.Controllers
             var sayPostedPacket = new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { sayPacket }),
-                SenderCharacter = new Data.WebApi.Character
+                SenderCharacter = new Character
                 {
                     Name = Session.Character.Name,
                     Id = Session.Character.CharacterId

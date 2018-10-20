@@ -39,10 +39,10 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
-using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Group;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject
 {
@@ -767,7 +767,7 @@ namespace NosCore.GameObject
                 var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
 
                 DaoFactory.CharacterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
-                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values.Cast<CharacterRelationDto>());
+                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
                 var currentlySavedInventoryIds = DaoFactory.ItemInstanceDao
@@ -777,7 +777,7 @@ namespace NosCore.GameObject
                 DaoFactory.ItemInstanceDao.Delete(todelete);
 
                 var itemInsts = Inventory.Select(s => s.Value);
-                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts.Cast<ItemInstanceDto>());
+                DaoFactory.ItemInstanceDao.InsertOrUpdate(itemInsts);
             }
             catch (Exception e)
             {
