@@ -82,6 +82,7 @@ namespace NosCore.Core.Networking
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
         }
+        public T Delete<T>(string route, ServerConfiguration webApi) => Delete<T>(route, webApi, null);
 
         public T Delete<T>(string route, object id) => Delete<T>(route, null, id);
 
@@ -132,6 +133,8 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
+        public T Post<T>(string route, ServerConfiguration webApi) => Post<T>(route, null, webApi);
+
         public T Post<T>(string route, object data) => Post<T>(route, data, null);
 
         public T Post<T>(string route, object data, ServerConfiguration webApi)
@@ -156,6 +159,8 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
+        public T Put<T>(string route, ServerConfiguration webApi) => Put<T>(route, null, webApi);
+
         public T Put<T>(string route, object data) => Put<T>(route, data, null);
 
         public T Put<T>(string route, object data, ServerConfiguration webApi)
@@ -179,6 +184,8 @@ namespace NosCore.Core.Networking
 
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
+
+        public T Patch<T>(string route, ServerConfiguration webApi) => Patch<T>(route, null, webApi);
 
         public T Patch<T>(string route, object data) => Patch<T>(route, data, null);
 

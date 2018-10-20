@@ -356,14 +356,14 @@ namespace NosCore.Controllers
         /// <summary>
         ///     SayPacket
         /// </summary>
-        /// <param name="sayPacket"></param>
-        public void SayPacket(ClientSayPacket sayPacket)
+        /// <param name="clientSayPacket"></param>
+        public void Say(ClientSayPacket clientSayPacket)
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
             Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
             {
-                Message = sayPacket.Message,
+                Message = clientSayPacket.Message,
                 Type = type
             }), ReceiverType.AllExceptMeAndBlacklisted);
         }
@@ -372,7 +372,7 @@ namespace NosCore.Controllers
         ///     WhisperPacket
         /// </summary>
         /// <param name="whisperPacket"></param>
-        public void WhisperPacket(WhisperPacket whisperPacket)
+        public void Whisper(WhisperPacket whisperPacket)
         {
             try
             {
