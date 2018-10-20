@@ -539,7 +539,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            var first = uint.Parse(currentLine[(5 * i) + 3]);
+                            var first = int.Parse(currentLine[(5 * i) + 3]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
