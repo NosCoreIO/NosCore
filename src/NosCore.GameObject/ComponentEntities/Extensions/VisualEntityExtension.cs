@@ -63,12 +63,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         //in 1 Carlosta - 754816 71 105 2 0 1 0 14 3 340.4855.4867.4864.4846.802.4150.4142 100 37 0 -1 4 3 0 0 0 7 86 86 2340 ~Luna~(Membre) -2 0 5 0 0 88 10 0 0 10 1
 
         //Character in packet
-        public static InPacket GenerateIn(this ICharacterEntity visualEntity)
+        public static InPacket GenerateIn(this ICharacterEntity visualEntity, string prefix)
         {
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
-                Name = visualEntity.Authority == AuthorityType.Moderator ? $"{visualEntity.Session.GetMessageFromKey(LanguageKey.SUPPORT)}" + visualEntity.Name : visualEntity.Name,
+                Name = prefix + visualEntity.Name,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
@@ -143,8 +143,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
-                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
+                        Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }

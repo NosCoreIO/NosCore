@@ -23,6 +23,7 @@ using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Encryption
 {
@@ -45,6 +46,7 @@ namespace NosCore.Core.Encryption
             }
             catch
             {
+                Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_DECODING));
             }
         }
     }

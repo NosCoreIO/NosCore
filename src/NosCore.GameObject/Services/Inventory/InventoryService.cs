@@ -179,12 +179,9 @@ namespace NosCore.GameObject.Services.Inventory
         {
             var inv = this[id];
 
-            if (inv != null)
+            if (inv != null && TryRemove(inv.Id, out var value))
             {
-                if (TryRemove(inv.Id, out var value))
-                {
-                    return value;
-                }
+                return value;
             }
 
             Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));

@@ -38,16 +38,19 @@ namespace NosCore.DAL
         {
             try
             {
-                foreach (var pi in typeof(TDto).GetProperties())
+                var pis = typeof(TDto).GetProperties();
+                var exit = false;
+                for (var index = 0; index < pis.Length || exit; index++)
                 {
+                    var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
                     if (attrs.Length != 1)
                     {
                         continue;
                     }
 
+                    exit = true;
                     _primaryKey = pi;
-                    break;
                 }
 
                 if (_primaryKey != null)

@@ -68,17 +68,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (actdesclist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
+                                actdescdtos.Add(new I18NActDescDto
                                 {
-                                    actdescdtos.Add(new I18NActDescDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -91,6 +88,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -106,17 +104,14 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
+                                carddtos.Add(new I18NCardDto
                                 {
-                                    carddtos.Add(new I18NCardDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -145,17 +140,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
+                                bcarddtos.Add(new I18NBCardDto
                                 {
-                                    bcarddtos.Add(new I18NBCardDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -183,17 +175,14 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
+                                itemdtos.Add(new I18NItemDto
                                 {
-                                    itemdtos.Add(new I18NItemDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -222,17 +211,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mapiddatalist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
+                                mapiddatadtos.Add(new I18NMapIdDataDto
                                 {
-                                    mapiddatadtos.Add(new I18NMapIdDataDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -261,17 +247,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mappointdatalist.Find(s =>
-                                s.Key == currentLine[0] && s.RegionType == region) == null)
+                                s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
+                                mappointdatadtos.Add(new I18NMapPointDataDto
                                 {
-                                    mappointdatadtos.Add(new I18NMapPointDataDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -300,17 +283,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonsterlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
+                                npcmonsterdto.Add(new I18NNpcMonsterDto
                                 {
-                                    npcmonsterdto.Add(new I18NNpcMonsterDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -339,17 +319,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonstertalklist.Find(
-                                s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                                s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && npctalkdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && npctalkdtos.Exists(s => s.Key == currentLine[0]))
+                                npctalkdtos.Add(new I18NNpcMonsterTalkDto
                                 {
-                                    npctalkdtos.Add(new I18NNpcMonsterTalkDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
@@ -378,17 +355,14 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (questlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
+                                questdtos.Add(new I18NQuestDto
                                 {
-                                    questdtos.Add(new I18NQuestDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
