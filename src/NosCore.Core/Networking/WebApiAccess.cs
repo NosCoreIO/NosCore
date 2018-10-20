@@ -110,6 +110,8 @@ namespace NosCore.Core.Networking
 
         public T Get<T>(string route, object id) => Get<T>(route, null, id);
 
+        public T Get<T>(string route, ServerConfiguration webApi) => Get<T>(route, webApi, null);
+
         public T Get<T>(string route) => Get<T>(route, null, null);
 
         public T Get<T>(string route, ServerConfiguration webApi, object id)
