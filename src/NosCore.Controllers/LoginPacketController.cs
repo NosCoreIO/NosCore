@@ -30,6 +30,7 @@ using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Controllers
 {
@@ -95,14 +96,26 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                if (false) //TODO Banned
+                switch (acc.Authority)
                 {
-                    Session.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.Banned
-                    });
-                    Session.Disconnect();
-                    return;
+                    case AuthorityType.Banned:
+                        Session.SendPacket(new FailcPacket
+                        {
+                            Type = LoginFailType.Banned
+                        });
+                        break;
+                    case AuthorityType.Closed:
+                        Session.SendPacket(new FailcPacket
+                        {
+                            Type = LoginFailType.CantConnect
+                        });
+                        break;
+                    case AuthorityType.Unconfirmed:
+                        Session.SendPacket(new FailcPacket
+                        {
+                            Type = LoginFailType.CantConnect
+                        });
+                        break;
                 }
 
                 var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
