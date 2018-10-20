@@ -730,7 +730,7 @@ namespace NosCore.GameObject.Helper
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
 
             // Adventurer HP
@@ -847,7 +847,7 @@ namespace NosCore.GameObject.Helper
                 new int[257],
                 new int[257],
                 new int[257],
-                new int[257],
+                new int[257]
             };
             // ADVENTURER MP
             MpData[(int)CharacterClassType.Adventurer][0] = 60;
@@ -937,105 +937,105 @@ namespace NosCore.GameObject.Helper
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _maxHit = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _hitRate = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _criticalHitRate = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _criticalHit = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _minDist = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _maxDist = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _distRate = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _criticalDistRate = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _criticalDist = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _hitDef = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _hitDodge = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _distDef = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _distDodge = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
             _magicalDef = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
                 new int[256],
-                new int[256],
+                new int[256]
             };
 
             for (var i = 0; i < 256; i++)
