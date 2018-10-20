@@ -21,8 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
-using NosCore.GameObject;
-using NosCore.GameObject.Services;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -40,10 +38,10 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            var items = new List<Item>()
+            var items = new List<Item>
             {
-                new Item {Type = PocketType.Main, VNum = 1012,},
-                new Item {Type = PocketType.Main, VNum = 1013,},
+                new Item {Type = PocketType.Main, VNum = 1012},
+                new Item {Type = PocketType.Main, VNum = 1013},
                 new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
