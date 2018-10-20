@@ -734,13 +734,13 @@ namespace NosCore.GameObject.Helper
             };
 
             // Adventurer HP
-            for (var i = 1; i < HpData.GetLength(1); i++)
+            for (var i = 1; i < 256; i++)
             {
                 HpData[(int)CharacterClassType.Adventurer][i] = (int)((1 / 2.0 * i * i) + (31 / 2.0 * i) + 205);
             }
 
             // Swordsman HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
                 uint j = 16;
                 var hp = 946;
@@ -765,13 +765,13 @@ namespace NosCore.GameObject.Helper
             }
 
             // Magician HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
                 HpData[(int)CharacterClassType.Magician][i] = (int)(((i + 15) * (i + 15)) + i + 15.0 - 465 + 550);
             }
 
             // Archer HP
-            for (var i = 0; i < HpData.GetLength(1); i++)
+            for (var i = 0; i < 256; i++)
             {
                 var hp = 680;
                 var inc = 35;
@@ -852,7 +852,7 @@ namespace NosCore.GameObject.Helper
             // ADVENTURER MP
             MpData[(int)CharacterClassType.Adventurer][0] = 60;
             var baseAdventurer = 9;
-            for (var i = 1; i < MpData.GetLength(1); i += 4)
+            for (var i = 1; i < 256; i += 4)
             {
                 MpData[(int)CharacterClassType.Adventurer][i] =
                     MpData[(int)CharacterClassType.Adventurer][i - 1] + baseAdventurer;
@@ -867,19 +867,19 @@ namespace NosCore.GameObject.Helper
             }
 
             // SWORDSMAN MP
-            for (var i = 1; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 1; i < 256; i++)
             {
                 MpData[(int)CharacterClassType.Swordman][i] = MpData[(int)CharacterClassType.Adventurer][i];
             }
 
             // ARCHER MP
-            for (var i = 0; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 0; i < 256; i++)
             {
                 MpData[(int)CharacterClassType.Archer][i] = MpData[(int)CharacterClassType.Adventurer][i + 1];
             }
 
             // MAGICIAN MP
-            for (var i = 0; i < MpData.GetLength(1) - 1; i++)
+            for (var i = 0; i < 256; i++)
             {
                 MpData[(int)CharacterClassType.Magician][i] = 3 * MpData[(int)CharacterClassType.Adventurer][i];
             }
