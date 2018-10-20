@@ -44,7 +44,7 @@ namespace NosCore.WorldServer
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddLog4Net(@"../../configuration/log4net.config");
+                    logging.AddLog4Net("../../configuration/log4net.config");
                 })
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)

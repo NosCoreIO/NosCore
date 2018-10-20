@@ -62,7 +62,7 @@ namespace NosCore.Core.Networking
             }
 
             BaseAddress = new Uri(address);
-            Content = new StringContent(JsonConvert.SerializeObject(new WebApiToken {ServerToken = token}),
+            Content = new StringContent(JsonConvert.SerializeObject(new WebApiToken { ServerToken = token }),
                 Encoding.Default, "application/json");
         }
 
@@ -83,18 +83,23 @@ namespace NosCore.Core.Networking
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
         }
 
-        public T Delete<T>(string route, ServerConfiguration webApi = null, object id = null)
+        public T Delete<T>(string route, object id) => Delete<T>(route, null, id);
+
+        public T Delete<T>(string route) => Delete<T>(route, null, null);
+
+        public T Delete<T>(string route, ServerConfiguration webApi, object id)
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T) MockValues[route];
+                return (T)MockValues[route];
             }
 
-            var client = new HttpClient();
-            var response = new HttpResponseMessage();
-            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            var client = new HttpClient
+            {
+                BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
+            };
             AssignToken(ref client);
-            response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
+            var response = client.DeleteAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -103,18 +108,20 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public T Get<T>(string route, ServerConfiguration webApi = null, object id = null)
+        public T Get<T>(string route, object id) => Get<T>(route, null, id);
+
+        public T Get<T>(string route) => Get<T>(route, null, null);
+
+        public T Get<T>(string route, ServerConfiguration webApi, object id)
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T) MockValues[route];
+                return (T)MockValues[route];
             }
 
-            var client = new HttpClient();
-            var response = new HttpResponseMessage();
-            client.BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString());
+            var client = new HttpClient {BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())};
             AssignToken(ref client);
-            response = client.GetAsync(route + "?id=" + id ?? "").Result;
+            var response = client.GetAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -123,11 +130,13 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public T Post<T>(string route, object data, ServerConfiguration webApi = null)
+        public T Post<T>(string route, object data) => Post<T>(route, data, null);
+
+        public T Post<T>(string route, object data, ServerConfiguration webApi)
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T) MockValues[route];
+                return (T)MockValues[route];
             }
 
             var client = new HttpClient
@@ -145,11 +154,13 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public T Put<T>(string route, object data, ServerConfiguration webApi = null)
+        public T Put<T>(string route, object data) => Put<T>(route, data, null);
+
+        public T Put<T>(string route, object data, ServerConfiguration webApi)
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T) MockValues[route];
+                return (T)MockValues[route];
             }
 
             var client = new HttpClient
@@ -167,11 +178,13 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public T Patch<T>(string route, object data, ServerConfiguration webApi = null)
+        public T Patch<T>(string route, object data) => Patch<T>(route, data, null);
+
+        public T Patch<T>(string route, object data, ServerConfiguration webApi)
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T) MockValues[route];
+                return (T)MockValues[route];
             }
 
             var client = new HttpClient

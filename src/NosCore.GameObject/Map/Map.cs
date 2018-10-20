@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Map
                 }
             }
 
-            foreach (var cell in cells.OrderBy(mapCell => RandomFactory.Instance.RandomNumber(0, int.MaxValue)))
+            foreach (var cell in cells.OrderBy(_ => RandomFactory.Instance.RandomNumber(0, int.MaxValue)))
             {
                 if (IsBlockedZone(firstX, firstY, cell.X, cell.Y))
                 {

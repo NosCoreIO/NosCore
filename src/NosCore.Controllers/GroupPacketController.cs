@@ -109,8 +109,8 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Group.Count == 1 || Session.Character.Group.Type == GroupType.Group)
                     {
-                        if (targetSession.Character.Group.Count == 1 ||
-                            targetSession.Character?.Group.Type == GroupType.Group)
+                        if (targetSession.Character.Group.Count == 1
+                            || targetSession.Character?.Group.Type == GroupType.Group)
                         {
                             Session.SendPacket(new InfoPacket
                             {
@@ -176,7 +176,6 @@ namespace NosCore.Controllers
                                 }
                             });
                         });
-
 
                     break;
                 case GroupRequestType.Accepted:
@@ -315,7 +314,7 @@ namespace NosCore.Controllers
             }
         }
 
-        public void LeaveGroup(PleavePacket pleavePacket)
+        public void LeaveGroup(PleavePacket __)
         {
             var group = Session.Character.Group;
 

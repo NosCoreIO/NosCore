@@ -48,7 +48,7 @@ namespace NosCore.Tests
                 var value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
                 if (value == $"#<{val.ToString()}>")
                 {
-                    unfound.Append($"\nvalue {value} not defined");
+                    unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }
             }
 
@@ -76,7 +76,7 @@ namespace NosCore.Tests
                 var resourceKey = entry.Key.ToString();
                 if (!values.Contains(resourceKey))
                 {
-                    unfound.Append($"key {resourceKey} is useless\n");
+                    unfound.Append("key ").Append(resourceKey).Append(" is useless\n");
                 }
             }
 

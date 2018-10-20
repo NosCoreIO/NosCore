@@ -309,7 +309,7 @@ namespace NosCore.Core.Serializing
                         for (j = i; j < i + subPacketTypePropertiesCount; j++)
                         {
                             // add delimited value
-                            generatedPseudoDelimitedString.Append($"{splittedSubpacketParts[j]}.");
+                            generatedPseudoDelimitedString.Append(splittedSubpacketParts[j]).Append(".");
                         }
 
                         i = j - 1;
@@ -501,7 +501,7 @@ namespace NosCore.Core.Serializing
 
                 for (var i = 1; i < listValueCount; i++)
                 {
-                    resultListPacket.Append($".{SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", "")}");
+                    resultListPacket.Append(".").Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
                 }
             }
 

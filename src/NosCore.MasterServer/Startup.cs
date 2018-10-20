@@ -52,7 +52,7 @@ namespace NosCore.MasterServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
-        const string ConsoleText = "MASTER SERVER - NosCoreIO";
+        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
 
         private MasterConfiguration InitializeConfiguration()
         {
