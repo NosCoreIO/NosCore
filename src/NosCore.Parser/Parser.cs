@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,8 +27,8 @@ using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.DAL;
 using NosCore.Database;
+using NosCore.DAL;
 using NosCore.Shared.I18N;
 
 // ReSharper disable LocalizableElement
@@ -20,6 +39,7 @@ namespace NosCore.Parser
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Parser";
+        private const string ConsoleText = "PARSER SERVER - NosCoreIO";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
 
         private static void InitializeLogger()
@@ -40,19 +60,11 @@ namespace NosCore.Parser
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
-        private static void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "PARSER SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
-
         public static void Main(string[] args)
         {
-            PrintHeader();
+            Console.Title = Title;
             InitializeLogger();
+            Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             try
             {
@@ -113,7 +125,7 @@ namespace NosCore.Parser
                             factory.ImportMaps();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPTYPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -123,7 +135,7 @@ namespace NosCore.Parser
                             factory.ImportMapTypeMap();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ACCOUNTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -145,7 +157,7 @@ namespace NosCore.Parser
                             factory.ImportI18N();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TIMESPACES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -160,7 +172,7 @@ namespace NosCore.Parser
                             factory.ImportItems();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -168,7 +180,7 @@ namespace NosCore.Parser
                             factory.ImportNpcMonsters();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_DROPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -176,7 +188,7 @@ namespace NosCore.Parser
                             factory.ImportDrops();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERDATA)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -205,7 +217,7 @@ namespace NosCore.Parser
                             factory.ImportMapNpcs();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -220,7 +232,7 @@ namespace NosCore.Parser
                             //factory.ImportShops();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TELEPORTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -228,7 +240,7 @@ namespace NosCore.Parser
                             //factory.ImportTeleporters();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -236,7 +248,7 @@ namespace NosCore.Parser
                             //factory.ImportShopItems();
                         }
 
-                        Console.WriteLine(
+                        Logger.Log.Info(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPSKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -259,7 +271,7 @@ namespace NosCore.Parser
                         }
                     }
 
-                    Console.WriteLine(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DONE));
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DONE));
                     Thread.Sleep(5000);
                 }
                 catch (FileNotFoundException)

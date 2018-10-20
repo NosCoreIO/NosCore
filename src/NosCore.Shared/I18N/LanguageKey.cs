@@ -1,4 +1,23 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
 namespace NosCore.Shared.I18N
@@ -123,7 +142,37 @@ namespace NosCore.Shared.I18N
         FRIEND_DELETED,
         FRIEND_OFFLINE,
         CANT_FIND_CHARACTER,
+        GROUP_LEADER_CHANGE,
+        GROUP_FULL,
+        ALREADY_IN_GROUP,
+        GROUP_BLOCKED,
+        INVITED_YOU_GROUP,
+        INVITED_GROUP_SHARE,
+        GROUP_SHARE_INFO,
+        JOINED_GROUP,
+        GROUP_ADMIN,
+        GROUP_REFUSED,
+        SHARED_REFUSED,
+        ACCEPTED_SHARE,
+        GOLD_SET,
+        NEW_LEADER,
+        LEAVE_GROUP,
+        GROUP_LEFT,
+        GROUP_CLOSED,
+        GROUP_INVITE,
         NPCMONSTERS_LOADED,
-        ENCODE_ERROR
+        UNABLE_TO_REQUEST_GROUP,
+        ENCODE_ERROR,
+        USER_TELEPORTED_TO_NOT_EXISTING_MAP,
+        MAP_DONT_EXIST,
+        UNKNOWN_PICKERTYPE,
+        POCKETTYPE_UNKNOWN,
+        INVALID_TELEPORT_ARGUMENTS,
+        USER_NOT_CONNECTED,
+        FRIEND_REQUEST_SENT,
+        ALREADY_BLACKLISTED,
+        USER_IS_NOT_A_FRIEND,
+        VISUALTYPE_UNKNOWN,
+        UNKNOWN_EQUIPMENTTYPE
     }
 }

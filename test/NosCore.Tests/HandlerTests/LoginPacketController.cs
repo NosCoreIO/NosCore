@@ -1,9 +1,29 @@
-﻿using System.Collections.Generic;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using log4net;
 using log4net.Config;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Controllers;
@@ -14,16 +34,13 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
-using NosCore.GameObject;
-using NosCore.Database;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -32,24 +49,28 @@ namespace NosCore.Tests.HandlerTests
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Name = "TestExistingCharacter";
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController>() { new LoginPacketController() }, null);
-        private AccountDTO _acc;
+
+        private readonly ClientSession _session =
+            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null);
+
+        private AccountDto _acc;
         private LoginPacketController _handler;
 
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var builder = new ConfigurationBuilder();
-            var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            var contextBuilder =
+                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                    databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
-            var map = new MapDTO {MapId = 1};
-            DAOFactory.MapDAO.InsertOrUpdate(ref map);
-            _acc = new AccountDTO {Name = Name, Password = EncryptionHelper.Sha512("test")};
-            DAOFactory.AccountDAO.InsertOrUpdate(ref _acc);
+            var map = new MapDto {MapId = 1};
+            DaoFactory.MapDao.InsertOrUpdate(ref map);
+            _acc = new AccountDto {Name = Name, Password = EncryptionHelper.Sha512("test")};
+            DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
             _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);

@@ -1,3 +1,22 @@
+//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database.Entities;
 
@@ -8,6 +27,7 @@ namespace NosCore.Database
         public NosCoreContext(DbContextOptions options) : base(options)
         {
         }
+
         #region Methods
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,43 +55,43 @@ namespace NosCore.Database
                 .HasIndex(e => new {e.Name})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_ActDesc>()
+            modelBuilder.Entity<I18NActDesc>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_BCard>()
+            modelBuilder.Entity<I18NBCard>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_Card>()
+            modelBuilder.Entity<I18NCard>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_Item>()
+            modelBuilder.Entity<I18NItem>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_MapIdData>()
+            modelBuilder.Entity<I18NMapIdData>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_MapPointData>()
+            modelBuilder.Entity<I18NMapPointData>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_NpcMonster>()
+            modelBuilder.Entity<I18NNpcMonster>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_NpcMonsterTalk>()
+            modelBuilder.Entity<I18NNpcMonsterTalk>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_Quest>()
+            modelBuilder.Entity<I18NQuest>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
-            modelBuilder.Entity<I18N_Skill>()
+            modelBuilder.Entity<I18NSkill>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
@@ -566,25 +586,25 @@ namespace NosCore.Database
 
         public virtual DbSet<StaticBuff> StaticBuff { get; set; }
 
-        public virtual DbSet<I18N_ActDesc> I18N_ActDesc { get; set; }
+        public virtual DbSet<I18NActDesc> I18NActDesc { get; set; }
 
-        public virtual DbSet<I18N_BCard> I18N_BCard { get; set; }
+        public virtual DbSet<I18NBCard> I18NBCard { get; set; }
 
-        public virtual DbSet<I18N_Card> I18N_Card { get; set; }
+        public virtual DbSet<I18NCard> I18NCard { get; set; }
 
-        public virtual DbSet<I18N_Item> I18N_Item { get; set; }
+        public virtual DbSet<I18NItem> I18NItem { get; set; }
 
-        public virtual DbSet<I18N_MapIdData> I18N_MapIdData { get; set; }
+        public virtual DbSet<I18NMapIdData> I18NMapIdData { get; set; }
 
-        public virtual DbSet<I18N_MapPointData> I18N_MapPointData { get; set; }
+        public virtual DbSet<I18NMapPointData> I18NMapPointData { get; set; }
 
-        public virtual DbSet<I18N_NpcMonster> I18N_NpcMonster { get; set; }
+        public virtual DbSet<I18NNpcMonster> I18NNpcMonster { get; set; }
 
-        public virtual DbSet<I18N_NpcMonsterTalk> I18N_NpcMonsterTalk { get; set; }
+        public virtual DbSet<I18NNpcMonsterTalk> I18NNpcMonsterTalk { get; set; }
 
-        public virtual DbSet<I18N_Quest> I18N_Quest { get; set; }
+        public virtual DbSet<I18NQuest> I18NQuest { get; set; }
 
-        public virtual DbSet<I18N_Skill> I18N_Skill { get; set; }
+        public virtual DbSet<I18NSkill> I18NSkill { get; set; }
 
         #endregion
     }

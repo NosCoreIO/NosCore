@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -7,8 +26,8 @@ using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.DAL;
 using NosCore.Database;
+using NosCore.DAL;
 using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
 using OpenTK.Graphics;
@@ -17,9 +36,10 @@ namespace NosCore.PathFinder.Gui
 {
     public static class PathFinderGui
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Pathfinder GUI";
-        private static readonly PathfinderGUIConfiguration DatabaseConfiguration = new PathfinderGUIConfiguration();
+        private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
+        private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
 
         private static void InitializeConfiguration()
@@ -38,19 +58,11 @@ namespace NosCore.PathFinder.Gui
             Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
         }
 
-        private static void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "PATHFINDER GUI - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
-
         public static void Main()
         {
-            PrintHeader();
+            Console.Title = Title;
             InitializeLogger();
+            Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
@@ -69,13 +81,11 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DAOFactory.MapDAO.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) DaoFactory.MapDao.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {
-                        map.Initialize();
-
-                        if (_guiWindow?.Exists == true)
+                        if (_guiWindow?.Exists ?? false)
                         {
                             _guiWindow.Exit();
                         }

@@ -1,6 +1,26 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections;
 using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -22,19 +42,19 @@ namespace NosCore.Tests
         [DataRow(RegionType.TR)]
         public void CheckEveryLanguageValueSet(RegionType type)
         {
-            var unfound = string.Empty;
+            var unfound = new StringBuilder();
             foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
             {
                 var value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
                 if (value == $"#<{val.ToString()}>")
                 {
-                    unfound += $"\nvalue {value} not defined";
+                    unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }
             }
 
-            if (!string.IsNullOrEmpty(unfound))
+            if (unfound.Length != 0)
             {
-                Assert.Fail(unfound);
+                Assert.Fail(unfound.ToString());
             }
         }
 
@@ -49,20 +69,20 @@ namespace NosCore.Tests
         [DataRow(RegionType.TR)]
         public void CheckEveryLanguageAreUsefull(RegionType type)
         {
-            var unfound = string.Empty;
+            var unfound = new StringBuilder();
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
             {
                 var resourceKey = entry.Key.ToString();
                 if (!values.Contains(resourceKey))
                 {
-                    unfound += $"key {resourceKey} is useless\n";
+                    unfound.Append("key ").Append(resourceKey).Append(" is useless\n");
                 }
             }
 
-            if (!string.IsNullOrEmpty(unfound))
+            if (!string.IsNullOrEmpty(unfound.ToString()))
             {
-                Assert.Fail(unfound);
+                Assert.Fail(unfound.ToString());
             }
         }
     }

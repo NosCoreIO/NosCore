@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -21,8 +40,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.DAL;
 using NosCore.Database;
+using NosCore.DAL;
 using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
@@ -33,15 +52,7 @@ namespace NosCore.MasterServer
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
-
-        private void PrintHeader()
-        {
-            Console.Title = Title;
-            const string text = "MASTER SERVER - 0Lucifer0";
-            var offset = (Console.WindowWidth / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
-            Console.WriteLine(separator + string.Format("{0," + offset + "}\n", text) + separator);
-        }
+        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
 
         private MasterConfiguration InitializeConfiguration()
         {
@@ -65,7 +76,9 @@ namespace NosCore.MasterServer
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            PrintHeader();
+            Console.Title = Title;
+            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
+            Logger.PrintHeader(ConsoleText);
             var configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
@@ -102,7 +115,6 @@ namespace NosCore.MasterServer
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>().As<WebApiConfiguration>();
             var container = containerBuilder.Build();
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);

@@ -1,4 +1,23 @@
-﻿using System.Linq;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Linq;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Interaction;
@@ -12,10 +31,10 @@ namespace NosCore.Parser.Parsers
     {
         internal void InsertMapTypes()
         {
-            var list = DAOFactory.MapTypeDAO.LoadAll().ToList();
-            var mt1 = new MapTypeDTO
+            var list = DaoFactory.MapTypeDao.LoadAll().ToList();
+            var mt1 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act1,
+                MapTypeId = (short) MapTypeType.Act1,
                 MapTypeName = "Act1",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -23,12 +42,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt1.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt1);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt1);
             }
 
-            var mt2 = new MapTypeDTO
+            var mt2 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act2,
+                MapTypeId = (short) MapTypeType.Act2,
                 MapTypeName = "Act2",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -36,12 +55,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt2.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt2);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt2);
             }
 
-            var mt3 = new MapTypeDTO
+            var mt3 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act3,
+                MapTypeId = (short) MapTypeType.Act3,
                 MapTypeName = "Act3",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -49,23 +68,23 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt3.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt3);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt3);
             }
 
-            var mt4 = new MapTypeDTO
+            var mt4 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act4,
+                MapTypeId = (short) MapTypeType.Act4,
                 MapTypeName = "Act4",
                 PotionDelay = 5000
             };
             if (list.All(s => s.MapTypeId != mt4.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt4);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt4);
             }
 
-            var mt5 = new MapTypeDTO
+            var mt5 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act51,
+                MapTypeId = (short) MapTypeType.Act51,
                 MapTypeName = "Act5.1",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct5,
@@ -73,12 +92,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt5.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt5);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt5);
             }
 
-            var mt6 = new MapTypeDTO
+            var mt6 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act52,
+                MapTypeId = (short) MapTypeType.Act52,
                 MapTypeName = "Act5.2",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct5,
@@ -86,12 +105,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt6.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt6);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt6);
             }
 
-            var mt7 = new MapTypeDTO
+            var mt7 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act61,
+                MapTypeId = (short) MapTypeType.Act61,
                 MapTypeName = "Act6.1",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct6,
@@ -99,12 +118,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt7.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt7);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt7);
             }
 
-            var mt8 = new MapTypeDTO
+            var mt8 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act62,
+                MapTypeId = (short) MapTypeType.Act62,
                 MapTypeName = "Act6.2",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct6,
@@ -112,12 +131,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt8.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt8);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt8);
             }
 
-            var mt9 = new MapTypeDTO
+            var mt9 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act61A,
+                MapTypeId = (short) MapTypeType.Act61A,
                 MapTypeName = "Act6.1a", // angel camp
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct6,
@@ -125,12 +144,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt9.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt9);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt9);
             }
 
-            var mt10 = new MapTypeDTO
+            var mt10 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act61D,
+                MapTypeId = (short) MapTypeType.Act61D,
                 MapTypeName = "Act6.1d", // demon camp
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct6,
@@ -138,12 +157,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt10.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt10);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt10);
             }
 
-            var mt11 = new MapTypeDTO
+            var mt11 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.CometPlain,
+                MapTypeId = (short) MapTypeType.CometPlain,
                 MapTypeName = "CometPlain",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -151,12 +170,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt11.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt11);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt11);
             }
 
-            var mt12 = new MapTypeDTO
+            var mt12 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Mine1,
+                MapTypeId = (short) MapTypeType.Mine1,
                 MapTypeName = "Mine1",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -164,12 +183,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt12.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt12);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt12);
             }
 
-            var mt13 = new MapTypeDTO
+            var mt13 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Mine2,
+                MapTypeId = (short) MapTypeType.Mine2,
                 MapTypeName = "Mine2",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -177,12 +196,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt13.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt13);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt13);
             }
 
-            var mt14 = new MapTypeDTO
+            var mt14 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.MeadowOfMine,
+                MapTypeId = (short) MapTypeType.MeadowOfMine,
                 MapTypeName = "MeadownOfPlain",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -190,12 +209,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt14.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt14);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt14);
             }
 
-            var mt15 = new MapTypeDTO
+            var mt15 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.SunnyPlain,
+                MapTypeId = (short) MapTypeType.SunnyPlain,
                 MapTypeName = "SunnyPlain",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -203,12 +222,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt15.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt15);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt15);
             }
 
-            var mt16 = new MapTypeDTO
+            var mt16 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Fernon,
+                MapTypeId = (short) MapTypeType.Fernon,
                 MapTypeName = "Fernon",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -216,12 +235,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt16.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt16);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt16);
             }
 
-            var mt17 = new MapTypeDTO
+            var mt17 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.FernonF,
+                MapTypeId = (short) MapTypeType.FernonF,
                 MapTypeName = "FernonF",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -229,12 +248,12 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt17.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt17);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt17);
             }
 
-            var mt18 = new MapTypeDTO
+            var mt18 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Cliff,
+                MapTypeId = (short) MapTypeType.Cliff,
                 MapTypeName = "Cliff",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultAct1,
@@ -242,67 +261,67 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt18.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt18);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt18);
             }
 
-            var mt19 = new MapTypeDTO
+            var mt19 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.LandOfTheDead,
+                MapTypeId = (short) MapTypeType.LandOfTheDead,
                 MapTypeName = "LandOfTheDead",
                 PotionDelay = 300
             };
             if (list.All(s => s.MapTypeId != mt19.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt19);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt19);
             }
 
-            var mt20 = new MapTypeDTO
+            var mt20 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act32,
+                MapTypeId = (short) MapTypeType.Act32,
                 MapTypeName = "Act 3.2",
                 PotionDelay = 300
             };
             if (list.All(s => s.MapTypeId != mt20.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt20);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt20);
             }
 
-            var mt21 = new MapTypeDTO
+            var mt21 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.CleftOfDarkness,
+                MapTypeId = (short) MapTypeType.CleftOfDarkness,
                 MapTypeName = "Cleft of Darkness",
                 PotionDelay = 300
             };
             if (list.All(s => s.MapTypeId != mt21.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt21);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt21);
             }
 
-            var mt23 = new MapTypeDTO
+            var mt23 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.CitadelAngel,
+                MapTypeId = (short) MapTypeType.CitadelAngel,
                 MapTypeName = "AngelCitadel",
                 PotionDelay = 300
             };
             if (list.All(s => s.MapTypeId != mt23.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt23);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt23);
             }
 
-            var mt24 = new MapTypeDTO
+            var mt24 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.CitadelDemon,
+                MapTypeId = (short) MapTypeType.CitadelDemon,
                 MapTypeName = "DemonCitadel",
                 PotionDelay = 300
             };
             if (list.All(s => s.MapTypeId != mt24.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt24);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt24);
             }
 
-            var mt25 = new MapTypeDTO
+            var mt25 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Oasis,
+                MapTypeId = (short) MapTypeType.Oasis,
                 MapTypeName = "Oasis",
                 PotionDelay = 300,
                 RespawnMapTypeId = (long) RespawnType.DefaultOasis,
@@ -310,18 +329,18 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt25.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt25);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt25);
             }
 
-            var mt26 = new MapTypeDTO
+            var mt26 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeEnum.Act42,
+                MapTypeId = (short) MapTypeType.Act42,
                 MapTypeName = "Act42",
                 PotionDelay = 5000
             };
             if (list.All(s => s.MapTypeId != mt26.MapTypeId))
             {
-                DAOFactory.MapTypeDAO.InsertOrUpdate(ref mt26);
+                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt26);
             }
 
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPTYPES_PARSED));

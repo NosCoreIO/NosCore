@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +42,7 @@ namespace NosCore.Parser.Parsers
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
 
-        private static string _line;
+        private string _line;
         private string _folder;
 
         private string I18NTextFileName(string textfilename, RegionType region)
@@ -36,14 +55,14 @@ namespace NosCore.Parser.Parsers
         public void InsertI18N(string folder)
         {
             _folder = folder;
-            var actdesclist = DAOFactory.I18N_ActDescDAO.LoadAll().ToList();
+            var actdesclist = DaoFactory.I18NActDescDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var actdescdtos = new List<I18N_ActDescDTO>();
+                var actdescdtos = new List<I18NActDescDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(ActDescTxt, region),
-                         Encoding.Default))
+                        Encoding.Default))
                     {
                         while ((_line = stream.ReadLine()) != null)
                         {
@@ -53,7 +72,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    actdescdtos.Add(new I18N_ActDescDTO
+                                    actdescdtos.Add(new I18NActDescDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -63,7 +82,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_ActDescDAO.InsertOrUpdate(actdescdtos);
+                        DaoFactory.I18NActDescDao.InsertOrUpdate(actdescdtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ACTDESC_PARSED), actdescdtos.Count,
@@ -75,10 +94,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var cardlist = DAOFactory.I18N_CardDAO.LoadAll().ToList();
+            var cardlist = DaoFactory.I18NCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var carddtos = new List<I18N_CardDTO>();
+                var carddtos = new List<I18NCardDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(CardTxt, region),
@@ -91,7 +110,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    carddtos.Add(new I18N_CardDTO
+                                    carddtos.Add(new I18NCardDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -101,7 +120,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_CardDAO.InsertOrUpdate(carddtos);
+                        DaoFactory.I18NCardDao.InsertOrUpdate(carddtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_CARD_PARSED), carddtos.Count,
@@ -113,10 +132,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var bcardlist = DAOFactory.I18N_BCardDAO.LoadAll().ToList();
+            var bcardlist = DaoFactory.I18NBCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var bcarddtos = new List<I18N_BCardDTO>();
+                var bcarddtos = new List<I18NBCardDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(BCardTxt, region),
@@ -130,7 +149,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    bcarddtos.Add(new I18N_BCardDTO
+                                    bcarddtos.Add(new I18NBCardDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -140,7 +159,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_BCardDAO.InsertOrUpdate(bcarddtos);
+                        DaoFactory.I18NBCardDao.InsertOrUpdate(bcarddtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_BCARD_PARSED), bcarddtos.Count,
@@ -152,10 +171,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var itemlist = DAOFactory.I18N_ItemDAO.LoadAll().ToList();
+            var itemlist = DaoFactory.I18NItemDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var itemdtos = new List<I18N_ItemDTO>();
+                var itemdtos = new List<I18NItemDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(ItemTxt, region),
@@ -168,7 +187,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    itemdtos.Add(new I18N_ItemDTO
+                                    itemdtos.Add(new I18NItemDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -178,7 +197,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_ItemDAO.InsertOrUpdate(itemdtos);
+                        DaoFactory.I18NItemDao.InsertOrUpdate(itemdtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ITEM_PARSED), itemdtos.Count,
@@ -190,10 +209,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var mapiddatalist = DAOFactory.I18N_MapIdDataDAO.LoadAll().ToList();
+            var mapiddatalist = DaoFactory.I18NMapIdDataDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var mapiddatadtos = new List<I18N_MapIdDataDTO>();
+                var mapiddatadtos = new List<I18NMapIdDataDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MapIdDataTxt, region),
@@ -207,7 +226,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    mapiddatadtos.Add(new I18N_MapIdDataDTO
+                                    mapiddatadtos.Add(new I18NMapIdDataDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -217,7 +236,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_MapIdDataDAO.InsertOrUpdate(mapiddatadtos);
+                        DaoFactory.I18NMapIdDataDao.InsertOrUpdate(mapiddatadtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPIDDATA_PARSED),
@@ -229,10 +248,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var mappointdatalist = DAOFactory.I18N_MapPointDataDAO.LoadAll().ToList();
+            var mappointdatalist = DaoFactory.I18NMapPointDataDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var mappointdatadtos = new List<I18N_MapPointDataDTO>();
+                var mappointdatadtos = new List<I18NMapPointDataDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MapPointDataTxt, region),
@@ -246,7 +265,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    mappointdatadtos.Add(new I18N_MapPointDataDTO
+                                    mappointdatadtos.Add(new I18NMapPointDataDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -256,7 +275,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_MapPointDataDAO.InsertOrUpdate(mappointdatadtos);
+                        DaoFactory.I18NMapPointDataDao.InsertOrUpdate(mappointdatadtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPPOINTDATA_PARSED),
@@ -268,10 +287,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var npcmonsterlist = DAOFactory.I18N_NpcMonsterDAO.LoadAll().ToList();
+            var npcmonsterlist = DaoFactory.I18NNpcMonsterDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var npcmonsterdto = new List<I18N_NpcMonsterDTO>();
+                var npcmonsterdto = new List<I18NNpcMonsterDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(MonsterTxt, region),
@@ -285,7 +304,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    npcmonsterdto.Add(new I18N_NpcMonsterDTO
+                                    npcmonsterdto.Add(new I18NNpcMonsterDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -295,7 +314,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_NpcMonsterDAO.InsertOrUpdate(npcmonsterdto);
+                        DaoFactory.I18NNpcMonsterDao.InsertOrUpdate(npcmonsterdto);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MPCMONSTER_PARSED),
@@ -307,10 +326,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var npcmonstertalklist = DAOFactory.I18N_NpcMonsterTalkDAO.LoadAll().ToList();
+            var npcmonstertalklist = DaoFactory.I18NNpcMonsterTalkDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var npctalkdtos = new List<I18N_NpcMonsterTalkDTO>();
+                var npctalkdtos = new List<I18NNpcMonsterTalkDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(NpcTalkTxt, region),
@@ -324,7 +343,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && npctalkdtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    npctalkdtos.Add(new I18N_NpcMonsterTalkDTO
+                                    npctalkdtos.Add(new I18NNpcMonsterTalkDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -334,7 +353,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_NpcMonsterTalkDAO.InsertOrUpdate(npctalkdtos);
+                        DaoFactory.I18NNpcMonsterTalkDao.InsertOrUpdate(npctalkdtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_NPCMONSTERTALK_PARSED),
@@ -346,10 +365,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var questlist = DAOFactory.I18N_QuestDAO.LoadAll().ToList();
+            var questlist = DaoFactory.I18NQuestDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var questdtos = new List<I18N_QuestDTO>();
+                var questdtos = new List<I18NQuestDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(QuestTxt, region),
@@ -363,7 +382,7 @@ namespace NosCore.Parser.Parsers
                             {
                                 if (currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
                                 {
-                                    questdtos.Add(new I18N_QuestDTO
+                                    questdtos.Add(new I18NQuestDto
                                     {
                                         Key = currentLine[0],
                                         RegionType = region,
@@ -373,7 +392,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_QuestDAO.InsertOrUpdate(questdtos);
+                        DaoFactory.I18NQuestDao.InsertOrUpdate(questdtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_QUEST_PARSED), questdtos.Count,
@@ -385,10 +404,10 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var skilllist = DAOFactory.I18N_SkillDAO.LoadAll().ToList();
+            var skilllist = DaoFactory.I18NSkillDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var skilldtos = new List<I18N_SkillDTO>();
+                var skilldtos = new List<I18NSkillDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(SkillTxt, region),
@@ -400,7 +419,7 @@ namespace NosCore.Parser.Parsers
                             if (skilllist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null)
                             {
-                                skilldtos.Add(new I18N_SkillDTO
+                                skilldtos.Add(new I18NSkillDto
                                 {
                                     Key = currentLine[0],
                                     RegionType = region,
@@ -409,7 +428,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DAOFactory.I18N_SkillDAO.InsertOrUpdate(skilldtos);
+                        DaoFactory.I18NSkillDao.InsertOrUpdate(skilldtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_SKILL_PARSED), skilldtos.Count,

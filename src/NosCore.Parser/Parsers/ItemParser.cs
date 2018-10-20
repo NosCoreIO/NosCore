@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,8 +32,8 @@ namespace NosCore.Parser.Parsers
 {
     public class ItemParser
     {
-        private readonly List<BCardDTO> _itemCards = new List<BCardDTO>();
-        private readonly List<ItemDTO> _items = new List<ItemDTO>();
+        private readonly List<BCardDto> _itemCards = new List<BCardDto>();
+        private readonly List<ItemDto> _items = new List<ItemDto>();
 
         private bool _itemAreaBegin;
         private int _itemCounter;
@@ -25,7 +44,7 @@ namespace NosCore.Parser.Parsers
 
             using (var npcIdStream = new StreamReader(fileId, Encoding.Default))
             {
-                var item = new ItemDTO();
+                var item = new ItemDto();
 
                 string line;
                 while ((line = npcIdStream.ReadLine()) != null)
@@ -45,13 +64,13 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (DAOFactory.ItemDAO.FirstOrDefault(s => s.VNum == item.VNum) == null)
+                        if (DaoFactory.ItemDao.FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
                             _items.Add(item);
                             _itemCounter++;
                         }
 
-                        item = new ItemDTO();
+                        item = new ItemDto();
                         _itemAreaBegin = false;
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "NAME")
@@ -63,9 +82,6 @@ namespace NosCore.Parser.Parsers
                         switch (Convert.ToByte(currentLine[2]))
                         {
                             case 4:
-                                item.Type = PocketType.Equipment;
-                                break;
-
                             case 8:
                                 item.Type = PocketType.Equipment;
                                 break;
@@ -79,15 +95,15 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             default:
-                                item.Type = (PocketType) Enum.Parse(typeof(PocketType), currentLine[2]);
+                                item.Type = (PocketType)Enum.Parse(typeof(PocketType), currentLine[2]);
                                 break;
                         }
 
                         item.ItemType = currentLine[3] != "-1"
-                            ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}")
+                            ? (ItemType)Enum.Parse(typeof(ItemType), $"{(short)item.Type}{currentLine[3]}")
                             : ItemType.Weapon;
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
-                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType),
+                        item.EquipmentSlot = (EquipmentType)Enum.Parse(typeof(EquipmentType),
                             currentLine[5] != "-1" ? currentLine[5] : "0");
 
                         switch (item.VNum)
@@ -112,6 +128,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9058:
                             case 1965:
                                 item.Morph = 2406;
                                 item.Speed = 20;
@@ -124,12 +141,14 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9070:
                             case 5117:
                                 item.Morph = 2429;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9073:
                             case 5152:
                                 item.Morph = 2432;
                                 item.Speed = 21;
@@ -148,6 +167,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 5238:
                             case 5226: // Invisible locomotion, only 5 seconds with booster
                                 item.Morph = 1817;
                                 item.Speed = 20;
@@ -160,6 +180,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9078:
                             case 5232:
                                 item.Morph = 2520;
                                 item.Speed = 21;
@@ -174,12 +195,6 @@ namespace NosCore.Parser.Parsers
 
                             case 5236:
                                 item.Morph = 2524;
-                                item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 5238:
-                                item.Morph = 1817;
                                 item.Speed = 20;
                                 item.WaitDelay = 3000;
                                 break;
@@ -232,6 +247,7 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9091:
                             case 5387:
                                 item.Morph = 2936;
                                 item.Speed = 21;
@@ -244,12 +260,14 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9093:
                             case 5389:
                                 item.Morph = 2940;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
+                            case 9094:
                             case 5390:
                                 item.Morph = 2942;
                                 item.Speed = 21;
@@ -286,33 +304,9 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
-                            case 9058:
-                                item.Morph = 2406;
-                                item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
-
                             case 9065:
                                 item.Morph = 2411;
                                 item.Speed = 20;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9070:
-                                item.Morph = 2429;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9073:
-                                item.Morph = 2432;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9078:
-                                item.Morph = 2520;
-                                item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
 
@@ -382,26 +376,8 @@ namespace NosCore.Parser.Parsers
                                 item.WaitDelay = 3000;
                                 break;
 
-                            case 9091:
-                                item.Morph = 2936;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
                             case 9092:
                                 item.Morph = 2938;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9093:
-                                item.Morph = 2940;
-                                item.Speed = 21;
-                                item.WaitDelay = 3000;
-                                break;
-
-                            case 9094:
-                                item.Morph = 2942;
                                 item.Speed = 21;
                                 item.WaitDelay = 3000;
                                 break;
@@ -466,7 +442,7 @@ namespace NosCore.Parser.Parsers
                     else if (currentLine.Length > 3 && currentLine[1] == "TYPE")
                     {
                         // currentLine[2] 0-range 2-range 3-magic
-                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte) 15
+                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte)15
                             : Convert.ToByte(currentLine[3]);
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "FLAG")
@@ -533,8 +509,8 @@ namespace NosCore.Parser.Parsers
 
                         if (currentLine.Length > 18)
                         {
-                            item.Sex = currentLine[18] == "1" ? (byte) 1 :
-                                currentLine[17] == "1" ? (byte) 2 : (byte) 0;
+                            item.Sex = currentLine[18] == "1" ? (byte)1 :
+                                currentLine[17] == "1" ? (byte)2 : (byte)0;
                         }
 
                         //not used item.Flag6 = currentLine[19] == "1";
@@ -543,12 +519,9 @@ namespace NosCore.Parser.Parsers
                             item.Flag6 = currentLine[20] == "1";
                         }
 
-                        if (currentLine.Length > 21)
+                        if (currentLine.Length > 21 && currentLine[21] == "1")
                         {
-                            if (currentLine[21] == "1")
-                            {
-                                item.ReputPrice = item.Price;
-                            }
+                            item.ReputPrice = item.Price;
                         }
 
                         if (currentLine.Length > 22)
@@ -738,6 +711,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5108;
                                         break;
 
+                                    case 9032:
                                     case 1333:
                                         item.EffectValue = 5109;
                                         break;
@@ -746,14 +720,12 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5111;
                                         break;
 
-                                    case 1335:
-                                        item.EffectValue = 5107;
-                                        break;
-
+                                    case 9035:
                                     case 1336:
                                         item.EffectValue = 5106;
                                         break;
 
+                                    case 9036:
                                     case 1337:
                                         item.EffectValue = 5110;
                                         break;
@@ -766,24 +738,13 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 5108;
                                         break;
 
-                                    case 9032:
-                                        item.EffectValue = 5109;
-                                        break;
-
                                     case 9033:
                                         item.EffectValue = 5011;
                                         break;
 
+                                    case 1335:
                                     case 9034:
                                         item.EffectValue = 5107;
-                                        break;
-
-                                    case 9035:
-                                        item.EffectValue = 5106;
-                                        break;
-
-                                    case 9036:
-                                        item.EffectValue = 5110;
                                         break;
 
                                     case 9038:
@@ -799,6 +760,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 861;
                                         break;
 
+                                    case 9044:
                                     case 1585:
                                         item.EffectValue = 859;
                                         break;
@@ -807,10 +769,12 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 875;
                                         break;
 
+                                    case 9060:
                                     case 1984:
                                         item.EffectValue = 876;
                                         break;
 
+                                    case 9061:
                                     case 1985:
                                         item.EffectValue = 877;
                                         break;
@@ -823,24 +787,8 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 879;
                                         break;
 
-                                    case 1988:
-                                        item.EffectValue = 880;
-                                        break;
-
-                                    case 9044:
-                                        item.EffectValue = 859;
-                                        break;
-
                                     case 9059:
                                         item.EffectValue = 875;
-                                        break;
-
-                                    case 9060:
-                                        item.EffectValue = 876;
-                                        break;
-
-                                    case 9061:
-                                        item.EffectValue = 877;
                                         break;
 
                                     case 9062:
@@ -851,6 +799,7 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 879;
                                         break;
 
+                                    case 1988:
                                     case 9064:
                                         item.EffectValue = 880;
                                         break;
@@ -1109,7 +1058,7 @@ namespace NosCore.Parser.Parsers
                                 item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
                                 item.ReputationMinimum = Convert.ToByte(currentLine[21]);
 
-                                var elementdic = new Dictionary<int, int> {{0, 0}};
+                                var elementdic = new Dictionary<int, int> { { 0, 0 } };
                                 if (item.FireResistance != 0)
                                 {
                                     elementdic.Add(1, item.FireResistance);
@@ -1130,12 +1079,12 @@ namespace NosCore.Parser.Parsers
                                     elementdic.Add(4, item.DarkResistance);
                                 }
 
-                                item.Element = (byte) elementdic.OrderByDescending(s => s.Value).First().Key;
+                                item.Element = (byte)elementdic.OrderByDescending(s => s.Value).First().Key;
                                 if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
                                     == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
                                 {
                                     item.SecondaryElement =
-                                        (byte) elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
+                                        (byte)elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
                                 }
 
                                 // needs to be hardcoded
@@ -1150,9 +1099,6 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     case 906:
-                                        item.Element = 3;
-                                        break;
-
                                     case 909:
                                         item.Element = 3;
                                         break;
@@ -1167,6 +1113,8 @@ namespace NosCore.Parser.Parsers
                                 // item.ShellType = Convert.ToByte(linesave[5]); // 3 shells of each type
                                 break;
 
+                            case ItemType.Production:
+                            case ItemType.Map:
                             case ItemType.Main:
                                 item.Effect = Convert.ToInt16(currentLine[2]);
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
@@ -1212,21 +1160,7 @@ namespace NosCore.Parser.Parsers
 
                                 break;
 
-                            case ItemType.Production:
-                                item.Effect = Convert.ToInt16(currentLine[2]);
-                                item.EffectValue = Convert.ToInt32(currentLine[4]);
-                                break;
-
-                            case ItemType.Map:
-                                item.Effect = Convert.ToInt16(currentLine[2]);
-                                item.EffectValue = Convert.ToInt32(currentLine[4]);
-                                break;
-
                             case ItemType.Potion:
-                                item.Hp = Convert.ToInt16(currentLine[2]);
-                                item.Mp = Convert.ToInt16(currentLine[4]);
-                                break;
-
                             case ItemType.Snack:
                                 item.Hp = Convert.ToInt16(currentLine[2]);
                                 item.Mp = Convert.ToInt16(currentLine[4]);
@@ -1240,28 +1174,10 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             case ItemType.Part:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Sell:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Quest2:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Quest1:
-
-                                // nothing to parse
-                                break;
-
                             case ItemType.Ammo:
-
-                                // nothing to parse
                                 break;
                         }
 
@@ -1289,31 +1205,31 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 0; i < 5; i++)
                         {
-                            var type = (byte) int.Parse(currentLine[2 + (5 * i)]);
+                            var type = (byte)int.Parse(currentLine[2 + (5 * i)]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
                             }
 
                             var first = int.Parse(currentLine[3 + (5 * i)]);
-                            var itemCard = new BCardDTO
+                            var itemCard = new BCardDto
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
-                                SubType = (byte) (((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
+                                SubType = (byte)(((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
-                                FirstData = (short) ((first > 0 ? first : -first) / 4),
-                                SecondData = (short) (int.Parse(currentLine[4 + (5 * i)]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[6 + (5 * i)]) / 4)
+                                FirstData = (short)((first > 0 ? first : -first) / 4),
+                                SecondData = (short)(int.Parse(currentLine[4 + (5 * i)]) / 4),
+                                ThirdData = (short)(int.Parse(currentLine[6 + (5 * i)]) / 4)
                             };
                             _itemCards.Add(itemCard);
                         }
                     }
                 }
 
-                DAOFactory.ItemDAO.InsertOrUpdate(_items);
-                DAOFactory.BcardDAO.InsertOrUpdate(_itemCards);
+                DaoFactory.ItemDao.InsertOrUpdate(_items);
+                DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
                 Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
                     _itemCounter));
             }
