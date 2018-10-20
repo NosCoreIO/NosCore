@@ -20,6 +20,7 @@
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -67,7 +68,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
-                Name = visualEntity.Authority == AuthorityType.Moderator ? "[Support]" + visualEntity.Name : visualEntity.Name,
+                Name = visualEntity.Authority == AuthorityType.Moderator ? $"{visualEntity.Session.GetMessageFromKey(LanguageKey.SUPPORT)}" + visualEntity.Name : visualEntity.Name,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
