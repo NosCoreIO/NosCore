@@ -125,8 +125,8 @@ namespace NosCore.GameObject.Networking
             {
                 case ReceiverType.AllExceptMeAndBlacklisted:
                     Parallel.ForEach(
-                        Sessions.Where(s => s.Value.HasSelectedCharacter &&
-                            s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId
+                        Sessions.Where(s => s.Value.HasSelectedCharacter
+                            && s.Value.Character.CharacterId != sentPacket.Sender.Character.CharacterId
                             && !s.Value.Character.IsRelatedToCharacter(sentPacket.Sender.Character.CharacterId,
                                 CharacterRelationType.Blocked)),
                         session => session.Value.SendPacket(sentPacket.Packet));
@@ -134,8 +134,8 @@ namespace NosCore.GameObject.Networking
                 case ReceiverType.AllExceptMe:
                     Parallel.ForEach(
                         Sessions.Values.Where(s =>
-                            s.HasSelectedCharacter &&
-                            s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
+                            s.HasSelectedCharacter
+                            && s.Character.CharacterId != sentPacket.Sender.Character.CharacterId),
                         session => session.SendPacket(sentPacket.Packet));
                     break;
                 case ReceiverType.Group:

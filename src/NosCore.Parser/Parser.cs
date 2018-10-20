@@ -39,7 +39,7 @@ namespace NosCore.Parser
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Parser";
-        const string ConsoleText = "PARSER SERVER - NosCoreIO";
+        private const string ConsoleText = "PARSER SERVER - NosCoreIO";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
 
         private static void InitializeLogger()

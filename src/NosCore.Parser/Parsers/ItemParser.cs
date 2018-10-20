@@ -127,7 +127,7 @@ namespace NosCore.Parser.Parsers
                                 item.Speed = 20;
                                 item.WaitDelay = 3000;
                                 break;
-                                
+
                             case 9058:
                             case 1965:
                                 item.Morph = 2406;
@@ -198,8 +198,6 @@ namespace NosCore.Parser.Parsers
                                 item.Speed = 20;
                                 item.WaitDelay = 3000;
                                 break;
-
-                       
 
                             case 5240:
                                 item.Morph = 1819;

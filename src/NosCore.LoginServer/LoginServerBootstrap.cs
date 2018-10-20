@@ -41,9 +41,9 @@ namespace NosCore.LoginServer
 {
     public static class LoginServerBootstrap
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - LoginServer";
-        const string ConsoleText = "LOGIN SERVER - NosCoreIO";
+        private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
 
         private static LoginConfiguration InitializeConfiguration()
         {

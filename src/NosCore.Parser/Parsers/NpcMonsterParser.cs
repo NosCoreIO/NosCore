@@ -455,15 +455,7 @@ namespace NosCore.Parser.Parsers
                             case -2147483616:
                             case -2147483647:
                             case -2147483646:
-                                if (npc.Race == 8 && npc.RaceType == 0)
-                                {
-                                    npc.NoAggresiveIcon = true;
-                                }
-                                else
-                                {
-                                    npc.NoAggresiveIcon = false;
-                                }
-
+                                npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
                                 break;
                         }
 
@@ -552,8 +544,8 @@ namespace NosCore.Parser.Parsers
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1 +
-                                    (first > 0 ? 0 : 1)),
+                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
+                                    + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
                                 IsLevelDivided = first % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),

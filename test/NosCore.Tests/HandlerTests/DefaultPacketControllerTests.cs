@@ -112,8 +112,8 @@ namespace NosCore.Tests.HandlerTests
                 Type = FinsPacketType.Accepted
             };
             _handler.AddFriend(finsPacket);
-            Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _targetSession.Character.CharacterId) &&
-                _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
+            Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _targetSession.Character.CharacterId)
+                && _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
 
         [TestMethod]
@@ -126,8 +126,8 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _handler.AddDistantFriend(flPacket);
-            Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _targetSession.Character.CharacterId) &&
-                _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
+            Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _targetSession.Character.CharacterId)
+                && _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
 
         [TestMethod]
@@ -147,7 +147,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.AddFriend(finsPacket);
 
             _handler.DeleteFriend(fdelPacket);
-            Assert.IsTrue(_session.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != _targetSession.Character.CharacterId) 
+            Assert.IsTrue(_session.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != _targetSession.Character.CharacterId)
                 && _targetSession.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != _session.Character.CharacterId));
         }
 

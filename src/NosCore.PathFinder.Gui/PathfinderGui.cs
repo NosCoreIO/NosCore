@@ -36,9 +36,9 @@ namespace NosCore.PathFinder.Gui
 {
     public static class PathFinderGui
     {
-        private const string ConfigurationPath = @"../../../configuration";
+        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Pathfinder GUI";
-        const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
+        private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
 

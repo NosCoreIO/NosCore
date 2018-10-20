@@ -183,8 +183,8 @@ namespace NosCore.Parser.Parsers
                 var i1 = (short) i;
                 var id = mapTypeId;
                 if (objectset && DaoFactory.MapDao.FirstOrDefault(s => s.MapId.Equals((short) i)) != null
-                    && DaoFactory.MapTypeMapDao.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id)) ==
-                    null)
+                    && DaoFactory.MapTypeMapDao.FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id))
+                    == null)
                 {
                     maptypemaps.Add(new MapTypeMapDto {MapId = (short) i, MapTypeId = mapTypeId});
                 }

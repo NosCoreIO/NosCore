@@ -63,7 +63,7 @@ namespace NosCore.Controllers
             _mapInstanceAccessService = mapInstanceAccessService;
         }
 
-        public void GameStart([UsedImplicitly] GameStartPacket packet)
+        public void GameStart(GameStartPacket _)
         {
             if (Session.GameStarted || !Session.HasSelectedCharacter)
             {
@@ -230,8 +230,8 @@ namespace NosCore.Controllers
         /// <summary>
         ///     PreqPacket packet
         /// </summary>
-        /// <param name="packet"></param>
-        public void Preq([UsedImplicitly] PreqPacket packet)
+        /// <param name="_"></param>
+        public void Preq(PreqPacket _)
         {
             var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
             var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
@@ -386,7 +386,7 @@ namespace NosCore.Controllers
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {
-                    messageBuilder.Append($"{messageData[i]} ");
+                    messageBuilder.Append(messageData[i]).Append(" ");
                 }
 
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60 ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
@@ -409,8 +409,8 @@ namespace NosCore.Controllers
                 if (receiverSession != null)
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s =>
-                        s.RelatedCharacterId == Session.Character.CharacterId &&
-                        s.RelationType == CharacterRelationType.Blocked))
+                        s.RelatedCharacterId == Session.Character.CharacterId
+                        && s.RelationType == CharacterRelationType.Blocked))
                     {
                         Session.SendPacket(new InfoPacket
                         {
