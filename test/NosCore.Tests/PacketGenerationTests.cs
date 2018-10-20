@@ -55,7 +55,7 @@ namespace NosCore.Tests
         {
             var characterTest = new Character {Name = "characterTest", Account = new AccountDto {Authority = AuthorityType.Administrator}, Level = 1};
 
-            var packet = PacketFactory.Serialize(new[] {characterTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] {characterTest.GenerateIn("")});
             Assert.AreEqual(
                 $"in 1 characterTest - 0 0 0 0 {(byte) characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 -1 - 1 0 0 0 0 1 0 0 0 0 0",
                 packet);

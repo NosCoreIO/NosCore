@@ -25,8 +25,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface ICharacterEntity : INamedEntity, IExperiencedEntity
     {
-        ClientSession Session { get; set; }
-
         AuthorityType Authority { get; }
 
         GenderType Gender { get; set; }
