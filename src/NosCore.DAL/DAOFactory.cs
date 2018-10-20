@@ -41,7 +41,7 @@ namespace NosCore.DAL
         private static GenericDao<QuestObjective, QuestObjectiveDto> _questObjectiveDao;
         private static GenericDao<Mate, MateDto> _mateDao;
         private static GenericDao<Portal, PortalDto> _portalDao;
-        private static GenericDao<Database.Entities.MapType, MapTypeDto> _mapTypeDao;
+        private static GenericDao<MapType, MapTypeDto> _mapTypeDao;
         private static GenericDao<Combo, ComboDto> _comboDao;
         private static GenericDao<BCard, BCardDto> _bCardDao;
         private static GenericDao<RespawnMapType, RespawnMapTypeDto> _respawnMapTypeDao;
@@ -83,8 +83,8 @@ namespace NosCore.DAL
         public static GenericDao<NpcMonsterSkill, NpcMonsterSkillDto> NpcMonsterSkillDao => _npcMonsterSkillDao ??
             (_npcMonsterSkillDao = new GenericDao<NpcMonsterSkill, NpcMonsterSkillDto>());
 
-        public static GenericDao<Database.Entities.MapType, MapTypeDto> MapTypeDao => _mapTypeDao ??
-            (_mapTypeDao = new GenericDao<Database.Entities.MapType, MapTypeDto>());
+        public static GenericDao<MapType, MapTypeDto> MapTypeDao => _mapTypeDao ??
+            (_mapTypeDao = new GenericDao<MapType, MapTypeDto>());
 
         public static GenericDao<MapTypeMap, MapTypeMapDto> MapTypeMapDao => _mapTypeMapDao ??
             (_mapTypeMapDao = new GenericDao<MapTypeMap, MapTypeMapDto>());

@@ -61,7 +61,7 @@ namespace NosCore.GameObject
 
         public DropPacket GenerateDrop()
         {
-            return new DropPacket()
+            return new DropPacket
             {
                 VNum = VNum, VisualId = VisualId, PositionX = PositionX, PositionY = PositionY, Amount = Amount,
                 OwnerId = OwnerId

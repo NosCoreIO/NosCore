@@ -17,15 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using log4net.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -37,7 +30,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 VisualId = visualEntity.VisualId,
-                ItemId = itemId,
+                ItemId = itemId
             };
         }
 

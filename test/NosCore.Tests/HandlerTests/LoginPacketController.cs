@@ -17,12 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using log4net;
 using log4net.Config;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Controllers;
@@ -33,16 +34,13 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
-using NosCore.GameObject;
-using NosCore.Database;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -53,7 +51,7 @@ namespace NosCore.Tests.HandlerTests
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =
-            new ClientSession(null, new List<PacketController>() {new LoginPacketController()}, null);
+            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null);
 
         private AccountDto _acc;
         private LoginPacketController _handler;

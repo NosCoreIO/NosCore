@@ -27,8 +27,8 @@ using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.DAL;
 using NosCore.Database;
+using NosCore.DAL;
 using NosCore.Shared.I18N;
 
 // ReSharper disable LocalizableElement

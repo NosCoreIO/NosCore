@@ -17,18 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
-using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {

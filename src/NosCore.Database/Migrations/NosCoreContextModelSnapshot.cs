@@ -20,14 +20,12 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    internal partial class NosCoreContextModelSnapshot : ModelSnapshot
+    internal class NosCoreContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

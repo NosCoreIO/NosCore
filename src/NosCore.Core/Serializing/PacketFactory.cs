@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Autofac;
-using NosCore.Core.Extensions;
-using NosCore.Shared.I18N;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +26,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using NosCore.Core.Extensions;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Serializing
 {
