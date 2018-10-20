@@ -31,6 +31,7 @@ using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -146,7 +147,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -191,15 +192,15 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -212,7 +213,9 @@ namespace NosCore.GameObject.Networking
                 SendPackets(Character.MapInstance.GetMapItems());
                 if (!Character.InvisibleGm)
                 {
-                    Character.MapInstance.Broadcast(Character.GenerateIn());
+                    Character.MapInstance.Broadcast(Character.GenerateIn(
+                        Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)
+                    );
                 }
 
                 SendPacket(Character.Group.GeneratePinit());
@@ -225,7 +228,7 @@ namespace NosCore.GameObject.Networking
 
                 Parallel.ForEach(
                     Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
-                    s => SendPacket(s.Character.GenerateIn()));
+                    s => SendPacket(s.Character.GenerateIn(s.Character.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
                 Character.MapInstance.Sessions.TryAdd(SessionId, this);
@@ -271,7 +274,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
+                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                     {
                         return;
                     }
@@ -346,7 +349,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');
