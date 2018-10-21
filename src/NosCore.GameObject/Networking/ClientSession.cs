@@ -162,7 +162,8 @@ namespace NosCore.GameObject.Networking
             ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
         }
 
-        public void ChangeMapInstance(Guid mapInstanceId, int? mapX = null, int? mapY = null)
+        public void ChangeMapInstance(Guid mapInstanceId) => ChangeMapInstance(mapInstanceId, null, null);
+        public void ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
         {
             if (Character?.MapInstance == null || Character.IsChangingMapInstance)
             {
