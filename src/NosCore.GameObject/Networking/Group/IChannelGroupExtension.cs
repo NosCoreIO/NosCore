@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Serializing;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.Group
 {
     public static class IChannelGroupExtension
     {

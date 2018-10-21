@@ -17,27 +17,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
+using System;
+using System.Threading;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.Shared
 {
-    public class GroupAccess //TODO move to a service
+    public class RandomFactory : IDisposable
     {
-        private static GroupAccess _instance;
+        private static RandomFactory _instance;
+        private static int _seed = Environment.TickCount;
 
-        private GroupAccess()
+        private readonly ThreadLocal<Random> _random =
+            new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
+
+        private RandomFactory()
         {
         }
 
-        public static GroupAccess Instance => _instance ?? (_instance = new GroupAccess());
+        public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
 
-        private long _lastGroupId = 1;
-        public ConcurrentDictionary<long, Group> Groups { get; set; } = new ConcurrentDictionary<long, Group>();
-
-        public long GetNextGroupId()
+        public int RandomNumber() => RandomNumber(0, 100);
+        public int RandomNumber(int min, int max)
         {
-            return ++_lastGroupId;
+            return _random.Value.Next(min, max);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            _random?.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
     }
 }

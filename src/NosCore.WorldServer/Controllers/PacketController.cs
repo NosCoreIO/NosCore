@@ -23,6 +23,8 @@ using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
@@ -47,19 +49,19 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    ServerManager.Instance.Sessions.SendPacket(message);
+                    Broadcaster.Instance.Sessions.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
                     ClientSession receiverSession;
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {
-                        receiverSession = ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        receiverSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                             s.Character?.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        receiverSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                             s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
                     }
 

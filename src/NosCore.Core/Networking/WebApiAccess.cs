@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -206,6 +207,38 @@ namespace NosCore.Core.Networking
             }
 
             throw new HttpRequestException(postResponse.Headers.ToString());
+        }
+
+        public void BroadcastPacket(PostedPacket postedPacket)
+        {
+            foreach (var channel in Instance.Get<List<WorldServerInfo>>("api/channels"))
+            {
+                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+            }
+        }
+        public void BroadcastPacket(PostedPacket postedPacket, int channelId)
+        {
+            var channel = Instance.Get<List<WorldServerInfo>>("api/channels", channelId).FirstOrDefault();
+            if (channel != null)
+            {
+                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+            }
+        }
+
+        public void BroadcastPackets(List<PostedPacket> packets)
+        {
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet);
+            }
+        }
+
+        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
+        {
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet, channelId);
+            }
         }
     }
 }

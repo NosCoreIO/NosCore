@@ -17,20 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Networking;
-using NosCore.Data;
+using System.Collections.Concurrent;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.Group
 {
-    public interface IClientSession : INetworkClient
+    public class GroupAccess //TODO move to a service
     {
-        bool HasCurrentMapInstance { get; }
-        AccountDto Account { get; set; }
-        bool HasSelectedCharacter { get; }
-        Character Character { get; }
-        bool IsAuthenticated { get; set; }
+        private static GroupAccess _instance;
 
-        void SetCharacter(Character character);
-        void InitializeAccount(AccountDto accountDto);
+        private GroupAccess()
+        {
+        }
+
+        public static GroupAccess Instance => _instance ?? (_instance = new GroupAccess());
+
+        private long _lastGroupId = 1;
+        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } = new ConcurrentDictionary<long, GameObject.Group>();
+
+        public long GetNextGroupId()
+        {
+            return ++_lastGroupId;
+        }
+
     }
 }

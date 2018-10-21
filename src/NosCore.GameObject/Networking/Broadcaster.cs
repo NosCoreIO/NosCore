@@ -18,23 +18,31 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.Group;
 
 namespace NosCore.GameObject.Networking
 {
-    public class BroadcastableBase
+    public class Broadcaster
     {
-        public BroadcastableBase()
+        protected Broadcaster()
         {
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
         }
 
+        public ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; set; } = new ConcurrentDictionary<long, ClientSession.ClientSession>(); //todo remove access to this to avoid concurrency issue
+
+        private static Broadcaster _instance;
+
+        public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
+
         public IChannelGroup Sessions { get; set; }
 
-        public void UnregisterSession(ClientSession clientSession)
+        public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
             if (clientSession.Character != null)
             {
@@ -49,7 +57,7 @@ namespace NosCore.GameObject.Networking
 
                 clientSession.Character.Save();
             }
-            ServerManager.Instance.ClientSessions.TryRemove(clientSession.SessionId, out _);
+            Instance.ClientSessions.TryRemove(clientSession.SessionId, out _);
 
             if (clientSession.Channel != null)
             {
@@ -58,13 +66,13 @@ namespace NosCore.GameObject.Networking
             LastUnregister = DateTime.Now;
         }
 
-        public void RegisterSession(ClientSession clientSession)
+        public void RegisterSession(ClientSession.ClientSession clientSession)
         {
             if (clientSession.Channel != null)
             {
                 Sessions.Add(clientSession.Channel);
             }
-            ServerManager.Instance.ClientSessions.TryAdd(clientSession.SessionId, clientSession);
+            Instance.ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
         public DateTime LastUnregister { get; set; }
