@@ -21,8 +21,10 @@ using System;
 using System.Reactive.Linq;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
@@ -104,8 +106,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.Broadcast(new BroadcastPacket(null,
-                            nonPlayableEntity.GenerateMove(mapX, mapY), ReceiverType.All));
+                        nonPlayableEntity.MapInstance.Sessions.SendPacket(
+                            nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }

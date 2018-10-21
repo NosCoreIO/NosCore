@@ -23,22 +23,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels.Groups;
 using Mapster;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
-    public class MapInstance : BroadcastableBase
+    public class MapInstance : Broadcaster
     {
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
@@ -64,6 +68,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _npcs = new ConcurrentDictionary<long, MapNpc>();
             DroppedList = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
+            LastUnregister = DateTime.Now.AddMinutes(-1);
         }
 
         public ConcurrentDictionary<long, MapItem> DroppedList { get; }

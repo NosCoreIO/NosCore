@@ -38,6 +38,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;

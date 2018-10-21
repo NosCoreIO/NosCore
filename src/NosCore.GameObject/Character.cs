@@ -32,6 +32,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -190,7 +191,7 @@ namespace NosCore.GameObject
             Group.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
             {
-                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                var groupMember = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
 
                 if (Group.Count == 1)
@@ -258,7 +259,7 @@ namespace NosCore.GameObject
         public int IsReputHero()
         {
             //const int i = 0;
-            //foreach (CharacterDTO characterDto in ServerManager.Instance.TopReputation)
+            //foreach (CharacterDTO characterDto in Broadcaster.Instance.TopReputation)
             //{
             //    Character character = (Character)characterDto;
             //    i++;
@@ -302,7 +303,7 @@ namespace NosCore.GameObject
         {
             foreach (var characterRelation in CharacterRelations)
             {
-                var targetSession = ServerManager.Instance.Sessions.Where(s => s.Value.Character != null)
+                var targetSession = Broadcaster.Instance.ClientSessions.Where(s => s.Value.Character != null)
                     .FirstOrDefault(s => s.Value.Character.CharacterId == characterRelation.Value.RelatedCharacterId)
                     .Value;
 
@@ -322,7 +323,7 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
+                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                     {
                         Packet = PacketFactory.Serialize(new[]
                         {
@@ -426,7 +427,7 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType,
-                CharacterName = ServerManager.Instance.Sessions.Values
+                CharacterName = Broadcaster.Instance.ClientSessions.Values
                     .FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name,
                 CharacterRelationId = Guid.NewGuid()
             };
@@ -466,7 +467,7 @@ namespace NosCore.GameObject
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
 
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+            var targetSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                 s.Character.CharacterId == targetCharacterRelation.CharacterId);
             if (targetSession != null)
             {
