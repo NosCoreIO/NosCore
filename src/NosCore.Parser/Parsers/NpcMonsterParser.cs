@@ -425,6 +425,8 @@ namespace NosCore.Parser.Parsers
                                     + Convert.ToInt16(currentLine[5]));
                                 npc.Concentrate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[6]));
                                 break;
+                            default:
+                                continue;
                         }
                     }
                     else if (currentLine.Length > 6 && currentLine[1] == "ARMOR")
@@ -437,6 +439,10 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 7 && currentLine[1] == "ETC")
                     {
+                        if (npc.NpcMonsterVNum >= 588 && npc.NpcMonsterVNum <= 607)
+                        {
+                            npc.MonsterType = MonsterType.Elite;
+                        }
                         unknownData = Convert.ToInt64(currentLine[2]);
                         switch (unknownData)
                         {
@@ -448,11 +454,8 @@ namespace NosCore.Parser.Parsers
                             case -2147483646:
                                 npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
                                 break;
-                        }
-
-                        if (npc.NpcMonsterVNum >= 588 && npc.NpcMonsterVNum <= 607)
-                        {
-                            npc.MonsterType = MonsterType.Elite;
+                            default:
+                                continue;
                         }
                     }
                     else if (currentLine.Length > 6 && currentLine[1] == "SETTING")

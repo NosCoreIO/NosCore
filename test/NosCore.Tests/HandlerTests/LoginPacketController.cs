@@ -113,7 +113,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
-                Name = Name.ToUpper()
+                Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.WrongCaps);

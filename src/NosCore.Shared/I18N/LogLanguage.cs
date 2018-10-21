@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
@@ -47,7 +48,8 @@ namespace NosCore.Shared.I18N
 
         public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 
-        public string GetMessageFromKey(LanguageKey messageKey, string culture = null)
+        public string GetMessageFromKey(LanguageKey messageKey) => GetMessageFromKey(messageKey, null);
+        public string GetMessageFromKey(LanguageKey messageKey, string culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
             var resourceMessage = _manager != null && messageKey.ToString() != null
@@ -58,7 +60,8 @@ namespace NosCore.Shared.I18N
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
         }
 
-        public ResourceSet GetRessourceSet(string culture = null)
+        public ResourceSet GetRessourceSet() => GetRessourceSet(null);
+        public ResourceSet GetRessourceSet(string culture)
         {
             return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
         }

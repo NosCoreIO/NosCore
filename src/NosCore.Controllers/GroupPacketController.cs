@@ -305,6 +305,9 @@ namespace NosCore.Controllers
                             targetSession.Account.Language)
                     });
                     break;
+                default:
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.GROUPREQUESTTYPE_UNKNOWN));
+                    break;
             }
         }
 

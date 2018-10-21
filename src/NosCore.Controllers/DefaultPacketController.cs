@@ -668,6 +668,9 @@ namespace NosCore.Controllers
 
                     Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                     break;
+                default:
+                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVITETYPE_UNKNOWN));
+                    break;
             }
         }
 

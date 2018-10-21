@@ -238,21 +238,19 @@ namespace NosCore.Controllers
                 Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
                     firstItem.Type);
 
-            switch (wearable?.Item.EquipmentSlot)
+            if (wearable?.Item.EquipmentSlot is EquipmentType.Armor ||
+                wearable?.Item.EquipmentSlot is EquipmentType.MainWeapon ||
+                wearable?.Item.EquipmentSlot is EquipmentType.SecondaryWeapon)
             {
-                case EquipmentType.Armor:
-                case EquipmentType.MainWeapon:
-                case EquipmentType.SecondaryWeapon:
-                    wearable.SetRarityPoint();
-                    break;
-
-                case EquipmentType.Boots:
-                case EquipmentType.Gloves:
-                    wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
-                    wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
-                    wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
-                    wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
-                    break;
+                wearable.SetRarityPoint();
+            }
+            else if (wearable?.Item.EquipmentSlot is EquipmentType.Boots ||
+                wearable?.Item.EquipmentSlot is EquipmentType.Gloves)
+            {
+                wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
+                wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
+                wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
+                wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
             }
 
             Session.SendPacket(Session.Character.GenerateSay(
