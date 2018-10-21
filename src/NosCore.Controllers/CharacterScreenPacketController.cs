@@ -240,11 +240,6 @@ namespace NosCore.Controllers
                 }
             }
 
-            if (Session.Account == null)
-            {
-                return;
-            }
-
             var characters = DaoFactory.CharacterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
             Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),

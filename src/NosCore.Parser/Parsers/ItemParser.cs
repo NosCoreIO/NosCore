@@ -577,16 +577,11 @@ namespace NosCore.Parser.Parsers
                                 {
                                     case EquipmentType.Amulet:
                                         item.LevelMinimum = Convert.ToByte(currentLine[2]);
-                                        if ((item.VNum > 4055 && item.VNum < 4061)
-                                            || (item.VNum > 4172 && item.VNum < 4176))
+                                        if (((item.VNum > 4055 && item.VNum < 4061)
+                                            || (item.VNum > 4172 && item.VNum < 4176)) ||
+                                            ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967
+                                                || item.VNum == 968))
                                         {
-                                            item.ItemValidTime = 10800;
-                                        }
-                                        else if ((item.VNum > 4045 && item.VNum < 4056) || item.VNum == 967
-                                            || item.VNum == 968)
-                                        {
-                                            // (item.VNum > 8104 && item.VNum < 8115) <= disaled for now
-                                            // because doesn't work!
                                             item.ItemValidTime = 10800;
                                         }
                                         else
@@ -1145,7 +1140,7 @@ namespace NosCore.Parser.Parsers
                                 Type = type,
                                 SubType = (byte)(((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = first % 4 == 2,
+                                IsLevelDivided = (first > 0 ? first : -first) % 4 == 2,
                                 FirstData = (short)((first > 0 ? first : -first) / 4),
                                 SecondData = (short)(int.Parse(currentLine[4 + (5 * i)]) / 4),
                                 ThirdData = (short)(int.Parse(currentLine[6 + (5 * i)]) / 4)
