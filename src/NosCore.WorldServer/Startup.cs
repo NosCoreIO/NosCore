@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,6 +51,7 @@ using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
+using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.Inventory;
@@ -123,7 +125,11 @@ namespace NosCore.WorldServer
 
                 return maps;
             }).As<List<Map>>().SingleInstance();
-
+            containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
+                .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+            
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);

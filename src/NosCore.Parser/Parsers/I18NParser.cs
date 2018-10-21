@@ -68,7 +68,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (actdesclist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null && currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
+                                == null && currentLine.Length > 1 && !actdescdtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 actdescdtos.Add(new I18NActDescDto
                                 {
@@ -104,7 +104,7 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
+                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !carddtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 carddtos.Add(new I18NCardDto
                                 {
@@ -124,7 +124,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -141,7 +141,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null && currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
+                                == null && currentLine.Length > 1 && !bcarddtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 bcarddtos.Add(new I18NBCardDto
                                 {
@@ -161,7 +161,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -177,7 +177,7 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
+                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !itemdtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 itemdtos.Add(new I18NItemDto
                                 {
@@ -197,7 +197,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -214,7 +214,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mapiddatalist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null && currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
+                                == null && currentLine.Length > 1 && !mapiddatadtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 mapiddatadtos.Add(new I18NMapIdDataDto
                                 {
@@ -234,7 +234,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -251,7 +251,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mappointdatalist.Find(s =>
-                                s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
+                                s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !mappointdatadtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 mappointdatadtos.Add(new I18NMapPointDataDto
                                 {
@@ -271,7 +271,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -288,7 +288,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonsterlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null && currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
+                                == null && currentLine.Length > 1 && !npcmonsterdto.Exists(s => s.Key == currentLine[0]))
                             {
                                 npcmonsterdto.Add(new I18NNpcMonsterDto
                                 {
@@ -308,7 +308,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -325,7 +325,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonstertalklist.Find(
-                                s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && npctalkdtos.Exists(s => s.Key == currentLine[0]))
+                                s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !npctalkdtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 npctalkdtos.Add(new I18NNpcMonsterTalkDto
                                 {
@@ -345,7 +345,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -362,7 +362,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (questlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null && currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
+                                == null && currentLine.Length > 1 && !questdtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 questdtos.Add(new I18NQuestDto
                                 {
@@ -382,7 +382,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -399,7 +399,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (skilllist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && !skilldtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 skilldtos.Add(new I18NSkillDto
                                 {
@@ -419,7 +419,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
         }

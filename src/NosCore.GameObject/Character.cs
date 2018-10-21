@@ -322,7 +322,7 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    ServerManager.Instance.BroadcastPacket(new PostedPacket
+                    PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
                     {
                         Packet = PacketFactory.Serialize(new[]
                         {

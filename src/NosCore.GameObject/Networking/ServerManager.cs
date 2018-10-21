@@ -33,63 +33,17 @@ namespace NosCore.GameObject.Networking
     public sealed class ServerManager : BroadcastableBase
     {
         private static ServerManager _instance;
-        private long _lastGroupId = 1;
+
 
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
 
+        private long _lastGroupId = 1;
         public ConcurrentDictionary<long, Group> Groups { get; set; } = new ConcurrentDictionary<long, Group>();
-
-        private void LaunchEvents()
-        {
-            Observable.Interval(TimeSpan.FromMinutes(5)).Subscribe(x => SaveAll());
-        }
 
         public long GetNextGroupId()
         {
             return ++_lastGroupId;
         }
 
-        public void SaveAll()
-        {
-            try
-            {
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
-                Parallel.ForEach(Sessions.Values.Where(s => s.Character != null), session => session.Character.Save());
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-            }
         }
-
-        public void BroadcastPacket(PostedPacket packet) => BroadcastPacket(packet, null);
-        public void BroadcastPacket(PostedPacket postedPacket, int? channelId)
-        {
-            if (channelId == null)
-            {
-                foreach (var channel in WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels"))
-                {
-                    WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
-                }
-            }
-            else
-            {
-                var channel = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels", id: channelId.Value)
-                    .FirstOrDefault();
-                if (channel != null)
-                {
-                    WebApiAccess.Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
-                }
-            }
-        }
-
-        public void BroadcastPackets(List<PostedPacket> packets) => BroadcastPackets(packets, null);
-        public void BroadcastPackets(List<PostedPacket> packets, int? channelId)
-        {
-            foreach (var packet in packets)
-            {
-                BroadcastPacket(packet, channelId);
-            }
-        }
-    }
 }
