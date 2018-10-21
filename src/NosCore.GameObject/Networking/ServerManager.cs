@@ -33,17 +33,7 @@ namespace NosCore.GameObject.Networking
     public sealed class ServerManager : BroadcastableBase
     {
         private static ServerManager _instance;
-
-
+        
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
-
-        private long _lastGroupId = 1;
-        public ConcurrentDictionary<long, Group> Groups { get; set; } = new ConcurrentDictionary<long, Group>();
-
-        public long GetNextGroupId()
-        {
-            return ++_lastGroupId;
-        }
-
-        }
+    }
 }

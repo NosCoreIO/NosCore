@@ -25,7 +25,7 @@ using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.Networking
 {
-    public class PacketBroadcaster
+    public class PacketBroadcaster //TODO move to a service
     {
         private static PacketBroadcaster _instance;
         private PacketBroadcaster()
