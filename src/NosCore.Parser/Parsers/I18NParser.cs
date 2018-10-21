@@ -124,6 +124,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
