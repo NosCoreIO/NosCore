@@ -235,10 +235,6 @@ namespace NosCore.Parser.Parsers
                         //TODO find HeroXP algorithm
                         switch (npc.NpcMonsterVNum)
                         {
-                            case 2500:
-                                npc.HeroXp = 879;
-                                break;
-
                             case 2510:
                             case 2501:
                                 npc.HeroXp = 881;
@@ -269,6 +265,7 @@ namespace NosCore.Parser.Parsers
                                 npc.HeroXp = 825;
                                 break;
 
+                            case 2500:
                             case 2509:
                             case 2511:
                                 npc.HeroXp = 879;

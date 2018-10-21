@@ -1156,17 +1156,17 @@ namespace NosCore.GameObject.Helper
                 }
                 else
                 {
-                    switch (i)
+                    if (i == 79)
                     {
-                        case 79:
-                            var = 5000;
-                            break;
-                        case 82:
-                            var = 9000;
-                            break;
-                        case 84:
-                            var = 13000;
-                            break;
+                        var = 5000;
+                    }
+                    else if (i == 82)
+                    {
+                        var = 9000;
+                    }
+                    else if (i == 84)
+                    {
+                        var = 13000;
                     }
 
                     XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * (i + 2) * (i + 2)));
