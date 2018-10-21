@@ -71,7 +71,7 @@ namespace NosCore.Tests.HandlerTests
             DaoFactory.MapDao.InsertOrUpdate(ref map);
 
             ServerManager.Instance.Sessions = new ConcurrentDictionary<long, ClientSession>();
-            ServerManager.Instance.Groups = new ConcurrentDictionary<long, Group>();
+            GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
             {
                 ServerManager.Instance.Sessions.TryAdd(i,
