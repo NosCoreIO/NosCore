@@ -71,7 +71,7 @@ namespace NosCore.WorldServer.Controllers
                     receiverSession.SendPacket(message);
                     break;
                 default:
-                   Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguage.UNKWNOWN_RECEIVERTYPE));
+                   Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 
