@@ -36,7 +36,8 @@ namespace NosCore.GameObject.Networking
 
         public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
 
-        public int RandomNumber(int min = 0, int max = 100)
+        public int RandomNumber() => RandomNumber(0, 100);
+        public int RandomNumber(int min, int max)
         {
             return _random.Value.Next(min, max);
         }

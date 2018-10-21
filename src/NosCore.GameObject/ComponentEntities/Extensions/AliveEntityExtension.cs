@@ -146,7 +146,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX = null, short? mapY = null)
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity) => aliveEntity.GenerateMove(null, null);
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX , short? mapY)
         {
             return new MovePacket
             {
