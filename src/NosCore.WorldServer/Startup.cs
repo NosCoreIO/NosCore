@@ -54,6 +54,7 @@ using NosCore.DAL;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;

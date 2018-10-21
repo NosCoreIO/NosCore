@@ -37,6 +37,7 @@ using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;

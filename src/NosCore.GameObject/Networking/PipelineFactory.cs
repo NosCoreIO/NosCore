@@ -29,13 +29,13 @@ namespace NosCore.GameObject.Networking
     public class PipelineFactory
     {
         private readonly ISocketChannel _channel;
-        private readonly ClientSession _clientSession;
+        private readonly ClientSession.ClientSession _clientSession;
         private readonly GameServerConfiguration _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<string> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<string> encoder, ClientSession clientSession, GameServerConfiguration configuration)
+            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession, GameServerConfiguration configuration)
         {
             _channel = channel;
             _decoder = decoder;

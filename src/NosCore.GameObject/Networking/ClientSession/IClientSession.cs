@@ -17,23 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Data.WebApi;
-using NosCore.Shared.I18N;
+using NosCore.Data;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.ClientSession
 {
-    public sealed class ServerManager : BroadcastableBase
+    public interface IClientSession : INetworkClient
     {
-        private static ServerManager _instance;
-        
-        public static ServerManager Instance => _instance ?? (_instance = new ServerManager());
+        bool HasCurrentMapInstance { get; }
+        AccountDto Account { get; set; }
+        bool HasSelectedCharacter { get; }
+        Character Character { get; }
+        bool IsAuthenticated { get; set; }
+
+        void SetCharacter(Character character);
+        void InitializeAccount(AccountDto accountDto);
     }
 }
