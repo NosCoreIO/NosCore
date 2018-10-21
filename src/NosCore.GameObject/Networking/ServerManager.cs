@@ -62,7 +62,8 @@ namespace NosCore.GameObject.Networking
             }
         }
 
-        public void BroadcastPacket(PostedPacket postedPacket, int? channelId = null)
+        public void BroadcastPacket(PostedPacket packet) => BroadcastPacket(packet, null);
+        public void BroadcastPacket(PostedPacket postedPacket, int? channelId)
         {
             if (channelId == null)
             {
@@ -82,7 +83,8 @@ namespace NosCore.GameObject.Networking
             }
         }
 
-        public void BroadcastPackets(List<PostedPacket> packets, int? channelId = null)
+        public void BroadcastPackets(List<PostedPacket> packets) => BroadcastPackets(packets, null);
+        public void BroadcastPackets(List<PostedPacket> packets, int? channelId)
         {
             foreach (var packet in packets)
             {

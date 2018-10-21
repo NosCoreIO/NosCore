@@ -25,6 +25,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -68,6 +69,9 @@ namespace NosCore.WorldServer.Controllers
                     }
 
                     receiverSession.SendPacket(message);
+                    break;
+                default:
+                   Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguage.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

@@ -1097,6 +1097,14 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Quest2:
                             case ItemType.Quest1:
                             case ItemType.Ammo:
+                            case ItemType.House:
+                            case ItemType.Garden:
+                            case ItemType.Minigame:
+                            case ItemType.Terrace:
+                            case ItemType.MinilandTheme:
+                                break;
+                            default:
+                                Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMTYPE_UNKNOWN));
                                 break;
                         }
 
