@@ -30,15 +30,15 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession : NetworkClient, IClientSession
     {
@@ -112,7 +112,7 @@ namespace NosCore.GameObject.Networking
         {
             Account = accountDto;
             IsAuthenticated = true;
-            ServerManager.Instance.RegisterSession(this);
+            Broadcaster.Instance.RegisterSession(this);
         }
 
         public void SetCharacter(Character character)
@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            ServerManager.Instance.UnregisterSession(this);
+            Broadcaster.Instance.UnregisterSession(this);
             SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Networking
             {
                 Character.IsChangingMapInstance = true;
                 LeaveMap(this);
-                ServerManager.Instance.ClientSessions.TryRemove(SessionId, out _);
+                Broadcaster.Instance.ClientSessions.TryRemove(SessionId, out _);
                 Character.MapInstance.Sessions.Remove(Channel);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
@@ -229,12 +229,12 @@ namespace NosCore.GameObject.Networking
                 }
 
                 Parallel.ForEach(
-                   ServerManager.Instance.ClientSessions.Values.Where(s => s.Character != null && s != this && s.Character.MapInstance.MapInstanceId == Character.MapInstanceId),
+                   Broadcaster.Instance.ClientSessions.Values.Where(s => s.Character != null && s != this && s.Character.MapInstance.MapInstanceId == Character.MapInstanceId),
                     s => SendPacket(s.Character.GenerateIn(s.Character.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
                 Character.MapInstance.Sessions.Add(Channel);
-                ServerManager.Instance.ClientSessions.TryAdd(SessionId, this);
+                Broadcaster.Instance.ClientSessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)

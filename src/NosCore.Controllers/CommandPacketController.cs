@@ -23,6 +23,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.Extensions;
+using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -65,7 +66,7 @@ namespace NosCore.Controllers
         public void Teleport(TeleportPacket teleportPacket)
         {
             var session =
-                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.Name == teleportPacket.TeleportArgument);
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
@@ -141,7 +142,7 @@ namespace NosCore.Controllers
                 ReceiverType = ReceiverType.All
             };
 
-            PacketBroadcaster.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]

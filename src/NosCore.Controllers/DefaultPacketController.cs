@@ -31,6 +31,8 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -93,7 +95,7 @@ namespace NosCore.Controllers
             //            Session.SendPacket("rsfi 1 1 0 9 0 9");
             if (Session.Character.Hp <= 0)
             {
-                //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
+                //                Broadcaster.Instance.ReviveFirstPosition(Session.Character.CharacterId);
             }
             else
             {
@@ -152,11 +154,11 @@ namespace NosCore.Controllers
             //            Session.SendPacket(Session.Character.GenerateGold());
             //            Session.SendPackets(Session.Character.GenerateQuicklist());
 
-            //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
+            //            string clinit = Broadcaster.Instance.TopComplimented.Aggregate("clinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
-            //            string flinit = ServerManager.Instance.TopReputation.Aggregate("flinit",
+            //            string flinit = Broadcaster.Instance.TopReputation.Aggregate("flinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Reput}|{character.Name}");
-            //            string kdlinit = ServerManager.Instance.TopPoints.Aggregate("kdlinit",
+            //            string kdlinit = Broadcaster.Instance.TopPoints.Aggregate("kdlinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
@@ -173,7 +175,7 @@ namespace NosCore.Controllers
             //            long? familyId = DAOFactory.FamilyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
             //            if (familyId != null)
             //            {
-            //                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
+            //                Session.Character.Family = Broadcaster.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
             //            }
 
             //            if (Session.Character.Family != null && Session.Character.FamilyCharacter != null)
@@ -278,7 +280,7 @@ namespace NosCore.Controllers
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = ServerManager.Instance.ClientSessions.Values
+                    entity = Broadcaster.Instance.ClientSessions.Values
                         .FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character;
                     break;
                 case VisualType.Monster:
@@ -403,7 +405,7 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                    Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
                 if (receiverSession != null)
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s =>
@@ -460,7 +462,7 @@ namespace NosCore.Controllers
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
+                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
@@ -501,7 +503,7 @@ namespace NosCore.Controllers
 
             message = message.Trim();
             var receiverSession =
-                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.CharacterId == btkPacket.CharacterId);
 
             if (receiverSession != null)
@@ -533,7 +535,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
+            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
@@ -604,7 +606,7 @@ namespace NosCore.Controllers
             }
 
             var targetSession =
-                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.CharacterId == finsPacket.CharacterId);
 
             if (targetSession == null)
@@ -736,7 +738,7 @@ namespace NosCore.Controllers
         public void AddDistantFriend(FlPacket flPacket)
         {
             var target =
-                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
+                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
 
             if (target == null)
             {
@@ -764,7 +766,7 @@ namespace NosCore.Controllers
         public void DistantBlackList(BlPacket blPacket)
         {
             ClientSession target =
-                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
+                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
 
             if (target == null)
             {

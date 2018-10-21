@@ -39,7 +39,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var session = ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
+            var session = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
                 s.Character?.CharacterRelations.Any(r => r.Key == id) ?? false);
 
             if (session == null)
