@@ -229,62 +229,62 @@ namespace NosCore.GameObject.Services.Inventory
                 case ItemType.Specialist when targetType != PocketType.Main && targetType != PocketType.Specialist:
                     Logger.Error(new InvalidOperationException("SourceInstance can't be moved to this Pocket"));
                     return null;
-            }
-
-            if (targetSlot.HasValue)
-            {
-                if (wear)
-                {
-                    // swap
-                    var targetInstance = LoadBySlotAndType<ItemInstance>(targetSlot.Value, targetType);
-
-                    sourceInstance.Slot = targetSlot.Value;
-                    sourceInstance.Type = targetType;
-
-                    targetInstance.Slot = sourceSlot;
-                    targetInstance.Type = sourceType;
-                }
-                else
-                {
-                    // move source to target
-                    var freeTargetSlot = GetFreeSlot(targetType);
-                    if (!freeTargetSlot.HasValue)
+                default:
+                    if (targetSlot.HasValue)
                     {
+                        if (wear)
+                        {
+                            // swap
+                            var targetInstance = LoadBySlotAndType<ItemInstance>(targetSlot.Value, targetType);
+
+                            sourceInstance.Slot = targetSlot.Value;
+                            sourceInstance.Type = targetType;
+
+                            targetInstance.Slot = sourceSlot;
+                            targetInstance.Type = sourceType;
+                        }
+                        else
+                        {
+                            // move source to target
+                            var freeTargetSlot = GetFreeSlot(targetType);
+                            if (!freeTargetSlot.HasValue)
+                            {
+                                return sourceInstance;
+                            }
+
+                            sourceInstance.Slot = freeTargetSlot.Value;
+                            sourceInstance.Type = targetType;
+                        }
+
                         return sourceInstance;
                     }
 
-                    sourceInstance.Slot = freeTargetSlot.Value;
-                    sourceInstance.Type = targetType;
-                }
+                    // check for free target slot
+                    short? nextFreeSlot;
+                    if (targetType == PocketType.Wear)
+                    {
+                        nextFreeSlot =
+                            LoadBySlotAndType<ItemInstance>((short)sourceInstance.Item.EquipmentSlot, targetType) == null
+                                ? (short)sourceInstance.Item.EquipmentSlot
+                                : (short)-1;
+                    }
+                    else
+                    {
+                        nextFreeSlot = GetFreeSlot(targetType);
+                    }
 
-                return sourceInstance;
-            }
+                    if (nextFreeSlot.HasValue)
+                    {
+                        sourceInstance.Type = targetType;
+                        sourceInstance.Slot = nextFreeSlot.Value;
+                    }
+                    else
+                    {
+                        return null;
+                    }
 
-            // check for free target slot
-            short? nextFreeSlot;
-            if (targetType == PocketType.Wear)
-            {
-                nextFreeSlot =
-                    LoadBySlotAndType<ItemInstance>((short) sourceInstance.Item.EquipmentSlot, targetType) == null
-                        ? (short) sourceInstance.Item.EquipmentSlot
-                        : (short) -1;
+                    return sourceInstance;
             }
-            else
-            {
-                nextFreeSlot = GetFreeSlot(targetType);
-            }
-
-            if (nextFreeSlot.HasValue)
-            {
-                sourceInstance.Type = targetType;
-                sourceInstance.Slot = nextFreeSlot.Value;
-            }
-            else
-            {
-                return null;
-            }
-
-            return sourceInstance;
         }
 
         public void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
