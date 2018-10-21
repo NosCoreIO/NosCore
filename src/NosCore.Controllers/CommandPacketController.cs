@@ -252,6 +252,10 @@ namespace NosCore.Controllers
                 wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
                 wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
             }
+            else
+            {
+               Logger.Log.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+            }
 
             Session.SendPacket(Session.Character.GenerateSay(
                 $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {iteminfo.Name} x {amount}",

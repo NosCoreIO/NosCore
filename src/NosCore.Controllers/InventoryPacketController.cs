@@ -169,8 +169,11 @@ namespace NosCore.Controllers
                                 SayColorType.Green));
                             if (Session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                             {
+                                var name = string.Format(
+                                    Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
+                                        Session.Account.Language), Session.Character.Name);
                                 Session.Character.MapInstance.Broadcast(Session.Character.GenerateSay(
-                                    $"{string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD, Session.Account.Language), Session.Character.Name)}: {inv.Item.Name} x {mapItem.Amount}",
+                                    $"{name}: {inv.Item.Name} x {mapItem.Amount}",
                                     SayColorType.Yellow));
                             }
                         }
