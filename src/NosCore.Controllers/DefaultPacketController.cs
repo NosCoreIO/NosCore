@@ -278,7 +278,7 @@ namespace NosCore.Controllers
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = ServerManager.Instance.Sessions.Values
+                    entity = ServerManager.Instance.ClientSessions.Values
                         .FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character;
                     break;
                 case VisualType.Monster:
@@ -319,7 +319,7 @@ namespace NosCore.Controllers
             Session.Character.PositionX = walkPacket.XCoordinate;
             Session.Character.PositionY = walkPacket.YCoordinate;
 
-            Session.Character.MapInstance?.Broadcast(Session.Character.GenerateMove());
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove());
             Session.SendPacket(Session.Character.GenerateCond());
             Session.Character.LastMove = DateTime.Now;
         }
@@ -339,8 +339,8 @@ namespace NosCore.Controllers
             if (guriPacket.VisualEntityId != null
                 && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
             {
-                Session.Character.MapInstance.Broadcast(Session,
-                    Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+                Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.GenerateEff(guriPacket.Data + 4099));//TODO , ReceiverType.AllNoEmoBlocked
             }
         }
 
@@ -361,11 +361,11 @@ namespace NosCore.Controllers
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
-            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateSay(new SayPacket
             {
                 Message = clientSayPacket.Message,
                 Type = type
-            }), ReceiverType.AllExceptMeAndBlacklisted);
+            })); //TODO  ReceiverType.AllExceptMeAndBlacklisted
         }
 
         /// <summary>
@@ -403,7 +403,7 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                    ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
                 if (receiverSession != null)
                 {
                     if (receiverSession.Character.CharacterRelations.Values.Any(s =>
@@ -501,7 +501,7 @@ namespace NosCore.Controllers
 
             message = message.Trim();
             var receiverSession =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.CharacterId == btkPacket.CharacterId);
 
             if (receiverSession != null)
@@ -604,7 +604,7 @@ namespace NosCore.Controllers
             }
 
             var targetSession =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.CharacterId == finsPacket.CharacterId);
 
             if (targetSession == null)
@@ -736,7 +736,7 @@ namespace NosCore.Controllers
         public void AddDistantFriend(FlPacket flPacket)
         {
             var target =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
+                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
 
             if (target == null)
             {
@@ -764,7 +764,7 @@ namespace NosCore.Controllers
         public void DistantBlackList(BlPacket blPacket)
         {
             ClientSession target =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
+                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
 
             if (target == null)
             {

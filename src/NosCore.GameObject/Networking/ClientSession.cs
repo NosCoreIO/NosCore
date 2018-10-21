@@ -29,6 +29,7 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
@@ -174,8 +175,8 @@ namespace NosCore.GameObject.Networking
             {
                 Character.IsChangingMapInstance = true;
                 LeaveMap(this);
-
-                Character.MapInstance.Sessions.TryRemove(SessionId, out _);
+                ServerManager.Instance.ClientSessions.TryRemove(SessionId, out _);
+                Character.MapInstance.Sessions.Remove(Channel);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -214,7 +215,7 @@ namespace NosCore.GameObject.Networking
                 SendPackets(Character.MapInstance.GetMapItems());
                 if (!Character.InvisibleGm)
                 {
-                    Character.MapInstance.Broadcast(Character.GenerateIn(
+                    Character.MapInstance.Sessions.WriteAndFlushAsync(Character.GenerateIn(
                         Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)
                     );
                 }
@@ -224,16 +225,16 @@ namespace NosCore.GameObject.Networking
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
-                    Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
+                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 Parallel.ForEach(
-                    Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
+                   ServerManager.Instance.ClientSessions.Values.Where(s => s.Character != null && s != this && s.Character.MapInstance.MapInstanceId == Character.MapInstanceId),
                     s => SendPacket(s.Character.GenerateIn(s.Character.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
-                Character.MapInstance.Sessions.TryAdd(SessionId, this);
-
+                Character.MapInstance.Sessions.Add(Channel);
+                ServerManager.Instance.ClientSessions.TryAdd(SessionId, this);
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)
@@ -246,7 +247,7 @@ namespace NosCore.GameObject.Networking
         public void LeaveMap(ClientSession session)
         {
             session.SendPacket(new MapOutPacket());
-            session.Character.MapInstance.Broadcast(session, session.Character.GenerateOut(), ReceiverType.AllExceptMe);
+            session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateOut(), new EveryoneBut(session.Channel.Id));
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)

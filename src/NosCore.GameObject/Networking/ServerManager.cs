@@ -17,21 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data.WebApi;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
     public sealed class ServerManager : BroadcastableBase
     {
+        private ServerManager()
+        {
+            ClientSessions = new ConcurrentDictionary<long, ClientSession>();
+        }
+
+        public ConcurrentDictionary<long, ClientSession> ClientSessions { get; set; }
+ 
         private static ServerManager _instance;
         
         public static ServerManager Instance => _instance ?? (_instance = new ServerManager());

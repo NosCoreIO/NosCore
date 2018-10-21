@@ -29,7 +29,7 @@ namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
-        private IChannel _channel;
+        public IChannel Channel { get; private set; }
 
         #region Members
 
@@ -44,7 +44,7 @@ namespace NosCore.Core.Networking
 
         public void RegisterChannel(IChannel channel)
         {
-            _channel = channel;
+            Channel = channel;
         }
 
         #endregion
@@ -85,7 +85,7 @@ namespace NosCore.Core.Networking
         {
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
                 ClientId));
-            _channel?.DisconnectAsync();
+            Channel?.DisconnectAsync();
         }
 
         public void SendPacket(PacketDefinition packet)
@@ -102,7 +102,7 @@ namespace NosCore.Core.Networking
             }
 
             LastPacket = packetDefinitions.Last();
-            _channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+            Channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
         }
 
         #endregion
