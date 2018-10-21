@@ -116,91 +116,93 @@ namespace NosCore.Controllers
                             Type = LoginFailType.CantConnect
                         });
                         break;
-                }
-
-                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-                var alreadyConnnected = false;
-                var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
-                var i = 1;
-                foreach (var server in servers)
-                {
-                    var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount",
-                        server.WebApi);
-                    connectedAccount.Add(i, channelList);
-                    i++;
-                    if (channelList.Any(a => a.Name == acc.Name))
-                    {
-                        alreadyConnnected = true;
-                    }
-                }
-
-                if (alreadyConnnected)
-                {
-                    Session.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.AlreadyConnected
-                    });
-                    Session.Disconnect();
-                    return;
-                }
-
-                acc.Language = _loginConfiguration.UserLanguage;
-                DaoFactory.AccountDao.InsertOrUpdate(ref acc);
-                if (servers.Count <= 0)
-                {
-                    Session.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.CantConnect
-                    });
-                    Session.Disconnect();
-                    return;
-                }
-
-                var subpacket = new List<NsTeStSubPacket>();
-                    i = 1;
-                    var servergroup = string.Empty;
-                    var worldCount = 1;
-                    foreach (var server in servers.OrderBy(s => s.Name))
-                    {
-                        if (server.Name != servergroup)
+                    default:
+                        var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                        var alreadyConnnected = false;
+                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
+                        var i = 1;
+                        foreach (var server in servers)
                         {
-                            i = 1;
-                            servergroup = server.Name;
-                            worldCount++;
+                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount",
+                                server.WebApi);
+                            connectedAccount.Add(i, channelList);
+                            i++;
+                            if (channelList.Any(a => a.Name == acc.Name))
+                            {
+                                alreadyConnnected = true;
+                            }
                         }
 
-                        var channelcolor =
-                            (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
-                            + 1;
+                        if (alreadyConnnected)
+                        {
+                            Session.SendPacket(new FailcPacket
+                            {
+                                Type = LoginFailType.AlreadyConnected
+                            });
+                            Session.Disconnect();
+                            return;
+                        }
+
+                        acc.Language = _loginConfiguration.UserLanguage;
+                        DaoFactory.AccountDao.InsertOrUpdate(ref acc);
+                        if (servers.Count <= 0)
+                        {
+                            Session.SendPacket(new FailcPacket
+                            {
+                                Type = LoginFailType.CantConnect
+                            });
+                            Session.Disconnect();
+                            return;
+                        }
+
+                        var subpacket = new List<NsTeStSubPacket>();
+                        i = 1;
+                        var servergroup = string.Empty;
+                        var worldCount = 1;
+                        foreach (var server in servers.OrderBy(s => s.Name))
+                        {
+                            if (server.Name != servergroup)
+                            {
+                                i = 1;
+                                servergroup = server.Name;
+                                worldCount++;
+                            }
+
+                            var channelcolor =
+                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                + 1;
+                            subpacket.Add(new NsTeStSubPacket
+                            {
+                                Host = server.Host,
+                                Port = server.Port,
+                                Color = channelcolor,
+                                WorldCount = worldCount,
+                                WorldId = i,
+                                Name = server.Name
+                            });
+                            i++;
+                        }
+
+                        var newSessionId = SessionFactory.Instance.GenerateSessionId();
                         subpacket.Add(new NsTeStSubPacket
                         {
-                            Host = server.Host,
-                            Port = server.Port,
-                            Color = channelcolor,
-                            WorldCount = worldCount,
-                            WorldId = i,
-                            Name = server.Name
+                            Host = "-1",
+                            Port = null,
+                            Color = null,
+                            WorldCount = 10000,
+                            WorldId = 10000,
+                            Name = "1"
+                        }); //useless server to end the client reception
+                        Session.SendPacket(new NsTestPacket
+                        {
+                            AccountName = loginPacket.Name,
+                            SubPacket = subpacket,
+                            SessionId = newSessionId
                         });
-                        i++;
-                    }
+                        break;
+                }
 
-                    var newSessionId = SessionFactory.Instance.GenerateSessionId();
-                    subpacket.Add(new NsTeStSubPacket
-                    {
-                        Host = "-1",
-                        Port = null,
-                        Color = null,
-                        WorldCount = 10000,
-                        WorldId = 10000,
-                        Name = "1"
-                    }); //useless server to end the client reception
-                    Session.SendPacket(new NsTestPacket
-                    {
-                        AccountName = loginPacket.Name,
-                        SubPacket = subpacket,
-                        SessionId = newSessionId
-                    });
-                    Session.Disconnect();
+                Session.Disconnect();
             }
             catch
             {

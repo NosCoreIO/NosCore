@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             short mapY = 0;
             var niceSpot = false;
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
-            for (var i =0; i < orderedPossibilities.Count || niceSpot; i++)
+            for (var i =0; i < orderedPossibilities.Count && !niceSpot; i++)
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
