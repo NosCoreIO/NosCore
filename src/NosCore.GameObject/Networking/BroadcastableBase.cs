@@ -30,10 +30,8 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-    public abstract class BroadcastableBase : IDisposable
+    public class BroadcastableBase
     {
-        private bool _disposed;
-
         protected BroadcastableBase()
         {
             LastUnregister = DateTime.Now.AddMinutes(-1);
@@ -43,15 +41,6 @@ namespace NosCore.GameObject.Networking
         public ConcurrentDictionary<long, ClientSession> Sessions { get; set; }
 
         protected DateTime LastUnregister { get; private set; }
-
-        public virtual void Dispose()
-        {
-            if (!_disposed)
-            {
-                GC.SuppressFinalize(this);
-                _disposed = true;
-            }
-        }
 
         public void RegisterSession(ClientSession clientSession)
         {

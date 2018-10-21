@@ -23,7 +23,7 @@ namespace NosCore.Database.Entities
 {
     public class I18NBCard
     {
-        public int I18NBCardId { get; set; }
+        public int I18NbCardId { get; set; }
         public string Key { get; set; }
         public RegionType RegionType { get; set; }
         public string Text { get; set; }

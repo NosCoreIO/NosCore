@@ -95,7 +95,7 @@ namespace NosCore.DAL
         public static GenericDao<I18NCard, I18NCardDto> I18NCardDao =>
             _i18NCardDao ?? (_i18NCardDao = new GenericDao<I18NCard, I18NCardDto>());
 
-        public static GenericDao<I18NBCard, I18NBCardDto> I18NBCardDao => _i18NBCardDao ??
+        public static GenericDao<I18NBCard, I18NBCardDto> I18NbCardDao => _i18NBCardDao ??
             (_i18NBCardDao = new GenericDao<I18NBCard, I18NBCardDto>());
 
         public static GenericDao<Account, AccountDto> AccountDao =>

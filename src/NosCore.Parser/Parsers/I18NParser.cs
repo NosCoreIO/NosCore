@@ -128,7 +128,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var bcardlist = DaoFactory.I18NBCardDao.LoadAll().ToList();
+            var bcardlist = DaoFactory.I18NbCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var bcarddtos = new List<I18NBCardDto>();
@@ -152,7 +152,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.I18NBCardDao.InsertOrUpdate(bcarddtos);
+                        DaoFactory.I18NbCardDao.InsertOrUpdate(bcarddtos);
 
                         Logger.Log.Info(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_BCARD_PARSED), bcarddtos.Count,
@@ -161,6 +161,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
+                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 

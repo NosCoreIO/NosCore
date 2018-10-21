@@ -593,25 +593,11 @@ namespace NosCore.Parser.Parsers
                                         {
                                             if (item.ElementRate == 0)
                                             {
-                                                if (item.VNum >= 800 && item.VNum <= 804)
-                                                {
-                                                    item.MaxElementRate = 50;
-                                                }
-                                                else
-                                                {
-                                                    item.MaxElementRate = 70;
-                                                }
+                                                item.MaxElementRate = (item.VNum >= 800 && item.VNum <= 804) ? (short)50 : (short)70;
                                             }
                                             else if (item.ElementRate == 30)
                                             {
-                                                if (item.VNum >= 884 && item.VNum <= 887)
-                                                {
-                                                    item.MaxElementRate = 50;
-                                                }
-                                                else
-                                                {
-                                                    item.MaxElementRate = 30;
-                                                }
+                                                item.MaxElementRate = (item.VNum >= 884 && item.VNum <= 887) ? (short)50 : (short)30;
                                             }
                                             else if (item.ElementRate == 35)
                                             {
@@ -624,6 +610,10 @@ namespace NosCore.Parser.Parsers
                                             else if (item.ElementRate == 50)
                                             {
                                                 item.MaxElementRate = 80;
+                                            }
+                                            else
+                                            {
+                                                item.MaxElementRate = 0;
                                             }
                                         }
 
@@ -1006,29 +996,19 @@ namespace NosCore.Parser.Parsers
                                 }
 
                                 // needs to be hardcoded
-                                switch (item.VNum)
+                                if (item.VNum == 901)
                                 {
-                                    case 901:
-                                        item.Element = 1;
-                                        break;
-
-                                    case 903:
-                                        item.Element = 2;
-                                        break;
-
-                                    case 906:
-                                    case 909:
-                                        item.Element = 3;
-                                        break;
+                                    item.Element = 1;
+                                }
+                                else if (item.VNum == 903)
+                                {
+                                    item.Element = 2;
+                                }
+                                else if (item.VNum == 906 || item.VNum == 909)
+                                {
+                                    item.Element = 3;
                                 }
 
-                                break;
-
-                            case ItemType.Shell:
-
-                                // item.ShellMinimumLevel = Convert.ToInt16(linesave[3]);
-                                // item.ShellMaximumLevel = Convert.ToInt16(linesave[4]);
-                                // item.ShellType = Convert.ToByte(linesave[5]); // 3 shells of each type
                                 break;
 
                             case ItemType.Production:
@@ -1079,6 +1059,7 @@ namespace NosCore.Parser.Parsers
 
                                 break;
 
+                            case ItemType.Shell:
                             case ItemType.Part:
                             case ItemType.Sell:
                             case ItemType.Quest2:
@@ -1139,6 +1120,10 @@ namespace NosCore.Parser.Parsers
                             };
                             _itemCards.Add(itemCard);
                         }
+                    }
+                    else
+                    {
+                        continue;
                     }
                 }
 

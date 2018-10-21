@@ -42,9 +42,15 @@ namespace NosCore.GameObject.Networking
             return _random.Value.Next(min, max);
         }
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
             _random?.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
