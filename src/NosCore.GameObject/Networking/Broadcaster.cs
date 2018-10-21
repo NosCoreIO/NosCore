@@ -44,19 +44,6 @@ namespace NosCore.GameObject.Networking
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
-            if (clientSession.Character != null)
-            {
-                if (clientSession.Character.Hp < 1)
-                {
-                    clientSession.Character.Hp = 1;
-                }
-
-                clientSession.Character.SendRelationStatus(false);
-                clientSession.Character.LeaveGroup();
-                clientSession.Character.MapInstance?.Sessions.SendPacket(clientSession.Character.GenerateOut());
-
-                clientSession.Character.Save();
-            }
             Instance.ClientSessions.TryRemove(clientSession.SessionId, out _);
 
             if (clientSession.Channel != null)
