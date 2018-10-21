@@ -134,8 +134,20 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
+            if (Character != null)
+            {
+                if (Character.Hp < 1)
+                {
+                    Character.Hp = 1;
+                }
+
+                Character.SendRelationStatus(false);
+                Character.LeaveGroup();
+                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+
+                Character.Save();
+            }
             Broadcaster.Instance.UnregisterSession(this);
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
             Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
         }
 
@@ -174,9 +186,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             try
             {
                 Character.IsChangingMapInstance = true;
+                Character.MapInstance.UnregisterSession(this);
                 LeaveMap(this);
-                Broadcaster.Instance.ClientSessions.TryRemove(SessionId, out _);
-                Character.MapInstance.Sessions.Remove(Channel);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -233,8 +244,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     s => SendPacket(s.Character.GenerateIn(s.Character.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
-                Character.MapInstance.Sessions.Add(Channel);
-                Broadcaster.Instance.ClientSessions.TryAdd(SessionId, this);
+                Character.MapInstance.RegisterSession(this);
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)
