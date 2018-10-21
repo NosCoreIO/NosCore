@@ -141,7 +141,7 @@ namespace NosCore.Controllers
                 ReceiverType = ReceiverType.All
             };
 
-            ServerManager.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            PacketBroadcaster.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]

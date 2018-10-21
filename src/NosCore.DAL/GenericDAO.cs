@@ -40,7 +40,7 @@ namespace NosCore.DAL
             {
                 var pis = typeof(TDto).GetProperties();
                 var exit = false;
-                for (var index = 0; index < pis.Length || exit; index++)
+                for (var index = 0; index < pis.Length || !exit; index++)
                 {
                     var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
