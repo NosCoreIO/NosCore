@@ -460,7 +460,7 @@ namespace NosCore.Controllers
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                ServerManager.Instance.BroadcastPacket(new PostedPacket
+                PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
@@ -533,7 +533,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            ServerManager.Instance.BroadcastPacket(new PostedPacket
+            PacketBroadcaster.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character

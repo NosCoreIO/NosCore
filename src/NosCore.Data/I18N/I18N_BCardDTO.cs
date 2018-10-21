@@ -25,7 +25,7 @@ namespace NosCore.Data.I18N
     public class I18NBCardDto : IDto
     {
         [Key]
-        public int I18NBCardId { get; set; }
+        public int I18NbCardId { get; set; }
 
         public string Key { get; set; }
         public RegionType RegionType { get; set; }

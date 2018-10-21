@@ -17,19 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Handling;
-using NosCore.Core.Networking;
+using System.Collections.Concurrent;
 
 namespace NosCore.GameObject.Networking
 {
-    public class PacketController : IPacketController
+    public class GroupAccess //TODO move to a service
     {
-        protected PacketController() { }
-        protected ClientSession Session { get; set; }
+        private static GroupAccess _instance;
 
-        public void RegisterSession(NetworkClient clientSession)
+        private GroupAccess()
         {
-            Session = (ClientSession) clientSession;
         }
+
+        public static GroupAccess Instance => _instance ?? (_instance = new GroupAccess());
+
+        private long _lastGroupId = 1;
+        public ConcurrentDictionary<long, Group> Groups { get; set; } = new ConcurrentDictionary<long, Group>();
+
+        public long GetNextGroupId()
+        {
+            return ++_lastGroupId;
+        }
+
     }
 }

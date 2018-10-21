@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
@@ -30,6 +32,7 @@ using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -48,9 +51,10 @@ namespace NosCore.WorldServer
         private readonly NetworkManager _networkManager;
         private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly List<IGlobalEvent> _events;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -58,6 +62,7 @@ namespace NosCore.WorldServer
             _npcmonsters = npcmonsters;
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
+            _events = events.ToList();
         }
 
         public void Run()
@@ -68,7 +73,10 @@ namespace NosCore.WorldServer
             }
 
             Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
-
+            _events.ForEach(e =>
+            {
+                Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
+            });
             ConnectMaster();
             try
             {

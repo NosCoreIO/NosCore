@@ -219,7 +219,7 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Session.Character.Group.GroupId = ServerManager.Instance.GetNextGroupId();
+                        Session.Character.Group.GroupId = GroupAccess.Instance.GetNextGroupId();
                         targetSession.Character.JoinGroup(Session.Character.Group);
                         Session.SendPacket(new InfoPacket
                         {
@@ -254,7 +254,7 @@ namespace NosCore.Controllers
                         session?.SendPackets(currentGroup.GeneratePst());
                     }
 
-                    ServerManager.Instance.Groups[currentGroup.GroupId] = currentGroup;
+                    GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Broadcast(Session.Character.Group.GeneratePidx(Session.Character));
 
                     break;
@@ -392,7 +392,7 @@ namespace NosCore.Controllers
                     ServerManager.Instance.Broadcast(session.Character.Group.GeneratePidx(session.Character));
                 }
 
-                ServerManager.Instance.Groups.TryRemove(group.GroupId, out _);
+                GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);
             }
         }
 
