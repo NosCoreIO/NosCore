@@ -19,14 +19,12 @@
 
 namespace NosCore.Core.Serializing
 {
-    public abstract class PacketDefinition
+    public class PacketDefinition
     {
-        #region Properties
+        protected PacketDefinition() { }
 
         public string OriginalContent { get; set; }
 
         public string OriginalHeader { get; set; }
-
-        #endregion
     }
 }

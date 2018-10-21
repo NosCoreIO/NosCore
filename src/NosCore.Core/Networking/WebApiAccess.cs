@@ -30,6 +30,13 @@ namespace NosCore.Core.Networking
 {
     public class WebApiAccess
     {
+        private WebApiAccess()
+        {
+            if (BaseAddress == null)
+            {
+                throw new ArgumentNullException(nameof(BaseAddress));
+            }
+        }
         private static WebApiAccess _instance;
 
         private static Uri BaseAddress { get; set; }
@@ -38,18 +45,7 @@ namespace NosCore.Core.Networking
 
         public Dictionary<string, object> MockValues { get; set; } = new Dictionary<string, object>();
 
-        public static WebApiAccess Instance
-        {
-            get
-            {
-                if (BaseAddress == null)
-                {
-                    throw new NullReferenceException("baseAddress can't be null");
-                }
-
-                return _instance ?? (_instance = new WebApiAccess());
-            }
-        }
+        public static WebApiAccess Instance => _instance ?? (_instance = new WebApiAccess());
 
         public static StringContent Content { get; private set; }
 

@@ -588,7 +588,7 @@ namespace NosCore.Database
 
         public virtual DbSet<I18NActDesc> I18NActDesc { get; set; }
 
-        public virtual DbSet<I18NBCard> I18NBCard { get; set; }
+        public virtual DbSet<I18NBCard> I18NbCard { get; set; }
 
         public virtual DbSet<I18NCard> I18NCard { get; set; }
 

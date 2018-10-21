@@ -237,7 +237,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            var subpackets = (IList) Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
+            var subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (var currentValue in splittedValues)
@@ -279,7 +279,7 @@ namespace NosCore.Core.Serializing
             var splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
             var subpackets =
-                (IList) Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
+                (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             var subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
@@ -326,7 +326,7 @@ namespace NosCore.Core.Serializing
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new ArgumentNullException(
                         "The amount of splitted subpacket values without delimiter do not match the % property amount of the serialized type.");
                 }
             }
@@ -425,7 +425,7 @@ namespace NosCore.Core.Serializing
             if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)
                 && !packetIndexAttribute.SerializeToEnd)
             {
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(currentValue));
             }
 
             if (packetPropertyType == typeof(string) && currentValue == null)
@@ -458,7 +458,7 @@ namespace NosCore.Core.Serializing
 
             if (string.IsNullOrEmpty(header))
             {
-                throw new Exception($"Packet header cannot be empty. PacketType: {serializationType.Name}");
+                throw new ArgumentNullException($"Packet header cannot be empty. PacketType: {serializationType.Name}");
             }
 
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
@@ -503,7 +503,11 @@ namespace NosCore.Core.Serializing
 
                 for (var i = 1; i < listValueCount; i++)
                 {
-                    resultListPacket.Append(".").Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
+                    resultListPacket.Append(".")
+                        .Append(SerializeValue(
+                                    propertyType.GenericTypeArguments[0],
+                                    listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>())
+                        .Replace(" ", ""));
                 }
             }
 
@@ -648,14 +652,14 @@ namespace NosCore.Core.Serializing
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList) value, propertyType,
+                return SerializeSubpackets((IList)value, propertyType,
                     packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
             {
-                return SerializeSimpleList((IList) value, propertyType);
+                return SerializeSimpleList((IList)value, propertyType);
             }
 
             return $" {value}";
