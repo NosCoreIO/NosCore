@@ -96,9 +96,9 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
             _targetSession.SetCharacter(_targetChar.Adapt<Character>());
             _targetSession.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
-            ServerManager.Instance.Sessions = new ConcurrentDictionary<long, ClientSession>();
-            ServerManager.Instance.Sessions.TryAdd(_chara.CharacterId, _session);
-            ServerManager.Instance.Sessions.TryAdd(_targetChar.CharacterId, _targetSession);
+            ServerManager.Instance.ClientSessions = new ConcurrentDictionary<long, ClientSession>();
+            ServerManager.Instance.ClientSessions.TryAdd(_chara.CharacterId, _session);
+            ServerManager.Instance.ClientSessions.TryAdd(_targetChar.CharacterId, _targetSession);
         }
 
         [TestMethod]

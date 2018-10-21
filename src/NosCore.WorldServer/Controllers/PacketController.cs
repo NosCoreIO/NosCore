@@ -47,19 +47,19 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    ServerManager.Instance.Broadcast(message);
+                    ServerManager.Instance.Sessions.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
                     ClientSession receiverSession;
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {
-                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                        receiverSession = ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
                             s.Character?.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                        receiverSession = ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
                             s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
                     }
 

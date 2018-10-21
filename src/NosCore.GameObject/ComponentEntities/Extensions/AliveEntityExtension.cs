@@ -104,8 +104,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.Broadcast(new BroadcastPacket(null,
-                            nonPlayableEntity.GenerateMove(mapX, mapY), ReceiverType.All));
+                        nonPlayableEntity.MapInstance.Sessions.SendPacket(
+                            nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }

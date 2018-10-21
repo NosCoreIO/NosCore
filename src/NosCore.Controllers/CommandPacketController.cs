@@ -65,7 +65,7 @@ namespace NosCore.Controllers
         public void Teleport(TeleportPacket teleportPacket)
         {
             var session =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
+                ServerManager.Instance.ClientSessions.Values.FirstOrDefault(s =>
                     s.Character.Name == teleportPacket.TeleportArgument);
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))

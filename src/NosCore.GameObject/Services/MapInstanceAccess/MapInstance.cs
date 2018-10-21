@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels.Groups;
 using Mapster;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
@@ -64,6 +66,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _npcs = new ConcurrentDictionary<long, MapNpc>();
             DroppedList = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
+            LastUnregister = DateTime.Now.AddMinutes(-1);
         }
 
         public ConcurrentDictionary<long, MapItem> DroppedList { get; }
