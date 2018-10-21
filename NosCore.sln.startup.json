@@ -7,41 +7,8 @@
   "Version": 3,
 
   /*  Create an item in the dropdown list for each project in the solution?  */
-  "ListAllProjects": true,
+  "ListAllProjects": false,
 
-  /*
-        Dictionary of named configurations with one or multiple startup projects
-        and optional parameters like command line arguments and working directory.
-        Example:
-
-        "MultiProjectConfigurations": {
-            "A + B (Ext)": {
-                "Projects": {
-                    "MyProjectA": {},
-                    "MyProjectB": {
-                        "CommandLineArguments": "1234",
-                        "WorkingDirectory": "%USERPROFILE%\\test",
-                        "StartExternalProgram": "c:\\myprogram.exe"
-                    }
-                }
-            },
-            "A + B": {
-                "Projects": {
-                    "MyProjectA": {},
-                    "MyProjectB": {
-                        "CommandLineArguments": "",
-                        "WorkingDirectory": "",
-                        "StartProject": true
-                    }
-                }
-            },
-            "D": {
-                "Projects": {
-                    "MyProjectD": {}
-                }
-            }
-        }
-    */
   "MultiProjectConfigurations": {
     "World + Login + Master": {
       "Projects": {
@@ -64,6 +31,31 @@
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {},
         "NosCore.Parser": {},
+        "NosCore.PathFinder.Gui": {}
+      }
+    },
+    "LoginServer": {
+      "Projects": {
+        "NosCore.LoginServer": {}
+      }
+    },
+    "MasterServer": {
+      "Projects": {
+        "NosCore.MasterServer": {}
+      }
+    },
+    "WorldServer": {
+      "Projects": {
+        "NosCore.WorldServer": {}
+      }
+    },
+    "Parser": {
+      "Projects": {
+        "NosCore.Parser": {}
+      }
+    },
+    "Gui": {
+      "Projects": {
         "NosCore.PathFinder.Gui": {}
       }
     }
