@@ -30,7 +30,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking
 {
-    public class BroadcastableBase
+    public class BroadcastableBase //TODO remove
     {
         protected BroadcastableBase()
         {

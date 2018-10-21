@@ -711,14 +711,7 @@ namespace NosCore.GameObject.Helper
                 index++;
                 if (index % 10 == 0)
                 {
-                    if (index / 10 < 3)
-                    {
-                        increment3 -= index / 10 * 30;
-                    }
-                    else
-                    {
-                        increment3 -= 30;
-                    }
+                    increment3 -= (index / 10 < 3) ? index / 10 * 30 : 30;
                 }
             }
         }
