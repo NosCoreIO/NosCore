@@ -38,9 +38,9 @@ namespace NosCore.Tests
         {
             _group = new Group(GroupType.Group);
 
-            ServerManager.Instance.Groups = new ConcurrentDictionary<long, Group>();
+            GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
 
-            _group.GroupId = ServerManager.Instance.GetNextGroupId();
+            _group.GroupId = GroupAccess.Instance.GetNextGroupId();
         }
 
         [TestMethod]
