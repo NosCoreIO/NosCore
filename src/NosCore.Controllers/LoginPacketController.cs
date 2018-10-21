@@ -105,11 +105,6 @@ namespace NosCore.Controllers
                         });
                         break;
                     case AuthorityType.Closed:
-                        Session.SendPacket(new FailcPacket
-                        {
-                            Type = LoginFailType.CantConnect
-                        });
-                        break;
                     case AuthorityType.Unconfirmed:
                         Session.SendPacket(new FailcPacket
                         {

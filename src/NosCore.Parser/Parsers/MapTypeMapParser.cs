@@ -83,15 +83,8 @@ namespace NosCore.Parser.Parsers
                     mapTypeId = (short) MapTypeType.Act52;
                     objectset = true;
                 }
-                else if (i > 228 && i < 233)
+                else if ((i > 228 && i < 233) || (i > 232 && i < 238))
                 {
-                    // "act6.1a"
-                    mapTypeId = (short) MapTypeType.Act61;
-                    objectset = true;
-                }
-                else if (i > 232 && i < 238)
-                {
-                    // "act6.1d"
                     mapTypeId = (short) MapTypeType.Act61;
                     objectset = true;
                 }
