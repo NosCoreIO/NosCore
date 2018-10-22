@@ -93,12 +93,9 @@ namespace NosCore.GameObject
 
         public void JoinGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity)
+            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
             {
-                if (characterEntity.Channel != null)
-                {
-                    Sessions.Add(characterEntity.Channel);
-                }
+                Sessions.Add(characterEntity.Channel);
             }
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
                 new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
@@ -106,12 +103,9 @@ namespace NosCore.GameObject
 
         public void LeaveGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity)
+            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
             {
-                if (characterEntity.Channel != null)
-                {
-                    Sessions.Remove(characterEntity.Channel);
-                }
+                Sessions.Remove(characterEntity.Channel);
             }
             TryRemove(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), out _);
         }
