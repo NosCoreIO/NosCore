@@ -43,7 +43,7 @@ namespace NosCore.Controllers
         public void ManageGroup(PjoinPacket pjoinPacket)
         {
             var targetSession =
-                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                Broadcaster.Instance.GetClientSession(s =>
                     s.Character.CharacterId == pjoinPacket.CharacterId);
 
             if (targetSession == null && pjoinPacket.RequestType != GroupRequestType.Sharing)
@@ -147,7 +147,7 @@ namespace NosCore.Controllers
                         .ToList().ForEach(s =>
                         {
                             var session =
-                                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(v =>
+                                Broadcaster.Instance.GetClientSession(v =>
                                     v.Character.CharacterId == s.Item2.VisualId);
 
                             if (session == null)
@@ -250,7 +250,7 @@ namespace NosCore.Controllers
                     foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
                     {
                         var session =
-                            Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                            Broadcaster.Instance.GetClientSession(s =>
                                 s.Character.CharacterId == member.Item2.VisualId);
                         session?.SendPacket(currentGroup.GeneratePinit());
                         session?.SendPackets(currentGroup.GeneratePst());
@@ -328,7 +328,7 @@ namespace NosCore.Controllers
 
                 if (group.IsGroupLeader(Session.Character.CharacterId))
                 {
-                    var session = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                    var session = Broadcaster.Instance.GetClientSession(s =>
                         s.Character.CharacterId == group.Values.First().Item2.VisualId);
 
                     if (session == null)
@@ -350,7 +350,7 @@ namespace NosCore.Controllers
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var session =
-                        Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        Broadcaster.Instance.GetClientSession(s =>
                             s.Character.CharacterId == member.Item2.VisualId);
                     session?.SendPacket(session.Character.Group.GeneratePinit());
                     session?.SendPacket(new MsgPacket
@@ -374,7 +374,7 @@ namespace NosCore.Controllers
                 foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
                     var session =
-                        Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        Broadcaster.Instance.GetClientSession(s =>
                             s.Character.CharacterId == member.VisualId);
 
                     if (session == null)

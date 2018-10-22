@@ -191,7 +191,7 @@ namespace NosCore.GameObject
             Group.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
             {
-                var groupMember = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                var groupMember = Broadcaster.Instance.GetClientSession(s =>
                     s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
 
                 if (Group.Count == 1)
@@ -303,9 +303,7 @@ namespace NosCore.GameObject
         {
             foreach (var characterRelation in CharacterRelations)
             {
-                var targetSession = Broadcaster.Instance.ClientSessions.Where(s => s.Value.Character != null)
-                    .FirstOrDefault(s => s.Value.Character.CharacterId == characterRelation.Value.RelatedCharacterId)
-                    .Value;
+                var targetSession = Broadcaster.Instance.GetClientSession(s => s.Character != null && s.Character.CharacterId == characterRelation.Value.RelatedCharacterId);
 
                 if (targetSession != null)
                 {
@@ -427,8 +425,7 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType,
-                CharacterName = Broadcaster.Instance.ClientSessions.Values
-                    .FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name,
+                CharacterName = Broadcaster.Instance.GetClientSession(s => s.Character.CharacterId == characterId)?.Character.Name,
                 CharacterRelationId = Guid.NewGuid()
             };
 
@@ -467,7 +464,7 @@ namespace NosCore.GameObject
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
             Session.SendPacket(GenerateFinit());
 
-            var targetSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+            var targetSession = Broadcaster.Instance.GetClientSession(s =>
                 s.Character.CharacterId == targetCharacterRelation.CharacterId);
             if (targetSession != null)
             {

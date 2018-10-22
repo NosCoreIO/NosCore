@@ -56,12 +56,12 @@ namespace NosCore.WorldServer.Controllers
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {
-                        receiverSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        receiverSession = Broadcaster.Instance.GetClientSession(s =>
                             s.Character?.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
+                        receiverSession = Broadcaster.Instance.GetClientSession(s =>
                             s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
                     }
 
