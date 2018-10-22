@@ -62,21 +62,22 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
+            Broadcaster.Instance.Reset();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
             Logger.InitializeLogger(LogManager.GetLogger(typeof(GroupPacketControllerTests)));
-            var map = new MapDto { MapId = 1 };
-            DaoFactory.MapDao.InsertOrUpdate(ref map);
-
-            Broadcaster.Instance.ClientSessions = new ConcurrentDictionary<long, ClientSession>();
+        
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = new ClientSession(null, new List<PacketController> { new GroupPacketController() }, null);
-                Broadcaster.Instance.ClientSessions.TryAdd(i, session);
+                var handler = new GroupPacketController();
+                var session = new ClientSession(null, new List<PacketController> { handler }, null);
+                session.SessionId = i;
+            
+                Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
                 var charaDto = new CharacterDto
                 {
@@ -89,7 +90,6 @@ namespace NosCore.Tests.HandlerTests
                 };
 
                 session.InitializeAccount(acc);
-                var handler = new GroupPacketController();
                 _handlers.Add(handler);
                 handler.RegisterSession(session);
 
@@ -204,8 +204,7 @@ namespace NosCore.Tests.HandlerTests
 
             Assert.IsTrue(_characters[0].Group.IsGroupFull
                 && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull && Broadcaster
-                    .Instance.ClientSessions.Values.ElementAt(0).Character.Group
+                && _characters[2].Group.IsGroupFull && _characters[0].Group
                     .IsGroupLeader(_characters[0].CharacterId));
 
             _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
@@ -215,7 +214,7 @@ namespace NosCore.Tests.HandlerTests
         }
 
         [TestMethod]
-        public void Test_Leaveing_Two_Person_Group()
+        public void Test_Leaving_Three_Person_Group()
         {
             for (var i = 1; i < 3; i++)
             {
@@ -233,8 +232,7 @@ namespace NosCore.Tests.HandlerTests
 
             Assert.IsTrue(_characters[0].Group.IsGroupFull
                 && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull && Broadcaster
-                    .Instance.ClientSessions.Values.ElementAt(0).Character.Group
+                && _characters[2].Group.IsGroupFull && _characters[0].Group
                     .IsGroupLeader(_characters[0].CharacterId));
 
             _handlers.ElementAt(1).LeaveGroup(new PleavePacket());

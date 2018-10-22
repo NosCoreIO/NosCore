@@ -19,6 +19,9 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -34,7 +37,7 @@ namespace NosCore.GameObject.Networking
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        public ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; set; } = new ConcurrentDictionary<long, ClientSession.ClientSession>(); //todo remove access to this to avoid concurrency issue
+        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; set; } = new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
         private static Broadcaster _instance;
 
@@ -63,5 +66,22 @@ namespace NosCore.GameObject.Networking
         }
 
         public DateTime LastUnregister { get; set; }
+
+        public IEnumerable<ClientSession.ClientSession> GetClientSessions() => GetClientSessions(null);
+        public IEnumerable<ClientSession.ClientSession> GetClientSessions(Func<ClientSession.ClientSession, bool> func)
+        {
+            return func == null ? ClientSessions.Values : ClientSessions.Values.Where(func);
+        }
+
+        public ClientSession.ClientSession GetClientSession() => GetClientSession(null);
+        public ClientSession.ClientSession GetClientSession(Func<ClientSession.ClientSession, bool> func)
+        {
+            return func == null ? ClientSessions.Values.FirstOrDefault(): ClientSessions.Values.FirstOrDefault(func);
+        }
+
+        public void Reset()
+        {
+            _instance = null;
+        }
     }
 }
