@@ -17,15 +17,50 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
+        {
+            //same canal
+            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            var accounts = new List<ConnectedAccount>();
+            foreach (var server in servers)
+            {
+                accounts.AddRange(
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
+            }
+
+            var subpackets = new List<FinitSubPacket>();
+            foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
+                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            {
+                var account = accounts.Find(s =>
+                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+                subpackets.Add(new FinitSubPacket
+                {
+                    CharacterId = relation.RelatedCharacterId,
+                    RelationType = relation.RelationType,
+                    IsOnline = account != null,
+                    CharacterName = relation.CharacterName
+                });
+            }
+
+            return new FinitPacket { SubPackets = subpackets };
+        }
+
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
         {
             return new ServerGetPacket
@@ -99,7 +134,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = visualEntity.GroupId,
+                    GroupId = visualEntity.Group.GroupId,
                     Fairy = 0,
                     FairyElement = 0,
                     Unknown = 0,

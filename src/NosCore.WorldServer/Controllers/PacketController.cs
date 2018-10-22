@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -52,17 +53,17 @@ namespace NosCore.WorldServer.Controllers
                     Broadcaster.Instance.Sessions.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
-                    ClientSession receiverSession;
+                    ICharacterEntity receiverSession;
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {
-                        receiverSession = Broadcaster.Instance.GetClientSession(s =>
-                            s.Character?.Name == postedPacket.ReceiverCharacter.Name);
+                        receiverSession = Broadcaster.Instance.GetCharacter(s =>
+                            s.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = Broadcaster.Instance.GetClientSession(s =>
-                            s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
+                        receiverSession = Broadcaster.Instance.GetCharacter(s =>
+                            s.VisualId == postedPacket.ReceiverCharacter.Id);
                     }
 
                     if (receiverSession == null)

@@ -19,6 +19,7 @@
 
 using System;
 using System.Reactive.Linq;
+using System.Threading;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -51,6 +52,7 @@ namespace NosCore.GameObject
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
+
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public string Name { get; set; }
@@ -66,6 +68,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
+        public Group Group { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {
