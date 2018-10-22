@@ -17,8 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Transport.Channels.Groups;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -395,9 +397,9 @@ namespace NosCore.Controllers
                 return;
             }
 
-            Broadcaster.Instance.Sessions.SendPacket(
+            Session.Character.Group.Sessions.SendPacket(
                 Session.Character.GenerateSpk(new SpeakPacket
-                { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group })); //TODO ReceiverType.Group
+                { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
         }
     }
 }
