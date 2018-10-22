@@ -105,7 +105,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Accept_Group_Join_Requested()
         {
             _characters[1].GroupRequestCharacterIds
-                .Add(_characters[0].CharacterId);
+                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
@@ -128,7 +128,7 @@ namespace NosCore.Tests.HandlerTests
             for (var i = 1; i < 3; i++)
             {
                 _characters[i].GroupRequestCharacterIds
-                    .Add(_characters[0].CharacterId);
+                    .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
                 pjoinPacket = new PjoinPacket
                 {
@@ -144,7 +144,7 @@ namespace NosCore.Tests.HandlerTests
                 && _characters[2].Group.IsGroupFull);
 
             _characters[3].GroupRequestCharacterIds
-                .Add(_characters[0].CharacterId);
+                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
             pjoinPacket = new PjoinPacket
             {
@@ -164,7 +164,7 @@ namespace NosCore.Tests.HandlerTests
             for (var i = 1; i < 3; i++)
             {
                 _characters[i].GroupRequestCharacterIds
-                    .Add(_characters[0].CharacterId);
+                    .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
                 var pjoinPacket = new PjoinPacket
                 {
@@ -191,7 +191,7 @@ namespace NosCore.Tests.HandlerTests
             for (var i = 1; i < 3; i++)
             {
                 _characters[i].GroupRequestCharacterIds
-                    .Add(_characters[0].CharacterId);
+                    .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
                 var pjoinPacket = new PjoinPacket
                 {
@@ -219,7 +219,7 @@ namespace NosCore.Tests.HandlerTests
             for (var i = 1; i < 3; i++)
             {
                 _characters[i].GroupRequestCharacterIds
-                    .Add(_characters[0].CharacterId);
+                    .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
                 var pjoinPacket = new PjoinPacket
                 {
@@ -245,7 +245,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Decline_Group_Join_Requested()
         {
             _characters[1].GroupRequestCharacterIds
-                .Add(_characters[0].CharacterId);
+                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
@@ -262,7 +262,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Leaving_Two_Person_Group()
         {
             _characters[1].GroupRequestCharacterIds
-                .Add(_characters[0].CharacterId);
+                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {

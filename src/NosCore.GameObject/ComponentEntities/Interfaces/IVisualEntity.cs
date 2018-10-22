@@ -27,15 +27,15 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
     {
         VisualType VisualType { get; }
 
-        short VNum { get; set; }
+        short VNum { get; }
 
         long VisualId { get; }
 
-        byte Direction { get; set; }
+        byte Direction { get; }
 
-        Guid MapInstanceId { get; set; }
+        Guid MapInstanceId { get; }
 
-        MapInstance MapInstance { get; set; }
+        MapInstance MapInstance { get; }
 
         short PositionX { get; set; }
 
