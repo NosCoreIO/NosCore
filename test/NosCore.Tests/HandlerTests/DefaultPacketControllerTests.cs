@@ -126,6 +126,11 @@ namespace NosCore.Tests.HandlerTests
                 && _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
 
+        //TODO add add friend when disconnected
+        //TODO add add blacklist when disconnected
+        //TODO add delete friend when disconnected
+        //TODO add delete blacklist when disconnected
+
         [TestMethod]
         public void Test_Add_Distant_Friend()
         {
