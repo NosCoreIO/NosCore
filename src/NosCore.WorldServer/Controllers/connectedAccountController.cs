@@ -36,7 +36,7 @@ namespace NosCore.WorldServer.Controllers
         [HttpGet]
         public List<ConnectedAccount> GetconnectedAccount()
         {
-            return Broadcaster.Instance.ClientSessions.Values.Select(s =>
+            return Broadcaster.Instance.GetClientSessions().Select(s =>
                 new ConnectedAccount
                 {
                     Name = s.Account.Name,

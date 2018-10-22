@@ -240,7 +240,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Parallel.ForEach(
-                   Broadcaster.Instance.ClientSessions.Values.Where(s => s.Character != null && s != this && s.Character.MapInstance.MapInstanceId == Character.MapInstanceId),
+                   Broadcaster.Instance.GetClientSessions(s => s.Character != null && s != this && s.Character.MapInstance.MapInstanceId == Character.MapInstanceId),
                     s => SendPacket(s.Character.GenerateIn(s.Character.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
