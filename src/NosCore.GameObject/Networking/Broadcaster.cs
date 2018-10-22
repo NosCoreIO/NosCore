@@ -29,9 +29,9 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Networking
 {
-    public class Broadcaster
+    public class Broadcaster : IBroadcastable
     {
-        protected Broadcaster()
+        private Broadcaster()
         {
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
@@ -47,13 +47,12 @@ namespace NosCore.GameObject.Networking
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
-            Instance.ClientSessions.TryRemove(clientSession.SessionId, out _);
+            ClientSessions.TryRemove(clientSession.SessionId, out _);
 
             if (clientSession.Channel != null)
             {
                 Sessions.Remove(clientSession.Channel);
             }
-            LastUnregister = DateTime.Now;
         }
 
         public void RegisterSession(ClientSession.ClientSession clientSession)
@@ -62,10 +61,8 @@ namespace NosCore.GameObject.Networking
             {
                 Sessions.Add(clientSession.Channel);
             }
-            Instance.ClientSessions.TryAdd(clientSession.SessionId, clientSession);
+            ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
-
-        public DateTime LastUnregister { get; set; }
 
         public IEnumerable<ICharacterEntity> GetCharacters() => GetCharacters(null);
         

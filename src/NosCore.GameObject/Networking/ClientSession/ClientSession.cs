@@ -186,7 +186,12 @@ namespace NosCore.GameObject.Networking.ClientSession
             try
             {
                 Character.IsChangingMapInstance = true;
-                Character.MapInstance.UnregisterSession(this);
+
+                if (Channel != null)
+                {
+                    Character.MapInstance.Sessions.Remove(Channel);
+                }
+                Character.MapInstance.LastUnregister = DateTime.Now;
                 LeaveMap(this);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
@@ -244,7 +249,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                     s => SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
-                Character.MapInstance.RegisterSession(this);
+                if (Channel != null)
+                {
+                    Character.MapInstance.Sessions.Add(Channel);
+                }
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)

@@ -42,7 +42,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
-    public class MapInstance : Broadcaster
+    public class MapInstance : IBroadcastable
     {
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
@@ -53,6 +53,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         private bool _isSleeping;
         private bool _isSleepingRequest;
 
+        public DateTime LastUnregister { get; set; }
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             List<NpcMonsterDto> npcMonsters)
         {
@@ -69,7 +70,11 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             DroppedList = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
             LastUnregister = DateTime.Now.AddMinutes(-1);
+            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
+            Sessions = new DefaultChannelGroup(executor);
         }
+
+        public IChannelGroup Sessions { get; set; }
 
         public ConcurrentDictionary<long, MapItem> DroppedList { get; }
 
