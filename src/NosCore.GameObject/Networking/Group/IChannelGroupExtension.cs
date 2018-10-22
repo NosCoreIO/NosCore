@@ -7,7 +7,7 @@ namespace NosCore.GameObject.Networking.Group
 {
     public static class IChannelGroupExtension
     {
-        public static void SendPacket(this IChannelGroup channelGroup, PacketDefinition packet) 
+        public static void SendPacket(this IChannelGroup channelGroup, PacketDefinition packet)
             => channelGroup.SendPackets(new[] { packet });
 
         public static void SendPacket(this IChannelGroup channelGroup, PacketDefinition packet, IChannelMatcher matcher)
@@ -22,7 +22,14 @@ namespace NosCore.GameObject.Networking.Group
                 return;
             }
 
-            channelGroup?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+            if (matcher == null)
+            {
+                channelGroup?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+            }
+            else
+            {
+                channelGroup?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions), matcher);
+            }
         }
 
 
