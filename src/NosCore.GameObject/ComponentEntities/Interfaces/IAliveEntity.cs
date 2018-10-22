@@ -21,40 +21,40 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {
-        bool IsSitting { get; set; }
+        bool IsSitting { get; }
 
-        byte Class { get; set; }
+        byte Class { get; }
 
-        byte Speed { get; set; }
+        byte Speed { get; }
 
-        int Mp { get; set; }
+        int Mp { get; }
 
-        int Hp { get; set; }
+        int Hp { get; }
 
-        byte Morph { get; set; }
+        byte Morph { get; }
 
-        byte MorphUpgrade { get; set; }
+        byte MorphUpgrade { get; }
 
-        byte MorphDesign { get; set; }
+        byte MorphDesign { get; }
 
-        byte MorphBonus { get; set; }
+        byte MorphBonus { get; }
 
-        bool NoAttack { get; set; }
+        bool NoAttack { get; }
 
-        bool NoMove { get; set; }
+        bool NoMove { get; }
 
-        bool IsAlive { get; set; }
+        bool IsAlive { get; }
 
-        short MapX { get; set; }
+        short MapX { get; }
 
-        short MapY { get; set; }
+        short MapY { get; }
 
         int MaxHp { get; }
 
         int MaxMp { get; }
 
-        byte Level { get; set; }
+        byte Level { get; }
 
-        byte HeroLevel { get; set; }
+        byte HeroLevel { get; }
     }
 }
