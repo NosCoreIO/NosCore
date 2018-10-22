@@ -94,6 +94,7 @@ namespace NosCore.Tests.HandlerTests
                 handler.RegisterSession(session);
 
                 var chara = charaDto.Adapt<Character>();
+                chara.Session = session;
                 _characters.Add(i, chara);
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
