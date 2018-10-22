@@ -21,6 +21,7 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
 
@@ -39,20 +40,20 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var session = Broadcaster.Instance.GetClientSession(s =>
-                s.Character?.CharacterRelations.Any(r => r.Key == id) ?? false);
+            var session = Broadcaster.Instance.GetCharacter(s =>
+                s.CharacterRelations.Any(r => r.Key == id));
 
             if (session == null)
             {
                 return Ok();
             }
 
-            session.Character.CharacterRelations.TryRemove(id, out var relation);
-            session.Character.CharacterRelations.TryRemove(
-                session.Character.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId)
+            session.CharacterRelations.TryRemove(id, out var relation);
+            session.CharacterRelations.TryRemove(
+                session.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId)
                     .CharacterRelationId, out _);
 
-            session.SendPacket(session.Character.GenerateFinit());
+            session.SendPacket(session.GenerateFinit());
 
             return Ok(relation);
         }

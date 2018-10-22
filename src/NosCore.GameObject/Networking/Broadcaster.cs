@@ -21,11 +21,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.Group;
+using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Networking
 {
@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Networking
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; set; } = new ConcurrentDictionary<long, ClientSession.ClientSession>();
+        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
         private static Broadcaster _instance;
 
@@ -67,21 +67,32 @@ namespace NosCore.GameObject.Networking
 
         public DateTime LastUnregister { get; set; }
 
-        public IEnumerable<ClientSession.ClientSession> GetClientSessions() => GetClientSessions(null);
-        public IEnumerable<ClientSession.ClientSession> GetClientSessions(Func<ClientSession.ClientSession, bool> func)
+        public IEnumerable<ICharacterEntity> GetCharacters() => GetCharacters(null);
+        
+        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool> func)
         {
-            return func == null ? ClientSessions.Values : ClientSessions.Values.Where(func);
+            return (func == null ? ClientSessions.Values.Where(s=>s.Character!=null).Select(s=>s.Character) : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
         }
-
-        public ClientSession.ClientSession GetClientSession() => GetClientSession(null);
-        public ClientSession.ClientSession GetClientSession(Func<ClientSession.ClientSession, bool> func)
+        public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
         {
-            return func == null ? ClientSessions.Values.FirstOrDefault(): ClientSessions.Values.FirstOrDefault(func);
+            return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func));
         }
 
         public void Reset()
         {
             _instance = null;
+        }
+
+        public List<ConnectedAccount> ConnectedAccounts()
+        {
+            return ClientSessions.Values.Select(s =>
+                new ConnectedAccount
+                {
+                    Name = s.Account.Name,
+                    Language = s.Account.Language,
+                    ChannelId = MasterClientListSingleton.Instance.ChannelId,
+                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character { Name = s.Character.Name, Id = s.Character.CharacterId }
+                }).ToList();
         }
     }
 }
