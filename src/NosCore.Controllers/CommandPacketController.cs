@@ -66,8 +66,8 @@ namespace NosCore.Controllers
         public void Teleport(TeleportPacket teleportPacket)
         {
             var session =
-                Broadcaster.Instance.ClientSessions.Values.FirstOrDefault(s =>
-                    s.Character.Name == teleportPacket.TeleportArgument);
+                Broadcaster.Instance.GetCharacter(s =>
+                    s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
@@ -78,7 +78,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                Session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
+                Session.ChangeMapInstance(session.MapInstanceId, session.MapX, session.MapY);
                 return;
             }
 

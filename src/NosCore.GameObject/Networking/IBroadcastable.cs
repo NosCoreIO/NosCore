@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Groups;
+
+namespace NosCore.GameObject
 {
-    public interface INamedEntity : IAliveEntity
+    internal interface IBroadcastable
     {
-        Group Group { get; set; }
-        string Name { get; }
+        IChannelGroup Sessions { get; set; }
     }
 }

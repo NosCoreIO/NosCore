@@ -42,11 +42,13 @@ namespace NosCore.Tests.HandlerTests
         private CharacterDto _chara;
         private CharacterDto _targetChar;
         private DefaultPacketController _handler;
+        private DefaultPacketController _handler2;
 
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
+            Broadcaster.Instance.Reset();
             var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -58,9 +60,17 @@ namespace NosCore.Tests.HandlerTests
             var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
+            WebApiAccess.RegisterBaseAdress();
+            WebApiAccess.Instance.MockValues =
+                new Dictionary<string, object>
+                {
+                    { "api/channels", new List<WorldServerInfo> { new WorldServerInfo() } },
+                    { "api/connectedAccount", new List<ConnectedAccount>() }
+                };
 
             _chara = new CharacterDto
             {
+                CharacterId = 0,
                 Name = "TestExistingCharacter",
                 Slot = 1,
                 AccountId = account.AccountId,
@@ -70,6 +80,7 @@ namespace NosCore.Tests.HandlerTests
 
             _targetChar = new CharacterDto
             {
+                CharacterId = 1,
                 Name = "TestChar2",
                 Slot = 1,
                 AccountId = targetAccount.AccountId,
@@ -79,27 +90,26 @@ namespace NosCore.Tests.HandlerTests
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(account);
+            _session.SessionId = 1;
             _handler = new DefaultPacketController(null, null);
             _handler.RegisterSession(_session);
+
+            _targetSession.InitializeAccount(targetAccount);
+            _targetSession.SessionId = 2;
+            _handler2 = new DefaultPacketController(null, null);
+            _handler2.RegisterSession(_targetSession);
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
             _targetSession.InitializeAccount(targetAccount);
 
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues =
-                new Dictionary<string, object>
-                {
-                    { "api/channels", new List<WorldServerInfo> { new WorldServerInfo() } },
-                    { "api/connectedAccount", new List<ConnectedAccount>() }
-                };
-
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
+
             _targetSession.SetCharacter(_targetChar.Adapt<Character>());
             _targetSession.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
-            Broadcaster.Instance.ClientSessions = new ConcurrentDictionary<long, ClientSession>();
-            Broadcaster.Instance.ClientSessions.TryAdd(_chara.CharacterId, _session);
-            Broadcaster.Instance.ClientSessions.TryAdd(_targetChar.CharacterId, _targetSession);
+
+            Broadcaster.Instance.RegisterSession(_session);
+            Broadcaster.Instance.RegisterSession(_targetSession);
         }
 
         [TestMethod]
@@ -115,6 +125,11 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _targetSession.Character.CharacterId)
                 && _targetSession.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
+
+        //TODO add add friend when disconnected
+        //TODO add add blacklist when disconnected
+        //TODO add delete friend when disconnected
+        //TODO add delete blacklist when disconnected
 
         [TestMethod]
         public void Test_Add_Distant_Friend()

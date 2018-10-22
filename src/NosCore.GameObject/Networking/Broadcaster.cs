@@ -19,22 +19,25 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.Group;
+using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Networking
 {
-    public class Broadcaster
+    public class Broadcaster : IBroadcastable
     {
-        protected Broadcaster()
+        private Broadcaster()
         {
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        public ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; set; } = new ConcurrentDictionary<long, ClientSession.ClientSession>(); //todo remove access to this to avoid concurrency issue
+        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
         private static Broadcaster _instance;
 
@@ -44,26 +47,12 @@ namespace NosCore.GameObject.Networking
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
-            if (clientSession.Character != null)
-            {
-                if (clientSession.Character.Hp < 1)
-                {
-                    clientSession.Character.Hp = 1;
-                }
-
-                clientSession.Character.SendRelationStatus(false);
-                clientSession.Character.LeaveGroup();
-                clientSession.Character.MapInstance?.Sessions.SendPacket(clientSession.Character.GenerateOut());
-
-                clientSession.Character.Save();
-            }
-            Instance.ClientSessions.TryRemove(clientSession.SessionId, out _);
+            ClientSessions.TryRemove(clientSession.SessionId, out _);
 
             if (clientSession.Channel != null)
             {
                 Sessions.Remove(clientSession.Channel);
             }
-            LastUnregister = DateTime.Now;
         }
 
         public void RegisterSession(ClientSession.ClientSession clientSession)
@@ -72,9 +61,35 @@ namespace NosCore.GameObject.Networking
             {
                 Sessions.Add(clientSession.Channel);
             }
-            Instance.ClientSessions.TryAdd(clientSession.SessionId, clientSession);
+            ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
-        public DateTime LastUnregister { get; set; }
+        public IEnumerable<ICharacterEntity> GetCharacters() => GetCharacters(null);
+        
+        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool> func)
+        {
+            return (func == null ? ClientSessions.Values.Where(s=>s.Character!=null).Select(s=>s.Character) : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
+        }
+        public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
+        {
+            return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func));
+        }
+
+        public void Reset()
+        {
+            _instance = null;
+        }
+
+        public List<ConnectedAccount> ConnectedAccounts()
+        {
+            return ClientSessions.Values.Select(s =>
+                new ConnectedAccount
+                {
+                    Name = s.Account.Name,
+                    Language = s.Account.Language,
+                    ChannelId = MasterClientListSingleton.Instance.ChannelId,
+                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character { Name = s.Character.Name, Id = s.Character.CharacterId }
+                }).ToList();
+        }
     }
 }
