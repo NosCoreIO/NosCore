@@ -438,7 +438,7 @@
     <value>Server need at least nosville MAP to work!</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
-    <value>No special proprieties wearable</value>
+    <value>No special properties wearable</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Loaded!</value>
@@ -568,7 +568,7 @@
     <value>Unknown PicketType</value>
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
-    <value>Unknown Reciver type</value>
+    <value>Unknown Reciever type</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
