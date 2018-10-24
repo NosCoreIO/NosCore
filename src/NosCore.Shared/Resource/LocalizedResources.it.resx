@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Hai accettato la condivisione del punto con {0}!</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
@@ -126,8 +129,14 @@
   <data name="ADVENTURER" xml:space="preserve">
     <value>Avventuriero</value>
   </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Già nella lista nera!</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Siete già amici!</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>Sei già in gruppo!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Questo nome è già in uso !</value>
@@ -211,11 +220,17 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Ci sono troppi oggetti in mappa! Prova più tardi</value>
   </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Errore di codifica: {0}</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Errore di decodifica</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Disconnessione forzata del client {0}, troppe connessioni</value>
@@ -240,6 +255,40 @@
   </data>
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Richiesta di amicizia bloccata!</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Richiesta di amicizia inviata</value>
+  </data>
+  <data name="GOLD_SET" xml:space="preserve">
+    <value>Oro assegnato</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Tipo di richiesta gruppo sconosciuto</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>Sei il leader del gruppo</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>L'utente ha bloccato gli inviti di gruppo</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Il gruppo è stato sciolto</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Il gruppo è pieno</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Richiesta di invito di gruppo inviata a: {0}</value>
+  </data>
+  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
+    <value>Il leader del gruppo è cambiato!</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>{0} ha rifiutato la tua richiesta di gruppo</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>Hai inviato una richiesta per condividere il punto di ritorno con i membri del tuo gruppo</value>
   </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Handler Error</value>
@@ -286,11 +335,28 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
   </data>
+  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
+    <value>Argomenti di teletrasporto non validi</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Vuoi impostare come punto di ritorno da: {0}?</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} ti ha inviato una richiesta di gruppo</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Tipo di invito sconosciuto</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Item caricati.</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Items sincronizzati !</value>
+  </data>
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
+    <value>Tipo di invito sconosciuto</value>
+    <comment>insert missing type data</comment>
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Hai ricevuto</value>
@@ -303,6 +369,16 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Non puoi gettare quest'oggetto in questa mappa!</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Ti sei unito al gruppo</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Lingua mancante</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} ha lasciato il gruppo</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Ascolto della porta {0}</value>
@@ -325,6 +401,9 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapTypes Sincronizzati!</value>
   </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>Questa mappa non esiste!</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer avviato con successo.</value>
   </data>
@@ -337,6 +416,9 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Sincronizzati!</value>
   </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>Sei il nuovo leader del gruppo!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Non hai spazio sufficiente!</value>
   </data>
@@ -348,6 +430,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Nessuna proprietà speciale indossabile</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Caricati.</value>
@@ -421,6 +506,10 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Vuoi sincronizzare TimeSpaces?</value>
   </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>PocketType sconosciuto</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portali Sincronizzati!</value>
   </data>
@@ -443,6 +532,9 @@
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Messaggio inviato a {0}</value>
   </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>Hai rifiutato di condividere il punto di ritorno con i membri del gruppo</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
@@ -461,6 +553,20 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Spadaccino</value>
   </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Impossibile richiedere il gruppo</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Tipo di equipaggiamento sconosciuto: {0}</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>PicketType sconosciuto</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Tipo di destinatario sconosciuto</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Pacchetto Master non riconosciuto</value>
     <comment>revisionare</comment>
@@ -468,6 +574,18 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Non registrato dal MasterServer</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>L'utente non è un amico!</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>L'utente non è connesso</value>
+  </data>
+  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
+    <value>Utente teleportato su una mappa non esistente</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>VisualType sconosciuto: {0}</value>
   </data>
   <data name="WRESTLER" xml:space="preserve">
     <value>Lottatore</value>

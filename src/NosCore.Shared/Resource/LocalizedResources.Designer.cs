@@ -979,7 +979,7 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No special proprieties wearable.
+        ///   Looks up a localized string similar to No special properties wearable.
         /// </summary>
         public static string NO_SPECIAL_PROPERTIES_WEARABLE {
             get {
@@ -1384,7 +1384,7 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown Reciver type.
+        ///   Looks up a localized string similar to Unknown Reciever type.
         /// </summary>
         public static string UNKWNOWN_RECEIVERTYPE {
             get {
