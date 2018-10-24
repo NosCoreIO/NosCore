@@ -8,15 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.CodeDom.Compiler;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Resources;
-using System.Runtime.CompilerServices;
-
 namespace NosCore.Shared.Resource {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -24,27 +19,27 @@ namespace NosCore.Shared.Resource {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
-    [DebuggerNonUserCode()]
-    [CompilerGenerated()]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LocalizedResources {
         
-        private static ResourceManager resourceMan;
+        private static global::System.Resources.ResourceManager resourceMan;
         
-        private static CultureInfo resourceCulture;
+        private static global::System.Globalization.CultureInfo resourceCulture;
         
-        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal LocalizedResources() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public static ResourceManager ResourceManager {
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
-                if (ReferenceEquals(resourceMan, null)) {
-                    ResourceManager temp = new ResourceManager("NosCore.Shared.Resource.LocalizedResources", typeof(LocalizedResources).Assembly);
+                if (object.ReferenceEquals(resourceMan, null)) {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NosCore.Shared.Resource.LocalizedResources", typeof(LocalizedResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -55,13 +50,22 @@ namespace NosCore.Shared.Resource {
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public static CultureInfo Culture {
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You accepted point share with {0}!.
+        /// </summary>
+        public static string ACCEPTED_SHARE {
+            get {
+                return ResourceManager.GetString("ACCEPTED_SHARE", resourceCulture);
             }
         }
         
@@ -93,11 +97,29 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Already in blacklist!.
+        /// </summary>
+        public static string ALREADY_BLACKLISTED {
+            get {
+                return ResourceManager.GetString("ALREADY_BLACKLISTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You are already Friends!.
         /// </summary>
         public static string ALREADY_FRIEND {
             get {
                 return ResourceManager.GetString("ALREADY_FRIEND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are already in group!.
+        /// </summary>
+        public static string ALREADY_IN_GROUP {
+            get {
+                return ResourceManager.GetString("ALREADY_IN_GROUP", resourceCulture);
             }
         }
         
@@ -345,6 +367,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Encode Error: {0}.
+        /// </summary>
+        public static string ENCODE_ERROR {
+            get {
+                return ResourceManager.GetString("ENCODE_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please enter the directory of files to parse.
         /// </summary>
         public static string ENTER_PATH {
@@ -359,6 +390,15 @@ namespace NosCore.Shared.Resource {
         public static string ERROR_CHANGE_MAP {
             get {
                 return ResourceManager.GetString("ERROR_CHANGE_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decoding error.
+        /// </summary>
+        public static string ERROR_DECODING {
+            get {
+                return ResourceManager.GetString("ERROR_DECODING", resourceCulture);
             }
         }
         
@@ -426,11 +466,119 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Friend request sent.
+        /// </summary>
+        public static string FRIEND_REQUEST_SENT {
+            get {
+                return ResourceManager.GetString("FRIEND_REQUEST_SENT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your Friendlist is full!.
         /// </summary>
         public static string FRIENDLIST_FULL {
             get {
                 return ResourceManager.GetString("FRIENDLIST_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gold changed!.
+        /// </summary>
+        public static string GOLD_SET {
+            get {
+                return ResourceManager.GetString("GOLD_SET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re group admin!.
+        /// </summary>
+        public static string GROUP_ADMIN {
+            get {
+                return ResourceManager.GetString("GROUP_ADMIN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User blocked group invites.
+        /// </summary>
+        public static string GROUP_BLOCKED {
+            get {
+                return ResourceManager.GetString("GROUP_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group disbanded.
+        /// </summary>
+        public static string GROUP_CLOSED {
+            get {
+                return ResourceManager.GetString("GROUP_CLOSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group is full.
+        /// </summary>
+        public static string GROUP_FULL {
+            get {
+                return ResourceManager.GetString("GROUP_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group invite request sent to: {0}.
+        /// </summary>
+        public static string GROUP_INVITE {
+            get {
+                return ResourceManager.GetString("GROUP_INVITE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group leader changed!.
+        /// </summary>
+        public static string GROUP_LEADER_CHANGE {
+            get {
+                return ResourceManager.GetString("GROUP_LEADER_CHANGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You left the party.
+        /// </summary>
+        public static string GROUP_LEFT {
+            get {
+                return ResourceManager.GetString("GROUP_LEFT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} refused your group request.
+        /// </summary>
+        public static string GROUP_REFUSED {
+            get {
+                return ResourceManager.GetString("GROUP_REFUSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You sent a request to share the point of return with the members of your group.
+        /// </summary>
+        public static string GROUP_SHARE_INFO {
+            get {
+                return ResourceManager.GetString("GROUP_SHARE_INFO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Group request type.
+        /// </summary>
+        public static string GROUPREQUESTTYPE_UNKNOWN {
+            get {
+                return ResourceManager.GetString("GROUPREQUESTTYPE_UNKNOWN", resourceCulture);
             }
         }
         
@@ -570,6 +718,42 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid teleport arguments.
+        /// </summary>
+        public static string INVALID_TELEPORT_ARGUMENTS {
+            get {
+                return ResourceManager.GetString("INVALID_TELEPORT_ARGUMENTS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to set as a return point from : {0} ?.
+        /// </summary>
+        public static string INVITED_GROUP_SHARE {
+            get {
+                return ResourceManager.GetString("INVITED_GROUP_SHARE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} sent you a group request.
+        /// </summary>
+        public static string INVITED_YOU_GROUP {
+            get {
+                return ResourceManager.GetString("INVITED_YOU_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Invite type.
+        /// </summary>
+        public static string INVITETYPE_UNKNOWN {
+            get {
+                return ResourceManager.GetString("INVITETYPE_UNKNOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Acquired.
         /// </summary>
         public static string ITEM_ACQUIRED {
@@ -624,6 +808,42 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown Item type.
+        /// </summary>
+        public static string ITEMTYPE_UNKNOWN {
+            get {
+                return ResourceManager.GetString("ITEMTYPE_UNKNOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You joined the group.
+        /// </summary>
+        public static string JOINED_GROUP {
+            get {
+                return ResourceManager.GetString("JOINED_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing language.
+        /// </summary>
+        public static string LANGUAGE_MISSING {
+            get {
+                return ResourceManager.GetString("LANGUAGE_MISSING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} left the party.
+        /// </summary>
+        public static string LEAVE_GROUP {
+            get {
+                return ResourceManager.GetString("LEAVE_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Listening Port {0}.
         /// </summary>
         public static string LISTENING_PORT {
@@ -638,6 +858,15 @@ namespace NosCore.Shared.Resource {
         public static string MAGICIAN {
             get {
                 return ResourceManager.GetString("MAGICIAN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This map does not exist!.
+        /// </summary>
+        public static string MAP_DONT_EXIST {
+            get {
+                return ResourceManager.GetString("MAP_DONT_EXIST", resourceCulture);
             }
         }
         
@@ -723,6 +952,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You are the new party leader!.
+        /// </summary>
+        public static string NEW_LEADER {
+            get {
+                return ResourceManager.GetString("NEW_LEADER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item doesn&apos;t exist!.
         /// </summary>
         public static string NO_ITEM {
@@ -737,6 +975,15 @@ namespace NosCore.Shared.Resource {
         public static string NO_MAP {
             get {
                 return ResourceManager.GetString("NO_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No special proprieties wearable.
+        /// </summary>
+        public static string NO_SPECIAL_PROPERTIES_WEARABLE {
+            get {
+                return ResourceManager.GetString("NO_SPECIAL_PROPERTIES_WEARABLE", resourceCulture);
             }
         }
         
@@ -975,6 +1222,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown PocketType.
+        /// </summary>
+        public static string POCKETTYPE_UNKNOWN {
+            get {
+                return ResourceManager.GetString("POCKETTYPE_UNKNOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} Portal Parsed!.
         /// </summary>
         public static string PORTALS_PARSED {
@@ -1038,6 +1294,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You refused to share the point of return with the group members.
+        /// </summary>
+        public static string SHARED_REFUSED {
+            get {
+                return ResourceManager.GetString("SHARED_REFUSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} Skills Parsed!.
         /// </summary>
         public static string SKILLS_PARSED {
@@ -1092,6 +1357,42 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to request the group.
+        /// </summary>
+        public static string UNABLE_TO_REQUEST_GROUP {
+            get {
+                return ResourceManager.GetString("UNABLE_TO_REQUEST_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Equipment type: {0}.
+        /// </summary>
+        public static string UNKNOWN_EQUIPMENTTYPE {
+            get {
+                return ResourceManager.GetString("UNKNOWN_EQUIPMENTTYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown PicketType.
+        /// </summary>
+        public static string UNKNOWN_PICKERTYPE {
+            get {
+                return ResourceManager.GetString("UNKNOWN_PICKERTYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Reciver type.
+        /// </summary>
+        public static string UNKWNOWN_RECEIVERTYPE {
+            get {
+                return ResourceManager.GetString("UNKWNOWN_RECEIVERTYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unrecognized Master Packet..
         /// </summary>
         public static string UNRECOGNIZED_MASTER_PACKET {
@@ -1106,6 +1407,42 @@ namespace NosCore.Shared.Resource {
         public static string UNREGISTRED_FROM_MASTER {
             get {
                 return ResourceManager.GetString("UNREGISTRED_FROM_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User is not a friend!.
+        /// </summary>
+        public static string USER_IS_NOT_A_FRIEND {
+            get {
+                return ResourceManager.GetString("USER_IS_NOT_A_FRIEND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User is not connected.
+        /// </summary>
+        public static string USER_NOT_CONNECTED {
+            get {
+                return ResourceManager.GetString("USER_NOT_CONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User teleported to not existing map.
+        /// </summary>
+        public static string USER_TELEPORTED_TO_NOT_EXISTING_MAP {
+            get {
+                return ResourceManager.GetString("USER_TELEPORTED_TO_NOT_EXISTING_MAP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown VisualType: {0}.
+        /// </summary>
+        public static string VISUALTYPE_UNKNOWN {
+            get {
+                return ResourceManager.GetString("VISUALTYPE_UNKNOWN", resourceCulture);
             }
         }
         
