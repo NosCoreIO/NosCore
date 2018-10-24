@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>You accepted point share with {0}!</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account with SessionId {0} has arrived.</value>
   </data>
@@ -126,8 +129,14 @@
   <data name="ADVENTURER" xml:space="preserve">
     <value>Adventurer</value>
   </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Already in blacklist!</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>You are already Friends!</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>You are already in group!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>This name is already taken!</value>
@@ -213,11 +222,18 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>There are too many items on this map! Try again later!</value>
   </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Encode Error: {0}</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Please enter the directory of files to parse</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Decoding error</value>
+    <comment>insert missing type data</comment>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Forced Disconnecting of client {0}, too much connections.</value>
@@ -242,6 +258,43 @@
   </data>
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Friend request blocked!</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Friend request sent</value>
+  </data>
+  <data name="GOLD_SET" xml:space="preserve">
+    <value>Gold changed!</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Unknown Group request type</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>You're group admin!</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>User blocked group invites</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Group disbanded</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Group is full</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Group invite request sent to: {0}</value>
+  </data>
+  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
+    <value>Group leader changed!</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>You left the party</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>{0} refused your group request</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>You sent a request to share the point of return with the members of your group</value>
   </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Handler Error</value>
@@ -288,11 +341,28 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
   </data>
+  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
+    <value>Invalid teleport arguments</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Do you want to set as a return point from : {0} ?</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} sent you a group request</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Unknown Invite type</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items Loaded!</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items parsed!</value>
+  </data>
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
+    <value>Unknown Item type</value>
+    <comment>insert missing type data</comment>
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Acquired</value>
@@ -305,6 +375,16 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>You can't drop that item!</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>You joined the group</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Missing language</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} left the party</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
@@ -327,6 +407,9 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapTypes Parsed!</value>
   </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>This map does not exist!</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer started successfully.</value>
   </data>
@@ -339,6 +422,9 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>You are the new party leader!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Not enough place.</value>
   </data>
@@ -350,6 +436,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>No special proprieties wearable</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Loaded!</value>
@@ -423,6 +512,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Do you want to parse TimeSpaces?</value>
   </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Unknown PocketType</value>
+  </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portal Parsed!</value>
   </data>
@@ -445,6 +537,9 @@
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Message sent to {0}</value>
   </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>You refused to share the point of return with the group members</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
@@ -463,6 +558,19 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Swordman</value>
   </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Unable to request the group</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Unknown Equipment type: {0}</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>Unknown PicketType</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Unknown Reciver type</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Unrecognized Master Packet.</value>
     <comment>check</comment>
@@ -470,6 +578,18 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Unregistred From Master.</value>
     <comment>check</comment>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>User is not a friend!</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>User is not connected</value>
+  </data>
+  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
+    <value>User teleported to not existing map</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Unknown VisualType: {0}</value>
   </data>
   <data name="WRESTLER" xml:space="preserve">
     <value>Wrestler</value>
