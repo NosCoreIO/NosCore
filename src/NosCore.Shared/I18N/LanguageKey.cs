@@ -102,7 +102,7 @@ namespace NosCore.Shared.I18N
         [UsedImplicitly] SWORDMAN,
         [UsedImplicitly] ARCHER,
         [UsedImplicitly] MAGICIAN,
-        [UsedImplicitly] WRESTLER,
+        [UsedImplicitly] MARTIALARTIST,
         NPCMONSTERS_PARSED,
         PARSE_DROPS,
         MAPTYPES_PARSED,
