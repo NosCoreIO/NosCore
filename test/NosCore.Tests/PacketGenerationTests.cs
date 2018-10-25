@@ -18,10 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using log4net;
-using log4net.Config;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Serializing;
 using NosCore.Data;
@@ -45,9 +41,6 @@ namespace NosCore.Tests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(PacketGenerationTests)));
         }
 
         [TestMethod]

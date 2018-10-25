@@ -37,6 +37,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
@@ -47,6 +48,7 @@ namespace NosCore.Controllers
         private readonly List<Item> _items;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
             IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
@@ -73,7 +75,7 @@ namespace NosCore.Controllers
             {
                 if (session == null)
                 {
-                    Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                    _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
                         Session.Account.Language));
                     return;
                 }
@@ -86,7 +88,7 @@ namespace NosCore.Controllers
 
             if (mapInstance == null)
             {
-                Logger.Log.Error(
+                _logger.Error(
                     Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
                 return;
             }
@@ -255,7 +257,7 @@ namespace NosCore.Controllers
             }
             else
             {
-               Logger.Log.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+              _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
             }
 
             Session.SendPacket(Session.Character.GenerateSay(

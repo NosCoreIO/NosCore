@@ -28,6 +28,7 @@ using NosCore.DAL;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
@@ -35,6 +36,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     {
         private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps)
         {
@@ -72,9 +74,9 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
             });
             maps.AddRange(mapList.Select(s => s.Value));
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
                 npccount));
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
                 monstercount));
         }
 

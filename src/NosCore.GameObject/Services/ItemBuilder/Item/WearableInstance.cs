@@ -22,11 +22,13 @@ using NosCore.GameObject.Networking;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
     public class WearableInstance : ItemInstance
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public WearableInstance(Item item) : base(item)
         {
         }
@@ -174,7 +176,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                     break;
 
                 default:
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_EQUIPMENTTYPE), Item.EquipmentSlot);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_EQUIPMENTTYPE), Item.EquipmentSlot);
                     break;
             }
         }

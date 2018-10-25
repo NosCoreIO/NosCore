@@ -25,12 +25,14 @@ using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Encryption
 {
     public class LoginEncoder : MessageToMessageEncoder<string>
     {
         private readonly LoginConfiguration _loginServerConfiguration;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public LoginEncoder(LoginConfiguration loginServerConfiguration)
         {
@@ -57,7 +59,7 @@ namespace NosCore.Core.Encryption
             }
             catch (Exception ex)
             {
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
             }
         }
     }

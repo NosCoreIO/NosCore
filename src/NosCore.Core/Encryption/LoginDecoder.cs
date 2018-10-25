@@ -24,11 +24,13 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Encryption
 {
     public class LoginDecoder : MessageToMessageDecoder<IByteBuffer>
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
             try
@@ -46,7 +48,7 @@ namespace NosCore.Core.Encryption
             }
             catch
             {
-                Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_DECODING));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_DECODING));
             }
         }
     }

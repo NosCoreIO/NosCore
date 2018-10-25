@@ -26,11 +26,13 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     internal class NpcMonsterParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string FileNpcId = "\\monster.dat";
         private string _folder;
 
@@ -616,7 +618,7 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
                 DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
                 DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
+                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
                     counter));
             }
 

@@ -71,11 +71,11 @@ namespace NosCore.PathFinder.Gui
 
                 while (true)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
                     var input = Console.ReadLine();
                     if (input == null || !int.TryParse(input, out var askMapId))
                     {
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
 

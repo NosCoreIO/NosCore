@@ -115,7 +115,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapDto> mapDtos = maps;
             DaoFactory.MapDao.InsertOrUpdate(mapDtos);
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i));
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i));
         }
     }
 }

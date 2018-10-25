@@ -42,6 +42,7 @@ using NosCore.Shared;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
@@ -50,6 +51,7 @@ namespace NosCore.Controllers
         private readonly ICharacterBuilderService _characterBuilderService;
         private readonly IItemBuilderService _itemBuilderService;
         private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService,
             IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
@@ -228,14 +230,14 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
                         Session.Disconnect();
                         return;
                     }
                 }
                 else
                 {
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
@@ -243,7 +245,7 @@ namespace NosCore.Controllers
 
             var characters = DaoFactory.CharacterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
-            Logger.Log.InfoFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),
                 Session.Account.Name);
 
             // load characterlist packet for each character in Character
@@ -387,7 +389,7 @@ namespace NosCore.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Log.Error("Select character failed.", ex);
+                _logger.Error("Select character failed.", ex);
             }
         }
     }

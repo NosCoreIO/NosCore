@@ -26,11 +26,13 @@ using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.MasterServer
 {
     public class MasterServer
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly MasterConfiguration _masterConfiguration;
 
         public MasterServer(MasterConfiguration masterConfiguration)
@@ -45,10 +47,10 @@ namespace NosCore.MasterServer
                 return;
             }
 
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             try
             {
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _masterConfiguration.Port));
                 Console.Title +=
                     $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
@@ -84,7 +86,7 @@ namespace NosCore.MasterServer
 
                 var bootstrapChannel = await bootstrap.BindAsync(port);
 
-                Logger.Log.Info(
+                _logger.Information(
                     string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING)));
                 Console.ReadLine();
 

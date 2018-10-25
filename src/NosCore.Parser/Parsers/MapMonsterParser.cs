@@ -82,7 +82,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
             DaoFactory.MapMonsterDao.InsertOrUpdate(mapMonsterDtos);
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MONSTERS_PARSED),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MONSTERS_PARSED),
                 monsterCounter));
         }
     }
