@@ -181,7 +181,7 @@ namespace NosCore.Parser.Parsers
                         && s.SourceY == portal.SourceY));
             DaoFactory.PortalDao.InsertOrUpdate(portalsDtos);
 
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PORTALS_PARSED),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PORTALS_PARSED),
                 portalCounter));
         }
     }

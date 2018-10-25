@@ -27,11 +27,14 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     public class ItemParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private readonly List<BCardDto> _itemCards = new List<BCardDto>();
         private readonly List<ItemDto> _items = new List<ItemDto>();
 
@@ -1072,7 +1075,7 @@ namespace NosCore.Parser.Parsers
                             case ItemType.MinilandTheme:
                                 break;
                             default:
-                                Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMTYPE_UNKNOWN));
+                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMTYPE_UNKNOWN));
                                 break;
                         }
 
@@ -1129,7 +1132,7 @@ namespace NosCore.Parser.Parsers
 
                 DaoFactory.ItemDao.InsertOrUpdate(_items);
                 DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
+                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
                     _itemCounter));
             }
         }

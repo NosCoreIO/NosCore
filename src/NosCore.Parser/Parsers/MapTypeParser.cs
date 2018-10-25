@@ -343,7 +343,7 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.MapTypeDao.InsertOrUpdate(ref mt26);
             }
 
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPTYPES_PARSED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPTYPES_PARSED));
         }
     }
 }

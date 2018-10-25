@@ -24,11 +24,14 @@ using System.Net.Sockets;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public IChannel Channel { get; private set; }
 
         #region Members
@@ -53,7 +56,7 @@ namespace NosCore.Core.Networking
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
                 ClientId));
         }
 
@@ -64,18 +67,18 @@ namespace NosCore.Core.Networking
                 switch (sockException.SocketErrorCode)
                 {
                     case SocketError.ConnectionReset:
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
                             ClientId));
                         break;
                     default:
-                        Logger.Log.Fatal(exception.StackTrace);
+                        _logger.Fatal(exception.StackTrace);
                         break;
                 }
             }
             else
             {
-                Logger.Log.Fatal(exception.StackTrace);
+                _logger.Fatal(exception.StackTrace);
             }
 
             context.CloseAsync();
@@ -83,7 +86,7 @@ namespace NosCore.Core.Networking
 
         public void Disconnect()
         {
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
+            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
                 ClientId));
             Channel?.DisconnectAsync();
         }

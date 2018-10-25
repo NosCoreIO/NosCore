@@ -25,13 +25,14 @@ using NosCore.Configuration;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.Inventory
 {
     public class InventoryService : ConcurrentDictionary<Guid, ItemInstance>, IInventoryService
     {
         private readonly List<Item> _items;
-
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public InventoryService(List<Item> items, WorldConfiguration configuration)
         {
             _items = items;
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Services.Inventory
             }
             catch (InvalidOperationException ioEx)
             {
-                Logger.Error(ioEx);
+                _logger.Error(ioEx.Message, ioEx);
                 var isFirstItem = true;
                 foreach (var item in this.Select(s => s.Value).Where(i => i is T && i.Slot == slot && i.Type == type))
                 {
@@ -146,7 +147,8 @@ namespace NosCore.GameObject.Services.Inventory
 
             if (ContainsKey(newItem.Id))
             {
-                Logger.Error(new InvalidOperationException("Cannot add the same ItemInstance twice to pocket."));
+                var e = new InvalidOperationException("Cannot add the same ItemInstance twice to pocket.");
+                _logger.Error(e.Message, e);
                 return null;
             }
 
@@ -158,15 +160,17 @@ namespace NosCore.GameObject.Services.Inventory
 
             if (newItem.Type == PocketType.Specialist && !(newItem is SpecialistInstance))
             {
-                Logger.Error(
-                    new InvalidOperationException("Cannot add an item of type Specialist without beeing a SpecialistInstance."));
+                var e = new InvalidOperationException(
+                    "Cannot add an item of type Specialist without beeing a SpecialistInstance.");
+                _logger.Error(e.Message, e);
             }
 
             if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear)
                 && !(newItem is WearableInstance))
             {
-                Logger.Error(
-                    new InvalidOperationException("Cannot add an item of type Equipment or Wear without beeing a WearableInstance."));
+                var e = new InvalidOperationException(
+                    "Cannot add an item of type Equipment or Wear without beeing a WearableInstance.");
+               _logger.Error(e.Message, e);
             }
 
             this[newItem.Id] = newItem;
@@ -184,7 +188,8 @@ namespace NosCore.GameObject.Services.Inventory
                 return value;
             }
 
-            Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
+            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
+            _logger.Error(e.Message, e);
             return null;
         }
 
@@ -203,7 +208,8 @@ namespace NosCore.GameObject.Services.Inventory
                 return value;
             }
 
-            Logger.Error(new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!"));
+            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
+            _logger.Error(e.Message, e);
             return null;
         }
 
@@ -212,14 +218,16 @@ namespace NosCore.GameObject.Services.Inventory
         {
             if (sourceSlot == targetSlot && sourceType == targetType)
             {
-                Logger.Error(new InvalidOperationException("SourceInstance can't be moved on the same spot"));
+                var e =new InvalidOperationException("SourceInstance can't be moved on the same spot");
+               _logger.Error(e.Message, e);
                 return null;
             }
 
             var sourceInstance = LoadBySlotAndType<ItemInstance>(sourceSlot, sourceType);
             if (!(sourceInstance is WearableInstance))
             {
-                Logger.Error(new InvalidOperationException("SourceInstance can't be moved between pockets"));
+                var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
+               _logger.Error(e.Message, e);
                 return null;
             }
 
@@ -227,7 +235,8 @@ namespace NosCore.GameObject.Services.Inventory
             {
                 case ItemType.Fashion when targetType != PocketType.Main && targetType != PocketType.Costume:
                 case ItemType.Specialist when targetType != PocketType.Main && targetType != PocketType.Specialist:
-                    Logger.Error(new InvalidOperationException("SourceInstance can't be moved to this Pocket"));
+                    var e = new InvalidOperationException("SourceInstance can't be moved to this Pocket");
+                    _logger.Error(e.Message, e);
                     return null;
                 default:
                     if (targetSlot.HasValue)

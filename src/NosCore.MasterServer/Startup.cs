@@ -76,7 +76,6 @@ namespace NosCore.MasterServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             Console.Title = Title;
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             Logger.PrintHeader(ConsoleText);
             var configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature

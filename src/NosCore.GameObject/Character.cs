@@ -45,6 +45,7 @@ using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject
 {
@@ -60,6 +61,8 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
         }
+
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
@@ -559,7 +562,7 @@ namespace NosCore.GameObject
 
                             break;
                         default:
-                            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
+                            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
                             break;
                     }
                 }
@@ -756,7 +759,7 @@ namespace NosCore.GameObject
             }
             catch (Exception e)
             {
-                Logger.Log.Error("Save Character failed. SessionId: " + Session.SessionId, e);
+                _logger.Error("Save Character failed. SessionId: " + Session.SessionId, e);
             }
         }
 

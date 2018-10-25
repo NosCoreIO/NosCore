@@ -22,6 +22,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace NosCore.WorldServer
 {
@@ -44,7 +45,7 @@ namespace NosCore.WorldServer
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddLog4Net("../../configuration/log4net.config");
+                    logging.AddSerilog();
                 })
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)

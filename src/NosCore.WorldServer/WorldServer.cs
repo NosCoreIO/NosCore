@@ -40,6 +40,7 @@ using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
+using Serilog;
 
 namespace NosCore.WorldServer
 {
@@ -52,6 +53,7 @@ namespace NosCore.WorldServer
         private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<IGlobalEvent> _events;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
             List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events)
@@ -72,7 +74,7 @@ namespace NosCore.WorldServer
                 return;
             }
 
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e =>
             {
                 Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
@@ -80,7 +82,7 @@ namespace NosCore.WorldServer
             ConnectMaster();
             try
             {
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port));
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
@@ -137,7 +139,7 @@ namespace NosCore.WorldServer
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
-                        Logger.Log.Error(string.Format(
+                        _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
