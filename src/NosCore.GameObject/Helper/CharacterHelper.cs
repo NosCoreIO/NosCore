@@ -784,24 +784,52 @@ namespace NosCore.GameObject.Helper
 
                 HpData[(int)CharacterClassType.Archer][i] = hp;
             }
+
+            // MartialArtist HP
+            //TODO: Find real formula, this is currently the swordsman statistics
+            for (var i = 0; i < 256; i++)
+            {
+                uint j = 16;
+                var hp = 946;
+                var inc = 85;
+                while (j <= i)
+                {
+                    if (j % 5 == 2)
+                    {
+                        hp += inc / 2;
+                        inc += 2;
+                    }
+                    else
+                    {
+                        hp += inc;
+                        inc += 4;
+                    }
+
+                    ++j;
+                }
+
+                HpData[(int)CharacterClassType.MartialArtist][i] = hp;
+            }
         }
 
         private void LoadHpHealth()
         {
-            HpHealth = new int[4];
+            HpHealth = new int[5];
             HpHealth[(int)CharacterClassType.Archer] = 60;
             HpHealth[(int)CharacterClassType.Adventurer] = 30;
             HpHealth[(int)CharacterClassType.Swordman] = 90;
             HpHealth[(int)CharacterClassType.Magician] = 30;
+            HpHealth[(int)CharacterClassType.MartialArtist] = 90;
         }
 
         private void LoadHpHealthStand()
         {
-            HpHealthStand = new int[4];
+            HpHealthStand = new int[5];
             HpHealthStand[(int)CharacterClassType.Archer] = 32;
             HpHealthStand[(int)CharacterClassType.Adventurer] = 25;
             HpHealthStand[(int)CharacterClassType.Swordman] = 26;
             HpHealthStand[(int)CharacterClassType.Magician] = 20;
+            HpHealthStand[(int)CharacterClassType.MartialArtist] = 26;
         }
 
         private void LoadJobXpData()
@@ -876,33 +904,41 @@ namespace NosCore.GameObject.Helper
             {
                 MpData[(int)CharacterClassType.Magician][i] = 3 * MpData[(int)CharacterClassType.Adventurer][i];
             }
+
+            for (var i = 1; i < 256 - 1; i++)
+            {
+                MpData[(int)CharacterClassType.MartialArtist][i] = MpData[(int)CharacterClassType.Adventurer][i];
+            }
         }
 
         private void LoadMpHealth()
         {
-            MpHealth = new int[4];
+            MpHealth = new int[5];
             MpHealth[(int)CharacterClassType.Adventurer] = 10;
             MpHealth[(int)CharacterClassType.Swordman] = 30;
             MpHealth[(int)CharacterClassType.Archer] = 50;
             MpHealth[(int)CharacterClassType.Magician] = 80;
+            MpHealth[(int)CharacterClassType.MartialArtist] = 30;
         }
 
         private void LoadMpHealthStand()
         {
-            MpHealthStand = new int[4];
+            MpHealthStand = new int[5];
             MpHealthStand[(int)CharacterClassType.Adventurer] = 5;
             MpHealthStand[(int)CharacterClassType.Swordman] = 16;
             MpHealthStand[(int)CharacterClassType.Archer] = 28;
             MpHealthStand[(int)CharacterClassType.Magician] = 40;
+            MpHealthStand[(int)CharacterClassType.MartialArtist] = 16;
         }
 
         private void LoadSpeedData()
         {
-            SpeedData = new byte[4];
+            SpeedData = new byte[5];
             SpeedData[(int)CharacterClassType.Adventurer] = 11;
             SpeedData[(int)CharacterClassType.Swordman] = 11;
             SpeedData[(int)CharacterClassType.Archer] = 12;
             SpeedData[(int)CharacterClassType.Magician] = 10;
+            SpeedData[(int)CharacterClassType.MartialArtist] = 11;
         }
 
         private void LoadSpxpData()
@@ -1111,6 +1147,23 @@ namespace NosCore.GameObject.Helper
                 _hitDodge[(int)CharacterClassType.Archer][i] = 41 + i; // approx
                 _distDodge[(int)CharacterClassType.Archer][i] = i + 2; // approx
                 _distDef[(int)CharacterClassType.Archer][i] = i; // approx
+
+                // MartialArtist
+                _criticalHitRate[(int)CharacterClassType.MartialArtist][i] = 0; // approx
+                _criticalHit[(int)CharacterClassType.MartialArtist][i] = 0; // approx
+                _criticalDist[(int)CharacterClassType.MartialArtist][i] = 0; // approx
+                _criticalDistRate[(int)CharacterClassType.MartialArtist][i] = 0; // approx
+                _minDist[(int)CharacterClassType.MartialArtist][i] = i + 12; // approx
+                _maxDist[(int)CharacterClassType.MartialArtist][i] = i + 12; // approx
+                _distRate[(int)CharacterClassType.MartialArtist][i] = 2 * (i + 12); // approx
+                _hitDodge[(int)CharacterClassType.MartialArtist][i] = i + 12; // approx
+                _distDodge[(int)CharacterClassType.MartialArtist][i] = i + 12; // approx
+                _magicalDef[(int)CharacterClassType.MartialArtist][i] = (i + 9) / 2; // approx
+                _hitRate[(int)CharacterClassType.MartialArtist][i] = i + 27; // approx
+                _hitDef[(int)CharacterClassType.MartialArtist][i] = i + 2; // approx
+                _minHit[(int)CharacterClassType.MartialArtist][i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
+                _maxHit[(int)CharacterClassType.MartialArtist][i] = 2 * i + 5; // approx Numbers n such that 10n+9 is prime.
+                _distDef[(int)CharacterClassType.MartialArtist][i] = i; // approx
             }
         }
 

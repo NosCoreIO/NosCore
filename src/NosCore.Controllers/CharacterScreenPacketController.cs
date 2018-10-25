@@ -67,6 +67,84 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
+        ///     Char_NEW_JOB character creation character
+        /// </summary>
+        /// <param name="martialArtistCreatePacket"></param>
+        public void CreateMartialArtist(CharNewJobPacket martialArtistCreatePacket)
+        {
+            // TODO: Hold Account Information in Authorized object
+            var accountId = Session.Account.AccountId;
+            var slot = martialArtistCreatePacket.Slot;
+            var characterName = martialArtistCreatePacket.Name;
+
+            //TODO add a flag on Account
+            if (DaoFactory.CharacterDao.FirstOrDefault(s =>
+                s.Level >= 80 && s.Account.AccountId == Session.Account.AccountId) == null)
+            {
+                //Needs at least a level 80 to create a martial artist
+                return;
+            }
+            if (DaoFactory.CharacterDao.FirstOrDefault(s =>
+                s.Account.AccountId == Session.Account.AccountId &&
+                s.Class == (byte)CharacterClassType.MartialArtist) != null)
+            {
+                //If already a martial artist, can't create another
+                return;
+            }
+
+            //TODO: Merge this with Char_NEW somehow
+            var rg = new Regex(
+                @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$");
+            if (rg.Matches(characterName).Count == 1)
+            {
+                var character =
+                    DaoFactory.CharacterDao.FirstOrDefault(s =>
+                        s.Name == characterName && s.State == CharacterState.Active);
+                if (character == null)
+                {
+                    var chara = new CharacterDto
+                    {
+                        Class = (byte)CharacterClassType.MartialArtist,
+                        Gender = martialArtistCreatePacket.Gender,
+                        HairColor = martialArtistCreatePacket.HairColor,
+                        HairStyle = HairStyleType.HairStyleA,
+                        Hp = 12965,
+                        JobLevel = 1,
+                        Level = 81,
+                        MapId = 1,
+                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
+                        Mp = 2369,
+                        MaxMateCount = 10,
+                        SpPoint = 10000,
+                        SpAdditionPoint = 0,
+                        Name = characterName,
+                        Slot = slot,
+                        AccountId = accountId,
+                        MinilandMessage = "Welcome",
+                        State = CharacterState.Active
+                    };
+                    DaoFactory.CharacterDao.InsertOrUpdate(ref chara);
+                    LoadCharacters(null);
+                }
+                else
+                {
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Session.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
+                    });
+                }
+            }
+            else
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Session.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
+                });
+            }
+        }
+
+        /// <summary>
         ///     Char_NEW character creation character
         /// </summary>
         /// <param name="characterCreatePacket"></param>
