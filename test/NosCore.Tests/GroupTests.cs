@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -91,6 +92,31 @@ namespace NosCore.Tests
             _group.JoinGroup(entity);
 
             Assert.IsTrue(_group.IsEmpty);
+        }
+
+        [TestMethod]
+        public void Test_Leader_Change()
+        {
+            for (var i = 0; i < (long)_group.Type; i++)
+            {
+                _entity = new Character
+                {
+                    CharacterId = i + 1,
+                    Name = $"TestExistingCharacter{i}",
+                    Slot = 1,
+                    AccountId = i + 1,
+                    MapId = 1,
+                    State = CharacterState.Active
+                };
+
+                _group.JoinGroup(_entity);
+            }
+
+            Assert.IsTrue(_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(0).Value.Item2.VisualId));
+
+            _group.LeaveGroup(_group.ElementAt(0).Value.Item2);
+
+            Assert.IsTrue(!_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(1).Value.Item2.VisualId));
         }
     }
 }

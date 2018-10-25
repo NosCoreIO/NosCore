@@ -138,9 +138,43 @@ namespace NosCore.Tests.HandlerTests
             _handlers.ElementAt(0).ManageGroup(pjoinPacket);
             Assert.IsTrue(_characters[3].Group.Count == 1);
         }
-        //public void Test_Accept_Not_Requested_Group()
-        //public void Test_Decline_Not_Requested_Group()
-        //public void Test_Leave_Group_When_NotGrouped()
+
+        [TestMethod]
+        public void Test_Accept_Not_Requested_Group()
+        {
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Accepted,
+                CharacterId = _characters[1].CharacterId
+            };
+
+            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            Assert.IsTrue(_characters[0].Group.Count == 1
+                && _characters[1].Group.Count == 1);
+        }
+
+        [TestMethod]
+        public void Test_Decline_Not_Requested_Group()
+        {
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Declined,
+                CharacterId = _characters[1].CharacterId
+            };
+
+            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            Assert.IsTrue(_characters[0].Group.Count == 1
+                && _characters[1].Group.Count == 1);
+        }
+
+        [TestMethod]
+        public void Test_Leave_Group_When_Not_Grouped()
+        {
+            _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
+
+            Assert.IsTrue(_characters[0].Group != null && _characters[0].Group.Count == 1);
+        }
+
         [TestMethod]
         public void Test_Leave_Group_When_Grouped()
         {
@@ -167,7 +201,6 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(_characters[1].Group.Count == 1);
         }
 
-        //TODO create a similar test for the object group
         [TestMethod]
         public void Test_Leader_Change()
         {
