@@ -26,7 +26,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
 using JetBrains.Annotations;
-using log4net;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

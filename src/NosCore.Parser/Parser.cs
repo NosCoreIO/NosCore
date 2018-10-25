@@ -22,8 +22,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using log4net;
-using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
