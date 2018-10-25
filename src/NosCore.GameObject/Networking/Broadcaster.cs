@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Networking
             return (func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character)
                 : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
         }
+
         public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
         {
             return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
