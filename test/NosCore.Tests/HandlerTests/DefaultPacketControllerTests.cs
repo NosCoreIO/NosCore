@@ -351,5 +351,26 @@ namespace NosCore.Tests.HandlerTests
             _handler.BlackListDelete(bldelPacket);
             Assert.IsTrue(_session.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != _targetSession.Character.CharacterId));
         }
+
+        [TestMethod]
+        public void Test_Pulse_Packet()
+        {
+            var pulsePacket = new PulsePacket
+            {
+                Tick = 0
+            };
+
+            for (var i = 60; i < 600; i += 60)
+            {
+                pulsePacket = new PulsePacket
+                {
+                    Tick = i
+                };
+
+                _handler.Pulse(pulsePacket);
+            }
+
+            Assert.IsTrue(_session.LastPulse == pulsePacket.Tick);
+        }
     }
 }
