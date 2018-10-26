@@ -28,6 +28,7 @@ using NosCore.Configuration;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+using Serilog;
 
 // ReSharper disable LocalizableElement
 
@@ -39,14 +40,7 @@ namespace NosCore.Parser
         private const string Title = "NosCore - Parser";
         private const string ConsoleText = "PARSER SERVER - NosCoreIO";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
-
-        private static void InitializeLogger()
-        {
-            // LOGGER
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(Parser)));
-        }
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static void InitializeConfiguration()
         {
@@ -61,7 +55,6 @@ namespace NosCore.Parser
         public static void Main(string[] args)
         {
             Console.Title = Title;
-            InitializeLogger();
             Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             try
@@ -280,7 +273,7 @@ namespace NosCore.Parser
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                _logger.Error(ex.Message, ex);
                 Console.ReadKey();
             }
         }

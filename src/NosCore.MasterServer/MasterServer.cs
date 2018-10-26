@@ -50,8 +50,8 @@ namespace NosCore.MasterServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             try
             {
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _masterConfiguration.Port));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _masterConfiguration.Port);
                 Console.Title +=
                     $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
                 RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
@@ -86,8 +86,7 @@ namespace NosCore.MasterServer
 
                 var bootstrapChannel = await bootstrap.BindAsync(port);
 
-                _logger.Information(
-                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING)));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING));
                 Console.ReadLine();
 
                 await bootstrapChannel.CloseAsync();

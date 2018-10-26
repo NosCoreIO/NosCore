@@ -24,6 +24,7 @@ using System.Text;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -31,7 +32,7 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileMapIdDat = "\\MapIDData.dat";
         private readonly string _folderMap = "\\map";
-
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
             var fileMapIdDat = folder + _fileMapIdDat;
@@ -115,7 +116,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapDto> mapDtos = maps;
             DaoFactory.MapDao.InsertOrUpdate(mapDtos);
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_PARSED), i);
         }
     }
 }

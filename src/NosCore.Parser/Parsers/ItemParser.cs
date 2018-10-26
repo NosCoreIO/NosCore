@@ -1132,8 +1132,8 @@ namespace NosCore.Parser.Parsers
 
                 DaoFactory.ItemDao.InsertOrUpdate(_items);
                 DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
-                    _itemCounter));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
+                    _itemCounter);
             }
         }
     }

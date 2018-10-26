@@ -59,8 +59,8 @@ namespace NosCore.LoginServer
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _loginConfiguration.Port));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _loginConfiguration.Port);
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 _networkManager.RunServerAsync().Wait();
             }

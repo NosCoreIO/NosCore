@@ -74,10 +74,10 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
             });
             maps.AddRange(mapList.Select(s => s.Value));
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
-                npccount));
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
-                monstercount));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
+                npccount);
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
+                monstercount);
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)

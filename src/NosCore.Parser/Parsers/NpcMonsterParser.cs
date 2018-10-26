@@ -618,8 +618,8 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
                 DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
                 DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
-                    counter));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
+                    counter);
             }
 
             IEnumerable<DropDto> dropDtos = drops;

@@ -56,8 +56,8 @@ namespace NosCore.Core.Networking
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
-                ClientId));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
+                ClientId);
         }
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
@@ -86,8 +86,8 @@ namespace NosCore.Core.Networking
 
         public void Disconnect()
         {
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
-                ClientId));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
+                ClientId);
             Channel?.DisconnectAsync();
         }
 
