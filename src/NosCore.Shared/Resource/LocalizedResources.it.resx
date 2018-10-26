@@ -284,6 +284,9 @@
   <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
     <value>Il leader del gruppo è cambiato!</value>
   </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Sei uscito dal gruppo</value>
+  </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>{0} ha rifiutato la tua richiesta di gruppo</value>
   </data>
