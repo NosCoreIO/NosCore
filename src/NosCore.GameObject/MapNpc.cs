@@ -26,11 +26,13 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public byte Class { get; set; }
         public byte Speed { get; set; }
@@ -94,7 +96,7 @@ namespace NosCore.GameObject
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e);
+                    _logger.Error(e.Message, e);
                 }
             });
         }

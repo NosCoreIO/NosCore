@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -36,6 +37,7 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         // POST api/packet
         [HttpPost]
         public IActionResult PostPacket([FromBody] PostedPacket postedPacket)
@@ -74,7 +76,7 @@ namespace NosCore.WorldServer.Controllers
                     receiverSession.SendPacket(message);
                     break;
                 default:
-                   Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
+                   _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

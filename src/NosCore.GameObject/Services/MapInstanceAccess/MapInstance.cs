@@ -39,11 +39,13 @@ using NosCore.PathFinder;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
     public class MapInstance : IBroadcastable
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
@@ -250,7 +252,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 }
                 catch (Exception e)
                 {
-                    Logger.Log.Error(e);
+                    _logger.Error(e.Message, e);
                 }
             });
         }

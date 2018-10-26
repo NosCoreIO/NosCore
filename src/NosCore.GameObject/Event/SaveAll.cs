@@ -6,24 +6,27 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Event
 {
     [UsedImplicitly]
     class SaveAll : IGlobalEvent
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public TimeSpan Delay { get; set; } = TimeSpan.FromMinutes(5);
 
         public void Execution()
         {
             try
             {
-                Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SAVING_ALL));
                 Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session => session.Save());
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                _logger.Error(e.Message, e);
             }
         }
     }

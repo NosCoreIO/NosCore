@@ -35,11 +35,13 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
     public class InventoryPacketController : PacketController
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IItemBuilderService _itemBuilderService;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -113,7 +115,7 @@ namespace NosCore.Controllers
                         return;
 
                     default:
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
                         return;
                 }
 

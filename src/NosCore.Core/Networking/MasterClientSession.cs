@@ -22,11 +22,13 @@ using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using Newtonsoft.Json;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Networking
 {
     public class MasterClientSession : MasterServerSession
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Action _onConnectionLost;
 
         public MasterClientSession(string password, Action onConnectionLost) : base(password)
@@ -36,13 +38,13 @@ namespace NosCore.Core.Networking
 
         public override void ChannelInactive(IChannelHandlerContext context)
         {
-            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
+           _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER));
             Task.Run(() => _onConnectionLost());
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
@@ -54,8 +56,7 @@ namespace NosCore.Core.Networking
             }
             catch (Exception ex)
             {
-                Logger.Log.Error(
-                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex);
             }
         }
     }

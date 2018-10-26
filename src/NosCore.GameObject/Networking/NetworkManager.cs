@@ -24,6 +24,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Networking
 {
@@ -31,6 +32,7 @@ namespace NosCore.GameObject.Networking
     {
         private readonly GameServerConfiguration _configuration;
         private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public NetworkManager(GameServerConfiguration configuration,
             Func<ISocketChannel, PipelineFactory> pipelineFactory)
@@ -61,7 +63,7 @@ namespace NosCore.GameObject.Networking
             }
             catch (Exception ex)
             {
-                Logger.Log.Error(ex.Message);
+                _logger.Error(ex.Message);
             }
             finally
             {

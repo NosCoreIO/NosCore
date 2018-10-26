@@ -28,11 +28,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Serializing
 {
     public static class PacketFactory
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private static Dictionary<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
             _packetSerializationInformations;
 
@@ -65,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
                 return null;
             }
         }
@@ -98,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
                 return null;
             }
         }
@@ -175,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                    Logger.Log.Warn("Wrong Packet Format!", e);
+                   _logger.Warning("Wrong Packet Format!", e);
                     return string.Empty;
                 }
             }
@@ -372,7 +375,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception)
                 {
-                    Logger.Log.Warn($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
+                   _logger.Warning($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
                 }
 
                 return convertedValue;
