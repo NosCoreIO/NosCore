@@ -21,8 +21,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using log4net;
-using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
@@ -31,6 +29,7 @@ using NosCore.DAL;
 using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
 using OpenTK.Graphics;
+using Serilog;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -41,6 +40,7 @@ namespace NosCore.PathFinder.Gui
         private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
+        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
         private static void InitializeConfiguration()
         {
@@ -49,20 +49,11 @@ namespace NosCore.PathFinder.Gui
             builder.AddJsonFile("pathfinder.json", false);
             builder.Build().Bind(DatabaseConfiguration);
         }
-
-        private static void InitializeLogger()
-        {
-            // LOGGER
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(PathFinderGui)));
-        }
-
+        
         public static void Main()
         {
             Console.Title = Title;
-            InitializeLogger();
-            Logger.PrintHeader(ConsoleText);
+            Shared.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
@@ -73,11 +64,11 @@ namespace NosCore.PathFinder.Gui
 
                 while (true)
                 {
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
+                    Logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SELECT_MAPID));
                     var input = Console.ReadLine();
                     if (input == null || !int.TryParse(input, out var askMapId))
                     {
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
+                        Logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
 

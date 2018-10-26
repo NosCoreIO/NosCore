@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -30,6 +31,13 @@ namespace NosCore.Core.Networking
 {
     public class WebApiAccess
     {
+        private WebApiAccess()
+        {
+            if (BaseAddress == null)
+            {
+                throw new ArgumentNullException(nameof(BaseAddress));
+            }
+        }
         private static WebApiAccess _instance;
 
         private static Uri BaseAddress { get; set; }
@@ -38,22 +46,12 @@ namespace NosCore.Core.Networking
 
         public Dictionary<string, object> MockValues { get; set; } = new Dictionary<string, object>();
 
-        public static WebApiAccess Instance
-        {
-            get
-            {
-                if (BaseAddress == null)
-                {
-                    throw new NullReferenceException("baseAddress can't be null");
-                }
-
-                return _instance ?? (_instance = new WebApiAccess());
-            }
-        }
+        public static WebApiAccess Instance => _instance ?? (_instance = new WebApiAccess());
 
         public static StringContent Content { get; private set; }
 
-        public static void RegisterBaseAdress(string address = null, string token = null)
+        public static void RegisterBaseAdress() => RegisterBaseAdress(null,null);
+        public static void RegisterBaseAdress(string address, string token)
         {
             if (address == null)
             {
@@ -82,6 +80,7 @@ namespace NosCore.Core.Networking
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
         }
+        public T Delete<T>(string route, ServerConfiguration webApi) => Delete<T>(route, webApi, null);
 
         public T Delete<T>(string route, object id) => Delete<T>(route, null, id);
 
@@ -110,6 +109,8 @@ namespace NosCore.Core.Networking
 
         public T Get<T>(string route, object id) => Get<T>(route, null, id);
 
+        public T Get<T>(string route, ServerConfiguration webApi) => Get<T>(route, webApi, null);
+
         public T Get<T>(string route) => Get<T>(route, null, null);
 
         public T Get<T>(string route, ServerConfiguration webApi, object id)
@@ -129,6 +130,8 @@ namespace NosCore.Core.Networking
 
             throw new HttpRequestException(response.Headers.ToString());
         }
+
+        public T Post<T>(string route, ServerConfiguration webApi) => Post<T>(route, null, webApi);
 
         public T Post<T>(string route, object data) => Post<T>(route, data, null);
 
@@ -154,6 +157,8 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
+        public T Put<T>(string route, ServerConfiguration webApi) => Put<T>(route, null, webApi);
+
         public T Put<T>(string route, object data) => Put<T>(route, data, null);
 
         public T Put<T>(string route, object data, ServerConfiguration webApi)
@@ -178,6 +183,8 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
+        public T Patch<T>(string route, ServerConfiguration webApi) => Patch<T>(route, null, webApi);
+
         public T Patch<T>(string route, object data) => Patch<T>(route, data, null);
 
         public T Patch<T>(string route, object data, ServerConfiguration webApi)
@@ -200,6 +207,38 @@ namespace NosCore.Core.Networking
             }
 
             throw new HttpRequestException(postResponse.Headers.ToString());
+        }
+
+        public void BroadcastPacket(PostedPacket postedPacket)
+        {
+            foreach (var channel in Instance.Get<List<WorldServerInfo>>("api/channels"))
+            {
+                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+            }
+        }
+        public void BroadcastPacket(PostedPacket postedPacket, int channelId)
+        {
+            var channel = Instance.Get<List<WorldServerInfo>>("api/channels", channelId).FirstOrDefault();
+            if (channel != null)
+            {
+                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+            }
+        }
+
+        public void BroadcastPackets(List<PostedPacket> packets)
+        {
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet);
+            }
+        }
+
+        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
+        {
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet, channelId);
+            }
         }
     }
 }

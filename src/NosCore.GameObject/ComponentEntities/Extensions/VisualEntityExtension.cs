@@ -17,13 +17,50 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
+        {
+            //same canal
+            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            var accounts = new List<ConnectedAccount>();
+            foreach (var server in servers)
+            {
+                accounts.AddRange(
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
+            }
+
+            var subpackets = new List<FinitSubPacket>();
+            foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
+                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            {
+                var account = accounts.Find(s =>
+                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+                subpackets.Add(new FinitSubPacket
+                {
+                    CharacterId = relation.RelatedCharacterId,
+                    RelationType = relation.RelationType,
+                    IsOnline = account != null,
+                    CharacterName = relation.CharacterName
+                });
+            }
+
+            return new FinitPacket { SubPackets = subpackets };
+        }
+
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
         {
             return new ServerGetPacket
@@ -61,12 +98,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         //in 1 Carlosta - 754816 71 105 2 0 1 0 14 3 340.4855.4867.4864.4846.802.4150.4142 100 37 0 -1 4 3 0 0 0 7 86 86 2340 ~Luna~(Membre) -2 0 5 0 0 88 10 0 0 10 1
 
         //Character in packet
-        public static InPacket GenerateIn(this ICharacterEntity visualEntity)
+        public static InPacket GenerateIn(this ICharacterEntity visualEntity, string prefix)
         {
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
-                Name = visualEntity.Name,
+                Name = prefix + visualEntity.Name,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
@@ -75,9 +112,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte) visualEntity.Gender,
-                    HairStyle = (byte) visualEntity.HairStyle,
-                    HairColor = (byte) visualEntity.HairColor,
+                    Gender = (byte)visualEntity.Gender,
+                    HairStyle = (byte)visualEntity.HairStyle,
+                    HairColor = (byte)visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = new InEquipmentSubPacket
                     {
@@ -93,11 +130,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     },
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = visualEntity.GroupId,
+                    GroupId = visualEntity.Group.GroupId,
                     Fairy = 0,
                     FairyElement = 0,
                     Unknown = 0,
@@ -108,7 +145,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorRare = 0,
                     FamilyId = -1,
                     FamilyName = string.Empty,
-                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -117,7 +154,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
                     ArenaWinner = false,
-                    Compliment = 0,
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = 0,
                     HeroLevel = visualEntity.HeroLevel
                 }
@@ -141,8 +178,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Dialog = 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
-                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
+                        Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }

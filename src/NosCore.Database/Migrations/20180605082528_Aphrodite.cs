@@ -1593,7 +1593,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ItemInstance_CharacterId_Slot_Type",
                 table: "ItemInstance",
-                columns: new[] {"CharacterId", "Slot", "Type"},
+                columns: new[] { "CharacterId", "Slot", "Type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1649,7 +1649,7 @@ namespace NosCore.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MapTypeMap_MapId_MapTypeId",
                 table: "MapTypeMap",
-                columns: new[] {"MapId", "MapTypeId"},
+                columns: new[] { "MapId", "MapTypeId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

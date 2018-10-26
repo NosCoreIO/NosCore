@@ -21,8 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using log4net;
-using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -37,6 +35,7 @@ using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
@@ -64,9 +63,6 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo(ConfigurationPath + "/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginPacketController)));
             var map = new MapDto {MapId = 1};
             DaoFactory.MapDao.InsertOrUpdate(ref map);
             _acc = new AccountDto {Name = Name, Password = EncryptionHelper.Sha512("test")};
@@ -89,7 +85,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
-                Name = Name.ToUpper()
+                Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.OldClient);
@@ -113,7 +109,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
-                Name = Name.ToUpper()
+                Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.WrongCaps);

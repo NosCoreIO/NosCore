@@ -17,8 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Net.Sockets;
+using DotNetty.Transport.Channels;
+using NosCore.Core.Serializing;
+using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -26,18 +34,41 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
     {
         AuthorityType Authority { get; }
 
-        GenderType Gender { get; set; }
+        GenderType Gender { get; }
 
-        HairStyleType HairStyle { get; set; }
+        HairStyleType HairStyle { get; }
 
-        HairColorType HairColor { get; set; }
+        HairColorType HairColor { get; }
 
-        byte Equipment { get; set; }
+        byte Equipment { get; }
 
         int ReputIcon { get; }
 
         int DignityIcon { get; }
 
-        long GroupId { get; }
+        IChannel Channel { get; }
+       
+        bool GroupRequestBlocked { get; }
+
+        void SendPacket(PacketDefinition packetDefinition);
+
+        void SendPackets(IEnumerable<PacketDefinition> packetDefinitions);
+
+        void LeaveGroup();
+
+        string GetMessageFromKey(LanguageKey groupClosed);
+
+        CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
+
+        void JoinGroup(Group group);
+        void Save();
+
+        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
+
+        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
     }
 }

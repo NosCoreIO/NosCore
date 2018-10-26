@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
@@ -32,6 +33,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -43,6 +45,7 @@ using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject
 {
@@ -55,11 +58,13 @@ namespace NosCore.GameObject
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
-            GroupRequestCharacterIds = new List<long>();
+            GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
         }
 
-        public List<long> GroupRequestCharacterIds { get; set; }
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
+        public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
         public AccountDto Account { get; set; }
 
@@ -93,11 +98,15 @@ namespace NosCore.GameObject
 
         public Group Group { get; set; }
 
-        public long GroupId => Group.GroupId;
-
         public int ReputIcon => GetReputIco();
 
         public int DignityIcon => GetDignityIco();
+
+        public IChannel Channel => Session?.Channel;
+
+        public void SendPacket(PacketDefinition packetDefinition) => Session.SendPacket(packetDefinition);
+
+        public void SendPackets(IEnumerable<PacketDefinition> packetDefinitions) => Session.SendPackets(packetDefinitions);
 
         public MapInstance MapInstance { get; set; }
 
@@ -190,27 +199,28 @@ namespace NosCore.GameObject
             Group.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => s.Item2 != CharacterId || s.Item1 != VisualType.Player))
             {
-                var groupMember = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                    s.Character.CharacterId == member.Item2 && member.Item1 == VisualType.Player);
+                var groupMember = Broadcaster.Instance.GetCharacter(s =>
+                    s.VisualId == member.Item2 && member.Item1 == VisualType.Player);
 
                 if (Group.Count == 1)
                 {
-                    groupMember?.Character.LeaveGroup();
-                    groupMember?.SendPacket(Group.GeneratePidx(groupMember.Character));
+                    groupMember?.LeaveGroup();
+                    groupMember?.SendPacket(Group.GeneratePidx(groupMember));
                     groupMember?.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
-                            groupMember.Account.Language),
+                        Message = groupMember.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
                         Type = MessageType.Whisper
                     });
                 }
 
-                groupMember?.SendPacket(groupMember.Character.Group.GeneratePinit());
+                groupMember?.SendPacket(groupMember.Group.GeneratePinit());
             }
 
             Group = new Group(GroupType.Group);
             Group.JoinGroup(this);
         }
+
+        public string GetMessageFromKey(LanguageKey languageKey) => Session.GetMessageFromKey(languageKey);
 
         public FdPacket GenerateFd()
         {
@@ -258,7 +268,7 @@ namespace NosCore.GameObject
         public int IsReputHero()
         {
             //const int i = 0;
-            //foreach (CharacterDTO characterDto in ServerManager.Instance.TopReputation)
+            //foreach (CharacterDTO characterDto in Broadcaster.Instance.TopReputation)
             //{
             //    Character character = (Character)characterDto;
             //    i++;
@@ -302,9 +312,7 @@ namespace NosCore.GameObject
         {
             foreach (var characterRelation in CharacterRelations)
             {
-                var targetSession = ServerManager.Instance.Sessions.Where(s => s.Value.Character != null)
-                    .FirstOrDefault(s => s.Value.Character.CharacterId == characterRelation.Value.RelatedCharacterId)
-                    .Value;
+                var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == characterRelation.Value.RelatedCharacterId);
 
                 if (targetSession != null)
                 {
@@ -322,7 +330,7 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    ServerManager.Instance.BroadcastPacket(new PostedPacket
+                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                     {
                         Packet = PacketFactory.Serialize(new[]
                         {
@@ -371,35 +379,6 @@ namespace NosCore.GameObject
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public FinitPacket GenerateFinit()
-        {
-            //same canal
-            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
-            var accounts = new List<ConnectedAccount>();
-            foreach (var server in servers)
-            {
-                accounts.AddRange(
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
-            }
-
-            var subpackets = new List<FinitSubPacket>();
-            foreach (var relation in CharacterRelations.Values.Where(s =>
-                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
-            {
-                var account = accounts.Find(s =>
-                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
-                subpackets.Add(new FinitSubPacket
-                {
-                    CharacterId = relation.RelatedCharacterId,
-                    RelationType = relation.RelationType,
-                    IsOnline = account != null,
-                    CharacterName = relation.CharacterName
-                });
-            }
-
-            return new FinitPacket { SubPackets = subpackets };
-        }
-
         public void DeleteBlackList(long characterId)
         {
             var relation = CharacterRelations.Values.FirstOrDefault(s =>
@@ -426,8 +405,7 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 RelatedCharacterId = characterId,
                 RelationType = relationType,
-                CharacterName = ServerManager.Instance.Sessions.Values
-                    .FirstOrDefault(s => s.Character.CharacterId == characterId)?.Character.Name,
+                CharacterName = Broadcaster.Instance.GetCharacter(s => s.VisualId == characterId)?.Name,
                 CharacterRelationId = Guid.NewGuid()
             };
 
@@ -446,7 +424,7 @@ namespace NosCore.GameObject
                 return relation;
             }
 
-            Session.SendPacket(GenerateFinit());
+            Session.SendPacket(this.GenerateFinit());
             return relation;
         }
 
@@ -464,16 +442,16 @@ namespace NosCore.GameObject
 
             CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
-            Session.SendPacket(GenerateFinit());
+            Session.SendPacket(this.GenerateFinit());
 
-            var targetSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                s.Character.CharacterId == targetCharacterRelation.CharacterId);
+            var targetSession = Broadcaster.Instance.GetCharacter(s =>
+                s.VisualId == targetCharacterRelation.CharacterId);
             if (targetSession != null)
             {
-                targetSession.Character.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
+                targetSession.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
                     out _);
-                targetSession.Character.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
-                targetSession.SendPacket(targetSession.Character.GenerateFinit());
+                targetSession.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
+                targetSession.SendPacket(targetSession.GenerateFinit());
                 return;
             }
 
@@ -584,7 +562,7 @@ namespace NosCore.GameObject
 
                             break;
                         default:
-                            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
+                            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
                             break;
                     }
                 }
@@ -781,7 +759,7 @@ namespace NosCore.GameObject
             }
             catch (Exception e)
             {
-                Logger.Log.Error("Save Character failed. SessionId: " + Session.SessionId, e);
+                _logger.Error("Save Character failed. SessionId: " + Session.SessionId, e);
             }
         }
 
@@ -830,7 +808,7 @@ namespace NosCore.GameObject
             return new TitPacket
             {
                 ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
-                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpper())),
+                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpperInvariant())),
                 Name = Name
             };
         }

@@ -22,6 +22,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
 
@@ -38,9 +39,9 @@ namespace NosCore.Tests
         {
             _group = new Group(GroupType.Group);
 
-            ServerManager.Instance.Groups = new ConcurrentDictionary<long, Group>();
+            GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
 
-            _group.GroupId = ServerManager.Instance.GetNextGroupId();
+            _group.GroupId = GroupAccess.Instance.GetNextGroupId();
         }
 
         [TestMethod]
@@ -91,7 +92,7 @@ namespace NosCore.Tests
 
             _group.JoinGroup(_entity);
 
-            Assert.IsTrue(!_group.IsEmpty);
+            Assert.IsTrue(_group.IsEmpty);
         }
     }
 }

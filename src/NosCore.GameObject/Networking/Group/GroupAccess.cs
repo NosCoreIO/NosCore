@@ -17,28 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading;
+using System.Collections.Concurrent;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.Group
 {
-    public class RandomFactory
+    public class GroupAccess //TODO move to a service
     {
-        private static RandomFactory _instance;
-        private static int _seed = Environment.TickCount;
+        private static GroupAccess _instance;
 
-        private readonly ThreadLocal<Random> _random =
-            new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
-
-        private RandomFactory()
+        private GroupAccess()
         {
         }
 
-        public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
+        public static GroupAccess Instance => _instance ?? (_instance = new GroupAccess());
 
-        public int RandomNumber(int min = 0, int max = 100)
+        private long _lastGroupId = 1;
+        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } = new ConcurrentDictionary<long, GameObject.Group>();
+
+        public long GetNextGroupId()
         {
-            return _random.Value.Next(min, max);
+            return ++_lastGroupId;
         }
+
     }
 }

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,6 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
 using JetBrains.Annotations;
-using log4net;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -50,8 +50,10 @@ using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
+using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -67,6 +69,7 @@ namespace NosCore.WorldServer
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
+        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static WorldConfiguration InitializeConfiguration()
         {
@@ -97,15 +100,14 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
-                    items.Count));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
+                    items.Count);
                 return items;
             }).As<List<Item>>().SingleInstance();
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED),
-                    monsters.Count));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count);
                 return monsters;
             }).As<List<NpcMonsterDto>>().SingleInstance();
             containerBuilder.Register(_ =>
@@ -113,17 +115,21 @@ namespace NosCore.WorldServer
                 List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
                 if (maps.Count != 0)
                 {
-                    Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
-                        maps.Count));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
+                        maps.Count);
                 }
                 else
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
                 }
 
                 return maps;
             }).As<List<Map>>().SingleInstance();
-
+            containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
+                .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+            
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);
@@ -133,7 +139,6 @@ namespace NosCore.WorldServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             Console.Title = Title;
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(WorldServer)));
             Logger.PrintHeader(ConsoleText);
             PacketFactory.Initialize<NoS0575Packet>();
             var configuration = InitializeConfiguration();

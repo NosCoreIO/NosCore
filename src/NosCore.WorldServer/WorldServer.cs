@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
@@ -30,6 +32,7 @@ using NosCore.Core;
 using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -37,6 +40,7 @@ using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
+using Serilog;
 
 namespace NosCore.WorldServer
 {
@@ -48,9 +52,11 @@ namespace NosCore.WorldServer
         private readonly NetworkManager _networkManager;
         private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly List<IGlobalEvent> _events;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService)
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -58,6 +64,7 @@ namespace NosCore.WorldServer
             _npcmonsters = npcmonsters;
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
+            _events = events.ToList();
         }
 
         public void Run()
@@ -67,13 +74,16 @@ namespace NosCore.WorldServer
                 return;
             }
 
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
-
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _events.ForEach(e =>
+            {
+                Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
+            });
             ConnectMaster();
             try
             {
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _worldConfiguration.Port));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _worldConfiguration.Port);
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
                 _networkManager.RunServerAsync().Wait();
@@ -129,7 +139,7 @@ namespace NosCore.WorldServer
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
-                        Logger.Log.Error(string.Format(
+                        _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,

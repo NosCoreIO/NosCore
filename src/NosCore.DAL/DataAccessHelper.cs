@@ -21,11 +21,13 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.DAL
 {
     public sealed class DataAccessHelper
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private static DataAccessHelper _instance;
 
         #region Members
@@ -64,12 +66,12 @@ namespace NosCore.DAL
                 {
                     context.Database.Migrate();
                     context.Database.GetDbConnection().Open();
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log.Error("Database Error", ex);
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
+                    _logger.Error("Database Error", ex);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
                     throw;
                 }
             }

@@ -23,23 +23,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels.Groups;
 using Mapster;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
-    public class MapInstance : BroadcastableBase
+    public class MapInstance : IBroadcastable
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly ConcurrentDictionary<long, MapMonster> _monsters;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
@@ -49,6 +55,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         private bool _isSleeping;
         private bool _isSleepingRequest;
 
+        public DateTime LastUnregister { get; set; }
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             List<NpcMonsterDto> npcMonsters)
         {
@@ -64,7 +71,12 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _npcs = new ConcurrentDictionary<long, MapNpc>();
             DroppedList = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
+            LastUnregister = DateTime.Now.AddMinutes(-1);
+            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
+            Sessions = new DefaultChannelGroup(executor);
         }
+
+        public IChannelGroup Sessions { get; set; }
 
         public ConcurrentDictionary<long, MapItem> DroppedList { get; }
 
@@ -141,17 +153,17 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            foreach (MapCell possibility in possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()))
+            var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
+            for (var i =0; i < orderedPossibilities.Count && !niceSpot; i++)
             {
-                mapX = (short) (session.Character.PositionX + possibility.X);
-                mapY = (short) (session.Character.PositionY + possibility.Y);
+                mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
+                mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
                 if (!Map.IsWalkable(Map[mapX, mapY]))
                 {
                     continue;
                 }
 
                 niceSpot = true;
-                break;
             }
 
             if (!niceSpot)
@@ -240,7 +252,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 }
                 catch (Exception e)
                 {
-                    Logger.Log.Error(e);
+                    _logger.Error(e.Message, e);
                 }
             });
         }

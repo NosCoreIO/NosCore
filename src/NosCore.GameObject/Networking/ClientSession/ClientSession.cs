@@ -29,17 +29,22 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession : NetworkClient, IClientSession
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> _controllerMethods =
             new Dictionary<PacketHeaderAttribute, Action<object, object>>();
 
@@ -68,7 +73,7 @@ namespace NosCore.GameObject.Networking
                     x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -94,8 +99,7 @@ namespace NosCore.GameObject.Networking
                 if (_character == null || !HasSelectedCharacter)
                 {
                     // cant access an
-                    Logger.Log.Warn(
-                        string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT)));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
                 }
 
                 return _character;
@@ -110,7 +114,7 @@ namespace NosCore.GameObject.Networking
         {
             Account = accountDto;
             IsAuthenticated = true;
-            ServerManager.Instance.RegisterSession(this);
+            Broadcaster.Instance.RegisterSession(this);
         }
 
         public void SetCharacter(Character character)
@@ -132,9 +136,21 @@ namespace NosCore.GameObject.Networking
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            ServerManager.Instance.UnregisterSession(this);
-            SessionFactory.Instance.Sessions.TryRemove(context.Channel.Id.AsLongText(), out _);
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
+            if (Character != null)
+            {
+                if (Character.Hp < 1)
+                {
+                    Character.Hp = 1;
+                }
+
+                Character.SendRelationStatus(false);
+                Character.LeaveGroup();
+                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+
+                Character.Save();
+            }
+            Broadcaster.Instance.UnregisterSession(this);
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED));
         }
 
         public void ChangeMap(short? mapId = null, short? mapX = null, short? mapY = null)
@@ -146,7 +162,7 @@ namespace NosCore.GameObject.Networking
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -161,7 +177,8 @@ namespace NosCore.GameObject.Networking
             ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
         }
 
-        public void ChangeMapInstance(Guid mapInstanceId, int? mapX = null, int? mapY = null)
+        public void ChangeMapInstance(Guid mapInstanceId) => ChangeMapInstance(mapInstanceId, null, null);
+        public void ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
         {
             if (Character?.MapInstance == null || Character.IsChangingMapInstance)
             {
@@ -171,9 +188,13 @@ namespace NosCore.GameObject.Networking
             try
             {
                 Character.IsChangingMapInstance = true;
-                LeaveMap(this);
 
-                Character.MapInstance.Sessions.TryRemove(SessionId, out _);
+                if (Channel != null)
+                {
+                    Character.MapInstance.Sessions.Remove(Channel);
+                }
+                Character.MapInstance.LastUnregister = DateTime.Now;
+                LeaveMap(this);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -191,15 +212,15 @@ namespace NosCore.GameObject.Networking
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -212,7 +233,9 @@ namespace NosCore.GameObject.Networking
                 SendPackets(Character.MapInstance.GetMapItems());
                 if (!Character.InvisibleGm)
                 {
-                    Character.MapInstance.Broadcast(Character.GenerateIn());
+                    Character.MapInstance.Sessions.WriteAndFlushAsync(Character.GenerateIn(
+                        Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)
+                    );
                 }
 
                 SendPacket(Character.Group.GeneratePinit());
@@ -220,21 +243,23 @@ namespace NosCore.GameObject.Networking
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
-                    Character.MapInstance.Broadcast(Character.Group.GeneratePidx(Character));
+                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 Parallel.ForEach(
-                    Character.MapInstance.Sessions.Values.Where(s => s.Character != null && s != this),
-                    s => SendPacket(s.Character.GenerateIn()));
+                   Broadcaster.Instance.GetCharacters(s => s != this.Character && s.MapInstance.MapInstanceId == Character.MapInstanceId),
+                    s => SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
-                Character.MapInstance.Sessions.TryAdd(SessionId, this);
-
+                if (Channel != null)
+                {
+                    Character.MapInstance.Sessions.Add(Channel);
+                }
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)
             {
-                Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
+               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -242,7 +267,7 @@ namespace NosCore.GameObject.Networking
         public void LeaveMap(ClientSession session)
         {
             session.SendPacket(new MapOutPacket());
-            session.Character.MapInstance.Broadcast(session, session.Character.GenerateOut(), ReceiverType.AllExceptMe);
+            session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateOut(), new EveryoneBut(session.Channel.Id));
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -271,7 +296,7 @@ namespace NosCore.GameObject.Networking
                 try
                 {
                     //check for the correct authority
-                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
+                    if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                     {
                         return;
                     }
@@ -285,22 +310,22 @@ namespace NosCore.GameObject.Networking
                     }
                     else
                     {
-                        Logger.Log.Warn(string.Format(
+                       _logger.Warning(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
                     }
                 }
                 catch (Exception ex)
                 {
                     // disconnect if something unexpected happens
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
-                        ex));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
+                        ex);
                     Disconnect();
                 }
             }
             else
             {
-                Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
-                    packetHeader));
+               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
+                    packetHeader);
             }
         }
 
@@ -336,7 +361,7 @@ namespace NosCore.GameObject.Networking
                 SessionId = sessid;
                 SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
 
-                Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
 
                 if (!_waitForPacketsAmount.HasValue)
                 {
@@ -346,7 +371,7 @@ namespace NosCore.GameObject.Networking
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');
@@ -358,7 +383,7 @@ namespace NosCore.GameObject.Networking
                     if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
                         && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
                             ClientId);
                         Disconnect();
                         return;

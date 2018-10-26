@@ -19,7 +19,6 @@
 
 namespace NosCore.Shared.Enumerations.Buff
 {
-    //TODO IMPROVE NAMING
     public enum ShellOptionType
     {
         /* WEAPON OPTIONS */

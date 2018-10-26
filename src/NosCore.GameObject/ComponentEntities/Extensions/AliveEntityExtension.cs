@@ -21,8 +21,10 @@ using System;
 using System.Reactive.Linq;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
@@ -47,7 +49,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup = false)
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity) => playableEntity.GenerateSubPidx(false);
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
         {
             return new PidxSubPacket
             {
@@ -64,8 +67,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
-                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
+                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
+                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -88,10 +91,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     short mapX = nonPlayableEntity.MapX;
                     short mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
                             Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
@@ -103,8 +106,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.Broadcast(new BroadcastPacket(null,
-                            nonPlayableEntity.GenerateMove(mapX, mapY), ReceiverType.All));
+                        nonPlayableEntity.MapInstance.Sessions.SendPacket(
+                            nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }
@@ -146,7 +149,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX = null, short? mapY = null)
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity) => aliveEntity.GenerateMove(null, null);
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX, short? mapY)
         {
             return new MovePacket
             {

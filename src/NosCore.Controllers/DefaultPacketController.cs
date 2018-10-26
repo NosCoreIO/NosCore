@@ -31,6 +31,9 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -41,6 +44,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
@@ -48,6 +52,7 @@ namespace NosCore.Controllers
     {
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         [UsedImplicitly]
         public DefaultPacketController()
@@ -278,8 +283,7 @@ namespace NosCore.Controllers
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = ServerManager.Instance.Sessions.Values
-                        .FirstOrDefault(s => s.Character.CharacterId == ncifPacket.TargetId)?.Character;
+                    entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Monster:
                     entity = Session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);
@@ -288,7 +292,7 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
                     return;
             }
 
@@ -319,7 +323,7 @@ namespace NosCore.Controllers
             Session.Character.PositionX = walkPacket.XCoordinate;
             Session.Character.PositionY = walkPacket.YCoordinate;
 
-            Session.Character.MapInstance?.Broadcast(Session.Character.GenerateMove());
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove());
             Session.SendPacket(Session.Character.GenerateCond());
             Session.Character.LastMove = DateTime.Now;
         }
@@ -339,8 +343,8 @@ namespace NosCore.Controllers
             if (guriPacket.VisualEntityId != null
                 && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
             {
-                Session.Character.MapInstance.Broadcast(Session,
-                    Session.Character.GenerateEff(guriPacket.Data + 4099), ReceiverType.AllNoEmoBlocked);
+                Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.GenerateEff(guriPacket.Data + 4099));//TODO , ReceiverType.AllNoEmoBlocked
             }
         }
 
@@ -356,23 +360,23 @@ namespace NosCore.Controllers
         /// <summary>
         ///     SayPacket
         /// </summary>
-        /// <param name="sayPacket"></param>
-        public void SayPacket(ClientSayPacket sayPacket)
+        /// <param name="clientSayPacket"></param>
+        public void Say(ClientSayPacket clientSayPacket)
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
-            Session.Character.MapInstance?.Broadcast(Session, Session.Character.GenerateSay(new SayPacket
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateSay(new SayPacket
             {
-                Message = sayPacket.Message,
+                Message = clientSayPacket.Message,
                 Type = type
-            }), ReceiverType.AllExceptMeAndBlacklisted);
+            }), new EveryoneBut(Session.Channel.Id)); //TODO  ReceiverType.AllExceptMeAndBlacklisted
         }
 
         /// <summary>
         ///     WhisperPacket
         /// </summary>
         /// <param name="whisperPacket"></param>
-        public void WhisperPacket(WhisperPacket whisperPacket)
+        public void Whisper(WhisperPacket whisperPacket)
         {
             try
             {
@@ -403,10 +407,10 @@ namespace NosCore.Controllers
                 });
 
                 var receiverSession =
-                    ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character?.Name == receiverName);
+                    Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
                 if (receiverSession != null)
                 {
-                    if (receiverSession.Character.CharacterRelations.Values.Any(s =>
+                    if (receiverSession.CharacterRelations.Values.Any(s =>
                         s.RelatedCharacterId == Session.Character.CharacterId
                         && s.RelationType == CharacterRelationType.Blocked))
                     {
@@ -460,7 +464,7 @@ namespace NosCore.Controllers
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                ServerManager.Instance.BroadcastPacket(new PostedPacket
+                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
@@ -475,7 +479,7 @@ namespace NosCore.Controllers
             }
             catch (Exception e)
             {
-                Logger.Log.Error("Whisper failed.", e);
+                _logger.Error("Whisper failed.", e);
             }
         }
 
@@ -488,7 +492,7 @@ namespace NosCore.Controllers
             if (!Session.Character.CharacterRelations.Values.Any(s =>
                 s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     Session.Account.Language));
                 return;
             }
@@ -501,8 +505,8 @@ namespace NosCore.Controllers
 
             message = message.Trim();
             var receiverSession =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                    s.Character.CharacterId == btkPacket.CharacterId);
+                Broadcaster.Instance.GetCharacter(s =>
+                    s.VisualId == btkPacket.CharacterId);
 
             if (receiverSession != null)
             {
@@ -533,7 +537,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            ServerManager.Instance.BroadcastPacket(new PostedPacket
+            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
@@ -604,15 +608,15 @@ namespace NosCore.Controllers
             }
 
             var targetSession =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                    s.Character.CharacterId == finsPacket.CharacterId);
+                Broadcaster.Instance.GetCharacter(s =>
+                    s.VisualId == finsPacket.CharacterId);
 
             if (targetSession == null)
             {
                 return;
             }
 
-            if (!targetSession.Character.FriendRequestCharacters.Values.Contains(Session.Character.CharacterId))
+            if (!targetSession.FriendRequestCharacters.Values.Contains(Session.Character.CharacterId))
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -649,13 +653,13 @@ namespace NosCore.Controllers
                             Session.Account.Language)
                     });
 
-                    var relation = Session.Character.AddRelation(targetSession.Character.CharacterId,
+                    var relation = Session.Character.AddRelation(targetSession.VisualId,
                         CharacterRelationType.Friend);
-                    var targetRelation = targetSession.Character.AddRelation(Session.Character.CharacterId,
+                    var targetRelation = targetSession.AddRelation(Session.Character.CharacterId,
                         CharacterRelationType.Friend);
 
                     Session.Character.RelationWithCharacter.TryAdd(targetRelation.CharacterRelationId, targetRelation);
-                    targetSession.Character.RelationWithCharacter.TryAdd(relation.CharacterRelationId, relation);
+                    targetSession.RelationWithCharacter.TryAdd(relation.CharacterRelationId, relation);
 
                     Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                     break;
@@ -667,6 +671,9 @@ namespace NosCore.Controllers
                     });
 
                     Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
+                    break;
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVITETYPE_UNKNOWN));
                     break;
             }
         }
@@ -733,7 +740,7 @@ namespace NosCore.Controllers
         public void AddDistantFriend(FlPacket flPacket)
         {
             var target =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == flPacket.CharacterName);
+                Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);
 
             if (target == null)
             {
@@ -747,7 +754,7 @@ namespace NosCore.Controllers
 
             var fins = new FinsPacket
             {
-                CharacterId = target.Character.CharacterId,
+                CharacterId = target.VisualId,
                 Type = FinsPacketType.Accepted
             };
 
@@ -760,8 +767,8 @@ namespace NosCore.Controllers
         /// <param name="blPacket"></param>
         public void DistantBlackList(BlPacket blPacket)
         {
-            ClientSession target =
-                ServerManager.Instance.Sessions.Values.FirstOrDefault(s => s.Character.Name == blPacket.CharacterName);
+            var target =
+                Broadcaster.Instance.GetCharacter(s => s.Name == blPacket.CharacterName);
 
             if (target == null)
             {
@@ -775,7 +782,7 @@ namespace NosCore.Controllers
 
             var blinsPacket = new BlInsPacket
             {
-                CharacterId = target.Character.CharacterId
+                CharacterId = target.VisualId
             };
 
             BlackListAdd(blinsPacket);

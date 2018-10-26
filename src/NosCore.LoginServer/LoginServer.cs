@@ -35,6 +35,7 @@ using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
+using Serilog;
 
 namespace NosCore.LoginServer
 {
@@ -42,6 +43,7 @@ namespace NosCore.LoginServer
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager)
         {
@@ -57,8 +59,8 @@ namespace NosCore.LoginServer
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _loginConfiguration.Port));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _loginConfiguration.Port);
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 _networkManager.RunServerAsync().Wait();
             }
@@ -109,7 +111,7 @@ namespace NosCore.LoginServer
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
-                        Logger.Log.Error(string.Format(
+                        _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,

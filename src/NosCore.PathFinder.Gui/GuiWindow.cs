@@ -115,7 +115,6 @@ namespace NosCore.PathFinder.Gui
             _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
-            //walls.ForEach(w => DrawPixel(w.Item1, w.Item2, Color.Blue));//TODO iswalkable
             foreach (var wall in _walls)
             {
                 DrawPixel(wall.Item1, wall.Item2, Color.Blue); //TODO iswalkable

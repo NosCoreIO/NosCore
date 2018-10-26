@@ -21,6 +21,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels.Groups;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
@@ -30,21 +32,25 @@ using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {
-    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<DateTime, INamedEntity>>
+    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<DateTime, INamedEntity>>, IBroadcastable
     {
         public Group(GroupType type)
         {
             Type = type;
             GroupId = -1;
+            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
+            Sessions = new DefaultChannelGroup(executor);
         }
+
+        public IChannelGroup Sessions { get; set; }
 
         public long GroupId { get; set; }
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Count == (long) Type;
+        public bool IsGroupFull => Count == (long)Type;
 
-        public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Monster) == 0;
+        public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
 
         public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
 
@@ -68,8 +74,8 @@ namespace NosCore.GameObject
                 Type = member.VisualType,
                 VisualId = member.VisualId,
                 GroupOrder = ++i,
-                HpLeft = (int) (member.Hp / (float) member.MaxHp * 100),
-                MpLeft = (int) (member.Mp / (float) member.MaxMp * 100),
+                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
+                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
                 Class = member.Class,
@@ -87,12 +93,20 @@ namespace NosCore.GameObject
 
         public void JoinGroup(INamedEntity namedEntity)
         {
+            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
+            {
+                Sessions.Add(characterEntity.Channel);
+            }
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
                 new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
         }
 
         public void LeaveGroup(INamedEntity namedEntity)
         {
+            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
+            {
+                Sessions.Remove(characterEntity.Channel);
+            }
             TryRemove(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), out _);
         }
     }

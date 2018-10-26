@@ -18,74 +18,53 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Runtime.CompilerServices;
-using log4net;
+using System.IO;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace NosCore.Shared.I18N
 {
+
     public static class Logger
     {
-        #region Properties
+        private const string ConfigurationPath = "../../../configuration";
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+            .AddJsonFile("logger.json")
+            .Build();
 
-        public static ILog Log { get; set; }
+        private static readonly string[] AsciiTitle = new string[]
+        {
+            @" __  _  __    __   ___ __  ___ ___ ",
+            @"|  \| |/__\ /' _/ / _//__\| _ \ __|",
+            @"| | ' | \/ |`._`.| \_| \/ | v / _| ",
+            @"|_|\__|\__/ |___/ \__/\__/|_|_\___|",
+            @"-----------------------------------"
+        };
 
-        #endregion
-
-        #region Methods
+        public static LoggerConfiguration GetLoggerConfiguration()
+        {
+            return new LoggerConfiguration().ReadFrom.Configuration(Configuration);
+        }
 
         public static void PrintHeader(string text)
         {
-            var offset = ((Console.WindowWidth - 20) / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth - 20);
-            Log.Info(separator);
-            Log.Info(string.Format("{0," + offset + "}", text));
-            Log.Info(separator);
-        }
+            Log.Logger = GetLoggerConfiguration().CreateLogger();
 
-        /// <summary>
-        ///     Wraps up the message with the CallerMemberName
-        /// </summary>
-        /// <param name="caller"></param>
-        /// <param name="message"></param>
-        /// <param name="memberName"></param>
-        public static void Debug(string caller, string message, [CallerMemberName] string memberName = "")
-        {
-            Log?.Debug($"{caller} Method: {memberName} Packet: {message}");
-        }
-
-        /// <summary>
-        ///     Wraps up the error message with the CallerMemberName
-        /// </summary>
-        /// <param name="memberName"></param>
-        /// <param name="innerException"></param>
-        public static void Error(Exception innerException = null, [CallerMemberName] string memberName = "")
-        {
-            if (innerException != null)
+            var titleLogger = new LoggerConfiguration()
+                .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
+                .CreateLogger();
+            var offset = ((Console.WindowWidth) / 2) + (text.Length / 2);
+            var separator = new string('=', Console.WindowWidth);
+            titleLogger.Information(separator);
+            foreach (var s in AsciiTitle)
             {
-                Log?.Error($"{memberName}: {innerException.Message}", innerException);
+                titleLogger.Information(string.Format("{0," + (((Console.WindowWidth) / 2) + (s.Length / 2)) + "}", s));
             }
+            titleLogger.Information(string.Format("{0," + offset + "}", text));
+            titleLogger.Information(separator);
         }
-
-        /// <summary>
-        ///     Wraps up the info message with the CallerMemberName
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="innerException"></param>
-        /// <param name="memberName"></param>
-        public static void Info(string message, Exception innerException = null,
-            [CallerMemberName] string memberName = "")
-        {
-            if (innerException != null)
-            {
-                Log?.Info($"Method: {memberName} Message: {message}", innerException);
-            }
-        }
-
-        public static void InitializeLogger(ILog log)
-        {
-            Log = log;
-        }
-
-        #endregion
     }
 }

@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
@@ -34,13 +35,14 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
     public class InventoryPacketController : PacketController
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IItemBuilderService _itemBuilderService;
-        private readonly List<Item> _items;
         private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
@@ -48,12 +50,11 @@ namespace NosCore.Controllers
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration, List<Item> items,
+        public InventoryPacketController(WorldConfiguration worldConfiguration,
             IItemBuilderService itemBuilderService)
         {
             _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
-            _items = items;
         }
 
         [UsedImplicitly]
@@ -114,7 +115,7 @@ namespace NosCore.Controllers
                         return;
 
                     default:
-                        Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
                         return;
                 }
 
@@ -149,7 +150,7 @@ namespace NosCore.Controllers
                         }
 
                         Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                        Session.Character.MapInstance.Broadcast(Session.Character.GenerateGet(getPacket.VisualId));
+                        Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                     }
                     else
                     {
@@ -160,7 +161,7 @@ namespace NosCore.Controllers
                         {
                             Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
                             Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out var value);
-                            Session.Character.MapInstance.Broadcast(Session.Character.GenerateGet(getPacket.VisualId));
+                            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                             if (getPacket.PickerType == PickerType.Mate)
                             {
                                 Session.SendPacket(Session.Character.GenerateIcon(1, inv.ItemVNum));
@@ -171,8 +172,11 @@ namespace NosCore.Controllers
                                 SayColorType.Green));
                             if (Session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                             {
-                                Session.Character.MapInstance.Broadcast(Session.Character.GenerateSay(
-                                    $"{string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD, Session.Account.Language), Session.Character.Name)}: {inv.Item.Name} x {mapItem.Amount}",
+                                var name = string.Format(
+                                    Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
+                                        Session.Account.Language), Session.Character.Name);
+                                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateSay(
+                                    $"{name}: {inv.Item.Name} x {mapItem.Amount}",
                                     SayColorType.Yellow));
                             }
                         }
@@ -216,7 +220,7 @@ namespace NosCore.Controllers
 
                     Session.SendPacket(Session.Character.GenerateGold());
                     Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                    Session.Character.MapInstance.Broadcast(Session.Character.GenerateGet(getPacket.VisualId));
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                 }
             }
         }
@@ -255,7 +259,7 @@ namespace NosCore.Controllers
 
                             Session.SendPacket(invitem.GeneratePocketChange(invitem.Type, invitem.Slot));
 
-                            Session.Character.MapInstance.Broadcast(droppedItem.GenerateDrop());
+                            Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                         }
                         else
                         {

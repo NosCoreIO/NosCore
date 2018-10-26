@@ -17,20 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Networking;
-using NosCore.Data;
+using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Groups;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject
 {
-    public interface IClientSession : INetworkClient
+    internal interface IBroadcastable
     {
-        bool HasCurrentMapInstance { get; }
-        AccountDto Account { get; set; }
-        bool HasSelectedCharacter { get; }
-        Character Character { get; }
-        bool IsAuthenticated { get; set; }
-
-        void SetCharacter(Character character);
-        void InitializeAccount(AccountDto accountDto);
+        IChannelGroup Sessions { get; set; }
     }
 }

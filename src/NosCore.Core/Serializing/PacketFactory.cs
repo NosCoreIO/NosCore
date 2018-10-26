@@ -28,11 +28,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NosCore.Core.Extensions;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Serializing
 {
     public static class PacketFactory
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private static Dictionary<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
             _packetSerializationInformations;
 
@@ -49,8 +52,11 @@ namespace NosCore.Core.Serializing
         ///     Include the keep alive identity or exclude it
         /// </param>
         /// <returns>The deserialized packet.</returns>
+        public static PacketDefinition Deserialize(string packetContent, Type packetType) =>
+            Deserialize(packetContent, packetType, false);
+
         public static PacketDefinition Deserialize(string packetContent, Type packetType,
-            bool includesKeepAliveIdentity = false)
+            bool includesKeepAliveIdentity)
         {
             try
             {
@@ -62,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
                 return null;
             }
         }
@@ -95,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-                Logger.Log.Warn($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
                 return null;
             }
         }
@@ -172,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                    Logger.Log.Warn("Wrong Packet Format!", e);
+                   _logger.Warning("Wrong Packet Format!", e);
                     return string.Empty;
                 }
             }
@@ -234,7 +240,7 @@ namespace NosCore.Core.Serializing
 
         private static IList DeserializeSimpleList(string currentValues, Type genericListType)
         {
-            var subpackets = (IList) Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
+            var subpackets = (IList)Convert.ChangeType(genericListType.CreateInstance<IList>(), genericListType);
             IEnumerable<string> splittedValues = currentValues.Split('.');
 
             foreach (var currentValue in splittedValues)
@@ -276,7 +282,7 @@ namespace NosCore.Core.Serializing
             var splittedSubpackets = currentValue.Split(' ').ToList();
             // generate new list
             var subpackets =
-                (IList) Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
+                (IList)Convert.ChangeType(packetBasePropertyType.CreateInstance<object>(), packetBasePropertyType);
 
             var subPacketType = packetBasePropertyType.GetGenericArguments()[0];
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
@@ -323,7 +329,7 @@ namespace NosCore.Core.Serializing
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new ArgumentNullException(
                         "The amount of splitted subpacket values without delimiter do not match the % property amount of the serialized type.");
                 }
             }
@@ -369,7 +375,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception)
                 {
-                    Logger.Log.Warn($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
+                   _logger.Warning($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
                 }
 
                 return convertedValue;
@@ -422,7 +428,7 @@ namespace NosCore.Core.Serializing
             if (packetPropertyType == typeof(string) && string.IsNullOrEmpty(currentValue)
                 && !packetIndexAttribute.SerializeToEnd)
             {
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(currentValue));
             }
 
             if (packetPropertyType == typeof(string) && currentValue == null)
@@ -455,7 +461,7 @@ namespace NosCore.Core.Serializing
 
             if (string.IsNullOrEmpty(header))
             {
-                throw new Exception($"Packet header cannot be empty. PacketType: {serializationType.Name}");
+                throw new ArgumentNullException($"Packet header cannot be empty. PacketType: {serializationType.Name}");
             }
 
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
@@ -500,7 +506,11 @@ namespace NosCore.Core.Serializing
 
                 for (var i = 1; i < listValueCount; i++)
                 {
-                    resultListPacket.Append(".").Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
+                    resultListPacket.Append(".")
+                        .Append(SerializeValue(
+                                    propertyType.GenericTypeArguments[0],
+                                    listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>())
+                        .Replace(" ", ""));
                 }
             }
 
@@ -645,14 +655,14 @@ namespace NosCore.Core.Serializing
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList) value, propertyType,
+                return SerializeSubpackets((IList)value, propertyType,
                     packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))) //simple list
             {
-                return SerializeSimpleList((IList) value, propertyType);
+                return SerializeSimpleList((IList)value, propertyType);
             }
 
             return $" {value}";

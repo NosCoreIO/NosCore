@@ -27,27 +27,33 @@ using System.Reflection;
 using Mapster;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.DAL
 {
     public class GenericDao<TEntity, TDto> where TEntity : class
     {
+        private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
 
         public GenericDao()
         {
+            _logger = Logger.GetLoggerConfiguration().CreateLogger();
             try
             {
-                foreach (var pi in typeof(TDto).GetProperties())
+                var pis = typeof(TDto).GetProperties();
+                var exit = false;
+                for (var index = 0; index < pis.Length || !exit; index++)
                 {
+                    var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
                     if (attrs.Length != 1)
                     {
                         continue;
                     }
 
+                    exit = true;
                     _primaryKey = pi;
-                    break;
                 }
 
                 if (_primaryKey != null)
@@ -59,7 +65,7 @@ namespace NosCore.DAL
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                _logger.Error(e.Message, e);
             }
         }
 
@@ -146,7 +152,7 @@ namespace NosCore.DAL
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                _logger.Error(e.Message, e);
                 return default;
             }
         }
@@ -191,7 +197,7 @@ namespace NosCore.DAL
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                _logger.Error(e.Message, e);
                 return SaveResult.Error;
             }
         }
@@ -242,7 +248,7 @@ namespace NosCore.DAL
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                _logger.Error(e.Message, e);
                 return SaveResult.Error;
             }
         }
@@ -270,7 +276,7 @@ namespace NosCore.DAL
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e);
+                    _logger.Error(e.Message, e);
                 }
 
                 foreach (var t in entities)

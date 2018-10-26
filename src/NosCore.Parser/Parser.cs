@@ -22,14 +22,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using log4net;
-using log4net.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+using Serilog;
 
 // ReSharper disable LocalizableElement
 
@@ -39,16 +38,9 @@ namespace NosCore.Parser
     {
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Parser";
-        private const string ConsoleText = "PARSER SERVER - NosCoreIO";
+        private const string ConsoleText = "PARSER - NosCoreIO";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
-
-        private static void InitializeLogger()
-        {
-            // LOGGER
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(Parser)));
-        }
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static void InitializeConfiguration()
         {
@@ -57,13 +49,12 @@ namespace NosCore.Parser
             builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(ParserConfiguration);
             LogLanguage.Language = ParserConfiguration.Language;
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }
 
         public static void Main(string[] args)
         {
             Console.Title = Title;
-            InitializeLogger();
             Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             try
@@ -74,13 +65,13 @@ namespace NosCore.Parser
 
                 try
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENTER_PATH));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENTER_PATH));
                     var folder = string.Empty;
                     var key = default(ConsoleKeyInfo);
                     if (args.Length == 0)
                     {
                         folder = Console.ReadLine();
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ALL)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ALL)} [Y/n]");
                         key = Console.ReadKey(true);
                     }
                     else
@@ -118,14 +109,14 @@ namespace NosCore.Parser
                     }
                     else
                     {
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportMaps();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPTYPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -135,7 +126,7 @@ namespace NosCore.Parser
                             factory.ImportMapTypeMap();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ACCOUNTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -143,21 +134,21 @@ namespace NosCore.Parser
                             factory.ImportAccounts();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_PORTALS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_PORTALS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportPortals();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_I18N)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_I18N)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportI18N();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TIMESPACES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -165,14 +156,14 @@ namespace NosCore.Parser
                             //factory.ImportScriptedInstances();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_ITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportItems();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -180,7 +171,7 @@ namespace NosCore.Parser
                             factory.ImportNpcMonsters();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_DROPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -188,7 +179,7 @@ namespace NosCore.Parser
                             factory.ImportDrops();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_NPCMONSTERDATA)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -196,28 +187,28 @@ namespace NosCore.Parser
                             //factory.ImportNpcMonsterData();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_CARDS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportCards();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SKILLS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportSkills();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPNPCS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MAPNPCS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportMapNpcs();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_MONSTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -225,14 +216,14 @@ namespace NosCore.Parser
                             factory.ImportMapMonsters();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             //factory.ImportShops();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_TELEPORTERS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -240,7 +231,7 @@ namespace NosCore.Parser
                             //factory.ImportTeleporters();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -248,7 +239,7 @@ namespace NosCore.Parser
                             //factory.ImportShopItems();
                         }
 
-                        Logger.Log.Info(
+                        _logger.Information(
                             $"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_SHOPSKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
@@ -256,14 +247,14 @@ namespace NosCore.Parser
                             //factory.ImportShopSkills();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_RECIPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             //factory.ImportRecipe();
                         }
 
-                        Logger.Log.Info($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
+                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LanguageKey.PARSE_QUESTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -271,18 +262,18 @@ namespace NosCore.Parser
                         }
                     }
 
-                    Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DONE));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DONE));
                     Thread.Sleep(5000);
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AT_LEAST_ONE_FILE_MISSING));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AT_LEAST_ONE_FILE_MISSING));
                     Thread.Sleep(5000);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Log.Error(ex);
+                _logger.Error(ex.Message, ex);
                 Console.ReadKey();
             }
         }

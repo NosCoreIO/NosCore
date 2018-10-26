@@ -26,6 +26,7 @@ using NosCore.Data.I18N;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -41,6 +42,7 @@ namespace NosCore.Parser.Parsers
         private const string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private string _line;
         private string _folder;
@@ -68,29 +70,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (actdesclist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && !actdescdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && actdescdtos.Exists(s => s.Key == currentLine[0]))
+                                actdescdtos.Add(new I18NActDescDto
                                 {
-                                    actdescdtos.Add(new I18NActDescDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NActDescDao.InsertOrUpdate(actdescdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ACTDESC_PARSED), actdescdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -106,33 +106,31 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                            if (cardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !carddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && carddtos.Exists(s => s.Key == currentLine[0]))
+                                carddtos.Add(new I18NCardDto
                                 {
-                                    carddtos.Add(new I18NCardDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NCardDao.InsertOrUpdate(carddtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_CARD_PARSED), carddtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
-            var bcardlist = DaoFactory.I18NBCardDao.LoadAll().ToList();
+            var bcardlist = DaoFactory.I18NbCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var bcarddtos = new List<I18NBCardDto>();
@@ -145,29 +143,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && !bcarddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && bcarddtos.Exists(s => s.Key == currentLine[0]))
+                                bcarddtos.Add(new I18NBCardDto
                                 {
-                                    bcarddtos.Add(new I18NBCardDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
-                        DaoFactory.I18NBCardDao.InsertOrUpdate(bcarddtos);
+                        DaoFactory.I18NbCardDao.InsertOrUpdate(bcarddtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_BCARD_PARSED), bcarddtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -183,29 +179,27 @@ namespace NosCore.Parser.Parsers
                         while ((_line = stream.ReadLine()) != null)
                         {
                             var currentLine = _line.Split('\t');
-                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                            if (itemlist.Find(s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !itemdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && itemdtos.Exists(s => s.Key == currentLine[0]))
+                                itemdtos.Add(new I18NItemDto
                                 {
-                                    itemdtos.Add(new I18NItemDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NItemDao.InsertOrUpdate(itemdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ITEM_PARSED), itemdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -222,29 +216,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mapiddatalist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && !mapiddatadtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && mapiddatadtos.Exists(s => s.Key == currentLine[0]))
+                                mapiddatadtos.Add(new I18NMapIdDataDto
                                 {
-                                    mapiddatadtos.Add(new I18NMapIdDataDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NMapIdDataDao.InsertOrUpdate(mapiddatadtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPIDDATA_PARSED),
                             mapiddatadtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -261,29 +253,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (mappointdatalist.Find(s =>
-                                s.Key == currentLine[0] && s.RegionType == region) == null)
+                                s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !mappointdatadtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && mappointdatadtos.Exists(s => s.Key == currentLine[0]))
+                                mappointdatadtos.Add(new I18NMapPointDataDto
                                 {
-                                    mappointdatadtos.Add(new I18NMapPointDataDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NMapPointDataDao.InsertOrUpdate(mappointdatadtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPPOINTDATA_PARSED),
                             mappointdatadtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -300,29 +290,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonsterlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && !npcmonsterdto.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && npcmonsterdto.Exists(s => s.Key == currentLine[0]))
+                                npcmonsterdto.Add(new I18NNpcMonsterDto
                                 {
-                                    npcmonsterdto.Add(new I18NNpcMonsterDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NNpcMonsterDao.InsertOrUpdate(npcmonsterdto);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MPCMONSTER_PARSED),
                             npcmonsterdto.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -339,29 +327,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (npcmonstertalklist.Find(
-                                s => s.Key == currentLine[0] && s.RegionType == region) == null)
+                                s => s.Key == currentLine[0] && s.RegionType == region) == null && currentLine.Length > 1 && !npctalkdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && npctalkdtos.Exists(s => s.Key == currentLine[0]))
+                                npctalkdtos.Add(new I18NNpcMonsterTalkDto
                                 {
-                                    npctalkdtos.Add(new I18NNpcMonsterTalkDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NNpcMonsterTalkDao.InsertOrUpdate(npctalkdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_NPCMONSTERTALK_PARSED),
                             npctalkdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -378,29 +364,27 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (questlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && currentLine.Length > 1 && !questdtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                if (currentLine.Length > 1 && questdtos.Exists(s => s.Key == currentLine[0]))
+                                questdtos.Add(new I18NQuestDto
                                 {
-                                    questdtos.Add(new I18NQuestDto
-                                    {
-                                        Key = currentLine[0],
-                                        RegionType = region,
-                                        Text = currentLine[1]
-                                    });
-                                }
+                                    Key = currentLine[0],
+                                    RegionType = region,
+                                    Text = currentLine[1]
+                                });
                             }
                         }
 
                         DaoFactory.I18NQuestDao.InsertOrUpdate(questdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_QUEST_PARSED), questdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -417,7 +401,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if (skilllist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
-                                == null)
+                                == null && !skilldtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 skilldtos.Add(new I18NSkillDto
                                 {
@@ -430,13 +414,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NSkillDao.InsertOrUpdate(skilldtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_SKILL_PARSED), skilldtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
         }

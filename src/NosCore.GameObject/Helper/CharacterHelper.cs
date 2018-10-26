@@ -711,21 +711,14 @@ namespace NosCore.GameObject.Helper
                 index++;
                 if (index % 10 == 0)
                 {
-                    if (index / 10 < 3)
-                    {
-                        increment3 -= index / 10 * 30;
-                    }
-                    else
-                    {
-                        increment3 -= 30;
-                    }
+                    increment3 -= (index / 10 < 3) ? index / 10 * 30 : 30;
                 }
             }
         }
 
         private void LoadHpData()
         {
-            HpData = new [] {
+            HpData = new[] {
                 new int[256],
                 new int[256],
                 new int[256],
@@ -1154,26 +1147,23 @@ namespace NosCore.GameObject.Helper
 
                     XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * v[i - 1]));
                 }
-
-                if (i < 79)
+                else
                 {
-                    continue;
-                }
-
-                switch (i)
-                {
-                    case 79:
+                    if (i == 79)
+                    {
                         var = 5000;
-                        break;
-                    case 82:
+                    }
+                    else if (i == 82)
+                    {
                         var = 9000;
-                        break;
-                    case 84:
+                    }
+                    else if (i == 84)
+                    {
                         var = 13000;
-                        break;
-                }
+                    }
 
-                XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * (i + 2) * (i + 2)));
+                    XpData[i] = Convert.ToInt64(XpData[i - 1] + (var * (i + 2) * (i + 2)));
+                }
             }
         }
 

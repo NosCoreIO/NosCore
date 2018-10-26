@@ -22,9 +22,14 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -32,6 +37,7 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         // POST api/packet
         [HttpPost]
         public IActionResult PostPacket([FromBody] PostedPacket postedPacket)
@@ -46,20 +52,20 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    ServerManager.Instance.Broadcast(message);
+                    Broadcaster.Instance.Sessions.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
-                    ClientSession receiverSession;
+                    ICharacterEntity receiverSession;
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {
-                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                            s.Character?.Name == postedPacket.ReceiverCharacter.Name);
+                        receiverSession = Broadcaster.Instance.GetCharacter(s =>
+                            s.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = ServerManager.Instance.Sessions.Values.FirstOrDefault(s =>
-                            s.Character?.CharacterId == postedPacket.ReceiverCharacter.Id);
+                        receiverSession = Broadcaster.Instance.GetCharacter(s =>
+                            s.VisualId == postedPacket.ReceiverCharacter.Id);
                     }
 
                     if (receiverSession == null)
@@ -68,6 +74,9 @@ namespace NosCore.WorldServer.Controllers
                     }
 
                     receiverSession.SendPacket(message);
+                    break;
+                default:
+                   _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

@@ -26,11 +26,13 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     internal class NpcMonsterParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string FileNpcId = "\\monster.dat";
         private string _folder;
 
@@ -235,14 +237,12 @@ namespace NosCore.Parser.Parsers
                         //TODO find HeroXP algorithm
                         switch (npc.NpcMonsterVNum)
                         {
-                            case 2500:
-                                npc.HeroXp = 879;
-                                break;
-
+                            case 2510:
                             case 2501:
                                 npc.HeroXp = 881;
                                 break;
 
+                            case 2512:
                             case 2502:
                                 npc.HeroXp = 884;
                                 break;
@@ -267,20 +267,10 @@ namespace NosCore.Parser.Parsers
                                 npc.HeroXp = 825;
                                 break;
 
+                            case 2500:
                             case 2509:
-                                npc.HeroXp = 789;
-                                break;
-
-                            case 2510:
-                                npc.HeroXp = 881;
-                                break;
-
                             case 2511:
                                 npc.HeroXp = 879;
-                                break;
-
-                            case 2512:
-                                npc.HeroXp = 884;
                                 break;
 
                             case 2513:
@@ -434,6 +424,8 @@ namespace NosCore.Parser.Parsers
                                     + Convert.ToInt16(currentLine[5]));
                                 npc.Concentrate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[6]));
                                 break;
+                            default:
+                                continue;
                         }
                     }
                     else if (currentLine.Length > 6 && currentLine[1] == "ARMOR")
@@ -446,6 +438,10 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 7 && currentLine[1] == "ETC")
                     {
+                        if (npc.NpcMonsterVNum >= 588 && npc.NpcMonsterVNum <= 607)
+                        {
+                            npc.MonsterType = MonsterType.Elite;
+                        }
                         unknownData = Convert.ToInt64(currentLine[2]);
                         switch (unknownData)
                         {
@@ -457,11 +453,8 @@ namespace NosCore.Parser.Parsers
                             case -2147483646:
                                 npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
                                 break;
-                        }
-
-                        if (npc.NpcMonsterVNum >= 588 && npc.NpcMonsterVNum <= 607)
-                        {
-                            npc.MonsterType = MonsterType.Elite;
+                            default:
+                                continue;
                         }
                     }
                     else if (currentLine.Length > 6 && currentLine[1] == "SETTING")
@@ -539,7 +532,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            var first = uint.Parse(currentLine[(5 * i) + 3]);
+                            var first = int.Parse(currentLine[(5 * i) + 3]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
@@ -547,7 +540,7 @@ namespace NosCore.Parser.Parsers
                                 SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
                                     + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = first % 4 == 2,
+                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
                                 SecondData = (short) (int.Parse(currentLine[(5 * i) + 4]) / 4),
                                 ThirdData = (short) (int.Parse(currentLine[(5 * i) + 6]) / 4)
@@ -625,8 +618,8 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
                 DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
                 DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
-                Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
-                    counter));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
+                    counter);
             }
 
             IEnumerable<DropDto> dropDtos = drops;
