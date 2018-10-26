@@ -27,11 +27,13 @@ using DotNetty.Transport.Channels;
 using Newtonsoft.Json;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Core.Networking
 {
     public class MasterServerSession : SimpleChannelInboundHandler<string>
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         protected readonly string Password;
         private int _id;
         protected bool IsAuthenticated;
@@ -44,8 +46,8 @@ namespace NosCore.Core.Networking
         public override void ChannelInactive(IChannelHandlerContext context)
         {
             MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
-            Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER),
-                _id.ToString()));
+           _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER),
+                _id.ToString());
         }
 
         public override Task WriteAsync(IChannelHandlerContext context, object message)
@@ -69,8 +71,7 @@ namespace NosCore.Core.Networking
             }
             catch (Exception ex)
             {
-                Logger.Log.Error(
-                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex);
                 return;
             }
 
@@ -79,7 +80,7 @@ namespace NosCore.Core.Networking
                 if (msgChannel.Password == Password)
                 {
                     IsAuthenticated = true;
-                    Logger.Log.Debug(string.Format(
+                    _logger.Debug(string.Format(
                         LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
 
                     if (MasterClientListSingleton.Instance.WorldServers == null)
@@ -119,15 +120,14 @@ namespace NosCore.Core.Networking
                 else
                 {
                     ctx.CloseAsync();
-                    Logger.Log.Error(
-                        string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR)));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR));
                 }
             }
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            Logger.Log.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER)));
+           _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER));
         }
     }
 }

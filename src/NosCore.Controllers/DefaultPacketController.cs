@@ -44,6 +44,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
@@ -51,6 +52,7 @@ namespace NosCore.Controllers
     {
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         [UsedImplicitly]
         public DefaultPacketController()
@@ -290,7 +292,7 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
                     return;
             }
 
@@ -477,7 +479,7 @@ namespace NosCore.Controllers
             }
             catch (Exception e)
             {
-                Logger.Log.Error("Whisper failed.", e);
+                _logger.Error("Whisper failed.", e);
             }
         }
 
@@ -490,7 +492,7 @@ namespace NosCore.Controllers
             if (!Session.Character.CharacterRelations.Values.Any(s =>
                 s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     Session.Account.Language));
                 return;
             }
@@ -671,7 +673,7 @@ namespace NosCore.Controllers
                     Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                     break;
                 default:
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVITETYPE_UNKNOWN));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVITETYPE_UNKNOWN));
                     break;
             }
         }

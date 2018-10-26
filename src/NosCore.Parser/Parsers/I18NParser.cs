@@ -26,6 +26,7 @@ using NosCore.Data.I18N;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -41,6 +42,7 @@ namespace NosCore.Parser.Parsers
         private const string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private string _line;
         private string _folder;
@@ -81,14 +83,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NActDescDao.InsertOrUpdate(actdescdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ACTDESC_PARSED), actdescdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -117,14 +119,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NCardDao.InsertOrUpdate(carddtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_CARD_PARSED), carddtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -154,14 +156,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NbCardDao.InsertOrUpdate(bcarddtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_BCARD_PARSED), bcarddtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -190,14 +192,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NItemDao.InsertOrUpdate(itemdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_ITEM_PARSED), itemdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -227,14 +229,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NMapIdDataDao.InsertOrUpdate(mapiddatadtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPIDDATA_PARSED),
                             mapiddatadtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -264,14 +266,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NMapPointDataDao.InsertOrUpdate(mappointdatadtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MAPPOINTDATA_PARSED),
                             mappointdatadtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -301,14 +303,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NNpcMonsterDao.InsertOrUpdate(npcmonsterdto);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_MPCMONSTER_PARSED),
                             npcmonsterdto.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -338,14 +340,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NNpcMonsterTalkDao.InsertOrUpdate(npctalkdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_NPCMONSTERTALK_PARSED),
                             npctalkdtos.Count, region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -375,14 +377,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NQuestDao.InsertOrUpdate(questdtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_QUEST_PARSED), questdtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
 
@@ -412,14 +414,14 @@ namespace NosCore.Parser.Parsers
 
                         DaoFactory.I18NSkillDao.InsertOrUpdate(skilldtos);
 
-                        Logger.Log.Info(string.Format(
+                        _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.I18N_SKILL_PARSED), skilldtos.Count,
                             region));
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LANGUAGE_MISSING));
                 }
             }
         }

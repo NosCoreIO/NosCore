@@ -26,7 +26,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
 using JetBrains.Annotations;
-using log4net;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -77,7 +76,6 @@ namespace NosCore.MasterServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             Console.Title = Title;
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(MasterServer)));
             Logger.PrintHeader(ConsoleText);
             var configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature

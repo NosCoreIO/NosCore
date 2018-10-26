@@ -24,8 +24,6 @@ using Autofac;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
-using log4net;
-using log4net.Config;
 using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
@@ -37,6 +35,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.LoginServer
 {
@@ -45,6 +44,7 @@ namespace NosCore.LoginServer
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static LoginConfiguration InitializeConfiguration()
         {
@@ -54,16 +54,8 @@ namespace NosCore.LoginServer
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(loginConfiguration);
             LogLanguage.Language = loginConfiguration.Language;
-            Logger.Log.Info(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
-        }
-
-        private static void InitializeLogger()
-        {
-            // LOGGER
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("../../configuration/log4net.config"));
-            Logger.InitializeLogger(LogManager.GetLogger(typeof(LoginServer)));
         }
 
         private static void InitializePackets()
@@ -74,7 +66,6 @@ namespace NosCore.LoginServer
         public static void Main()
         {
             Console.Title = Title;
-            InitializeLogger();
             Logger.PrintHeader(ConsoleText);
             InitializePackets();
             var container = InitializeContainer();

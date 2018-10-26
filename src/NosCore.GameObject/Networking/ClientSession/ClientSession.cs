@@ -37,11 +37,14 @@ using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession : NetworkClient, IClientSession
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> _controllerMethods =
             new Dictionary<PacketHeaderAttribute, Action<object, object>>();
 
@@ -96,8 +99,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_character == null || !HasSelectedCharacter)
                 {
                     // cant access an
-                    Logger.Log.Warn(
-                        string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT)));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
                 }
 
                 return _character;
@@ -148,7 +150,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Character.Save();
             }
             Broadcaster.Instance.UnregisterSession(this);
-            Logger.Log.Info(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED)));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED));
         }
 
         public void ChangeMap(short? mapId = null, short? mapX = null, short? mapY = null)
@@ -257,7 +259,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception)
             {
-                Logger.Log.Warn(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
+               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -308,22 +310,22 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     else
                     {
-                        Logger.Log.Warn(string.Format(
+                       _logger.Warning(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
                     }
                 }
                 catch (Exception ex)
                 {
                     // disconnect if something unexpected happens
-                    Logger.Log.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
-                        ex));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
+                        ex);
                     Disconnect();
                 }
             }
             else
             {
-                Logger.Log.Warn(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
-                    packetHeader));
+               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
+                    packetHeader);
             }
         }
 
@@ -359,7 +361,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SessionId = sessid;
                 SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
 
-                Logger.Log.DebugFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
 
                 if (!_waitForPacketsAmount.HasValue)
                 {
@@ -381,7 +383,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
                         && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
                     {
-                        Logger.Log.ErrorFormat(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
                             ClientId);
                         Disconnect();
                         return;

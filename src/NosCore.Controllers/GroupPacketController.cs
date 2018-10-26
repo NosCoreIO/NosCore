@@ -33,11 +33,14 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Controllers
 {
     public class GroupPacketController : PacketController
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         /// <summary>
         ///     pjoin packet
         /// </summary>
@@ -50,7 +53,7 @@ namespace NosCore.Controllers
 
             if (targetSession == null && pjoinPacket.RequestType != GroupRequestType.Sharing)
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     Session.Account.Language));
                 return;
             }
@@ -303,7 +306,7 @@ namespace NosCore.Controllers
                     });
                     break;
                 default:
-                    Logger.Log.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.GROUPREQUESTTYPE_UNKNOWN));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.GROUPREQUESTTYPE_UNKNOWN));
                     break;
             }
         }
