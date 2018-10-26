@@ -18,27 +18,35 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using NosCore.Shared.I18N.Enrichers;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace NosCore.Shared.I18N
 {
+
     public static class Logger
     {
+        private const string ConfigurationPath = "../../../configuration";
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+            .AddJsonFile("logger.json")
+            .Build();
+
+        private static readonly string[] AsciiTitle = new string[]
+        {
+            @" __  _  __    __   ___ __  ___ ___ ",
+            @"|  \| |/__\ /' _/ / _//__\| _ \ __|",
+            @"| | ' | \/ |`._`.| \_| \/ | v / _| ",
+            @"|_|\__|\__/ |___/ \__/\__/|_|_\___|",
+            @"-----------------------------------"
+        };
+
         public static LoggerConfiguration GetLoggerConfiguration()
         {
-            return new LoggerConfiguration()
-                .Enrich.With<ShortLevelMapperEnricher>()
-                .WriteTo.Console(
-                    theme: AnsiConsoleTheme.Code,
-                    outputTemplate:
-                    "{ShortLevel} {Timestamp:HH:mm:ss} -- {Message:lj}{NewLine}{Exception}"
-                ).MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                .MinimumLevel.Debug();
+            return new LoggerConfiguration().ReadFrom.Configuration(Configuration);
         }
 
         public static void PrintHeader(string text)
@@ -51,6 +59,10 @@ namespace NosCore.Shared.I18N
             var offset = ((Console.WindowWidth) / 2) + (text.Length / 2);
             var separator = new string('=', Console.WindowWidth);
             titleLogger.Information(separator);
+            foreach (var s in AsciiTitle)
+            {
+                titleLogger.Information(string.Format("{0," + (((Console.WindowWidth) / 2) + (s.Length / 2)) + "}", s));
+            }
             titleLogger.Information(string.Format("{0," + offset + "}", text));
             titleLogger.Information(separator);
         }

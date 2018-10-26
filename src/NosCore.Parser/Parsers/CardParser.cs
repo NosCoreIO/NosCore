@@ -25,6 +25,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Buff;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 
@@ -39,7 +40,7 @@ namespace NosCore.Parser.Parsers
         private readonly List<CardDto> Cards = new List<CardDto>();
         private readonly List<BCardDto> Bcards = new List<BCardDto>();
         private string _folder;
-
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public void AddFirstData(string[] currentLine)
         {
             for (var i = 0; i < 3; i++)
@@ -165,8 +166,8 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.CardDao.InsertOrUpdate(Cards);
                 DaoFactory.BcardDao.InsertOrUpdate(Bcards);
 
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED),
-                    _counter));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED),
+                    _counter);
             }
         }
     }

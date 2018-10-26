@@ -23,12 +23,13 @@ using NosCore.DAL;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
-
 {
     public class MapTypeParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         internal void InsertMapTypes()
         {
             var list = DaoFactory.MapTypeDao.LoadAll().ToList();

@@ -22,11 +22,13 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     internal class RespawnMapTypeParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         internal void InsertRespawnMapType()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>

@@ -23,11 +23,13 @@ using System.Linq;
 using NosCore.Data.AliveEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     internal class MapMonsterParser
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public void InsertMapMonster(List<string[]> packetList)
         {
             var monsterCounter = 0;
@@ -63,7 +65,7 @@ namespace NosCore.Parser.Parsers
                     MapMonsterId = int.Parse(currentPacket[3]),
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
-                    Direction = (byte) (currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
+                    Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
                     IsDisabled = false
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
@@ -82,8 +84,8 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
             DaoFactory.MapMonsterDao.InsertOrUpdate(mapMonsterDtos);
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MONSTERS_PARSED),
-                monsterCounter));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MONSTERS_PARSED),
+                monsterCounter);
         }
     }
 }

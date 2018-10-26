@@ -82,8 +82,8 @@ namespace NosCore.WorldServer
             ConnectMaster();
             try
             {
-                _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _worldConfiguration.Port));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                    _worldConfiguration.Port);
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
                 _networkManager.RunServerAsync().Wait();

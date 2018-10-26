@@ -24,6 +24,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -32,6 +33,7 @@ namespace NosCore.Parser.Parsers
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
         private List<PortalDto> _listPortals1 = new List<PortalDto>();
         private List<MapDto> _maps;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public void InsertPortals(List<string[]> packetList)
         {
@@ -181,8 +183,8 @@ namespace NosCore.Parser.Parsers
                         && s.SourceY == portal.SourceY));
             DaoFactory.PortalDao.InsertOrUpdate(portalsDtos);
 
-            _logger.Information(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PORTALS_PARSED),
-                portalCounter));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PORTALS_PARSED),
+                portalCounter);
         }
     }
 }

@@ -38,13 +38,13 @@ namespace NosCore.Core.Networking
 
         public override void ChannelInactive(IChannelHandlerContext context)
         {
-           _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER)));
+           _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER));
             Task.Run(() => _onConnectionLost());
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            _logger.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER)));
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
         }
 
         protected override void ChannelRead0(IChannelHandlerContext ctx, string msg)
@@ -56,8 +56,7 @@ namespace NosCore.Core.Networking
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex);
             }
         }
     }

@@ -46,8 +46,8 @@ namespace NosCore.Core.Networking
         public override void ChannelInactive(IChannelHandlerContext context)
         {
             MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
-           _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER),
-                _id.ToString()));
+           _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNREGISTRED_FROM_MASTER),
+                _id.ToString());
         }
 
         public override Task WriteAsync(IChannelHandlerContext context, object message)
@@ -71,8 +71,7 @@ namespace NosCore.Core.Networking
             }
             catch (Exception ex)
             {
-                _logger.Error(
-                    string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNRECOGNIZED_MASTER_PACKET), ex);
                 return;
             }
 
@@ -121,15 +120,14 @@ namespace NosCore.Core.Networking
                 else
                 {
                     ctx.CloseAsync();
-                    _logger.Error(
-                        string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR)));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR));
                 }
             }
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-           _logger.Debug(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER)));
+           _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_FROM_MASTER));
         }
     }
 }
