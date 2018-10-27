@@ -23,9 +23,9 @@ using NosCore.Shared.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [PacketHeader("$Position", Authority = AuthorityType.GameMaster)]
-    public class PositionPacket : PacketDefinition
+    public class PositionPacket : PacketDefinition, ICommandPacket
     {
-        public static string ReturnHelp()
+        public string Help()
         {
             return "$Position";
         }
