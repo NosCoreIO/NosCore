@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Mapster;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.Entities;
+using MapType = NosCore.Database.Entities.MapType;
 
 namespace NosCore.DAL
 {
