@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+﻿//  __ _  __ __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -17,48 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Account;
+
+namespace NosCore.Packets.CommandPackets
 {
-    public interface IAliveEntity : IVisualEntity
+    [PacketHeader("$Invisible", Authority = AuthorityType.GameMaster)]
+    public class InvisibleCommandPacket : PacketDefinition, ICommandPacket
     {
-        bool IsSitting { get; set; }
-
-        byte Class { get; }
-
-        byte Speed { get; }
-
-        int Mp { get; }
-
-        int Hp { get; }
-
-        byte Morph { get; }
-
-        byte MorphUpgrade { get; }
-
-        byte MorphDesign { get; }
-
-        byte MorphBonus { get; }
-
-        bool NoAttack { get; }
-
-        bool NoMove { get; }
-
-        bool IsAlive { get; }
-
-        short MapX { get; }
-
-        short MapY { get; }
-
-        int MaxHp { get; }
-
-        int MaxMp { get; }
-
-        byte Level { get; }
-
-        byte HeroLevel { get; }
-
-        bool Invisible { get; }
-
-        bool InvisibleGm { get; }
+        public string Help()
+        {
+            return "$Invisible";
+        }
     }
 }

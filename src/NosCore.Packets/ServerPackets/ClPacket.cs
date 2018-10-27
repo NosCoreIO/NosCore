@@ -17,48 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using NosCore.Core.Serializing;
+
+namespace NosCore.Packets.ServerPackets
 {
-    public interface IAliveEntity : IVisualEntity
+    [PacketHeader("cl")]
+    public class ClPacket : PacketDefinition
     {
-        bool IsSitting { get; set; }
+        [PacketIndex(0)]
+        public long VisualId { get; set; }
 
-        byte Class { get; }
+        [PacketIndex(1)]
+        public bool Invisible { get; set; }
 
-        byte Speed { get; }
-
-        int Mp { get; }
-
-        int Hp { get; }
-
-        byte Morph { get; }
-
-        byte MorphUpgrade { get; }
-
-        byte MorphDesign { get; }
-
-        byte MorphBonus { get; }
-
-        bool NoAttack { get; }
-
-        bool NoMove { get; }
-
-        bool IsAlive { get; }
-
-        short MapX { get; }
-
-        short MapY { get; }
-
-        int MaxHp { get; }
-
-        int MaxMp { get; }
-
-        byte Level { get; }
-
-        byte HeroLevel { get; }
-
-        bool Invisible { get; }
-
-        bool InvisibleGm { get; }
+        [PacketIndex(2)]
+        public bool InvisibleGm { get; set; }
     }
 }
