@@ -21,7 +21,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {
-        bool IsSitting { get; }
+        bool IsSitting { get; set; }
 
         byte Class { get; }
 

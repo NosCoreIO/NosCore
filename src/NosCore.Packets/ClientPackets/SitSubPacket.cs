@@ -17,27 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
-using NosCore.GameObject.Networking;
-using NosCore.Packets.ClientPackets;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Controllers
+namespace NosCore.Packets.ClientPackets
 {
-    public class UselessPacketController : PacketController
+    [PacketHeader("sit_sub_packet")]
+    public class SitSubPacket : PacketDefinition
     {
-        public void CClose([UsedImplicitly] CClosePacket cClosePacket)
-        {
-            // idk
-        }
+        [PacketIndex(0)]
+        public VisualType VisualType { get; set; }
 
-        public void FStashEnd([UsedImplicitly] FStashEndPacket fStashEndPacket)
-        {
-            // idk
-        }
-
-        public void Snap(SnapPacket snapPacket)
-        {
-            // pictures
-        }
+        [PacketIndex(1)]
+        public long VisualId { get; set; }
     }
 }
