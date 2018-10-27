@@ -28,6 +28,7 @@ using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -62,6 +63,20 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public CommandPacketController()
         {
+        }
+
+        [UsedImplicitly]
+        public void Effect(EffectCommandPacket effectCommandpacket)
+        {
+            if (effectCommandpacket != null)
+            {
+                Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.GenerateEff(effectCommandpacket.EffectId));
+            }
+            else
+            {
+                Session.SendPacket(Session.Character.GenerateSay(EffectCommandPacket.ReturnHelp(), SayColorType.Yellow));
+            }
         }
 
         [UsedImplicitly]
