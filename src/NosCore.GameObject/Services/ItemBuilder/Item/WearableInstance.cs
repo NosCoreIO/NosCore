@@ -32,7 +32,9 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public WearableInstance(Item item) : base(item)
         {
         }
-
+        public WearableInstance()
+        {
+        }
         public byte Ammo { get; set; }
 
         public byte Cellon { get; set; }

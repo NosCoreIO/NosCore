@@ -24,6 +24,9 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public SpecialistInstance(Item item) : base(item)
         {
         }
+        public SpecialistInstance()
+        {
+        }
 
         public short SlDamage { get; set; }
 

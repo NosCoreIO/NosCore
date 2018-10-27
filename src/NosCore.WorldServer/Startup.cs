@@ -52,6 +52,7 @@ using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
@@ -186,6 +187,7 @@ namespace NosCore.WorldServer
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+            Mapper.InitializeMapperItemInstance();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }

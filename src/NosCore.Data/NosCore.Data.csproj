@@ -15,7 +15,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="StaticEntities\Text\" />
+    <Compile Remove="StaticEntities\Text\**" />
+    <EmbeddedResource Remove="StaticEntities\Text\**" />
+    <None Remove="StaticEntities\Text\**" />
   </ItemGroup>
 
   <ItemGroup>

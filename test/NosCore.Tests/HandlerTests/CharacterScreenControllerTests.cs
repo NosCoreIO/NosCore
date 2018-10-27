@@ -49,7 +49,6 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class CharacterScreenControllerTests
     {
-        private const string ConfigurationPath = "../../../configuration";
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
