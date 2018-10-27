@@ -763,12 +763,6 @@ namespace NosCore.GameObject
             }
         }
 
-        public void Rest()
-        {
-            IsSitting = !IsSitting;
-            Session.SendPacket(Session.Character.GenerateRest());
-        }
-
         public GoldPacket GenerateGold()
         {
             return new GoldPacket { Gold = Gold };

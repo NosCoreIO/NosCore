@@ -796,10 +796,7 @@ namespace NosCore.Controllers
         {
             sitpacket.Users?.ForEach(u =>
             {
-                if (u.VisualType == VisualType.Player)
-                {
-                    Session.Character.Rest();
-                }
+                Session.Character.Rest();
             });
         }
     }
