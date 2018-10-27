@@ -17,12 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Transport.Channels.Groups;
-
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    internal interface IBroadcastable
+    public class UsableInstance : ItemInstance
     {
-        IChannelGroup Sessions { get; set; }
+        public UsableInstance(Item item) : base(item)
+        {
+        }
+
+        public UsableInstance()
+        {
+        }
+
+        public short? Hp { get; set; }
+
+        public short? Mp { get; set; }
+
     }
 }

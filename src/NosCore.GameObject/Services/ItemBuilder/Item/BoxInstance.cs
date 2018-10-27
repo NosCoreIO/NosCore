@@ -24,5 +24,9 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public BoxInstance(Item item) : base(item)
         {
         }
+        public BoxInstance()
+        {
+        }
+
     }
 }
