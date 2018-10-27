@@ -65,6 +65,13 @@ namespace NosCore.Controllers
         {
         }
 
+        public void Position(PositionPacket positionPacket)
+        {
+            Session.SendPacket(Session.Character.GenerateSay(
+                $"Map:{Session.Character.MapInstance.Map.MapId} - X:{Session.Character.PositionX} - Y:{Session.Character.PositionY} - Dir:{Session.Character.Direction} - Cell:{Session.Character.MapInstance.Map[Session.Character.PositionX, Session.Character.PositionY]}",
+                SayColorType.Green));
+        }
+
         [UsedImplicitly]
         public void Effect(EffectCommandPacket effectCommandpacket)
         {
