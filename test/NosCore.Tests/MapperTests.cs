@@ -27,7 +27,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 namespace NosCore.Tests
 {
     [TestClass]
-    public class DaoTests
+    public class MapperTests
     {
         [TestInitialize]
         public void Setup()
@@ -125,12 +125,43 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
-        public void WearableToSpecialistShouldFail()
+        public void WearableDtoToSpecialistDtoShouldFail()
         {
-            var wearableInstance = new GameObject.Services.ItemBuilder.Item.WearableInstance(new Item());
-            var specialistInstance = wearableInstance.Adapt<GameObject.Services.ItemBuilder.Item.SpecialistInstance>();
-            Assert.IsNull(specialistInstance);
+            var wearableInstanceDto = new NosCore.Data.WearableInstanceDto();
+            var specialistInstanceDto = wearableInstanceDto.Adapt<NosCore.Data.SpecialistInstanceDto>();
+            Assert.IsNull(specialistInstanceDto);
         }
 
+        [TestMethod]
+        public void WearableToSpecialistDtoShouldFail()
+        {
+            var wearableInstance = new GameObject.Services.ItemBuilder.Item.WearableInstance();
+            var specialistInstanceDto = wearableInstance.Adapt<NosCore.Data.SpecialistInstanceDto>();
+            Assert.IsNull(specialistInstanceDto);
+        }
+
+        [TestMethod]
+        public void SpecialistDtoToSpecialistShouldPass()
+        {
+            var specialistInstanceDto = new NosCore.Data.SpecialistInstanceDto();
+            var specialistInstance = specialistInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.SpecialistInstance>();
+            Assert.IsNotNull(specialistInstance);
+        }
+
+        [TestMethod]
+        public void BoxDtoToBoxShouldPass()
+        {
+            var boxInstanceDto = new NosCore.Data.BoxInstanceDto();
+            var boxInstance = boxInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.BoxInstance>();
+            Assert.IsNotNull(boxInstance);
+        }
+
+        [TestMethod]
+        public void UsableDtoToUsableShouldPass()
+        {
+            var usableInstanceDto = new NosCore.Data.UsableInstanceDto();
+            var usableInstance = usableInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.UsableInstance>();
+            Assert.IsNotNull(usableInstance);
+        }
     }
 }

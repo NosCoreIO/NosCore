@@ -62,7 +62,7 @@ namespace NosCore.DAL
         private static GenericDao<NpcMonsterSkill, NpcMonsterSkillDto> _npcMonsterSkillDao;
         private static GenericDao<MapMonster, MapMonsterDto> _mapMonsterDao;
         private static GenericDao<CharacterRelation, CharacterRelationDto> _characterRelationDao;
-        private static GenericDao<ItemInstance, ItemInstanceDto> _itemInstanceDao;
+        private static ItemInstanceDao _itemInstanceDao;
 
         public static GenericDao<Drop, DropDto> DropDao => _dropDao ??
             (_dropDao = new GenericDao<Drop, DropDto>());
@@ -76,8 +76,8 @@ namespace NosCore.DAL
         public static GenericDao<BCard, BCardDto> BCardDao => _bCardDao ??
             (_bCardDao = new GenericDao<BCard, BCardDto>());
 
-        public static GenericDao<ItemInstance, ItemInstanceDto> ItemInstanceDao => _itemInstanceDao ??
-            (_itemInstanceDao = new GenericDao<ItemInstance, ItemInstanceDto>());
+        public static ItemInstanceDao ItemInstanceDao => _itemInstanceDao ??
+            (_itemInstanceDao = new ItemInstanceDao());
 
         public static GenericDao<Skill, SkillDto> SkillDao => _skillDao ??
             (_skillDao = new GenericDao<Skill, SkillDto>());
