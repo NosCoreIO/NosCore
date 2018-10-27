@@ -40,6 +40,7 @@ namespace NosCore.GameObject.Services.ItemBuilder
                 k.Adapt<BoxInstance>() ??
                 k.Adapt<SpecialistInstance>() ?? 
                 k.Adapt<WearableInstance>() ??
+                k.Adapt<UsableInstance>() ??
                 k.Adapt<ItemInstance>();
 
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);

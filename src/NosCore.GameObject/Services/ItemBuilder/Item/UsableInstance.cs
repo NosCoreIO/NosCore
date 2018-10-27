@@ -19,41 +19,19 @@
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class SpecialistInstance : WearableInstance
+    public class UsableInstance : ItemInstance
     {
-        public SpecialistInstance(Item item) : base(item)
-        {
-        }
-        public SpecialistInstance()
+        public UsableInstance(Item item) : base(item)
         {
         }
 
-        public short SlDamage { get; set; }
+        public UsableInstance()
+        {
+        }
 
-        public short SlDefence { get; set; }
+        public short? Hp { get; set; }
 
-        public short SlElement { get; set; }
+        public short? Mp { get; set; }
 
-        public short SlHp { get; set; }
-
-        public byte SpDamage { get; set; }
-
-        public byte SpDark { get; set; }
-
-        public byte SpDefence { get; set; }
-
-        public byte SpElement { get; set; }
-
-        public byte SpFire { get; set; }
-
-        public byte SpHp { get; set; }
-
-        public byte SpLevel { get; set; }
-
-        public byte SpLight { get; set; }
-
-        public byte SpStoneUpgrade { get; set; }
-
-        public byte SpWater { get; set; }
     }
 }
