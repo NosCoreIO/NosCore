@@ -152,7 +152,7 @@ namespace NosCore.Tests
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             Assert.IsTrue(Inventory.Count == 2);
             var item = Inventory.DeleteFromTypeAndSlot(PocketType.Main, 0);
-            Assert.IsNotNull(item);
+            Assert.IsNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }
 
