@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="ItemInstance\" />
     <Folder Include="StaticEntities\Text\" />
   </ItemGroup>
 

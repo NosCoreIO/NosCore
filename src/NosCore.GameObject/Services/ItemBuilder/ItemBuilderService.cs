@@ -36,7 +36,9 @@ namespace NosCore.GameObject.Services.ItemBuilder
 
         public ItemInstance Convert(ItemInstanceDto k)
         {
-            ItemInstance item = k.Adapt<ItemInstance>();
+            ItemInstance item;
+            if(k is WearableInstanceDTO)
+                item = k.Adapt<ItemInstance>();
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);
             return item;
         }

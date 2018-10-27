@@ -52,7 +52,6 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class GroupPacketControllerTests
     {
-        private const string ConfigurationPath = "../../../configuration";
         private readonly List<GroupPacketController> _handlers = new List<GroupPacketController>();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
 

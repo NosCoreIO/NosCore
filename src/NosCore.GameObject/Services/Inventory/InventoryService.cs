@@ -204,7 +204,10 @@ namespace NosCore.GameObject.Services.Inventory
 
             if (inv != null && type != PocketType.Bazaar)
             {
-                TryRemove(inv.Id, out var value);
+                if (TryRemove(inv.Id, out var value))
+                {
+                    return null;
+                }
                 return value;
             }
 
