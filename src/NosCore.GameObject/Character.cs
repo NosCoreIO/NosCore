@@ -747,7 +747,7 @@ namespace NosCore.GameObject
                 DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
-                var currentlySavedInventorys = DaoFactory.ItemInstanceDao.Where(i => i.CharacterId.Equals(CharacterId));
+                var currentlySavedInventorys = DaoFactory.ItemInstanceDao.Where(i => i.CharacterId == CharacterId);
                 DaoFactory.ItemInstanceDao.Delete(currentlySavedInventorys.Except(Inventory.Values));
                 DaoFactory.ItemInstanceDao.InsertOrUpdate(Inventory.Values);
             }
