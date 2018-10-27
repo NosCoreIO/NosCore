@@ -113,6 +113,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
         }
 
+        public static void Rest(this IAliveEntity aliveEntity)
+        {
+            aliveEntity.IsSitting = !aliveEntity.IsSitting;
+            aliveEntity.MapInstance.Sessions.SendPacket(
+                aliveEntity.GenerateRest());
+        }
+
         public static CondPacket GenerateCond(this IAliveEntity aliveEntity)
         {
             return new CondPacket
@@ -180,6 +187,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Type = packet.Type,
                 Message = packet.Message
+            };
+        }
+
+        public static RestPacket GenerateRest(this IAliveEntity aliveEntity)
+        {
+            return new RestPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                IsSitting = aliveEntity.IsSitting
             };
         }
     }
