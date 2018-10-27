@@ -19,9 +19,6 @@
 
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Account;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Packets.CommandPackets
 {
