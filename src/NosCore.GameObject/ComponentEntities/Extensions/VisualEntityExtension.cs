@@ -218,5 +218,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = packet.Message
             };
         }
+
+        public static RestPacket GenerateRest(this INamedEntity visualEntity)
+        {
+            return new RestPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                IsSitting = visualEntity.IsSitting
+            };
+        }
     }
 }

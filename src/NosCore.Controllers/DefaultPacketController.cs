@@ -787,5 +787,20 @@ namespace NosCore.Controllers
 
             BlackListAdd(blinsPacket);
         }
+
+        /// <summary>
+        /// rest packet
+        /// </summary>
+        /// <param name="sitpacket"></param>
+        public void Rest(SitPacket sitpacket)
+        {
+            sitpacket.Users?.ForEach(u =>
+            {
+                if (u.VisualType == VisualType.Player)
+                {
+                    Session.Character.Rest();
+                }
+            });
+        }
     }
 }
