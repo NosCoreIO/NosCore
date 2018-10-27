@@ -794,9 +794,20 @@ namespace NosCore.Controllers
         /// <param name="sitpacket"></param>
         public void Rest(SitPacket sitpacket)
         {
-            sitpacket.Users?.ForEach(u =>
+            sitpacket.Users.ForEach(u =>
             {
-                Session.Character.Rest();
+                IAliveEntity entity;
+
+                switch (u.VisualType)
+                {
+                    case VisualType.Player:
+                        entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
+                        break;
+                    default:
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), u.VisualType);
+                        return;
+                }
+                entity.Rest();
             });
         }
     }
