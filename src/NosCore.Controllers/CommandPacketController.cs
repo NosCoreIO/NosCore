@@ -65,6 +65,16 @@ namespace NosCore.Controllers
         {
         }
 
+        [UsedImplicitly]
+        public void Invisible(InvisibleCommandPacket invisiblePacket)
+        {
+            Session.Character.Invisible = !Session.Character.Invisible;
+            Session.Character.InvisibleGm = !Session.Character.InvisibleGm;
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
+            //Session.SendPacket(Session.Character.GenerateEq());
+        }
+
+        [UsedImplicitly]
         public void Position(PositionPacket positionPacket)
         {
             Session.SendPacket(Session.Character.GenerateSay(
