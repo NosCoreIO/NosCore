@@ -136,7 +136,7 @@ namespace NosCore.DAL
             }
         }
 
-        public ItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate) 
+        public ItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate)
         where TEntity : ItemInstance
         {
             try
@@ -171,11 +171,11 @@ namespace NosCore.DAL
             {
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var entity = dto is BoxInstanceDto ? dto.Adapt<BoxInstance>() :
-                        dto is SpecialistInstanceDto ? dto.Adapt<SpecialistInstance>() :
-                        dto is WearableInstanceDto ? dto.Adapt<WearableInstance>() :
-                        dto is UsableInstanceDto ? dto.Adapt<UsableInstance>() :
-                        dto.Adapt<ItemInstance>();
+                    var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                       : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                       : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                       : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                       : dto.Adapt<ItemInstance>();
 
                     var dbset = context.Set<ItemInstance>();
 
@@ -235,11 +235,11 @@ namespace NosCore.DAL
                     var entitytoadd = new List<ItemInstance>();
                     foreach (var dto in dtos)
                     {
-                        var entity = dto is BoxInstanceDto ? dto.Adapt<BoxInstance>() :
-                            dto is SpecialistInstanceDto ? dto.Adapt<SpecialistInstance>() :
-                            dto is WearableInstanceDto ? dto.Adapt<WearableInstance>() :
-                            dto is UsableInstanceDto ? dto.Adapt<UsableInstance>() :
-                            dto.Adapt<ItemInstance>();
+                        var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                            : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                            : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                            : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                            : dto.Adapt<ItemInstance>();
 
                         var value = _primaryKey.GetValue(dto, null);
 
