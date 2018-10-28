@@ -218,5 +218,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = packet.Message
             };
         }
+
+        public static ClPacket GenerateInvisible(this ICharacterEntity visualEntity)
+        {
+            return new ClPacket
+            {
+                VisualId = visualEntity.VisualId,
+                Invisible = visualEntity.Invisible,
+                InvisibleGm = visualEntity.InvisibleGm
+            };
+        }
     }
 }
