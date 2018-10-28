@@ -18,11 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,26 +29,19 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.CharacterBuilder;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
@@ -89,7 +79,7 @@ namespace NosCore.Tests.HandlerTests
 
             var items = new List<Item>
             {
-                new Item {Type = PocketType.Main, VNum = 1012},
+                new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
                 new Item {Type = PocketType.Main, VNum = 1013},
                 new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
@@ -122,5 +112,83 @@ namespace NosCore.Tests.HandlerTests
             var packet = (IvnPacket)_session.LastPacket;
             Assert.IsTrue(packet.IvnSubPackets.All(iv => iv.Slot == 0 && iv.VNum == -1));
         }
+
+        [TestMethod]
+        public void Test_PutPartialSlot()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 999));
+            _handler.PutItem(new PutPacket
+            {
+                PocketType = PocketType.Main,
+                Slot = 0,
+                Amount = 500
+            });
+            Assert.IsTrue(_session.Character.Inventory.Count == 1 && _session.Character.Inventory.FirstOrDefault().Value.Amount == 499);
+        }
+
+        [TestMethod]
+        public void Test_PutNotDroppable()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1013, 1));
+            _handler.PutItem(new PutPacket
+            {
+                PocketType = PocketType.Main,
+                Slot = 0,
+                Amount = 1
+            });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
+                _session.Account.Language) && packet.Type == 0);
+            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+        }
+
+
+        [TestMethod]
+        public void Test_Put()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
+            _handler.PutItem(new PutPacket
+            {
+                PocketType = PocketType.Main,
+                Slot = 0,
+                Amount = 1
+            });
+            Assert.IsTrue(_session.Character.Inventory.Count == 0);
+        }
+
+        [TestMethod]
+        public void Test_PutBadPlace()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1013, 1));
+            _handler.PutItem(new PutPacket
+            {
+                PocketType = PocketType.Main,
+                Slot = 0,
+                Amount = 1
+            });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+                _session.Account.Language) && packet.Type == 0);
+            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+        }
+
+        [TestMethod]
+        public void Test_Get()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void Test_GetAway()
+        {
+            throw new NotImplementedException() ;
+        }
+
+        [TestMethod]
+        public void Test_GetFullInventory()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
