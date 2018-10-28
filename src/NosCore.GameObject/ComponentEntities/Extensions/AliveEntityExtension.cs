@@ -199,16 +199,5 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 IsSitting = aliveEntity.IsSitting
             };
         }
-
-
-        public static ClPacket GenerateInvisible(this IAliveEntity aliveEntity)
-        {
-            return new ClPacket
-            {
-                VisualId = aliveEntity.VisualId,
-                Invisible = aliveEntity.Invisible,
-                InvisibleGm = aliveEntity.InvisibleGm
-            };
-        }
     }
 }

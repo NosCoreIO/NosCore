@@ -35,8 +35,6 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public byte Class { get; set; }
-        public bool Invisible { get; set; }
-        public bool InvisibleGm { get; set; }
         public byte Speed { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
