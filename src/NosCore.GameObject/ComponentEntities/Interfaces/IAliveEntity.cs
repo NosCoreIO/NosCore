@@ -56,9 +56,5 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         byte Level { get; }
 
         byte HeroLevel { get; }
-
-        bool Invisible { get; }
-
-        bool InvisibleGm { get; }
     }
 }

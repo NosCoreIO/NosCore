@@ -862,5 +862,15 @@ namespace NosCore.GameObject
                 Message = message
             };
         }
+
+        public ClPacket GenerateInvisible()
+        {
+            return new ClPacket
+            {
+                VisualId = CharacterId,
+                Invisible = Invisible,
+                InvisibleGm = InvisibleGm
+            };
+        }
     }
 }
