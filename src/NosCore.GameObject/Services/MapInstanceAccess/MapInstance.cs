@@ -30,7 +30,6 @@ using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.PortalGeneration;

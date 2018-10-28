@@ -19,8 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -39,14 +37,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class LoginPacketControllerTests
     {
-        private const string ConfigurationPath = "../../../configuration";
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =

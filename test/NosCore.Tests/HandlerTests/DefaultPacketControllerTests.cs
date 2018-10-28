@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +23,6 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.HandlerTests
@@ -34,7 +30,6 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class DefaultPacketControllerTests
     {
-        private const string ConfigurationPath = "../../../configuration";
         private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
         private readonly ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
         private CharacterDto _chara;
