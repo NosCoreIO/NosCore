@@ -18,10 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;

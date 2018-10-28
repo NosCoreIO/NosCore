@@ -19,7 +19,6 @@
 
 using System;
 using System.Reactive.Linq;
-using System.Threading;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;

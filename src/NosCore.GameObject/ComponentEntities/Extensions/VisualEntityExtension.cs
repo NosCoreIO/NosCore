@@ -26,7 +26,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

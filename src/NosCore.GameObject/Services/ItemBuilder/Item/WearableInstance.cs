@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject.Helper;
-using NosCore.GameObject.Networking;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
