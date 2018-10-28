@@ -231,8 +231,7 @@ namespace NosCore.Controllers
             {
                 var invitem =
                     Session.Character.Inventory.LoadBySlotAndType<ItemInstance>(putPacket.Slot, putPacket.PocketType);
-                if ((invitem?.Item.IsDroppable ?? false) && invitem.Item.IsTradable
-                    && !Session.Character.InExchangeOrTrade)
+                if ((invitem?.Item.IsDroppable ?? false) && !Session.Character.InExchangeOrTrade)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                     {

@@ -39,6 +39,7 @@ using NosCore.Shared;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
