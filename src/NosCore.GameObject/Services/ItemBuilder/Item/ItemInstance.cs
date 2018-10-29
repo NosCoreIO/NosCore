@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class ItemInstance : ItemInstanceDto
+    public class ItemInstance : ItemInstanceDto, IItemInstance
     {
         public ItemInstance(Item item)
         {
@@ -34,14 +34,11 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         {
         }
 
-        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor
-            && Item.ItemType != ItemType.Weapon;
-
         public Item Item { get; set; }
 
-        public ItemInstance Clone()
+        public object Clone()
         {
-            return (ItemInstance) MemberwiseClone();
+            return (ItemInstance)MemberwiseClone();
         }
     }
 }

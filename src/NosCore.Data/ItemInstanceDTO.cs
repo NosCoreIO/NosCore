@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Data
 {
-    public class ItemInstanceDto : IDto
+    public class ItemInstanceDto : IDto, IItemInstanceDto
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

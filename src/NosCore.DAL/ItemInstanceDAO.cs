@@ -43,7 +43,7 @@ namespace NosCore.DAL
             _logger = Logger.GetLoggerConfiguration().CreateLogger();
             try
             {
-                var pis = typeof(ItemInstanceDto).GetProperties();
+                var pis = typeof(IItemInstanceDto).GetProperties();
                 var exit = false;
                 for (var index = 0; index < pis.Length || !exit; index++)
                 {
@@ -136,7 +136,7 @@ namespace NosCore.DAL
             }
         }
 
-        public ItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate)
+        public IItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate)
         where TEntity : ItemInstance
         {
             try
@@ -223,7 +223,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(IEnumerable<ItemInstanceDto> dtos)
+        public SaveResult InsertOrUpdate(IEnumerable<IItemInstanceDto> dtos)
         {
             try
             {
@@ -284,7 +284,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<ItemInstanceDto> LoadAll()
+        public IEnumerable<IItemInstanceDto> LoadAll()
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
@@ -299,7 +299,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<ItemInstanceDto> Where(Expression<Func<ItemInstance, bool>> predicate)
+        public IEnumerable<IItemInstanceDto> Where(Expression<Func<ItemInstance, bool>> predicate)
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {

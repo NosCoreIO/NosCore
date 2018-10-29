@@ -136,7 +136,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private IDisposable Life { get; set; }
 
-        public MapItem PutItem(short amount, ItemInstance inv, ClientSession session)
+        public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
             MapItem droppedItem = null;
@@ -176,7 +176,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 return null;
             }
 
-            var newItemInstance = inv.Clone();
+            var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = new MapItem

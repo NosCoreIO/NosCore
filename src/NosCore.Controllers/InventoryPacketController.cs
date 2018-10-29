@@ -67,7 +67,7 @@ namespace NosCore.Controllers
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((ItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
         [UsedImplicitly]
@@ -123,7 +123,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                ItemInstance mapItemInstance = _itemBuilderService.Create(mapItem.VNum,
+                IItemInstance mapItemInstance = _itemBuilderService.Create(mapItem.VNum,
                     mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
                 //TODO not your item
                 if (mapItem.VNum != 1046)
@@ -230,7 +230,7 @@ namespace NosCore.Controllers
             lock (Session.Character.Inventory)
             {
                 var invitem =
-                    Session.Character.Inventory.LoadBySlotAndType<ItemInstance>(putPacket.Slot, putPacket.PocketType);
+                    Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
                 if ((invitem?.Item.IsDroppable ?? false) && !Session.Character.InExchangeOrTrade)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
