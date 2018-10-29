@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>{0} ha aceptado el intercambio.</value>
+    <comment>check</comment>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Cuenta con SessionId {0} ha llegado.</value>
   </data>
@@ -126,8 +130,14 @@
   <data name="ADVENTURER" xml:space="preserve">
     <value>Aventurero</value>
   </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Ya está en lista negra.</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>¡Actualmente ya sois amigos!</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>El jugador ya se encuentra en grupo.</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>¡Este nombre ya lo tiene otro usuario!</value>
@@ -243,6 +253,31 @@
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>¡Petición de amigo bloqueada!</value>
   </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>¡Solicitud de amistad enviada!</value>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>¡No eres el administrador del grupo!</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>El jugador ha bloqueado grupo.</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>¡El grupo está lleno!</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Invitación a grupo.</value>
+  </data>
+  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
+    <value>¡El líder del grupo ha cambiado!</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Has dejado el grupo.</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>{0} ha rechazado tu invitación.</value>
+    <comment>check</comment>
+  </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Error del "controlador" (Handler).</value>
   </data>
@@ -288,6 +323,10 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
   </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} te ha invitado a su grupo.</value>
+    <comment>check</comment>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>¡{0} Items Cargados!</value>
   </data>
@@ -305,6 +344,14 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>¡No puedes soltar ese objeto aquí!</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>{0} se ha unido a tu grupo.</value>
+    <comment>check</comment>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} ha abandonado el grupo.</value>
+    <comment>check</comment>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Escuchando el Puerto {0}</value>
@@ -327,6 +374,9 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>¡{0} MapTypes (Tipos de Mapas) Analizados!</value>
   </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>El mapa no existe.</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Servidor Maestro iniciado exitosamente.</value>
   </data>
@@ -338,6 +388,9 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>¡{0} MapMonsters (Monstruos de los Mapas) Analizados!</value>
+  </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>¡Nuevo líder del grupo!</value>
   </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>No hay suficiente espacio.</value>
@@ -467,6 +520,12 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>No registrado desde el Servidor Maestro.</value>
     <comment>check</comment>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>¡El usuario no es tu amigo!</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>¡El usuario no está conectado!</value>
   </data>
   <data name="WRESTLER" xml:space="preserve">
     <value>Luchador</value>
