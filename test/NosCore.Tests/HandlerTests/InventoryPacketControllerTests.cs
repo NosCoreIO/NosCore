@@ -135,7 +135,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_PutPartialSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 999));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1, 999));
             _handler.PutItem(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -211,5 +211,10 @@ namespace NosCore.Tests.HandlerTests
             throw new NotImplementedException();
         }
 
+        [TestMethod]
+        public void Test_GetInStack()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
