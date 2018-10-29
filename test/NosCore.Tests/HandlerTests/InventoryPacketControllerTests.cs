@@ -29,19 +29,23 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
@@ -56,6 +60,20 @@ namespace NosCore.Tests.HandlerTests
         private CharacterDto _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
+        private MapInstance _map = new MapInstance(new Map()
+        {
+            Name = "testMap",
+            Data = new byte[]
+                {
+                    5, 0, 5, 0,
+                    0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0,
+                    0, 1, 1, 1, 0,
+                    0, 1, 1, 1, 0,
+                    0, 0, 0, 0, 0,
+                }
+        }
+            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>());
 
         [TestInitialize]
         public void Setup()
@@ -91,18 +109,19 @@ namespace NosCore.Tests.HandlerTests
 
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
+            _session.Character.MapInstance = _map;
             _session.Character.Inventory = new InventoryService(items, conf);
         }
 
         [TestMethod]
         public void Test_Delete_FromSlot()
         {
-             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1, 999));
-            _handler.AskToDelete(new BiPacket{Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1, 999));
+            _handler.AskToDelete(new BiPacket { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main });
             var packet = (IvnPacket)_session.LastPacket;
-            Assert.IsTrue(packet.IvnSubPackets.All(iv=>iv.Slot == 0 && iv.VNum == -1));
+            Assert.IsTrue(packet.IvnSubPackets.All(iv => iv.Slot == 0 && iv.VNum == -1));
         }
-        
+
         [TestMethod]
         public void Test_Delete_FromEquiment()
         {
@@ -159,7 +178,9 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_PutBadPlace()
         {
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1013, 1));
+            _session.Character.PositionX = 3;
+            _session.Character.PositionY = 3;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
             _handler.PutItem(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -181,7 +202,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_GetAway()
         {
-            throw new NotImplementedException() ;
+            throw new NotImplementedException();
         }
 
         [TestMethod]

@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
-                if (!Map.IsWalkable(Map[mapX, mapY]))
+                if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
                 {
                     continue;
                 }
@@ -185,6 +185,13 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             };
             DroppedList[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
+            var pocket = inv.Type;
+            var slot = inv.Slot;
+            if (inv.Amount == 0)
+            {
+                inv = session.Character.Inventory.DeleteById(inv.Id);
+            }
+            
             return droppedItem;
         }
 
