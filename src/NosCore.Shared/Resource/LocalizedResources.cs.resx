@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Přijmul si místo návratu od {0}!</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
@@ -126,8 +129,14 @@
   <data name="ADVENTURER" xml:space="preserve">
     <value>Dobrodruh</value>
   </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Již je na Černé Listině!</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Už jste přátelé</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>Už jste ve skupině!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Tohle jméno je obsazené!</value>
@@ -243,6 +252,39 @@
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Žádosti o přátelství jsou blokovány!</value>
   </data>
+  <data name="GOLD_SET" xml:space="preserve">
+    <value>Zlato nastaveno!</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Neznámý požadavek na skupinu!</value>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>Jsi vedoucí skupiny!</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>Uživatel blokuje pozvání do skupiny</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Skupina rozpuštěna</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Skupina je plná!</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Pozvánka do skupiny byla poslána hráči: {0}</value>
+  </data>
+  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
+    <value>Vedoucí skupiny byl změněn!</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Opustil si skupinu</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>{0} Odmítl tvé pozvání do skupiny!</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>Sdílel si místo návratu s členy skupiny</value>
+  </data>
   <data name="HANDLER_ERROR" xml:space="preserve">
     <value>Chyba Obsluhy</value>
   </data>
@@ -288,11 +330,26 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
+  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
+    <value>Neplatné argumenty teleportu!</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Chceš sdílet místo návratu s:{0}?</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} ti poslal pozvánku do skupiny</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Neznámý typ pozvánky</value>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Předměty načteny!</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
+  </data>
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
+    <value>Neznámý typ itemu</value>
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Získal si předmět!</value>
@@ -305,6 +362,9 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Tento předmět zde nejde vyhodit!</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Chybý jazyk!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
@@ -327,6 +387,9 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapType bylo úspěšně nahráno!</value>
   </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>Mapa neexistuje</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Master Server Se spustil správně</value>
   </data>
@@ -339,6 +402,9 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} Monstra byla úspěšně nahrána!</value>
   </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>Jsi nový vedoucí skupiny!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Nemáš dostatek místa!</value>
   </data>
@@ -350,6 +416,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} NpcMonsters Nahrána!</value>
   </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
     <value>{0} NPMonstra byla úspěšně nahrána!</value>
@@ -441,6 +510,9 @@
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Zpráva odeslána na {0}</value>
+  </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>
