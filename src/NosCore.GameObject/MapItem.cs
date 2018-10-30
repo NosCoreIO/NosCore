@@ -50,11 +50,11 @@ namespace NosCore.GameObject
             set => _visualId = value;
         }
 
-        public short Amount => ItemInstance.Amount;
+        public short Amount => ItemInstance?.Amount ?? 0;
 
         public VisualType VisualType => VisualType.Object;
 
-        public short VNum => ItemInstance.ItemVNum;
+        public short VNum => ItemInstance?.ItemVNum ?? 0;
 
         public byte Direction { get; set; }
         public Guid MapInstanceId { get; set; }
