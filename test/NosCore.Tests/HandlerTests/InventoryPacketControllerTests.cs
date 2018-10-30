@@ -42,6 +42,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
@@ -60,17 +61,18 @@ namespace NosCore.Tests.HandlerTests
         private CharacterDto _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
-        private MapInstance _map = new MapInstance(new Map()
+        private readonly MapInstance _map = new MapInstance(new Map()
         {
             Name = "testMap",
             Data = new byte[]
                 {
-                    5, 0, 5, 0,
-                    0, 0, 0, 0, 0,
-                    0, 1, 1, 1, 0,
-                    0, 1, 1, 1, 0,
-                    0, 1, 1, 1, 0,
-                    0, 0, 0, 0, 0,
+                    8, 0, 8, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0, 
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
                 }
         }
             , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>());
@@ -103,7 +105,7 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            var conf = new WorldConfiguration { BackpackSize = 5, MaxItemAmount = 999 };
+            var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
             _itemBuilder = new ItemBuilderService(items);
             _handler = new InventoryPacketController(conf, _itemBuilder);
 
@@ -196,25 +198,186 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Get()
         {
-            throw new NotImplementedException();
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1012,
+                    ItemInstance = _itemBuilder.Create(1012, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+        }
+
+        [TestMethod]
+        public void Test_Get_KeepRarity()
+        {
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1,
+                    ItemInstance = _itemBuilder.Create(1, 1, 1, 6),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            Assert.IsTrue(_session.Character.Inventory.First().Value.Rare == 6);
+        }
+
+        [TestMethod]
+        public void Test_Get_NotYourObject()
+        {
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1012,
+                    OwnerId = 2,
+                    DroppedAt = DateTime.Now,
+                    ItemInstance = _itemBuilder.Create(1012, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
+                _session.Account.Language) && packet.Type == SayColorType.Yellow);
+            Assert.IsTrue(_session.Character.Inventory.Count == 0);
+        }
+
+        [TestMethod]
+        public void Test_Get_NotYourObjectAfterDelay()
+        {
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    OwnerId = 2,
+                    DroppedAt = DateTime.Now.AddSeconds(-30),
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1012,
+                    ItemInstance = _itemBuilder.Create(1012, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
 
         [TestMethod]
         public void Test_GetAway()
         {
-            throw new NotImplementedException();
+            _session.Character.PositionX = 8;
+            _session.Character.PositionY = 8;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1012,
+                    ItemInstance = _itemBuilder.Create(1012, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            Assert.IsTrue(_session.Character.Inventory.Count == 0);
         }
 
         [TestMethod]
         public void Test_GetFullInventory()
         {
-            throw new NotImplementedException();
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1,
+                    ItemInstance = _itemBuilder.Create(1, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                _session.Account.Language) && packet.Type == 0);
+            Assert.IsTrue(_session.Character.Inventory.Count == 1);
         }
 
         [TestMethod]
         public void Test_GetInStack()
         {
-            throw new NotImplementedException();
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _map.DroppedList.TryAdd(100001,
+                new MapItem()
+                {
+                    PositionX = 1,
+                    PositionY = 1,
+                    VisualId = 1012,
+                    ItemInstance = _itemBuilder.Create(1012, 1),
+                    MapInstanceId = _map.MapInstanceId,
+                    MapInstance = _map
+                });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
+            _handler.GetItem(new GetPacket()
+            {
+                PickerId = _chara.CharacterId,
+                VisualId = 100001,
+                PickerType = PickerType.Character
+            });
+            Assert.IsTrue(_session.Character.Inventory.First().Value.Amount == 2);
         }
     }
 }

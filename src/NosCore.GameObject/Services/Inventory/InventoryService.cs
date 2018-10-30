@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Services.Inventory
 
         public T LoadBySlotAndType<T>(short slot, PocketType type) where T : IItemInstance
         {
-            T retItem = default(T);
+            T retItem = default;
             try
             {
                 retItem = (T)this.Select(s => s.Value)

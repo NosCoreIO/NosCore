@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             newItemInstance.Amount = amount;
             droppedItem = new MapItem
             {
-                MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX, PositionY = mapY, Amount = amount
+                MapInstance = this, ItemInstance = newItemInstance, PositionX = mapX, PositionY = mapY
             };
             DroppedList[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
