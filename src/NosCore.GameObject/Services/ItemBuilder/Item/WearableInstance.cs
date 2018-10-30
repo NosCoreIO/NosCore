@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data;
 using NosCore.GameObject.Helper;
-using NosCore.GameObject.Networking;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
@@ -26,76 +26,29 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class WearableInstance : ItemInstance
+    public class WearableInstance : WearableInstanceDto, IItemInstance
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        public WearableInstance(Item item) : base(item)
+
+        public WearableInstance(Item item)
         {
+            Item = item;
+            ItemVNum = item.VNum;
         }
+
         public WearableInstance()
         {
         }
-        public byte Ammo { get; set; }
 
-        public byte Cellon { get; set; }
+        public Item Item { get; set; }
 
-        public short CloseDefence { get; set; }
+        public object Clone()
+        {
+            return (WearableInstance)MemberwiseClone();
+        }
 
-        public short Concentrate { get; set; }
-
-        public short CriticalDodge { get; set; }
-
-        public byte CriticalLuckRate { get; set; }
-
-        public short CriticalRate { get; set; }
-
-        public short DamageMaximum { get; set; }
-
-        public short DamageMinimum { get; set; }
-
-        public byte DarkElement { get; set; }
-
-        public short DarkResistance { get; set; }
-
-        public short DefenceDodge { get; set; }
-
-        public short DistanceDefence { get; set; }
-
-        public short DistanceDefenceDodge { get; set; }
-
-        //public List<EquipmentOptionDTO> EquipmentOptions { get; set; }
-
-        public short ElementRate { get; set; }
-
-        public byte FireElement { get; set; }
-
-        public short FireResistance { get; set; }
-
-        public short HitRate { get; set; }
-
-        public short Hp { get; set; }
-
-        public bool IsEmpty { get; set; }
-
-        public bool IsFixed { get; set; }
-
-        public byte LightElement { get; set; }
-
-        public short LightResistance { get; set; }
-
-        public short MagicDefence { get; set; }
-
-        public byte MaxElementRate { get; set; }
-
-        public short Mp { get; set; }
-
-        public sbyte? ShellRarity { get; set; }
-
-        public byte WaterElement { get; set; }
-
-        public short WaterResistance { get; set; }
-
-        public long Xp { get; set; }
+        public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor
+            && Item.ItemType != ItemType.Weapon;
 
         public void SetRarityPoint()
         {

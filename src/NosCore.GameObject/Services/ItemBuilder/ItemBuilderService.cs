@@ -34,20 +34,20 @@ namespace NosCore.GameObject.Services.ItemBuilder
             _items = items;
         }
 
-        public ItemInstance Convert(ItemInstanceDto k)
+        public IItemInstance Convert(IItemInstanceDto k)
         {
-            ItemInstance item = 
+            IItemInstance item =
                 k.Adapt<BoxInstance>() ??
-                k.Adapt<SpecialistInstance>() ?? 
+                k.Adapt<SpecialistInstance>() ??
                 k.Adapt<WearableInstance>() ??
                 k.Adapt<UsableInstance>() ??
-                k.Adapt<ItemInstance>();
+                (IItemInstance)k.Adapt<ItemInstance>();
 
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);
             return item;
         }
 
-        public ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
             byte upgrade = 0, byte design = 0)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);

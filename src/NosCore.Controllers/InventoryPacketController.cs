@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
@@ -68,7 +67,7 @@ namespace NosCore.Controllers
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((ItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
         [UsedImplicitly]
@@ -124,8 +123,14 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                ItemInstance mapItemInstance = _itemBuilderService.Create(mapItem.VNum,
-                    mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
+                //TODO add group drops
+                if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
+                {
+                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
+                    return;
+                }
+
+                IItemInstance mapItemInstance = mapItem.ItemInstance;
                 //TODO not your item
                 if (mapItem.VNum != 1046)
                 {
@@ -231,9 +236,8 @@ namespace NosCore.Controllers
             lock (Session.Character.Inventory)
             {
                 var invitem =
-                    Session.Character.Inventory.LoadBySlotAndType<ItemInstance>(putPacket.Slot, putPacket.PocketType);
-                if ((invitem?.Item.IsDroppable ?? false) && invitem.Item.IsTradable
-                    && !Session.Character.InExchangeOrTrade)
+                    Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
+                if ((invitem?.Item.IsDroppable ?? false) && !Session.Character.InExchangeOrTrade)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                     {

@@ -29,7 +29,7 @@ namespace NosCore.Packets.ClientPackets
         public PickerType PickerType { get; set; }
 
         [PacketIndex(1)]
-        public int PickerId { get; set; }
+        public long PickerId { get; set; }
 
         [PacketIndex(2)]
         public long VisualId { get; set; }
