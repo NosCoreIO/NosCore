@@ -25,9 +25,9 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
-    public static class ItemInstanceExtension
+    public static class IItemInstanceExtension
     {
-        public static IvnPacket GeneratePocketChange(this ItemInstance itemInstance, PocketType type, short slot)
+        public static IvnPacket GeneratePocketChange(this IItemInstance itemInstance, PocketType type, short slot)
         {
             if (itemInstance == null)
             {
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static IvnPacket GeneratePocketChange(this List<ItemInstance> itemInstance)
+        public static IvnPacket GeneratePocketChange(this List<IItemInstance> itemInstance)
         {
             if (itemInstance.Count > 0)
             {

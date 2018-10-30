@@ -20,20 +20,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.StaticEntities;
-using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
@@ -45,7 +39,6 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -59,18 +52,13 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            Broadcaster.Instance.Reset();
-            var contextBuilder =
-                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
-            DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-        
+            Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> { handler }, null);
-                session.SessionId = i;
-            
+                var session = new ClientSession(null, new List<PacketController> {handler}, null) {SessionId = i};
+
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
                 var charaDto = new CharacterDto

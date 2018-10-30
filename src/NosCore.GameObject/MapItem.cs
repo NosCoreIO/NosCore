@@ -20,6 +20,7 @@
 using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -28,6 +29,8 @@ namespace NosCore.GameObject
 {
     public class MapItem : ICountableEntity
     {
+        public IItemInstance ItemInstance { get; set; }
+
         private long _visualId;
 
         public long? OwnerId { get; set; }
@@ -47,17 +50,18 @@ namespace NosCore.GameObject
             set => _visualId = value;
         }
 
-        public short Amount { get; set; } = 1;
+        public short Amount => ItemInstance.Amount;
 
         public VisualType VisualType => VisualType.Object;
 
-        public short VNum { get; set; }
+        public short VNum => ItemInstance.ItemVNum;
 
         public byte Direction { get; set; }
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public MapInstance MapInstance { get; set; }
+        public DateTime DroppedAt { get; set; }
 
         public DropPacket GenerateDrop()
         {

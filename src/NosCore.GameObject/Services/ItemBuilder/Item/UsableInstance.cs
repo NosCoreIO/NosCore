@@ -17,21 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data;
+
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class UsableInstance : ItemInstance
+    public class UsableInstance : UsableInstanceDto, IItemInstance
     {
-        public UsableInstance(Item item) : base(item)
+        public UsableInstance(Item item)
         {
+            Item = item;
+            ItemVNum = item.VNum;
         }
 
         public UsableInstance()
         {
         }
 
-        public short? Hp { get; set; }
+        public Item Item { get; set; }
 
-        public short? Mp { get; set; }
-
+        public object Clone()
+        {
+            return (UsableInstance)MemberwiseClone();
+        }
     }
 }
