@@ -185,11 +185,9 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             };
             DroppedList[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
-            var pocket = inv.Type;
-            var slot = inv.Slot;
             if (inv.Amount == 0)
             {
-                inv = session.Character.Inventory.DeleteById(inv.Id);
+                session.Character.Inventory.DeleteById(inv.Id);
             }
             
             return droppedItem;
