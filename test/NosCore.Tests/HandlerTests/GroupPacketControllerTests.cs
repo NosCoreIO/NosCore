@@ -57,9 +57,8 @@ namespace NosCore.Tests.HandlerTests
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> { handler }, null);
-                session.SessionId = i;
-            
+                var session = new ClientSession(null, new List<PacketController> {handler}, null) {SessionId = i};
+
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
                 var charaDto = new CharacterDto

@@ -123,8 +123,14 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                IItemInstance mapItemInstance = _itemBuilderService.Create(mapItem.VNum,
-                    mapItem.OwnerId ?? Session.Character.CharacterId, mapItem.Amount);
+                //TODO add group drops
+                if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
+                {
+                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
+                    return;
+                }
+
+                IItemInstance mapItemInstance = mapItem.ItemInstance;
                 //TODO not your item
                 if (mapItem.VNum != 1046)
                 {
