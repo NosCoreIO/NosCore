@@ -33,8 +33,7 @@ namespace NosCore.Shared.I18N
             .AddJsonFile("logger.json")
             .Build();
 
-        private static readonly string[] AsciiTitle = new string[]
-        {
+        private static readonly string[] AsciiTitle = {
             @" __  _  __    __   ___ __  ___ ___ ",
             @"|  \| |/__\ /' _/ / _//__\| _ \ __|",
             @"| | ' | \/ |`._`.| \_| \/ | v / _| ",

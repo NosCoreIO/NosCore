@@ -165,7 +165,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(ref ItemInstanceDto dto)
+        public SaveResult InsertOrUpdate(ItemInstanceDto dto)
         {
             try
             {

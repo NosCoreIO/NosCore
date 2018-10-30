@@ -990,13 +990,7 @@ namespace NosCore.Parser.Parsers
                                     elementdic.Add(4, item.DarkResistance);
                                 }
 
-                                item.Element = (byte)elementdic.OrderByDescending(s => s.Value).First().Key;
-                                if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
-                                    == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
-                                {
-                                    item.SecondaryElement =
-                                        (byte)elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
-                                }
+                              
 
                                 // needs to be hardcoded
                                 if (item.VNum == 901)
@@ -1011,7 +1005,17 @@ namespace NosCore.Parser.Parsers
                                 {
                                     item.Element = 3;
                                 }
+                                else
+                                {
+                                    item.Element = (byte)elementdic.OrderByDescending(s => s.Value).First().Key;
+                                }
 
+                                if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
+                                    == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
+                                {
+                                    item.SecondaryElement =
+                                        (byte)elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
+                                }
                                 break;
 
                             case ItemType.Production:
