@@ -41,7 +41,7 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
-            Broadcaster.Instance.Reset();
+            Broadcaster.Reset();
             var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
