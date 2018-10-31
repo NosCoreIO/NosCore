@@ -469,7 +469,7 @@
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
   </data>
   <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>{0} à accepté le point de retour de {0}</value>
+    <value>{0} a accepté le point de retour de {0}</value>
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
@@ -487,10 +487,10 @@
     <value>Vous avez obtenu {0} or.</value>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Vous ête le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
+    <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Le groupe à été dissous.</value>
+    <value>Le groupe a été dissous.</value>
   </data>
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Le groupe est déjà plein.</value>
@@ -502,16 +502,16 @@
     <value>{0} a quitté le groupe.</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0}refuse l'invitation dans le groupe.</value>
+    <value>{0} a refusé l'invitation dans le groupe.</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Tu ne peux pas modifier les option de partages des objets. Demandes au chef du groupe !</value>
+    <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
   </data>
   <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
     <value>Arguments de teleportation invalides.</value>
   </data>
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} t'as invité dans un groupe.</value>
+    <value>{0} t'a invité dans un groupe.</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vous avez rejoint le groupe de {0}</value>
@@ -541,7 +541,7 @@
     <value />
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
-    <value>{0} N'est pas connecté.</value>
+    <value>{0} n'est pas connecté.</value>
   </data>
   <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
     <value>L'utilisateur à été téléporté dans une carte non existante.</value>
