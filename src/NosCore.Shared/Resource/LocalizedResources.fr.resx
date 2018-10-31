@@ -400,7 +400,7 @@
     <value>Ajouté à votre liste noire.</value>
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Vous êtes dans la liste noire de {0].</value>
+    <value>Vous êtes dans la liste noire de {0}.</value>
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Impossible de bloquer vos amis.</value>
@@ -468,82 +468,82 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
   </data>
-  <data name="&lt;ACCEPTED_SHARE&gt;" xml:space="preserve">
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
     <value>{0} à accepté le point de retour de {0}</value>
   </data>
-  <data name="&lt;ALREADY_BLACKLISTED&gt;" xml:space="preserve">
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
   </data>
-  <data name="&lt;ALREADY_IN_GROUP&gt;" xml:space="preserve">
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
     <value>Déjà dans un groupe.</value>
   </data>
-  <data name="&lt;ENCODE_ERROR&gt;" xml:space="preserve">
+  <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Erreur d'encodage.</value>
   </data>
-  <data name="&lt;FRIEND_REQUEST_SENT&gt;" xml:space="preserve">
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Invitation d'amitié envoyée.</value>
   </data>
-  <data name="&lt;GOLD_SET&gt;" xml:space="preserve">
+  <data name="GOLD_SET" xml:space="preserve">
     <value>Vous avez obtenu {0} or.</value>
   </data>
-  <data name="&lt;GROUP_ADMIN&gt;" xml:space="preserve">
+  <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Vous ête le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
   </data>
-  <data name="&lt;GROUP_CLOSED&gt;" xml:space="preserve">
+  <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Le groupe à été dissous.</value>
   </data>
-  <data name="&lt;GROUP_FULL&gt;" xml:space="preserve">
+  <data name="GROUP_FULL" xml:space="preserve">
     <value>Le groupe est déjà plein.</value>
   </data>
-  <data name="&lt;GROUP_INVITE&gt;" xml:space="preserve">
+  <data name="GROUP_INVITE" xml:space="preserve">
     <value>Invitation envoyée.</value>
   </data>
-  <data name="&lt;GROUP_LEFT&gt;" xml:space="preserve">
+  <data name="GROUP_LEFT" xml:space="preserve">
     <value>{0} a quitté le groupe.</value>
   </data>
-  <data name="&lt;GROUP_REFUSED&gt;" xml:space="preserve">
+  <data name="GROUP_REFUSED" xml:space="preserve">
     <value>{0}refuse l'invitation dans le groupe.</value>
   </data>
-  <data name="&lt;GROUP_SHARE_INFO&gt;" xml:space="preserve">
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Tu ne peux pas modifier les option de partages des objets. Demandes au chef du groupe !</value>
   </data>
-  <data name="&lt;INVALID_TELEPORT_ARGUMENTS&gt;" xml:space="preserve">
+  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
     <value>Arguments de teleportation invalides.</value>
   </data>
-  <data name="&lt;INVITED_YOU_GROUP&gt;" xml:space="preserve">
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>{0} t'as invité dans un groupe.</value>
   </data>
-  <data name="&lt;JOINED_GROUP&gt;" xml:space="preserve">
+  <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vous avez rejoint le groupe de {0}</value>
   </data>
-  <data name="&lt;MAP_DONT_EXIST&gt;" xml:space="preserve">
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>La carte selectionnée n'existe pas.</value>
   </data>
-  <data name="&lt;NEW_LEADER&gt;" xml:space="preserve">
+  <data name="NEW_LEADER" xml:space="preserve">
     <value>Vous êtes le nouveau chef de groupe.</value>
   </data>
-  <data name="&lt;NPCMONSTERS_LOADED&gt;" xml:space="preserve">
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} PNJ chargés.</value>
   </data>
-  <data name="&lt;POCKETTYPE_UNKNOWN&gt;" xml:space="preserve">
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>Type d'inventaire non reconnu.</value>
   </data>
-  <data name="&lt;SHARED_REFUSED&gt;" xml:space="preserve">
+  <data name="SHARED_REFUSED" xml:space="preserve">
     <value>{0} a refusé le point de retour de {0}</value>
   </data>
-  <data name="&lt;UNABLE_TO_REQUEST_GROUP&gt;" xml:space="preserve">
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Le joueur ne peut pas être invité en groupe.</value>
   </data>
-  <data name="&lt;UNKNOWN_PICKERTYPE&gt;" xml:space="preserve">
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
     <value>La méthode de ramassage est inconnue.</value>
   </data>
-  <data name="&lt;USER_IS_NOT_A_FRIEND&gt;" xml:space="preserve">
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value />
   </data>
-  <data name="&lt;USER_NOT_CONNECTED&gt;" xml:space="preserve">
-    <value>{0] N'est pas connecté.</value>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>{0} N'est pas connecté.</value>
   </data>
-  <data name="&lt;USER_TELEPORTED_TO_NOT_EXISTING_MAP&gt;" xml:space="preserve">
+  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
     <value>L'utilisateur à été téléporté dans une carte non existante.</value>
   </data>
 </root>
