@@ -685,7 +685,7 @@ namespace NosCore.Controllers
         {
             if (Broadcaster.Instance.GetCharacter(s => s.VisualId == blinsPacket.CharacterId) == null)
             {
-                Logger.Log.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
                 return;
             }
 

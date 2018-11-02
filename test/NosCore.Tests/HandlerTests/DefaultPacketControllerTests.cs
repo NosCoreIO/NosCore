@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.DAL;
+using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -34,7 +35,7 @@ namespace NosCore.Tests.HandlerTests
     public class DefaultPacketControllerTests
     {
         private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
-        private ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
+        private ClientSession _targetSession = null;
         private CharacterDto _chara;
         private CharacterDto _targetChar;
         private DefaultPacketController _handler;
@@ -79,10 +80,7 @@ namespace NosCore.Tests.HandlerTests
             var map = new MapDto { MapId = 1 };
             DaoFactory.MapDao.InsertOrUpdate(ref map);
             var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
-            var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
-            DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
-
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
                 new Dictionary<string, object>
@@ -101,6 +99,23 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
+            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
+            _session.InitializeAccount(account);
+            _session.SessionId = 1;
+            _handler = new DefaultPacketController(null, null);
+            _handler.RegisterSession(_session);
+            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
+            _session.Character.CharacterId = 1;
+            Broadcaster.Instance.RegisterSession(_session);
+        }
+
+        private void InitializeTargetSession()
+        {
+            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
+            var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
+            DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
+
             _targetChar = new CharacterDto
             {
                 CharacterId = 1,
@@ -111,37 +126,17 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
-
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map>() { _map, _map2 });
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
-            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
-            var channelMock = new Mock<IChannel>();
-            _session.RegisterChannel(channelMock.Object);
-            _targetSession.RegisterChannel(channelMock.Object);
-            _session.InitializeAccount(account);
-            _session.SessionId = 1;
-            _handler = new DefaultPacketController(null, instanceAccessService);
-            _handler.RegisterSession(_session);
-
             _targetSession.InitializeAccount(targetAccount);
             _targetSession.SessionId = 2;
-            var _handler2 = new DefaultPacketController(null, instanceAccessService);
-            _handler2.RegisterSession(_targetSession);
+            var handler2 = new DefaultPacketController(null, null);
+            handler2.RegisterSession(_targetSession);
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
             _targetSession.InitializeAccount(targetAccount);
 
-            _session.SetCharacter(_chara.Adapt<Character>());
-            var mapinstance = instanceAccessService.GetBaseMapById(0);
-            _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
-
             _targetSession.SetCharacter(_targetChar.Adapt<Character>());
             _targetSession.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
-            _session.Character.CharacterId = 1;
             _targetSession.Character.CharacterId = 2;
-
-            Broadcaster.Instance.RegisterSession(_session);
             Broadcaster.Instance.RegisterSession(_targetSession);
         }
 
@@ -166,6 +161,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Add_Friend()
         {
+            InitializeTargetSession();
             _targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
             var finsPacket = new FinsPacket
             {
@@ -180,13 +176,9 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Add_Friend_When_Disconnected()
         {
-            _targetSession.Disconnect();
-            Broadcaster.Instance.UnregisterSession(_targetSession);
-            _targetSession = null;
-
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetChar.CharacterId,
+                CharacterId = 2,
                 Type = FinsPacketType.Accepted
             };
             _handler.AddFriend(finsPacket);
@@ -197,14 +189,9 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Blacklist_When_Disconnected()
         {
-            var charId = _targetSession.Character.CharacterId;
-            _targetSession.Disconnect();
-            Broadcaster.Instance.UnregisterSession(_targetSession);
-            _targetSession = null;
-
             var blinsPacket = new BlInsPacket
             {
-                CharacterId = charId
+                CharacterId = 2
             };
 
             _handler.BlackListAdd(blinsPacket);
@@ -214,22 +201,19 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Delete_Friend_When_Disconnected()
         {
+            var guid = Guid.NewGuid();
+            var targetGuid = Guid.NewGuid();
+            _session.Character.CharacterRelations.TryAdd(guid, 
+                new CharacterRelation { CharacterId = _session.Character.CharacterId, CharacterRelationId = guid, RelatedCharacterId = 2, RelationType = CharacterRelationType.Friend});
+            _session.Character.RelationWithCharacter.TryAdd(targetGuid,
+                new CharacterRelation { CharacterId = 2, CharacterRelationId = targetGuid, RelatedCharacterId = _session.Character.CharacterId, RelationType = CharacterRelationType.Friend });
+
+            Assert.IsTrue(_session.Character.CharacterRelations.Count == 1 && _session.Character.RelationWithCharacter.Count == 1);
+
             var fdelPacket = new FdelPacket
             {
-                CharacterId = _targetChar.CharacterId
+                CharacterId = 2
             };
-
-            _targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
-            var finsPacket = new FinsPacket
-            {
-                CharacterId = _targetChar.CharacterId,
-                Type = FinsPacketType.Accepted
-            };
-            _handler.AddFriend(finsPacket);
-
-            _targetSession.Disconnect();
-            Broadcaster.Instance.UnregisterSession(_targetSession);
-            _targetSession = null;
 
             _handler.DeleteFriend(fdelPacket);
 
@@ -239,30 +223,26 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Delete_Blacklist_When_Disconnected()
         {
-            var charId = _targetSession.Character.CharacterId;
-            var blinsPacket = new BlInsPacket
-            {
-                CharacterId = _targetSession.Character.CharacterId
-            };
+            var guid = Guid.NewGuid();
 
-            _handler.BlackListAdd(blinsPacket);
-
-            _targetSession.Disconnect();
-            Broadcaster.Instance.UnregisterSession(_targetSession);
-            _targetSession = null;
+            _session.Character.CharacterRelations.TryAdd(guid,
+                new CharacterRelation { CharacterId = _session.Character.CharacterId, CharacterRelationId = guid, RelatedCharacterId = 2, RelationType = CharacterRelationType.Blocked });
 
             var bldelPacket = new BlDelPacket
             {
-                CharacterId = charId
+                CharacterId = 2
             };
 
+            Assert.IsTrue(_session.Character.CharacterRelations.Any(s => s.Value.RelatedCharacterId == 2));
+
             _handler.BlackListDelete(bldelPacket);
-            Assert.IsTrue(_session.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != charId));
+            Assert.IsTrue(_session.Character.CharacterRelations.All(s => s.Value.RelatedCharacterId != 2));
         }
 
         [TestMethod]
         public void Test_Add_Not_Requested_Friend()
         {
+            InitializeTargetSession();
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetChar.CharacterId,
@@ -275,6 +255,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Add_Distant_Friend()
         {
+            InitializeTargetSession();
             _targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
             var flPacket = new FlPacket
             {
@@ -289,6 +270,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Delete_Friend()
         {
+            InitializeTargetSession();
             var fdelPacket = new FdelPacket
             {
                 CharacterId = _targetChar.CharacterId
@@ -310,6 +292,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Blacklist_Character()
         {
+            InitializeTargetSession();
             var blinsPacket = new BlInsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId
@@ -323,6 +306,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Distant_Blacklist()
         {
+            InitializeTargetSession();
             var blPacket = new BlPacket
             {
                 CharacterName = _targetSession.Character.Name
@@ -336,6 +320,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Delete_Blacklist()
         {
+            InitializeTargetSession();
             var blinsPacket = new BlInsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId
@@ -355,6 +340,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Pulse_Packet()
         {
+            InitializeTargetSession();
             var pulsePacket = new PulsePacket
             {
                 Tick = 0

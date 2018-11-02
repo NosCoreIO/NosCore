@@ -99,7 +99,7 @@ namespace NosCore.Tests
         {
             for (var i = 0; i < (long)_group.Type; i++)
             {
-                _entity = new Character
+                var entity = new Character
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",
@@ -109,7 +109,7 @@ namespace NosCore.Tests
                     State = CharacterState.Active
                 };
 
-                _group.JoinGroup(_entity);
+                _group.JoinGroup(entity);
             }
 
             Assert.IsTrue(_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(0).Value.Item2.VisualId));
