@@ -165,7 +165,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(ItemInstanceDto dto)
+        public SaveResult InsertOrUpdate(ref ItemInstanceDto dto)
         {
             try
             {
@@ -190,7 +190,7 @@ namespace NosCore.DAL
                         entityfound = dbset.Find(value);
                     }
 
-                    entity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
+                  var newentity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
                         entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() :
                         entity is WearableInstance ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
                         entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() :
@@ -198,13 +198,13 @@ namespace NosCore.DAL
 
                     if (entityfound != null)
                     {
-                        context.Entry(entityfound).CurrentValues.SetValues(entity);
+                        context.Entry(entityfound).CurrentValues.SetValues(newentity);
                         context.SaveChanges();
                     }
 
                     if (value == null || entityfound == null)
                     {
-                        dbset.Add(entity);
+                        dbset.Add(newentity);
                     }
 
                     context.SaveChanges();

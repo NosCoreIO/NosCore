@@ -92,7 +92,11 @@ namespace NosCore.GameObject.Services.Inventory
             return this.Count(s => s.Value.Type == inv);
         }
 
-        public List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type = null, short? slot = null)
+        public List<IItemInstance> AddItemToPocket(IItemInstance newItem) => AddItemToPocket(newItem, null, null);
+
+        public List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type) => AddItemToPocket(newItem, type, null);
+
+        public List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type, short? slot)
         {
             var invlist = new List<IItemInstance>();
 
@@ -219,8 +223,13 @@ namespace NosCore.GameObject.Services.Inventory
             return null;
         }
 
-        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
-            short? targetSlot = null, bool wear = true)
+        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType) 
+            => MoveInPocket(sourceSlot, sourceType, targetType, null, true);
+
+        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot)
+            => MoveInPocket(sourceSlot, sourceType, targetType, targetSlot, true);
+
+        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot, bool wear)
         {
             if (sourceSlot == targetSlot && sourceType == targetType)
             {
