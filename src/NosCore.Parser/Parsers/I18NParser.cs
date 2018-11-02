@@ -43,8 +43,7 @@ namespace NosCore.Parser.Parsers
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        private string _line;
+        
         private string _folder;
 
         private string I18NTextFileName(string textfilename, RegionType region)
@@ -57,6 +56,7 @@ namespace NosCore.Parser.Parsers
         public void InsertI18N(string folder)
         {
             _folder = folder;
+            string _line;
             var actdesclist = DaoFactory.I18NActDescDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
