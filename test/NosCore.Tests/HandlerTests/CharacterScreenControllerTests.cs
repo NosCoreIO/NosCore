@@ -50,8 +50,7 @@ namespace NosCore.Tests.HandlerTests
 
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> {new CharacterScreenPacketController()}, null);
-
-        private AccountDto _acc;
+        
         private CharacterDto _chara;
         private CharacterScreenPacketController _handler;
 
@@ -65,7 +64,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
+            var _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _chara = new CharacterDto
             {

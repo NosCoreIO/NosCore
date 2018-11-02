@@ -32,17 +32,15 @@ namespace NosCore.Parser.Parsers
     internal class SkillParser
     {
         private readonly string _fileSkillId = "\\Skill.dat";
-        private string _folder;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         internal void InsertSkills(string folder)
         {
-            _folder = folder;
             var skills = new List<SkillDto>();
             var skill = new SkillDto();
             var combo = new List<ComboDto>();
             var skillCards = new List<BCardDto>();
             var counter = 0;
-            using (var skillIdStream = new StreamReader(_folder + _fileSkillId, Encoding.Default))
+            using (var skillIdStream = new StreamReader(folder + _fileSkillId, Encoding.Default))
             {
                 string line;
                 while ((line = skillIdStream.ReadLine()) != null)

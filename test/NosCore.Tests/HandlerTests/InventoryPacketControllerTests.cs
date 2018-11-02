@@ -56,8 +56,7 @@ namespace NosCore.Tests.HandlerTests
     {
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> { new InventoryPacketController() }, null);
-
-        private AccountDto _acc;
+        
         private CharacterDto _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
@@ -85,7 +84,7 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            _acc = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var _acc = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
             _chara = new CharacterDto
             {
                 CharacterId = 1,
