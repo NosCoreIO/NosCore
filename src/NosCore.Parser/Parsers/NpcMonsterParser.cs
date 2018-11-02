@@ -34,11 +34,9 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string FileNpcId = "\\monster.dat";
-        private string _folder;
 
         internal void InsertNpcMonsters(string folder)
         {
-            _folder = folder;
             var basicHp = new int[100];
             var basicPrimaryMp = new int[100];
             var basicSecondaryMp = new int[100];
@@ -180,7 +178,7 @@ namespace NosCore.Parser.Parsers
             var counter = 0;
             long unknownData = 0;
 
-            using (var npcIdStream = new StreamReader(_folder + FileNpcId, Encoding.Default))
+            using (var npcIdStream = new StreamReader(folder + FileNpcId, Encoding.Default))
             {
                 string line;
                 while ((line = npcIdStream.ReadLine()) != null)
