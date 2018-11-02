@@ -47,8 +47,20 @@ namespace NosCore.GameObject.Services.ItemBuilder
             return item;
         }
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
-            byte upgrade = 0, byte design = 0)
+        public IItemInstance Create(short itemToCreateVNum, long characterId) =>
+            Create(itemToCreateVNum, characterId, 1);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount) =>
+            Create(itemToCreateVNum, characterId, amount, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare) =>
+            Create(itemToCreateVNum, characterId, amount, rare, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade, byte design)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);
             switch (itemToCreate.Type)

@@ -153,7 +153,9 @@ namespace NosCore.GameObject.Networking.ClientSession
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED));
         }
 
-        public void ChangeMap(short? mapId = null, short? mapX = null, short? mapY = null)
+        public void ChangeMap() => ChangeMap(null, null, null);
+
+        public void ChangeMap(short? mapId, short? mapX, short? mapY)
         {
             if (Character == null)
             {

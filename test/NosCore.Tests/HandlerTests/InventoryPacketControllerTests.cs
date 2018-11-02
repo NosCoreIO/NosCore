@@ -61,8 +61,8 @@ namespace NosCore.Tests.HandlerTests
         private CharacterDto _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
-        private readonly MapInstance _map = new MapInstance(new Map()
-        {
+        private readonly MapInstance _map = new MapInstance(new Map
+            {
             Name = "testMap",
             Data = new byte[]
                 {
@@ -72,7 +72,7 @@ namespace NosCore.Tests.HandlerTests
                     0, 1, 1, 1, 0, 0, 0, 0, 
                     0, 1, 1, 1, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0
                 }
         }
             , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>());
@@ -107,7 +107,7 @@ namespace NosCore.Tests.HandlerTests
             };
             var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
             _itemBuilder = new ItemBuilderService(items);
-            _handler = new InventoryPacketController(conf, _itemBuilder);
+            _handler = new InventoryPacketController(conf);
 
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
@@ -201,7 +201,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -211,7 +211,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
 
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -226,7 +226,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -236,7 +236,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
 
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -251,7 +251,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -263,7 +263,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
 
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -281,7 +281,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     OwnerId = 2,
                     DroppedAt = DateTime.Now.AddSeconds(-30),
@@ -293,7 +293,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
 
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -308,7 +308,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 8;
             _session.Character.PositionY = 8;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -318,7 +318,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
 
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -333,7 +333,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -343,7 +343,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
@@ -361,7 +361,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _map.DroppedList.TryAdd(100001,
-                new MapItem()
+                new MapItem
                 {
                     PositionX = 1,
                     PositionY = 1,
@@ -371,7 +371,7 @@ namespace NosCore.Tests.HandlerTests
                     MapInstance = _map
                 });
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
-            _handler.GetItem(new GetPacket()
+            _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,

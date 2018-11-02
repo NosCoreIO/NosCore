@@ -28,7 +28,9 @@ namespace NosCore.GameObject.Services.Inventory
     {
         bool IsExpanded { get; set; }
 
-        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type = null, short? slot = null);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type, short? slot);
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(PocketType inv);
@@ -37,8 +39,11 @@ namespace NosCore.GameObject.Services.Inventory
         T LoadByItemInstanceId<T>(Guid id) where T : IItemInstance;
         T LoadBySlotAndType<T>(short slot, PocketType type) where T : IItemInstance;
 
+        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
-            short? targetSlot = null, bool wear = true);
+            short? targetSlot);
+        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+            short? targetSlot, bool wear);
 
         void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out IItemInstance sourcePocket, out IItemInstance destinationPocket);
