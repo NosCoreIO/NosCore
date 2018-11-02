@@ -30,7 +30,6 @@ namespace NosCore.Tests
     [TestClass]
     public class GroupTests
     {
-        private INamedEntity _entity;
         private Group _group;
 
         [TestInitialize]
@@ -46,7 +45,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            _entity = new Character
+            var entity = new Character
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -55,7 +54,7 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
         }
@@ -63,7 +62,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            _entity = new Character
+            var entity = new Character
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -72,11 +71,11 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
 
-            _group.LeaveGroup(_entity);
+            _group.LeaveGroup(entity);
 
             Assert.IsTrue(_group.Count == 0);
         }
@@ -84,12 +83,12 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Monster_Join_Group()
         {
-            _entity = new MapMonster
+            var entity = new MapMonster
             {
                 Name = "test"
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsTrue(_group.IsEmpty);
         }
