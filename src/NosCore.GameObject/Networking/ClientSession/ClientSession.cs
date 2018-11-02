@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 Character.IsChangingMapInstance = true;
 
-                if (Channel != null)
+                if (Channel.Id != null)
                 {
                     Character.MapInstance.Sessions.Remove(Channel);
                 }
@@ -253,7 +253,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     s => SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
 
                 Character.MapInstance.IsSleeping = false;
-                if (Channel != null)
+                if (Channel.Id != null)
                 {
                     Character.MapInstance.Sessions.Add(Channel);
                 }

@@ -28,7 +28,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
-using FastExpressionCompiler;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -185,7 +184,6 @@ namespace NosCore.WorldServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             Mapper.InitializeMapperItemInstance();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
