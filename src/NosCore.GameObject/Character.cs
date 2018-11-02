@@ -62,7 +62,7 @@ namespace NosCore.GameObject
             Group = new Group(GroupType.Group);
         }
 
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 

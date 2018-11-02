@@ -19,9 +19,12 @@
 
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.GameObject;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.Tests
 {
@@ -37,7 +40,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GoToDtoMappingWorks()
         {
-            var monsterGo = new GameObject.MapMonster();
+            var monsterGo = new MapMonster();
             var monsterDto = monsterGo.Adapt<MapMonsterDto>();
             Assert.IsNotNull(monsterDto);
         }
@@ -46,7 +49,7 @@ namespace NosCore.Tests
         public void DtoToGoMappingWorks()
         {
             var monsterDto = new MapMonsterDto();
-            var monsterGo = monsterDto.Adapt<GameObject.MapMonster>();
+            var monsterGo = monsterDto.Adapt<MapMonster>();
             Assert.IsNotNull(monsterGo);
         }
 
@@ -54,14 +57,14 @@ namespace NosCore.Tests
         public void EntityToGoMappingWorks()
         {
             var monsterEntity = new Database.Entities.MapMonster();
-            var monsterGo = monsterEntity.Adapt<GameObject.MapMonster>();
+            var monsterGo = monsterEntity.Adapt<MapMonster>();
             Assert.IsNotNull(monsterGo);
         }
 
         [TestMethod]
         public void GoToEntityMappingWorks()
         {
-            var monsterGo = new GameObject.MapMonster();
+            var monsterGo = new MapMonster();
             var monsterEntity = monsterGo.Adapt<Database.Entities.MapMonster>();
             Assert.IsNotNull(monsterEntity);
         }
@@ -78,22 +81,22 @@ namespace NosCore.Tests
         public void EntityToDtoMappingWorks()
         {
             var monsterEntity = new Database.Entities.MapMonster();
-            var monsterGo = monsterEntity.Adapt<GameObject.MapMonster>();
+            var monsterGo = monsterEntity.Adapt<MapMonster>();
             Assert.IsNotNull(monsterGo);
         }
 
         [TestMethod]
         public void WearableInstanceToItemInstanceEntity()
         {
-            var wearableInstanceGo = new GameObject.Services.ItemBuilder.Item.WearableInstance(new Item());
-            var itemInstanceEntity = wearableInstanceGo.Adapt<Database.Entities.ItemInstance>();
+            var wearableInstanceGo = new WearableInstance(new Item());
+            var itemInstanceEntity = wearableInstanceGo.Adapt<ItemInstance>();
             Assert.IsNotNull(itemInstanceEntity);
         }
 
         [TestMethod]
         public void WearableInstanceToItemInstanceGo()
         {
-            var wearableInstanceGo = new GameObject.Services.ItemBuilder.Item.WearableInstance(new Item());
+            var wearableInstanceGo = new WearableInstance(new Item());
             var itemInstanceGo = wearableInstanceGo.Adapt<GameObject.Services.ItemBuilder.Item.ItemInstance>();
             Assert.IsNotNull(itemInstanceGo);
         }
@@ -101,8 +104,8 @@ namespace NosCore.Tests
         [TestMethod]
         public void WearableInstanceToItemInstanceDto()
         {
-            var wearableInstanceGo = new GameObject.Services.ItemBuilder.Item.WearableInstance(new Item());
-            var itemInstancedto = wearableInstanceGo.Adapt<NosCore.Data.ItemInstanceDto>();
+            var wearableInstanceGo = new WearableInstance(new Item());
+            var itemInstancedto = wearableInstanceGo.Adapt<ItemInstanceDto>();
             Assert.IsNotNull(itemInstancedto);
         }
 
@@ -110,7 +113,7 @@ namespace NosCore.Tests
         public void ItemInstanceToItemInstanceEntity()
         {
             var itemInstanceGo = new GameObject.Services.ItemBuilder.Item.ItemInstance(new Item());
-            var itemInstanceEntity = itemInstanceGo.Adapt<Database.Entities.ItemInstance>();
+            var itemInstanceEntity = itemInstanceGo.Adapt<ItemInstance>();
             Assert.IsNotNull(itemInstanceEntity);
         }
 
@@ -118,48 +121,48 @@ namespace NosCore.Tests
         [TestMethod]
         public void ItemInstanceDtoToItemInstanceEntity()
         {
-            var itemInstanceDto = new NosCore.Data.ItemInstanceDto();
-            var itemInstanceEntity = itemInstanceDto.Adapt<Database.Entities.ItemInstance>();
+            var itemInstanceDto = new ItemInstanceDto();
+            var itemInstanceEntity = itemInstanceDto.Adapt<ItemInstance>();
             Assert.IsNotNull(itemInstanceEntity);
         }
 
         [TestMethod]
         public void WearableDtoToSpecialistDtoShouldFail()
         {
-            var wearableInstanceDto = new NosCore.Data.WearableInstanceDto();
-            var specialistInstanceDto = wearableInstanceDto.Adapt<NosCore.Data.SpecialistInstanceDto>();
+            var wearableInstanceDto = new WearableInstanceDto();
+            var specialistInstanceDto = wearableInstanceDto.Adapt<SpecialistInstanceDto>();
             Assert.IsNull(specialistInstanceDto);
         }
 
         [TestMethod]
         public void WearableToSpecialistDtoShouldFail()
         {
-            var wearableInstance = new GameObject.Services.ItemBuilder.Item.WearableInstance();
-            var specialistInstanceDto = wearableInstance.Adapt<NosCore.Data.SpecialistInstanceDto>();
+            var wearableInstance = new WearableInstance();
+            var specialistInstanceDto = wearableInstance.Adapt<SpecialistInstanceDto>();
             Assert.IsNull(specialistInstanceDto);
         }
 
         [TestMethod]
         public void SpecialistDtoToSpecialistShouldPass()
         {
-            var specialistInstanceDto = new NosCore.Data.SpecialistInstanceDto();
-            var specialistInstance = specialistInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.SpecialistInstance>();
+            var specialistInstanceDto = new SpecialistInstanceDto();
+            var specialistInstance = specialistInstanceDto.Adapt<SpecialistInstance>();
             Assert.IsNotNull(specialistInstance);
         }
 
         [TestMethod]
         public void BoxDtoToBoxShouldPass()
         {
-            var boxInstanceDto = new NosCore.Data.BoxInstanceDto();
-            var boxInstance = boxInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.BoxInstance>();
+            var boxInstanceDto = new BoxInstanceDto();
+            var boxInstance = boxInstanceDto.Adapt<BoxInstance>();
             Assert.IsNotNull(boxInstance);
         }
 
         [TestMethod]
         public void UsableDtoToUsableShouldPass()
         {
-            var usableInstanceDto = new NosCore.Data.UsableInstanceDto();
-            var usableInstance = usableInstanceDto.Adapt<GameObject.Services.ItemBuilder.Item.UsableInstance>();
+            var usableInstanceDto = new UsableInstanceDto();
+            var usableInstance = usableInstanceDto.Adapt<UsableInstance>();
             Assert.IsNotNull(usableInstance);
         }
     }

@@ -41,7 +41,6 @@ namespace NosCore.Controllers
     public class InventoryPacketController : PacketController
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IItemBuilderService _itemBuilderService;
         private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
@@ -49,10 +48,8 @@ namespace NosCore.Controllers
         {
         }
 
-        public InventoryPacketController(WorldConfiguration worldConfiguration,
-            IItemBuilderService itemBuilderService)
+        public InventoryPacketController(WorldConfiguration worldConfiguration)
         {
-            _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
         }
 
@@ -136,7 +133,7 @@ namespace NosCore.Controllers
                 {
                     if (mapItemInstance.Item.ItemType == ItemType.Map)
                     {
-                        if (mapItemInstance.Item.Effect == 71)
+                        if (GetMapItemInstance(mapItemInstance).Item.Effect == 71)
                         {
                             Session.Character.SpPoint += mapItemInstance.Item.EffectValue;
                             if (Session.Character.SpPoint > 10000)
@@ -228,6 +225,11 @@ namespace NosCore.Controllers
                     Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                 }
             }
+        }
+
+        private static IItemInstance GetMapItemInstance(IItemInstance mapItemInstance)
+        {
+            return mapItemInstance;
         }
 
         [UsedImplicitly]
