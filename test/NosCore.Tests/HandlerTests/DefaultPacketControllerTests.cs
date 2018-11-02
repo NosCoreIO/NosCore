@@ -32,10 +32,8 @@ namespace NosCore.Tests.HandlerTests
     {
         private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
         private readonly ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
-        private CharacterDto _chara;
         private CharacterDto _targetChar;
         private DefaultPacketController _handler;
-        private DefaultPacketController _handler2;
 
         [TestInitialize]
         public void Setup()
@@ -58,7 +56,7 @@ namespace NosCore.Tests.HandlerTests
                     { "api/connectedAccount", new List<ConnectedAccount>() }
                 };
 
-            _chara = new CharacterDto
+            var _chara = new CharacterDto
             {
                 CharacterId = 0,
                 Name = "TestExistingCharacter",
@@ -86,7 +84,7 @@ namespace NosCore.Tests.HandlerTests
 
             _targetSession.InitializeAccount(targetAccount);
             _targetSession.SessionId = 2;
-            _handler2 = new DefaultPacketController(null, null);
+            var _handler2 = new DefaultPacketController(null, null);
             _handler2.RegisterSession(_targetSession);
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);

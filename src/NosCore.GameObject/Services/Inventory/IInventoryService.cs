@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Services.Inventory
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
             short? targetSlot, bool wear);
 
-        void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+        bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out IItemInstance sourcePocket, out IItemInstance destinationPocket);
     }
 }

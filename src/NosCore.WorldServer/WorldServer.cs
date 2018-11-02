@@ -27,6 +27,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Client;
@@ -46,11 +47,11 @@ namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        private readonly List<Item> _items;
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
-        private readonly List<Map> _maps;
+        [UsedImplicitly] private readonly List<Item> _items;
+        [UsedImplicitly] private readonly MapInstanceAccessService _mapInstanceAccessService;
+        [UsedImplicitly] private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
-        private readonly List<NpcMonsterDto> _npcmonsters;
+        [UsedImplicitly] private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<IGlobalEvent> _events;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();

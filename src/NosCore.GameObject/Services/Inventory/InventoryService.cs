@@ -311,7 +311,7 @@ namespace NosCore.GameObject.Services.Inventory
             }
         }
 
-        public void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+        public bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out IItemInstance sourcePocket, out IItemInstance destinationPocket)
         {
             // load source and destination slots
@@ -321,7 +321,7 @@ namespace NosCore.GameObject.Services.Inventory
             if (sourceSlot == destinationSlot || amount == 0
                 || destinationSlot > Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
             {
-                return;
+                return false;
             }
 
             if (sourcePocket != null && amount <= sourcePocket.Amount)
@@ -367,7 +367,7 @@ namespace NosCore.GameObject.Services.Inventory
                             destinationPocket = TakeItem(destinationPocket.Slot, destinationPocket.Type);
                             if (destinationPocket == null)
                             {
-                                return;
+                                return true;
                             }
 
                             destinationPocket.Slot = sourceSlot;
@@ -375,7 +375,7 @@ namespace NosCore.GameObject.Services.Inventory
                             sourcePocket = TakeItem(sourcePocket.Slot, sourcePocket.Type);
                             if (sourcePocket == null)
                             {
-                                return;
+                                return true;
                             }
 
                             sourcePocket.Slot = destinationSlot;
@@ -389,6 +389,7 @@ namespace NosCore.GameObject.Services.Inventory
 
             sourcePocket = LoadBySlotAndType<IItemInstance>(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType<IItemInstance>(destinationSlot, sourcetype);
+            return true;
         }
 
         private short? GetFreeSlot(PocketType type)
