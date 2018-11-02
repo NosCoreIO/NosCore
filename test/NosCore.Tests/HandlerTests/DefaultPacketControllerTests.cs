@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -19,6 +21,7 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
@@ -30,10 +33,40 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class DefaultPacketControllerTests
     {
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
-        private readonly ClientSession _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
+        private ClientSession _session;
+        private ClientSession _targetSession;
         private CharacterDto _targetChar;
         private DefaultPacketController _handler;
+        private readonly Map _map = new Map
+        {
+            MapId = 0,
+            Name = "testMap",
+            Data = new byte[]
+                {
+                    8, 0, 8, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0
+                }
+        };
+        private readonly Map _map2 = new Map
+        {
+            MapId = 1,
+            Name = "testMap2",
+            Data = new byte[]
+            {
+                8, 0, 8, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0
+            }
+        };
 
         [TestInitialize]
         public void Setup()
@@ -48,6 +81,7 @@ namespace NosCore.Tests.HandlerTests
             var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
+
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
                 new Dictionary<string, object>
@@ -77,27 +111,66 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
+
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map>() { _map, _map2 });
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
+            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
+            var channelMock = new Mock<IChannel>();
+            _session.RegisterChannel(channelMock.Object);
+            _targetSession.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(null, null);
+            _handler = new DefaultPacketController(null, instanceAccessService);
             _handler.RegisterSession(_session);
 
             _targetSession.InitializeAccount(targetAccount);
             _targetSession.SessionId = 2;
-            var _handler2 = new DefaultPacketController(null, null);
+            var _handler2 = new DefaultPacketController(null, instanceAccessService);
             _handler2.RegisterSession(_targetSession);
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
             _targetSession.InitializeAccount(targetAccount);
 
             _session.SetCharacter(_chara.Adapt<Character>());
-            _session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
+            var mapinstance = instanceAccessService.GetBaseMapById(0);
+            _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
 
             _targetSession.SetCharacter(_targetChar.Adapt<Character>());
-            _targetSession.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
-
+            _targetSession.Character.MapInstance = mapinstance;
+            _session.Character.MapInstance = mapinstance;
+            _session.Character.MapInstance.Portals = new List<Portal>() { new Portal()
+            {
+                DestinationMapId =_map2.MapId,
+                Type = PortalType.Open,
+                SourceMapInstanceId = mapinstance.MapInstanceId,
+                DestinationMapInstanceId =  instanceAccessService.GetBaseMapById(1).MapInstanceId,
+                DestinationX = 5,
+                DestinationY = 5,
+                PortalId = 1,
+                SourceMapId = _map.MapId,
+                SourceX = 0,
+                SourceY = 0,
+            } };
             Broadcaster.Instance.RegisterSession(_session);
             Broadcaster.Instance.RegisterSession(_targetSession);
+        }
+
+        [TestMethod]
+        public void UserCanUsePortal()
+        {
+            _session.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            _handler.Preq(new PreqPacket());
+            Assert.IsTrue(_session.Character.PositionY == 5 && _session.Character.PositionX == 5 && _session.Character.MapInstance.Map.MapId == 1);
+        }
+
+        [TestMethod]
+        public void UserCanTUsePortalIfTooFar()
+        {
+            _session.Character.PositionX = 8;
+            _session.Character.PositionY = 8;
+            _handler.Preq(new PreqPacket());
+            Assert.IsTrue(_session.Character.PositionY == 8 && _session.Character.PositionX == 8 && _session.Character.MapInstance.Map.MapId == 0);
         }
 
         [TestMethod]

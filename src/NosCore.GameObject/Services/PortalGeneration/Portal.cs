@@ -25,7 +25,6 @@ namespace NosCore.GameObject.Services.PortalGeneration
 {
     public class Portal : PortalDto
     {
-        public short MapId { get; set; }
         public Guid DestinationMapInstanceId { get; set; }
         public Guid SourceMapInstanceId { get; set; }
 
@@ -35,7 +34,7 @@ namespace NosCore.GameObject.Services.PortalGeneration
             {
                 SourceX = SourceX,
                 SourceY = SourceY,
-                MapId = MapId,
+                MapId = SourceMapId,
                 PortalType = Type,
                 PortalId = PortalId,
                 IsDisabled = IsDisabled ? 1 : 0

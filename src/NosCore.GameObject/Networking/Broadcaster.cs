@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Networking
         {
             ClientSessions.TryRemove(clientSession.SessionId, out _);
 
-            if (clientSession.Channel != null)
+            if (clientSession.Channel?.Id != null)
             {
                 Sessions.Remove(clientSession.Channel);
             }
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Networking
 
         public void RegisterSession(ClientSession.ClientSession clientSession)
         {
-            if (clientSession.Channel != null)
+            if (clientSession.Channel?.Id != null)
             {
                 Sessions.Add(clientSession.Channel);
             }
