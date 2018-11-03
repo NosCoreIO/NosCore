@@ -683,6 +683,12 @@ namespace NosCore.Controllers
         /// <param name="blinsPacket"></param>
         public void BlackListAdd(BlInsPacket blinsPacket)
         {
+            if (Broadcaster.Instance.GetCharacter(s => s.VisualId == blinsPacket.CharacterId) == null)
+            {
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                return;
+            }
+
             if (Session.Character.CharacterRelations.Values.Any(s =>
                 s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
             {
