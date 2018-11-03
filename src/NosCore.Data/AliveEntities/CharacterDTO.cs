@@ -80,11 +80,11 @@ namespace NosCore.Data.AliveEntities
 
         public bool HpBlocked { get; set; }
 
-        public byte JobLevel { get; set; }
+        public byte JobLevel { get; set; } = 1;
 
         public long JobLevelXp { get; set; }
 
-        public byte Level { get; set; }
+        public byte Level { get; set; } = 1;
 
         public long LevelXp { get; set; }
 
