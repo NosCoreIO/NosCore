@@ -155,5 +155,12 @@ namespace NosCore.Tests
             var serializedPacket = PacketFactory.Serialize(new[] {packet});
             Assert.AreEqual("/ test message !", serializedPacket);
         }
+
+        [TestMethod]
+        public void TestSerializeToEndCantBeNull()
+        {
+            var serializedPacket = PacketFactory.Deserialize("/ ");
+            Assert.AreEqual(serializedPacket, null);
+        }
     }
 }
