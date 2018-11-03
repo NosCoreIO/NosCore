@@ -224,8 +224,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new ClPacket
             {
                 VisualId = visualEntity.VisualId,
-                Invisible = visualEntity.Invisible,
-                InvisibleOnList = visualEntity.InvisibleOnList
+                Camouflage = visualEntity.Camouflage,
+                Invisible = visualEntity.Invisible
             };
         }
     }

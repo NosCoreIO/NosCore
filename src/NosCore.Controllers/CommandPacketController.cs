@@ -68,8 +68,8 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Invisible(InvisibleCommandPacket invisiblePacket)
         {
+            Session.Character.Camouflage = !Session.Character.Camouflage;
             Session.Character.Invisible = !Session.Character.Invisible;
-            Session.Character.InvisibleOnList = !Session.Character.InvisibleOnList;
             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }

@@ -231,7 +231,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPackets(Character.MapInstance.GetMapItems());
-                if (!Character.InvisibleOnList)
+                if (!Character.Invisible)
                 {
                     Character.MapInstance.Sessions.WriteAndFlushAsync(Character.GenerateIn(
                         Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)
