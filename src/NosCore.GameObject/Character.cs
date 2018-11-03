@@ -94,7 +94,7 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public bool InvisibleGm { get; set; }
+        public bool InvisibleOnList { get; set; }
         public IInventoryService Inventory { get; set; }
         public bool InExchangeOrTrade { get; set; }
 

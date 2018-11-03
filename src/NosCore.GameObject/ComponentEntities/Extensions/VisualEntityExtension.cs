@@ -225,7 +225,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualId = visualEntity.VisualId,
                 Invisible = visualEntity.Invisible,
-                InvisibleGm = visualEntity.InvisibleGm
+                InvisibleOnList = visualEntity.InvisibleOnList
             };
         }
     }

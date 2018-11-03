@@ -31,6 +31,6 @@ namespace NosCore.Packets.ServerPackets
         public bool Invisible { get; set; }
 
         [PacketIndex(2)]
-        public bool InvisibleGm { get; set; }
+        public bool InvisibleOnList { get; set; }
     }
 }
