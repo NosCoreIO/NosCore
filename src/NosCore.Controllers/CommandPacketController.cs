@@ -69,7 +69,7 @@ namespace NosCore.Controllers
         public void Invisible(InvisibleCommandPacket invisiblePacket)
         {
             Session.Character.Invisible = !Session.Character.Invisible;
-            Session.Character.InvisibleGm = !Session.Character.InvisibleGm;
+            Session.Character.InvisibleOnList = !Session.Character.InvisibleOnList;
             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }

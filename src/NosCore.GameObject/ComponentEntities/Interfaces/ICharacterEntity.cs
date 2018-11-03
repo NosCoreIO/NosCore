@@ -48,7 +48,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool Invisible { get; }
 
-        bool InvisibleGm { get; }
+        bool InvisibleOnList { get; }
         IChannel Channel { get; }
        
         bool GroupRequestBlocked { get; }
