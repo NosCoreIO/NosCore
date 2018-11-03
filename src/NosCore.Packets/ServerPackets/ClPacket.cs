@@ -28,9 +28,9 @@ namespace NosCore.Packets.ServerPackets
         public long VisualId { get; set; }
 
         [PacketIndex(1)]
-        public bool Invisible { get; set; }
+        public bool Camouflage { get; set; }
 
         [PacketIndex(2)]
-        public bool InvisibleOnList { get; set; }
+        public bool Invisible { get; set; }
     }
 }

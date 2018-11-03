@@ -92,9 +92,9 @@ namespace NosCore.GameObject
 
         public DateTime LastMove { get; set; }
 
-        public bool Invisible { get; set; }
+        public bool Camouflage { get; set; }
 
-        public bool InvisibleOnList { get; set; }
+        public bool Invisible { get; set; }
         public IInventoryService Inventory { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
