@@ -159,13 +159,8 @@ namespace NosCore.Tests
         [TestMethod]
         public void TestSerializeToEndCantBeNull()
         {
-            var packet = new WhisperPacket
-            {
-                Message = null
-            };
-
-            var serializedPacket = PacketFactory.Serialize(new[] { packet });
-            Assert.AreEqual(serializedPacket, "/ -");
+            var serializedPacket = PacketFactory.Deserialize("/ ");
+            Assert.AreEqual(serializedPacket, null);
         }
     }
 }
