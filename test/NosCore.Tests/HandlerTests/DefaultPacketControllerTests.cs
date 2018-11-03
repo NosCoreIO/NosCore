@@ -34,7 +34,7 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class DefaultPacketControllerTests
     {
-        private readonly ClientSession _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController() }, null);
+        private ClientSession _session;
         private ClientSession _targetSession;
         private CharacterDto _chara;
         private CharacterDto _targetChar;
@@ -92,7 +92,7 @@ namespace NosCore.Tests.HandlerTests
 
             var _chara = new CharacterDto
             {
-                CharacterId = 0,
+                CharacterId = 1,
                 Name = "TestExistingCharacter",
                 Slot = 1,
                 AccountId = account.AccountId,
@@ -101,21 +101,20 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map>() { _map, _map2 });
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
             var channelMock = new Mock<IChannel>();
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
             _handler = new DefaultPacketController(null, instanceAccessService);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
-            _session.Character.Account = account;
             var mapinstance = instanceAccessService.GetBaseMapById(0);
+           
             _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
-            _session.Character.CharacterId = 1;
-
             _session.Character.MapInstance = mapinstance;
-            _session.Character.MapInstance.Portals = new List<Portal> { new Portal()
+            _session.Character.MapInstance.Portals = new List<Portal> { new Portal
             {
                 DestinationMapId =_map2.MapId,
                 Type = PortalType.Open,
@@ -148,7 +147,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map>() { _map, _map2 });
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
             _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService) { SessionId = 2 };
             var handler2 = new DefaultPacketController(null, instanceAccessService);
             handler2.RegisterSession(_targetSession);
