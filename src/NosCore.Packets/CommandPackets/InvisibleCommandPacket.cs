@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+﻿//  __ _  __ __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -18,20 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("rest")]
-    public class RestPacket : PacketDefinition
+    [PacketHeader("$Invisible", Authority = AuthorityType.GameMaster)]
+    public class InvisibleCommandPacket : PacketDefinition, ICommandPacket
     {
-        [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
-
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public bool IsSitting { get; set; }
+        public string Help()
+        {
+            return "$Invisible";
+        }
     }
 }

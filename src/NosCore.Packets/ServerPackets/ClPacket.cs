@@ -18,20 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("rest")]
-    public class RestPacket : PacketDefinition
+    [PacketHeader("cl")]
+    public class ClPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
-
-        [PacketIndex(1)]
         public long VisualId { get; set; }
 
+        [PacketIndex(1)]
+        public bool Camouflage { get; set; }
+
         [PacketIndex(2)]
-        public bool IsSitting { get; set; }
+        public bool Invisible { get; set; }
     }
 }
