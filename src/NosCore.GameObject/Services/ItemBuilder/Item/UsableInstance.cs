@@ -21,15 +21,15 @@ using NosCore.Data;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
-    public class SpecialistInstance : SpecialistInstanceDto, IItemInstance
+    public class UsableInstance : UsableInstanceDto, IItemInstance
     {
-        public SpecialistInstance(Item item)
+        public UsableInstance(Item item)
         {
             Item = item;
             ItemVNum = item.VNum;
         }
 
-        public SpecialistInstance()
+        public UsableInstance()
         {
         }
 
@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public object Clone()
         {
-            return (SpecialistInstance)MemberwiseClone();
+            return (UsableInstance)MemberwiseClone();
         }
     }
 }

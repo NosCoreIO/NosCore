@@ -19,7 +19,6 @@
 
 using System;
 using System.Reactive.Linq;
-using System.Threading;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -70,7 +69,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Group Group { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Group Group { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

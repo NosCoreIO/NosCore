@@ -19,14 +19,19 @@
 
 using NosCore.Data;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using Remotion.Linq.Clauses;
 
 namespace NosCore.GameObject.Services.ItemBuilder
 {
     public interface IItemBuilderService
     {
-        ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
-            byte upgrade = 0, byte design = 0);
+        IItemInstance Create(short itemToCreateVNum, long characterId);
+        IItemInstance Create(short itemToCreateVNum, long characterId, short amount);
+        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare);
+        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade);
+        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade, byte design);
 
-        ItemInstance Convert(ItemInstanceDto k);
+
+        IItemInstance Convert(IItemInstanceDto k);
     }
 }

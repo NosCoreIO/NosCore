@@ -19,9 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,20 +40,17 @@ using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class CharacterScreenControllerTests
     {
-        private const string ConfigurationPath = "../../../configuration";
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> {new CharacterScreenPacketController()}, null);
-
-        private AccountDto _acc;
+        
         private CharacterDto _chara;
         private CharacterScreenPacketController _handler;
 
@@ -69,7 +64,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
+            var _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _chara = new CharacterDto
             {

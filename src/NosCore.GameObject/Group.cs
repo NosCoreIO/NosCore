@@ -25,6 +25,7 @@ using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
