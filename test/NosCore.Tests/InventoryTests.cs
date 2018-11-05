@@ -86,9 +86,9 @@ namespace NosCore.Tests
         [TestMethod]
         public void CreateItemAndFillMultiSlot()
         {
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 0);
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 1);
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 2);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 0);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 1);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 2);
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 27));
             Assert.IsTrue(items.All(item => item.Amount == 999) && items.Count == 3);
         }
@@ -96,9 +96,9 @@ namespace NosCore.Tests
         [TestMethod]
         public void CreateMoreItemThanInventoryPlace()
         {
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 0);
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 1);
-            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), slot: 2);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 0);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 1);
+            Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990), PocketType.Main, 2);
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 99));
             Assert.IsTrue(Inventory.Values.All(item => item.Amount == 990) && items.Count == 0);
         }
@@ -152,7 +152,7 @@ namespace NosCore.Tests
             Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             Assert.IsTrue(Inventory.Count == 2);
             var item = Inventory.DeleteFromTypeAndSlot(PocketType.Main, 0);
-            Assert.IsNotNull(item);
+            Assert.IsNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }
 
@@ -163,7 +163,7 @@ namespace NosCore.Tests
             var items = Inventory.AddItemToPocket(_itemBuilderService.Create(1012, 0, 990));
             Assert.IsTrue(Inventory.Count == 2);
             var item = Inventory.DeleteById(items[0].Id);
-            Assert.IsNotNull(item);
+            Assert.IsNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }
 

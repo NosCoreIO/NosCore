@@ -32,12 +32,11 @@ namespace NosCore.Parser.Parsers
     {
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
         private List<PortalDto> _listPortals1 = new List<PortalDto>();
-        private List<MapDto> _maps;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public void InsertPortals(List<string[]> packetList)
         {
-            _maps = DaoFactory.MapDao.LoadAll().ToList();
+            var _maps = DaoFactory.MapDao.LoadAll().ToList();
             short map = 0;
             var portalCounter = 0;
             var lodPortal = new PortalDto

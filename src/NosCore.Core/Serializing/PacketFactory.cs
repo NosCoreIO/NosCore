@@ -77,7 +77,7 @@ namespace NosCore.Core.Serializing
         {
             try
             {
-                var packetstring = packetContent.Replace('^', ' ').Replace("#", "");
+                var packetstring = packetContent.Replace('^', ' ').Replace("#", "").TrimEnd();
                 var packetsplit = packetstring.Split(' ');
                 if (packetsplit.Length <= 1)
                 {

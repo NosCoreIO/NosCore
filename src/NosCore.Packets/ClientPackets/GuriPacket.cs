@@ -40,7 +40,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(3)]
         public int Data { get; set; }
 
-        [PacketIndex(4, serializeToEnd: true)]
+        [PacketIndex(4, true, false, false)]
         public string Value { get; set; }
 
         #endregion

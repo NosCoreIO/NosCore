@@ -21,8 +21,6 @@ using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace NosCore.Shared.I18N
 {
@@ -35,8 +33,7 @@ namespace NosCore.Shared.I18N
             .AddJsonFile("logger.json")
             .Build();
 
-        private static readonly string[] AsciiTitle = new string[]
-        {
+        private static readonly string[] AsciiTitle = {
             @" __  _  __    __   ___ __  ___ ___ ",
             @"|  \| |/__\ /' _/ / _//__\| _ \ __|",
             @"| | ' | \/ |`._`.| \_| \/ | v / _| ",
@@ -57,7 +54,7 @@ namespace NosCore.Shared.I18N
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
                 .CreateLogger();
             var offset = ((Console.WindowWidth) / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth);
+            var separator = new string('=', Console.WindowWidth-1);
             titleLogger.Information(separator);
             foreach (var s in AsciiTitle)
             {

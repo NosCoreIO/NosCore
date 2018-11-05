@@ -20,10 +20,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
-using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;

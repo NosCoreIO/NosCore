@@ -28,15 +28,12 @@ using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests
 {
     [TestClass]
     public class PacketGenerationTests
     {
-        private const string ConfigurationPath = "../../../configuration";
-
         [TestInitialize]
         public void Setup()
         {
@@ -157,6 +154,13 @@ namespace NosCore.Tests
 
             var serializedPacket = PacketFactory.Serialize(new[] {packet});
             Assert.AreEqual("/ test message !", serializedPacket);
+        }
+
+        [TestMethod]
+        public void TestSerializeToEndCantBeNull()
+        {
+            var serializedPacket = PacketFactory.Deserialize("/ ");
+            Assert.AreEqual(serializedPacket, null);
         }
     }
 }

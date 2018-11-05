@@ -26,7 +26,7 @@ namespace NosCore.Packets.ServerPackets
     {
         #region Properties
 
-        [PacketIndex(0, serializeToEnd: true)]
+        [PacketIndex(0, true, false, false)]
         public string Message { get; set; }
 
         #endregion

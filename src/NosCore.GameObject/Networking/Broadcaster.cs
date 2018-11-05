@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Networking
         {
             ClientSessions.TryRemove(clientSession.SessionId, out _);
 
-            if (clientSession.Channel != null)
+            if (clientSession.Channel?.Id != null)
             {
                 Sessions.Remove(clientSession.Channel);
             }
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Networking
 
         public void RegisterSession(ClientSession.ClientSession clientSession)
         {
-            if (clientSession.Channel != null)
+            if (clientSession.Channel?.Id != null)
             {
                 Sessions.Add(clientSession.Channel);
             }
@@ -65,17 +65,20 @@ namespace NosCore.GameObject.Networking
         }
 
         public IEnumerable<ICharacterEntity> GetCharacters() => GetCharacters(null);
-        
+
         public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool> func)
         {
-            return (func == null ? ClientSessions.Values.Where(s=>s.Character!=null).Select(s=>s.Character) : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
-        }
-        public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
-        {
-            return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func));
+            return (func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character)
+                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
         }
 
-        public void Reset()
+        public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
+        {
+            return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
+                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func));
+        }
+
+        public static void Reset()
         {
             _instance = null;
         }

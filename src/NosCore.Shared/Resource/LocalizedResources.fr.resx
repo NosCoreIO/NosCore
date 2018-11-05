@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -349,7 +349,7 @@
     <value>Escrimeur</value>
   </data>
   <data name="WRESTLER" xml:space="preserve">
-    <value>Lutteur</value>
+    <value>Artiste martial</value>
   </data>
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapsType ont été analysées avec succès !</value>
@@ -397,10 +397,10 @@
     <value>Valeur d'objet incorrect.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Ajouter à votre liste noire.</value>
+    <value>Ajouté à votre liste noire.</value>
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Liste noire bloquée.</value>
+    <value>Vous êtes dans la liste noire de {0}.</value>
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Impossible de bloquer vos amis.</value>
@@ -467,5 +467,83 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
+  </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>{0} a accepté le point de retour de {0}</value>
+  </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Le joueur est déjà dans ta liste noire.</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>Déjà dans un groupe.</value>
+  </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Erreur d'encodage.</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Invitation d'amitié envoyée.</value>
+  </data>
+  <data name="GOLD_SET" xml:space="preserve">
+    <value>Vous avez obtenu {0} or.</value>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Le groupe a été dissous.</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Le groupe est déjà plein.</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Invitation envoyée.</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>{0} a quitté le groupe.</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>{0} a refusé l'invitation dans le groupe.</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
+  </data>
+  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
+    <value>Arguments de teleportation invalides.</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} t'a invité dans un groupe.</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Vous avez rejoint le groupe de {0}</value>
+  </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>La carte selectionnée n'existe pas.</value>
+  </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>Vous êtes le nouveau chef de groupe.</value>
+  </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} PNJ chargés.</value>
+  </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'inventaire non reconnu.</value>
+  </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>{0} a refusé le point de retour de {0}</value>
+  </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Le joueur ne peut pas être invité en groupe.</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>La méthode de ramassage est inconnue.</value>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value />
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>{0} n'est pas connecté.</value>
+  </data>
+  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
+    <value>L'utilisateur à été téléporté dans une carte non existante.</value>
   </data>
 </root>

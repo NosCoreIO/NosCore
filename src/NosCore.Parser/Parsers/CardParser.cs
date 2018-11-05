@@ -33,13 +33,12 @@ namespace NosCore.Parser.Parsers
     public class CardParser
     {
         private const string FileCardDat = "\\Card.dat";
-        private string _line;
         private int _counter;
         private CardDto _card = new CardDto();
         private bool _itemAreaBegin;
         private readonly List<CardDto> Cards = new List<CardDto>();
         private readonly List<BCardDto> Bcards = new List<BCardDto>();
-        private string _folder;
+  
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public void AddFirstData(string[] currentLine)
         {
@@ -107,10 +106,9 @@ namespace NosCore.Parser.Parsers
 
         public void InsertCards(string folder)
         {
-            _folder = folder;
-
+            var _line = string.Empty;
             using (var npcIdStream =
-                new StreamReader(_folder + FileCardDat, Encoding.Default))
+                new StreamReader(folder + FileCardDat, Encoding.Default))
             {
                 while ((_line = npcIdStream.ReadLine()) != null)
                 {

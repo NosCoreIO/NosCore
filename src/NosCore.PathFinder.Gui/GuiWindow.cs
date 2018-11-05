@@ -23,7 +23,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Mapster;
-using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
@@ -41,7 +40,6 @@ namespace NosCore.PathFinder.Gui
         private readonly byte _gridsize;
         private readonly Map _map;
         private readonly List<MapMonster> _monsters;
-        private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly List<MapNpc> _npcs;
         private readonly int _originalHeight;
         private readonly int _originalWidth;
@@ -59,9 +57,9 @@ namespace NosCore.PathFinder.Gui
             _gridsizeY = gridsize;
             _gridsize = gridsize;
             _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
-            _npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
+            var npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, _npcMonsters)
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters)
                 {
                     IsSleeping = false
                 };
@@ -73,7 +71,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.MapInstanceId = mapInstance.MapInstanceId;
                 mapMonster.Mp = 100;
                 mapMonster.Hp = 100;
-                mapMonster.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
+                mapMonster.Speed = npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.MapId)?.Speed ?? 0;
                 mapMonster.IsAlive = true;
             }
 
@@ -86,7 +84,7 @@ namespace NosCore.PathFinder.Gui
                 mapNpc.MapInstanceId = mapInstance.MapInstanceId;
                 mapNpc.Mp = 100;
                 mapNpc.Hp = 100;
-                mapNpc.Speed = _npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
+                mapNpc.Speed = npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.MapId)?.Speed ?? 0;
                 mapNpc.IsAlive = true;
             }
 

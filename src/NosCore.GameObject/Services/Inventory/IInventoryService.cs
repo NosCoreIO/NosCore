@@ -24,23 +24,28 @@ using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Services.Inventory
 {
-    public interface IInventoryService : IDictionary<Guid, ItemInstance>
+    public interface IInventoryService : IDictionary<Guid, IItemInstance>
     {
         bool IsExpanded { get; set; }
 
-        List<ItemInstance> AddItemToPocket(ItemInstance newItem, PocketType? type = null, short? slot = null);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type);
+        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type, short? slot);
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(PocketType inv);
-        ItemInstance DeleteById(Guid id);
-        ItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
-        T LoadByItemInstanceId<T>(Guid id) where T : ItemInstance;
-        T LoadBySlotAndType<T>(short slot, PocketType type) where T : ItemInstance;
+        IItemInstance DeleteById(Guid id);
+        IItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
+        T LoadByItemInstanceId<T>(Guid id) where T : IItemInstance;
+        T LoadBySlotAndType<T>(short slot, PocketType type) where T : IItemInstance;
 
-        ItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
-            short? targetSlot = null, bool wear = true);
+        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
+        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+            short? targetSlot);
+        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+            short? targetSlot, bool wear);
 
-        void TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
-            out ItemInstance sourcePocket, out ItemInstance destinationPocket);
+        bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+            out IItemInstance sourcePocket, out IItemInstance destinationPocket);
     }
 }

@@ -30,7 +30,6 @@ using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.PortalGeneration;
@@ -40,6 +39,7 @@ using NosCore.Shared;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
@@ -136,7 +136,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private IDisposable Life { get; set; }
 
-        public MapItem PutItem(short amount, ItemInstance inv, ClientSession session)
+        public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
             MapItem droppedItem = null;
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
-                if (!Map.IsWalkable(Map[mapX, mapY]))
+                if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
                 {
                     continue;
                 }
@@ -176,15 +176,20 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 return null;
             }
 
-            var newItemInstance = inv.Clone();
+            var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = new MapItem
             {
-                MapInstance = this, VNum = newItemInstance.ItemVNum, PositionX = mapX, PositionY = mapY, Amount = amount
+                MapInstance = this, ItemInstance = newItemInstance, PositionX = mapX, PositionY = mapY
             };
             DroppedList[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
+            if (inv.Amount == 0)
+            {
+                session.Character.Inventory.DeleteById(inv.Id);
+            }
+            
             return droppedItem;
         }
 

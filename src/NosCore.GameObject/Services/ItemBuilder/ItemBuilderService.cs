@@ -34,15 +34,33 @@ namespace NosCore.GameObject.Services.ItemBuilder
             _items = items;
         }
 
-        public ItemInstance Convert(ItemInstanceDto k)
+        public IItemInstance Convert(IItemInstanceDto k)
         {
-            ItemInstance item = k.Adapt<ItemInstance>();
+            IItemInstance item =
+                k.Adapt<BoxInstance>() ??
+                k.Adapt<SpecialistInstance>() ??
+                k.Adapt<WearableInstance>() ??
+                k.Adapt<UsableInstance>() ??
+                (IItemInstance)k.Adapt<ItemInstance>();
+
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);
             return item;
         }
 
-        public ItemInstance Create(short itemToCreateVNum, long characterId, short amount = 1, sbyte rare = 0,
-            byte upgrade = 0, byte design = 0)
+        public IItemInstance Create(short itemToCreateVNum, long characterId) =>
+            Create(itemToCreateVNum, characterId, 1);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount) =>
+            Create(itemToCreateVNum, characterId, amount, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare) =>
+            Create(itemToCreateVNum, characterId, amount, rare, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade, byte design)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);
             switch (itemToCreate.Type)

@@ -24,8 +24,19 @@ namespace NosCore.Core.Serializing
     [AttributeUsage(AttributeTargets.All)]
     public class PacketIndexAttribute : Attribute
     {
-        public PacketIndexAttribute(int index, bool isReturnPacket = false, bool serializeToEnd = false,
-            bool removeSeparator = false, string specialSeparator = ".")
+        public PacketIndexAttribute(int index) : this(index, false, false, false, ".")
+        {
+
+        }
+
+        public PacketIndexAttribute(int index, bool isReturnPacket, bool serializeToEnd,
+            bool removeSeparator) : this(index, isReturnPacket, serializeToEnd, removeSeparator, ".")
+        {
+
+        }
+
+        public PacketIndexAttribute(int index, bool isReturnPacket, bool serializeToEnd,
+            bool removeSeparator, string specialSeparator)
         {
             Index = index;
             IsReturnPacket = isReturnPacket;

@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
@@ -31,7 +31,6 @@ namespace NosCore.Tests
     [TestClass]
     public class GroupTests
     {
-        private INamedEntity _entity;
         private Group _group;
 
         [TestInitialize]
@@ -47,7 +46,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            _entity = new Character
+            var entity = new Character
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -56,7 +55,7 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
         }
@@ -64,7 +63,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            _entity = new Character
+            var entity = new Character
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -73,11 +72,11 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
 
-            _group.LeaveGroup(_entity);
+            _group.LeaveGroup(entity);
 
             Assert.IsTrue(_group.Count == 0);
         }
@@ -85,14 +84,39 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Monster_Join_Group()
         {
-            _entity = new MapMonster
+            var entity = new MapMonster
             {
                 Name = "test"
             };
 
-            _group.JoinGroup(_entity);
+            _group.JoinGroup(entity);
 
             Assert.IsTrue(_group.IsEmpty);
+        }
+
+        [TestMethod]
+        public void Test_Leader_Change()
+        {
+            for (var i = 0; i < (long)_group.Type; i++)
+            {
+                var entity = new Character
+                {
+                    CharacterId = i + 1,
+                    Name = $"TestExistingCharacter{i}",
+                    Slot = 1,
+                    AccountId = i + 1,
+                    MapId = 1,
+                    State = CharacterState.Active
+                };
+
+                _group.JoinGroup(entity);
+            }
+
+            Assert.IsTrue(_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(0).Value.Item2.VisualId));
+
+            _group.LeaveGroup(_group.ElementAt(0).Value.Item2);
+
+            Assert.IsTrue(!_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(1).Value.Item2.VisualId));
         }
     }
 }

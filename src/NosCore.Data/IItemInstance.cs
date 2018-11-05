@@ -17,27 +17,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
+using System;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Item
+namespace NosCore.Data
 {
-    public class SpecialistInstance : SpecialistInstanceDto, IItemInstance
+    public interface IItemInstanceDto
     {
-        public SpecialistInstance(Item item)
-        {
-            Item = item;
-            ItemVNum = item.VNum;
-        }
+        [Key]
+        Guid Id { get; set; }
 
-        public SpecialistInstance()
-        {
-        }
+        short Amount { get; set; }
 
-        public Item Item { get; set; }
+        long? BazaarItemId { get; set; }
 
-        public object Clone()
-        {
-            return (SpecialistInstance)MemberwiseClone();
-        }
+        long? BoundCharacterId { get; set; }
+
+        long CharacterId { get; set; }
+
+        short Design { get; set; }
+
+        int DurabilityPoint { get; set; }
+
+        DateTime? ItemDeleteTime { get; set; }
+
+        short ItemVNum { get; set; }
+
+        short Rare { get; set; }
+
+        short Slot { get; set; }
+
+        PocketType Type { get; set; }
+
+        byte Upgrade { get; set; }
     }
 }
