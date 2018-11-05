@@ -28,6 +28,7 @@ using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -65,11 +66,36 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Invisible(InvisibleCommandPacket invisiblePacket)
+        {
+            Session.Character.Camouflage = !Session.Character.Camouflage;
+            Session.Character.Invisible = !Session.Character.Invisible;
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
+            //Session.SendPacket(Session.Character.GenerateEq());
+        }
+
+        [UsedImplicitly]
+        public void Position(PositionPacket positionPacket)
+        {
+            Session.SendPacket(Session.Character.GenerateSay(
+                $"Map:{Session.Character.MapInstance.Map.MapId} - X:{Session.Character.PositionX} - Y:{Session.Character.PositionY} - " +
+                    $"Dir:{Session.Character.Direction} - Cell:{Session.Character.MapInstance.Map[Session.Character.PositionX, Session.Character.PositionY]}",
+                        SayColorType.Green));
+        }
+
+        [UsedImplicitly]
+        public void Effect(EffectCommandPacket effectCommandpacket)
+        {
+            Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.GenerateEff(effectCommandpacket.EffectId));
+        }
+
+        [UsedImplicitly]
         public void Teleport(TeleportPacket teleportPacket)
         {
             var session =
                 Broadcaster.Instance.GetCharacter(s =>
-                    s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
+                s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
@@ -89,7 +115,7 @@ namespace NosCore.Controllers
             if (mapInstance == null)
             {
                 _logger.Error(
-                    Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
+                     Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
                 return;
             }
 
@@ -229,7 +255,7 @@ namespace NosCore.Controllers
                 Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                        Session.Account.Language),
+                    Session.Account.Language),
                     Type = 0
                 });
                 return;
@@ -239,7 +265,7 @@ namespace NosCore.Controllers
             var firstItem = inv[0];
             var wearable =
                 Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
-                    firstItem.Type);
+                firstItem.Type);
 
             if (wearable?.Item.EquipmentSlot is EquipmentType.Armor ||
                 wearable?.Item.EquipmentSlot is EquipmentType.MainWeapon ||
@@ -250,14 +276,14 @@ namespace NosCore.Controllers
             else if (wearable?.Item.EquipmentSlot is EquipmentType.Boots ||
                 wearable?.Item.EquipmentSlot is EquipmentType.Gloves)
             {
-                wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
-                wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
-                wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
-                wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
+                wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
+                wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
+                wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
+                wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
             }
             else
             {
-              _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
             }
 
             Session.SendPacket(Session.Character.GenerateSay(

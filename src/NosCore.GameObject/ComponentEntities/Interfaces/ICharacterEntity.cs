@@ -44,6 +44,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         int DignityIcon { get; }
 
+        bool Camouflage { get; }
+
+        bool Invisible { get; }
         IChannel Channel { get; }
        
         bool GroupRequestBlocked { get; }

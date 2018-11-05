@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [PacketHeader("$CreateItem", Authority = AuthorityType.GameMaster)]
-    public class CreateItemPacket : PacketDefinition
+    public class CreateItemPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
         public short VNum { get; set; }
@@ -34,7 +34,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(2)]
         public byte? Upgrade { get; set; }
 
-        public static string ReturnHelp()
+        public string Help()
         {
             return "$CreateItem ITEMVNUM DESIGN/RARE/AMOUNT/WINGS UPDATE";
         }

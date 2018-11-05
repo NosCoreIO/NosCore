@@ -18,20 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("rest")]
-    public class RestPacket : PacketDefinition
+    [PacketHeader("$Effect", Authority = AuthorityType.GameMaster)]
+    public class EffectCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
+        public int EffectId { get; set; }
 
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public bool IsSitting { get; set; }
+        public string Help()
+        {
+            return "$Effect EFFECTID";
+        }
     }
 }
