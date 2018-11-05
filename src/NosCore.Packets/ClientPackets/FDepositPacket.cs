@@ -25,8 +25,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("f_deposit")]
     public class FDepositPacket : PacketDefinition
     {
-        #region Properties        
-
         [PacketIndex(0)]
         public PocketType Inventory { get; set; }
 
@@ -41,7 +39,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(4)]
         public byte? Unknown { get; set; }
-
-        #endregion
     }
 }

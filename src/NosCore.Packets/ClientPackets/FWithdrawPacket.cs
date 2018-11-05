@@ -24,8 +24,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("f_withdraw")]
     public class FWithdrawPacket : PacketDefinition
     {
-        #region Properties        
-
         [PacketIndex(0)]
         public short Slot { get; set; }
 
@@ -34,6 +32,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(2)]
         public byte? Unknown { get; set; }
-        #endregion
     }
 }
