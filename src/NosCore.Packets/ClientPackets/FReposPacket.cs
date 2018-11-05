@@ -24,8 +24,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("f_repos")]
     public class FReposPacket : PacketDefinition
     {
-        #region Properties        
-
         [PacketIndex(0)]
         public byte OldSlot { get; set; }
 
@@ -37,6 +35,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(3)]
         public byte? Unknown { get; set; }
-        #endregion
     }
 }
