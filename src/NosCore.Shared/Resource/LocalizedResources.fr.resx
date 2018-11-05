@@ -538,12 +538,57 @@
     <value>La méthode de ramassage est inconnue.</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
-    <value />
+    <value>L'utilisateur n'est pas dans ta liste d'ami.</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>{0} n'est pas connecté.</value>
   </data>
   <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
     <value>L'utilisateur à été téléporté dans une carte non existante.</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>Vous ne pouvez plus recevoir d'invitation dans un groupe.</value>
+  </data>
+  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
+    <value>Vous êtes le nouveau chef du groupe.</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} a quitté le groupe.</value>
+  </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>Vous ne pouvez pas récuperer cet objet. veuillez patienter un peu.</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Erreur de décodage.</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type de groupe</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'invitation inconnue.</value>
+  </data>
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'objet inconnu.</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Pack de langue manquant</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Pas de propriété speciale sur l'équipement.</value>
+  </data>
+  <data name="REP_CHANGED" xml:space="preserve">
+    <value>Félicitation, votre réputation c'est améliorée.</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Type d'équipement inconnu.</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Reciever inconnu.</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type Visuel inconnu.</value>
   </data>
 </root>
