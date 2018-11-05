@@ -431,6 +431,9 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>This player isn't on your blacklist!</value>
   </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>The item is not yours!</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Item doesn't exist!</value>
   </data>
@@ -524,6 +527,9 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registered on MasterServer</value>
     <comment>check</comment>
+  </data>
+  <data name="REP_CHANGED" xml:space="preserve">
+    <value>Reputation changed</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
