@@ -428,6 +428,9 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Questo giocatore non è nella tua lista nera!</value>
   </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>L'item non ti appartiene!</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Questo Item non esiste!</value>
   </data>
@@ -522,6 +525,9 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="REP_CHANGED" xml:space="preserve">
+    <value>La tua reputazione è cambiata</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
