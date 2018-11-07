@@ -22,7 +22,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 namespace NosCore.Data
 {
-    public class FamilyLog : IDto
+    public class FamilyLogDto : IDto
     {
         [Key]
         public long FamilyId { get; set; }
