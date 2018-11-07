@@ -17,45 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Family;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class FamilyDto : IDto
+     public class FamilyCharacterDto : IDto
     {
-        public int FamilyExperience { get; set; }
+        public FamilyAuthority Authority { get; set; }
 
-        public GenderType FamilyHeadGender { get; set; }
+        public long CharacterId { get; set; }
+
+        public string DailyMessage { get; set; }
+
+        public int Experience { get; set; }
 
         [Key]
+        public long FamilyCharacterId { get; set; }
+
         public long FamilyId { get; set; }
 
-        public byte FamilyLevel { get; set; }
-
-        public byte FamilyFaction { get; set; }
-
-        public string FamilyMessage { get; set; }
-
-        public FamilyAuthorityType ManagerAuthorityType { get; set; }
-
-        public bool ManagerCanGetHistory { get; set; }
-
-        public bool ManagerCanInvite { get; set; }
-
-        public bool ManagerCanNotice { get; set; }
-
-        public bool ManagerCanShout { get; set; }
-
-        public byte MaxSize { get; set; }
-
-        public FamilyAuthorityType MemberAuthorityType { get; set; }
-
-        public bool MemberCanGetHistory { get; set; }
-
-        public string Name { get; set; }
-
-        public byte WarehouseSize { get; set; }
+        public FamilyMemberRank Rank { get; set; }
     }
 }
