@@ -24,11 +24,7 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader(":")]
     public class FamilyChatPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public string Message { get; set; }
-
-        #endregion
     }
 }
