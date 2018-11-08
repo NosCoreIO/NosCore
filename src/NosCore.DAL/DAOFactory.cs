@@ -63,6 +63,9 @@ namespace NosCore.DAL
         private static GenericDao<MapMonster, MapMonsterDto> _mapMonsterDao;
         private static GenericDao<CharacterRelation, CharacterRelationDto> _characterRelationDao;
         private static ItemInstanceDao _itemInstanceDao;
+        private static GenericDao<Family, FamilyDto> _familyDao;
+        private static GenericDao<FamilyCharacter, FamilyCharacterDto> _familyCharacterDao;
+        private static GenericDao<FamilyLog, FamilyLogDto> _familyLogDao;
 
         public static GenericDao<Drop, DropDto> DropDao => _dropDao ??
             (_dropDao = new GenericDao<Drop, DropDto>());
@@ -167,5 +170,14 @@ namespace NosCore.DAL
         public static GenericDao<CharacterRelation, CharacterRelationDto> CharacterRelationDao =>
             _characterRelationDao ??
             (_characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>());
+
+        public static GenericDao<Family, FamilyDto> FamilyDao =>
+            _familyDao ?? (_familyDao = new GenericDao<Family, FamilyDto>());
+
+        public static GenericDao<FamilyCharacter, FamilyCharacterDto> FamilyCharacterDao =>
+            _familyCharacterDao ?? (_familyCharacterDao = new GenericDao<FamilyCharacter, FamilyCharacterDto>());
+
+        public static GenericDao<FamilyLog, FamilyLogDto> FamilyLogDao =>
+            _familyLogDao ?? (_familyLogDao = new GenericDao<FamilyLog, FamilyLogDto>());
     }
 }
