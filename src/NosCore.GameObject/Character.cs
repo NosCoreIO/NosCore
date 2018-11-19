@@ -86,6 +86,8 @@ namespace NosCore.GameObject
 
         public DateTime LastPortal { get; set; }
 
+        public double LastPortal { get; set; }
+
         public ClientSession Session { get; set; }
 
         public DateTime LastSpeedChange { get; set; }
@@ -116,6 +118,12 @@ namespace NosCore.GameObject
         public bool Camouflage { get; set; }
 
         public bool Invisible { get; set; }
+
+        public IInventoryService Inventory { get; set; }
+
+        public bool InExchangeOrTrade { get; set; }
+
+        public bool HasShopOpened { get; set; }
 
         public Group Group { get; set; }
 

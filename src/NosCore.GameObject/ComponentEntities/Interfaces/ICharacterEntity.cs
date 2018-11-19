@@ -50,6 +50,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         bool Camouflage { get; }
 
         bool Invisible { get; }
+
         IChannel Channel { get; }
 
         bool GroupRequestBlocked { get; }
@@ -63,6 +64,10 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
+
+        bool HasShopOpened { get; }
+
+        bool InExchangeOrTrade { get; }
 
         void SendPacket(PacketDefinition packetDefinition);
 
