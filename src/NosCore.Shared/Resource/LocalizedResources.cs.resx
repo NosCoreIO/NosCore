@@ -222,11 +222,17 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Mapa je plná předmětů více jich zde nemůže být!</value>
   </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Chyba v kódování: {0}</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Chyba v Dekódování</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
@@ -251,6 +257,9 @@
   </data>
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Žádosti o přátelství jsou blokovány!</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Žádost o přátelství zaslána</value>
   </data>
   <data name="GOLD_SET" xml:space="preserve">
     <value>Zlato nastaveno!</value>
@@ -363,8 +372,14 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Tento předmět zde nejde vyhodit!</value>
   </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Vstoupil si do skupiny!</value>
+  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} opustil skupinu</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
@@ -390,6 +405,9 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Mapa neexistuje</value>
   </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Mistr Boje</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>Master Server Se spustil správně</value>
   </data>
@@ -411,11 +429,17 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
   </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>Tento Item není tvůj!</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Nebyly nalezeny žádné předměty!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Žádné speciální vlastnosti k nošení</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Nahrána!</value>
@@ -489,6 +513,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Chceš nahrát Časoprostory</value>
   </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Nesnámý PocketType</value>
+  </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
   </data>
@@ -498,6 +525,9 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="REP_CHANGED" xml:space="preserve">
+    <value>Reputace byla změňena</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
@@ -532,6 +562,18 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Bojovník s Mečem</value>
   </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Nemožné požádat o skupinu</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Neznámý EquipmentType</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>Neznámý PickerType</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Neznámý ReceiverType</value>
+  </data>
   <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
     <value>Neznámý Master Packet</value>
     <comment>check</comment>
@@ -539,6 +581,18 @@
   <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
     <value>Neregistrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>Uživatel není Kamarád</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>Uživatel není připojen</value>
+  </data>
+  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
+    <value>Uživatel se teleportoval na neexistující mapu</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Neznámý VisualType</value>
   </data>
   <data name="WRESTLER" xml:space="preserve">
     <value>Wrestler</value>
