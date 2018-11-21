@@ -597,9 +597,6 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Wrestler</value>
-  </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Wrong MapId!</value>
   </data>
