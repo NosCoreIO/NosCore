@@ -390,9 +390,6 @@
     <value>Hata! MasterServer'e bağlanılamadı.</value>
     <comment>check</comment>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Boksör</value>
-  </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Hatalı MapId!</value>
   </data>

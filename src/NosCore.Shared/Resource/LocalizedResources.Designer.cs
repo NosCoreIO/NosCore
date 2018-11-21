@@ -1465,15 +1465,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Wrestler.
-        /// </summary>
-        public static string WRESTLER {
-            get {
-                return ResourceManager.GetString("WRESTLER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Wrong MapId!.
         /// </summary>
         public static string WRONG_SELECTED_MAPID {
