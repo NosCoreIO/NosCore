@@ -74,6 +74,12 @@ namespace NosCore.GameObject
             Requests = new Subject<RequestData>();
         }
 
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
+        public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
+
+        public ExchangeData ExchangeData { get; set; }
+
         public AccountDto Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
