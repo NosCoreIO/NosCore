@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -33,6 +34,7 @@ namespace NosCore.Controllers
 
         }
 
+        [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId); ;
@@ -54,7 +56,7 @@ namespace NosCore.Controllers
 
                     if (target.GroupRequestBlocked)
                     {
-                        Session.SendPacket(new SayPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, Session.Account.Language), Type = SayColorType.Purple });
+                        Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, Session.Account.Language), SayColorType.Purple));
                         return;
                     }
 
@@ -87,20 +89,20 @@ namespace NosCore.Controllers
                     break;
 
                 case RequestExchangeType.List:
-                    if (target == null)
+                    if (target == null || target.InExchangeOrTrade)
                     {
                         return;
                     }
-
-                    if (target.InExchangeOrTrade)
-                    {
-                        return;
-                    }
+                    
+                    Session.Character.ExchangeData.TargetVisualId = target.VisualId;
+                    target.ExchangeData.TargetVisualId = Session.Character.VisualId;
+                    Session.Character.InExchangeOrTrade = true;
+                    target.InExchangeOrTrade = true;
 
                     Session.SendPacket(new ExcListPacket
                     {
                         Unknown = 1,
-                        VisualId = packet.VisualId,
+                        VisualId = packet.VisualId.Value,
                         Gold = -1
                     });
                     
@@ -112,17 +114,21 @@ namespace NosCore.Controllers
                     });
                     break;
                 case RequestExchangeType.Declined:
-                    if (target == null)
-                    {
-                        return;
-                    }
-
                     Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED, Session.Account.Language), SayColorType.Yellow));
-                    target.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
+                    target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
                     break;
                 case RequestExchangeType.Confirmed:
                     break;
                 case RequestExchangeType.Cancelled:
+                    //TODO: Clear current items in exchange
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId);
+                    target.InExchangeOrTrade = false;
+                    Session.Character.InExchangeOrTrade = false;
+                    target.ExchangeData.TargetVisualId = -1;
+                    Session.Character.ExchangeData.TargetVisualId = -1;
+
+                    target?.SendPacket(new ExcClosePacket { Type = 0 });
+                    Session.SendPacket(new ExcClosePacket { Type = 0 });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
