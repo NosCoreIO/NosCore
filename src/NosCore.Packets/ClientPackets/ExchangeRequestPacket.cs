@@ -13,8 +13,8 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(0)]
         public RequestExchangeType RequestType { get; set; }
 
-        [PacketIndex(1)]
+        [PacketIndex(1, IsOptional = true)]
         [Range(0, long.MaxValue)]
-        public long VisualId { get; set; }
+        public long? VisualId { get; set; }
     }
 }
