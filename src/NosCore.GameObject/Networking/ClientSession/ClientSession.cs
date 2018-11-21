@@ -233,12 +233,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPackets(Character.MapInstance.GetMapItems());
-                if (!Character.Invisible)
-                {
-                    Character.MapInstance.Sessions.WriteAndFlushAsync(Character.GenerateIn(
-                        Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)
-                    );
-                }
 
                 SendPacket(Character.Group.GeneratePinit());
                 SendPackets(Character.Group.GeneratePst());
@@ -248,9 +242,17 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
-                Parallel.ForEach(
-                   Broadcaster.Instance.GetCharacters(s => s != this.Character && s.MapInstance.MapInstanceId == Character.MapInstanceId),
-                    s => SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)));
+                var mapSessions = Broadcaster.Instance.GetCharacters(s => s != Character && s.MapInstance.MapInstanceId == Character.MapInstanceId);
+
+                Parallel.ForEach(mapSessions, s =>
+                {
+                    SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+
+                    if (!Character.Invisible)
+                    {
+                        s.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+                    }
+                });
 
                 Character.MapInstance.IsSleeping = false;
                 if (Channel.Id != null)
