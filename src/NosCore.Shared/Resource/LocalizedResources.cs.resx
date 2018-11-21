@@ -594,9 +594,6 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý VisualType</value>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Wrestler</value>
-  </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Špatně vybrané ID Mapy</value>
   </data>

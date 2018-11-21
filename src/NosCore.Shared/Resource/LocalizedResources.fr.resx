@@ -348,9 +348,6 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Escrimeur</value>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Artiste martial</value>
-  </data>
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapsType ont été analysées avec succès !</value>
   </data>

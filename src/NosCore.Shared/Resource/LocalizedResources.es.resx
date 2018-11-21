@@ -597,9 +597,6 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType desconocido: {0}</value>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Luchador</value>
-  </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>¡La Id del Mapa (IdMap) es incorrecta!</value>
   </data>
