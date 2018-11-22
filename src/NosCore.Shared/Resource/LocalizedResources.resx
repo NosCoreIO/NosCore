@@ -410,6 +410,9 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>This map does not exist!</value>
   </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Martial Artist</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer started successfully.</value>
   </data>
