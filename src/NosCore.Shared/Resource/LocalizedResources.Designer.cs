@@ -916,6 +916,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Martial Artist.
+        /// </summary>
+        public static string MARTIALARTIST {
+            get {
+                return ResourceManager.GetString("MARTIALARTIST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MasterServer started successfully..
         /// </summary>
         public static string MASTER_SERVER_LISTENING {
