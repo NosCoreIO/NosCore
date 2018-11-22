@@ -407,6 +407,9 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Questa mappa non esiste!</value>
   </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Artista Marziale</value>
+  </data>
   <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
     <value>MasterServer avviato con successo.</value>
   </data>
