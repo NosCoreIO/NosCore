@@ -37,14 +37,13 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId); ;
+            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId) as Character;
 
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
                     if (target == null)
                     {
-                        _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language));
                         return;
                     }
 
@@ -105,7 +104,7 @@ namespace NosCore.Controllers
                         VisualId = packet.VisualId.Value,
                         Gold = -1
                     });
-                    
+
                     target.SendPacket(new ExcListPacket
                     {
                         Unknown = 1,
@@ -121,13 +120,18 @@ namespace NosCore.Controllers
                     break;
                 case RequestExchangeType.Cancelled:
                     //TODO: Clear current items in exchange
-                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId);
-                    target.InExchangeOrTrade = false;
-                    Session.Character.InExchangeOrTrade = false;
-                    target.ExchangeData.TargetVisualId = -1;
-                    Session.Character.ExchangeData.TargetVisualId = -1;
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;
 
-                    target?.SendPacket(new ExcClosePacket { Type = 0 });
+
+                    if (target != null)
+                    {
+                        target.InExchangeOrTrade = false;
+                        target.ExchangeData.TargetVisualId = -1;
+                        target.SendPacket(new ExcClosePacket { Type = 0 });
+                    }
+
+                    Session.Character.InExchangeOrTrade = false;
+                    Session.Character.ExchangeData.TargetVisualId = -1;
                     Session.SendPacket(new ExcClosePacket { Type = 0 });
                     break;
                 default:
