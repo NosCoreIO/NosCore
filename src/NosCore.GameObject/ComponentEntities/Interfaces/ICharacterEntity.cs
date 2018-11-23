@@ -67,7 +67,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool HasShopOpened { get; }
 
-        bool InExchangeOrTrade { get; set; }
+        bool InExchangeOrTrade { get; }
 
         void SendPacket(PacketDefinition packetDefinition);
 
