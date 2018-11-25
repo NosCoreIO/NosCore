@@ -29,7 +29,7 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("Char_NEW_JOB", AnonymousAccess = true)]
     public class CharNewJobPacket : CharNewPacket
     {
-        public CharNewJobPacket() : base()
+        public CharNewJobPacket()
         {
             IsMartialArtist = true;
         }
