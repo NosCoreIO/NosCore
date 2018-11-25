@@ -467,9 +467,9 @@ namespace NosCore.Core.Serializing
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
 
             foreach (var packetBasePropertyInfo in serializationType.GetProperties()
-                .Where(x => x.GetCustomAttributes(false).OfType<PacketIndexAttribute>().Any()))
+                .Where(x => x.GetCustomAttributes(true).OfType<PacketIndexAttribute>().Any()))
             {
-                var indexAttribute = packetBasePropertyInfo.GetCustomAttributes(false).OfType<PacketIndexAttribute>()
+                var indexAttribute = packetBasePropertyInfo.GetCustomAttributes(true).OfType<PacketIndexAttribute>()
                     .FirstOrDefault();
 
                 if (indexAttribute != null)
