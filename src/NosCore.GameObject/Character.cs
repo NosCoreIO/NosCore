@@ -82,7 +82,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
-        public double LastPortal { get; set; }
+        public DateTime LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
 
