@@ -235,9 +235,7 @@ namespace NosCore.Controllers
         /// <param name="_"></param>
         public void Preq(PreqPacket _)
         {
-            var currentRunningSeconds = (DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
-            var timeSpanSinceLastPortal = currentRunningSeconds - Session.Character.LastPortal;
-            if (timeSpanSinceLastPortal < 4)
+            if ((DateTime.Now - Session.Character.LastPortal).TotalSeconds < 4 || Session.Character.LastPortal > Session.Character.LastMove)
             {
                 return;
             }
@@ -255,7 +253,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            Session.Character.LastPortal = currentRunningSeconds;
+            Session.Character.LastPortal = DateTime.Now;
 
             if (_mapInstanceAccessService.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
                 != MapInstanceType.BaseMapInstance
