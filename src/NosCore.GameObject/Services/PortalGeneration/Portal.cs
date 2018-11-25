@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.PortalGeneration
             {
                 SourceX = SourceX,
                 SourceY = SourceY,
-                MapId = SourceMapId,
+                MapId = DestinationMapId,
                 PortalType = Type,
                 PortalId = PortalId,
                 IsDisabled = IsDisabled ? 1 : 0
