@@ -69,8 +69,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             foreach (var controller in packetControllers)
             {
                 controller.RegisterSession(this);
-                foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>
-                    x.GetParameters().FirstOrDefault()?.ParameterType.BaseType == typeof(PacketDefinition)))
+                foreach (var methodInfo in controller.GetType().GetMethods().Where(x => typeof(PacketDefinition).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
                     var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),

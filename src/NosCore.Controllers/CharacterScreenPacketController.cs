@@ -77,6 +77,7 @@ namespace NosCore.Controllers
                 s.Level >= 80 && s.Account.AccountId == Session.Account.AccountId && s.State == CharacterState.Active) == null)
             {
                 //Needs at least a level 80 to create a martial artist
+                //TODO log
                 return;
             }
             if (DaoFactory.CharacterDao.FirstOrDefault(s =>
@@ -84,18 +85,12 @@ namespace NosCore.Controllers
                 s.Class == (byte)CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
             {
                 //If already a martial artist, can't create another
+                //TODO log
                 return;
             }
-
-            CreateCharacter(new CharNewPacket
-            {
-                Name = martialArtistCreatePacket.Name,
-                Slot = martialArtistCreatePacket.Slot,
-                Gender = martialArtistCreatePacket.Gender,
-                HairStyle = martialArtistCreatePacket.HairStyle,
-                HairColor = martialArtistCreatePacket.HairColor,
-                IsMartialArtist = true
-            });
+            //todo add cooldown for recreate 30days
+            
+            CreateCharacter(martialArtistCreatePacket);
         }
 
         /// <summary>
