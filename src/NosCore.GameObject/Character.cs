@@ -92,7 +92,7 @@ namespace NosCore.GameObject
 
         public DateTime LastPortal { get; set; }
 
-        public double LastPortal { get; set; }
+        public DateTime LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
 
