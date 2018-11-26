@@ -57,13 +57,13 @@ namespace NosCore.GameObject.Networking.ClientSession
         private Character _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
+        public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
             MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
         }
 
-        public ClientSession(GameServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
+        public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
         {
             _isWorldClient = configuration is WorldConfiguration;
             foreach (var controller in packetControllers)

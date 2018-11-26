@@ -106,7 +106,7 @@ namespace NosCore.LoginServer
             }
 
             WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
-                _loginConfiguration.MasterCommunication.Password);
+                _loginConfiguration.MasterCommunication.WebApi.Password);
             Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
@@ -116,7 +116,7 @@ namespace NosCore.LoginServer
                             timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-                    _loginConfiguration.MasterCommunication.Password,
+                    _loginConfiguration.MasterCommunication.WebApi.Password,
                     new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer})
                 ).Wait();
         }

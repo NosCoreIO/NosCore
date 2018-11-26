@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Autofac;
 using DotNetty.Buffers;
@@ -52,6 +53,7 @@ namespace NosCore.LoginServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(loginConfiguration);
+            Validator.ValidateObject(loginConfiguration, new ValidationContext(loginConfiguration), validateAllProperties: true);
             LogLanguage.Language = loginConfiguration.Language;
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
@@ -77,7 +79,7 @@ namespace NosCore.LoginServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
-                .As<GameServerConfiguration>();
+                .As<ServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();

@@ -28,6 +28,7 @@ using NosCore.Database;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
 using Serilog;
+using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable LocalizableElement
 
@@ -47,6 +48,7 @@ namespace NosCore.Parser
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(ParserConfiguration);
+            Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration), validateAllProperties: true);
             LogLanguage.Language = ParserConfiguration.Language;
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
         }

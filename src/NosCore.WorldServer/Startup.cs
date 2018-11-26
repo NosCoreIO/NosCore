@@ -60,6 +60,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.WorldServer
 {
@@ -77,6 +78,7 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(worldConfiguration);
+            Validator.ValidateObject(worldConfiguration, new ValidationContext(worldConfiguration), validateAllProperties: true);
             return worldConfiguration;
         }
 
@@ -150,7 +152,7 @@ namespace NosCore.WorldServer
             LogLanguage.Language = configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
             var keyByteArray =
-                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
+                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.WebApi.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -177,7 +179,7 @@ namespace NosCore.WorldServer
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
 
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();

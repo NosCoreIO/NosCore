@@ -30,12 +30,12 @@ namespace NosCore.GameObject.Networking
     {
         private readonly ISocketChannel _channel;
         private readonly ClientSession.ClientSession _clientSession;
-        private readonly GameServerConfiguration _configuration;
+        private readonly ServerConfiguration _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<string> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession, GameServerConfiguration configuration)
+            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession, ServerConfiguration configuration)
         {
             _channel = channel;
             _decoder = decoder;

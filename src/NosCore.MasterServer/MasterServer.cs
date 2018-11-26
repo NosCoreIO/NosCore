@@ -54,7 +54,7 @@ namespace NosCore.MasterServer
                     _masterConfiguration.Port);
                 Console.Title +=
                     $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
-                RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
+                RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.WebApi.Password).Wait();
             }
             catch
             {
