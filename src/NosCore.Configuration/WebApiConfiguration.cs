@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Configuration
 {
-    public class WebApiConfiguration : GameServerConfiguration
+    public class WebApiConfiguration : ServerConfiguration
     {
+        [Required]
         public string Password { get; set; }
-        public ServerConfiguration WebApi { get; set; }
     }
 }
