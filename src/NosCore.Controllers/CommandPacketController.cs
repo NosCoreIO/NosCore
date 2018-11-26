@@ -37,6 +37,7 @@ using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
@@ -345,7 +346,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket jobLevelPacket)
         {
-            Session.Character.JobLevel = jobLevelPacket.Level;
+            Session.Character.JobLevel = (byte)((CharacterClassType)Session.Character.Class == CharacterClassType.Adventurer && jobLevelPacket.Level > 20 ? 20 : jobLevelPacket.Level);
             Session.Character.JobLevelXp = 0;
             Session.SendPacket(Session.Character.GenerateLev());
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == Session.Character.MapInstance);
