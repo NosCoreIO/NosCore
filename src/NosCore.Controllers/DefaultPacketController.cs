@@ -137,7 +137,7 @@ namespace NosCore.Controllers
             //            }
             //            Session.SendPacket(Session.Character.GenerateExts());
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            //            Session.SendPacket(UserInterfaceHelper.Instance.GeneratePClear());
+            Session.SendPacket(new PclearPacket());
 
             //            Session.SendPacket(Session.Character.GeneratePinit());
             //            Session.SendPackets(Session.Character.GeneratePst());
