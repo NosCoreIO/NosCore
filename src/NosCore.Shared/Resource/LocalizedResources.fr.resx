@@ -588,6 +588,12 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Type Visuel inconnu.</value>
   </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Votre niveau de métier a augementé.</value>
+  </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Votre niveau a augmenté.</value>
+  </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artiste Martial</value>
   </data>
