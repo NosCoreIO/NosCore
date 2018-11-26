@@ -182,6 +182,8 @@ namespace NosCore.Shared.I18N
         UNKWNOWN_RECEIVERTYPE,
         NO_SPECIAL_PROPERTIES_WEARABLE,
         REP_CHANGED,
-        NOT_YOUR_ITEM
+        NOT_YOUR_ITEM,
+        LEVEL_CHANGED,
+        JOB_LEVEL_CHANGED
     }
 }
