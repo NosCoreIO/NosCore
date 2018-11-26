@@ -134,12 +134,12 @@ namespace NosCore.Controllers
                     if (target != null)
                     {
                         target.InExchangeOrTrade = false;
-                        target.ExchangeData.TargetVisualId = -1;
+                        target.ExchangeData = new ExchangeData();
                         target.SendPacket(new ExcClosePacket { Type = 0 });
                     }
 
                     Session.Character.InExchangeOrTrade = false;
-                    Session.Character.ExchangeData.TargetVisualId = -1;
+                    Session.Character.ExchangeData = new ExchangeData();
                     Session.SendPacket(new ExcClosePacket { Type = 0 });
                     break;
                 default:
