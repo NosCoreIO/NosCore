@@ -588,4 +588,7 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Type Visuel inconnu.</value>
   </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Artiste Martial</value>
+  </data>
 </root>
