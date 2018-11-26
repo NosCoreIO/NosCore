@@ -17,14 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Configuration
 {
     public class SqlConnectionConfiguration
     {
+        [Required]
         public string Host { get; set; }
+
+        [Range(1, int.MaxValue)]
         public int Port { get; set; }
+        [Required]
+
         public string Database { get; set; }
+        [Required]
+
         public string Username { get; set; }
+
+        [Required]
         public string Password { get; set; }
 
         public string ConnectionString =>

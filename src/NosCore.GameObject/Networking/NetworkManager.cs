@@ -30,11 +30,11 @@ namespace NosCore.GameObject.Networking
 {
     public class NetworkManager
     {
-        private readonly GameServerConfiguration _configuration;
+        private readonly ServerConfiguration _configuration;
         private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public NetworkManager(GameServerConfiguration configuration,
+        public NetworkManager(ServerConfiguration configuration,
             Func<ISocketChannel, PipelineFactory> pipelineFactory)
         {
             _configuration = configuration;

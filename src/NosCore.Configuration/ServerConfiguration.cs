@@ -17,11 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Configuration
 {
     public class ServerConfiguration : LanguageConfiguration
     {
         public string Host { get; set; }
+
+        [Range(1, int.MaxValue)]
         public int Port { get; set; }
 
         public override string ToString()

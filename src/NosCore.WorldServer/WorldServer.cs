@@ -135,7 +135,7 @@ namespace NosCore.WorldServer
             }
 
             WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(),
-                _worldConfiguration.MasterCommunication.Password);
+                _worldConfiguration.MasterCommunication.WebApi.Password);
             Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
@@ -145,7 +145,7 @@ namespace NosCore.WorldServer
                             timeSpan.TotalSeconds))
                 ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
                     Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
-                    _worldConfiguration.MasterCommunication.Password,
+                    _worldConfiguration.MasterCommunication.WebApi.Password,
                     new MasterClient
                     {
                         Name = _worldConfiguration.ServerName,
