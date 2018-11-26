@@ -117,6 +117,14 @@ namespace NosCore.Controllers
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
                     break;
                 case RequestExchangeType.Confirmed:
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;
+
+                    if (target == null)
+                    {
+                        _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language));
+                        return;
+                    }
+
                     break;
                 case RequestExchangeType.Cancelled:
                     //TODO: Clear current items in exchange
