@@ -330,6 +330,14 @@ namespace NosCore.Controllers
                 s.SendPacket(Session.Character.GenerateEff(6));
                 s.SendPacket(Session.Character.GenerateEff(198));
             });
+
+            foreach (var member in Session.Character.Group.Keys)
+            {
+                var groupMember = Broadcaster.Instance.GetCharacter(s => s.VisualId == member.Item2 && member.Item1 == VisualType.Player);
+
+                groupMember?.SendPacket(groupMember.Group.GeneratePinit());
+            }
+
             Session.SendPacket(Session.Character.Group.GeneratePinit());
             Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language) });
         }
