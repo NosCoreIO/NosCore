@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
-                if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
+                if (!Map.IsWalkable(mapX, mapY))
                 {
                     continue;
                 }
