@@ -167,6 +167,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Put()
         {
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
+
             _handler.PutItem(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -179,8 +180,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_PutBadPlace()
         {
-            _session.Character.PositionX = 3;
-            _session.Character.PositionY = 3;
+            _session.Character.PositionX = -13;
+            _session.Character.PositionY = -13;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
             _handler.PutItem(new PutPacket
             {

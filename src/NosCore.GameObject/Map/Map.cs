@@ -28,35 +28,9 @@ namespace NosCore.GameObject.Map
 {
     public class Map : MapDto
     {
-        private short _xLength;
+        public short XLength => BitConverter.ToInt16(Data.AsSpan().Slice(0, 2).ToArray(), 0);
 
-        private short _yLength;
-
-        public short XLength
-        {
-            get
-            {
-                if (_xLength == 0)
-                {
-                    _xLength = BitConverter.ToInt16(Data.AsSpan().Slice(0, 2).ToArray(), 0);
-                }
-
-                return _xLength;
-            }
-        }
-
-        public short YLength
-        {
-            get
-            {
-                if (_yLength == 0)
-                {
-                    _yLength = BitConverter.ToInt16(Data.AsSpan().Slice(2, 2).ToArray(), 0);
-                }
-
-                return _yLength;
-            }
-        }
+        public short YLength => BitConverter.ToInt16(Data.AsSpan().Slice(2, 2).ToArray(), 0);
 
         public byte this[short x, short y] => Data.AsSpan().Slice(4 + (y * XLength) + x, 1)[0];
 
@@ -119,10 +93,10 @@ namespace NosCore.GameObject.Map
         }
         public bool IsWalkable(short mapX, short mapY)
         {
-            if (mapX > _xLength || mapX < 0 || mapY > _yLength || mapY < 0) return false;
+            if (mapX > XLength || mapX < 0 || mapY > YLength || mapY < 0) return false;
             return IsWalkable(this[mapX, mapY]);
         }
-        private bool IsWalkable(byte value)
+        private static bool IsWalkable(byte value)
         {
             return value == 0 || value == 2 || (value >= 16 && value <= 19);
         }
