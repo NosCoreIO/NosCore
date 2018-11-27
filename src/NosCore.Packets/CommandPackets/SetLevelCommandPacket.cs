@@ -30,6 +30,9 @@ namespace NosCore.Packets.CommandPackets
         [Range(1, byte.MaxValue)]
         public byte Level { get; set; }
 
+        [PacketIndex(1)]
+        public string Name { get; set; }
+
         public string Help()
         {
             return "$SetLevel Value";
