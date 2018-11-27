@@ -71,6 +71,8 @@ namespace NosCore.Tests.HandlerTests
                     0, 1, 1, 1, 0, 0, 0, 0, 
                     0, 1, 1, 1, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0
                 }
         }
@@ -180,8 +182,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_PutBadPlace()
         {
-            _session.Character.PositionX = -13;
-            _session.Character.PositionY = -13;
+            _session.Character.PositionX = -1;
+            _session.Character.PositionY = -1;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
             _handler.PutItem(new PutPacket
             {
@@ -305,8 +307,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_GetAway()
         {
-            _session.Character.PositionX = 8;
-            _session.Character.PositionY = 8;
+            _session.Character.PositionX = 7;
+            _session.Character.PositionY = 7;
             _map.DroppedList.TryAdd(100001,
                 new MapItem
                 {
