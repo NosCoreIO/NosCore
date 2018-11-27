@@ -239,7 +239,7 @@ namespace NosCore.GameObject.Services.Inventory
             }
 
             var sourceInstance = LoadBySlotAndType<IItemInstance>(sourceSlot, sourceType);
-            if (!(sourceInstance is WearableInstance || sourceInstance is SpecialistInstance))
+            if (!(sourceInstance is WearableInstance || sourceInstance is SpecialistInstance && (targetType != PocketType.Equipment || targetType != PocketType.Specialist)))
             {
                 var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
                 _logger.Error(e.Message, e);
@@ -248,8 +248,8 @@ namespace NosCore.GameObject.Services.Inventory
 
             switch (sourceInstance?.Item.ItemType)
             {
-                case ItemType.Fashion when targetType != PocketType.Main && targetType != PocketType.Costume:
-                case ItemType.Specialist when targetType != PocketType.Main && targetType != PocketType.Specialist:
+                case ItemType.Fashion when targetType != PocketType.Equipment && targetType != PocketType.Costume:
+                case ItemType.Specialist when targetType != PocketType.Equipment && targetType != PocketType.Specialist:
                     var e = new InvalidOperationException("SourceInstance can't be moved to this Pocket");
                     _logger.Error(e.Message, e);
                     return null;
