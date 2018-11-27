@@ -228,6 +228,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
             Monsters.ForEach(s => packets.Add(s.GenerateIn()));
             Npcs.ForEach(s => packets.Add(s.GenerateIn()));
+            DroppedList.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
             return packets;
         }
 
