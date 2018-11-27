@@ -196,7 +196,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
-                Direction = visualEntity.Direction,
                 InItemSubPacket = new InItemSubPacket
                 {
                     Amount = visualEntity.Amount,
