@@ -99,9 +99,13 @@ namespace NosCore.GameObject.Map
         {
             var posX = (short)Math.Abs(mapX - firstX);
             var posY = (short)Math.Abs(mapY - firstY);
+
+            var positiveX = mapX > firstX;
+            var positiveY = mapY > firstY;
+
             for (var i = 0; i <= posX; i++)
             {
-                if (!IsWalkable((short)(Math.Min(firstX, mapX) + posX + i), firstY))
+                if (!IsWalkable((short)((positiveX ? i : -i) + firstX), firstY))
                 {
                     return true;
                 }
@@ -109,7 +113,7 @@ namespace NosCore.GameObject.Map
 
             for (var i = 0; i <= posY; i++)
             {
-                if (!IsWalkable(firstX, (short)(Math.Min(firstY, mapY) + posY + i)))
+                if (!IsWalkable(firstX, (short)((positiveY ? i : -i) + firstY)))
                 {
                     return true;
                 }

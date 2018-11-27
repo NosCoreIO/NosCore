@@ -182,6 +182,24 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_PutBadPlace()
         {
+            _session.Character.PositionX = 2;
+            _session.Character.PositionY = 2;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
+            _handler.PutItem(new PutPacket
+            {
+                PocketType = PocketType.Main,
+                Slot = 0,
+                Amount = 1
+            });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+                _session.Account.Language) && packet.Type == 0);
+            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+        }
+
+        [TestMethod]
+        public void Test_PutOutOfBounds()
+        {
             _session.Character.PositionX = -1;
             _session.Character.PositionY = -1;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
