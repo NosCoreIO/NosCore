@@ -23,8 +23,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$SetLevel", Authority = AuthorityType.GameMaster)]
-    public class SetLevelCommandPacket : PacketDefinition, ICommandPacket
+    [PacketHeader("$SetHeroLevel", Authority = AuthorityType.GameMaster)]
+    public class SetHeroLevelCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
         [Range(1, byte.MaxValue)]
@@ -35,7 +35,7 @@ namespace NosCore.Packets.CommandPackets
 
         public string Help()
         {
-            return "$SetLevel Value";
+            return "$SetHeroLevel Value";
         }
     }
 }
