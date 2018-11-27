@@ -61,6 +61,9 @@ namespace NosCore.WorldServer.Controllers
                 case UpdateStatActionType.UpdateJobLevel:
                     session.SetJobLevel(data.Data);
                     break;
+                case UpdateStatActionType.UpdateHeroLevel:
+                    session.SetHeroLevel(data.Data);
+                    break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;

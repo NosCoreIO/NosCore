@@ -173,12 +173,8 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
-        public void SetLevel(byte level)
+        private void GenerateLevelupPackets()
         {
-            Level = level;
-            LevelXp = 0;
-            Hp = MaxHp;
-            Mp = MaxMp;
             SendPacket(GenerateStat());
             SendPacket(this.GenerateStatInfo());
             //Session.SendPacket(Session.Character.GenerateStatChar());
@@ -205,7 +201,24 @@ namespace NosCore.GameObject
             }
 
             SendPacket(Group.GeneratePinit());
+        }
+
+        public void SetLevel(byte level)
+        {
+            Level = level;
+            LevelXp = 0;
+            Hp = MaxHp;
+            Mp = MaxMp;
+            GenerateLevelupPackets();
             Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language) });
+        }
+
+        public void SetHeroLevel(byte level)
+        {
+            HeroLevel = level;
+            HeroXp = 0;
+            GenerateLevelupPackets();
+            Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language) });
         }
 
         public void SetJobLevel(byte jobLevel)

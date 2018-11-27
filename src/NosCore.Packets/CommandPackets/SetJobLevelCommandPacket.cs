@@ -30,7 +30,7 @@ namespace NosCore.Packets.CommandPackets
         [Range(1, byte.MaxValue)]
         public byte Level { get; set; }
 
-        [PacketIndex(1)]
+        [PacketIndex(1, IsOptional = true)]
         public string Name { get; set; }
 
         public string Help()

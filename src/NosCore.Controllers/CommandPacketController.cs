@@ -312,6 +312,31 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void HeroLevel(SetHeroLevelCommandPacket levelPacket)
+        {
+            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetHeroLevel(levelPacket.Level);
+                return;
+            }
+
+            var target = Broadcaster.Instance.GetCharacter(s => s.Name == levelPacket.Name);
+
+            if (target != null)
+            {
+                target.SetHeroLevel(levelPacket.Level);
+                return;
+            }
+
+            WebApiAccess.Instance.BroadcastPacket(new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateHeroLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            }, "api/stat");
+        }
+
+        [UsedImplicitly]
         public void Level(SetLevelCommandPacket levelPacket)
         {
             if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)

@@ -26,6 +26,7 @@ namespace NosCore.Shared.Enumerations
     public enum UpdateStatActionType : byte
     {
         UpdateLevel,
-        UpdateJobLevel
+        UpdateJobLevel,
+        UpdateHeroLevel
     }
 }
