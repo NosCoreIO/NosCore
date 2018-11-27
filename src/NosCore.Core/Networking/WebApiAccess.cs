@@ -209,35 +209,36 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public void BroadcastPacket(PostedPacket postedPacket)
-        {
-            foreach (var channel in Instance.Get<List<WorldServerInfo>>("api/channels"))
-            {
-                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
-            }
-        }
-        public void BroadcastPacket(PostedPacket postedPacket, int channelId)
+        public void BroadcastPacket<T>(T packet, int channelId, string route)
         {
             var channel = Instance.Get<List<WorldServerInfo>>("api/channels", channelId).FirstOrDefault();
             if (channel != null)
             {
-                Instance.Post<PostedPacket>("api/packet", postedPacket, channel.WebApi);
+                Instance.Post<T>(route, packet, channel.WebApi);
             }
         }
 
-        public void BroadcastPackets(List<PostedPacket> packets)
+        public void BroadcastPacket<T>(T packet, string route)
         {
-            foreach (var packet in packets)
+            foreach (var channel in Instance.Get<List<WorldServerInfo>>("api/channels"))
             {
-                BroadcastPacket(packet);
+                Instance.Post<T>(route, packet, channel.WebApi);
             }
         }
 
-        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
+        public void BroadcastPackets<T>(List<T> packets, string route)
         {
             foreach (var packet in packets)
             {
-                BroadcastPacket(packet, channelId);
+                BroadcastPacket(packet, route);
+            }
+        }
+
+        public void BroadcastPackets<T>(List<T> packets, int channelId, string route)
+        {
+            foreach (var packet in packets)
+            {
+                BroadcastPacket(packet, channelId, route);
             }
         }
     }

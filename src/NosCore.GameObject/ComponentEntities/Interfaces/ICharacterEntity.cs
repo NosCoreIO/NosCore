@@ -71,5 +71,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
 
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
+
+        void SetLevel(byte level);
+
+        void SetJobLevel(byte level);
     }
 }

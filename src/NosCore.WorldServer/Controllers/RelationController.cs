@@ -45,7 +45,7 @@ namespace NosCore.WorldServer.Controllers
 
             if (session == null)
             {
-                return Ok();
+                return Ok(); //TODO: not found
             }
 
             session.CharacterRelations.TryRemove(id, out var relation);
