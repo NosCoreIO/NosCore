@@ -63,8 +63,8 @@ namespace NosCore.Controllers
 
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false));
+            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot, false));
         }
 
         [UsedImplicitly]
@@ -79,8 +79,8 @@ namespace NosCore.Controllers
             // actually move the item from source to destination
             Session.Character.Inventory.TryMoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
-            Session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
-            Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
+            Session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot, false));
+            Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot, false));
         }
 
         [UsedImplicitly]
@@ -161,7 +161,7 @@ namespace NosCore.Controllers
 
                         if (inv != null)
                         {
-                            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+                            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot, false));
                             Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out var value);
                             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                             if (getPacket.PickerType == PickerType.Mate)
@@ -263,7 +263,7 @@ namespace NosCore.Controllers
                                 Session.Character.Inventory.DeleteFromTypeAndSlot(invitem.Type, invitem.Slot);
                             }
 
-                            Session.SendPacket(invitem.GeneratePocketChange(invitem.Type, invitem.Slot));
+                            Session.SendPacket(invitem.GeneratePocketChange(invitem.Type, invitem.Slot, true));
 
                             Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                         }
@@ -348,7 +348,7 @@ namespace NosCore.Controllers
                     }
 
                     var item = Session.Character.Inventory.DeleteFromTypeAndSlot(bIPacket.PocketType, bIPacket.Slot);
-                    Session.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
+                    Session.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot, true));
                     break;
                 default:
                     return;
