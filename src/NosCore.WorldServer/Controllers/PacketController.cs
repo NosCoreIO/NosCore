@@ -68,7 +68,7 @@ namespace NosCore.WorldServer.Controllers
 
                     if (receiverSession == null)
                     {
-                        return Ok();
+                        return Ok(); //TODO: not found
                     }
 
                     receiverSession.SendPacket(message);

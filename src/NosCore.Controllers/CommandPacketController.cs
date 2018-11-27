@@ -23,10 +23,12 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
@@ -42,6 +44,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.Controllers
 {
@@ -173,7 +176,7 @@ namespace NosCore.Controllers
                 ReceiverType = ReceiverType.All
             };
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }), "api/packet");
         }
 
         [UsedImplicitly]
@@ -311,13 +314,51 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Level(SetLevelCommandPacket levelPacket)
         {
-           Session.Character.SetLevel(levelPacket.Level);
+            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetLevel(levelPacket.Level);
+                return;
+            }
+
+            var target = Broadcaster.Instance.GetCharacter(s => s.Name == levelPacket.Name);
+
+            if (target != null)
+            {
+                target.SetLevel(levelPacket.Level);
+                return;
+            }
+
+            WebApiAccess.Instance.BroadcastPacket(new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            }, "api/stat");
         }
 
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket jobLevelPacket)
         {
-            Session.Character.SetJobLevel(jobLevelPacket.Level);
+            if (jobLevelPacket.Name == null || jobLevelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetJobLevel(jobLevelPacket.Level);
+                return;
+            }
+
+            var target = Broadcaster.Instance.GetCharacter(s => s.Name == jobLevelPacket.Name);
+
+            if (target != null)
+            {
+                target.SetJobLevel(jobLevelPacket.Level);
+                return;
+            }
+
+            WebApiAccess.Instance.BroadcastPacket(new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateJobLevel,
+                Character = new Character { Name = jobLevelPacket.Name },
+                Data = jobLevelPacket.Level
+            }, "api/stat");
         }
 
         [UsedImplicitly]
