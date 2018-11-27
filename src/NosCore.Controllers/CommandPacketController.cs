@@ -311,55 +311,13 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Level(SetLevelCommandPacket levelPacket)
         {
-            Session.Character.Level = levelPacket.Level;
-            Session.Character.LevelXp = 0;
-            Session.Character.Hp = Session.Character.MaxHp;
-            Session.Character.Mp = Session.Character.MaxMp;
-            Session.SendPacket(Session.Character.GenerateStat());
-            Session.SendPacket(Session.Character.GenerateStatInfo());
-            //Session.SendPacket(Session.Character.GenerateStatChar());
-            Session.SendPacket(Session.Character.GenerateLev());
-            var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == Session.Character.MapInstance);
-            Parallel.ForEach(mapSessions, s =>
-            {
-                if (s.VisualId != Session.Character.VisualId)
-                {
-                    s.SendPacket(Session.Character.GenerateIn(Session.Account.Authority == AuthorityType.Moderator ? Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, Session.Account.Language) : string.Empty));
-                    //TODO: Generate GIDX
-                }
-
-                s.SendPacket(Session.Character.GenerateEff(6));
-                s.SendPacket(Session.Character.GenerateEff(198));
-            });
-
-            foreach (var member in Session.Character.Group.Keys)
-            {
-                var groupMember = Broadcaster.Instance.GetCharacter(s => s.VisualId == member.Item2 && member.Item1 == VisualType.Player);
-
-                groupMember?.SendPacket(groupMember.Group.GeneratePinit());
-            }
-
-            Session.SendPacket(Session.Character.Group.GeneratePinit());
-            Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language) });
+           Session.Character.SetLevel(levelPacket.Level);
         }
 
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket jobLevelPacket)
         {
-            Session.Character.JobLevel = (byte)((CharacterClassType)Session.Character.Class == CharacterClassType.Adventurer && jobLevelPacket.Level > 20 ? 20 : jobLevelPacket.Level);
-            Session.Character.JobLevelXp = 0;
-            Session.SendPacket(Session.Character.GenerateLev());
-            var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == Session.Character.MapInstance);
-            Parallel.ForEach(mapSessions, s =>
-            {
-                //if (s.VisualId != Session.Character.VisualId)
-                //{
-                //    TODO: Generate GIDX
-                //}
-
-                s.SendPacket(Session.Character.GenerateEff(8));
-            });
-            Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language) });
+            Session.Character.SetJobLevel(jobLevelPacket.Level);
         }
 
         [UsedImplicitly]
