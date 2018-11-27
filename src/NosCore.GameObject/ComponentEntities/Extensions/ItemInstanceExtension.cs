@@ -27,7 +27,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IItemInstanceExtension
     {
-        public static IvnPacket GeneratePocketChange(this IItemInstance itemInstance, PocketType type, short slot, bool moveEquip)
+        public static IvnPacket GeneratePocketChange(this IItemInstance itemInstance, PocketType type, short slot, bool deleteEquip)
         {
             if (itemInstance == null)
             {
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     new IvnSubPacket
                     {
                         Slot = slot,
-                        VNum = (short)(itemInstance.Type == PocketType.Equipment && moveEquip ? -1 :  itemInstance.ItemVNum),
+                        VNum = (short)(itemInstance.Type == PocketType.Equipment && deleteEquip ? -1 :  itemInstance.ItemVNum),
                         RareAmount =
                             itemInstance.Type != PocketType.Equipment ? itemInstance.Amount : itemInstance.Rare,
                         UpgradeDesign = itemInstance.Upgrade,
