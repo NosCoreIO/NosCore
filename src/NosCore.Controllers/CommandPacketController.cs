@@ -320,14 +320,6 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var target = Broadcaster.Instance.GetCharacter(s => s.Name == levelPacket.Name);
-
-            if (target != null)
-            {
-                target.SetHeroLevel(levelPacket.Level);
-                return;
-            }
-
             WebApiAccess.Instance.BroadcastPacket(new StatData
             {
                 ActionType = UpdateStatActionType.UpdateHeroLevel,
@@ -345,14 +337,6 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var target = Broadcaster.Instance.GetCharacter(s => s.Name == levelPacket.Name);
-
-            if (target != null)
-            {
-                target.SetLevel(levelPacket.Level);
-                return;
-            }
-
             WebApiAccess.Instance.BroadcastPacket(new StatData
             {
                 ActionType = UpdateStatActionType.UpdateLevel,
@@ -367,14 +351,6 @@ namespace NosCore.Controllers
             if (jobLevelPacket.Name == null || jobLevelPacket.Name == Session.Character.Name)
             {
                 Session.Character.SetJobLevel(jobLevelPacket.Level);
-                return;
-            }
-
-            var target = Broadcaster.Instance.GetCharacter(s => s.Name == jobLevelPacket.Name);
-
-            if (target != null)
-            {
-                target.SetJobLevel(jobLevelPacket.Level);
                 return;
             }
 
