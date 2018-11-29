@@ -422,7 +422,7 @@ namespace NosCore.GameObject
                             Id = characterRelation.Value.RelatedCharacterId,
                             Name = characterRelation.Value.CharacterName
                         }
-                    }, "api/packet");
+                    });
                 }
             }
         }

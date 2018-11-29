@@ -176,7 +176,7 @@ namespace NosCore.Controllers
                 ReceiverType = ReceiverType.All
             };
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }), "api/packet");
+            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]
@@ -320,12 +320,41 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new StatData
+            var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateHeroLevel,
                 Character = new Character { Name = levelPacket.Name },
                 Data = levelPacket.Level
-            }, "api/stat");
+            };
+
+            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels)
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+                
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
         }
 
         [UsedImplicitly]
@@ -337,29 +366,87 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new StatData
+            var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateLevel,
                 Character = new Character { Name = levelPacket.Name },
                 Data = levelPacket.Level
-            }, "api/stat");
-        }
+            };
 
-        [UsedImplicitly]
-        public void JobLevel(SetJobLevelCommandPacket jobLevelPacket)
-        {
-            if (jobLevelPacket.Name == null || jobLevelPacket.Name == Session.Character.Name)
+            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels)
             {
-                Session.Character.SetJobLevel(jobLevelPacket.Level);
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new StatData
+            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+        }
+
+        [UsedImplicitly]
+        public void JobLevel(SetJobLevelCommandPacket levelPacket)
+        {
+            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetJobLevel(levelPacket.Level);
+                return;
+            }
+
+            var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateJobLevel,
-                Character = new Character { Name = jobLevelPacket.Name },
-                Data = jobLevelPacket.Level
-            }, "api/stat");
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            };
+
+            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels)
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
         }
 
         [UsedImplicitly]
