@@ -314,7 +314,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void HeroLevel(SetHeroLevelCommandPacket levelPacket)
         {
-            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
             {
                 Session.Character.SetHeroLevel(levelPacket.Level);
                 return;
@@ -360,7 +360,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Level(SetLevelCommandPacket levelPacket)
         {
-            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
             {
                 Session.Character.SetLevel(levelPacket.Level);
                 return;
@@ -406,7 +406,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket levelPacket)
         {
-            if (levelPacket.Name == null || levelPacket.Name == Session.Character.Name)
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
             {
                 Session.Character.SetJobLevel(levelPacket.Level);
                 return;
