@@ -30,12 +30,12 @@ namespace NosCore.Packets.CommandPackets
         [Range(1, byte.MaxValue)]
         public byte Level { get; set; }
 
-        [PacketIndex(1, IsOptional = true)]
+        [PacketIndex(1, SerializeToEnd = true)]
         public string Name { get; set; }
 
         public string Help()
         {
-            return "$SetJobLevel Value";
+            return "$SetJobLevel Value [Name]";
         }
     }
 }
