@@ -468,7 +468,7 @@ namespace NosCore.Controllers
                     SenderCharacter = new Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.ChannelId, "api/packet");
+                }, receiver.ChannelId);
 
                 Session.SendPacket(Session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
@@ -543,7 +543,7 @@ namespace NosCore.Controllers
                 { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.ChannelId, "api/packet");
+            }, receiver.ChannelId);
         }
 
         /// <summary>
