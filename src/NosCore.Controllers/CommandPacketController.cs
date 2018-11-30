@@ -338,14 +338,14 @@ namespace NosCore.Controllers
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
                 
-                if (target != null)
+                if (target != null) 
                 {
                     receiver = target;
                     config = channel.WebApi;
                 }
             }
 
-            if (receiver == null)
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -391,7 +391,7 @@ namespace NosCore.Controllers
                 }
             }
 
-            if (receiver == null)
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -437,7 +437,7 @@ namespace NosCore.Controllers
                 }
             }
 
-            if (receiver == null)
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 Session.SendPacket(new InfoPacket
                 {
