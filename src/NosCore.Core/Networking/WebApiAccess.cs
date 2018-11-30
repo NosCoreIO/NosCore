@@ -234,7 +234,7 @@ namespace NosCore.Core.Networking
             }
         }
 
-        public void BroadcastPacket(List<PostedPacket> packets, int channelId)
+        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
         {
             foreach (var packet in packets)
             {
