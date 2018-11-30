@@ -30,6 +30,6 @@ namespace NosCore.Data.WebApi
 
         public UpdateStatActionType ActionType { get; set; }
 
-        public byte Data { get; set; }
+        public byte Data { get; set; } //TODO: find other type(s)
     }
 }
