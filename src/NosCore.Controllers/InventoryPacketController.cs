@@ -64,7 +64,7 @@ namespace NosCore.Controllers
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
         [UsedImplicitly]
@@ -257,21 +257,8 @@ namespace NosCore.Controllers
                                 });
                                 return;
                             }
-
-                            if (droppedItem.Amount == 0)
-                            {
-                                Session.Character.Inventory.DeleteFromTypeAndSlot(invitem.Type, invitem.Slot);
-                            }
-
-                            if (invitem.Type == PocketType.Equipment)
-                            {
-                                Session.SendPacket(((IItemInstance)null).GeneratePocketChange(invitem.Type, invitem.Slot));
-                            }
-                            else
-                            {
-                                Session.SendPacket(invitem.GeneratePocketChange(invitem.Type, invitem.Slot));
-                            }
-
+                            invitem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
+                            Session.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                             Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                         }
                         else
@@ -316,12 +303,14 @@ namespace NosCore.Controllers
                         {
                             YesPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Requested
                             },
                             NoPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
@@ -335,12 +324,14 @@ namespace NosCore.Controllers
                         {
                             YesPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Confirmed
                             },
                             NoPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
