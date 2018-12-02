@@ -138,7 +138,7 @@ namespace NosCore.MasterServer.Controllers
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id)
         {
-            if (MasterClientListSingleton.Instance.WorldServers.FirstOrDefault(s => s.Id == id)?.LastPing < DateTime.Now.AddSeconds(-5))
+            if (MasterClientListSingleton.Instance.WorldServers?.FirstOrDefault(s => s.Id == id)?.LastPing.AddSeconds(10) < DateTime.Now)
             {
                 MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
                 _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
