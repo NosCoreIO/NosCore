@@ -453,9 +453,6 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
   </data>
-  <data name="Nope :D" xml:space="preserve">
-    <value>{0} a accepté le point de retour de {0}</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
   </data>
