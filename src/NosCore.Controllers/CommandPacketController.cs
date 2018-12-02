@@ -327,7 +327,7 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
@@ -373,7 +373,7 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
@@ -419,7 +419,7 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;

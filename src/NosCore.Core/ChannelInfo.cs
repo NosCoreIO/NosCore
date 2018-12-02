@@ -17,11 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using NosCore.Configuration;
 
 namespace NosCore.Core
 {
-    public class WorldServerInfo
+    public class ChannelInfo
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -31,5 +32,7 @@ namespace NosCore.Core
         public int ConnectedAccountLimit { get; set; }
 
         public ServerConfiguration WebApi { get; set; }
-    }
+
+        public DateTime LastPing { get; set; }
+}
 }
