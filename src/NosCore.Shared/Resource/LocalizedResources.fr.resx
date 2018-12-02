@@ -580,9 +580,12 @@
     <value>Ton niveau héroïque a augementé.</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
-    <value>Ping réussi, le serveur master est actif.</value>
+    <value>Ping vers le master server.</value>
   </data>
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
     <value>Ping échoué, aucune réponse du serveur master.</value>
+  </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>{0} a accepté le point de retour de {0}.</value>
   </data>
 </root>
