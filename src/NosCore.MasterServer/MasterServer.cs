@@ -50,7 +50,7 @@ namespace NosCore.MasterServer
             }
 
             Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.WorldServers?.Where(s =>
-                         s.LastPing < DateTime.Now.AddSeconds(-5)).Select(s => s.Id).ToList().ForEach(_id =>
+                         s.LastPing.AddSeconds(10) < DateTime.Now).Select(s => s.Id).ToList().ForEach(_id =>
                          {
                              _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
                              MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
