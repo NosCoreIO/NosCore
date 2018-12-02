@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -89,6 +90,23 @@ namespace NosCore.Core.Networking
                         Token = result.Token;
                         _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
                         MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
+                        Task.Run(() =>
+                        {
+                            Policy
+                                .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
+                                .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(5),
+                                    (_, __, timeSpan) =>
+                                        _logger.Verbose(
+                                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
+                                ).Execute(() =>
+                                {
+                                    return Instance.Patch<HttpStatusCode>("api/channel",
+                                            result.ChannelInfo.ChannelId);
+                                });
+                            _logger.Error(
+                                LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
+                            //TODO close app
+                        });
                         return;
                     }
                     throw new HttpRequestException();
@@ -136,7 +154,7 @@ namespace NosCore.Core.Networking
             }
 
             var client = new HttpClient { BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString()) };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token); ;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var response = client.GetAsync(route + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -226,7 +244,7 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = Instance.Get<List<WorldServerInfo>>("api/channel", channelId).FirstOrDefault();
+            var channel = Instance.Get<List<ChannelInfo>>("api/channel", channelId).FirstOrDefault();
             if (channel != null)
             {
                 Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
@@ -235,7 +253,7 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<WorldServerInfo>>("api/channel"))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel"))
             {
                 Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
             }

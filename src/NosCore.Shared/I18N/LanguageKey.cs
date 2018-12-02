@@ -185,6 +185,9 @@ namespace NosCore.Shared.I18N
         NOT_YOUR_ITEM,
         LEVEL_CHANGED,
         JOB_LEVEL_CHANGED,
-        HERO_LEVEL_CHANGED
+        HERO_LEVEL_CHANGED,
+        MASTER_SERVER_PING,
+        MASTER_SERVER_PING_FAILED,
+        CONNECTION_LOST
     }
 }

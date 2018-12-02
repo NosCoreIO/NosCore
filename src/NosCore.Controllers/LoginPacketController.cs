@@ -112,7 +112,7 @@ namespace NosCore.Controllers
                         });
                         break;
                     default:
-                        var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
+                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
