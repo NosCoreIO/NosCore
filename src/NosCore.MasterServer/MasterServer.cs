@@ -20,11 +20,6 @@
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core.Networking;
 using NosCore.Shared.I18N;
