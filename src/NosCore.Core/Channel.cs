@@ -26,7 +26,7 @@ namespace NosCore.Core
     [Serializable]
     public class Channel
     {
-        public string Password { get; set; }
+        public WebApiConfiguration MasterCommunication { get; set; }
 
         public string ClientName { get; set; }
 

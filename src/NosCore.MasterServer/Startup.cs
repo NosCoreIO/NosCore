@@ -113,7 +113,7 @@ namespace NosCore.MasterServer
                 o.Filters.Add(new AuthorizeFilter(policy));
             }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

@@ -74,37 +74,5 @@ namespace NosCore.MasterServer.Controllers
             });
             return Ok(handler.WriteToken(securityToken));
         }
-
-        [AllowAnonymous]
-        [HttpPost("ConnectServer")]
-        public IActionResult ConnectServer([FromBody] WebApiToken serverWebApiToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
-            }
-
-            if (serverWebApiToken.ServerToken != _apiConfiguration.Password)
-            {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
-            }
-
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
-            });
-            return Ok(handler.WriteToken(securityToken));
-        }
     }
 }

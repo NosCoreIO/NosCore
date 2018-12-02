@@ -94,66 +94,19 @@ namespace NosCore.WorldServer
                 Console.ReadKey();
             }
         }
-
         private void ConnectMaster()
         {
-            async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
-                ServerConfiguration webApi, int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0,
-                string serverHost = "")
+            WebApiAccess.RegisterBaseAdress(new Channel
             {
-                var group = new MultithreadEventLoopGroup();
-
-                var bootstrap = new Bootstrap();
-                bootstrap
-                    .Group(group)
-                    .Channel<TcpSocketChannel>()
-                    .Option(ChannelOption.TcpNodelay, true)
-                    .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                    {
-                        var pipeline = channel.Pipeline;
-
-                        pipeline.AddLast(new LengthFieldPrepender(2));
-                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
-
-                        pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
-                    }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port))
-                    .ConfigureAwait(false);
-
-                await connection.WriteAndFlushAsync(new Channel
-                {
-                    Password = password,
-                    ClientName = clientType.Name,
-                    ClientType = (byte) clientType.Type,
-                    ConnectedAccountLimit = connectedAccountLimit,
-                    Port = clientPort,
-                    ServerGroup = serverGroup,
-                    Host = serverHost,
-                    WebApi = webApi
-                }).ConfigureAwait(false);
-            }
-
-            WebApiAccess.RegisterBaseAdress(_worldConfiguration.MasterCommunication.WebApi.ToString(),
-                _worldConfiguration.MasterCommunication.WebApi.Password);
-            Policy
-                .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        _logger.Error(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => RunMasterClient(_worldConfiguration.MasterCommunication.Host,
-                    Convert.ToInt32(_worldConfiguration.MasterCommunication.Port),
-                    _worldConfiguration.MasterCommunication.WebApi.Password,
-                    new MasterClient
-                    {
-                        Name = _worldConfiguration.ServerName,
-                        Type = ServerType.WorldServer,
-                        WebApi = _worldConfiguration.WebApi
-                    }, _worldConfiguration.WebApi, _worldConfiguration.ConnectedAccountLimit,
-                    _worldConfiguration.Port, _worldConfiguration.ServerGroup, _worldConfiguration.Host)
-                ).Wait();
+                MasterCommunication = _worldConfiguration.MasterCommunication,
+                ClientName = _worldConfiguration.ServerName,
+                ClientType = (byte)ServerType.WorldServer,
+                ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
+                Port = _worldConfiguration.Port,
+                ServerGroup = _worldConfiguration.ServerGroup,
+                Host = _worldConfiguration.Host,
+                WebApi = _worldConfiguration.WebApi
+            });
         }
     }
 }

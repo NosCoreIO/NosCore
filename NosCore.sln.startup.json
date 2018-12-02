@@ -10,6 +10,12 @@
   "ListAllProjects": false,
 
   "MultiProjectConfigurations": {
+    "Login + Master": {
+      "Projects": {
+        "NosCore.LoginServer": {},
+        "NosCore.MasterServer": {}
+      }
+    },
     "World + Login + Master": {
       "Projects": {
         "NosCore.WorldServer": {},
