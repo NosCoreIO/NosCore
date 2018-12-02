@@ -186,6 +186,9 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>El canal se cerrará en breves momentos.</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Personaje no cargado.</value>
     <comment>check</comment>
@@ -201,6 +204,9 @@
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Conexión cerrada.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>Conexión perdida.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>"KeepAlive" corrupto en el cliente: {0}</value>
@@ -411,8 +417,14 @@
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artista Marcial</value>
   </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Se ha detectado la existencia del Servidor Maestro.</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>No se ha detectado la existencia del Servidor Maestro.</value>
+  </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>¡No se puede conectar al Servidor Maestro! Reintentando en {0} segundos...</value>
+    <value>¡No se pudo conectar al Servidor Maestro! Reintentando en {0} segundos...</value>
   </data>
   <data name="MAX_GOLD" xml:space="preserve">
     <value>¡Cantidad máxima de oro alcanzada!</value>
