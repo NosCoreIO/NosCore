@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
 {
-    public class MasterConfiguration : ServerConfiguration
+    public class MasterConfiguration : LanguageConfiguration
     {
         [Required]
         public WebApiConfiguration WebApi { get; set; }

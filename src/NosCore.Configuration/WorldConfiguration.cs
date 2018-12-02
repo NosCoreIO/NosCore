@@ -25,7 +25,7 @@ namespace NosCore.Configuration
     public class WorldConfiguration : ServerConfiguration
     {
         [Required]
-        public MasterCommunicationConfiguration MasterCommunication { get; set; }
+        public WebApiConfiguration MasterCommunication { get; set; }
 
         [Required]
         public ServerConfiguration WebApi { get; set; }

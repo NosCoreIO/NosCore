@@ -1,12 +1,8 @@
 {
   "MasterCommunication": {
-    "Host": "127.0.0.1",
-    "Port": 6969,
-	"WebApi": {
 	    "Password": "NosCorePassword",
 		"Host": "http://localhost",
 		"Port": 5000
-	},
   },
   "ServerName": "S1-NosCore",
   "Host": "127.0.0.1",
@@ -17,7 +13,7 @@
   "WebApi": {
 		"Host": "http://localhost",
 		"Port": 5001,
-		"Password": "NosCorePassword"
+		"Password": "NosCorePassword2"
   },
   "Language" : "en",
   "Database": {

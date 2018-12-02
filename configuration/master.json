@@ -1,5 +1,4 @@
 {
-  "Port": 6969,
   "WebApi": {
 		"Host": "http://+",
 		"Port": 5000,

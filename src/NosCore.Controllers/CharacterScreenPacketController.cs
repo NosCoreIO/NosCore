@@ -215,7 +215,7 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers)

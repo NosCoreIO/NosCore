@@ -152,7 +152,7 @@ namespace NosCore.WorldServer
             LogLanguage.Language = configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
             var keyByteArray =
-                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.WebApi.Password));
+                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -180,7 +180,7 @@ namespace NosCore.WorldServer
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
+            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<WebApiConfiguration>();
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

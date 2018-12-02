@@ -72,53 +72,16 @@ namespace NosCore.LoginServer
 
         private void ConnectMaster()
         {
-            async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
-                int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
+            WebApiAccess.RegisterBaseAdress(new Channel
             {
-                var group = new MultithreadEventLoopGroup();
-
-                var bootstrap = new Bootstrap();
-                bootstrap
-                    .Group(group)
-                    .Channel<TcpSocketChannel>()
-                    .Option(ChannelOption.TcpNodelay, true)
-                    .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                    {
-                        var pipeline = channel.Pipeline;
-
-                        pipeline.AddLast(new LengthFieldPrepender(2));
-                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
-
-                        pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
-                    }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
-                await connection.WriteAndFlushAsync(new Channel
-                {
-                    Password = password,
-                    ClientName = clientType.Name,
-                    ClientType = (byte) clientType.Type,
-                    ConnectedAccountLimit = connectedAccountLimit,
-                    Port = clientPort,
-                    ServerGroup = serverGroup,
-                    Host = serverHost
-                });
-            }
-
-            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
-                _loginConfiguration.MasterCommunication.WebApi.Password);
-            Policy
-                .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        _logger.Error(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
-                    Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-                    _loginConfiguration.MasterCommunication.WebApi.Password,
-                    new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer})
-                ).Wait();
+                MasterCommunication = _loginConfiguration.MasterCommunication,
+                ClientName = "LoginServer",
+                ClientType = (byte)ServerType.LoginServer,
+                ConnectedAccountLimit = 0,
+                Port = _loginConfiguration.Port,
+                ServerGroup = 0,
+                Host = _loginConfiguration.Host
+            });
         }
     }
 }
