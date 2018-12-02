@@ -8,7 +8,7 @@ using Serilog;
 namespace NosCore.GameObject.Event
 {
     [UsedImplicitly]
-    class SaveAll : IGlobalEvent
+    public class SaveAll : IGlobalEvent
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 

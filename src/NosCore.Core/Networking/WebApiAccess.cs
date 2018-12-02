@@ -105,7 +105,7 @@ namespace NosCore.Core.Networking
                                 });
                             _logger.Error(
                                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
-                            //TODO close app
+                            Environment.Exit(0);
                         });
                         return;
                     }

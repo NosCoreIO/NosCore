@@ -188,6 +188,7 @@ namespace NosCore.Shared.I18N
         HERO_LEVEL_CHANGED,
         MASTER_SERVER_PING,
         MASTER_SERVER_PING_FAILED,
-        CONNECTION_LOST
+        CONNECTION_LOST,
+        CHANNEL_WILL_EXIT
     }
 }
