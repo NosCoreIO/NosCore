@@ -570,4 +570,21 @@
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artiste Martial</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>Fermeture du serveur dans {0} secondes.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>La connection au serveur à été perdue.</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Ton niveau héroïque a augementé.</value>
+  </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value />
+    <comment>Need context for translate</comment>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value />
+    <comment>Need context for translate</comment>
+  </data>
 </root>
