@@ -89,7 +89,7 @@ namespace NosCore.MasterServer.Controllers
 
             if (MasterClientListSingleton.Instance.WorldServers == null)
             {
-                MasterClientListSingleton.Instance.WorldServers = new List<WorldServerInfo>();
+                MasterClientListSingleton.Instance.WorldServers = new List<ChannelInfo>();
             }
 
             try
@@ -101,18 +101,19 @@ namespace NosCore.MasterServer.Controllers
                 _id = 0;
             }
 
-            WorldServerInfo serv = null;
+            ChannelInfo serv = null;
             var servtype = (ServerType)Enum.Parse(typeof(ServerType), data.ClientType.ToString());
             if (servtype == ServerType.WorldServer)
             {
-                serv = new WorldServerInfo
+                serv = new ChannelInfo
                 {
                     Name = data.ClientName,
                     Host = data.Host,
                     Port = data.Port,
                     Id = _id,
                     ConnectedAccountLimit = data.ConnectedAccountLimit,
-                    WebApi = data.WebApi
+                    WebApi = data.WebApi,
+                    LastPing = DateTime.Now
                 };
 
                 MasterClientListSingleton.Instance.WorldServers.Add(serv);
@@ -124,7 +125,7 @@ namespace NosCore.MasterServer.Controllers
 
         // GET api/channel
         [HttpGet]
-        public List<WorldServerInfo> GetChannels(long? id)
+        public List<ChannelInfo> GetChannels(long? id)
         {
             if (id != null)
             {
@@ -134,10 +135,23 @@ namespace NosCore.MasterServer.Controllers
             return MasterClientListSingleton.Instance.WorldServers;
         }
 
-        [HttpDelete]
-        public void DeleteChannel(long id)
+        [HttpPatch]
+        public HttpStatusCode PingUpdate(int id)
         {
-            MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
+            if (MasterClientListSingleton.Instance.WorldServers.FirstOrDefault(s => s.Id == id)?.LastPing < DateTime.Now.AddSeconds(-5))
+            {
+                MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
+                _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
+                return HttpStatusCode.RequestTimeout;
+            }
+            var chann = MasterClientListSingleton.Instance.WorldServers?.FirstOrDefault(s => s.Id == id);
+            if (chann != null)
+            {
+                chann.LastPing = DateTime.Now;
+            }
+
+            return HttpStatusCode.OK;
         }
+
     }
 }

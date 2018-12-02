@@ -34,7 +34,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers)
             {
