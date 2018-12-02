@@ -260,9 +260,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>¡Solicitud de amistad enviada!</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Cantidad de oro modificada satisfactoriamente.</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>GroupRequestType desconocida</value>
     <comment>insert missing type data</comment>
@@ -281,9 +278,6 @@
   </data>
   <data name="GROUP_INVITE" xml:space="preserve">
     <value>Has enviado una petición de grupo a [{0}].</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>¡El líder del grupo ha cambiado!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Has abandonado el grupo.</value>
@@ -341,9 +335,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
-  </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Argumentos invalidos de teletransportación.</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Deseas poner como punto de regreso: {0} ?</value>
@@ -419,9 +410,6 @@
   </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artista Marcial</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Servidor Maestro iniciado exitosamente.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>¡No se puede conectar al Servidor Maestro! Reintentando en {0} segundos...</value>
@@ -531,14 +519,8 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>¡{0} Portales Analizados!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registrado desde el Servidor Maestro.</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Reputación modificada.</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>¡{0} RespawnTypes Analizados!</value>
@@ -586,22 +568,11 @@
     <value>ReceiverType desconocido</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Paquete Maestro irreconocible.</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Des-registrado desde el Servidor Maestro.</value>
-    <comment>check</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>¡El usuario no es un amigo!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>¡El usuario no está conectado!</value>
-  </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>Usuario teletransportado a un mapa inexistente.</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType desconocido: {0}</value>

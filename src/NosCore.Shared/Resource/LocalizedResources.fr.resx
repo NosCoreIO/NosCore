@@ -195,14 +195,8 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>L'émulateur à bien été chargé.</value>
   </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Déconnecter de master.</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Enregistrer sur master.</value>
-  </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Packet inconnu du master.</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentification avec succès.</value>
@@ -234,9 +228,6 @@
   <data name="CLIENT_CONNECTED" xml:space="preserve">
     <value>Client connecté. ClientId = {0}</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Enrengistrer depuis le master.</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client arrivé.</value>
   </data>
@@ -254,9 +245,6 @@
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Écoute du port</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Écoute du serveur master.</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Aucune Map n'a été trouvé.</value>
@@ -480,9 +468,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Invitation d'amitié envoyée.</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Vous avez obtenu {0} or.</value>
-  </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
   </data>
@@ -503,9 +488,6 @@
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
-  </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Arguments de teleportation invalides.</value>
   </data>
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>{0} t'a invité dans un groupe.</value>
@@ -540,14 +522,8 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>{0} n'est pas connecté.</value>
   </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>L'utilisateur à été téléporté dans une carte non existante.</value>
-  </data>
   <data name="GROUP_BLOCKED" xml:space="preserve">
     <value>Vous ne pouvez plus recevoir d'invitation dans un groupe.</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Vous êtes le nouveau chef du groupe.</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
@@ -575,9 +551,6 @@
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Pas de propriété speciale sur l'équipement.</value>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Félicitation, votre réputation c'est améliorée.</value>
   </data>
   <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
     <value>Type d'équipement inconnu.</value>
