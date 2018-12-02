@@ -453,7 +453,7 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
   </data>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
+  <data name="Nope :D" xml:space="preserve">
     <value>{0} a accepté le point de retour de {0}</value>
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
@@ -580,11 +580,9 @@
     <value>Ton niveau héroïque a augementé.</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
-    <value />
-    <comment>Need context for translate</comment>
+    <value>Ping réussi, le serveur master est actif.</value>
   </data>
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
-    <value />
-    <comment>Need context for translate</comment>
+    <value>Ping échoué, aucune réponse du serveur master.</value>
   </data>
 </root>
