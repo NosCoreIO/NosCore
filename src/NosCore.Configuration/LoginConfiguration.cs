@@ -25,7 +25,7 @@ namespace NosCore.Configuration
     public class LoginConfiguration : ServerConfiguration
     {
         [Required]
-        public MasterCommunicationConfiguration MasterCommunication { get; set; }
+        public WebApiConfiguration MasterCommunication { get; set; }
 
         [Required]
         public SqlConnectionConfiguration Database { get; set; }

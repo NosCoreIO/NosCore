@@ -524,7 +524,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+            var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channel");
             foreach (var server in servers)
             {
                 var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
