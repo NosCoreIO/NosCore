@@ -180,8 +180,7 @@ namespace NosCore.Shared.I18N
         ALREADY_EXCHANGE,
         YOU_ASK_FOR_EXCHANGE,
         INCOMING_EXCHANGE,
-        EXCHANGE_REFUSED
-        NOT_YOUR_ITEM,
+        EXCHANGE_REFUSED,
         LEVEL_CHANGED,
         JOB_LEVEL_CHANGED,
         HERO_LEVEL_CHANGED,
