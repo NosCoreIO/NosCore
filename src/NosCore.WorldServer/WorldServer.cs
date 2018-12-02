@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
 using DotNetty.Transport.Bootstrapping;
@@ -81,6 +82,13 @@ namespace NosCore.WorldServer
                 Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
             });
             ConnectMaster();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                var eventSaveAll = new SaveAll();
+                eventSaveAll.Execution();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                Thread.Sleep(30000);
+            };
             try
             {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
@@ -93,6 +101,8 @@ namespace NosCore.WorldServer
             {
                 Console.ReadKey();
             }
+
+          
         }
         private void ConnectMaster()
         {
