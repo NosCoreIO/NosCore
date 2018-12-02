@@ -261,9 +261,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Žádost o přátelství zaslána</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Zlato nastaveno!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý požadavek na skupinu!</value>
   </data>
@@ -281,9 +278,6 @@
   </data>
   <data name="GROUP_INVITE" xml:space="preserve">
     <value>Pozvánka do skupiny byla poslána hráči: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Vedoucí skupiny byl změněn!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Opustil si skupinu</value>
@@ -338,9 +332,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
-  </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Neplatné argumenty teleportu!</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Chceš sdílet místo návratu s:{0}?</value>
@@ -407,9 +398,6 @@
   </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Mistr Boje</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Master Server Se spustil správně</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Znovu připojení k Master Serveru</value>
@@ -519,15 +507,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registrováno na Master Serveru</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Reputace byla změňena</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
@@ -574,22 +556,11 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Neznámý ReceiverType</value>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Neznámý Master Packet</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Neregistrováno na Master Serveru</value>
-    <comment>check</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Uživatel není Kamarád</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Uživatel není připojen</value>
-  </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>Uživatel se teleportoval na neexistující mapu</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý VisualType</value>

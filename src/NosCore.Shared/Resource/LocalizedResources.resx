@@ -262,9 +262,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Friend request sent</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Gold changed!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Group request type</value>
     <comment>insert missing type data</comment>
@@ -283,9 +280,6 @@
   </data>
   <data name="GROUP_INVITE" xml:space="preserve">
     <value>Group invite request sent to: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Group leader changed!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>You left the party</value>
@@ -340,9 +334,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
-  </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Invalid teleport arguments</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Do you want to set as a return point from : {0} ?</value>
@@ -412,9 +403,6 @@
   </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Martial Artist</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer started successfully.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Cannot connect to Master Server! Trying again in {0} seconds...</value>
@@ -524,15 +512,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portal Parsed!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registered on MasterServer</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registered on MasterServer</value>
     <comment>check</comment>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Reputation changed</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
@@ -580,22 +562,11 @@
     <value>Unknown Reciever type</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Unrecognized Master Packet.</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Unregistred From Master.</value>
-    <comment>check</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>User is not a friend!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>User is not connected</value>
-  </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>User teleported to not existing map</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>
