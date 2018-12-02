@@ -30,13 +30,11 @@ using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Networking;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
     public class ChannelController : Controller
@@ -44,9 +42,6 @@ namespace NosCore.MasterServer.Controllers
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly WebApiConfiguration _apiConfiguration;
-
-        private int _id;
-
         public ChannelController(WebApiConfiguration apiConfiguration)
         {
             _apiConfiguration = apiConfiguration;
@@ -83,61 +78,8 @@ namespace NosCore.MasterServer.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
-
-            _logger.Debug(string.Format(
-                LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
-
-            if (MasterClientListSingleton.Instance.WorldServers == null)
-            {
-                MasterClientListSingleton.Instance.WorldServers = new List<WorldServerInfo>();
-            }
-
-            try
-            {
-                _id = MasterClientListSingleton.Instance.WorldServers.Select(s => s.Id).Max() + 1;
-            }
-            catch
-            {
-                _id = 0;
-            }
-
-            WorldServerInfo serv = null;
-            var servtype = (ServerType)Enum.Parse(typeof(ServerType), data.ClientType.ToString());
-            if (servtype == ServerType.WorldServer)
-            {
-                serv = new WorldServerInfo
-                {
-                    Name = data.ClientName,
-                    Host = data.Host,
-                    Port = data.Port,
-                    Id = _id,
-                    ConnectedAccountLimit = data.ConnectedAccountLimit,
-                    WebApi = data.WebApi
-                };
-
-                MasterClientListSingleton.Instance.WorldServers.Add(serv);
-                data.ChannelId = _id;
-            }
-
+            
             return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
-        }
-
-        // GET api/channel
-        [HttpGet]
-        public List<WorldServerInfo> GetChannels(long? id)
-        {
-            if (id != null)
-            {
-                return MasterClientListSingleton.Instance.WorldServers.Where(s => s.Id == id).ToList();
-            }
-
-            return MasterClientListSingleton.Instance.WorldServers;
-        }
-
-        [HttpDelete]
-        public void DeleteChannel(long id)
-        {
-            MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
         }
     }
 }
