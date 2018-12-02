@@ -259,9 +259,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Richiesta di amicizia inviata</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Oro assegnato</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di richiesta gruppo sconosciuto</value>
     <comment>insert missing type data</comment>
@@ -280,9 +277,6 @@
   </data>
   <data name="GROUP_INVITE" xml:space="preserve">
     <value>Richiesta di invito di gruppo inviata a: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Il leader del gruppo è cambiato!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Sei uscito dal gruppo</value>
@@ -337,9 +331,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
-  </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Argomenti di teletrasporto non validi</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Vuoi impostare come punto di ritorno da: {0}?</value>
@@ -409,9 +400,6 @@
   </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artista Marziale</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer avviato con successo.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al server master! Provando ancora tra {0} secondi...</value>
@@ -522,15 +510,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portali Sincronizzati!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registrato su MasterServer</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>La tua reputazione è cambiata</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
@@ -579,22 +561,11 @@
     <value>Tipo di destinatario sconosciuto</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Pacchetto Master non riconosciuto</value>
-    <comment>revisionare</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Non registrato dal MasterServer</value>
-    <comment>revisionare</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utente non è un amico!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
-  </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>Utente teleportato su una mappa non esistente</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
