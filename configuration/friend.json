@@ -1,7 +1,7 @@
 {
   "WebApi": {
 		"Host": "http://+",
-		"Port": 5000,
+		"Port": 5003,
 		"Password": "NosCorePassword",
   },
   "Language" : "en",
