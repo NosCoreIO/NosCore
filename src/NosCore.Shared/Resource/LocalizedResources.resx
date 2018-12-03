@@ -188,6 +188,9 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Channel</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>The channel will close under {0} seconds</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Character Not loaded</value>
     <comment>check</comment>
@@ -203,6 +206,9 @@
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Connection closed.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>Connection to the server lost.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Corrupted Keepalive on client {0}</value>
@@ -296,6 +302,9 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
   </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Your hero level has changed</value>
+  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Parsed! Region: {1}</value>
   </data>
@@ -367,6 +376,9 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>You can't drop that item!</value>
   </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Your job level has changed</value>
+  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
   </data>
@@ -376,6 +388,9 @@
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>{0} left the party</value>
+  </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Your level has changed</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
@@ -403,6 +418,12 @@
   </data>
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Martial Artist</value>
+  </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Ping to master server</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>Ping to master server failed.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Cannot connect to Master Server! Trying again in {0} seconds...</value>
