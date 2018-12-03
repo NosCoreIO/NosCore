@@ -74,43 +74,35 @@ namespace NosCore.Core.Networking
             {
                 BaseAddress = BaseAddress
             };
-            Policy
-                .Handle<Exception>()
-                .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        _logger.Error(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds))
-                ).Execute(() =>
-                {
-                    var message = client.PostAsync("api/channel", Content).Result;
-                    if (message.IsSuccessStatusCode)
-                    {
-                        var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Content.ReadAsStringAsync().Result);
-                        Token = result.Token;
-                        _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
-                        MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
-                        Task.Run(() =>
-                        {
-                            Policy
-                                .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
-                                .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(5),
-                                    (_, __, timeSpan) =>
-                                        _logger.Verbose(
-                                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
-                                ).Execute(() =>
-                                {
-                                    return Instance.Patch<HttpStatusCode>("api/channel",
-                                            result.ChannelInfo.ChannelId);
-                                });
-                            _logger.Error(
-                                LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
-                            Environment.Exit(0);
-                        });
-                        return;
-                    }
-                    throw new HttpRequestException();
-                });
+
+            var message = Policy
+                 .Handle<Exception>()
+                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
+                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                     (_, __, timeSpan) =>
+                         _logger.Error(string.Format(
+                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                             timeSpan.TotalSeconds))
+                 ).ExecuteAsync(() => client.PostAsync("api/channel", Content));
+
+            var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
+            Token = result.Token;
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
+            MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
+            Task.Run(() =>
+            {
+                Policy
+                    .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
+                    .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(5),
+                        (_, __, timeSpan) =>
+                            _logger.Verbose(
+                                LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
+                    ).Execute(() => Instance.Patch<HttpStatusCode>("api/channel",
+                        result.ChannelInfo.ChannelId));
+                _logger.Error(
+                    LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
+                Environment.Exit(0);
+            });
         }
 
         public T Delete<T>(string route, ServerConfiguration webApi) => Delete<T>(route, webApi, null);
