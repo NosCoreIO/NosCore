@@ -1,0 +1,15 @@
+{
+  "WebApi": {
+		"Host": "http://+",
+		"Port": 5003,
+		"Password": "NosCorePassword",
+  },
+  "Language" : "en",
+  "Database": {
+		"Host" : "localhost",
+		"Port" : 5432,
+		"Database" : "postgres",
+		"Username" : "postgres",
+		"Password" : "password",
+	}
+}
