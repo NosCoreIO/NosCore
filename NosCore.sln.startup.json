@@ -13,22 +13,24 @@
     "Login + Master": {
       "Projects": {
         "NosCore.LoginServer": {},
-        "NosCore.MasterServer": {}
+        "NosCore.MasterServer": {},
+        "NosCore.FriendServer": {}
       }
     },
-    "World + Login + Master": {
+    "World + Login + Master + Friend": {
       "Projects": {
         "NosCore.WorldServer": {},
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {}
       }
     },
-    "World + Login + Master + Parser": {
+    "World + Login + Master + Parser + Friend": {
       "Projects": {
         "NosCore.WorldServer": {},
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {},
-        "NosCore.Parser": {}
+        "NosCore.Parser": {},
+        "NosCore.FriendServer": {}
       }
     },
     "All": {
@@ -37,12 +39,18 @@
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {},
         "NosCore.Parser": {},
-        "NosCore.PathFinder.Gui": {}
+        "NosCore.PathFinder.Gui": {},
+        "NosCore.FriendServer": {}
       }
     },
     "LoginServer": {
       "Projects": {
         "NosCore.LoginServer": {}
+      }
+    },
+    "FriendServer": {
+      "Projects": {
+        "NosCore.FriendServer": {}
       }
     },
     "MasterServer": {

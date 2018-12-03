@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
 {
-    public class ServerConfiguration
+    public class ServerConfiguration : LanguageConfiguration
     {
         public string Host { get; set; }
 
