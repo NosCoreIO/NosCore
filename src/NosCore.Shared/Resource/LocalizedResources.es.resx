@@ -418,10 +418,10 @@
     <value>Artista Marcial</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
-    <value>Se ha detectado la existencia del Servidor Maestro.</value>
+    <value>Comprobando el estado del Servidor Maestro...</value>
   </data>
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
-    <value>No se ha detectado la existencia del Servidor Maestro.</value>
+    <value>¡No se obtuvo respuesta del Servidor Maestro!</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>¡No se pudo conectar al Servidor Maestro! Reintentando en {0} segundos...</value>
