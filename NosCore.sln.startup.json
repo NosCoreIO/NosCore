@@ -13,15 +13,15 @@
     "Login + Master": {
       "Projects": {
         "NosCore.LoginServer": {},
-        "NosCore.MasterServer": {},
-        "NosCore.FriendServer": {}
+        "NosCore.MasterServer": {}
       }
     },
     "World + Login + Master + Friend": {
       "Projects": {
         "NosCore.WorldServer": {},
         "NosCore.LoginServer": {},
-        "NosCore.MasterServer": {}
+        "NosCore.MasterServer": {},
+        "NosCore.FriendServer": {}
       }
     },
     "World + Login + Master + Parser + Friend": {
