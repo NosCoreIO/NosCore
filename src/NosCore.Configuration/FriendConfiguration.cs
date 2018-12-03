@@ -21,16 +21,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
 {
-    public class ServerConfiguration
+    public class FriendConfiguration : LanguageConfiguration
     {
-        public string Host { get; set; }
+        [Required]
+        public WebApiConfiguration WebApi { get; set; }
 
-        [Range(1, int.MaxValue)]
-        public int Port { get; set; }
-
-        public override string ToString()
-        {
-            return Host + ":" + Port;
-        }
+        [Required]
+        public SqlConnectionConfiguration Database { get; set; }
     }
 }
