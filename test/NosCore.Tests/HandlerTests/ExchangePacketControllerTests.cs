@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ExchangeInfo;
+using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
@@ -25,44 +30,65 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class ExchangePacketControllerTests
     {
-        private readonly List<ExchangePacketController> _controllers = new List<ExchangePacketController>();
-        private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
+        private ClientSession _session;
+        private ClientSession _session2;
+        private Character _character;
+        private Character _character2;
+        private ExchangePacketController _controller;
+        private ExchangePacketController _controller2;
+        private IItemBuilderService _itemBuilderService;
 
         [TestInitialize]
         public void Setup()
         {
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
-            for (byte i = 0; i < 2; i++)
+
+            var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var account2 = new AccountDto { Name = "AccountTest2", Password = EncryptionHelper.Sha512("test") };
+
+            _character = new Character
             {
-                var handler = new ExchangePacketController();
-                var session = new ClientSession(null, new List<PacketController> { handler }, null) { SessionId = i };
+                CharacterId = 1,
+                Name = "Test",
+                Slot = 1,
+                AccountId = 1,
+                MapId = 1,
+                State = CharacterState.Active,
+                ExchangeInfo = new ExchangeInfoService()
+            };
 
+            _character2 = new Character
+            {
+                CharacterId = 2,
+                Name = "Test2",
+                Slot = 1,
+                AccountId = 2,
+                MapId = 1,
+                State = CharacterState.Active,
+                ExchangeInfo = new ExchangeInfoService()
+            };
+            var channelMock = new Mock<IChannel>();
 
-                Broadcaster.Instance.RegisterSession(session);
-                var account = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
+            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_itemBuilderService) });
+            _session.RegisterChannel(channelMock.Object);
+            _session.InitializeAccount(account);
+            _session.SessionId = 1;
 
-                var characterDto = new CharacterDto
-                {
-                    CharacterId = i,
-                    Name = $"TestExistingCharacter{i}",
-                    Slot = 1,
-                    AccountId = account.AccountId,
-                    MapId = 1,
-                    State = CharacterState.Active
-                };
+            _controller = new ExchangePacketController(_itemBuilderService);
+            _controller.RegisterSession(_session);
+            _session.SetCharacter(_character);
+            Broadcaster.Instance.RegisterSession(_session);
 
-                session.InitializeAccount(account);
-                _controllers.Add(handler);
-                handler.RegisterSession(session);
+            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_itemBuilderService) });
+            _session2.RegisterChannel(channelMock.Object);
+            _session2.InitializeAccount(account2);
+            _session2.SessionId = 2;
 
-                var character = characterDto.Adapt<Character>();
-                character.Session = session;
-                _characters.Add(i, character);
-                session.SetCharacter(character);
-                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true,
-                    MapInstanceType.BaseMapInstance, null);
-            }
+            _controller2 = new ExchangePacketController(_itemBuilderService);
+            _controller2.RegisterSession(_session2);
+            _session2.SetCharacter(_character2);
+            Broadcaster.Instance.RegisterSession(_session2);
         }
 
         [TestMethod]
@@ -71,28 +97,28 @@ namespace NosCore.Tests.HandlerTests
             var packet = new ExchangeRequestPacket
             {
                 RequestType = RequestExchangeType.List,
-                VisualId = _characters.ElementAt(1).Value.VisualId
+                VisualId = _character2.CharacterId
             };
 
-            _controllers.ElementAt(0).RequestExchange(packet);
-            Assert.IsTrue(_characters.ElementAt(0).Value.ExchangeData.TargetVisualId == _characters.ElementAt(1).Value.CharacterId && _characters.ElementAt(1).Value.InExchangeOrTrade);
+            _controller.RequestExchange(packet);
+            Assert.IsTrue(_character.ExchangeInfo.ExchangeData.TargetVisualId == _character2.CharacterId && _character2.InExchangeOrShop);
         }
 
         [TestMethod]
         public void Test_Cancel_Request()
         {
-            _characters.ElementAt(0).Value.ExchangeData.TargetVisualId = _characters.ElementAt(1).Value.VisualId;
-            _characters.ElementAt(0).Value.InExchangeOrTrade = true;
-            _characters.ElementAt(1).Value.InExchangeOrTrade = true;
+            _character.ExchangeInfo.ExchangeData.TargetVisualId = _character2.VisualId;
+            _character.InExchange = true;
+            _character2.InExchange = true;
 
             var packet = new ExchangeRequestPacket
             {
                 RequestType = RequestExchangeType.Cancelled,
-                VisualId = _characters.ElementAt(1).Value.VisualId
+                VisualId = _character2.VisualId
             };
 
-            _controllers.ElementAt(0).RequestExchange(packet);
-            Assert.IsTrue(_characters.ElementAt(0).Value.InExchangeOrTrade == false && _characters.ElementAt(1).Value.InExchangeOrTrade == false);
+            _controller.RequestExchange(packet);
+            Assert.IsTrue(!_character.InExchangeOrShop && !_character2.InExchangeOrShop);
 
 
         }
