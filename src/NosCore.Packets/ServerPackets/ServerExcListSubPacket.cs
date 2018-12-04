@@ -17,21 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("exc_list_sub_packet")]
-    public class ExcListSubPacket : PacketDefinition
+    [PacketHeader("Exc_List_Subpackets")]
+    public class ServerExcListSubPacket : PacketDefinition
     {
         [PacketIndex(0)]
+        public short ExchangeSlot { get; set; }
+
+        [PacketIndex(1, IsOptional = true)]
         public PocketType PocketType { get; set; }
 
-        [PacketIndex(1)]
-        public short Slot { get; set; }
+        [PacketIndex(2, IsOptional = true)]
+        public short ItemVnum { get; set; }
 
-        [PacketIndex(2)]
+        [PacketIndex(3, IsOptional = true)]
         public short Amount { get; set; }
+
+        [PacketIndex(4, IsOptional = true)]
+        public short Rare { get; set; }
+
+        [PacketIndex(5, IsOptional = true)]
+        public byte Upgrade { get; set; }
     }
 }
