@@ -19,6 +19,7 @@
 
 using Mapster;
 using NosCore.Data.AliveEntities;
+using NosCore.GameObject.Services.ExchangeInfo;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 
@@ -28,11 +29,14 @@ namespace NosCore.GameObject.Services.CharacterBuilder
     {
         private readonly IInventoryService _inventory;
         private readonly IItemBuilderService _itemBuilderService;
+        private readonly IExchangeInfoService _exchangeInfo;
 
         public CharacterBuilderService(IInventoryService inventory, IItemBuilderService itemBuilderService)
+        public CharacterBuilderService(IInventoryService inventory, IExchangeInfoService exchangeInfo)
         {
             _inventory = inventory;
             _itemBuilderService = itemBuilderService;
+            _exchangeInfo = exchangeInfo;
         }
 
         public Character LoadCharacter(CharacterDto characterDto)
@@ -40,6 +44,7 @@ namespace NosCore.GameObject.Services.CharacterBuilder
             Character character = characterDto.Adapt<Character>();
             character.Inventory = _inventory;
             character.ItemBuilderService = _itemBuilderService;
+            character.ExchangeInfo = _exchangeInfo;
             return character;
         }
     }
