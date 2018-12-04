@@ -2,7 +2,7 @@
 mono: none
 sudo: required
 dist: trusty
-dotnet: 2.2
+dotnet: 2.2.0-preview3-35497
 install:
     - dotnet restore
 script: 
