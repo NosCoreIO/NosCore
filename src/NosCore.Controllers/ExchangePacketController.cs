@@ -8,11 +8,13 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
 
@@ -35,9 +37,70 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void ExchangeList(ExcListPacket packet)
+        {
+            if (packet.Gold < 0 || packet.Gold > Session.Character.Gold || packet.BankGold > Session.Account.BankMoney)
+            {
+                return;
+            }
+
+            var list = new ExcListPacket
+            {
+                Unknown = 1,
+                VisualId = Session.Character.VisualId,
+                Gold = packet.Gold,
+                BankGold = packet.BankGold,
+                SubPackets = new List<ExcListSubPacket>()
+            };
+
+            foreach (var value in packet.SubPackets)
+            {
+                if (value.PocketType == PocketType.Bazaar)
+                {
+                    return;
+                }
+
+                var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, value.PocketType);
+
+                if (item == null || item.Amount <= 0 || item.Amount < value.Amount)
+                {
+                    return;
+                }
+
+                if (!item.Item.IsTradable)
+                {
+                    var target = Broadcaster.Instance.GetCharacter(s =>
+                        s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId &&
+                        s.MapInstanceId == Session.Character.MapInstanceId);
+
+                    if (target is Character chara)
+                    {
+                        chara.SendPacket(new ExcClosePacket { Type = 0 });
+                        chara.ExchangeInfo.ExchangeData = new ExchangeData();
+                    }
+
+                    Session.SendPacket(new ExcClosePacket { Type = 0 });
+                    Session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
+                    return;
+                }
+
+                var itemCpy = (IItemInstance)item.Clone();
+                itemCpy.Amount = value.Amount;
+                Session.Character.ExchangeInfo.ExchangeData.ExchangeItems.TryAdd(Session.Character.ExchangeInfo.ExchangeData.TargetVisualId, itemCpy);
+                var subPacket = new ExcListSubPacket
+                {
+                    //TODO: finish this
+                };
+
+                Session.Character.ExchangeInfo.ExchangeData.Gold = packet.Gold;
+                Session.Character.ExchangeInfo.ExchangeData.BankGold = packet.BankGold;
+            }
+        }
+
+        [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId) as Character;
+            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
 
             switch (packet.RequestType)
             {
@@ -117,13 +180,14 @@ namespace NosCore.Controllers
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
                     break;
                 case RequestExchangeType.Confirmed:
-                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId) as Character;
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
 
                     if (target == null)
                     {
                         _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language));
                         return;
                     }
+                    
 
                     break;
                 case RequestExchangeType.Cancelled:
