@@ -85,7 +85,7 @@ namespace NosCore.GameObject
 
         public bool IsFriendListFull
         {
-            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
+            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).Count(s => s.Value != null)
                 >= 80;
         }
 
@@ -129,8 +129,6 @@ namespace NosCore.GameObject
         public IExchangeInfoService ExchangeInfo { get; set; }
 
         public bool InExchangeOrShop => InExchange | InShop;
-
-        public bool HasShopOpened { get; }
 
         public bool InExchange { get; set; }
 

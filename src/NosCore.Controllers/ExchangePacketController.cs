@@ -65,7 +65,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (Session.Character.HasShopOpened || target.HasShopOpened)
+                    if (Session.Character.InShop || target.InShop)
                     {
                         Session.SendPacket(new MsgPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, Session.Account.Language), Type = MessageType.White });
                         return;
