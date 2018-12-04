@@ -200,6 +200,10 @@ namespace NosCore.Shared.I18N
         LOW_JOB_LVL,
         CANT_EQUIP_DESTROYED_SP,
         BAD_FAIRY,
+        SP_INLOADING
+        CLASS_CHANGED
+        CHANNEL_WILL_EXIT,
+        IN_WAITING_FOR
         SP_INLOADING,
         ASK_BIND,
         NO_SP,

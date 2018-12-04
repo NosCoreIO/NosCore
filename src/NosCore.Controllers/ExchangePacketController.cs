@@ -82,7 +82,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, (PocketType)value.PocketType);
+                var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, value.PocketType);
 
                 if (item == null || item.Amount <= 0 || item.Amount < value.Amount)
                 {
@@ -93,11 +93,13 @@ namespace NosCore.Controllers
                 {
                     if (target != null)
                     {
-                        target.SendPacket(new ExcClosePacket { Type = 0 });
+                        target.InExchange = false;
+                        target.SendPacket(new ExcClosePacket());
                         target.ExchangeInfo.ExchangeData = new ExchangeData();
                     }
 
-                    Session.SendPacket(new ExcClosePacket { Type = 0 });
+                    Session.Character.InExchange = false;
+                    Session.SendPacket(new ExcClosePacket());
                     Session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
                     return;
                 }
@@ -228,11 +230,19 @@ namespace NosCore.Controllers
                         _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language));
                         return;
                     }
-                    
 
+                    if (!Session.Character.ExchangeInfo.ExchangeData.ExchangeListIsValid || !target.ExchangeInfo.ExchangeData.ExchangeListIsValid)
+                    {
+                        return;
+                    }
+
+                    if (!Session.Character.ExchangeInfo.ExchangeData.ExchangeConfirmed || !target.ExchangeInfo.ExchangeData.ExchangeConfirmed)
+                    {
+                        Session.SendPacket(new InfoPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR, Session.Account.Language)});
+                        return;
+                    }
                     break;
                 case RequestExchangeType.Cancelled:
-                    //TODO: Clear current items in exchange
                     target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId) as Character;
 
 
@@ -240,12 +250,12 @@ namespace NosCore.Controllers
                     {
                         target.InExchange = false;
                         target.ExchangeInfo.ExchangeData = new ExchangeData();
-                        target.SendPacket(new ExcClosePacket { Type = 0 });
+                        target.SendPacket(new ExcClosePacket());
                     }
 
                     Session.Character.InExchange = false;
                     Session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
-                    Session.SendPacket(new ExcClosePacket { Type = 0 });
+                    Session.SendPacket(new ExcClosePacket());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
