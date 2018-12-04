@@ -91,16 +91,7 @@ namespace NosCore.Controllers
 
                 if (!item.Item.IsTradable)
                 {
-                    if (target != null)
-                    {
-                        target.InExchange = false;
-                        target.SendPacket(new ExcClosePacket());
-                        target.ExchangeInfo.ExchangeData = new ExchangeData();
-                    }
-
-                    Session.Character.InExchange = false;
-                    Session.SendPacket(new ExcClosePacket());
-                    Session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
+                    Session.Character.ExchangeInfo.CloseExchange(Session, target?.Session);
                     return;
                 }
 
