@@ -583,6 +583,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your hero level have changed.
+        /// </summary>
+        public static string HERO_LEVEL_CHANGED {
+            get {
+                return ResourceManager.GetString("HERO_LEVEL_CHANGED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à {0} I18N ActDescs Parsed! Region: {1}.
         /// </summary>
         public static string I18N_ACTDESC_PARSED {
@@ -790,6 +799,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your job level have changed.
+        /// </summary>
+        public static string JOB_LEVEL_CHANGED {
+            get {
+                return ResourceManager.GetString("JOB_LEVEL_CHANGED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à You joined the group.
         /// </summary>
         public static string JOINED_GROUP {
@@ -813,6 +831,15 @@ namespace NosCore.Shared.Resource {
         public static string LEAVE_GROUP {
             get {
                 return ResourceManager.GetString("LEAVE_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your level has changed.
+        /// </summary>
+        public static string LEVEL_CHANGED {
+            get {
+                return ResourceManager.GetString("LEVEL_CHANGED", resourceCulture);
             }
         }
         
@@ -894,6 +921,24 @@ namespace NosCore.Shared.Resource {
         public static string MARTIALARTIST {
             get {
                 return ResourceManager.GetString("MARTIALARTIST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Ping to master server.
+        /// </summary>
+        public static string MASTER_SERVER_PING {
+            get {
+                return ResourceManager.GetString("MASTER_SERVER_PING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Ping to master server failed.
+        /// </summary>
+        public static string MASTER_SERVER_PING_FAILED {
+            get {
+                return ResourceManager.GetString("MASTER_SERVER_PING_FAILED", resourceCulture);
             }
         }
         
