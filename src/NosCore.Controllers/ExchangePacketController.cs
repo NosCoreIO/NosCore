@@ -47,7 +47,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (target.InExchangeOrTrade || Session.Character.InExchangeOrTrade)
+                    if (target.InExchangeOrShop || Session.Character.InExchangeOrShop)
                     {
                         Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE, Session.Account.Language), Type = MessageType.White });
                         return;
@@ -77,7 +77,7 @@ namespace NosCore.Controllers
                         Type = 0
                     });
 
-                    Session.Character.TradeRequests.TryAdd(Guid.NewGuid(), target.VisualId);
+                    Session.Character.ExchangeInfo.ExchangeRequests.TryAdd(Guid.NewGuid(), target.VisualId);
                     target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.List, VisualId = Session.Character.VisualId },
@@ -88,15 +88,15 @@ namespace NosCore.Controllers
                     break;
 
                 case RequestExchangeType.List:
-                    if (target == null || target.InExchangeOrTrade)
+                    if (target == null || target.InExchangeOrShop)
                     {
                         return;
                     }
                     
-                    Session.Character.ExchangeData.TargetVisualId = target.VisualId;
-                    target.ExchangeData.TargetVisualId = Session.Character.VisualId;
-                    Session.Character.InExchangeOrTrade = true;
-                    target.InExchangeOrTrade = true;
+                    Session.Character.ExchangeInfo.ExchangeData.TargetVisualId = target.VisualId;
+                    target.ExchangeInfo.ExchangeData.TargetVisualId = Session.Character.VisualId;
+                    Session.Character.InExchange = true;
+                    target.InExchange = true;
 
                     Session.SendPacket(new ExcListPacket
                     {
@@ -117,7 +117,7 @@ namespace NosCore.Controllers
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
                     break;
                 case RequestExchangeType.Confirmed:
-                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId) as Character;
 
                     if (target == null)
                     {
@@ -128,18 +128,18 @@ namespace NosCore.Controllers
                     break;
                 case RequestExchangeType.Cancelled:
                     //TODO: Clear current items in exchange
-                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId) as Character;
 
 
                     if (target != null)
                     {
-                        target.InExchangeOrTrade = false;
-                        target.ExchangeData = new ExchangeData();
+                        target.InExchange = false;
+                        target.ExchangeInfo.ExchangeData = new ExchangeData();
                         target.SendPacket(new ExcClosePacket { Type = 0 });
                     }
 
-                    Session.Character.InExchangeOrTrade = false;
-                    Session.Character.ExchangeData = new ExchangeData();
+                    Session.Character.InExchange = false;
+                    Session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
                     Session.SendPacket(new ExcClosePacket { Type = 0 });
                     break;
                 default:
