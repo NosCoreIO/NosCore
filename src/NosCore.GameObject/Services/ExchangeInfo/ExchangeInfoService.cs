@@ -42,6 +42,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         {
             if (targetSession?.Character.ExchangeInfo.ExchangeData != null)
             {
+                targetSession.Character.InExchange = false;
                 targetSession.SendPacket(new ExcClosePacket());
                 targetSession.Character.ExchangeInfo.ExchangeData = new ExchangeData();
                 targetSession.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
@@ -52,6 +53,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
                 return;
             }
 
+            session.Character.InExchange = false;
             session.SendPacket(new ExcClosePacket());
             session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
             session.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
