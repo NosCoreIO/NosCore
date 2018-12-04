@@ -6,11 +6,11 @@ using NosCore.Core.Serializing;
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("exc_list")]
+    [PacketHeader("exc_list")] //TODO: finish this packet
     public class ExcListPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public int Unknown { get; set; }
+        public int Unknown { get; set; } //TODO: find what this is for
 
         [PacketIndex(1)]
         [Range(0, long.MaxValue)]
@@ -25,6 +25,6 @@ namespace NosCore.Packets.ClientPackets
         public long BankGold { get; set; }
 
         [PacketIndex(4, IsOptional = true)]
-        public ExcListSubPacket SubPackets { get; set; }
+        public List<ExcListSubPacket> SubPackets { get; set; }
     }
 }

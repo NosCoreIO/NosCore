@@ -10,15 +10,19 @@ namespace NosCore.GameObject
     {
         public ExchangeData()
         {
-            ExchangeItems = new ConcurrentDictionary<long, ItemInstance>();
+            ExchangeItems = new ConcurrentDictionary<long, IItemInstance>();
         }
 
-        public ConcurrentDictionary<long, ItemInstance> ExchangeItems { get; set; }
+        public ConcurrentDictionary<long, IItemInstance> ExchangeItems { get; set; }
 
         public long TargetVisualId { get; set; }
 
         public long Gold { get; set; }
 
         public long BankGold { get; set; }
+
+        public bool ExchangeListIsValid { get; set; }
+
+        public bool ExchangeConfirmed { get; set; }
     }
 }
