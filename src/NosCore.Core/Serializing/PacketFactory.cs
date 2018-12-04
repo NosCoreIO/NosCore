@@ -331,8 +331,8 @@ namespace NosCore.Core.Serializing
                 var subPacketTypePropertiesCount = subpacketSerializationInfo.Value.Count;
 
                 // check if the amount of properties can be serialized properly
-                if ((splittedSubpacketParts.Count + (includesKeepAliveIdentity ? 1 : 0))
-                    % subPacketTypePropertiesCount
+                if (((splittedSubpacketParts.Count - (currentIndex.Value + 1 + (includesKeepAliveIdentity ? 1 : 0)))
+                        % subPacketTypePropertiesCount)
                     == 0) // amount of properties per subpacket does match the given value amount in %
                 {
                     for (var i = currentIndex.Value + 1 + (includesKeepAliveIdentity ? 1 : 0);
