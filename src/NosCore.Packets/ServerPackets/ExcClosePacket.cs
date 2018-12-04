@@ -9,6 +9,6 @@ namespace NosCore.Packets.ServerPackets
     public class ExcClosePacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Type { get; set; }
+        public byte Type { get; set; } //TODO: find close types
     }
 }

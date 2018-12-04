@@ -80,6 +80,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
 
         void JoinGroup(Group group);
+
         void Save();
 
         ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
@@ -91,8 +92,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
-
-        ExchangeData ExchangeData { get; }
 
         void SetLevel(byte level);
 
