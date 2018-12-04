@@ -1,2 +1,2 @@
-cd ..\build\netcoreapp2.1\
+cd ..\build\netcoreapp2.2\
 start /d "." dotnet NosCore.WorldServer.dll
