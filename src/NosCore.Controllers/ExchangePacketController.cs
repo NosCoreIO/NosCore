@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2018 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,15 +63,18 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var list = new ExcListPacket
+            var list = new ServerExcListPacket
             {
-                Unknown = 1,
+                SenderType = SenderType.Server,
                 VisualId = Session.Character.VisualId,
                 Gold = packet.Gold,
                 BankGold = packet.BankGold,
-                SubPackets = new List<ExcListSubPacket>()
+                SubPackets = new List<ServerExcListSubPacket>()
             };
+            
+            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
 
+            byte i = 0;
             foreach (var value in packet.SubPackets)
             {
                 if (value.PocketType == PocketType.Bazaar)
@@ -60,7 +82,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, value.PocketType);
+                var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, (PocketType)value.PocketType);
 
                 if (item == null || item.Amount <= 0 || item.Amount < value.Amount)
                 {
@@ -69,14 +91,10 @@ namespace NosCore.Controllers
 
                 if (!item.Item.IsTradable)
                 {
-                    var target = Broadcaster.Instance.GetCharacter(s =>
-                        s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId &&
-                        s.MapInstanceId == Session.Character.MapInstanceId);
-
-                    if (target is Character chara)
+                    if (target != null)
                     {
-                        chara.SendPacket(new ExcClosePacket { Type = 0 });
-                        chara.ExchangeInfo.ExchangeData = new ExchangeData();
+                        target.SendPacket(new ExcClosePacket { Type = 0 });
+                        target.ExchangeInfo.ExchangeData = new ExchangeData();
                     }
 
                     Session.SendPacket(new ExcClosePacket { Type = 0 });
@@ -87,14 +105,37 @@ namespace NosCore.Controllers
                 var itemCpy = (IItemInstance)item.Clone();
                 itemCpy.Amount = value.Amount;
                 Session.Character.ExchangeInfo.ExchangeData.ExchangeItems.TryAdd(Session.Character.ExchangeInfo.ExchangeData.TargetVisualId, itemCpy);
-                var subPacket = new ExcListSubPacket
+
+                var subPacket = new ServerExcListSubPacket
                 {
-                    //TODO: finish this
+                    ExchangeSlot = i,
+                    PocketType = value.PocketType,
+                    ItemVnum = itemCpy.ItemVNum
                 };
 
-                Session.Character.ExchangeInfo.ExchangeData.Gold = packet.Gold;
-                Session.Character.ExchangeInfo.ExchangeData.BankGold = packet.BankGold;
+                if (value.PocketType == PocketType.Equipment)
+                {
+                    subPacket.Rare = itemCpy.Rare;
+                    subPacket.Upgrade = itemCpy.Upgrade;
+                }
+                else
+                {
+                    subPacket.Amount = itemCpy.Amount;
+                }
+
+                list.SubPackets.Add(subPacket);
+                i++;
             }
+
+            if (list.SubPackets.Count == 0)
+            {
+                list.SubPackets.Add(new ServerExcListSubPacket { ExchangeSlot = -1 });
+            }
+
+            Session.Character.ExchangeInfo.ExchangeData.Gold = packet.Gold;
+            Session.Character.ExchangeInfo.ExchangeData.BankGold = packet.BankGold;
+            target?.SendPacket(list);
+            Session.Character.ExchangeInfo.ExchangeData.ExchangeListIsValid = true;
         }
 
         [UsedImplicitly]
@@ -161,16 +202,16 @@ namespace NosCore.Controllers
                     Session.Character.InExchange = true;
                     target.InExchange = true;
 
-                    Session.SendPacket(new ExcListPacket
+                    Session.SendPacket(new ServerExcListPacket
                     {
-                        Unknown = 1,
+                        SenderType = SenderType.Server,
                         VisualId = packet.VisualId.Value,
                         Gold = -1
                     });
 
-                    target.SendPacket(new ExcListPacket
+                    target.SendPacket(new ServerExcListPacket
                     {
-                        Unknown = 1,
+                        SenderType = SenderType.Server,
                         VisualId = Session.Character.CharacterId,
                         Gold = -1
                     });
