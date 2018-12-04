@@ -21,6 +21,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
@@ -35,5 +37,29 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         public ExchangeData ExchangeData { get; set; }
 
         public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
+
+        public void CloseExchange(ClientSession session, ClientSession targetSession)
+        {
+            if (targetSession?.Character.ExchangeInfo.ExchangeData != null)
+            {
+                targetSession.SendPacket(new ExcClosePacket());
+                targetSession.Character.ExchangeInfo.ExchangeData = new ExchangeData();
+                targetSession.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
+            }
+
+            if (session?.Character.ExchangeInfo.ExchangeData == null)
+            {
+                return;
+            }
+
+            session.SendPacket(new ExcClosePacket());
+            session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
+            session.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
+        }
+
+        public void ProcessExchange(ClientSession session, ClientSession targetSession)
+        {
+
+        }
     }
 }
