@@ -17,7 +17,7 @@ namespace NosCore.Packets.ClientPackets
         public long VisualId { get; set; }
 
         [PacketIndex(2)]
-        [Range(0, long.MaxValue)]
+        [Range(-1, long.MaxValue)]
         public long Gold { get; set; }
 
         [PacketIndex(3, IsOptional = true)]
