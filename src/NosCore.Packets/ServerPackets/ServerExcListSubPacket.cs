@@ -40,9 +40,6 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(3, IsOptional = true)]
         public short Amount { get; set; }
 
-        [PacketIndex(4, IsOptional = true)]
-        public short Rare { get; set; }
-
         [PacketIndex(5, IsOptional = true)]
         public byte Upgrade { get; set; }
     }
