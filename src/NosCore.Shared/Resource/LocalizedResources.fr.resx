@@ -585,4 +585,16 @@
   <data name="ACCEPTED_SHARE" xml:space="preserve">
     <value>{0} a accepté le point de retour de {0}.</value>
   </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>La compte en banque à atteintsa valeur max</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Il faut attendre que {0} valide le commerce.</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Un ou plusieurs objets ne sont pas échangeables.</value>
+  </data>
+  <data name="NVENTORY_FULL" xml:space="preserve">
+    <value>Votre inventaire est plein.</value>
+  </data>
 </root>
