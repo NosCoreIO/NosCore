@@ -25,7 +25,7 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
-    public interface IExchangeInfoService
+    public interface IExchangeService
     {
         ExchangeData ExchangeData { get; set; }
 
