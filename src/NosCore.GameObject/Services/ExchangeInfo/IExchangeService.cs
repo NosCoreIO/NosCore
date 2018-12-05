@@ -36,5 +36,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         void ProcessExchange(ClientSession session, ClientSession targetSession);
 
         void OpenExchange(ClientSession session, ClientSession targetSession);
+
+        void RequestExchange(ClientSession session, ClientSession targetSession);
     }
 }
