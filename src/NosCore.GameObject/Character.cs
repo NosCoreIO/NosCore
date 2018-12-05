@@ -81,6 +81,8 @@ namespace NosCore.GameObject
 
         public AccountDto Account { get; set; }
 
+        public bool HasBackPack { get; set; }
+
         public bool IsChangingMapInstance { get; set; }
 
         public bool IsFriendListFull
