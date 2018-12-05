@@ -128,7 +128,7 @@ namespace NosCore.GameObject
 
         public IInventoryService Inventory { get; set; }
 
-        public IExchangeInfoService ExchangeInfo { get; set; }
+        public IExchangeService ExchangeInfo { get; set; }
 
         public bool InExchangeOrShop => InExchange | InShop;
 
