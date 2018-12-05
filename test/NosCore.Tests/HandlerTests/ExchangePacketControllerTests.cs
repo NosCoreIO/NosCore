@@ -25,6 +25,7 @@ using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
@@ -55,7 +56,7 @@ namespace NosCore.Tests.HandlerTests
         private Character _character2;
         private ExchangePacketController _controller;
         private ExchangePacketController _controller2;
-        private IItemBuilderService _itemBuilderService;
+        private WorldConfiguration _worldConfiguration;
 
         [TestInitialize]
         public void Setup()
@@ -74,7 +75,7 @@ namespace NosCore.Tests.HandlerTests
                 AccountId = 1,
                 MapId = 1,
                 State = CharacterState.Active,
-                ExchangeInfo = new ExchangeInfoService()
+                ExchangeInfo = new ExchangeService()
             };
 
             _character2 = new Character
@@ -85,26 +86,26 @@ namespace NosCore.Tests.HandlerTests
                 AccountId = 2,
                 MapId = 1,
                 State = CharacterState.Active,
-                ExchangeInfo = new ExchangeInfoService()
+                ExchangeInfo = new ExchangeService()
             };
             var channelMock = new Mock<IChannel>();
 
-            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_itemBuilderService) });
+            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration) });
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
 
-            _controller = new ExchangePacketController(_itemBuilderService);
+            _controller = new ExchangePacketController(_worldConfiguration);
             _controller.RegisterSession(_session);
             _session.SetCharacter(_character);
             Broadcaster.Instance.RegisterSession(_session);
 
-            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_itemBuilderService) });
+            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration) });
             _session2.RegisterChannel(channelMock.Object);
             _session2.InitializeAccount(account2);
             _session2.SessionId = 2;
 
-            _controller2 = new ExchangePacketController(_itemBuilderService);
+            _controller2 = new ExchangePacketController(_worldConfiguration);
             _controller2.RegisterSession(_session2);
             _session2.SetCharacter(_character2);
             Broadcaster.Instance.RegisterSession(_session2);

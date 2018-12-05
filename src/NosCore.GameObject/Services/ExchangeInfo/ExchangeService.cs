@@ -27,9 +27,9 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
-    public class ExchangeInfoService : IExchangeInfoService
+    public class ExchangeService : IExchangeService
     {
-        public ExchangeInfoService()
+        public ExchangeService()
         {
             ExchangeData = new ExchangeData();
             ExchangeRequests = new ConcurrentDictionary<Guid, long>();
