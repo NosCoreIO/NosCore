@@ -469,6 +469,31 @@ namespace NosCore.GameObject.Services.Inventory
                     ? (short?)nextFreeSlot : null;
         }
 
+        public bool EnoughPlace(List<IItemInstance> itemInstances, bool backPack)
+        {
+            var place = new Dictionary<PocketType, int>();
+            foreach (var itemGroup in itemInstances.GroupBy(s => s.ItemVNum))
+            {
+                var type = itemGroup.First().Type;
+                var itemList = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
+                if (!place.ContainsKey(type))
+                {
+                    place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + Convert.ToInt16(backPack) * 12 : 50) - itemList.Count);
+                }
+
+                var amount = itemGroup.Sum(s => s.Amount);
+                var rest = amount % (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount);
+                var newSlotNeeded = itemList.Where(s => s.ItemVNum == itemGroup.Key).Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
+                place[type] -= (amount / (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount)) + (newSlotNeeded ? 1 : 0);
+
+                if (place[type] < 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         //    public IEnumerable<ItemInstance> RemoveItemAmount(int vnum, int amount = 1)
         //    {
         //        var remainingAmount = amount;

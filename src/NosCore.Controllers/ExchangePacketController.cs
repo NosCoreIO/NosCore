@@ -32,6 +32,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Buff;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
@@ -59,7 +60,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void ExchangeList(ExcListPacket packet)
         {
-            if (packet.Gold < 0 || packet.Gold > Session.Character.Gold || packet.BankGold > Session.Account.BankMoney)
+            if (packet.Gold > Session.Character.Gold || packet.BankGold > Session.Account.BankMoney)
             {
                 return;
             }
@@ -214,16 +215,17 @@ namespace NosCore.Controllers
                         return;
                     }
 
+                    Session.Character.ExchangeInfo.ExchangeData.ExchangeConfirmed = true;
+
                     if (!Session.Character.ExchangeInfo.ExchangeData.ExchangeConfirmed || !target.ExchangeInfo.ExchangeData.ExchangeConfirmed)
                     {
-                        Session.SendPacket(new InfoPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR, Session.Account.Language)});
+                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR, Session.Account.Language) });
                         return;
                     }
 
                     var exchangeInfo = Session.Character.ExchangeInfo.ExchangeData;
                     var targetInfo = target.ExchangeInfo.ExchangeData;
                     
-                    //TODO: Gold checks
                     if (exchangeInfo.Gold + target.Gold > _worldConfiguration.MaxGoldAmount)
                     {
                         Session.Character.ExchangeInfo.CloseExchange(Session, target.Session);
@@ -239,10 +241,38 @@ namespace NosCore.Controllers
                         return;
                     }
 
+                    if (exchangeInfo.BankGold + target.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+                    {
+                        Session.Character.ExchangeInfo.CloseExchange(Session, target.Session);
+                        target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
+                        return;
+                    }
 
-                    //TODO: Tradable items checks
-                    //TODO: Process Exchange
+                    if (targetInfo.BankGold + Session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+                    {
+                        Session.Character.ExchangeInfo.CloseExchange(Session, target.Session);
+                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
+                        return;
+                    }
 
+                    if (Session.Character.ExchangeInfo.ExchangeData.ExchangeItems.Values.Any(s => !s.Item.IsTradable))
+                    {
+                        Session.Character.ExchangeInfo.CloseExchange(Session, target.Session);
+                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, Session.Account.Language) });
+                        return;
+                    }
+
+                    if (!Session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Values.ToList(),
+                        Session.Character.HasBackPack) || !target.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Values.ToList(), target.HasBackPack))
+                    {
+                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, Session.Account.Language) });
+                        target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, target.Account.Language) });
+                        Session.Character.ExchangeInfo.CloseExchange(Session, target.Session);
+                        return;
+                    }
+
+                    Session.Character.ExchangeInfo.ProcessExchange(Session, target.Session);
+                    target.ExchangeInfo.ProcessExchange(target.Session, Session);
                     break;
                 case RequestExchangeType.Cancelled:
                     target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeInfo.ExchangeData.TargetVisualId) as Character;
