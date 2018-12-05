@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Text;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
@@ -62,6 +63,28 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         public void ProcessExchange(ClientSession session, ClientSession targetSession)
         {
 
+        }
+
+        public void OpenExchange(ClientSession session, ClientSession targetSession)
+        {
+            session.Character.ExchangeInfo.ExchangeData.TargetVisualId = targetSession.Character.VisualId;
+            targetSession.Character.ExchangeInfo.ExchangeData.TargetVisualId = session.Character.VisualId;
+            session.Character.InExchange = true;
+            targetSession.Character.InExchange = true;
+
+            session.SendPacket(new ServerExcListPacket
+            {
+                SenderType = SenderType.Server,
+                VisualId = targetSession.Character.VisualId,
+                Gold = -1
+            });
+
+            targetSession.SendPacket(new ServerExcListPacket
+            {
+                SenderType = SenderType.Server,
+                VisualId = session.Character.CharacterId,
+                Gold = -1
+            });
         }
     }
 }
