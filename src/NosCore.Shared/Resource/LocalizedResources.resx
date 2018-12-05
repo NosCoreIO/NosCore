@@ -182,6 +182,9 @@
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Wrong password!</value>
   </data>
+  <data name="BANK_IS_FULL" xml:space="preserve">
+    <value>Your bank account is full</value>
+  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Character added to blacklist!</value>
   </data>
@@ -377,6 +380,9 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
   </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Your inventory is full</value>
+  </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Do you want to set as a return point from : {0} ?</value>
   </data>
@@ -386,6 +392,9 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Invite type</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Waiting for {0] to end the trade</value>
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>This item can not be sold!</value>
@@ -411,6 +420,9 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>You can not drop that item here!</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>You can't trade some item</value>
   </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Your job level has changed!</value>
