@@ -113,7 +113,7 @@ namespace NosCore.Controllers
 
                     if (value.PocketType == PocketType.Equipment)
                     {
-                        subPacket.Rare = itemCpy.Rare;
+                        subPacket.Amount = itemCpy.Rare;
                         subPacket.Upgrade = itemCpy.Upgrade;
                     }
                     else
@@ -149,44 +149,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    if (target.InExchangeOrShop || Session.Character.InExchangeOrShop)
-                    {
-                        Session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE, Session.Account.Language), Type = MessageType.White });
-                        return;
-                    }
-
-                    if (target.GroupRequestBlocked)
-                    {
-                        Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, Session.Account.Language), SayColorType.Purple));
-                        return;
-                    }
-
-                    if (Session.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
-                    {
-                        Session.SendPacket(new InfoPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language)});
-                        return;
-                    }
-
-                    if (Session.Character.InShop || target.InShop)
-                    {
-                        Session.SendPacket(new MsgPacket {Message = Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, Session.Account.Language), Type = MessageType.White });
-                        return;
-                    }
-
-                    Session.SendPacket(new ModalPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE, Session.Account.Language),
-                        Type = 0
-                    });
-
-                    Session.Character.ExchangeInfo.ExchangeRequests.TryAdd(Guid.NewGuid(), target.VisualId);
-                    target.SendPacket(new DlgPacket
-                    {
-                        YesPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.List, VisualId = Session.Character.VisualId },
-                        NoPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.Declined, VisualId = Session.Character.VisualId },
-                        Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, Session.Account.Language)
-                    });
-
+                    Session.Character.ExchangeInfo.RequestExchange(Session, target.Session);
                     break;
 
                 case RequestExchangeType.List:

@@ -21,9 +21,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
@@ -84,6 +89,47 @@ namespace NosCore.GameObject.Services.ExchangeInfo
                 SenderType = SenderType.Server,
                 VisualId = session.Character.CharacterId,
                 Gold = -1
+            });
+        }
+
+        public void RequestExchange(ClientSession session, ClientSession targetSession)
+        {
+            if (targetSession.Character.InExchangeOrShop || session.Character.InExchangeOrShop)
+            {
+                session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE, session.Account.Language), Type = MessageType.White });
+                return;
+            }
+
+            if (targetSession.Character.GroupRequestBlocked)
+            {
+                session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, session.Account.Language), SayColorType.Purple));
+                return;
+            }
+
+            if (session.Character.IsRelatedToCharacter(targetSession.Character.VisualId, CharacterRelationType.Blocked))
+            {
+                session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, session.Account.Language) });
+                return;
+            }
+
+            if (session.Character.InShop || targetSession.Character.InShop)
+            {
+                session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, session.Account.Language), Type = MessageType.White });
+                return;
+            }
+
+            session.SendPacket(new ModalPacket
+            {
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE, session.Account.Language),
+                Type = 0
+            });
+
+            session.Character.ExchangeInfo.ExchangeRequests.TryAdd(Guid.NewGuid(), targetSession.Character.VisualId);
+            targetSession.Character.SendPacket(new DlgPacket
+            {
+                YesPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.List, VisualId = session.Character.VisualId },
+                NoPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.Declined, VisualId = session.Character.VisualId },
+                Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, session.Account.Language)
             });
         }
     }
