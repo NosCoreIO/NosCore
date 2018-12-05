@@ -33,5 +33,6 @@
 	},
 	"BackpackSize":48,
 	"MaxItemAmount":999,
-	"MaxGoldAmount":1000000000
+	"MaxGoldAmount":1000000000,
+	"MaxBankGoldAmount":100000000000
 }
