@@ -214,6 +214,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your bank account is full.
+        /// </summary>
+        public static string BANK_IS_FULL {
+            get {
+                return ResourceManager.GetString("BANK_IS_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Character added to blacklist!.
         /// </summary>
         public static string BLACKLIST_ADDED {
@@ -691,6 +700,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Waiting for {0] to end the trade.
+        /// </summary>
+        public static string IN_WAITING_FOR {
+            get {
+                return ResourceManager.GetString("IN_WAITING_FOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -714,6 +732,15 @@ namespace NosCore.Shared.Resource {
         public static string INVALID_PASSWORD {
             get {
                 return ResourceManager.GetString("INVALID_PASSWORD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your inventory is full.
+        /// </summary>
+        public static string INVENTORY_FULL {
+            get {
+                return ResourceManager.GetString("INVENTORY_FULL", resourceCulture);
             }
         }
         
@@ -777,6 +804,15 @@ namespace NosCore.Shared.Resource {
         public static string ITEM_NOT_DROPPABLE_HERE {
             get {
                 return ResourceManager.GetString("ITEM_NOT_DROPPABLE_HERE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t trade some item.
+        /// </summary>
+        public static string ITEM_NOT_TRADABLE {
+            get {
+                return ResourceManager.GetString("ITEM_NOT_TRADABLE", resourceCulture);
             }
         }
         
