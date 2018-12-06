@@ -5,7 +5,6 @@ dist: trusty
 dotnet: 2.2
 install:
     - dotnet restore
-    - sudo apt-get install -y dpkg
     - dotnet build
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory!=OPTIONAL-TEST
 after_script:
