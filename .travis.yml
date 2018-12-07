@@ -1,7 +1,7 @@
 ﻿language: csharp
 mono: none
 sudo: required
-dist: xenial
+dist: trusty
 dotnet: 2.2
 install:
     - dotnet restore
