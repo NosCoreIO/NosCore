@@ -21,16 +21,16 @@ namespace NosCore.Data.WebApi
 {
     public static class WebApiRoutes
     {
-        public static string PostedPacketRoute => "api/packet";
+        public const string PostedPacketRoute = "api/packet";
 
-        public static string ChannelRoute => "api/channel";
+        public const string ChannelRoute = "api/channel";
 
-        public static string ConnectedAccountRoute => "api/connectedAccount";
+        public const string ConnectedAccountRoute = "api/connectedAccount";
 
-        public static string RelationRoute => "api/relation";
+        public const string RelationRoute = "api/relation";
 
-        public static string StatRoute => "api/stat";
+        public const string StatRoute = "api/stat";
 
-        public static string TokenRoute => "api/token";
+        public const string TokenRoute = "api/token";
     }
 }
