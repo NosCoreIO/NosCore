@@ -425,11 +425,11 @@ namespace NosCore.Controllers
 
                 ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute);
                 foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
+                        .Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
@@ -513,11 +513,11 @@ namespace NosCore.Controllers
 
             ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute);
             foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
+                    .Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi);
 
                 if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
                 {

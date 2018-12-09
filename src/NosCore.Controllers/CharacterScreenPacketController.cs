@@ -215,13 +215,13 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute);
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers)
                 {
                     if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                        .Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi)
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;

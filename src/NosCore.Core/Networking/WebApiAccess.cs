@@ -83,7 +83,7 @@ namespace NosCore.Core.Networking
                          _logger.Error(string.Format(
                              LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
                              timeSpan.TotalSeconds))
-                 ).ExecuteAsync(() => client.PostAsync("api/channel", Content));
+                 ).ExecuteAsync(() => client.PostAsync(WebApiRoutes.ChannelRoute, Content));
 
             var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
             Token = result.Token;
@@ -97,7 +97,7 @@ namespace NosCore.Core.Networking
                         (_, __, timeSpan) =>
                             _logger.Verbose(
                                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
-                    ).Execute(() => Instance.Patch<HttpStatusCode>("api/channel",
+                    ).Execute(() => Instance.Patch<HttpStatusCode>(WebApiRoutes.ChannelRoute,
                         result.ChannelInfo.ChannelId));
                 _logger.Error(
                     LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
@@ -236,18 +236,18 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = Instance.Get<List<ChannelInfo>>("api/channel", channelId).FirstOrDefault();
+            var channel = Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute, channelId).FirstOrDefault();
             if (channel != null)
             {
-                Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoutes.PostedPacketRoute, packet, channel.WebApi);
             }
         }
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel"))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute))
             {
-                Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoutes.PostedPacketRoute, packet, channel.WebApi);
             }
         }
 

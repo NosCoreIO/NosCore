@@ -113,8 +113,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Login()
         {
-            WebApiAccess.Instance.MockValues.Add("api/channel", new List<ChannelInfo> { new ChannelInfo() });
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ChannelRoute, new List<ChannelInfo> { new ChannelInfo() });
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ConnectedAccountRoute, new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),
@@ -126,8 +126,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            WebApiAccess.Instance.MockValues.Add("api/channel", new List<ChannelInfo> { new ChannelInfo() });
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccount",
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ChannelRoute, new List<ChannelInfo> { new ChannelInfo() });
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ConnectedAccountRoute,
                 new List<ConnectedAccount> { new ConnectedAccount { Name = Name } });
             _handler.VerifyLogin(new NoS0575Packet
             {
@@ -141,8 +141,8 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void LoginNoServer()
         {
-            WebApiAccess.Instance.MockValues.Add("api/channel", new List<ChannelInfo>());
-            WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ChannelRoute, new List<ChannelInfo>());
+            WebApiAccess.Instance.MockValues.Add(WebApiRoutes.ConnectedAccountRoute, new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
                 Password = EncryptionHelper.Sha512("test"),

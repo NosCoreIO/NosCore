@@ -34,12 +34,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute);
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers)
             {
                 accounts.AddRange(
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi));
             }
 
             var subpackets = new List<FinitSubPacket>();

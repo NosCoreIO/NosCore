@@ -524,15 +524,15 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute);
             foreach (var server in servers)
             {
-                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi)
                     .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
 
                 if (account != null)
                 {
-                    WebApiAccess.Instance.Delete<CharacterRelation>("api/relation", server.WebApi,
+                    WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoutes.RelationRoute, server.WebApi,
                         targetCharacterRelation.CharacterRelationId);
                     return;
                 }
