@@ -33,7 +33,7 @@ namespace NosCore.WorldServer.Controllers
             {
                 // PLAYER NOT FOUND
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                return null;
+                return BadRequest();
             }
 
             targetSession.Channel.DisconnectAsync();

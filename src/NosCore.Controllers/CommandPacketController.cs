@@ -75,15 +75,39 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            ICharacterEntity targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
 
             var data = new Character
             {
-                Name = targetSession.Name,
-                Id = targetSession.VisualId
+                Name = kickPacket.Name
             };
 
-            WebApiAccess.Instance.Post<Character>("api/disconnect", data);
+            foreach (var channel in channels)
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+
+                var target = accounts.Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
+
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<Character>("api/disconnect", data, config);
         }
 
         [UsedImplicitly]
