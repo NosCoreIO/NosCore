@@ -107,7 +107,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<Character>("api/disconnect", data, config);
+            WebApiAccess.Instance.Post<Character>("api/character", data, config);
         }
 
         [UsedImplicitly]
@@ -393,7 +393,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>("api/character", data, config);
         }
 
         [UsedImplicitly]
@@ -439,7 +439,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>("api/character", data, config);
         }
 
         [UsedImplicitly]
@@ -485,7 +485,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>("api/character", data, config);
         }
 
         [UsedImplicitly]
