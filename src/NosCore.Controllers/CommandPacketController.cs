@@ -76,15 +76,14 @@ namespace NosCore.Controllers
         public void Kick(KickPacket kickPacket)
         {
             ICharacterEntity targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
-            if (targetSession == null)
-            {
-                // PLAYER NOT FOUND
-                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
-                    Session.Account.Language), SayColorType.Purple));
-                return;
-            }
 
-            targetSession.Channel.DisconnectAsync();
+            var data = new Character
+            {
+                Name = targetSession.Name,
+                Id = targetSession.VisualId
+            };
+
+            WebApiAccess.Instance.Post<Character>("api/disconnect", data);
         }
 
         [UsedImplicitly]
