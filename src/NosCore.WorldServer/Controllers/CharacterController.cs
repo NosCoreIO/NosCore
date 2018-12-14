@@ -40,28 +40,6 @@ namespace NosCore.WorldServer.Controllers
 
         // POST api/character
         [HttpPost]
-        public IActionResult Disconnect([FromBody] Character character)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            ICharacterEntity targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == character.Name);
-
-            if (targetSession == null)
-            {
-                // PLAYER NOT FOUND
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                return BadRequest();
-            }
-
-            targetSession.Channel.DisconnectAsync();
-            return Ok();
-        }
-
-        // POST api/character
-        [HttpPost]
         public IActionResult UpdateStats([FromBody] StatData data)
         {
             if (!ModelState.IsValid)
@@ -88,18 +66,6 @@ namespace NosCore.WorldServer.Controllers
                     session.SetHeroLevel(data.Data);
                     break;
                 case UpdateStatActionType.Disconnect:
-                    if (!ModelState.IsValid)
-                    {
-                        return BadRequest();
-                    }
-
-                    if (session == null)
-                    {
-                        // PLAYER NOT FOUND
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                        return BadRequest();
-                    }
-
                     session.Channel.DisconnectAsync();
                     break;
                 default:

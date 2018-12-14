@@ -23,8 +23,6 @@ namespace NosCore.Data.WebApi
 {
     public class Character
     {
-        public UpdateStatActionType ActionType { get; set; }
-
         public string Name { get; set; }
 
         public long Id { get; set; }
