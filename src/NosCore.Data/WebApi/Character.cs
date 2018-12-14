@@ -17,10 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Shared.Enumerations;
+
 namespace NosCore.Data.WebApi
 {
     public class Character
     {
+        public UpdateStatActionType ActionType { get; set; }
+
         public string Name { get; set; }
 
         public long Id { get; set; }

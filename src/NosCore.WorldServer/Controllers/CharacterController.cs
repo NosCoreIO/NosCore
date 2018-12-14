@@ -87,6 +87,21 @@ namespace NosCore.WorldServer.Controllers
                 case UpdateStatActionType.UpdateHeroLevel:
                     session.SetHeroLevel(data.Data);
                     break;
+                case UpdateStatActionType.Disconnect:
+                    if (!ModelState.IsValid)
+                    {
+                        return BadRequest();
+                    }
+
+                    if (session == null)
+                    {
+                        // PLAYER NOT FOUND
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
+                        return BadRequest();
+                    }
+
+                    session.Channel.DisconnectAsync();
+                    break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;

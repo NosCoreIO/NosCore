@@ -82,6 +82,7 @@ namespace NosCore.Controllers
 
             var data = new Character
             {
+                ActionType = UpdateStatActionType.Disconnect,
                 Name = kickPacket.Name
             };
 
