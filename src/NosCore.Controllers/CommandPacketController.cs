@@ -72,6 +72,12 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Kick(KickPacket kickPacket)
+        {
+            Session.Character.Disconnect(kickPacket.Name);
+        }
+
+        [UsedImplicitly]
         public void Invisible(InvisibleCommandPacket invisiblePacket)
         {
             Session.Character.Camouflage = !Session.Character.Camouflage;
