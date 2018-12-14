@@ -30,6 +30,7 @@ using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
@@ -74,7 +75,16 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            Session.Character.Disconnect(kickPacket.Name);
+            ICharacterEntity targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
+            if (targetSession == null)
+            {
+                // PLAYER NOT FOUND
+                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                    Session.Account.Language), SayColorType.Purple));
+                return;
+            }
+
+            targetSession.Channel.DisconnectAsync();
         }
 
         [UsedImplicitly]

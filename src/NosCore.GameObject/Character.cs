@@ -173,20 +173,6 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
-        public void Disconnect(string characterName)
-        {
-            ICharacterEntity targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == characterName);
-            if (targetSession == null)
-            {
-                // PLAYER NOT FOUND
-                SendPacket(this.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
-                    Session.Account.Language), SayColorType.Purple));
-                return;
-            }
-
-            targetSession.Channel.DisconnectAsync();
-        }
-
         private void GenerateLevelupPackets()
         {
             SendPacket(GenerateStat());
