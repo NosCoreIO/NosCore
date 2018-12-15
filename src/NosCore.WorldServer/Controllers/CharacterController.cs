@@ -51,7 +51,7 @@ namespace NosCore.WorldServer.Controllers
             if (targetSession == null)
             {
                 _logger.Information(targetSession.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                return Ok(); //TODO: not found
+                return Ok();
             }
 
             targetSession.Channel.DisconnectAsync(); // TODO: Find a better way to do it
