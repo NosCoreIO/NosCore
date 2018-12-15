@@ -80,7 +80,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var account = new AccountDto { Name = "AccountTest", Password ="test".Sha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
@@ -133,7 +133,7 @@ namespace NosCore.Tests.HandlerTests
 
         private void InitializeTargetSession()
         {
-            var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
+            var targetAccount = new AccountDto { Name = "test2", Password ="test".Sha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
 
             _targetChar = new CharacterDto
