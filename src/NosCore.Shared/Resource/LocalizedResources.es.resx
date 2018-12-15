@@ -239,11 +239,14 @@
     <value>Error al descodificar</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>Se ha producido una excepción: {0}</value>
+  </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Se ha forzado la desconexión del cliente {0}, demasiadas conexiones.</value>
   </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>¡Tu lista de amigos esta llena!</value>
+    <value>¡Tu lista de amigos está llena!</value>
   </data>
   <data name="FRIEND_ADD" xml:space="preserve">
     <value>¿Quieres hacerte amigo de [{0}]?</value>
@@ -271,7 +274,7 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>¡Eres del grupo administrador!</value>
+    <value>¡Ahora eres el administrador del grupo!</value>
   </data>
   <data name="GROUP_BLOCKED" xml:space="preserve">
     <value>Este jugador ha bloqueado las peticiones de grupo.</value>
