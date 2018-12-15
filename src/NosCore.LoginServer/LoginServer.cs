@@ -18,23 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Net;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Polly;
 using Serilog;
 
 namespace NosCore.LoginServer
