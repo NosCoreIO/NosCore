@@ -80,10 +80,9 @@ namespace NosCore.Controllers
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
-            var data = new StatData
+            var data = new Character
             {
-                ActionType = UpdateStatActionType.Disconnect,
-                Character = new Character { Name = kickPacket.Name },
+                Name = kickPacket.Name
             };
 
             foreach (var channel in channels)

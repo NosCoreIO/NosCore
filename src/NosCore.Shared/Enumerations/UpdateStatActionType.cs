@@ -27,7 +27,6 @@ namespace NosCore.Shared.Enumerations
     {
         UpdateLevel,
         UpdateJobLevel,
-        UpdateHeroLevel,
-        Disconnect
+        UpdateHeroLevel
     }
 }
