@@ -194,7 +194,7 @@ namespace NosCore.Controllers
                             SubPacket = subpacket,
                             SessionId = newSessionId
                         });
-                        break;
+                        return;
                 }
 
                 Session.Disconnect();

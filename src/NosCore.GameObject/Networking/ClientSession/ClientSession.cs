@@ -95,10 +95,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             get
             {
-                if (_character == null || !HasSelectedCharacter)
+                if (!HasSelectedCharacter)
                 {
                     // cant access an
                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
+                    return null;
                 }
 
                 return _character;
