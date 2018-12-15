@@ -60,7 +60,7 @@ namespace NosCore.Tests.HandlerTests
                 var session = new ClientSession(null, new List<PacketController> {handler}, null) {SessionId = i};
 
                 Broadcaster.Instance.RegisterSession(session);
-                var acc = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
+                var acc = new AccountDto { Name = $"AccountTest{i}", Password ="test".ToSha512() };
                 var charaDto = new CharacterDto
                 {
                     CharacterId = i,

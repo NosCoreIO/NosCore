@@ -86,7 +86,7 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var _acc = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var _acc = new AccountDto { Name = "AccountTest", Password ="test".ToSha512() };
             _chara = new CharacterDto
             {
                 CharacterId = 1,

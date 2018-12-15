@@ -23,9 +23,9 @@ using System.Text;
 
 namespace NosCore.Core.Encryption
 {
-    public static class EncryptionHelper
+    public static class EncryptionExtension
     {
-        public static string Sha512(string inputString)
+        public static string ToSha512(this string inputString)
         {
             using (var hash = SHA512.Create())
             {

@@ -53,7 +53,7 @@ namespace NosCore.WorldServer.Controllers
 
             var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == client.Username);
 
-            if (!(account?.Password.ToLower().Equals(EncryptionHelper.Sha512(client.Password)) ?? false))
+            if (!(account?.Password.ToLower().Equals(client.Password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }
@@ -63,7 +63,7 @@ namespace NosCore.WorldServer.Controllers
                 new Claim(ClaimTypes.NameIdentifier, client.Username),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
