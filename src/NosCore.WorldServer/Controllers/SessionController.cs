@@ -17,15 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -34,11 +31,11 @@ namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class CharacterController : Controller
+    public class SessionController : Controller
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        // POST api/character
+        // POST api/session
         [HttpPost]
         public IActionResult Disconnect([FromBody] Character character)
         {
@@ -51,10 +48,11 @@ namespace NosCore.WorldServer.Controllers
             if (targetSession == null)
             {
                 _logger.Information(targetSession.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                return Ok();
+                return Ok(); // TODO: Not found
             }
 
             targetSession.Channel.DisconnectAsync(); // TODO: Find a better way to do it
+            //Broadcaster.Instance.UnregisterSession();
             return Ok();
         }
     }
