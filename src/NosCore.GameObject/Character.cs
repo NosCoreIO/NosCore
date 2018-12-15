@@ -65,8 +65,6 @@ namespace NosCore.GameObject
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private ConcurrentDictionary<long, ClientSession> ClientSessions { get; } = new ConcurrentDictionary<long, ClientSession>();
-
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
         public AccountDto Account { get; set; }
@@ -174,18 +172,6 @@ namespace NosCore.GameObject
         public int MaxHp => (int)HpLoad();
 
         public int MaxMp => (int)MpLoad();
-
-        public void Disconnect(string characterName)
-        {
-            var targetSession = ClientSessions.Values.FirstOrDefault(s => s.Character.Name == characterName);
-            if (string.IsNullOrEmpty(characterName) || targetSession == null)
-            {
-                SendPacket(this.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Account.Language), SayColorType.Purple));
-                return;
-            }
-
-            targetSession.Disconnect();
-        }
 
         private void GenerateLevelupPackets()
         {
