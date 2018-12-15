@@ -235,6 +235,9 @@
     <value>Decoding error</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>An exception has been thrown : {0}</value>
+  </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Forced Disconnecting of client {0}, too much connections.</value>
   </data>

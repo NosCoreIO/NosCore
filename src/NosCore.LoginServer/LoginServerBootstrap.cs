@@ -72,7 +72,14 @@ namespace NosCore.LoginServer
             var container = InitializeContainer();
             var loginServer = container.Resolve<LoginServer>();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
-            loginServer.Run();
+            try
+            {
+                loginServer.Run();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LanguageKey.EXCEPTION), ex.Message);
+            }
         }
 
         private static IContainer InitializeContainer()

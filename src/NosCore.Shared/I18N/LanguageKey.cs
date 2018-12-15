@@ -180,6 +180,7 @@ namespace NosCore.Shared.I18N
         MASTER_SERVER_PING,
         MASTER_SERVER_PING_FAILED,
         CONNECTION_LOST,
-        CHANNEL_WILL_EXIT
+        CHANNEL_WILL_EXIT,
+        EXCEPTION
     }
 }

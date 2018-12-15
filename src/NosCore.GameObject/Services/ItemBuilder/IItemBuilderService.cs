@@ -19,7 +19,6 @@
 
 using NosCore.Data;
 using NosCore.GameObject.Services.ItemBuilder.Item;
-using Remotion.Linq.Clauses;
 
 namespace NosCore.GameObject.Services.ItemBuilder
 {

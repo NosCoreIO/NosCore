@@ -21,7 +21,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
