@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.Core
+﻿namespace NosCore.Core
 {
     public class ConnectionInfo
     {

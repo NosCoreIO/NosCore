@@ -27,7 +27,6 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
-using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer.Controllers

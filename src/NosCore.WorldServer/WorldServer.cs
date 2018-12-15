@@ -20,18 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Event;
@@ -41,7 +34,6 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Polly;
 using Serilog;
 
 namespace NosCore.WorldServer
