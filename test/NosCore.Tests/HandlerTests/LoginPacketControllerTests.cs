@@ -60,7 +60,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var _acc = new AccountDto { Name = Name, Password = EncryptionHelper.Sha512("test") };
+            var _acc = new AccountDto { Name = Name, Password = "test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
             _handler = new LoginPacketController(new LoginConfiguration());
@@ -79,7 +79,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.RegisterSession(_session);
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -91,7 +91,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = "noaccount"
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -103,7 +103,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -117,7 +117,7 @@ namespace NosCore.Tests.HandlerTests
             WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is NsTestPacket);
@@ -131,7 +131,7 @@ namespace NosCore.Tests.HandlerTests
                 new List<ConnectedAccount> { new ConnectedAccount { Name = Name } });
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -145,7 +145,7 @@ namespace NosCore.Tests.HandlerTests
             WebApiAccess.Instance.MockValues.Add("api/connectedAccount", new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password = EncryptionHelper.Sha512("test"),
+                Password ="test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -157,7 +157,7 @@ namespace NosCore.Tests.HandlerTests
         //{
         //    _handler.VerifyLogin(new NoS0575Packet
         //    {
-        //        Password = EncryptionHelper.Sha512("test"),
+        //        Password ="test".Sha512(),
         //        Name = Name,
         //    });
         //    Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -169,7 +169,7 @@ namespace NosCore.Tests.HandlerTests
         //{
         //    _handler.VerifyLogin(new NoS0575Packet
         //    {
-        //        Password = EncryptionHelper.Sha512("test"),
+        //        Password ="test".Sha512(),
         //        Name = Name,
         //    });
         //    Assert.IsTrue(_session.LastPacket is FailcPacket);

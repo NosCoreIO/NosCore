@@ -182,7 +182,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
+            if (account.Password.ToLower() == characterDeletePacket.Password.ToSha512())
             {
                 var character = DaoFactory.CharacterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
@@ -239,7 +239,7 @@ namespace NosCore.Controllers
 
                 if (account != null)
                 {
-                    if (account.Password.Equals(EncryptionHelper.Sha512(packet.Password),
+                    if (account.Password.Equals(packet.Password.ToSha512(),
                         StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto
