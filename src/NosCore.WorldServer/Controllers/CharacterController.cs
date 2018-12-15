@@ -50,6 +50,7 @@ namespace NosCore.WorldServer.Controllers
             var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == character.Name);
             if (targetSession == null)
             {
+                _logger.Information(targetSession.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
                 return Ok(); //TODO: not found
             }
 
