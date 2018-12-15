@@ -53,7 +53,7 @@ namespace NosCore.WorldServer.Controllers
                 return Ok(); //TODO: not found
             }
 
-            targetSession.Channel.DisconnectAsync(); // TODO: Find a better way to do it
+            targetSession.Disconnect(targetSession.Name);
             return Ok();
         }
     }

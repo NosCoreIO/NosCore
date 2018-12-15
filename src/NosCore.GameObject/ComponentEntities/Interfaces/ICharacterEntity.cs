@@ -78,6 +78,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void SetHeroLevel(byte level);
 
-        //void Disconnect(string characterName);
+        void Disconnect(string characterName);
     }
 }
