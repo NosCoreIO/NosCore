@@ -83,10 +83,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Monster_Join_Group()
         {
-            var entity = new MapMonster
-            {
-                Name = "test"
-            };
+            var entity = new Pet();
 
             _group.JoinGroup(entity);
 
