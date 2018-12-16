@@ -46,10 +46,9 @@ namespace NosCore.GameObject.Networking
 
         public IChannelGroup Sessions { get; set; }
 
-        public void PlayerDisconnect(long id, IChannelHandlerContext context)
+        public ClientSession.ClientSession GetSessionByVisualId(long visualId)
         {
-            var targetSession = ClientSessions.Values.FirstOrDefault(s => s.Character.CharacterId == id);
-            targetSession.ChannelUnregistered(context);
+            return ClientSessions.Values.FirstOrDefault(s => s.Character.VisualId == visualId);
         }
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)

@@ -23,6 +23,9 @@ using NosCore.Core;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations.Account;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -41,13 +44,14 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+            var targetSession = Broadcaster.Instance.GetSessionByVisualId(id);
             if (targetSession == null)
             {
                 return Ok(); // TODO : Handle 404 in WebApi
             }
-
-            Broadcaster.Instance.PlayerDisconnect(targetSession.VisualId, context);
+            
+            targetSession.ChannelUnregistered(context);
+            Broadcaster.Instance.UnregisterSession(targetSession);
             return Ok();
         }
     }

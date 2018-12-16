@@ -77,22 +77,26 @@ namespace NosCore.Controllers
         {
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
             var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
+            ServerConfiguration config = null;
+
             foreach (var server in servers)
             {
-                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
-                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
-
-                if (account == null)
-                {
-                    Session.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language)
-                    });
-                    return;
-                }
-
-                WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", server.WebApi, targetSession.VisualId);
+                config = server.WebApi;
             }
+
+            var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
+                .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
+
+            if (account == null)
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", config, targetSession.VisualId);
         }
 
         [UsedImplicitly]
