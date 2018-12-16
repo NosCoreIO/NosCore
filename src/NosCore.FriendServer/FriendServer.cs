@@ -17,10 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.DAL;
+using NosCore.Database;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Threading;
 
 namespace NosCore.FriendServer
 {
@@ -34,13 +41,32 @@ namespace NosCore.FriendServer
             _friendServerConfiguration = friendServerConfiguration;
         }
 
+        private void ConnectMaster()
+        {
+            WebApiAccess.RegisterBaseAdress(new Channel
+            {
+                MasterCommunication = _friendServerConfiguration.MasterCommunication,
+                ClientType = ServerType.FriendServer,
+                ServerGroup = 0,
+                WebApi = _friendServerConfiguration.WebApi
+            });
+        }
         public void Run()
         {
             if (_friendServerConfiguration == null)
             {
                 return;
             }
-
+            ConnectMaster();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                //TODO save friends
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                Thread.Sleep(5000);
+            };
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(_friendServerConfiguration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
             try
             {

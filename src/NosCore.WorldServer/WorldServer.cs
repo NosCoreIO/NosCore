@@ -102,7 +102,7 @@ namespace NosCore.WorldServer
             {
                 MasterCommunication = _worldConfiguration.MasterCommunication,
                 ClientName = _worldConfiguration.ServerName,
-                ClientType = (byte)ServerType.WorldServer,
+                ClientType = ServerType.WorldServer,
                 ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
                 Port = _worldConfiguration.Port,
                 ServerGroup = _worldConfiguration.ServerGroup,

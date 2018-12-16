@@ -84,73 +84,7 @@ namespace NosCore.MasterServer.Controllers
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
 
-            _logger.Debug(string.Format(
-                LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
-
-            if (MasterClientListSingleton.Instance.Channels == null)
-            {
-                MasterClientListSingleton.Instance.Channels = new List<ChannelInfo>();
-            }
-
-            try
-            {
-                _id = MasterClientListSingleton.Instance.Channels.Select(s => s.Id).Max() + 1;
-            }
-            catch
-            {
-                _id = 0;
-            }
-
-            ChannelInfo serv = null;
-            var servtype = (ServerType)Enum.Parse(typeof(ServerType), data.ClientType.ToString());
-
-            serv = new ChannelInfo
-            {
-                Name = data.ClientName,
-                Host = data.Host,
-                Port = data.Port,
-                Id = _id,
-                ConnectedAccountLimit = data.ConnectedAccountLimit,
-                WebApi = data.WebApi,
-                LastPing = DateTime.Now,
-                Type = servtype
-            };
-
-            MasterClientListSingleton.Instance.Channels.Add(serv);
-            data.ChannelId = _id;
-
             return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
         }
-
-        // GET api/channel
-        [HttpGet]
-        public List<ChannelInfo> GetChannels(long? id)
-        {
-            if (id != null)
-            {
-                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
-            }
-
-            return MasterClientListSingleton.Instance.Channels;
-        }
-
-        [HttpPatch]
-        public HttpStatusCode PingUpdate(int id)
-        {
-            if (MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id)?.LastPing.AddSeconds(10) < DateTime.Now)
-            {
-                MasterClientListSingleton.Instance.Channels?.RemoveAll(s => s.Id == _id);
-                _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
-                return HttpStatusCode.RequestTimeout;
-            }
-            var chann = MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id);
-            if (chann != null)
-            {
-                chann.LastPing = DateTime.Now;
-            }
-
-            return HttpStatusCode.OK;
-        }
-
     }
 }
