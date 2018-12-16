@@ -20,6 +20,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
