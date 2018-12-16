@@ -17,9 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using DotNetty.Transport.Channels;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.WorldServer.Controllers
@@ -28,6 +30,8 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class SessionController : Controller
     {
+        public IChannelHandlerContext context;
+
         // DELETE api/session
         [HttpDelete]
         public IActionResult Disconnect(long id)
@@ -43,7 +47,7 @@ namespace NosCore.WorldServer.Controllers
                 return Ok(); // TODO : Handle 404 in WebApi
             }
 
-            targetSession.Channel.DisconnectAsync(); // TODO: Find a better way to do it
+            Broadcaster.Instance.PlayerDisconnect(targetSession.VisualId, context);
             return Ok();
         }
     }

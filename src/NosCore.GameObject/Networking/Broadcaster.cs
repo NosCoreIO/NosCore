@@ -22,6 +22,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Common.Concurrency;
+using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
@@ -44,6 +45,12 @@ namespace NosCore.GameObject.Networking
         public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
 
         public IChannelGroup Sessions { get; set; }
+
+        public void PlayerDisconnect(long id, IChannelHandlerContext context)
+        {
+            var targetSession = ClientSessions.Values.FirstOrDefault(s => s.Character.CharacterId == id);
+            targetSession.ChannelUnregistered(context);
+        }
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
