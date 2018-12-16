@@ -74,6 +74,7 @@ namespace NosCore.LoginServer
             {
                 MasterCommunication = _loginConfiguration.MasterCommunication,
                 ClientType = ServerType.LoginServer,
+                ClientName = $"{ ServerType.LoginServer} ({_loginConfiguration.UserLanguage})",
                 Port = _loginConfiguration.Port,
                 Host = _loginConfiguration.Host
             });
