@@ -24,6 +24,7 @@ using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers)
             {
@@ -166,7 +167,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new InPacket
             {
                 VisualType = visualEntity.VisualType,
-                Name = visualEntity.Name,
+                Name = visualEntity is INamedEntity namedEntity ? namedEntity.Name : null,
                 VisualId = visualEntity.VisualId,
                 VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
                 PositionX = visualEntity.PositionX,

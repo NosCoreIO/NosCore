@@ -43,6 +43,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {
@@ -215,7 +216,7 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers)
