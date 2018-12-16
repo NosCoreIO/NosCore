@@ -22,7 +22,7 @@ using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface INonPlayableEntity : INamedEntity
+    public interface INonPlayableEntity: IAliveEntity
     {
         bool IsMoving { get; }
 

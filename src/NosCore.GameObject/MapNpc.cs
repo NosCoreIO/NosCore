@@ -52,7 +52,6 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public Group Group { get; set; }
-        public string Name { get; set; }
         public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }

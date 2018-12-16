@@ -87,14 +87,14 @@ namespace NosCore.MasterServer.Controllers
             _logger.Debug(string.Format(
                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
 
-            if (MasterClientListSingleton.Instance.WorldServers == null)
+            if (MasterClientListSingleton.Instance.Channels == null)
             {
-                MasterClientListSingleton.Instance.WorldServers = new List<ChannelInfo>();
+                MasterClientListSingleton.Instance.Channels = new List<ChannelInfo>();
             }
 
             try
             {
-                _id = MasterClientListSingleton.Instance.WorldServers.Select(s => s.Id).Max() + 1;
+                _id = MasterClientListSingleton.Instance.Channels.Select(s => s.Id).Max() + 1;
             }
             catch
             {
@@ -103,22 +103,21 @@ namespace NosCore.MasterServer.Controllers
 
             ChannelInfo serv = null;
             var servtype = (ServerType)Enum.Parse(typeof(ServerType), data.ClientType.ToString());
-            if (servtype == ServerType.WorldServer)
-            {
-                serv = new ChannelInfo
-                {
-                    Name = data.ClientName,
-                    Host = data.Host,
-                    Port = data.Port,
-                    Id = _id,
-                    ConnectedAccountLimit = data.ConnectedAccountLimit,
-                    WebApi = data.WebApi,
-                    LastPing = DateTime.Now
-                };
 
-                MasterClientListSingleton.Instance.WorldServers.Add(serv);
-                data.ChannelId = _id;
-            }
+            serv = new ChannelInfo
+            {
+                Name = data.ClientName,
+                Host = data.Host,
+                Port = data.Port,
+                Id = _id,
+                ConnectedAccountLimit = data.ConnectedAccountLimit,
+                WebApi = data.WebApi,
+                LastPing = DateTime.Now,
+                Type = servtype
+            };
+
+            MasterClientListSingleton.Instance.Channels.Add(serv);
+            data.ChannelId = _id;
 
             return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
         }
@@ -129,22 +128,22 @@ namespace NosCore.MasterServer.Controllers
         {
             if (id != null)
             {
-                return MasterClientListSingleton.Instance.WorldServers.Where(s => s.Id == id).ToList();
+                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
             }
 
-            return MasterClientListSingleton.Instance.WorldServers;
+            return MasterClientListSingleton.Instance.Channels;
         }
 
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id)
         {
-            if (MasterClientListSingleton.Instance.WorldServers?.FirstOrDefault(s => s.Id == id)?.LastPing.AddSeconds(10) < DateTime.Now)
+            if (MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id)?.LastPing.AddSeconds(10) < DateTime.Now)
             {
-                MasterClientListSingleton.Instance.WorldServers?.RemoveAll(s => s.Id == _id);
+                MasterClientListSingleton.Instance.Channels?.RemoveAll(s => s.Id == _id);
                 _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
                 return HttpStatusCode.RequestTimeout;
             }
-            var chann = MasterClientListSingleton.Instance.WorldServers?.FirstOrDefault(s => s.Id == id);
+            var chann = MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id);
             if (chann != null)
             {
                 chann.LastPing = DateTime.Now;

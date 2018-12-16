@@ -31,7 +31,7 @@ namespace NosCore.Core.Networking
 
         public static MasterClientListSingleton Instance => _instance ?? (_instance = new MasterClientListSingleton());
 
-        public List<ChannelInfo> WorldServers { get; set; }
+        public List<ChannelInfo> Channels { get; set; }
         public int ChannelId { get; internal set; }
     }
 }

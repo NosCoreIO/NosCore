@@ -205,10 +205,7 @@ namespace NosCore.GameObject
 
         public void SetLevel(byte level)
         {
-            Level = level;
-            LevelXp = 0;
-            Hp = MaxHp;
-            Mp = MaxMp;
+            (this as INamedEntity).SetLevel(level);
             GenerateLevelupPackets();
             Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language) });
         }
@@ -524,7 +521,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer);
             foreach (var server in servers)
             {
                 var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
@@ -922,6 +919,6 @@ namespace NosCore.GameObject
                 CharacterId = CharacterId,
                 Message = message
             };
-        }        
+        }
     }
 }
