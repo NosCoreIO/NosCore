@@ -28,6 +28,7 @@ using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using System.Threading;
 
 namespace NosCore.LoginServer
 {
@@ -46,6 +47,11 @@ namespace NosCore.LoginServer
         public void Run()
         {
             ConnectMaster();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                Thread.Sleep(5000);
+            };
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
@@ -67,11 +73,8 @@ namespace NosCore.LoginServer
             WebApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _loginConfiguration.MasterCommunication,
-                ClientName = "LoginServer",
-                ClientType = (byte)ServerType.LoginServer,
-                ConnectedAccountLimit = 0,
+                ClientType = ServerType.LoginServer,
                 Port = _loginConfiguration.Port,
-                ServerGroup = 0,
                 Host = _loginConfiguration.Host
             });
         }
