@@ -197,5 +197,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 IsSitting = aliveEntity.IsSitting
             };
         }
+
+        public static void SetLevel(this INamedEntity experiencedEntity, byte level)
+        {
+            experiencedEntity.Level = level;
+            experiencedEntity.LevelXp = 0;
+            experiencedEntity.Hp = experiencedEntity.MaxHp;
+            experiencedEntity.Mp = experiencedEntity.MaxMp;
+        }
     }
 }

@@ -56,7 +56,6 @@ namespace NosCore.GameObject
 
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
-        public string Name { get; set; }
         public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }

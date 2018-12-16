@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
 using Serilog;
@@ -244,7 +245,7 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel"))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer))
             {
                 Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
             }

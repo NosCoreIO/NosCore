@@ -19,6 +19,7 @@
 
 using System;
 using NosCore.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core
 {
@@ -34,5 +35,7 @@ namespace NosCore.Core
         public ServerConfiguration WebApi { get; set; }
 
         public DateTime LastPing { get; set; }
-}
+
+        public ServerType Type { get; set; }
+    }
 }
