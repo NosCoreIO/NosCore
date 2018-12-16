@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Packets", "src\NosC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Shared", "src\NosCore.Shared\NosCore.Shared.csproj", "{891441F7-38BF-4E33-8AA5-BC01D6E2BC69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.FriendServer", "src\NosCore.FriendServer\NosCore.FriendServer.csproj", "{B7C40B6D-6938-4A2C-A5C1-5CE1AA81A5E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.FriendServer", "src\NosCore.FriendServer\NosCore.FriendServer.csproj", "{B7C40B6D-6938-4A2C-A5C1-5CE1AA81A5E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

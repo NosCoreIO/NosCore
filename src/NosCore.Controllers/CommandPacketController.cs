@@ -75,39 +75,24 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
-
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
-
-            var data = new Character
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
+            foreach (var server in servers)
             {
-                Name = kickPacket.Name
-            };
+                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
 
-            foreach (var channel in channels)
-            {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
-
-                var target = accounts.Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
-
-                if (target != null)
+                if (account == null)
                 {
-                    receiver = target;
-                    config = channel.WebApi;
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language)
+                    });
+                    return;
                 }
-            }
 
-            if (receiver == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language)
-                });
-                return;
+                WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", server.WebApi, targetSession.VisualId);
             }
-
-            WebApiAccess.Instance.Post<Character>("api/session", data, config);
         }
 
         [UsedImplicitly]

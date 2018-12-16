@@ -17,15 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.I18N;
-using Serilog;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -33,26 +28,22 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class SessionController : Controller
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        // POST api/session
-        [HttpPost]
-        public IActionResult Disconnect([FromBody] Character character)
+        // DELETE api/session
+        [HttpDelete]
+        public IActionResult Disconnect(long id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == character.Name);
+            var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
             if (targetSession == null)
             {
-                _logger.Information(targetSession.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED));
-                return Ok(); // TODO: Not found
+                return Ok(); // TODO : Handle 404 in WebApi
             }
 
             targetSession.Channel.DisconnectAsync(); // TODO: Find a better way to do it
-            //Broadcaster.Instance.UnregisterSession();
             return Ok();
         }
     }
