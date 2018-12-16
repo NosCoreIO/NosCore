@@ -44,11 +44,11 @@ namespace NosCore.MasterServer
                 return;
             }
 
-            Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels?.Where(s =>
-                         s.LastPing.AddSeconds(10) < DateTime.Now).Select(s => s.Id).ToList().ForEach(_id =>
+            Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels.Where(s =>
+                         s.LastPing.AddSeconds(10) < DateTime.Now && s.WebApi != null).Select(s => s.Id).ToList().ForEach(_id =>
                          {
-                             _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
-                             MasterClientListSingleton.Instance.Channels?.RemoveAll(s => s.Id == _id);
+                             _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString());
+                             MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
                          }));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));

@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NosCore.Shared.Resource
-{
-
-
+namespace NosCore.Shared.Resource {
+    using System;
+    
+    
     /// <summary>
     ///   Une classe de ressource fortement typée destinée, entre autres, à la consultation des chaînes localisées.
     /// </summary>
@@ -187,7 +187,7 @@ namespace NosCore.Shared.Resource
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Authenticated Success!.
+        ///   Recherche une chaîne localisée semblable à Client : {1} authenticated successfully!.
         /// </summary>
         public static string AUTHENTICATED_SUCCESS {
             get {

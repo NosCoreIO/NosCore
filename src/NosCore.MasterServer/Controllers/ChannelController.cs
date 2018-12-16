@@ -84,41 +84,32 @@ namespace NosCore.MasterServer.Controllers
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
 
-            _logger.Debug(string.Format(
-                LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString()));
-
-            if (MasterClientListSingleton.Instance.Channels == null)
-            {
-                MasterClientListSingleton.Instance.Channels = new List<ChannelInfo>();
-            }
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(), data.ClientName);
 
             try
             {
-                _id = MasterClientListSingleton.Instance.Channels.Select(s => s.Id).Max() + 1;
+                _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
             }
             catch
             {
                 _id = 0;
             }
 
-            ChannelInfo serv = null;
-            var servtype = (ServerType)Enum.Parse(typeof(ServerType), data.ClientType.ToString());
-            if (servtype == ServerType.WorldServer)
+            var serv = new ChannelInfo
             {
-                serv = new ChannelInfo
-                {
-                    Name = data.ClientName,
-                    Host = data.Host,
-                    Port = data.Port,
-                    Id = _id,
-                    ConnectedAccountLimit = data.ConnectedAccountLimit,
-                    WebApi = data.WebApi,
-                    LastPing = DateTime.Now
-                };
+                Name = data.ClientName,
+                Host = data.Host,
+                Port = data.Port,
+                Id = _id,
+                ConnectedAccountLimit = data.ConnectedAccountLimit,
+                WebApi = data.WebApi,
+                LastPing = DateTime.Now,
+                Type = data.ClientType
+            };
 
-                MasterClientListSingleton.Instance.Channels.Add(serv);
-                data.ChannelId = _id;
-            }
+            MasterClientListSingleton.Instance.Channels.Add(serv);
+            data.ChannelId = _id;
+
 
             return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
         }
@@ -136,21 +127,23 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public HttpStatusCode PingUpdate(int id)
+        public HttpStatusCode PingUpdate(int id, [FromBody]DateTime data)
         {
-            if (MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id)?.LastPing.AddSeconds(10) < DateTime.Now)
-            {
-                MasterClientListSingleton.Instance.Channels?.RemoveAll(s => s.Id == _id);
-                _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString()));
-                return HttpStatusCode.RequestTimeout;
-            }
-            var chann = MasterClientListSingleton.Instance.Channels?.FirstOrDefault(s => s.Id == id);
+            var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann != null)
             {
-                chann.LastPing = DateTime.Now;
+                if (chann.LastPing.AddSeconds(10) < DateTime.Now)
+                {
+                    MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString());
+                    return HttpStatusCode.RequestTimeout;
+                }
+
+                chann.LastPing = data;
+                return HttpStatusCode.OK;
             }
 
-            return HttpStatusCode.OK;
+            return HttpStatusCode.NotFound;
         }
 
     }

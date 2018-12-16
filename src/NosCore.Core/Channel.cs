@@ -28,9 +28,13 @@ namespace NosCore.Core
     {
         public WebApiConfiguration MasterCommunication { get; set; }
 
-        public string ClientName { get; set; }
+        private string _clientName;
+        public string ClientName {
+            get => string.IsNullOrEmpty(_clientName) ? ClientType.ToString() : _clientName;
+            set => _clientName = value;
+        }
 
-        public byte ClientType { get; set; }
+        public ServerType ClientType { get; set; }
 
         public int Port { get; set; }
 
