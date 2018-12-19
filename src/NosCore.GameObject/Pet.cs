@@ -1,17 +1,23 @@
 ﻿using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject
 {
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        public Pet()
+        {
+            Requests = new Subject<ClientSession>();
+        }
+
         public IDisposable Life { get; private set; }
         public bool IsSitting { get; set; }
         public byte Class { get; set; }
@@ -26,7 +32,6 @@ namespace NosCore.GameObject
         public bool NoMove { get; set; }
         public string Name { get; set; }
         public VisualType VisualType => VisualType.Monster;
-
         public long VisualId => 0;// PetId;
 
         public Guid MapInstanceId { get; set; }
@@ -50,6 +55,7 @@ namespace NosCore.GameObject
         public long LevelXp { get; set; }
 
         public MapInstance MapInstance { get; set; }
+        public Subject<ClientSession> Requests { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

@@ -17,32 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
-using System.Reactive.Subjects;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.Packets.ServerPackets
 {
-    public interface IVisualEntity
+    [PacketHeader("npc_req")]
+    public class NpcReqPacket : PacketDefinition
     {
-        VisualType VisualType { get; }
+        [PacketIndex(0)]
+        public VisualType VisualType { get; set; }
 
-        short VNum { get; }
+        [PacketIndex(1)]
+        public long VisualId { get; set; }
 
-        long VisualId { get; }
-
-        byte Direction { get; }
-
-        Guid MapInstanceId { get; }
-
-        MapInstance MapInstance { get; }
-
-        short PositionX { get; set; }
-
-        short PositionY { get; set; }
-
-        Subject<ClientSession> Requests { get; set; }
+        [PacketIndex(2)]
+        public short Dialog { get; set; }
     }
 }

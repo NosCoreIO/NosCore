@@ -29,7 +29,7 @@ namespace NosCore.Packets.ServerPackets
         public InAliveSubPacket InAliveSubPacket { get; set; }
 
         [PacketIndex(2)]
-        public byte Dialog { get; set; }
+        public short Dialog { get; set; }
 
         [PacketIndex(3)]
         public byte Faction { get; set; }

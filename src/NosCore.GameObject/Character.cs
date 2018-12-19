@@ -47,6 +47,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject
 {
@@ -61,6 +62,7 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
+            Requests = new Subject<ClientSession>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -80,7 +82,7 @@ namespace NosCore.GameObject
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
                 >= 80;
         }
-
+        public Subject<ClientSession> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public DateTime LastPortal { get; set; }
