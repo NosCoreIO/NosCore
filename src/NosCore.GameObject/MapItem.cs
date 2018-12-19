@@ -18,8 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Reactive.Subjects;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
@@ -29,6 +31,12 @@ namespace NosCore.GameObject
 {
     public class MapItem : ICountableEntity
     {
+        public MapItem()
+        {
+            Requests = new Subject<ClientSession>();
+        }
+
+        public Subject<ClientSession> Requests { get; set; }
         public IItemInstance ItemInstance { get; set; }
 
         private long _visualId;
