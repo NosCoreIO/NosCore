@@ -45,6 +45,7 @@ using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -111,7 +112,10 @@ namespace NosCore.MasterServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();

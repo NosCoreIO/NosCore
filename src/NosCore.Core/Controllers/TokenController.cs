@@ -17,22 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
-namespace NosCore.WorldServer.Controllers
+namespace NosCore.Core.Controllers
 {
     [Route("api/[controller]")]
-    [AllowAnonymous]
     public class TokenController : Controller
     {
         private readonly WebApiConfiguration _apiConfiguration;
@@ -42,24 +41,24 @@ namespace NosCore.WorldServer.Controllers
             _apiConfiguration = apiConfiguration;
         }
 
+        [AllowAnonymous]
         [HttpPost]
-        public IActionResult ConnectUser([FromBody] WebApiClient client)
+        public IActionResult ConnectUser(string userName, string password)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
             }
 
-            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == client.Username);
-
-            if (!(account?.Password.ToLower().Equals(client.Password.ToSha512()) ?? false))
+            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
+            if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }
 
             var claims = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, client.Username),
+                new Claim(ClaimTypes.NameIdentifier, userName),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
             var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
