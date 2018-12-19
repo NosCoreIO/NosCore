@@ -18,39 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
 {
-    public class WorldConfiguration : ServerConfiguration
+    public class FeatureFlags : Dictionary<FeatureFlag, bool>
     {
-        [Required]
-        public WebApiConfiguration MasterCommunication { get; set; }
-
-        [Required]
-        public ServerConfiguration WebApi { get; set; }
-
-        [Required]
-        public SqlConnectionConfiguration Database { get; set; }
-
-        [Range(1, short.MaxValue)]
-        public short ConnectedAccountLimit { get; set; }
-
-        public byte ServerGroup { get; set; }
-
-        public bool WorldInformation { get; set; }
-
-        public bool SceneOnCreate { get; set; }
-
-        [Required]
-        public string ServerName { get; set; }
-
-        public FeatureFlags FeatureFlags { get; set; } = new FeatureFlags();
-
-        public short MaxItemAmount { get; set; }
-
-        public byte BackpackSize { get; set; }
-
-        public long MaxGoldAmount { get; set; }
+        public new bool this[FeatureFlag key] => TryGetValue(key, out bool value) && value;
     }
 }
