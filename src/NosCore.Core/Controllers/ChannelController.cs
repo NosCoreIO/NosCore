@@ -31,7 +31,6 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -145,6 +144,5 @@ namespace NosCore.MasterServer.Controllers
 
             return HttpStatusCode.NotFound;
         }
-
     }
 }
