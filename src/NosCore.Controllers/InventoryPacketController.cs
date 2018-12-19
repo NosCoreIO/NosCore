@@ -83,8 +83,21 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Wear(WearPacket wearPacket)
+        {
+            IItemInstance inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(wearPacket.InventorySlot, PocketType.Equipment);
+            if (inv?.Requests == null)
+            {
+                return;
+            }
+
+            inv.Requests.OnNext(Session);
+        }
+
+        [UsedImplicitly]
         public void GetItem(GetPacket getPacket)
         {
+            //TODO use IRequestableEntity
             if (getPacket.VisualId < 100000)
             {
                 //TODO buttons
@@ -132,7 +145,7 @@ namespace NosCore.Controllers
                 {
                     if (mapItemInstance.Item.ItemType == ItemType.Map)
                     {
-                        if (GetMapItemInstance(mapItemInstance).Item.Effect == 71)
+                        if (mapItemInstance.Item.Effect == 71)
                         {
                             Session.Character.SpPoint += mapItemInstance.Item.EffectValue;
                             if (Session.Character.SpPoint > 10000)
@@ -224,11 +237,6 @@ namespace NosCore.Controllers
                     Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                 }
             }
-        }
-
-        private static IItemInstance GetMapItemInstance(IItemInstance mapItemInstance)
-        {
-            return mapItemInstance;
         }
 
         [UsedImplicitly]

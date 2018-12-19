@@ -29,7 +29,7 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
 {
-    public class MapItem : ICountableEntity
+    public class MapItem : ICountableEntity, IRequestableEntity
     {
         public MapItem()
         {

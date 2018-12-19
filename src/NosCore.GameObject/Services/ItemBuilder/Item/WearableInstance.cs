@@ -17,8 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Reactive.Subjects;
 using NosCore.Data;
 using NosCore.GameObject.Helper;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
@@ -49,6 +51,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public bool IsBound => BoundCharacterId.HasValue && Item.ItemType != ItemType.Armor
             && Item.ItemType != ItemType.Weapon;
+
+        public Subject<ClientSession> Requests { get; set; }
 
         public void SetRarityPoint()
         {

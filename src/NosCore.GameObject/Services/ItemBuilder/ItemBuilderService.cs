@@ -17,9 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Subjects;
 using Mapster;
+using NosCore.Core.Extensions;
 using NosCore.Data;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemBuilder.Handling;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Shared.Enumerations.Items;
 
@@ -28,10 +34,12 @@ namespace NosCore.GameObject.Services.ItemBuilder
     public class ItemBuilderService : IItemBuilderService
     {
         private readonly List<Item.Item> _items;
+        private readonly List<IItemHandler> _handlers;
 
-        public ItemBuilderService(List<Item.Item> items)
+        public ItemBuilderService(List<Item.Item> items, IEnumerable<IItemHandler> handlers)
         {
             _items = items;
+            _handlers = handlers.ToList();
         }
 
         public IItemInstance Convert(IItemInstanceDto k)
@@ -44,7 +52,23 @@ namespace NosCore.GameObject.Services.ItemBuilder
                 (IItemInstance)k.Adapt<ItemInstance>();
 
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);
+            LoadHandlers(item);
             return item;
+        }
+
+        private void LoadHandlers(IItemInstance itemInstance)
+        {
+            var handlersRequest = new Subject<ClientSession>();
+            _handlers.ForEach(handler =>
+            {
+                if (handler.Condition(itemInstance.Item))
+                {
+                    var itemHandler = handler.GetType().CreateInstance<IItemHandler>();
+                    itemHandler.ItemInstance = itemInstance;
+                    handlersRequest.Subscribe(itemHandler.Execute);
+                }
+            });
+            itemInstance.Requests = handlersRequest;
         }
 
         public IItemInstance Create(short itemToCreateVNum, long characterId) =>
@@ -59,7 +83,7 @@ namespace NosCore.GameObject.Services.ItemBuilder
         public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
             byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+        public IItemInstance Generate(short itemToCreateVNum, long characterId, short amount, sbyte rare,
             byte upgrade, byte design)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);
@@ -118,6 +142,13 @@ namespace NosCore.GameObject.Services.ItemBuilder
                         CharacterId = characterId
                     };
             }
+        }
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+          byte upgrade, byte design)
+        {
+            var item = Generate(itemToCreateVNum, characterId, amount, rare, upgrade, design);
+            LoadHandlers(item);
+            return item;
         }
     }
 }

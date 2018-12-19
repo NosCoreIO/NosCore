@@ -34,10 +34,6 @@ namespace NosCore.GameObject
 {
     public class MapMonster : MapMonsterDto, INonPlayableEntity
     {
-        public MapMonster()
-        {
-            Requests = new Subject<ClientSession>();
-        }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public bool IsSitting { get; set; }
@@ -51,7 +47,6 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
-        public Subject<ClientSession> Requests { get; set; }
         public VisualType VisualType => VisualType.Monster;
 
         public long VisualId => MapMonsterId;
