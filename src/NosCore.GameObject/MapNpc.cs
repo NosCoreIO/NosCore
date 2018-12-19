@@ -32,7 +32,7 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
         public MapNpc()
         {

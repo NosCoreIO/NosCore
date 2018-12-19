@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data;
+using NosCore.GameObject.Networking.ClientSession;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
@@ -34,7 +36,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         }
 
         public Item Item { get; set; }
-
+        public Subject<ClientSession> Requests { get; set; }
         public object Clone()
         {
             return (ItemInstance)MemberwiseClone();

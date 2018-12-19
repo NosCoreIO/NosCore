@@ -17,29 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
-using NosCore.GameObject.Networking.ClientSession;
-using System.Reactive.Subjects;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Item
+namespace NosCore.Packets.ClientPackets
 {
-    public class SpecialistInstance : SpecialistInstanceDto, IItemInstance
+    [PacketHeader("wear")]
+    public class WearPacket : PacketDefinition
     {
-        public SpecialistInstance(Item item)
-        {
-            Item = item;
-            ItemVNum = item.VNum;
-        }
+        [PacketIndex(0)]
+        public byte InventorySlot { get; set; }
 
-        public SpecialistInstance()
-        {
-        }
-        public Subject<ClientSession> Requests { get; set; }
-        public Item Item { get; set; }
-
-        public object Clone()
-        {
-            return (SpecialistInstance)MemberwiseClone();
-        }
+        [PacketIndex(1)]
+        public byte Type { get; set; }
     }
 }

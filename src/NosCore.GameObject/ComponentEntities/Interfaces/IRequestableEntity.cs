@@ -17,29 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Reactive.Subjects;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Item
+namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public class SpecialistInstance : SpecialistInstanceDto, IItemInstance
+    public interface IRequestableEntity
     {
-        public SpecialistInstance(Item item)
-        {
-            Item = item;
-            ItemVNum = item.VNum;
-        }
-
-        public SpecialistInstance()
-        {
-        }
-        public Subject<ClientSession> Requests { get; set; }
-        public Item Item { get; set; }
-
-        public object Clone()
-        {
-            return (SpecialistInstance)MemberwiseClone();
-        }
+        Subject<ClientSession> Requests { get; set; }
     }
 }
