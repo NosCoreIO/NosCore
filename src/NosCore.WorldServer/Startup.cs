@@ -61,6 +61,7 @@ using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Controllers;
 
 namespace NosCore.WorldServer
 {
@@ -176,7 +177,10 @@ namespace NosCore.WorldServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();

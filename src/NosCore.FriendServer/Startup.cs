@@ -45,6 +45,7 @@ using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using NosCore.FriendServer.Controllers;
+using NosCore.Core.Controllers;
 
 namespace NosCore.FriendServer
 {
@@ -83,10 +84,10 @@ namespace NosCore.FriendServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {configuration.WebApi.ToString()}
+                Addresses = { configuration.WebApi.ToString() }
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Friend API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Friend API", Version = "v1" }));
             var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
@@ -111,7 +112,10 @@ namespace NosCore.FriendServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<FriendConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
