@@ -42,7 +42,5 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         short PositionX { get; set; }
 
         short PositionY { get; set; }
-
-        Subject<ClientSession> Requests { get; set; }
     }
 }

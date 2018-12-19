@@ -17,29 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
+
 using NosCore.GameObject.Networking.ClientSession;
-using System.Reactive.Subjects;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
+using Serilog;
+using System;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Item
+namespace NosCore.GameObject.Services.ItemBuilder.Handling
 {
-    public class SpecialistInstance : SpecialistInstanceDto, IItemInstance
+    public class WearHandler : IItemHandler
     {
-        public SpecialistInstance(Item item)
-        {
-            Item = item;
-            ItemVNum = item.VNum;
-        }
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public SpecialistInstance()
-        {
-        }
-        public Subject<ClientSession> Requests { get; set; }
-        public Item Item { get; set; }
+        public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
+        || item.ItemType == ItemType.Specialist
+        || item.ItemType == ItemType.Jewelery
+        || item.ItemType == ItemType.Armor
+        || item.ItemType == ItemType.Fashion;
 
-        public object Clone()
+        public IItemInstance ItemInstance { get; set; }
+
+        public void Execute(ClientSession session)
         {
-            return (SpecialistInstance)MemberwiseClone();
+            _logger.Debug($"wear item {ItemInstance.ItemVNum}");
         }
     }
 }

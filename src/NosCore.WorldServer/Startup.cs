@@ -62,6 +62,7 @@ using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
+using NosCore.GameObject.Services.ItemBuilder.Handling;
 
 namespace NosCore.WorldServer
 {
@@ -106,6 +107,7 @@ namespace NosCore.WorldServer
                     items.Count);
                 return items;
             }).As<List<Item>>().SingleInstance();
+
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
@@ -131,7 +133,12 @@ namespace NosCore.WorldServer
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
-            
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IItemHandler).Assembly)
+                .Where(t => typeof(IItemHandler).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);

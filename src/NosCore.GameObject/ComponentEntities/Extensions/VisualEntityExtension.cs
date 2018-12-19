@@ -33,11 +33,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
-        public static void RequestEvent(this IVisualEntity visualEntity, ClientSession clientSession)
-        {
-            visualEntity.Requests.OnNext(clientSession);
-        }
-
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal

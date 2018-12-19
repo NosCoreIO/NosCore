@@ -13,11 +13,6 @@ namespace NosCore.GameObject
 {
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
-        public Pet()
-        {
-            Requests = new Subject<ClientSession>();
-        }
-
         public IDisposable Life { get; private set; }
         public bool IsSitting { get; set; }
         public byte Class { get; set; }
@@ -55,7 +50,6 @@ namespace NosCore.GameObject
         public long LevelXp { get; set; }
 
         public MapInstance MapInstance { get; set; }
-        public Subject<ClientSession> Requests { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {
