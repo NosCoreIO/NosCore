@@ -28,6 +28,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
+using NosCore.Configuration;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -107,7 +108,7 @@ namespace NosCore.Tests.HandlerTests
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(null, instanceAccessService);
+            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             var mapinstance = instanceAccessService.GetBaseMapById(0);
