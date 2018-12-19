@@ -23,6 +23,7 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
@@ -32,10 +33,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class VisualEntityExtension
     {
+        public static void RequestEvent(this IVisualEntity visualEntity, ClientSession clientSession)
+        {
+            visualEntity.Requests.OnNext(clientSession);
+        }
+
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers)
             {
@@ -175,7 +181,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
-                    Dialog = 0,
+                    Dialog = visualEntity is MapNpc npc ? npc.Dialog : (short)0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
                         Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),

@@ -19,10 +19,12 @@
 
 using System;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -32,6 +34,10 @@ namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity
     {
+        public MapNpc()
+        {
+            Requests = new Subject<ClientSession>();
+        }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public byte Class { get; set; }
@@ -45,7 +51,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Npc;
-
+        public Subject<ClientSession> Requests { get; set; }
         public long VisualId => MapNpcId;
 
         public Guid MapInstanceId { get; set; }
@@ -74,6 +80,12 @@ namespace NosCore.GameObject
             PositionY = MapY;
             Speed = NpcMonster.Speed;
             IsAlive = true;
+            Requests.Subscribe(ShowDialog);
+        }
+
+        private void ShowDialog(ClientSession client)
+        {
+            client.SendPacket(this.GenerateNpcReq(Dialog));
         }
 
         internal void StopLife()

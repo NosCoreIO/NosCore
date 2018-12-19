@@ -797,6 +797,37 @@ namespace NosCore.Controllers
 
             BlackListAdd(blinsPacket);
         }
+        /// <summary>
+        /// npc_req packet
+        /// </summary>
+        /// <param name="requestNpcPacket"></param>
+        public void ShowShop(RequestNpcPacket requestNpcPacket)
+        {
+            IVisualEntity visualEntity;
+            switch (requestNpcPacket.Type)
+            {
+                case VisualType.Player:
+                    visualEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
+                    break;
+                case VisualType.Monster:
+                    visualEntity = Session.Character.MapInstance.Monsters.Find(s => s.VisualId == requestNpcPacket.TargetId);
+                    break;
+                case VisualType.Npc:
+                    visualEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
+                    break;
+
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
+                    return;
+            }
+            if(visualEntity == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                return;
+            }
+
+            visualEntity.RequestEvent(Session);
+        }
 
         /// <summary>
         /// rest packet
