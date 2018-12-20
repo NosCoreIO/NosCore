@@ -33,6 +33,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder.Handling;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -42,7 +43,7 @@ namespace NosCore.WorldServer
     public class WorldServer
     {
         [UsedImplicitly] private readonly List<Item> _items;
-        [UsedImplicitly] private readonly IEnumerable<IItemHandler> _handlers;
+        [UsedImplicitly] private readonly IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
         [UsedImplicitly] private readonly MapInstanceAccessService _mapInstanceAccessService;
         [UsedImplicitly] private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
@@ -52,7 +53,7 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events, IEnumerable<IItemHandler> handlers)
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;

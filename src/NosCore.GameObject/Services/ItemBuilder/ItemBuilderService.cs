@@ -27,6 +27,7 @@ using NosCore.Data;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Handling;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Services.ItemBuilder
@@ -34,9 +35,9 @@ namespace NosCore.GameObject.Services.ItemBuilder
     public class ItemBuilderService : IItemBuilderService
     {
         private readonly List<Item.Item> _items;
-        private readonly List<IItemHandler> _handlers;
+        private readonly List<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
 
-        public ItemBuilderService(List<Item.Item> items, IEnumerable<IItemHandler> handlers)
+        public ItemBuilderService(List<Item.Item> items, IEnumerable<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _items = items;
             _handlers = handlers.ToList();
@@ -58,13 +59,12 @@ namespace NosCore.GameObject.Services.ItemBuilder
 
         private void LoadHandlers(IItemInstance itemInstance)
         {
-            var handlersRequest = new Subject<ClientSession>();
+            var handlersRequest = new Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(itemInstance.Item))
                 {
-                    var itemHandler = handler.GetType().CreateInstance<IItemHandler>();
-                    itemHandler.ItemInstance = itemInstance;
+                    var itemHandler = handler.GetType().CreateInstance<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>>();
                     handlersRequest.Subscribe(itemHandler.Execute);
                 }
             });

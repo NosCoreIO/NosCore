@@ -29,14 +29,14 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
 {
-    public class MapItem : ICountableEntity, IRequestableEntity
+    public class MapItem : ICountableEntity, IRequestableEntity<MapItem>
     {
         public MapItem()
         {
-            Requests = new Subject<ClientSession>();
+            Requests = new Subject<RequestData<MapItem>>();
         }
 
-        public Subject<ClientSession> Requests { get; set; }
+        public Subject<RequestData<MapItem>> Requests { get; set; }
         public IItemInstance ItemInstance { get; set; }
 
         private long _visualId;

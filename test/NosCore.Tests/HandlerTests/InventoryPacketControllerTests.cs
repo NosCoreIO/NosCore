@@ -107,7 +107,7 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
-            _itemBuilder = new ItemBuilderService(items);
+            _itemBuilder = new ItemBuilderService(items, null);
             _handler = new InventoryPacketController(conf);
 
             _handler.RegisterSession(_session);

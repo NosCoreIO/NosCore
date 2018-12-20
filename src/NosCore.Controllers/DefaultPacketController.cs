@@ -804,7 +804,7 @@ namespace NosCore.Controllers
         /// <param name="requestNpcPacket"></param>
         public void ShowShop(RequestNpcPacket requestNpcPacket)
         {
-            IRequestableEntity requestableEntity;
+            IRequestableEntity<object> requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
