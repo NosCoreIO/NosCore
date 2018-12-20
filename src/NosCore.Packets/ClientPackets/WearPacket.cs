@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Packets.ClientPackets
@@ -30,6 +29,6 @@ namespace NosCore.Packets.ClientPackets
         public byte InventorySlot { get; set; }
 
         [PacketIndex(1)]
-        public byte Type { get; set; }
+        public PocketType Type { get; set; }
     }
 }

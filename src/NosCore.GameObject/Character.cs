@@ -62,7 +62,7 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
-            Requests = new Subject<ClientSession>();
+            Requests = new Subject<RequestData<object>>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -82,7 +82,7 @@ namespace NosCore.GameObject
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
                 >= 80;
         }
-        public Subject<ClientSession> Requests { get; set; }
+        public Subject<RequestData<object>> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public DateTime LastPortal { get; set; }

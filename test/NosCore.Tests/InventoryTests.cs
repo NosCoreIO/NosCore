@@ -46,7 +46,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            _itemBuilderService = new ItemBuilderService(items);
+            _itemBuilderService = new ItemBuilderService(items, null);
             Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999});
         }
 

@@ -23,12 +23,10 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Handling
 {
-    public interface IItemHandler
+    public interface IHandler<T, T2>
     {
-        bool Condition(Item.Item item);
+        bool Condition(T condition);
 
-        IItemInstance ItemInstance { get; set; }
-
-        void Execute(ClientSession session);
+        void Execute(RequestData<T2> requestData);
     }
 }
