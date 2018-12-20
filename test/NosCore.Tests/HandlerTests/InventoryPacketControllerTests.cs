@@ -48,6 +48,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.ItemBuilder.Handling;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -107,7 +108,7 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
-            _itemBuilder = new ItemBuilderService(items, null);
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _handler = new InventoryPacketController(conf);
 
             _handler.RegisterSession(_session);
