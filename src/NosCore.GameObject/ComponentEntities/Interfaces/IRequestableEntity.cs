@@ -22,8 +22,8 @@ using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface IRequestableEntity
+    public interface IRequestableEntity<T>
     {
-        Subject<ClientSession> Requests { get; set; }
+        Subject<RequestData<T>> Requests { get; set; }
     }
 }

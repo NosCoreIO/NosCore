@@ -23,6 +23,7 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
@@ -82,16 +83,29 @@ namespace NosCore.Controllers
             Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
 
+        /// <summary>
+        /// wear packet
+        /// </summary>
+        /// <param name="wearPacket"></param>
         [UsedImplicitly]
         public void Wear(WearPacket wearPacket)
         {
-            IItemInstance inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(wearPacket.InventorySlot, PocketType.Equipment);
+            UseItem(new UseItemPacket(){Slot = wearPacket.InventorySlot, OriginalContent= wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
+        }
+
+        /// <summary>
+        /// u_i packet
+        /// </summary>
+        /// <param name="useItemPacket"></param>
+        public void UseItem(UseItemPacket useItemPacket)
+        {
+            IItemInstance inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
             if (inv?.Requests == null)
             {
                 return;
             }
 
-            inv.Requests.OnNext(Session);
+            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(Session, new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
         }
 
         [UsedImplicitly]

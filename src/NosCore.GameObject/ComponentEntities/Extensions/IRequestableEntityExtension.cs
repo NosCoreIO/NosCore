@@ -33,9 +33,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IRequestableEntityExtension
     {
-        public static void RequestEvent(this IRequestableEntity visualEntity, ClientSession clientSession)
+        public static void RequestEvent(this IRequestableEntity<object> visualEntity, ClientSession clientSession)
         {
-            visualEntity.Requests.OnNext(clientSession);
+            visualEntity.Requests.OnNext(new RequestData<object>(clientSession, null));
         }
     }
 }

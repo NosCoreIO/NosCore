@@ -17,32 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Reactive.Subjects;
-using NosCore.Data;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
+using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Item
+namespace NosCore.Packets.ClientPackets
 {
-    public class BoxInstance : BoxInstanceDto, IItemInstance
+    [PacketHeader("u_i")]
+    public class UseItemPacket : PacketDefinition
     {
-        public BoxInstance(Item item)
-        {
-            Item = item;
-            ItemVNum = item.VNum;
-        }
+        [Range(0, 9)]
+        [PacketIndex(2)]
+        public PocketType Type { get; set; }
 
-        public BoxInstance()
-        {
-        }
+        [PacketIndex(3)]
+        public short Slot { get; set; }
 
-        public Item Item { get; set; }
-        public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
-
-        public object Clone()
-        {
-            return (BoxInstance)MemberwiseClone();
-        }
     }
 }

@@ -20,6 +20,7 @@
 
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -27,7 +28,7 @@ using System;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Handling
 {
-    public class WearHandler : IItemHandler
+    public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -37,11 +38,9 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handling
         || item.ItemType == ItemType.Armor
         || item.ItemType == ItemType.Fashion;
 
-        public IItemInstance ItemInstance { get; set; }
-
-        public void Execute(ClientSession session)
+        public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {
-            _logger.Debug($"wear item {ItemInstance.ItemVNum}");
+            _logger.Debug($"wear item {requestData.Data.Item1.ItemVNum}");
         }
     }
 }

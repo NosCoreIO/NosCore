@@ -32,11 +32,11 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity<object>
     {
         public MapNpc()
         {
-            Requests = new Subject<ClientSession>();
+            Requests = new Subject<RequestData<object>>();
         }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
@@ -51,7 +51,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Npc;
-        public Subject<ClientSession> Requests { get; set; }
+        public Subject<RequestData<object>> Requests { get; set; }
         public long VisualId => MapNpcId;
 
         public Guid MapInstanceId { get; set; }
@@ -83,9 +83,9 @@ namespace NosCore.GameObject
             Requests.Subscribe(ShowDialog);
         }
 
-        private void ShowDialog(ClientSession client)
+        private void ShowDialog(RequestData<object> requestData)
         {
-            client.SendPacket(this.GenerateNpcReq(Dialog));
+            requestData.ClientSession.SendPacket(this.GenerateNpcReq(Dialog));
         }
 
         internal void StopLife()

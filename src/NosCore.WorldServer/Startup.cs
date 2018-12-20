@@ -134,8 +134,8 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IItemHandler).Assembly)
-                .Where(t => typeof(IItemHandler).IsAssignableFrom(t))
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
