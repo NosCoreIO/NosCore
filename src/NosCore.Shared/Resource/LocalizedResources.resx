@@ -586,6 +586,9 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>User is not connected</value>
   </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>VisualEntity does not exist: {0}</value>
+  </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>
   </data>
