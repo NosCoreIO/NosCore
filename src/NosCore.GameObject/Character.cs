@@ -48,6 +48,7 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Reactive.Subjects;
+using NosCore.Packets.ClientPackets;
 
 namespace NosCore.GameObject
 {
@@ -62,7 +63,7 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
-            Requests = new Subject<RequestData<object>>();
+            Requests = new Subject<RequestData>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -82,7 +83,7 @@ namespace NosCore.GameObject
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
                 >= 80;
         }
-        public Subject<RequestData<object>> Requests { get; set; }
+        public Subject<RequestData> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public DateTime LastPortal { get; set; }
@@ -108,6 +109,19 @@ namespace NosCore.GameObject
         public int DignityIcon => GetDignityIco();
 
         public IChannel Channel => Session?.Channel;
+
+        public RsfiPacket GenerateRsfi()
+        {
+            return new RsfiPacket()
+            {
+                Act = 1,
+                ActPart = 1,
+                Unknown1 = 0,
+                Unknown2 = 9,
+                Ts = 0,
+                TsMax = 9
+            };
+        }
 
         public void SendPacket(PacketDefinition packetDefinition) => Session.SendPacket(packetDefinition);
 

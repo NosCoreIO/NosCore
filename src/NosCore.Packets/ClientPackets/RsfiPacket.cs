@@ -17,18 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.Networking.ClientSession;
-using System.Reactive.Subjects;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.Packets.ClientPackets
 {
-    public interface IRequestableEntity<T>
+    [PacketHeader("rsfi")]
+    public class RsfiPacket : PacketDefinition
     {
-        Subject<RequestData<T>> Requests { get; set; }
-    }
+        //TODO make this real packet, it's just here to fix a dialog issue with client
+        [PacketIndex(0)]
+        public byte Act { get; set; }
 
-    public interface IRequestableEntity
-    {
-        Subject<RequestData> Requests { get; set; }
+        [PacketIndex(1)]
+        public byte ActPart { get; set; }
+
+        [PacketIndex(2)]
+        public byte Unknown1 { get; set; }
+
+        [PacketIndex(3)]
+        public byte Unknown2 { get; set; }
+
+        [PacketIndex(4)]
+        public byte Ts { get; set; }
+
+        [PacketIndex(5)]
+        public byte TsMax { get; set; }
     }
 }

@@ -27,10 +27,12 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
@@ -49,6 +51,7 @@ namespace NosCore.Controllers
     public class DefaultPacketController : PacketController
     {
         private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly NrunAccessService _nRunAccessService;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -58,10 +61,11 @@ namespace NosCore.Controllers
         }
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
-            MapInstanceAccessService mapInstanceAccessService)
+            MapInstanceAccessService mapInstanceAccessService, NrunAccessService nRunAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceAccessService = mapInstanceAccessService;
+            _nRunAccessService = nRunAccessService;
         }
 
         public void GameStart(GameStartPacket _)
@@ -93,7 +97,7 @@ namespace NosCore.Controllers
             //            Session.Character.LoadSkills();
             Session.SendPacket(Session.Character.GenerateTit());
             //            Session.SendPacket(Session.Character.GenerateSpPoint());
-            //            Session.SendPacket("rsfi 1 1 0 9 0 9");
+            Session.SendPacket(Session.Character.GenerateRsfi());
             if (Session.Character.Hp <= 0)
             {
                 //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
@@ -424,7 +428,7 @@ namespace NosCore.Controllers
 
                 ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 foreach (var server in servers)
                 {
                     var accounts = WebApiAccess.Instance
@@ -463,8 +467,8 @@ namespace NosCore.Controllers
                 WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
                     Packet = PacketFactory.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Character { Name = receiverName },
-                    SenderCharacter = new Character { Name = Session.Character.Name },
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -512,7 +516,7 @@ namespace NosCore.Controllers
 
             ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
             foreach (var server in servers)
             {
                 var accounts = WebApiAccess.Instance
@@ -536,9 +540,9 @@ namespace NosCore.Controllers
             WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
                 Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
-                ReceiverCharacter = new Character
+                ReceiverCharacter = new Data.WebApi.Character
                 { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
-                SenderCharacter = new Character
+                SenderCharacter = new Data.WebApi.Character
                 { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
@@ -566,7 +570,7 @@ namespace NosCore.Controllers
         {
             if (_worldConfiguration.FeatureFlags[FeatureFlag.FriendServerEnabled])
             {
-                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.FirstOrDefault(c=>c.Type == ServerType.FriendServer);
+                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 //WebApiAccess.Instance.Post<FriendShip>("api/friend", server.WebApi);
             }
             else
@@ -804,7 +808,7 @@ namespace NosCore.Controllers
         /// <param name="requestNpcPacket"></param>
         public void ShowShop(RequestNpcPacket requestNpcPacket)
         {
-            IRequestableEntity<object> requestableEntity;
+            IRequestableEntity requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
@@ -818,13 +822,29 @@ namespace NosCore.Controllers
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
                     return;
             }
-            if(requestableEntity == null)
+            if (requestableEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
 
-            requestableEntity.RequestEvent(Session);
+            requestableEntity.Requests.OnNext(new RequestData(Session));
+        }
+
+        /// <summary>
+        /// nRunPacket packet
+        /// </summary>
+        /// <param name="nRunPacket"></param>
+        public void NRun(NrunPacket nRunPacket)
+        {
+            MapNpc requestableEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.NpcId);
+
+            if (requestableEntity == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                return;
+            }
+            _nRunAccessService.NRunLaunch(Session, new Tuple<MapNpc, NrunPacket>(requestableEntity, nRunPacket));
         }
 
         /// <summary>
