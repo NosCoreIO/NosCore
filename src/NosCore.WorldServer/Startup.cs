@@ -147,8 +147,15 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
             containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
+
             containerBuilder.Populate(services);
         }
 
@@ -163,10 +170,10 @@ namespace NosCore.WorldServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {configuration.WebApi.ToString()}
+                Addresses = { configuration.WebApi.ToString() }
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             var keyByteArray =
                 Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);

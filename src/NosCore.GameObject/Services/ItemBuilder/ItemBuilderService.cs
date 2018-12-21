@@ -65,8 +65,7 @@ namespace NosCore.GameObject.Services.ItemBuilder
             {
                 if (handler.Condition(itemInstance.Item))
                 {
-                    var itemHandler = handler.GetType().CreateInstance<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>>();
-                    handlersRequest.Subscribe(itemHandler.Execute);
+                    handlersRequest.Subscribe(handler.Execute);
                 }
             });
             itemInstance.Requests = handlersRequest;

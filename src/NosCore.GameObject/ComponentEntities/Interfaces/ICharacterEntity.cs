@@ -28,7 +28,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface ICharacterEntity : INamedEntity, IRequestableEntity<object>
+    public interface ICharacterEntity : INamedEntity, IRequestableEntity
     {
         AuthorityType Authority { get; }
 

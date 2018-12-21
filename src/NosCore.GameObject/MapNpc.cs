@@ -24,19 +24,21 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity<object>
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
         public MapNpc()
         {
-            Requests = new Subject<RequestData<object>>();
+            Requests = new Subject<RequestData>();
         }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
@@ -51,7 +53,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Npc;
-        public Subject<RequestData<object>> Requests { get; set; }
+        public Subject<RequestData> Requests { get; set; }
         public long VisualId => MapNpcId;
 
         public Guid MapInstanceId { get; set; }
@@ -83,7 +85,7 @@ namespace NosCore.GameObject
             Requests.Subscribe(ShowDialog);
         }
 
-        private void ShowDialog(RequestData<object> requestData)
+        private void ShowDialog(RequestData requestData)
         {
             requestData.ClientSession.SendPacket(this.GenerateNpcReq(Dialog));
         }
