@@ -17,8 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Core.Networking;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations.Account;
@@ -38,7 +41,14 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            Character targetSession = (Character)Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            Character targetSession = null;
+
+            foreach (var server in servers)
+            {
+                targetSession = (Character)Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+            }
+
             if (targetSession.Session == null)
             {
                 return Ok(); // TODO : Handle 404 in WebApi
