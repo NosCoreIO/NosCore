@@ -25,8 +25,11 @@ using System.Threading.Tasks;
 using Mapster;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;
 using OpenTK.Graphics;
@@ -59,7 +62,7 @@ namespace NosCore.PathFinder.Gui
             _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
             var npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters)
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()))
                 {
                     IsSleeping = false
                 };

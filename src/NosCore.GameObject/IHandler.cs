@@ -17,18 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.GameObject.Services.ItemBuilder
+namespace NosCore.GameObject.Handling
 {
-    public interface IItemBuilderService
+    public interface IHandler<T, T2>
     {
-        IItemInstance Create(short itemToCreateVNum, long characterId);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade, byte design);
-        IItemInstance Convert(IItemInstanceDto k);
+        bool Condition(T condition);
+
+        void Execute(RequestData<T2> requestData);
     }
 }
