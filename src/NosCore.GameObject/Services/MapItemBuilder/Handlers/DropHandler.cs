@@ -21,6 +21,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -31,7 +32,7 @@ using Serilog;
 using System;
 using System.Linq;
 
-namespace NosCore.GameObject.Services.MapInstanceAccess.Handling
+namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
 {
     public class DropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
