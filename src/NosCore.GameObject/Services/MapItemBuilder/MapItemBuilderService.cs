@@ -37,7 +37,6 @@ namespace NosCore.GameObject.Services.MapBuilder
     public class MapItemBuilderService : IMapItemBuilderService
     {
         private readonly List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> _handlers;
-        public MapItemBuilderService() { }
         public MapItemBuilderService(IEnumerable<IHandler<MapItem, Tuple<MapItem, GetPacket>>> handlers)
         {
             _handlers = handlers.ToList();
