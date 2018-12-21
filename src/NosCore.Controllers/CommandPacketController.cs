@@ -76,7 +76,6 @@ namespace NosCore.Controllers
         public void Kick(KickPacket kickPacket)
         {
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
-            var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
@@ -96,7 +95,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", config, targetSession.VisualId);
+            WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", config, account.ConnectedCharacter.Id);
         }
 
         [UsedImplicitly]
