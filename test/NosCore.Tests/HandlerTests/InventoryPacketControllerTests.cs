@@ -98,7 +98,7 @@ namespace NosCore.Tests.HandlerTests
             var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _handler = new InventoryPacketController(conf);
-            _mapItemBuilderService = new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>() { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
+            _mapItemBuilderService = new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
             _map = new MapInstance(new Map
             {
                 Name = "testMap",

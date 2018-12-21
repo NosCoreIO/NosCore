@@ -183,13 +183,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
-            new MapItem
-            {
-                MapInstance = this,
-                ItemInstance = newItemInstance,
-                PositionX = mapX,
-                PositionY = mapY
-            };
             droppedItem = _mapItemBuilderService.Create(this, newItemInstance, mapX, mapY);
             MapItems[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;

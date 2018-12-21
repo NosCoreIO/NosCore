@@ -52,13 +52,11 @@ namespace NosCore.WorldServer
         [UsedImplicitly] private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<IGlobalEvent> _events;
-        private readonly MapItemBuilderService _mapItemBuilderService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
             List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService,
-            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers,
-            MapItemBuilderService mapItemBuilderService)
+            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -68,7 +66,6 @@ namespace NosCore.WorldServer
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
             _events = events.ToList();
-            _mapItemBuilderService = mapItemBuilderService;
         }
 
         public void Run()
