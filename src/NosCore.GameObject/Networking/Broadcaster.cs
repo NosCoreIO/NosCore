@@ -46,11 +46,6 @@ namespace NosCore.GameObject.Networking
 
         public IChannelGroup Sessions { get; set; }
 
-        public ClientSession.ClientSession GetSessionByVisualId(long visualId)
-        {
-            return ClientSessions.Values.FirstOrDefault(s => s.Character.VisualId == visualId);
-        }
-
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {
             ClientSessions.TryRemove(clientSession.SessionId, out _);

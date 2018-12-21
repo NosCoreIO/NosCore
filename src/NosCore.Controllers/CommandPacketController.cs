@@ -78,14 +78,14 @@ namespace NosCore.Controllers
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
             var targetSession = Broadcaster.Instance.GetCharacter(s => s.Name == kickPacket.Name);
             ServerConfiguration config = null;
+            ConnectedAccount account = null;
 
             foreach (var server in servers)
             {
                 config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
+                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
             }
-
-            var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
-                .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
 
             if (account == null)
             {

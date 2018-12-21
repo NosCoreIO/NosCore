@@ -20,6 +20,7 @@
 using DotNetty.Transport.Channels;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations.Account;
@@ -33,8 +34,6 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class SessionController : Controller
     {
-        public IChannelHandlerContext context;
-
         // DELETE api/session
         [HttpDelete]
         public IActionResult Disconnect(long id)
@@ -44,14 +43,14 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var targetSession = Broadcaster.Instance.GetSessionByVisualId(id);
-            if (targetSession == null)
+            Character targetSession = (Character)Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+            if (targetSession.Session == null)
             {
                 return Ok(); // TODO : Handle 404 in WebApi
             }
-            
-            targetSession.ChannelUnregistered(context);
-            Broadcaster.Instance.UnregisterSession(targetSession);
+
+            targetSession.Session.Disconnect();
+            Broadcaster.Instance.UnregisterSession(targetSession.Session);
             return Ok();
         }
     }
