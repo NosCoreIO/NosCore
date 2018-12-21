@@ -49,8 +49,7 @@ namespace NosCore.GameObject.Services.MapBuilder
             {
                 if (handler.Condition(item))
                 {
-                    var itemHandler = handler.GetType().CreateInstance<IHandler<MapItem, Tuple<MapItem, GetPacket>>>();
-                    handlersRequest.Subscribe(itemHandler.Execute);
+                    handlersRequest.Subscribe(handler.Execute);
                 }
             });
             item.Requests = handlersRequest;

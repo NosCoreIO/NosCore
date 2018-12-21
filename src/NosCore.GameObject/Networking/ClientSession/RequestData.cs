@@ -4,13 +4,20 @@ using System.Text;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
-    public class RequestData<T>
+    public class RequestData<T> : RequestData
     {
-        public ClientSession ClientSession { get; }
         public T Data { get; }
-        public RequestData(ClientSession clientSession, T data)
+        public RequestData(ClientSession clientSession, T data) : base(clientSession)
         {
             Data = data;
+        }
+    }
+
+    public class RequestData
+    {
+        public ClientSession ClientSession { get; }
+        public RequestData(ClientSession clientSession)
+        {
             ClientSession = clientSession;
         }
     }

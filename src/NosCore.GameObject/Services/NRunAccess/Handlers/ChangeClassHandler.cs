@@ -17,25 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations.Character;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets;
+using NosCore.Shared.I18N;
+using Serilog;
+using System;
+
+namespace NosCore.GameObject.Services.ItemBuilder.Handling
 {
-    public static class IRequestableEntityExtension
+    public class ChangeClassHandler : IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>
     {
-        public static void RequestEvent(this IRequestableEntity<object> visualEntity, ClientSession clientSession)
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
+        public bool Condition(Tuple<MapNpc, NrunPacket> item) => true;
+
+        public void Execute(RequestData<Tuple<MapNpc, NrunPacket>> requestData)
         {
-            visualEntity.Requests.OnNext(new RequestData<object>(clientSession, null));
+            _logger.Debug($"change class");
         }
     }
 }
