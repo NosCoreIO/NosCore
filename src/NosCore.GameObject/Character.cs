@@ -922,5 +922,14 @@ namespace NosCore.GameObject
                 Message = message
             };
         }
+
+        public void AddSpPoints(int spPoint)
+        {
+            SpPoint += spPoint;
+            if (SpPoint > 10_000)
+            {
+                SpPoint = 10_000;
+            }
+        }
     }
 }

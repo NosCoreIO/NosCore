@@ -49,6 +49,8 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using NosCore.GameObject.Services.ItemBuilder.Handling;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -77,7 +79,7 @@ namespace NosCore.Tests.HandlerTests
                     0, 0, 0, 0, 0, 0, 0, 0
                 }
         }
-            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>());
+            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(), new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
 
         [TestInitialize]
         public void Setup()
@@ -221,7 +223,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,
@@ -246,7 +248,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,
@@ -271,7 +273,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,
@@ -301,7 +303,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     OwnerId = 2,
@@ -328,7 +330,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,
@@ -353,7 +355,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,
@@ -381,7 +383,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
+            _map.MapItems.TryAdd(100001,
                 new MapItem
                 {
                     PositionX = 1,

@@ -40,6 +40,7 @@ using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         public DateTime LastUnregister { get; set; }
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            List<NpcMonsterDto> npcMonsters)
+            List<NpcMonsterDto> npcMonsters, MapItemBuilderService mapItemBuilderService)
         {
             _npcMonsters = npcMonsters;
             XpRate = 1;
@@ -69,16 +70,19 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<long, MapMonster>();
             _npcs = new ConcurrentDictionary<long, MapNpc>();
-            DroppedList = new ConcurrentDictionary<long, MapItem>();
+            MapItems = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
             LastUnregister = DateTime.Now.AddMinutes(-1);
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
+            _mapItemBuilderService = mapItemBuilderService;
         }
 
         public IChannelGroup Sessions { get; set; }
 
-        public ConcurrentDictionary<long, MapItem> DroppedList { get; }
+        private readonly MapItemBuilderService _mapItemBuilderService;
+
+        public ConcurrentDictionary<long, MapItem> MapItems { get; }
 
         public bool IsSleeping
         {
@@ -179,11 +183,15 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
-            droppedItem = new MapItem
+            new MapItem
             {
-                MapInstance = this, ItemInstance = newItemInstance, PositionX = mapX, PositionY = mapY
+                MapInstance = this,
+                ItemInstance = newItemInstance,
+                PositionX = mapX,
+                PositionY = mapY
             };
-            DroppedList[droppedItem.VisualId] = droppedItem;
+            droppedItem = _mapItemBuilderService.Create(this, newItemInstance, mapX, mapY);
+            MapItems[droppedItem.VisualId] = droppedItem;
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
@@ -228,7 +236,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
             Monsters.ForEach(s => packets.Add(s.GenerateIn()));
             Npcs.ForEach(s => packets.Add(s.GenerateIn()));
-            DroppedList.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
+            MapItems.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
             return packets;
         }
 

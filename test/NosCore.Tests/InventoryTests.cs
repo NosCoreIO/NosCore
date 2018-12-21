@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Handling;

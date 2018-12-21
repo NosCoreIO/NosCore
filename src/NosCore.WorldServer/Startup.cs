@@ -63,6 +63,9 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
 using NosCore.GameObject.Services.ItemBuilder.Handling;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject;
+using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.WorldServer
 {
@@ -139,8 +142,13 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
 
+            containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
+            containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
             containerBuilder.Populate(services);
         }
 

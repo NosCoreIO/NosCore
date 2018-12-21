@@ -29,6 +29,8 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Handling;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -102,7 +104,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 }, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
             _session.RegisterChannel(channelMock.Object);
@@ -148,7 +150,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 }, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService) { SessionId = 2 };
             var handler2 = new DefaultPacketController(null, instanceAccessService);
             handler2.RegisterSession(_targetSession);

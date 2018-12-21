@@ -40,6 +40,8 @@ using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -85,7 +87,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -180,7 +182,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

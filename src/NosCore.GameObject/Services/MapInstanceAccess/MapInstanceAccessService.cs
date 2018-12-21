@@ -29,6 +29,7 @@ using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             new ConcurrentDictionary<Guid, MapInstance>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps)
+        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps, MapItemBuilderService mapItemBuilderService)
         {
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map.Map>();
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 var guid = Guid.NewGuid();
                 mapList[map.MapId] = map;
-                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters);
+                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters, mapItemBuilderService);
                 MapInstances.TryAdd(guid, newMap);
                 newMap.LoadMonsters();
                 newMap.LoadNpcs();

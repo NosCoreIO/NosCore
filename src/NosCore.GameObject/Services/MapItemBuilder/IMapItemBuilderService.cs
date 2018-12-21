@@ -17,16 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Data;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapInstanceAccess;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Handling
+namespace NosCore.GameObject.Services.MapBuilder
 {
-    public interface IHandler<T, T2>
+    public interface IMapItemBuilderService
     {
-        bool Condition(T condition);
-
-        void Execute(RequestData<T2> requestData);
+        MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
     }
 }

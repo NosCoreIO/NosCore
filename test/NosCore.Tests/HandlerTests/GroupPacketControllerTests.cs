@@ -29,10 +29,12 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -80,7 +82,7 @@ namespace NosCore.Tests.HandlerTests
                 _characters.Add(i, chara);
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
-                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
+                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             }
         }
 

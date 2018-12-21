@@ -24,6 +24,7 @@ using System.Reactive.Subjects;
 using Mapster;
 using NosCore.Core.Extensions;
 using NosCore.Data;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Handling;
 using NosCore.GameObject.Services.ItemBuilder.Item;
