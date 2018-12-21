@@ -30,7 +30,6 @@ using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
