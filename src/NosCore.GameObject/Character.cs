@@ -112,7 +112,7 @@ namespace NosCore.GameObject
 
         public RsfiPacket GenerateRsfi()
         {
-            return new RsfiPacket()
+            return new RsfiPacket
             {
                 Act = 1,
                 ActPart = 1,

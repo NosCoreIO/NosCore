@@ -152,9 +152,15 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+            
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
             containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
             containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
+            containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);
         }

@@ -52,6 +52,7 @@ namespace NosCore.Controllers
     {
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly NrunAccessService _nRunAccessService;
+        private readonly GuriAccessService _guriAccessService;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -61,11 +62,13 @@ namespace NosCore.Controllers
         }
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
-            MapInstanceAccessService mapInstanceAccessService, NrunAccessService nRunAccessService)
+            MapInstanceAccessService mapInstanceAccessService, NrunAccessService nRunAccessService,
+            GuriAccessService guriAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceAccessService = mapInstanceAccessService;
             _nRunAccessService = nRunAccessService;
+            _guriAccessService = guriAccessService;
         }
 
         public void GameStart(GameStartPacket _)
@@ -334,18 +337,7 @@ namespace NosCore.Controllers
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-            if (guriPacket.Type != 10 || guriPacket.Data < 973 || guriPacket.Data > 999
-                || Session.Character.EmoticonsBlocked)
-            {
-                return;
-            }
-
-            if (guriPacket.VisualEntityId != null
-                && Convert.ToInt64(guriPacket.VisualEntityId.Value) == Session.Character.CharacterId)
-            {
-                Session.Character.MapInstance.Sessions.SendPacket(
-                    Session.Character.GenerateEff(guriPacket.Data + 4099));//TODO , ReceiverType.AllNoEmoBlocked
-            }
+            _guriAccessService.GuriLaunch(Session, guriPacket);
         }
 
         public void Pulse(PulsePacket pulsePacket)
