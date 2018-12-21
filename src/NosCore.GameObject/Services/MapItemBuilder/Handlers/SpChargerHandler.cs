@@ -21,13 +21,14 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using System;
 
-namespace NosCore.GameObject.Services.MapInstanceAccess.Handling
+namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
 {
     public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
