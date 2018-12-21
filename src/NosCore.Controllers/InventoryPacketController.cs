@@ -21,6 +21,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -90,7 +91,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Wear(WearPacket wearPacket)
         {
-            UseItem(new UseItemPacket(){Slot = wearPacket.InventorySlot, OriginalContent= wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
+            UseItem(new UseItemPacket() { Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
         }
 
         /// <summary>
@@ -111,146 +112,41 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void GetItem(GetPacket getPacket)
         {
-            //TODO use IRequestableEntity
-            if (getPacket.VisualId < 100000)
+            if (!Session.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
-                //TODO buttons
+                return;
             }
-            else
+
+            var mapItem = Session.Character.MapInstance.MapItems[getPacket.VisualId];
+
+            var canpick = false;
+            switch (getPacket.PickerType)
             {
-                if (!Session.Character.MapInstance.DroppedList.ContainsKey(getPacket.VisualId))
-                {
+                case PickerType.Character:
+                    canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
+                        Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
+                    break;
+
+                case PickerType.Mate:
                     return;
-                }
 
-                var mapItem = Session.Character.MapInstance.DroppedList[getPacket.VisualId];
-
-                var canpick = false;
-                switch (getPacket.PickerType)
-                {
-                    case PickerType.Character:
-                        canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
-                            Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
-                        break;
-
-                    case PickerType.Mate:
-                        return;
-
-                    default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
-                        return;
-                }
-
-                if (!canpick)
-                {
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
                     return;
-                }
-
-                //TODO add group drops
-                if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
-                {
-                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
-                    return;
-                }
-
-                IItemInstance mapItemInstance = mapItem.ItemInstance;
-                //TODO not your item
-                if (mapItem.VNum != 1046)
-                {
-                    if (mapItemInstance.Item.ItemType == ItemType.Map)
-                    {
-                        if (mapItemInstance.Item.Effect == 71)
-                        {
-                            Session.Character.SpPoint += mapItemInstance.Item.EffectValue;
-                            if (Session.Character.SpPoint > 10000)
-                            {
-                                Session.Character.SpPoint = 10000;
-                            }
-
-                            Session.SendPacket(new MsgPacket
-                            {
-                                Message = string.Format(
-                                    Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
-                                        Session.Account.Language), mapItemInstance.Item.EffectValue),
-                                Type = 0
-                            });
-                            Session.SendPacket(Session.Character.GenerateSpPoint());
-                        }
-
-                        Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                        Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
-                    }
-                    else
-                    {
-                        var amount = mapItem.Amount;
-                        var inv = Session.Character.Inventory.AddItemToPocket(mapItemInstance).FirstOrDefault();
-
-                        if (inv != null)
-                        {
-                            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
-                            Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out var value);
-                            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
-                            if (getPacket.PickerType == PickerType.Mate)
-                            {
-                                Session.SendPacket(Session.Character.GenerateIcon(1, inv.ItemVNum));
-                            }
-
-                            Session.SendPacket(Session.Character.GenerateSay(
-                                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {inv.Item.Name} x {amount}",
-                                SayColorType.Green));
-                            if (Session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
-                            {
-                                var name = string.Format(
-                                    Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
-                                        Session.Account.Language), Session.Character.Name);
-                                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateSay(
-                                    $"{name}: {inv.Item.Name} x {mapItem.Amount}",
-                                    SayColorType.Yellow));
-                            }
-                        }
-                        else
-                        {
-                            Session.SendPacket(new MsgPacket
-                            {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                                    Session.Account.Language),
-                                Type = 0
-                            });
-                        }
-                    }
-                }
-                else
-                {
-                    // handle gold drop
-                    var maxGold = _worldConfiguration.MaxGoldAmount;
-                    if (Session.Character.Gold + mapItem.Amount <= maxGold)
-                    {
-                        if (getPacket.PickerType == PickerType.Mate)
-                        {
-                            Session.SendPacket(Session.Character.GenerateIcon(1, mapItem.VNum));
-                        }
-
-                        Session.Character.Gold += mapItem.Amount;
-                        Session.SendPacket(Session.Character.GenerateSay(
-                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {mapItemInstance.Item.Name} x {mapItem.Amount}",
-                            SayColorType.Green));
-                    }
-                    else
-                    {
-                        Session.Character.Gold = maxGold;
-                        Session.SendPacket(new MsgPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                                Session.Account.Language),
-                            Type = 0
-                        });
-                    }
-
-                    Session.SendPacket(Session.Character.GenerateGold());
-                    Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
-                }
             }
+
+            if (!canpick)
+            {
+                return;
+            }
+
+            //TODO add group drops
+            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
+            {
+                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
+                return;
+            }
+            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(Session, new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
         }
 
         [UsedImplicitly]
@@ -264,7 +160,7 @@ namespace NosCore.Controllers
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                     {
-                        if (Session.Character.MapInstance.DroppedList.Count < 200)
+                        if (Session.Character.MapInstance.MapItems.Count < 200)
                         {
                             var droppedItem =
                                 Session.Character.MapInstance.PutItem(putPacket.Amount, invitem, Session);
