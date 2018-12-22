@@ -131,7 +131,7 @@ namespace NosCore.MasterServer.Controllers
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann != null)
             {
-                if (chann.LastPing.AddSeconds(10) < DateTime.Now)
+                if (chann.LastPing.AddSeconds(10) < DateTime.Now && !System.Diagnostics.Debugger.IsAttached)
                 {
                     MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString());
