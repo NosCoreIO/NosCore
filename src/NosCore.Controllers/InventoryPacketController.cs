@@ -85,6 +85,42 @@ namespace NosCore.Controllers
             Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
 
+
+        /// <summary>
+        /// remove packet
+        /// </summary>
+        /// <param name="removePacket"></param>
+        public void Remove(RemovePacket removePacket)
+        {
+            if (Session.Character.InExchangeOrTrade)
+            {
+                return;
+            }
+
+            IItemInstance inventory = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>((short)removePacket.InventorySlot, PocketType.Wear);
+            if (inventory == null)
+            {
+                return;
+            }
+
+            IItemInstance inv = Session.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot, PocketType.Wear, PocketType.Equipment);
+
+            if (inv == null)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq());
+            Session.SendPacket(Session.Character.GenerateEquipment());
+        }
+
         /// <summary>
         /// wear packet
         /// </summary>
