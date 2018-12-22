@@ -245,7 +245,7 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer))
             {
                 Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
             }
