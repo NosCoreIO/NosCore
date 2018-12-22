@@ -68,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+                _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
                 return null;
             }
         }
@@ -178,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                   _logger.Warning("Wrong Packet Format!", e);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
                     return string.Empty;
                 }
             }
@@ -375,7 +375,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception)
                 {
-                   _logger.Warning($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
+                   _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONVERT_VALUE_IMPOSSIBLE), currentValue, packetPropertyType.Name));
                 }
 
                 return convertedValue;
