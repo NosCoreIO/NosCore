@@ -17,10 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+
+namespace NosCore.Packets.ClientPackets
 {
-    public interface IExperiencedEntity
+    [PacketHeader("rsfi")]
+    public class RsfiPacket : PacketDefinition
     {
-        long LevelXp { get; }
+        //TODO make this real packet, it's just here to fix a dialog issue with client
+        [PacketIndex(0)]
+        public byte Act { get; set; }
+
+        [PacketIndex(1)]
+        public byte ActPart { get; set; }
+
+        [PacketIndex(2)]
+        public byte Unknown1 { get; set; }
+
+        [PacketIndex(3)]
+        public byte Unknown2 { get; set; }
+
+        [PacketIndex(4)]
+        public byte Ts { get; set; }
+
+        [PacketIndex(5)]
+        public byte TsMax { get; set; }
     }
 }

@@ -17,13 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
@@ -46,7 +50,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            _itemBuilderService = new ItemBuilderService(items);
+            _itemBuilderService = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999});
         }
 

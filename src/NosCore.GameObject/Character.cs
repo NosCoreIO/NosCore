@@ -47,6 +47,10 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using System.Reactive.Subjects;
+using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets;
 
 namespace NosCore.GameObject
 {
@@ -61,6 +65,7 @@ namespace NosCore.GameObject
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
+            Requests = new Subject<RequestData>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -80,7 +85,7 @@ namespace NosCore.GameObject
             get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
                 >= 80;
         }
-
+        public Subject<RequestData> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public DateTime LastPortal { get; set; }
@@ -106,6 +111,19 @@ namespace NosCore.GameObject
         public int DignityIcon => GetDignityIco();
 
         public IChannel Channel => Session?.Channel;
+
+        public RsfiPacket GenerateRsfi()
+        {
+            return new RsfiPacket
+            {
+                Act = 1,
+                ActPart = 1,
+                Unknown1 = 0,
+                Unknown2 = 9,
+                Ts = 0,
+                TsMax = 9
+            };
+        }
 
         public void SendPacket(PacketDefinition packetDefinition) => Session.SendPacket(packetDefinition);
 
@@ -173,6 +191,39 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
+        public void ChangeClass(byte classType)
+        {
+            JobLevel = 1;
+            JobLevelXp = 0;
+            SendPacket(new NpInfoPacket());
+            SendPacket(new PclearPacket());
+
+            if (classType == (byte)CharacterClassType.Adventurer)
+            {
+                HairStyle = HairStyle > HairStyleType.HairStyleB ? 0 : HairStyle;
+            }
+
+            LoadSpeed();
+
+            Class = classType;
+            Hp = MaxHp;
+            Mp = MaxMp;
+            SendPacket(GenerateTit());
+            SendPacket(GenerateStat());
+            MapInstance.Sessions.SendPacket(GenerateEq());
+            MapInstance.Sessions.SendPacket(this.GenerateEff(8));
+            //TODO: Faction
+            SendPacket(this.GenerateCond());
+            SendPacket(GenerateLev());
+            SendPacket(this.GenerateCMode());
+            SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language), Type = MessageType.Whisper});
+            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
+
+            MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
+            MapInstance.Sessions.SendPacket(this.GenerateEff(6));
+            MapInstance.Sessions.SendPacket(this.GenerateEff(198));
+        }
+
         private void GenerateLevelupPackets()
         {
             SendPacket(GenerateStat());
@@ -205,10 +256,7 @@ namespace NosCore.GameObject
 
         public void SetLevel(byte level)
         {
-            Level = level;
-            LevelXp = 0;
-            Hp = MaxHp;
-            Mp = MaxMp;
+            (this as INamedEntity).SetLevel(level);
             GenerateLevelupPackets();
             Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language) });
         }
@@ -524,7 +572,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer);
             foreach (var server in servers)
             {
                 var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
@@ -921,6 +969,50 @@ namespace NosCore.GameObject
             {
                 CharacterId = CharacterId,
                 Message = message
+            };
+        }
+
+        public void AddSpPoints(int spPoint)
+        {
+            SpPoint += spPoint;
+            if (SpPoint > 10_000)
+            {
+                SpPoint = 10_000;
+            }
+        }
+
+        public EqPacket GenerateEq()
+        {
+            return new EqPacket
+            {
+                VisualId = VisualId,
+                Visibility = (byte)(Authority < AuthorityType.GameMaster ? 0 : 2),
+                Gender = Gender,
+                HairStyle = HairStyle,
+                Haircolor = HairColor,
+                ClassType = (CharacterClassType)Class,
+                EqSubPacket = new InEquipmentSubPacket
+                {
+                    Armor = -1,
+                    CostumeHat = -1,
+                    CostumeSuit = -1,
+                    Fairy = -1,
+                    Hat = -1,
+                    MainWeapon = -1,
+                    Mask = -1,
+                    SecondaryWeapon = -1,
+                    WeaponSkin = -1
+                },
+                WeaponUpgradeRarePacket = new UpgradeRareSubPacket
+                {
+                    Upgrade = 0,
+                    Rare = 0
+                },
+                ArmorUpgradeRarePacket = new UpgradeRareSubPacket
+                {
+                    Upgrade = 0,
+                    Rare = 0
+                }
             };
         }
     }

@@ -45,7 +45,7 @@ namespace NosCore.Configuration
         [Required]
         public string ServerName { get; set; }
 
-        public Dictionary<FeatureFlag, bool> FeatureFlags { get; set; } = new Dictionary<FeatureFlag, bool>();
+        public FeatureFlags FeatureFlags { get; set; } = new FeatureFlags();
 
         public short MaxItemAmount { get; set; }
 

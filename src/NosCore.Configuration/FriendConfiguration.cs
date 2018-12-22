@@ -24,6 +24,9 @@ namespace NosCore.Configuration
     public class FriendConfiguration : LanguageConfiguration
     {
         [Required]
+        public WebApiConfiguration MasterCommunication { get; set; }
+
+        [Required]
         public WebApiConfiguration WebApi { get; set; }
 
         [Required]

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,6 +28,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
 using Serilog;
@@ -93,12 +93,12 @@ namespace NosCore.Core.Networking
             {
                 Policy
                     .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
-                    .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(5),
+                    .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(1),
                         (_, __, timeSpan) =>
                             _logger.Verbose(
                                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
                     ).Execute(() => Instance.Patch<HttpStatusCode>("api/channel",
-                        result.ChannelInfo.ChannelId));
+                        result.ChannelInfo.ChannelId, DateTime.Now));
                 _logger.Error(
                     LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
                 Environment.Exit(0);
@@ -208,11 +208,11 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public T Patch<T>(string route, ServerConfiguration webApi) => Patch<T>(route, null, webApi);
+        public T Patch<T>(string route, object id, ServerConfiguration webApi) => Patch<T>(route, id, null, webApi);
 
-        public T Patch<T>(string route, object data) => Patch<T>(route, data, null);
+        public T Patch<T>(string route, object id, object data) => Patch<T>(route, id, data, null);
 
-        public T Patch<T>(string route, object data, ServerConfiguration webApi)
+        public T Patch<T>(string route, object id, object data, ServerConfiguration webApi)
         {
             if (MockValues.ContainsKey(route))
             {
@@ -225,7 +225,7 @@ namespace NosCore.Core.Networking
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
-            var postResponse = client.PatchAsync(route, content).Result;
+            var postResponse = client.PatchAsync(route + "?id=" + id ?? "", content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
@@ -245,7 +245,7 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel"))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer))
             {
                 Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
             }

@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 
 namespace NosCore.Core.Networking
@@ -32,7 +31,8 @@ namespace NosCore.Core.Networking
 
         public static MasterClientListSingleton Instance => _instance ?? (_instance = new MasterClientListSingleton());
 
-        public List<ChannelInfo> WorldServers { get; set; }
+        public List<ChannelInfo> Channels { get; set; } = new List<ChannelInfo>();
         public int ChannelId { get; internal set; }
+        public int ConnectionCounter { get; set; }
     }
 }

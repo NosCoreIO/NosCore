@@ -31,6 +31,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, short dialog)
+        {
+            return new NpcReqPacket
+            {
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
+                Dialog = dialog,
+            };
+        }
+
         public static PinitSubPacket GenerateSubPinit(this INamedEntity namedEntity, int groupPosition)
         {
             return new PinitSubPacket
@@ -196,6 +206,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 IsSitting = aliveEntity.IsSitting
             };
+        }
+
+        public static void SetLevel(this INamedEntity experiencedEntity, byte level)
+        {
+            experiencedEntity.Level = level;
+            experiencedEntity.LevelXp = 0;
+            experiencedEntity.Hp = experiencedEntity.MaxHp;
+            experiencedEntity.Mp = experiencedEntity.MaxMp;
         }
     }
 }

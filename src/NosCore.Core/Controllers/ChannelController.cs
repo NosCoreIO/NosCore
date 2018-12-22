@@ -30,11 +30,12 @@ using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.WorldServer.Controllers
+namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     public class ChannelController : Controller
@@ -42,6 +43,9 @@ namespace NosCore.WorldServer.Controllers
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly WebApiConfiguration _apiConfiguration;
+
+        private int _id;
+
         public ChannelController(WebApiConfiguration apiConfiguration)
         {
             _apiConfiguration = apiConfiguration;
@@ -68,7 +72,7 @@ namespace NosCore.WorldServer.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -78,8 +82,67 @@ namespace NosCore.WorldServer.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
-            
+
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(), data.ClientName);
+
+            try
+            {
+                _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
+            }
+            catch
+            {
+                _id = 0;
+            }
+
+            var serv = new ChannelInfo
+            {
+                Name = data.ClientName,
+                Host = data.Host,
+                Port = data.Port,
+                Id = _id,
+                ConnectedAccountLimit = data.ConnectedAccountLimit,
+                WebApi = data.WebApi,
+                LastPing = DateTime.Now,
+                Type = data.ClientType
+            };
+
+            MasterClientListSingleton.Instance.Channels.Add(serv);
+            data.ChannelId = _id;
+
+
             return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
+        }
+
+        // GET api/channel
+        [HttpGet]
+        public List<ChannelInfo> GetChannels(long? id)
+        {
+            if (id != null)
+            {
+                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
+            }
+
+            return MasterClientListSingleton.Instance.Channels;
+        }
+
+        [HttpPatch]
+        public HttpStatusCode PingUpdate(int id, [FromBody]DateTime data)
+        {
+            var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
+            if (chann != null)
+            {
+                if (chann.LastPing.AddSeconds(10) < DateTime.Now)
+                {
+                    MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString());
+                    return HttpStatusCode.RequestTimeout;
+                }
+
+                chann.LastPing = data;
+                return HttpStatusCode.OK;
+            }
+
+            return HttpStatusCode.NotFound;
         }
     }
 }

@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.I18N;
@@ -50,7 +49,7 @@ namespace NosCore.DAL
         private static GenericDao<MapTypeMap, MapTypeMapDto> _mapTypeMapDao;
         private static GenericDao<I18NActDesc, I18NActDescDto> _i18NActDescDao;
         private static GenericDao<I18NCard, I18NCardDto> _i18NCardDao;
-        private static GenericDao<I18NBCard, I18NBCardDto> _i18NBCardDao;
+        private static GenericDao<I18NBCard, I18NbCardDto> _i18NBCardDao;
         private static GenericDao<I18NItem, I18NItemDto> _i18NItemDao;
         private static GenericDao<I18NMapIdData, I18NMapIdDataDto> _i18NMapIdDataDao;
         private static GenericDao<I18NMapPointData, I18NMapPointDataDto> _i18NMapPointDataDao;
@@ -100,8 +99,8 @@ namespace NosCore.DAL
         public static GenericDao<I18NCard, I18NCardDto> I18NCardDao =>
             _i18NCardDao ?? (_i18NCardDao = new GenericDao<I18NCard, I18NCardDto>());
 
-        public static GenericDao<I18NBCard, I18NBCardDto> I18NbCardDao => _i18NBCardDao ??
-            (_i18NBCardDao = new GenericDao<I18NBCard, I18NBCardDto>());
+        public static GenericDao<I18NBCard, I18NbCardDto> I18NbCardDao => _i18NBCardDao ??
+            (_i18NBCardDao = new GenericDao<I18NBCard, I18NbCardDto>());
 
         public static GenericDao<Account, AccountDto> AccountDao =>
             _accountDao ?? (_accountDao = new GenericDao<Account, AccountDto>());

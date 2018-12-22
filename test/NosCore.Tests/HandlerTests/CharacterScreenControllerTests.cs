@@ -32,11 +32,14 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.CharacterBuilder;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
@@ -64,7 +67,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
+            var _acc = new AccountDto {Name = "AccountTest", Password ="test".ToSha512()};
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _chara = new CharacterDto
             {
@@ -85,7 +88,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -180,7 +183,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

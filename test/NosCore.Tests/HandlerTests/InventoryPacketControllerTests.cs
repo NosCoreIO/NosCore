@@ -33,13 +33,16 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -48,6 +51,7 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.MapItemBuilder.Handlers;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -56,27 +60,12 @@ namespace NosCore.Tests.HandlerTests
     {
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> { new InventoryPacketController() }, null);
-        
+
         private CharacterDto _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
-        private readonly MapInstance _map = new MapInstance(new Map
-            {
-            Name = "testMap",
-            Data = new byte[]
-                {
-                    8, 0, 8, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 1, 1, 1, 0, 0, 0, 0,
-                    0, 1, 1, 1, 0, 0, 0, 0, 
-                    0, 1, 1, 1, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0
-                }
-        }
-            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>());
+        private MapItemBuilderService _mapItemBuilderService;
+        private MapInstance _map;
 
         [TestInitialize]
         public void Setup()
@@ -86,7 +75,7 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var _acc = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var _acc = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             _chara = new CharacterDto
             {
                 CharacterId = 1,
@@ -107,13 +96,31 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             var conf = new WorldConfiguration { BackpackSize = 1, MaxItemAmount = 999 };
-            _itemBuilder = new ItemBuilderService(items);
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _handler = new InventoryPacketController(conf);
-
+            _mapItemBuilderService = new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
+            _map = new MapInstance(new Map
+            {
+                Name = "testMap",
+                Data = new byte[]
+                {
+                    8, 0, 8, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0
+                }
+            }
+            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(), _mapItemBuilderService);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance = _map;
             _session.Character.Inventory = new InventoryService(items, conf);
+
         }
 
         [TestMethod]
@@ -220,16 +227,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1012,
-                    ItemInstance = _itemBuilder.Create(1012, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+            _map.MapItems.TryAdd(100001, _mapItemBuilderService.Create(_map, _itemBuilder.Create(1012, 1), 1, 1));
 
             _handler.GetItem(new GetPacket
             {
@@ -245,16 +243,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1,
-                    ItemInstance = _itemBuilder.Create(1, 1, 1, 6),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+            _map.MapItems.TryAdd(100001, _mapItemBuilderService.Create(_map, _itemBuilder.Create(1, 1, 1, 6), 1, 1));
 
             _handler.GetItem(new GetPacket
             {
@@ -270,18 +259,11 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1012,
-                    OwnerId = 2,
-                    DroppedAt = DateTime.Now,
-                    ItemInstance = _itemBuilder.Create(1012, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+            var mapItem = _mapItemBuilderService.Create(_map, _itemBuilder.Create(1012, 1), 1, 1);
+            mapItem.VisualId = 1012;
+            mapItem.OwnerId = 2;
+            mapItem.DroppedAt = DateTime.Now;
+            _map.MapItems.TryAdd(100001, mapItem);
 
             _handler.GetItem(new GetPacket
             {
@@ -300,18 +282,12 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    OwnerId = 2,
-                    DroppedAt = DateTime.Now.AddSeconds(-30),
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1012,
-                    ItemInstance = _itemBuilder.Create(1012, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+
+            var mapItem = _mapItemBuilderService.Create(_map, _itemBuilder.Create(1012, 1), 1, 1);
+            mapItem.VisualId = 1012;
+            mapItem.OwnerId = 2;
+            mapItem.DroppedAt = DateTime.Now.AddSeconds(-30);
+            _map.MapItems.TryAdd(100001, mapItem);
 
             _handler.GetItem(new GetPacket
             {
@@ -327,17 +303,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1012,
-                    ItemInstance = _itemBuilder.Create(1012, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
 
+            _map.MapItems.TryAdd(100001, _mapItemBuilderService.Create(_map, _itemBuilder.Create(1012, 1), 1, 1));
             _handler.GetItem(new GetPacket
             {
                 PickerId = _chara.CharacterId,
@@ -352,16 +319,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1,
-                    ItemInstance = _itemBuilder.Create(1, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+            _map.MapItems.TryAdd(100001, _mapItemBuilderService.Create(_map, _itemBuilder.Create(1, 1), 1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _handler.GetItem(new GetPacket
             {
@@ -380,16 +338,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _map.DroppedList.TryAdd(100001,
-                new MapItem
-                {
-                    PositionX = 1,
-                    PositionY = 1,
-                    VisualId = 1012,
-                    ItemInstance = _itemBuilder.Create(1012, 1),
-                    MapInstanceId = _map.MapInstanceId,
-                    MapInstance = _map
-                });
+
+            _map.MapItems.TryAdd(100001, _mapItemBuilderService.Create(_map, _itemBuilder.Create(1012, 1), 1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
             _handler.GetItem(new GetPacket
             {

@@ -22,7 +22,7 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.I18N
 {
-    public class I18NBCardDto : IDto
+    public class I18NbCardDto : IDto
     {
         [Key]
         public int I18NbCardId { get; set; }

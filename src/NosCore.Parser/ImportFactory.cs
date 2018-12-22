@@ -59,7 +59,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
-                Password = EncryptionHelper.Sha512("test")
+                Password = "test".ToSha512()
             };
 
             if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
@@ -71,7 +71,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.User,
                 Name = "test",
-                Password = EncryptionHelper.Sha512("test")
+                Password = "test".ToSha512()
             };
 
             if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)

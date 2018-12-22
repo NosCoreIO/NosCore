@@ -17,17 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Linq;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
+using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.FriendServer
 {
     public static class FriendServerBootstrap
     {
+        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public static void Main()
         {
             var host = BuildWebHost(null);
@@ -36,7 +40,14 @@ namespace NosCore.FriendServer
                 (host.Services.GetService(typeof(IServerAddressesFeature)) as IServerAddressesFeature)?.Addresses
                 .First());
             // ReSharper enable PossibleNullReferenceException
-            host.Run();
+            try
+            {
+                host.Run();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LanguageKey.EXCEPTION), ex.Message);
+            }
         }
 
         private static IWebHost BuildWebHost(string[] args)

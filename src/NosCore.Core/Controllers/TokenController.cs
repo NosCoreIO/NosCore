@@ -17,20 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Data.WebApi;
 using NosCore.DAL;
-using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.Core.Controllers
 {
     [Route("api/[controller]")]
     public class TokenController : Controller
@@ -52,7 +51,7 @@ namespace NosCore.MasterServer.Controllers
             }
 
             var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
-            if (!(account?.Password.ToLower().Equals(EncryptionHelper.Sha512(password)) ?? false))
+            if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
             }
@@ -62,7 +61,7 @@ namespace NosCore.MasterServer.Controllers
                 new Claim(ClaimTypes.NameIdentifier, userName),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(_apiConfiguration.Password));
+            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor

@@ -20,28 +20,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject;
 using NosCore.GameObject.Event;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Polly;
 using Serilog;
 
 namespace NosCore.WorldServer
@@ -49,6 +44,7 @@ namespace NosCore.WorldServer
     public class WorldServer
     {
         [UsedImplicitly] private readonly List<Item> _items;
+        [UsedImplicitly] private readonly IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
         [UsedImplicitly] private readonly MapInstanceAccessService _mapInstanceAccessService;
         [UsedImplicitly] private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
@@ -58,11 +54,13 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService, IEnumerable<IGlobalEvent> events)
+            List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService,
+            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _items = items;
+            _handlers = handlers;
             _npcmonsters = npcmonsters;
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
@@ -101,16 +99,15 @@ namespace NosCore.WorldServer
             {
                 Console.ReadKey();
             }
-
-          
         }
+
         private void ConnectMaster()
         {
             WebApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _worldConfiguration.MasterCommunication,
                 ClientName = _worldConfiguration.ServerName,
-                ClientType = (byte)ServerType.WorldServer,
+                ClientType = ServerType.WorldServer,
                 ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
                 Port = _worldConfiguration.Port,
                 ServerGroup = _worldConfiguration.ServerGroup,

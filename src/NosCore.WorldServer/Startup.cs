@@ -61,6 +61,12 @@ using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Controllers;
+using NosCore.GameObject;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.NRunAccess;
 
 namespace NosCore.WorldServer
 {
@@ -105,6 +111,7 @@ namespace NosCore.WorldServer
                     items.Count);
                 return items;
             }).As<List<Item>>().SingleInstance();
+
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
@@ -130,8 +137,31 @@ namespace NosCore.WorldServer
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
             
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
+            containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
+            containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
 
             containerBuilder.Populate(services);
         }
@@ -147,12 +177,12 @@ namespace NosCore.WorldServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {configuration.WebApi.ToString()}
+                Addresses = { configuration.WebApi.ToString() }
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             var keyByteArray =
-                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
+                Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -176,7 +206,10 @@ namespace NosCore.WorldServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();

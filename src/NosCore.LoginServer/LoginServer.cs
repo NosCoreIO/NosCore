@@ -18,24 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Net;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Polly;
 using Serilog;
+using System.Threading;
 
 namespace NosCore.LoginServer
 {
@@ -54,6 +47,11 @@ namespace NosCore.LoginServer
         public void Run()
         {
             ConnectMaster();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                Thread.Sleep(5000);
+            };
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
@@ -75,11 +73,9 @@ namespace NosCore.LoginServer
             WebApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _loginConfiguration.MasterCommunication,
-                ClientName = "LoginServer",
-                ClientType = (byte)ServerType.LoginServer,
-                ConnectedAccountLimit = 0,
+                ClientType = ServerType.LoginServer,
+                ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
                 Port = _loginConfiguration.Port,
-                ServerGroup = 0,
                 Host = _loginConfiguration.Host
             });
         }

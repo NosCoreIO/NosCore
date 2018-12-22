@@ -155,7 +155,7 @@
     <comment>check</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Authenticated Success!</value>
+    <value>Client : {1} authenticated successfully!</value>
     <comment>check</comment>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
@@ -234,6 +234,9 @@
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Decoding error</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>An exception has been thrown : {0}</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Forced Disconnecting of client {0}, too much connections.</value>
@@ -582,6 +585,9 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>User is not connected</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>VisualEntity does not exist: {0}</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>

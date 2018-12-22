@@ -18,8 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

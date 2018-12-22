@@ -18,17 +18,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Reactive.Subjects;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Services.MapBuilder
 {
-    public class MapItem : ICountableEntity
+    public class MapItem : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {
+        public MapItem()
+        {
+            Requests = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
+        }
+
+        public Subject<RequestData<Tuple<MapItem, GetPacket>>> Requests { get; set; }
         public IItemInstance ItemInstance { get; set; }
 
         private long _visualId;

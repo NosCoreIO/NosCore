@@ -17,21 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using NosCore.GameObject.Networking.ClientSession;
+using System.Reactive.Subjects;
 
-namespace NosCore.Core.Encryption
+namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public static class EncryptionHelper
+    public interface IRequestableEntity<T>
     {
-        public static string Sha512(string inputString)
-        {
-            using (var hash = SHA512.Create())
-            {
-                return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
-                    .Select(item => item.ToString("x2")));
-            }
-        }
+        Subject<RequestData<T>> Requests { get; set; }
+    }
+
+    public interface IRequestableEntity
+    {
+        Subject<RequestData> Requests { get; set; }
     }
 }

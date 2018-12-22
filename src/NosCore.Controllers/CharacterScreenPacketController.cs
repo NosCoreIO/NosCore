@@ -43,6 +43,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {
@@ -182,7 +183,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
+            if (account.Password.ToLower() == characterDeletePacket.Password.ToSha512())
             {
                 var character = DaoFactory.CharacterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
@@ -215,7 +216,7 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers)
@@ -239,7 +240,7 @@ namespace NosCore.Controllers
 
                 if (account != null)
                 {
-                    if (account.Password.Equals(EncryptionHelper.Sha512(packet.Password),
+                    if (account.Password.Equals(packet.Password.ToSha512(),
                         StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto

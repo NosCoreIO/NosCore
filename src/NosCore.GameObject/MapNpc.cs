@@ -19,19 +19,27 @@
 
 using System;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
+        public MapNpc()
+        {
+            Requests = new Subject<RequestData>();
+        }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public byte Class { get; set; }
@@ -45,14 +53,13 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Npc;
-
+        public Subject<RequestData> Requests { get; set; }
         public long VisualId => MapNpcId;
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public Group Group { get; set; }
-        public string Name { get; set; }
         public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
@@ -75,6 +82,12 @@ namespace NosCore.GameObject
             PositionY = MapY;
             Speed = NpcMonster.Speed;
             IsAlive = true;
+            Requests.Subscribe(ShowDialog);
+        }
+
+        private void ShowDialog(RequestData requestData)
+        {
+            requestData.ClientSession.SendPacket(this.GenerateNpcReq(Dialog));
         }
 
         internal void StopLife()

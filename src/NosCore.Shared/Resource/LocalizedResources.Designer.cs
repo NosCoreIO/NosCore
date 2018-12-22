@@ -19,7 +19,7 @@ namespace NosCore.Shared.Resource {
     // à l'aide d'un outil, tel que ResGen ou Visual Studio.
     // Pour ajouter ou supprimer un membre, modifiez votre fichier .ResX, puis réexécutez ResGen
     // avec l'option /str ou régénérez votre projet VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LocalizedResources {
@@ -187,7 +187,7 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Authenticated Success!.
+        ///   Recherche une chaîne localisée semblable à Client : {1} authenticated successfully!.
         /// </summary>
         public static string AUTHENTICATED_SUCCESS {
             get {
@@ -399,6 +399,15 @@ namespace NosCore.Shared.Resource {
         public static string ERROR_DECODING {
             get {
                 return ResourceManager.GetString("ERROR_DECODING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à An exception has been thrown : {0}.
+        /// </summary>
+        public static string EXCEPTION {
+            get {
+                return ResourceManager.GetString("EXCEPTION", resourceCulture);
             }
         }
         

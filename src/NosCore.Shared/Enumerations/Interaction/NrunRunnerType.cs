@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace NosCore.Core.Networking
+namespace NosCore.Shared.Enumerations.Interaction
 {
-    public class NetworkPacket
+    public enum NrunRunnerType : byte
     {
-        public string Message { get; set; }
-
-        public Encoding Encoding { get; set; } = Encoding.Default;
+        ChangeClass = 1
     }
 }

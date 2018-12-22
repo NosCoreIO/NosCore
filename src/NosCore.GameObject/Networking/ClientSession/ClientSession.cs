@@ -52,6 +52,9 @@ namespace NosCore.GameObject.Networking.ClientSession
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
 
         private readonly bool _isWorldClient;
+
+        public WorldConfiguration WorldConfiguration { get; }
+
         private readonly MapInstanceAccessService _mapInstanceAccessService;
 
         private Character _character;
@@ -65,7 +68,11 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
         {
-            _isWorldClient = configuration is WorldConfiguration;
+            if (configuration is WorldConfiguration worldConfiguration)
+            {
+                WorldConfiguration = worldConfiguration;
+                _isWorldClient = true;
+            }
             foreach (var controller in packetControllers)
             {
                 controller.RegisterSession(this);
@@ -95,10 +102,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             get
             {
-                if (_character == null || !HasSelectedCharacter)
+                if (_character != null && !HasSelectedCharacter)
                 {
                     // cant access an
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
+                    return null;
                 }
 
                 return _character;
@@ -262,7 +270,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -313,8 +321,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     else
                     {
-                       _logger.Warning(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
+                        _logger.Warning(string.Format(
+                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
                     }
                 }
                 catch (Exception ex)
@@ -327,8 +335,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             else
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
-                    packetHeader);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
+                     packetHeader);
             }
         }
 

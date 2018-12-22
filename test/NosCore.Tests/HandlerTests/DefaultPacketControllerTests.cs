@@ -28,6 +28,10 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
+using NosCore.Configuration;
+using NosCore.GameObject.Handling;
+using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Services.MapItemBuilder;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -80,7 +84,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
+            var account = new AccountDto { Name = "AccountTest", Password ="test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
@@ -101,13 +105,14 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
+                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService);
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null, null) }, instanceAccessService);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(null, instanceAccessService);
+            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null, null);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             var mapinstance = instanceAccessService.GetBaseMapById(0);
@@ -133,7 +138,7 @@ namespace NosCore.Tests.HandlerTests
 
         private void InitializeTargetSession()
         {
-            var targetAccount = new AccountDto { Name = "test2", Password = EncryptionHelper.Sha512("test") };
+            var targetAccount = new AccountDto { Name = "test2", Password ="test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
 
             _targetChar = new CharacterDto
@@ -147,9 +152,10 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 });
-            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService) }, instanceAccessService) { SessionId = 2 };
-            var handler2 = new DefaultPacketController(null, instanceAccessService);
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 }, 
+                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
+            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null, null) }, instanceAccessService) { SessionId = 2 };
+            var handler2 = new DefaultPacketController(null, instanceAccessService, null, null);
             handler2.RegisterSession(_targetSession);
 
             _targetSession.InitializeAccount(targetAccount);

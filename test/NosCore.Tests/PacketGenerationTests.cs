@@ -23,6 +23,8 @@ using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;

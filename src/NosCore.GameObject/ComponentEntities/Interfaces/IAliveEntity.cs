@@ -27,9 +27,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         byte Speed { get; }
 
-        int Mp { get; }
+        int Mp { get; set; }
 
-        int Hp { get; }
+        int Hp { get; set; }
 
         byte Morph { get; }
 
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         int MaxMp { get; }
 
-        byte Level { get; }
+        byte Level { get; set; }
 
         byte HeroLevel { get; }
     }

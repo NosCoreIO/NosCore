@@ -18,6 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets;
+using System;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
@@ -32,7 +36,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public SpecialistInstance()
         {
         }
-
+        public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
         public Item Item { get; set; }
 
         public object Clone()

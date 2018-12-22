@@ -31,6 +31,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {
@@ -112,7 +113,7 @@ namespace NosCore.Controllers
                         });
                         break;
                     default:
-                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
@@ -194,7 +195,7 @@ namespace NosCore.Controllers
                             SubPacket = subpacket,
                             SessionId = newSessionId
                         });
-                        break;
+                        return;
                 }
 
                 Session.Disconnect();

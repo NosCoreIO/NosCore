@@ -133,7 +133,7 @@ namespace NosCore.Parser.Parsers
             var bcardlist = DaoFactory.I18NbCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var bcarddtos = new List<I18NBCardDto>();
+                var bcarddtos = new List<I18NbCardDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(BCardTxt, region),
@@ -145,7 +145,7 @@ namespace NosCore.Parser.Parsers
                             if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null && currentLine.Length > 1 && !bcarddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                bcarddtos.Add(new I18NBCardDto
+                                bcarddtos.Add(new I18NbCardDto
                                 {
                                     Key = currentLine[0],
                                     RegionType = region,
