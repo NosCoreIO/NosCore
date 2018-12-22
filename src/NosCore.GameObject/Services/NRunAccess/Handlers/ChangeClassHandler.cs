@@ -18,24 +18,64 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+using System;
+using System.Linq;
 using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
-using System;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Handling
+namespace NosCore.GameObject.Services.NRunAccess.Handlers
 {
     public class ChangeClassHandler : IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public bool Condition(Tuple<MapNpc, NrunPacket> item) => true;
+        public bool Condition(Tuple<MapNpc, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass && item.Item2.Type > 0 && item.Item2.Type < 4;
 
         public void Execute(RequestData<Tuple<MapNpc, NrunPacket>> requestData)
         {
-            _logger.Debug($"change class");
+            if (requestData.ClientSession.Character.Class != (byte)CharacterClassType.Adventurer)
+            {
+                requestData.ClientSession.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                });
+                return;
+            }
+
+            if (requestData.ClientSession.Character.Level < 15 || requestData.ClientSession.Character.JobLevel < 20)
+            {
+                requestData.ClientSession.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                });
+                return;
+            }
+
+            if (requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
+            {
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, requestData.ClientSession.Account.Language));
+                return;
+            }
+
+            if (requestData.ClientSession.Character.Inventory.Any(s => s.Value.Type == PocketType.Wear))
+            {
+                requestData.ClientSession.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                });
+                return;
+            }
+
+            requestData.ClientSession.Character.ChangeClass(requestData.Data.Item2.Type);
         }
     }
 }
