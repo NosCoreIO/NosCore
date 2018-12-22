@@ -187,9 +187,7 @@ namespace NosCore.Shared.I18N
         MASTER_SERVER_PING,
         MASTER_SERVER_PING_FAILED,
         CONNECTION_LOST,
-        BANK_FULL,
         ITEM_NOT_TRADABLE,
-        INVENTORY_FULL,
         EXCEPTION,
         VISUALENTITY_DOES_NOT_EXIST,
         NOT_ADVENTURER,
@@ -206,6 +204,10 @@ namespace NosCore.Shared.I18N
         CLASS_CHANGED
         CLASS_CHANGED,
         CHANNEL_WILL_EXIT,
+        IN_WAITING_FOR,
+        CANT_MOVE_ITEM_IN_SHOP,
+        INVENTORY_FULL,
+        BANK_FULL
         IN_WAITING_FOR
         SP_INLOADING,
         ASK_BIND,
