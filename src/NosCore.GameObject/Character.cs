@@ -73,15 +73,19 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
             Requests = new Subject<RequestData>();
+            ExchangeData = new ExchangeData();
+            ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
-        public AccountDto Account { get; set; }
+        public ExchangeData ExchangeData { get; set; }
 
-        public bool HasBackPack { get; set; }
+        public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
+
+        public AccountDto Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
@@ -127,8 +131,6 @@ namespace NosCore.GameObject
         public bool Invisible { get; set; }
 
         public IInventoryService Inventory { get; set; }
-
-        public IExchangeService ExchangeInfo { get; set; }
 
         public bool InExchangeOrShop => InExchange | InShop;
 

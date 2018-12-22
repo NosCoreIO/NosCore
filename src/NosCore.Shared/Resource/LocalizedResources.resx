@@ -182,9 +182,6 @@
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Wrong password!</value>
   </data>
-  <data name="BANK_IS_FULL" xml:space="preserve">
-    <value>Your bank account is full</value>
-  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Character added to blacklist!</value>
   </data>

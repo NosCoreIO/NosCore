@@ -29,12 +29,15 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.ExchangeInfo
 {
-    public class ExchangeService : IExchangeService
+    public class ExchangeAccessService
     {
-        public ExchangeService()
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
+        public ExchangeAccessService()
         {
             ExchangeData = new ExchangeData();
             ExchangeRequests = new ConcurrentDictionary<Guid, long>();
@@ -46,34 +49,33 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
         public void CloseExchange(ClientSession session, ClientSession targetSession)
         {
-            if (targetSession?.Character.ExchangeInfo.ExchangeData != null)
+            if (targetSession != null)
             {
                 targetSession.Character.InExchange = false;
                 targetSession.SendPacket(new ExcClosePacket());
-                targetSession.Character.ExchangeInfo.ExchangeData = new ExchangeData();
-                targetSession.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
+                targetSession.Character.ExchangeData = new ExchangeData();
+                targetSession.Character.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
             }
 
-            if (session?.Character.ExchangeInfo.ExchangeData == null)
+            if (session == null)
             {
                 return;
             }
 
             session.Character.InExchange = false;
             session.SendPacket(new ExcClosePacket());
-            session.Character.ExchangeInfo.ExchangeData = new ExchangeData();
-            session.Character.ExchangeInfo.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
+            session.Character.ExchangeData = new ExchangeData();
+            session.Character.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         public void ProcessExchange(ClientSession session, ClientSession targetSession)
         {
-
         }
 
         public void OpenExchange(ClientSession session, ClientSession targetSession)
         {
-            session.Character.ExchangeInfo.ExchangeData.TargetVisualId = targetSession.Character.VisualId;
-            targetSession.Character.ExchangeInfo.ExchangeData.TargetVisualId = session.Character.VisualId;
+            session.Character.ExchangeData.TargetVisualId = targetSession.Character.VisualId;
+            targetSession.Character.ExchangeData.TargetVisualId = session.Character.VisualId;
             session.Character.InExchange = true;
             targetSession.Character.InExchange = true;
 
@@ -96,39 +98,58 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         {
             if (targetSession.Character.InExchangeOrShop || session.Character.InExchangeOrShop)
             {
-                session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE, session.Account.Language), Type = MessageType.White });
+                session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
+                        session.Account.Language),
+                    Type = MessageType.White
+                });
                 return;
             }
 
             if (targetSession.Character.GroupRequestBlocked)
             {
-                session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, session.Account.Language), SayColorType.Purple));
+                session.SendPacket(session.Character.GenerateSay(
+                    Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, session.Account.Language),
+                    SayColorType.Purple));
                 return;
             }
 
             if (session.Character.IsRelatedToCharacter(targetSession.Character.VisualId, CharacterRelationType.Blocked))
             {
-                session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, session.Account.Language) });
+                session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                        session.Account.Language)
+                });
                 return;
             }
 
             if (session.Character.InShop || targetSession.Character.InShop)
             {
-                session.SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, session.Account.Language), Type = MessageType.White });
+                session.SendPacket(new MsgPacket
+                {
+                    Message =
+                        Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, session.Account.Language),
+                    Type = MessageType.White
+                });
                 return;
             }
 
             session.SendPacket(new ModalPacket
             {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE, session.Account.Language),
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
+                    session.Account.Language),
                 Type = 0
             });
 
-            session.Character.ExchangeInfo.ExchangeRequests.TryAdd(Guid.NewGuid(), targetSession.Character.VisualId);
+            session.Character.ExchangeRequests.TryAdd(Guid.NewGuid(), targetSession.Character.VisualId);
             targetSession.Character.SendPacket(new DlgPacket
             {
-                YesPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.List, VisualId = session.Character.VisualId },
-                NoPacket = new ExchangeRequestPacket { RequestType = RequestExchangeType.Declined, VisualId = session.Character.VisualId },
+                YesPacket = new ExchangeRequestPacket
+                    {RequestType = RequestExchangeType.List, VisualId = session.Character.VisualId},
+                NoPacket = new ExchangeRequestPacket
+                    {RequestType = RequestExchangeType.Declined, VisualId = session.Character.VisualId},
                 Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, session.Account.Language)
             });
         }

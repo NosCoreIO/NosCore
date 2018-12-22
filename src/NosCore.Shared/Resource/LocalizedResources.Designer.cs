@@ -19,7 +19,7 @@ namespace NosCore.Shared.Resource {
     // à l'aide d'un outil, tel que ResGen ou Visual Studio.
     // Pour ajouter ou supprimer un membre, modifiez votre fichier .ResX, puis réexécutez ResGen
     // avec l'option /str ou régénérez votre projet VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LocalizedResources {
@@ -210,15 +210,6 @@ namespace NosCore.Shared.Resource {
         public static string BAD_PASSWORD {
             get {
                 return ResourceManager.GetString("BAD_PASSWORD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your bank account is full.
-        /// </summary>
-        public static string BANK_IS_FULL {
-            get {
-                return ResourceManager.GetString("BANK_IS_FULL", resourceCulture);
             }
         }
         
@@ -1470,6 +1461,15 @@ namespace NosCore.Shared.Resource {
         public static string USER_NOT_CONNECTED {
             get {
                 return ResourceManager.GetString("USER_NOT_CONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à VisualEntity does not exist: {0}.
+        /// </summary>
+        public static string VISUALENTITY_DOES_NOT_EXIST {
+            get {
+                return ResourceManager.GetString("VISUALENTITY_DOES_NOT_EXIST", resourceCulture);
             }
         }
         

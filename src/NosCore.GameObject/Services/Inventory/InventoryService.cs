@@ -469,7 +469,7 @@ namespace NosCore.GameObject.Services.Inventory
                     ? (short?)nextFreeSlot : null;
         }
 
-        public bool EnoughPlace(List<IItemInstance> itemInstances, bool backPack)
+        public bool EnoughPlace(List<IItemInstance> itemInstances)
         {
             var place = new Dictionary<PocketType, int>();
             foreach (var itemGroup in itemInstances.GroupBy(s => s.ItemVNum))
@@ -478,7 +478,7 @@ namespace NosCore.GameObject.Services.Inventory
                 var itemList = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
                 if (!place.ContainsKey(type))
                 {
-                    place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + Convert.ToInt16(backPack) * 12 : 50) - itemList.Count);
+                    place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12 : 50) - itemList.Count);
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Items;
@@ -38,6 +39,7 @@ namespace NosCore.Packets.ServerPackets
         public short ItemVnum { get; set; }
 
         [PacketIndex(3, IsOptional = true)]
+        [Range(0, short.MaxValue)]
         public short Amount { get; set; }
 
         [PacketIndex(5, IsOptional = true)]
