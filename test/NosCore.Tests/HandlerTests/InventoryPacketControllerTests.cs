@@ -33,13 +33,16 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -48,9 +51,6 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using NosCore.GameObject.Services.ItemBuilder.Handling;
-using NosCore.GameObject.Handling;
-using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapItemBuilder.Handlers;
 
 namespace NosCore.Tests.HandlerTests

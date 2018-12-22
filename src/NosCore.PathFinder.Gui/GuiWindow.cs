@@ -29,6 +29,7 @@ using NosCore.GameObject.Handling;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;

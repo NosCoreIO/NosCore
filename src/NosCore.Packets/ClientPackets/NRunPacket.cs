@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -9,7 +10,7 @@ namespace NosCore.Packets.ClientPackets
     public class NrunPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public short Runner { get; set; }
+        public NrunRunnerType Runner { get; set; }
 
         [PacketIndex(1)]
         public byte Type { get; set; }
