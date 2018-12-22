@@ -182,6 +182,11 @@ namespace NosCore.Shared.I18N
         CONNECTION_LOST,
         CHANNEL_WILL_EXIT,
         EXCEPTION,
-        VISUALENTITY_DOES_NOT_EXIST
+        VISUALENTITY_DOES_NOT_EXIST,
+        NOT_ADVENTURER,
+        TOO_LOW_LEVEL,
+        EQ_NOT_EMPTY,
+        CANT_CHANGE_SAME_CLASS,
+        CLASS_CHANGED
     }
 }
