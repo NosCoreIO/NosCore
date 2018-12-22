@@ -64,8 +64,8 @@ namespace NosCore.Tests.HandlerTests
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
 
-            var account = new AccountDto { Name = "AccountTest", Password = EncryptionHelper.Sha512("test") };
-            var account2 = new AccountDto { Name = "AccountTest2", Password = EncryptionHelper.Sha512("test") };
+            var account = new AccountDto { Name = "AccountTest", Password =  "test".ToSha512() };
+            var account2 = new AccountDto { Name = "AccountTest2", Password = "test".ToSha512() };
 
             _character = new Character
             {
