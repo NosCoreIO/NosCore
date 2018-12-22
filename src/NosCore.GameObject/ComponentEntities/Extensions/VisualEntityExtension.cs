@@ -28,6 +28,7 @@ using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -117,18 +118,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     HairStyle = (byte)visualEntity.HairStyle,
                     HairColor = (byte)visualEntity.HairColor,
                     Class = visualEntity.Class,
-                    Equipment = new InEquipmentSubPacket
-                    {
-                        Armor = -1,
-                        CostumeHat = -1,
-                        CostumeSuit = -1,
-                        Fairy = -1,
-                        Hat = -1,
-                        MainWeapon = -1,
-                        Mask = -1,
-                        SecondaryWeapon = -1,
-                        WeaponSkin = -1
-                    },
+                    Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
                         Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
@@ -140,10 +130,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FairyElement = 0,
                     Unknown = 0,
                     Morph = 0,
-                    WeaponUpgrade = 0,
-                    WeaponRare = 0,
-                    ArmorUpgrade = 0,
-                    ArmorRare = 0,
+                    WeaponUpgradeRareSubPacket = visualEntity.WeaponUpgradeRareSubPacket,
+                    ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = string.Empty,
                     ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon

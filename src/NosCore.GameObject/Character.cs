@@ -17,27 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
-using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
@@ -47,10 +45,12 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Subjects;
-using NosCore.GameObject.Networking.ChannelMatcher;
-using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject
 {
@@ -184,12 +184,13 @@ namespace NosCore.GameObject
 
         public AuthorityType Authority => Account.Authority;
 
-        public byte Equipment { get; set; }
         public bool IsAlive { get; set; }
 
         public int MaxHp => (int)HpLoad();
 
         public int MaxMp => (int)MpLoad();
+
+        public bool UseSp => true;
 
         public void ChangeClass(byte classType)
         {
@@ -216,7 +217,7 @@ namespace NosCore.GameObject
             SendPacket(this.GenerateCond());
             SendPacket(GenerateLev());
             SendPacket(this.GenerateCMode());
-            SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language), Type = MessageType.Whisper});
+            SendPacket(new MsgPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language), Type = MessageType.Whisper });
             MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
 
             MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
@@ -678,6 +679,13 @@ namespace NosCore.GameObject
                             }
 
                             break;
+
+                        case PocketType.Wear:
+                        case PocketType.Bazaar:
+                        case PocketType.Warehouse:
+                        case PocketType.FamilyWareHouse:
+                        case PocketType.PetWarehouse:
+                            break;
                         default:
                             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
                             break;
@@ -981,6 +989,89 @@ namespace NosCore.GameObject
             }
         }
 
+        public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
+        {
+            Armor = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Armor, PocketType.Wear)?.ItemVNum,
+            CostumeHat = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.CostumeHat, PocketType.Wear)?.ItemVNum,
+            CostumeSuit = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.CostumeSuit, PocketType.Wear)?.ItemVNum,
+            Fairy = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Fairy, PocketType.Wear)?.ItemVNum,
+            Hat = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Hat, PocketType.Wear)?.ItemVNum,
+            MainWeapon = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.MainWeapon, PocketType.Wear)?.ItemVNum,
+            Mask = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Mask, PocketType.Wear)?.ItemVNum,
+            SecondaryWeapon = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemVNum,
+            WeaponSkin = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.WeaponSkin, PocketType.Wear)?.ItemVNum
+        };
+
+        public UpgradeRareSubPacket WeaponUpgradeRareSubPacket
+        {
+            get
+            {
+                var weapon = Inventory.LoadBySlotAndType<WearableInstance>((short)EquipmentType.MainWeapon, PocketType.Wear);
+                return new UpgradeRareSubPacket
+                {
+
+                    Upgrade = weapon?.Upgrade ?? 0,
+                    Rare = (byte)(weapon?.Rare ?? 0)
+                };
+            }
+        }
+
+        public UpgradeRareSubPacket ArmorUpgradeRareSubPacket
+        {
+            get
+            {
+                var armor = Inventory.LoadBySlotAndType<WearableInstance>((short)EquipmentType.Armor, PocketType.Wear);
+                return new UpgradeRareSubPacket
+                {
+
+                    Upgrade = armor?.Upgrade ?? 0,
+                    Rare = (byte)(armor?.Rare ?? 0)
+                };
+            }
+        }
+
+        public EquipPacket GenerateEquipment()
+        {
+            EquipmentSubPacket generateEquipmentSubPacket(EquipmentType eqType)
+            {
+                var eq = Inventory.LoadBySlotAndType<IItemInstance>((short)eqType, PocketType.Wear);
+                if(eq == null)
+                {
+                    return null;
+                }
+                return new EquipmentSubPacket
+                {
+                    EquipmentType = eqType,
+                    VNum = eq.ItemVNum,
+                    Rare = eq.Rare,
+                    Upgrade = (eq?.Item.IsColored == true ? eq?.Design : eq?.Upgrade) ?? 0,
+                    unknown = 0,
+                };
+            }
+          
+            return new EquipPacket
+            {
+                WeaponUpgradeRareSubPacket = WeaponUpgradeRareSubPacket,
+                ArmorUpgradeRareSubPacket = ArmorUpgradeRareSubPacket,
+                Armor = generateEquipmentSubPacket(EquipmentType.Armor),
+                WeaponSkin = generateEquipmentSubPacket(EquipmentType.WeaponSkin),
+                SecondaryWeapon = generateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
+                Sp = generateEquipmentSubPacket(EquipmentType.Sp),
+                Amulet = generateEquipmentSubPacket(EquipmentType.Amulet),
+                Boots = generateEquipmentSubPacket(EquipmentType.Boots),
+                CostumeHat = generateEquipmentSubPacket(EquipmentType.CostumeHat),
+                CostumeSuit = generateEquipmentSubPacket(EquipmentType.CostumeSuit),
+                Fairy = generateEquipmentSubPacket(EquipmentType.Fairy),
+                Gloves = generateEquipmentSubPacket(EquipmentType.Gloves),
+                Hat = generateEquipmentSubPacket(EquipmentType.Hat),
+                MainWeapon = generateEquipmentSubPacket(EquipmentType.MainWeapon),
+                Mask = generateEquipmentSubPacket(EquipmentType.Mask),
+                Necklace = generateEquipmentSubPacket(EquipmentType.Necklace),
+                Ring = generateEquipmentSubPacket(EquipmentType.Ring),
+                Bracelet = generateEquipmentSubPacket(EquipmentType.Bracelet),
+            };
+        }
+
         public EqPacket GenerateEq()
         {
             return new EqPacket
@@ -991,28 +1082,9 @@ namespace NosCore.GameObject
                 HairStyle = HairStyle,
                 Haircolor = HairColor,
                 ClassType = (CharacterClassType)Class,
-                EqSubPacket = new InEquipmentSubPacket
-                {
-                    Armor = -1,
-                    CostumeHat = -1,
-                    CostumeSuit = -1,
-                    Fairy = -1,
-                    Hat = -1,
-                    MainWeapon = -1,
-                    Mask = -1,
-                    SecondaryWeapon = -1,
-                    WeaponSkin = -1
-                },
-                WeaponUpgradeRarePacket = new UpgradeRareSubPacket
-                {
-                    Upgrade = 0,
-                    Rare = 0
-                },
-                ArmorUpgradeRarePacket = new UpgradeRareSubPacket
-                {
-                    Upgrade = 0,
-                    Rare = 0
-                }
+                EqSubPacket = Equipment,
+                WeaponUpgradeRarePacket = WeaponUpgradeRareSubPacket,
+                ArmorUpgradeRarePacket = ArmorUpgradeRareSubPacket
             };
         }
     }

@@ -234,6 +234,8 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 SendPacket(Character.GenerateCInfo());
                 SendPacket(Character.GenerateCMode());
+                SendPacket(Character.GenerateEq());
+                SendPacket(Character.GenerateEquipment());
                 SendPacket(Character.GenerateLev());
                 SendPacket(Character.GenerateStat());
                 SendPacket(Character.GenerateAt());
