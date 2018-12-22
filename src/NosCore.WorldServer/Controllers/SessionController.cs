@@ -46,7 +46,7 @@ namespace NosCore.WorldServer.Controllers
 
             foreach (var server in servers)
             {
-                targetSession = (Character)Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+                targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id) as Character;
             }
 
             if (targetSession.Session == null)
