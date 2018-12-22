@@ -28,12 +28,12 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("equip")]
     public class EquipPacket : PacketDefinition
     {
-        [PacketIndex(0)]
+        [PacketIndex(0, SpecialSeparator = "")]
         public UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; set; }
 
-        [PacketIndex(1)]
+        [PacketIndex(1, SpecialSeparator = "")]
         public UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; set; }
-        
+
         [PacketIndex(2, IsOptional = true)]
         public EquipmentSubPacket MainWeapon { get; set; }
 
@@ -81,6 +81,6 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(17, IsOptional = true)]
         public EquipmentSubPacket WeaponSkin { get; set; }
-        
+
     }
 }
