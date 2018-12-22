@@ -594,7 +594,4 @@
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Un ou plusieurs objets ne sont pas échangeables.</value>
   </data>
-  <data name="NVENTORY_FULL" xml:space="preserve">
-    <value>Votre inventaire est plein.</value>
-  </data>
 </root>

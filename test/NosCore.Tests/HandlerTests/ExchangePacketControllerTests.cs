@@ -57,6 +57,7 @@ namespace NosCore.Tests.HandlerTests
         private ExchangePacketController _controller;
         private ExchangePacketController _controller2;
         private WorldConfiguration _worldConfiguration;
+        private readonly ExchangeAccessService _exchangeAccessService = new ExchangeAccessService();
 
         [TestInitialize]
         public void Setup()
@@ -75,7 +76,7 @@ namespace NosCore.Tests.HandlerTests
                 AccountId = 1,
                 MapId = 1,
                 State = CharacterState.Active,
-                ExchangeInfo = new ExchangeService()
+                ExchangeData = new ExchangeData()
             };
 
             _character2 = new Character
@@ -86,26 +87,26 @@ namespace NosCore.Tests.HandlerTests
                 AccountId = 2,
                 MapId = 1,
                 State = CharacterState.Active,
-                ExchangeInfo = new ExchangeService()
+                ExchangeData = new ExchangeData()
             };
             var channelMock = new Mock<IChannel>();
 
-            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration) });
+            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService) });
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
 
-            _controller = new ExchangePacketController(_worldConfiguration);
+            _controller = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
             _controller.RegisterSession(_session);
             _session.SetCharacter(_character);
             Broadcaster.Instance.RegisterSession(_session);
 
-            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration) });
+            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService) });
             _session2.RegisterChannel(channelMock.Object);
             _session2.InitializeAccount(account2);
             _session2.SessionId = 2;
 
-            _controller2 = new ExchangePacketController(_worldConfiguration);
+            _controller2 = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
             _controller2.RegisterSession(_session2);
             _session2.SetCharacter(_character2);
             Broadcaster.Instance.RegisterSession(_session2);
@@ -121,13 +122,13 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _controller.RequestExchange(packet);
-            Assert.IsTrue(_character.ExchangeInfo.ExchangeData.TargetVisualId == _character2.CharacterId && _character2.InExchangeOrShop);
+            Assert.IsTrue(_character.ExchangeData.TargetVisualId == _character2.CharacterId && _character2.InExchangeOrShop);
         }
 
         [TestMethod]
         public void Test_Cancel_Request()
         {
-            _character.ExchangeInfo.ExchangeData.TargetVisualId = _character2.VisualId;
+            _character.ExchangeData.TargetVisualId = _character2.VisualId;
             _character.InExchange = true;
             _character2.InExchange = true;
 
