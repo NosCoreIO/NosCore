@@ -229,7 +229,7 @@ namespace NosCore.GameObject.Services.Inventory
         public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot)
             => MoveInPocket(sourceSlot, sourceType, targetType, targetSlot, true);
 
-        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot, bool wear)
+        public IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType, short? targetSlot, bool swap)
         {
             if (sourceSlot == targetSlot && sourceType == targetType)
             {
@@ -246,14 +246,14 @@ namespace NosCore.GameObject.Services.Inventory
                 return null;
             }
 
-            if (sourceInstance is WearableInstance && targetType != PocketType.Main && targetType != PocketType.Costume && targetType != PocketType.Wear)
+            if (sourceInstance is WearableInstance && targetType != PocketType.Equipment && targetType != PocketType.Costume && targetType != PocketType.Wear)
             {
                 var e = new InvalidOperationException("WearableInstance can't be move to this inventory");
                 _logger.Error(e.Message, e);
                 return null;
             }
 
-            if (sourceInstance is SpecialistInstance && targetType != PocketType.Main && targetType != PocketType.Specialist)
+            if (sourceInstance is SpecialistInstance && targetType != PocketType.Equipment && targetType != PocketType.Specialist)
             {
                 var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
                 _logger.Error(e.Message, e);
@@ -262,10 +262,11 @@ namespace NosCore.GameObject.Services.Inventory
 
             if (targetSlot.HasValue)
             {
-                if (wear)
+                var targetInstance = LoadBySlotAndType<IItemInstance>(targetSlot.Value, targetType);
+
+                if (swap && targetInstance != null)
                 {
                     // swap
-                    var targetInstance = LoadBySlotAndType<IItemInstance>(targetSlot.Value, targetType);
 
                     sourceInstance.Slot = targetSlot.Value;
                     sourceInstance.Type = targetType;
@@ -273,17 +274,16 @@ namespace NosCore.GameObject.Services.Inventory
                     targetInstance.Slot = sourceSlot;
                     targetInstance.Type = sourceType;
                 }
+                else if (targetInstance == null)
+                {
+                    sourceInstance.Slot = targetSlot.Value;
+                    sourceInstance.Type = targetType;
+                }
                 else
                 {
-                    // move source to target
-                    var freeTargetSlot = GetFreeSlot(targetType);
-                    if (!freeTargetSlot.HasValue)
-                    {
-                        return sourceInstance;
-                    }
-
-                    sourceInstance.Slot = freeTargetSlot.Value;
-                    sourceInstance.Type = targetType;
+                    var e = new InvalidOperationException("Source can not be swapped");
+                    _logger.Error(e.Message, e);
+                    return null;
                 }
 
                 return sourceInstance;

@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handling
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateEq());
-            requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
+            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
         }
     }
 }
