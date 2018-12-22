@@ -22,6 +22,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
+using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         HairColorType HairColor { get; }
 
-        byte Equipment { get; }
+        InEquipmentSubPacket Equipment { get; }
 
         int ReputIcon { get; }
 
@@ -71,6 +72,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
 
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
+        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
+        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         void SetJobLevel(byte level);
 
