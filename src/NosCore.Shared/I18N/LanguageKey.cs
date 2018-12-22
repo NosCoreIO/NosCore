@@ -187,6 +187,9 @@ namespace NosCore.Shared.I18N
         TOO_LOW_LEVEL,
         EQ_NOT_EMPTY,
         CANT_CHANGE_SAME_CLASS,
-        CLASS_CHANGED
+        CLASS_CHANGED,
+        BAD_EQUIPMENT,
+        SP_BLOCKED,
+        LOW_JOB_LVL
     }
 }

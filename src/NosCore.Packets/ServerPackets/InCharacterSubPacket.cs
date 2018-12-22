@@ -72,69 +72,59 @@ namespace NosCore.Packets.ServerPackets
         public byte Morph { get; set; }
 
         [PacketIndex(13)]
-        [UsedImplicitly]
-        public byte WeaponUpgrade { get; set; }
+        public UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; set; }
 
         [PacketIndex(14)]
-        [UsedImplicitly]
-        public short WeaponRare { get; set; }
+        public UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; set; }
 
         [PacketIndex(15)]
         [UsedImplicitly]
-        public byte ArmorUpgrade { get; set; }
+        public long FamilyId { get; set; }
 
         [PacketIndex(16)]
         [UsedImplicitly]
-        public short ArmorRare { get; set; }
+        public string FamilyName { get; set; }
 
         [PacketIndex(17)]
         [UsedImplicitly]
-        public long FamilyId { get; set; }
+        public short ReputIco { get; set; }
 
         [PacketIndex(18)]
         [UsedImplicitly]
-        public string FamilyName { get; set; }
+        public bool Invisible { get; set; }
 
         [PacketIndex(19)]
         [UsedImplicitly]
-        public short ReputIco { get; set; }
+        public byte MorphUpgrade { get; set; }
 
         [PacketIndex(20)]
-        [UsedImplicitly]
-        public bool Invisible { get; set; }
+        public byte Faction { get; set; }
 
         [PacketIndex(21)]
         [UsedImplicitly]
-        public byte MorphUpgrade { get; set; }
-
-        [PacketIndex(22)]
-        public byte Faction { get; set; }
-
-        [PacketIndex(23)]
-        [UsedImplicitly]
         public byte MorphUpgrade2 { get; set; }
 
-        [PacketIndex(24)]
+        [PacketIndex(22)]
         [UsedImplicitly]
         public byte Level { get; set; }
 
-        [PacketIndex(25)]
+        [PacketIndex(23)]
         [UsedImplicitly]
         public byte FamilyLevel { get; set; }
 
-        [PacketIndex(26)]
+        [PacketIndex(24)]
         [UsedImplicitly]
         public bool ArenaWinner { get; set; }
 
-        [PacketIndex(27)]
+        [PacketIndex(25)]
         [UsedImplicitly]
         public short Compliment { get; set; }
 
-        [PacketIndex(28)]
+        [PacketIndex(26)]
         [UsedImplicitly]
         public byte Size { get; set; }
 
-        [PacketIndex(29)]
+        [PacketIndex(27)]
         [UsedImplicitly]
         public byte HeroLevel { get; set; }
 
