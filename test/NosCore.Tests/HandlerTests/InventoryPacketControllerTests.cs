@@ -419,7 +419,7 @@ namespace NosCore.Tests.HandlerTests
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
             var packet = (SayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -437,9 +437,124 @@ namespace NosCore.Tests.HandlerTests
 
         }
 
-        //TODO add test heroLEvel
-        //TODO add test level
-        //TODO add test joblevel
+        [TestMethod]
+        public void Test_Wear_BadJobLevel()
+        {
+            _session.Character.JobLevel = 1;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    LevelJobMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+            _session.Account.Language) && packet.Type == SayColorType.Yellow);
+        }
+
+        [TestMethod]
+        public void Test_Wear_GoodJobLevel()
+        {
+            _session.Character.JobLevel = 3;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    LevelJobMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
+        }
+
+        [TestMethod]
+        public void Test_Wear_BadLevel()
+        {
+            _session.Character.Level = 1;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    LevelMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            _session.Account.Language) && packet.Type == SayColorType.Yellow);
+        }
+
+        [TestMethod]
+        public void Test_Wear_GoodLevel()
+        {
+            _session.Character.Level = 3;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    LevelMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
+        }
+
+        [TestMethod]
+        public void Test_Wear_BadHeroLevel()
+        {
+            _session.Character.HeroLevel = 1;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    IsHeroic=true,
+                    LevelMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            _session.Account.Language) && packet.Type == SayColorType.Yellow);
+        }
+
+        [TestMethod]
+        public void Test_Wear_GoodHeroLevel()
+        {
+            _session.Character.HeroLevel = 3;
+            var items = new List<Item>
+            {
+                new Item {
+                    Type = PocketType.Equipment, VNum = 1,
+                    EquipmentSlot = EquipmentType.MainWeapon,
+                    IsHeroic=true,
+                    LevelMinimum =  3
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
+        }
 
         [TestMethod]
         public void Test_GetInStack()
