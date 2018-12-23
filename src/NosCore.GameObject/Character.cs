@@ -1045,7 +1045,7 @@ namespace NosCore.GameObject
                     VNum = eq.ItemVNum,
                     Rare = eq.Rare,
                     Upgrade = (eq?.Item.IsColored == true ? eq?.Design : eq?.Upgrade) ?? 0,
-                    unknown = 0,
+                    Unknown = 0,
                 };
             }
           

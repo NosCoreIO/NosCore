@@ -48,7 +48,12 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character { Name = "characterTest", Account = new AccountDto { Authority = AuthorityType.Administrator }, Level = 1, Inventory = new InventoryService(new List<Item>(), new WorldConfiguration()) };
+            var characterTest = new Character {
+                Name = "characterTest",
+                Account = new AccountDto { Authority = AuthorityType.Administrator },
+                Level = 1,
+                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
+            };
 
             var packet = PacketFactory.Serialize(new[] { characterTest.GenerateIn("") });
             Assert.AreEqual($"in 1 characterTest - 0 0 0 0 {(byte)characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 00 00 -1 - 1 0 0 0 0 1 0 0 0 0 0", packet);
