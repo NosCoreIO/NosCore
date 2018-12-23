@@ -41,8 +41,6 @@ namespace NosCore.GameObject.Services.Inventory
 
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
-            short? targetSlot);
-        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
             short? targetSlot, bool swap);
 
         bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,

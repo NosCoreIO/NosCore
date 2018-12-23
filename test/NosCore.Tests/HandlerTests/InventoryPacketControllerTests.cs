@@ -120,6 +120,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance = _map;
+            _session.Character.Account = _acc;
             _session.Character.Inventory = new InventoryService(items, conf);
 
         }
@@ -355,13 +356,51 @@ namespace NosCore.Tests.HandlerTests
         {
             var items = new List<Item>
             {
-                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = type},
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = type,
+                    Class = 31 //sum of all 2^class
+                },
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
-            _handler.Wear(new WearPacket());
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Slot == (short)type && s.Value.Type == PocketType.Wear));
+        }
+
+        [DataTestMethod]
+        [DataRow(CharacterClassType.Adventurer)]
+        [DataRow(CharacterClassType.Archer)]
+        [DataRow(CharacterClassType.Magician)]
+        [DataRow(CharacterClassType.MartialArtist)]
+        [DataRow(CharacterClassType.Swordman)]
+        public void Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
+        {
+            _session.Character.Class = (byte)classToTest;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.MainWeapon,
+                    Class = (byte)(31 - Math.Pow(2,(byte)classToTest))
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            _session.Account.Language) && packet.Type == SayColorType.Yellow);
+
+            foreach (var validClass in Enum.GetValues(typeof(CharacterClassType)).OfType<CharacterClassType>().Where(s => s != classToTest).ToList())
+            {
+                _session.Character.Class = (byte)validClass;
+                var item = _session.Character.Inventory.First();
+                _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+                Assert.IsTrue(item.Value.Type == PocketType.Wear);
+                item.Value.Type = PocketType.Equipment;
+                item.Value.Slot = 0;
+            }
+
         }
 
         [TestMethod]

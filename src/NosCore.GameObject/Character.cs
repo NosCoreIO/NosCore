@@ -190,7 +190,7 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
-        public bool UseSp => true;
+        public bool UseSp => false;
 
         public void ChangeClass(byte classType)
         {
