@@ -571,7 +571,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {
                     Type = PocketType.Equipment, VNum = 1,
-                    EquipmentSlot = EquipmentType.Sp,
+                    EquipmentSlot = EquipmentType.Sp
                 },
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
@@ -592,11 +592,11 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {
                     Type = PocketType.Equipment, VNum = 1,
-                    EquipmentSlot = EquipmentType.Sp,
+                    EquipmentSlot = EquipmentType.Sp
                 },
                 new Item {
                     Type = PocketType.Equipment, VNum = 2,
-                    EquipmentSlot = EquipmentType.Sp,
+                    EquipmentSlot = EquipmentType.Sp
                 },
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
@@ -619,11 +619,11 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {
                     Type = PocketType.Equipment, VNum = 1,
-                    EquipmentSlot = EquipmentType.Sp,
+                    EquipmentSlot = EquipmentType.Sp
                 },
                 new Item {
                     Type = PocketType.Equipment, VNum = 2,
-                    EquipmentSlot = EquipmentType.Sp,
+                    EquipmentSlot = EquipmentType.Sp
                 },
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
@@ -653,6 +653,63 @@ namespace NosCore.Tests.HandlerTests
                 PickerType = PickerType.Character
             });
             Assert.IsTrue(_session.Character.Inventory.First().Value.Amount == 2);
+        }
+
+        [TestMethod]
+        public void Test_Wear_WearFairy_SpUseBadElement()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 3},
+                new Item { Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1, SecondaryElement = 2}
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
+            _session.Character.UseSp = true;
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                _session.Account.Language), 30));
+        }
+
+        [TestMethod]
+        public void Test_Wear_WearFairy_SpUseGoodElement()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 1},
+                new Item { Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1, SecondaryElement = 2}
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
+            _session.Character.UseSp = true;
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
+        }
+
+        [TestMethod]
+        public void Test_Wear_WearFairy_SpUseGoodSecondElement()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 2},
+                new Item { Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1, SecondaryElement = 2}
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
+            _session.Character.UseSp = true;
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
         }
     }
 }
