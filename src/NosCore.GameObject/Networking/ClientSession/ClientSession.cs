@@ -28,6 +28,7 @@ using NosCore.Core.Handling;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Database.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
@@ -35,9 +36,11 @@ using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
+using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
+using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -241,6 +244,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateAt());
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
+                SendPacket(Character.GeneratePairy(Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy, PocketType.Wear)));
                 SendPackets(Character.MapInstance.GetMapItems());
 
                 SendPacket(Character.Group.GeneratePinit());

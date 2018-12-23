@@ -120,6 +120,11 @@ namespace NosCore.Controllers
 
             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq());
             Session.SendPacket(Session.Character.GenerateEquipment());
+
+            if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
+            {
+                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePairy((WearableInstance)null));
+            }
         }
 
         /// <summary>
