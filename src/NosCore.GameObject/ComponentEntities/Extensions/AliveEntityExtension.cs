@@ -22,6 +22,7 @@ using System.Reactive.Linq;
 using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared;
@@ -149,6 +150,20 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Type = type,
                 Message = message
+            };
+        }
+
+        public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance fairy)
+        {
+            bool isBuffed = false;//TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
+            return new PairyPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Unknown = fairy == null ? 0 : 4,
+                Element = fairy?.Item.Element ?? 0,
+                ElementRate = fairy?.ElementRate + fairy?.Item.ElementRate ?? 0,
+                Morph = fairy?.Item.Morph ?? 0 + (isBuffed ? 5 : 0)
             };
         }
 
