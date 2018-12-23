@@ -202,7 +202,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.MapInstance.Sessions.Remove(Channel);
                 }
-                Character.MapInstance.LastUnregister = DateTime.Now;
+                Character.MapInstance.LastUnregister = SystemTime.Now();
                 LeaveMap(this);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {

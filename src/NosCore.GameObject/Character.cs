@@ -165,7 +165,7 @@ namespace NosCore.GameObject
 
             set
             {
-                LastSpeedChange = DateTime.Now;
+                LastSpeedChange = SystemTime.Now();
                 _speed = value > 59 ? (byte)59 : value;
             }
         }
@@ -191,7 +191,7 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
-        public bool UseSp => false;
+        public bool UseSp { get; set; }
 
         public void ChangeClass(CharacterClassType classType)
         {
@@ -1030,6 +1030,9 @@ namespace NosCore.GameObject
                 };
             }
         }
+
+        public DateTime LastSp { get; set; } = SystemTime.Now();
+        public int SpCooldown { get; set; }
 
         public EquipPacket GenerateEquipment()
         {

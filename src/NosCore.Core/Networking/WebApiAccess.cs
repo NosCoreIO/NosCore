@@ -98,7 +98,7 @@ namespace NosCore.Core.Networking
                             _logger.Verbose(
                                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
                     ).Execute(() => Instance.Patch<HttpStatusCode>("api/channel",
-                        result.ChannelInfo.ChannelId, DateTime.Now));
+                        result.ChannelInfo.ChannelId, SystemTime.Now));
                 _logger.Error(
                     LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
                 Environment.Exit(0);

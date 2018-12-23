@@ -19,14 +19,11 @@
 
 
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.I18N;
-using Serilog;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Handling
+namespace NosCore.GameObject.Services.GuriAccess.Handlers
 {
     public class EmoticonHandler : IHandler<GuriPacket, GuriPacket>
     {

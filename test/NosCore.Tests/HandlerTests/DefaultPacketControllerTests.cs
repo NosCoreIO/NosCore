@@ -29,8 +29,6 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
-using NosCore.GameObject.Handling;
-using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapItemBuilder;
 
 namespace NosCore.Tests.HandlerTests

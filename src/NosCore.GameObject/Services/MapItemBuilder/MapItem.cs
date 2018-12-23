@@ -28,7 +28,7 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.Services.MapBuilder
+namespace NosCore.GameObject.Services.MapItemBuilder
 {
     public class MapItem : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {

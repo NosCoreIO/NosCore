@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
+using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -33,8 +34,9 @@ using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.GameObject
 {
-    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<DateTime, INamedEntity>>, IBroadcastable
+    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>, IBroadcastable
     {
+        private int lastId = 0;
         public Group(GroupType type)
         {
             Type = type;
@@ -99,7 +101,7 @@ namespace NosCore.GameObject
                 Sessions.Add(characterEntity.Channel);
             }
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
-                new Tuple<DateTime, INamedEntity>(DateTime.Now, namedEntity));
+                new Tuple<int, INamedEntity>(++lastId, namedEntity));
         }
 
         public void LeaveGroup(INamedEntity namedEntity)
