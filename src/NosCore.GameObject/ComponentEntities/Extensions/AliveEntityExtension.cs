@@ -23,6 +23,7 @@ using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared;
@@ -150,6 +151,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Type = type,
                 Message = message
+            };
+        }
+
+        public static GenericUseItemPacket GenerateGenericUseItem(this IAliveEntity aliveEntity, IItemInstance itemInstance)
+        {
+            return new GenericUseItemPacket
+            {
+                VisualId = aliveEntity.VisualId,
+                VisualType = aliveEntity.VisualType,
+                Unknown = 1,
+                Slot = itemInstance.Slot,
+                Type = itemInstance.Type
             };
         }
 

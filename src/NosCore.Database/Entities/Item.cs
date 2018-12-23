@@ -52,7 +52,7 @@ namespace NosCore.Database.Entities
         public bool Flag2 { get; set; }
         public bool Flag3 { get; set; }
         public bool Flag4 { get; set; }
-        public bool Flag5 { get; set; }
+        public bool RequireBinding { get; set; }
         public bool Flag6 { get; set; }
         public bool Flag7 { get; set; }
         public bool Flag8 { get; set; }

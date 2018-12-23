@@ -193,6 +193,7 @@ namespace NosCore.Shared.I18N
         LOW_JOB_LVL,
         CANT_EQUIP_DESTROYED_SP,
         BAD_FAIRY,
-        SP_INLOADING
+        SP_INLOADING,
+        ASK_BIND
     }
 }

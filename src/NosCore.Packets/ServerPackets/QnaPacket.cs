@@ -17,16 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Core.Serializing
+using NosCore.Core.Serializing;
+
+namespace NosCore.Packets.ServerPackets
 {
-    public class PacketDefinition
+    [PacketHeader("qna")]
+    public class QnaPacket : PacketDefinition
     {
-        protected PacketDefinition() { }
+        [PacketIndex(0, IsReturnPacket = true)]
+        public PacketDefinition YesPacket { get; set; }
 
-        public string OriginalContent { get; set; }
-
-        public string OriginalHeader { get; set; }
-
-        public bool IsReturnPacket { get; set; }
+        [PacketIndex(1, SerializeToEnd = true)]
+        public string Question { get; set; }
     }
 }
