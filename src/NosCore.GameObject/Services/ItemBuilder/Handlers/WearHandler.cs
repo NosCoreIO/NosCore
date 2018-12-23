@@ -52,6 +52,25 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
                 return;
             }
 
+            if (itemInstance.BoundCharacterId == null)
+            {
+                if (!packet.IsReturnPacket && itemInstance.Item.RequireBinding)
+                {
+                    requestData.ClientSession.SendPacket(
+                    new QnaPacket()
+                    {
+                        YesPacket = requestData.ClientSession.Character.GenerateGenericUseItem(itemInstance),
+                        Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
+                    });
+                    return;
+                }
+
+                if (packet.IsReturnPacket)
+                {
+                    itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
+                }
+            }
+
             if (itemInstance.Item.LevelMinimum > (itemInstance.Item.IsHeroic ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level)
                 || itemInstance.Item.Sex != 0 && ((itemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) != 1
                 || itemInstance.Item.Class != 0 && ((itemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) != 1)
@@ -135,6 +154,12 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
             {
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
+            }
+
+
+            if (itemInstance.Item.ItemValidTime > 0 && itemInstance.BoundCharacterId != null)
+            {
+                itemInstance.ItemDeleteTime = SystemTime.Now().AddSeconds(itemInstance.Item.ItemValidTime);
             }
 
             itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
