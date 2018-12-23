@@ -19,10 +19,13 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Configuration;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapBuilder;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
@@ -45,12 +48,10 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character {Name = "characterTest", Account = new AccountDto {Authority = AuthorityType.Administrator}, Level = 1};
+            var characterTest = new Character { Name = "characterTest", Account = new AccountDto { Authority = AuthorityType.Administrator }, Level = 1, Inventory = new InventoryService(new List<Item>(), new WorldConfiguration()) };
 
-            var packet = PacketFactory.Serialize(new[] {characterTest.GenerateIn("")});
-            Assert.AreEqual(
-                $"in 1 characterTest - 0 0 0 0 {(byte) characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 -1 - 1 0 0 0 0 1 0 0 0 0 0",
-                packet);
+            var packet = PacketFactory.Serialize(new[] { characterTest.GenerateIn("") });
+            Assert.AreEqual($"in 1 characterTest - 0 0 0 0 {(byte)characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 00 00 -1 - 1 0 0 0 0 1 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -58,11 +59,12 @@ namespace NosCore.Tests
         {
             var dlgTest = new DlgPacket
             {
-                Question = "question", NoPacket = new FinsPacket {Type = FinsPacketType.Rejected, CharacterId = 1},
-                YesPacket = new FinsPacket {Type = FinsPacketType.Accepted, CharacterId = 1}
+                Question = "question",
+                NoPacket = new FinsPacket { Type = FinsPacketType.Rejected, CharacterId = 1 },
+                YesPacket = new FinsPacket { Type = FinsPacketType.Accepted, CharacterId = 1 }
             };
 
-            var packet = PacketFactory.Serialize(new[] {dlgTest});
+            var packet = PacketFactory.Serialize(new[] { dlgTest });
             Assert.AreEqual(
                 "dlg #fins^1^1 #fins^2^1 question",
                 packet);
@@ -80,7 +82,7 @@ namespace NosCore.Tests
                 }
             };
 
-            var packet = PacketFactory.Serialize(new[] {dlgTest});
+            var packet = PacketFactory.Serialize(new[] { dlgTest });
             Assert.AreEqual(
                 "blinit 1|test 2|test2",
                 packet);
@@ -91,7 +93,7 @@ namespace NosCore.Tests
         {
             var mapMonsterTest = new MapMonster();
 
-            var packet = PacketFactory.Serialize(new[] {mapMonsterTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] { mapMonsterTest.GenerateIn() });
             Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
 
@@ -117,7 +119,7 @@ namespace NosCore.Tests
                 SessionId = 1
             };
 
-            var packet = PacketFactory.Serialize(new[] {nstestpacket});
+            var packet = PacketFactory.Serialize(new[] { nstestpacket });
             Assert.AreEqual("NsTeST test 1 -1:-1:-1:10000.10000.1", packet);
         }
 
@@ -126,7 +128,7 @@ namespace NosCore.Tests
         {
             var mapNpcTest = new MapNpc();
 
-            var packet = PacketFactory.Serialize(new[] {mapNpcTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] { mapNpcTest.GenerateIn() });
             Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
 
@@ -135,7 +137,7 @@ namespace NosCore.Tests
         {
             var mapItemTest = new MapItem();
 
-            var packet = PacketFactory.Serialize(new[] {mapItemTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] { mapItemTest.GenerateIn() });
             Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 {mapItemTest.Amount} 0 0", packet);
         }
 
@@ -154,7 +156,7 @@ namespace NosCore.Tests
                 Message = "test message !"
             };
 
-            var serializedPacket = PacketFactory.Serialize(new[] {packet});
+            var serializedPacket = PacketFactory.Serialize(new[] { packet });
             Assert.AreEqual("/ test message !", serializedPacket);
         }
 
