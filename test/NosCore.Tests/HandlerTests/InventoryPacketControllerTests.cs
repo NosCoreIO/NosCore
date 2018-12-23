@@ -437,6 +437,10 @@ namespace NosCore.Tests.HandlerTests
 
         }
 
+        //TODO add test heroLEvel
+        //TODO add test level
+        //TODO add test joblevel
+
         [TestMethod]
         public void Test_GetInStack()
         {
