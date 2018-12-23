@@ -68,6 +68,32 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Kick(KickPacket kickPacket)
+        {
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            ConnectedAccount account = null;
+            ServerConfiguration config = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
+                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", config, account.ConnectedCharacter.Id);
+        }
+
+        [UsedImplicitly]
         public void Invisible(InvisibleCommandPacket invisiblePacket)
         {
             Session.Character.Camouflage = !Session.Character.Camouflage;
