@@ -36,7 +36,7 @@ namespace NosCore.GameObject
 {
     public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>, IBroadcastable
     {
-        private int lastId = 0;
+        private int _lastId;
         public Group(GroupType type)
         {
             Type = type;
@@ -101,7 +101,7 @@ namespace NosCore.GameObject
                 Sessions.Add(characterEntity.Channel);
             }
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
-                new Tuple<int, INamedEntity>(++lastId, namedEntity));
+                new Tuple<int, INamedEntity>(++_lastId, namedEntity));
         }
 
         public void LeaveGroup(INamedEntity namedEntity)
