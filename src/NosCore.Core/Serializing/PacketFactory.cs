@@ -568,7 +568,7 @@ namespace NosCore.Core.Serializing
                     serializedSubpacket = serializedSubpacket.TrimEnd();
                     serializedSubpacket.Append(SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
                         subpacketPropertyInfo.Key.RemoveSeparator,
-                        specialSeparator ?? subpacketPropertyInfo.Key.SpecialSeparator));
+                        subpacketPropertyInfo.Key.SpecialSeparator ?? specialSeparator));
                     continue;
                 }
 
