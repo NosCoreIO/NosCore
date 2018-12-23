@@ -52,6 +52,7 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using NosCore.GameObject.Services.MapItemBuilder.Handlers;
+using NosCore.GameObject.Services.ItemBuilder.Handling;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -331,6 +332,36 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                 _session.Account.Language) && packet.Type == 0);
             Assert.IsTrue(_session.Character.Inventory.Count == 1);
+        }
+
+        [DataTestMethod]
+        [DataRow(EquipmentType.MainWeapon)]
+        [DataRow(EquipmentType.Armor)]
+        [DataRow(EquipmentType.Hat)]
+        [DataRow(EquipmentType.Gloves)]
+        [DataRow(EquipmentType.Boots)]
+        [DataRow(EquipmentType.SecondaryWeapon)]
+        [DataRow(EquipmentType.Necklace)]
+        [DataRow(EquipmentType.Ring)]
+        [DataRow(EquipmentType.Bracelet)]
+        [DataRow(EquipmentType.Mask)]
+        [DataRow(EquipmentType.Fairy)]
+        [DataRow(EquipmentType.Amulet)]
+        [DataRow(EquipmentType.Sp)]
+        [DataRow(EquipmentType.CostumeSuit)]
+        [DataRow(EquipmentType.CostumeHat)]
+        [DataRow(EquipmentType.WeaponSkin)]
+        public void Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = type},
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1012, 1));
+            _handler.Wear(new WearPacket());
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Slot == (short)type && s.Value.Type == PocketType.Wear));
         }
 
         [TestMethod]
