@@ -50,7 +50,7 @@ namespace NosCore.Packets.ServerPackets
         public GenderType Gender { get; set; }
 
         [PacketIndex(7)]
-        public byte Class { get; set; }
+        public short Race { get; set; }
 
         [PacketIndex(8)]
         public short Morph { get; set; }

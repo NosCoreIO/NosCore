@@ -114,7 +114,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
                     Authority = visualEntity.Authority,
-                    Gender = (byte)visualEntity.Gender,
+                    Gender = visualEntity.Gender,
                     HairStyle = (byte)visualEntity.HairStyle,
                     HairColor = (byte)visualEntity.HairColor,
                     Class = visualEntity.Class,

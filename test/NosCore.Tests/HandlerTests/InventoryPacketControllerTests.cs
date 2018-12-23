@@ -363,7 +363,7 @@ namespace NosCore.Tests.HandlerTests
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Slot == (short)type && s.Value.Type == PocketType.Wear));
         }
 
@@ -375,7 +375,7 @@ namespace NosCore.Tests.HandlerTests
         [DataRow(CharacterClassType.Swordman)]
         public void Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
         {
-            _session.Character.Class = (byte)classToTest;
+            _session.Character.Class = classToTest;
             var items = new List<Item>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.MainWeapon,
@@ -393,9 +393,43 @@ namespace NosCore.Tests.HandlerTests
 
             foreach (var validClass in Enum.GetValues(typeof(CharacterClassType)).OfType<CharacterClassType>().Where(s => s != classToTest).ToList())
             {
-                _session.Character.Class = (byte)validClass;
+                _session.Character.Class = validClass;
                 var item = _session.Character.Inventory.First();
-                _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+                _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+                Assert.IsTrue(item.Value.Type == PocketType.Wear);
+                item.Value.Type = PocketType.Equipment;
+                item.Value.Slot = 0;
+            }
+
+        }
+
+
+        [DataTestMethod]
+        [DataRow(GenderType.Female)]
+        [DataRow(GenderType.Male)]
+        public void Test_Wear_Put_Item_BadGender(GenderType genderToTest)
+        {
+            _session.Character.Gender = genderToTest;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.MainWeapon,
+                    Sex =  (byte)(3 - Math.Pow(2,(byte)genderToTest))
+                },
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
+            var packet = (SayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            _session.Account.Language) && packet.Type == SayColorType.Yellow);
+
+            foreach (var validClass in Enum.GetValues(typeof(GenderType)).OfType<GenderType>().Where(s => s != genderToTest).ToList())
+            {
+                _session.Character.Gender = validClass;
+                var item = _session.Character.Inventory.First();
+                _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
                 Assert.IsTrue(item.Value.Type == PocketType.Wear);
                 item.Value.Type = PocketType.Equipment;
                 item.Value.Slot = 0;

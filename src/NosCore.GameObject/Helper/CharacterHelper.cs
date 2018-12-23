@@ -109,9 +109,9 @@ namespace NosCore.GameObject.Helper
             return heroLevel == 0 ? 1 : HeroXpData[heroLevel - 1];
         }
 
-        public double JobXpLoad(byte jobLevel, byte classType)
+        public double JobXpLoad(byte jobLevel, CharacterClassType classType)
         {
-            return classType == (byte)CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1]
+            return classType == CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1]
                 : SecondJobXpData[jobLevel - 1];
         }
 

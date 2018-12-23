@@ -37,7 +37,6 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
         public bool IsSitting { get; set; }
-        public byte Class { get; set; }
         public byte Speed { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
@@ -65,6 +64,8 @@ namespace NosCore.GameObject
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
+
+        public short Race => NpcMonster.Race;
 
         public byte Level { get; set; }
 

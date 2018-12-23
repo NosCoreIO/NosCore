@@ -49,7 +49,7 @@ namespace NosCore.Packets.ServerPackets
         public int MpLoad { get; set; }
 
         [PacketIndex(7)]
-        public byte Class { get; set; }
+        public short Race { get; set; }
 
         [PacketIndex(8)]
         public GenderType Gender { get; set; }
