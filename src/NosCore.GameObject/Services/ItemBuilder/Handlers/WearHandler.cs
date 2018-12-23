@@ -125,6 +125,19 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateEq());
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
+
+
+            if (itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
+            {
+                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance));
+            }
+
+            if (itemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
+            {
+                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
+            }
+
+            itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
         }
     }
 }
