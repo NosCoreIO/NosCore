@@ -38,6 +38,6 @@ namespace NosCore.Packets.ServerPackets
         public short Upgrade { get; set; }
 
         [PacketIndex(4)]
-        public byte unknown { get; set; }
+        public byte Unknown { get; set; }
     }
 }
