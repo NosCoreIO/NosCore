@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 return;
             }
 
-            if (requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
+            if ((byte)requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, requestData.ClientSession.Account.Language));
                 return;
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.ChangeClass(requestData.Data.Item2.Type);
+            requestData.ClientSession.Character.ChangeClass((CharacterClassType)requestData.Data.Item2.Type);
         }
     }
 }

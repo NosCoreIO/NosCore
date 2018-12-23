@@ -39,6 +39,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         HairColorType HairColor { get; }
 
+        CharacterClassType Class { get; }
+
         InEquipmentSubPacket Equipment { get; }
 
         int ReputIcon { get; }

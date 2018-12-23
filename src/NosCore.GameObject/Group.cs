@@ -79,7 +79,7 @@ namespace NosCore.GameObject
                 MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
-                Class = member.Class,
+                Race = member.Race,
                 Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
                 Morph = member.Morph,
                 BuffIds = null

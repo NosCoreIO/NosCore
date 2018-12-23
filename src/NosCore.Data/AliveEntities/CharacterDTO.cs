@@ -42,7 +42,7 @@ namespace NosCore.Data.AliveEntities
         [Key]
         public long CharacterId { get; set; }
 
-        public byte Class { get; set; }
+        public CharacterClassType Class { get; set; }
 
         public short Compliment { get; set; }
 

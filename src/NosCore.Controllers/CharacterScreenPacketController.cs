@@ -126,7 +126,7 @@ namespace NosCore.Controllers
                 {
                     var chara = new CharacterDto
                     {
-                        Class = characterCreatePacket.IsMartialArtist ? (byte)CharacterClassType.MartialArtist : (byte) CharacterClassType.Adventurer,
+                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist :  CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
                         HairColor = characterCreatePacket.HairColor,
                         HairStyle = characterCreatePacket.HairStyle,
