@@ -34,6 +34,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -575,7 +576,7 @@ namespace NosCore.Tests.HandlerTests
                 },
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1,1,-2));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1, 1, -2));
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
 
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.Type == PocketType.Equipment));
@@ -710,6 +711,41 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.UseSp = true;
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
+        }
+
+        [TestMethod]
+        public void Test_Binding_Required()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            var item = _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
+
+            var packet = (QnaPacket)_session.LastPacket;
+            Assert.IsTrue(packet.YesPacket is GenericUseItemPacket yespacket
+                && yespacket.Slot == 0 
+                && yespacket.Type == PocketType.Equipment 
+                && packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND));
+            Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
+        }
+
+        [TestMethod]
+        public void Test_Binding()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
+            };
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
+
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _handler.UseItem(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, IsReturnPacket = true });
+
+            Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear && s.Value.BoundCharacterId == _session.Character.VisualId));
         }
     }
 }
