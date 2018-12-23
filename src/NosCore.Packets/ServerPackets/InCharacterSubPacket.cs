@@ -56,76 +56,60 @@ namespace NosCore.Packets.ServerPackets
         public long? GroupId { get; set; }
 
         [PacketIndex(9)]
-        [UsedImplicitly]
         public byte Fairy { get; set; }
 
         [PacketIndex(10)]
-        [UsedImplicitly]
         public byte FairyElement { get; set; }
 
         [PacketIndex(11)]
-        [UsedImplicitly]
         public byte Unknown { get; set; } //TODO to find
 
         [PacketIndex(12)]
-        [UsedImplicitly]
         public byte Morph { get; set; }
 
-        [PacketIndex(13)]
+        [PacketIndex(13, SpecialSeparator = "")]
         public UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; set; }
 
-        [PacketIndex(14)]
+        [PacketIndex(14, SpecialSeparator = "")]
         public UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; set; }
 
         [PacketIndex(15)]
-        [UsedImplicitly]
         public long FamilyId { get; set; }
 
         [PacketIndex(16)]
-        [UsedImplicitly]
         public string FamilyName { get; set; }
 
         [PacketIndex(17)]
-        [UsedImplicitly]
         public short ReputIco { get; set; }
 
         [PacketIndex(18)]
-        [UsedImplicitly]
         public bool Invisible { get; set; }
 
         [PacketIndex(19)]
-        [UsedImplicitly]
         public byte MorphUpgrade { get; set; }
 
         [PacketIndex(20)]
         public byte Faction { get; set; }
 
         [PacketIndex(21)]
-        [UsedImplicitly]
         public byte MorphUpgrade2 { get; set; }
 
         [PacketIndex(22)]
-        [UsedImplicitly]
         public byte Level { get; set; }
 
         [PacketIndex(23)]
-        [UsedImplicitly]
         public byte FamilyLevel { get; set; }
 
         [PacketIndex(24)]
-        [UsedImplicitly]
         public bool ArenaWinner { get; set; }
 
         [PacketIndex(25)]
-        [UsedImplicitly]
         public short Compliment { get; set; }
 
         [PacketIndex(26)]
-        [UsedImplicitly]
         public byte Size { get; set; }
 
         [PacketIndex(27)]
-        [UsedImplicitly]
         public byte HeroLevel { get; set; }
 
         #endregion
