@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
-namespace NosCore.GameObject.Services.MapBuilder
+namespace NosCore.GameObject.Services.MapItemBuilder
 {
     public interface IMapItemBuilderService
     {

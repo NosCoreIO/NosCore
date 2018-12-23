@@ -19,7 +19,7 @@
 
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.GameObject.Handling
+namespace NosCore.GameObject
 {
     public interface IHandler<T, T2>
     {

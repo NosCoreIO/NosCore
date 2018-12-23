@@ -21,18 +21,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using Mapster;
-using NosCore.Core.Extensions;
-using NosCore.Data;
-using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemBuilder.Handling;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.GameObject.Services.MapBuilder
+namespace NosCore.GameObject.Services.MapItemBuilder
 {
     public class MapItemBuilderService : IMapItemBuilderService
     {

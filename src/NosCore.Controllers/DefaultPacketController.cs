@@ -34,8 +34,10 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.NRunAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -180,7 +182,7 @@ namespace NosCore.Controllers
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
 
-            //            Session.Character.LastPVPRevive = DateTime.Now;
+            //            Session.Character.LastPVPRevive = SystemTime.Now;
 
             //            long? familyId = DAOFactory.FamilyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
             //            if (familyId != null)
@@ -243,7 +245,7 @@ namespace NosCore.Controllers
         /// <param name="_"></param>
         public void Preq(PreqPacket _)
         {
-            if ((DateTime.Now - Session.Character.LastPortal).TotalSeconds < 4 || Session.Character.LastPortal > Session.Character.LastMove)
+            if ((SystemTime.Now() - Session.Character.LastPortal).TotalSeconds < 4 || Session.Character.LastPortal > Session.Character.LastMove)
             {
                 return;
             }
@@ -261,7 +263,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            Session.Character.LastPortal = DateTime.Now;
+            Session.Character.LastPortal = SystemTime.Now();
 
             if (_mapInstanceAccessService.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
                 != MapInstanceType.BaseMapInstance
@@ -314,7 +316,7 @@ namespace NosCore.Controllers
                 Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if ((Session.Character.Speed < walkPacket.Speed
-                && Session.Character.LastSpeedChange.AddSeconds(5) <= DateTime.Now) || distance > 60)
+                && Session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now()) || distance > 60)
             {
                 return;
             }
@@ -330,7 +332,7 @@ namespace NosCore.Controllers
 
             Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove());
             Session.SendPacket(Session.Character.GenerateCond());
-            Session.Character.LastMove = DateTime.Now;
+            Session.Character.LastMove = SystemTime.Now();
         }
 
         /// <summary>

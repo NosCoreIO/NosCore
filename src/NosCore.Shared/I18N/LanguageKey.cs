@@ -190,6 +190,9 @@ namespace NosCore.Shared.I18N
         CLASS_CHANGED,
         BAD_EQUIPMENT,
         SP_BLOCKED,
-        LOW_JOB_LVL
+        LOW_JOB_LVL,
+        CANT_EQUIP_DESTROYED_SP,
+        BAD_FAIRY,
+        SP_INLOADING
     }
 }

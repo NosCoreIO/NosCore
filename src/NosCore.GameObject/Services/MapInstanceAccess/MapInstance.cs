@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using Mapster;
+using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
@@ -40,7 +41,7 @@ using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Services.MapItemBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _npcs = new ConcurrentDictionary<long, MapNpc>();
             MapItems = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
-            LastUnregister = DateTime.Now.AddMinutes(-1);
+            LastUnregister = SystemTime.Now().AddMinutes(-1);
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
             _mapItemBuilderService = mapItemBuilderService;
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         {
             get
             {
-                if (!_isSleepingRequest || _isSleeping || LastUnregister.AddSeconds(30) >= DateTime.Now)
+                if (!_isSleepingRequest || _isSleeping || LastUnregister.AddSeconds(30) >= SystemTime.Now())
                 {
                     return _isSleeping;
                 }

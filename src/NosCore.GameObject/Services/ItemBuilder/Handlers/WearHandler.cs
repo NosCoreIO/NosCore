@@ -18,24 +18,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+using System;
+using System.Diagnostics;
+using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Handling;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
-using System;
-using System.Diagnostics;
 
-namespace NosCore.GameObject.Services.ItemBuilder.Handling
+namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 {
     public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
         || item.ItemType == ItemType.Jewelery
         || item.ItemType == ItemType.Armor
@@ -63,12 +62,52 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handling
                 return;
             }
 
-            if (requestData.ClientSession.Character.UseSp && itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+            if (requestData.ClientSession.Character.UseSp && itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                requestData.ClientSession.SendPacket(
-                requestData.ClientSession.Character.GenerateSay(
-                    requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), Shared.Enumerations.SayColorType.Yellow));
-                return;
+                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+
+                if (sp != null && sp.Item.Element != 0 && itemInstance.Item.Element != sp.Item.Element && itemInstance.Item.Element != sp.Item.SecondaryElement)
+                {
+                    requestData.ClientSession.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                            requestData.ClientSession.Account.Language)
+                    });
+                    return;
+                }
+            }
+
+            if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+            {
+                double timeSpanSinceLastSpUsage = (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
+                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+                if (timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown && sp != null)
+                {
+                    requestData.ClientSession.SendPacket(new MsgPacket
+                    {
+                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                            requestData.ClientSession.Account.Language), requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
+                    });
+                    return;
+                }
+
+                if (requestData.ClientSession.Character.UseSp)
+                {
+                    requestData.ClientSession.SendPacket(
+                    requestData.ClientSession.Character.GenerateSay(
+                        requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), Shared.Enumerations.SayColorType.Yellow));
+                    return;
+                }
+
+                if (itemInstance.Rare == -2)
+                {
+                    requestData.ClientSession.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+                            requestData.ClientSession.Account.Language)
+                    });
+                    return;
+                }
             }
 
             if (requestData.ClientSession.Character.JobLevel < itemInstance.Item.LevelJobMinimum)

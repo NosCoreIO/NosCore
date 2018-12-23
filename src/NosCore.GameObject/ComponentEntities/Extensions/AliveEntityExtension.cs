@@ -19,6 +19,7 @@
 
 using System;
 using System.Reactive.Linq;
+using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ServerPackets;
@@ -92,7 +93,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
             if (nonPlayableEntity.IsMoving && nonPlayableEntity.Speed > 0)
             {
-                var time = (DateTime.Now - nonPlayableEntity.LastMove).TotalMilliseconds;
+                var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
 
                 if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
@@ -113,7 +114,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                     nonPlayableEntity.PositionY = mapY;
                                 });
 
-                        nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
+                        nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
                         nonPlayableEntity.MapInstance.Sessions.SendPacket(
                             nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
