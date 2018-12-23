@@ -97,8 +97,6 @@ namespace NosCore.GameObject
 
         public DateTime LastPortal { get; set; }
 
-        public DateTime LastPortal { get; set; }
-
         public ClientSession Session { get; set; }
 
         public DateTime LastSpeedChange { get; set; }

@@ -238,6 +238,7 @@ namespace NosCore.Controllers
 
                     _exchangeAccessService.ProcessExchange(Session, target.Session);
                     _exchangeAccessService.ProcessExchange(target.Session, Session);
+                    _exchangeAccessService.CloseExchange(Session, target.Session);
                     break;
                 case RequestExchangeType.Cancelled:
                     target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;

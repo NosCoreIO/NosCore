@@ -494,36 +494,36 @@ namespace NosCore.GameObject.Services.Inventory
             return true;
         }
 
-        //    public IEnumerable<ItemInstance> RemoveItemAmount(int vnum, int amount = 1)
-        //    {
-        //        var remainingAmount = amount;
+        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount = 1)
+        {
+            var remainingAmount = amount;
 
-        //        foreach (var pocket in this.Select(s => s.Value).Where(s => s.ItemVNum == vnum && s.Type != PocketType.Wear && s.Type != PocketType.Bazaar && s.Type != PocketType.Warehouse && s.Type != PocketType.PetWarehouse && s.Type != PocketType.FamilyWareHouse).OrderBy(i => i.Slot))
-        //        {
-        //            if (remainingAmount > 0)
-        //            {
-        //                if (pocket.Amount > remainingAmount)
-        //                {
-        //                    // amount completely removed
-        //                    pocket.Amount -= (short)remainingAmount;
-        //                    remainingAmount = 0;
-        //                }
-        //                else
-        //                {
-        //                    // amount partly removed
-        //                    remainingAmount -= pocket.Amount;
-        //                    DeleteById(pocket.Id);
-        //                }
+            foreach (var pocket in this.Select(s => s.Value).Where(s => s.ItemVNum == vnum && s.Type != PocketType.Wear && s.Type != PocketType.Bazaar && s.Type != PocketType.Warehouse && s.Type != PocketType.PetWarehouse && s.Type != PocketType.FamilyWareHouse).OrderBy(i => i.Slot))
+            {
+                if (remainingAmount > 0)
+                {
+                    if (pocket.Amount > remainingAmount)
+                    {
+                        // amount completely removed
+                        pocket.Amount -= (short)remainingAmount;
+                        remainingAmount = 0;
+                    }
+                    else
+                    {
+                        // amount partly removed
+                        remainingAmount -= pocket.Amount;
+                        DeleteById(pocket.Id);
+                    }
 
-        //                yield return pocket;
-        //            }
-        //            else
-        //            {
-        //                // amount to remove reached
-        //                break;
-        //            }
-        //        }
-        //    }
+                    yield return pocket;
+                }
+                else
+                {
+                    // amount to remove reached
+                    break;
+                }
+            }
+        }
 
         //    public IEnumerable<ItemInstance> Reorder(ClientSession session, PocketType pocketType)
         //    {

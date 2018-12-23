@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Text;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -70,6 +71,36 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
         public void ProcessExchange(ClientSession session, ClientSession targetSession)
         {
+            foreach (var item in session.Character.ExchangeData.ExchangeItems.Values)
+            {
+                var temp = session.Character.Inventory.LoadByItemInstanceId<IItemInstance>(item.Id);
+
+                if (temp != null && temp.Amount >= item.Amount)
+                {
+                    session.Character.Inventory.RemoveItemAmount(item.ItemVNum, item.Amount);
+                }
+                else
+                {
+                    _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_ITEMS, session.Account.Language));
+                    return;
+                }
+            }
+
+            foreach (var item in session.Character.ExchangeData.ExchangeItems.Values)
+            {
+                var itemCpy = (IItemInstance)item.Clone();
+
+                itemCpy.Id = Guid.NewGuid();
+                targetSession.Character.Inventory.AddItemToPocket(itemCpy);
+            }
+
+            session.Character.Gold -= session.Character.ExchangeData.Gold;
+            session.Account.BankMoney -= session.Character.ExchangeData.BankGold * 1000;
+            session.SendPacket(session.Character.GenerateGold());
+
+            targetSession.Character.Gold += session.Character.ExchangeData.Gold;
+            targetSession.Account.BankMoney += session.Character.ExchangeData.BankGold;
+            targetSession.SendPacket(targetSession.Character.GenerateGold());
         }
 
         public void OpenExchange(ClientSession session, ClientSession targetSession)
