@@ -23,5 +23,6 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
     public class Item : ItemDto
     {
+
     }
 }

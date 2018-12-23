@@ -673,6 +673,7 @@ namespace NosCore.Core.Serializing
         {
             packetDefinition.OriginalContent = packetContent;
             packetDefinition.OriginalHeader = packetHeader;
+            packetDefinition.IsReturnPacket = packetContent.Contains("#");
         }
 
         #endregion

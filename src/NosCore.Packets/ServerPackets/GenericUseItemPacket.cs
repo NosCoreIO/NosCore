@@ -17,16 +17,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Core.Serializing
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Shared.Enumerations.Items;
+using System.ComponentModel.DataAnnotations;
+
+namespace NosCore.Packets.ClientPackets
 {
-    public class PacketDefinition
+    [PacketHeader("u_i")]
+    public class GenericUseItemPacket : PacketDefinition
     {
-        protected PacketDefinition() { }
+        [PacketIndex(1)]
+        public VisualType VisualType { get; set; }
 
-        public string OriginalContent { get; set; }
+        [PacketIndex(2)]
+        public long VisualId { get; set; }
 
-        public string OriginalHeader { get; set; }
+        [Range(0, 9)]
+        [PacketIndex(3)]
+        public PocketType Type { get; set; }
 
-        public bool IsReturnPacket { get; set; }
+        [PacketIndex(4)]
+        public short Slot { get; set; }
+
+        [PacketIndex(5)]
+        public byte Unknown { get; set; }
+
     }
 }
