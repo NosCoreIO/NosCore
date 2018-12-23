@@ -21,13 +21,14 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapBuilder;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -178,7 +179,7 @@ namespace NosCore.Controllers
             }
 
             //TODO add group drops
-            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
+            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() && mapItem.OwnerId != Session.Character.CharacterId)
             {
                 Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
                 return;

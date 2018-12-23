@@ -25,11 +25,11 @@ using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
-using NosCore.GameObject.Services.MapBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {

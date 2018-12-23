@@ -20,12 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.GameObject.Handling;
-using NosCore.Packets.ClientPackets;
-using NosCore.GameObject.Networking.ClientSession;
 using System.Reactive.Subjects;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets;
 
-namespace NosCore.GameObject.Services.MapInstanceAccess
+namespace NosCore.GameObject.Services.NRunAccess
 {
     public class NrunAccessService
     {
