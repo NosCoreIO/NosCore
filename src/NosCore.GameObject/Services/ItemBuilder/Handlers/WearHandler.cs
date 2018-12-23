@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handling
 
             if (itemInstance.Item.LevelMinimum > (itemInstance.Item.IsHeroic ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level)
                 || itemInstance.Item.Sex != 0 && itemInstance.Item.Sex != (byte)requestData.ClientSession.Character.Gender + 1
-                || ((itemInstance.Item.Class >> requestData.ClientSession.Character.Class) & 1) != 1)
+                || itemInstance.Item.Class != 0 && ((itemInstance.Item.Class >> requestData.ClientSession.Character.Class) & 1) != 1)
             {
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
