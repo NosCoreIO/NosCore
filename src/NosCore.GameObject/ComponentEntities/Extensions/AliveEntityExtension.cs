@@ -51,7 +51,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Level = namedEntity.Level,
                 Name = namedEntity.Name,
                 Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
-                Class = namedEntity.Class,
+                Race = namedEntity.Race,
                 Morph = namedEntity.Morph,
                 HeroLevel = namedEntity.HeroLevel
             };

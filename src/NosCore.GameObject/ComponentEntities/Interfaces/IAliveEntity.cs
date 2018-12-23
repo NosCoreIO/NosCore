@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Shared.Enumerations.Character;
+
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {
         bool IsSitting { get; set; }
-
-        byte Class { get; }
 
         byte Speed { get; }
 
@@ -56,5 +56,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         byte Level { get; set; }
 
         byte HeroLevel { get; }
+
+        short Race { get; }
     }
 }

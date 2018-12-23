@@ -88,6 +88,7 @@ namespace NosCore.GameObject
         public Subject<RequestData> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
+        public short Race => (byte)Class;
         public DateTime LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
@@ -192,14 +193,14 @@ namespace NosCore.GameObject
 
         public bool UseSp => false;
 
-        public void ChangeClass(byte classType)
+        public void ChangeClass(CharacterClassType classType)
         {
             JobLevel = 1;
             JobLevelXp = 0;
             SendPacket(new NpInfoPacket());
             SendPacket(new PclearPacket());
 
-            if (classType == (byte)CharacterClassType.Adventurer)
+            if (classType == CharacterClassType.Adventurer)
             {
                 HairStyle = HairStyle > HairStyleType.HairStyleB ? 0 : HairStyle;
             }
@@ -889,14 +890,14 @@ namespace NosCore.GameObject
 
         public void LoadSpeed()
         {
-            Speed = CharacterHelper.Instance.SpeedData[Class];
+            Speed = CharacterHelper.Instance.SpeedData[(byte)Class];
         }
 
         public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int)((CharacterHelper.Instance.MpData[Class][Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData[(byte)Class][Level] + mp) * multiplicator);
         }
 
         public double HpLoad()
@@ -904,7 +905,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int)((CharacterHelper.Instance.HpData[Class][Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData[(byte)Class][Level] + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -944,9 +945,9 @@ namespace NosCore.GameObject
                 FamilyName = string.Empty,
                 CharacterId = CharacterId,
                 Authority = (byte)Account.Authority,
-                Gender = (byte)Gender,
-                HairStyle = (byte)HairStyle,
-                HairColor = (byte)HairColor,
+                Gender = Gender,
+                HairStyle = HairStyle,
+                HairColor = HairColor,
                 Class = Class,
                 Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
                 Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),

@@ -19,6 +19,7 @@
 
 using JetBrains.Annotations;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -49,16 +50,16 @@ namespace NosCore.Packets.ServerPackets
         public byte Authority { get; set; }
 
         [PacketIndex(7)]
-        public byte Gender { get; set; }
+        public GenderType Gender { get; set; }
 
         [PacketIndex(8)]
-        public byte HairStyle { get; set; }
+        public HairStyleType HairStyle { get; set; }
 
         [PacketIndex(9)]
-        public byte HairColor { get; set; }
+        public HairColorType HairColor { get; set; }
 
         [PacketIndex(10)]
-        public byte Class { get; set; }
+        public CharacterClassType Class { get; set; }
 
         [PacketIndex(11)]
         public byte Icon { get; set; }
