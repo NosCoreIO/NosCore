@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
-            if (requestData.ClientSession.Character.InExchangeOrTrade)
+            if (requestData.ClientSession.Character.InExchangeOrShop)
             {
                 return;
             }
