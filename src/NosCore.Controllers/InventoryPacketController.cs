@@ -96,7 +96,7 @@ namespace NosCore.Controllers
         /// <param name="removePacket"></param>
         public void Remove(RemovePacket removePacket)
         {
-            if (Session.Character.InExchangeOrTrade)
+            if (Session.Character.InExchangeOrShop)
             {
                 return;
             }
