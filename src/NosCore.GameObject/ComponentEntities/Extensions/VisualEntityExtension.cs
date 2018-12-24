@@ -37,7 +37,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             //same canal
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
-            foreach (var server in servers)
+            foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
                     WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi));

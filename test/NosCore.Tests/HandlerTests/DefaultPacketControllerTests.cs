@@ -38,7 +38,6 @@ namespace NosCore.Tests.HandlerTests
     {
         private ClientSession _session;
         private ClientSession _targetSession;
-        private readonly CharacterDto _chara;
         private CharacterDto _targetChar;
         private DefaultPacketController _handler;
 
