@@ -1,11 +1,9 @@
-﻿using NosCore.Configuration;
-using NosCore.GameObject.ComponentEntities.Extensions;
+﻿using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using System;
 

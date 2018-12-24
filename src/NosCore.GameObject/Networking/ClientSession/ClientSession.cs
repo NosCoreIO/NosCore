@@ -28,7 +28,6 @@ using NosCore.Core.Handling;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
-using NosCore.Database.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;

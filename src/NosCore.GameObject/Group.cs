@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;

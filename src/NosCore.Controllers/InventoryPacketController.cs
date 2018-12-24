@@ -18,12 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -36,7 +33,6 @@ using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
 

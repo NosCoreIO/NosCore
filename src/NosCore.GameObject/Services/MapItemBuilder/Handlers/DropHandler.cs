@@ -26,7 +26,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using Serilog;
 using System;
 using System.Linq;
 
