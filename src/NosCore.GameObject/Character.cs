@@ -49,8 +49,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NosCore.Database.Entities;
+using NosCore.Shared.Enumerations.Buff;
+using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
+using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
 
 namespace NosCore.GameObject
 {
@@ -170,11 +175,11 @@ namespace NosCore.GameObject
             }
         }
 
-        public byte Morph { get; set; }
+        public short Morph { get; set; }
 
         public byte MorphUpgrade { get; set; }
 
-        public byte MorphDesign { get; set; }
+        public short MorphDesign { get; set; }
 
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
@@ -230,7 +235,7 @@ namespace NosCore.GameObject
         {
             SendPacket(GenerateStat());
             SendPacket(this.GenerateStatInfo());
-            //Session.SendPacket(Session.Character.GenerateStatChar());
+            //Session.SendPacket(GenerateStatChar());
             SendPacket(GenerateLev());
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
 
@@ -279,7 +284,7 @@ namespace NosCore.GameObject
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
             Parallel.ForEach(mapSessions, s =>
             {
-                //if (s.VisualId != Session.Character.VisualId)
+                //if (s.VisualId != VisualId)
                 //{
                 //    TODO: Generate GIDX
                 //}
@@ -1032,7 +1037,8 @@ namespace NosCore.GameObject
         }
 
         public DateTime LastSp { get; set; } = SystemTime.Now();
-        public int SpCooldown { get; set; }
+        public short SpCooldown { get; set; }
+        public bool IsVehicled { get; set; }
 
         public EquipPacket GenerateEquipment()
         {
@@ -1085,11 +1091,87 @@ namespace NosCore.GameObject
                 Gender = Gender,
                 HairStyle = HairStyle,
                 Haircolor = HairColor,
-                ClassType = (CharacterClassType)Class,
+                ClassType = Class,
                 EqSubPacket = Equipment,
                 WeaponUpgradeRarePacket = WeaponUpgradeRareSubPacket,
                 ArmorUpgradeRarePacket = ArmorUpgradeRareSubPacket
             };
+        }
+
+        public void RemoveSp()
+        {
+            UseSp = false;
+            Morph = 0;
+            MorphUpgrade = 0;
+            MorphDesign = 0;
+            LoadSpeed();
+            Session.SendPacket(this.GenerateCond());
+            Session.SendPacket(GenerateLev());
+            SpCooldown = 30;
+            Session.SendPacket(this.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown), SayColorType.Purple));
+            Session.SendPacket(new SdPacket { Cooldown = SpCooldown });
+            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.Sessions.SendPacket(new GuriPacket
+            {
+                Type = 6,
+                Argument = 1,
+                VisualEntityId = CharacterId
+            });
+            Session.SendPacket(GenerateStat());
+
+            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
+            {
+                Session.SendPacket(this.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language), SpCooldown), SayColorType.Purple));
+                Session.SendPacket(new SdPacket{Cooldown = 0});
+            });
+        }
+
+        public void ChangeSp()
+        {
+            SpecialistInstance sp = Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+            WearableInstance fairy = Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy, PocketType.Wear);
+            if (sp == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_SP_WITHOUT_CARD));
+                return;
+            }
+
+            if (GetReputIco() < sp.Item.ReputationMinimum)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
+                        Session.Account.Language)
+                });
+                return;
+            }
+            if (fairy != null && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element && fairy.Item.Element != sp.Item.SecondaryElement)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                        Session.Account.Language)
+                });
+                return;
+            }
+            LastSp = SystemTime.Now();
+            UseSp = true;
+            Morph = sp.Item.Morph;
+            MorphUpgrade = sp.Upgrade;
+            MorphDesign = sp.Design;
+            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            Session.SendPacket(GenerateLev());
+            MapInstance.Sessions.SendPacket(this.GenerateEff(196));
+            MapInstance.Sessions.SendPacket(new GuriPacket
+            {
+                Type = 6,
+                Argument = 1,
+                VisualEntityId = CharacterId
+            });
+            Session.SendPacket(GenerateSpPoint());
+            LoadSpeed();
+            Session.SendPacket(this.GenerateCond());
+            Session.SendPacket(GenerateStat());
         }
     }
 }

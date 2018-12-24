@@ -18,22 +18,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Items;
-using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("u_i")]
-    public class UseItemPacket : PacketDefinition
+    [PacketHeader("delay")]
+    public class DelayPacket : PacketDefinition
     {
-        [Range(0, 9)]
+        [PacketIndex(0)]
+        public short Delay { get; set; }
+
         [PacketIndex(1)]
-        public PocketType Type { get; set; }
+        public byte Type { get; set; }
 
-        [PacketIndex(2)]
-        public short Slot { get; set; }
+        [PacketIndex(2, IsReturnPacket = true)]
+        public PacketDefinition Packet { get; set; }
 
-        [PacketIndex(3, IsOptional = true)]
-        public short? Mode { get; set; }
     }
 }

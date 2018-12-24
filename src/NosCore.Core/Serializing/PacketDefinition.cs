@@ -26,7 +26,5 @@ namespace NosCore.Core.Serializing
         public string OriginalContent { get; set; }
 
         public string OriginalHeader { get; set; }
-
-        public bool IsReturnPacket { get; set; }
     }
 }

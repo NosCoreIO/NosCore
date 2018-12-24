@@ -31,11 +31,11 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         int Hp { get; set; }
 
-        byte Morph { get; }
+        short Morph { get; }
 
         byte MorphUpgrade { get; }
 
-        byte MorphDesign { get; }
+        short MorphDesign { get; }
 
         byte MorphBonus { get; }
 

@@ -18,22 +18,38 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Items;
-using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("u_i")]
-    public class UseItemPacket : PacketDefinition
+    [PacketHeader("at")]
+    public class AtPacket : PacketDefinition
     {
-        [Range(0, 9)]
+        #region Properties
+
+        [PacketIndex(0)]
+        public long CharacterId { get; set; }
+
         [PacketIndex(1)]
-        public PocketType Type { get; set; }
+        public short MapId { get; set; }
 
         [PacketIndex(2)]
-        public short Slot { get; set; }
+        public short PositionX { get; set; }
 
-        [PacketIndex(3, IsOptional = true)]
-        public short? Mode { get; set; }
+        [PacketIndex(3)]
+        public short PositionY { get; set; }
+
+        [PacketIndex(4)]
+        public byte Unknown1 { get; set; } //TODO to find
+
+        [PacketIndex(5)]
+        public byte Unknown2 { get; set; } //TODO to find
+
+        [PacketIndex(6)]
+        public int Music { get; set; }
+
+        [PacketIndex(7)]
+        public short Unknown3 { get; set; } //TODO to find
+
+        #endregion
     }
 }
