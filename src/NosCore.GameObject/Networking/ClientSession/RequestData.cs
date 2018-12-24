@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.GameObject.Networking.ClientSession
+﻿namespace NosCore.GameObject.Networking.ClientSession
 {
     public class RequestData<T> : RequestData
     {

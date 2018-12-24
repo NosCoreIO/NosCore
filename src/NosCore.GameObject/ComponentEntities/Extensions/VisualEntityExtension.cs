@@ -23,12 +23,10 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

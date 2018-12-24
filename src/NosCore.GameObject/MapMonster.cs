@@ -20,11 +20,9 @@
 using System;
 using System.Reactive.Linq;
 using NosCore.Data.AliveEntities;
-using System.Reactive.Subjects;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;

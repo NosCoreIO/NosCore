@@ -52,8 +52,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Database.Entities;
-using NosCore.Shared.Enumerations.Buff;
 using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
 
