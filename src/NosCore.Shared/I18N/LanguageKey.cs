@@ -199,16 +199,13 @@ namespace NosCore.Shared.I18N
         LOW_JOB_LVL,
         CANT_EQUIP_DESTROYED_SP,
         BAD_FAIRY,
-        SP_INLOADING,
         CLASS_CHANGED,
         CHANNEL_WILL_EXIT,
-        IN_WAITING_FOR,
         CANT_MOVE_ITEM_IN_SHOP,
         INVENTORY_FULL,
         BANK_FULL,
-        NOT_ENOUGH_ITEMS
-        BANK_FULL
-        IN_WAITING_FOR
+        NOT_ENOUGH_ITEMS,
+        IN_WAITING_FOR,
         SP_INLOADING,
         ASK_BIND,
         NO_SP,
