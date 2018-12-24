@@ -134,7 +134,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Wear(WearPacket wearPacket)
         {
-            UseItem(new UseItemPacket() { Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
+            UseItem(new UseItemPacket { Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
         }
 
         /// <summary>
