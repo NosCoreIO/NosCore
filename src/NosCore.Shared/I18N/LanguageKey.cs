@@ -198,7 +198,6 @@ namespace NosCore.Shared.I18N
         NO_SP,
         REMOVE_VEHICLE,
         SP_NOPOINTS,
-        TRANSFORM_SP_WITHOUT_CARD,
         LOW_REP,
         TRANSFORM_DISAPPEAR,
         STAY_TIME

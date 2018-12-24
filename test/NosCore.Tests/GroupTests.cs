@@ -20,7 +20,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Character;

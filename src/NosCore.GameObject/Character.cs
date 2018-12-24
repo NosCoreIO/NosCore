@@ -1130,12 +1130,7 @@ namespace NosCore.GameObject
         {
             SpecialistInstance sp = Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
             WearableInstance fairy = Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy, PocketType.Wear);
-            if (sp == null)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_SP_WITHOUT_CARD));
-                return;
-            }
-
+           
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
                 Session.SendPacket(new MsgPacket
@@ -1145,6 +1140,7 @@ namespace NosCore.GameObject
                 });
                 return;
             }
+
             if (fairy != null && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element && fairy.Item.Element != sp.Item.SecondaryElement)
             {
                 Session.SendPacket(new MsgPacket

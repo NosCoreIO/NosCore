@@ -21,7 +21,6 @@
 using System;
 using System.Linq;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
