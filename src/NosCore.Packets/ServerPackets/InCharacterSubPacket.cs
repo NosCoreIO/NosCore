@@ -67,49 +67,56 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(12)]
         public byte Morph { get; set; }
 
-        [PacketIndex(13, SpecialSeparator = "")]
+        //TODO: Find what Unknown2 & 3 are made for
+        [PacketIndex(13)]
+        public byte Unknown2 { get; set; }
+
+        [PacketIndex(14)]
+        public byte Unknown3 { get; set; }
+
+        [PacketIndex(15, SpecialSeparator = "")]
         public UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; set; }
 
-        [PacketIndex(14, SpecialSeparator = "")]
+        [PacketIndex(16, SpecialSeparator = "")]
         public UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; set; }
 
-        [PacketIndex(15)]
+        [PacketIndex(17)]
         public long FamilyId { get; set; }
 
-        [PacketIndex(16)]
+        [PacketIndex(18)]
         public string FamilyName { get; set; }
 
-        [PacketIndex(17)]
+        [PacketIndex(19)]
         public short ReputIco { get; set; }
 
-        [PacketIndex(18)]
+        [PacketIndex(20)]
         public bool Invisible { get; set; }
 
-        [PacketIndex(19)]
+        [PacketIndex(21)]
         public byte MorphUpgrade { get; set; }
 
-        [PacketIndex(20)]
+        [PacketIndex(22)]
         public byte Faction { get; set; }
 
-        [PacketIndex(21)]
+        [PacketIndex(23)]
         public byte MorphUpgrade2 { get; set; }
 
-        [PacketIndex(22)]
+        [PacketIndex(24)]
         public byte Level { get; set; }
 
-        [PacketIndex(23)]
+        [PacketIndex(25)]
         public byte FamilyLevel { get; set; }
 
-        [PacketIndex(24)]
+        [PacketIndex(26)]
         public bool ArenaWinner { get; set; }
 
-        [PacketIndex(25)]
+        [PacketIndex(27)]
         public short Compliment { get; set; }
 
-        [PacketIndex(26)]
+        [PacketIndex(28)]
         public byte Size { get; set; }
 
-        [PacketIndex(27)]
+        [PacketIndex(29)]
         public byte HeroLevel { get; set; }
 
         #endregion
