@@ -70,7 +70,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel").Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
