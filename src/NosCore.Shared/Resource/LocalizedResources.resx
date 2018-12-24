@@ -144,6 +144,9 @@
   <data name="ARCHER" xml:space="preserve">
     <value>Archer</value>
   </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Do you wish to bind with this item?</value>
+  </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>Do you want to delete?</value>
   </data>
@@ -167,6 +170,12 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Bad drop amount.</value>
   </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Your character does not fulfil the requirements needed to wear this item.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>Your specialist does not match with the fairy element.</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Wrong password!</value>
   </data>
@@ -177,7 +186,13 @@
     <value>This Player has blocked you!</value>
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Can't block your friend!</value>
+    <value>Can not block your friend!</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>You can not change to the same class.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>You can not equip a destroyed SP!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Unable to find this character!</value>
@@ -194,6 +209,9 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>The Character is offline</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Your class was changed succesfully!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
@@ -234,6 +252,9 @@
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Decoding error</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>To change of class dequip all your items please.</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>An exception has been thrown : {0}</value>
@@ -368,13 +389,13 @@
     <value>{0} Acquired</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>You cant drop that item!</value>
+    <value>You can not drop that item!</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>You can't drop that item!</value>
+    <value>You can not drop that item here!</value>
   </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Your job level have changed</value>
+    <value>Your job level has changed!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
@@ -387,10 +408,16 @@
     <value>{0} left the party</value>
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Your level has changed</value>
+    <value>Your level has changed!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>This SP requires more Job Level to use it.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>This SP requires more Reputation to use it.</value>
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Magician</value>
@@ -434,20 +461,26 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>You are the new party leader!</value>
   </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>You are not an adventurer.</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Not enough place.</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
-    <value>This player isn't on your blacklist!</value>
+    <value>This player is not on your blacklist!</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>The item is not yours!</value>
   </data>
   <data name="NO_ITEM" xml:space="preserve">
-    <value>Item doesn't exist!</value>
+    <value>Item does not exist!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>There is no specialist card equipped.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>No special properties wearable</value>
@@ -534,6 +567,10 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>To transform dismount the vehicle.</value>
+    <comment>Not used in the official</comment>
+  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -552,8 +589,20 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>You are actually using an SP! Please untransform first.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Your SP is still at cooldown! Please wait {0}s</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>You do not have sufficient SP points to transform!</value>
+  </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
     <value>You received {0} SP Points!</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Time left of the secondary effects: {0} seconds</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
@@ -566,6 +615,12 @@
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Swordman</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>You need at least "Level 15" and "Job Level 20" to change your class.</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>The secondary effects have finished.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Unable to request the group</value>
