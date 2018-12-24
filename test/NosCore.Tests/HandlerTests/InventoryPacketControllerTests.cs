@@ -808,14 +808,13 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
-            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
-            var item = _session.Character.Inventory.First();
-            var fairy = _session.Character.Inventory.Skip(1).First();
-            item.Value.Type = PocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            fairy.Value.Type = PocketType.Wear;
-            fairy.Value.Slot = (byte)EquipmentType.Fairy;
+            var item = _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1)).First();
+            var fairy = _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1)).First();
+
+            item.Type = PocketType.Wear;
+            item.Slot = (byte)EquipmentType.Sp;
+            fairy.Type = PocketType.Wear;
+            fairy.Slot = (byte)EquipmentType.Fairy;
             _handler.SpTransform(new SpTransformPacket { Type = 1 });
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
