@@ -793,6 +793,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Transform()
         {
+            _session.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
             var item = _session.Character.Inventory.First();
@@ -805,10 +806,11 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Transform_BadFairy()
         {
+            _session.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
-            var item = _session.Character.Inventory.First();
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
+            var item = _session.Character.Inventory.First();
             var fairy = _session.Character.Inventory.Skip(1).First();
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
@@ -822,6 +824,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Transform_BadReput()
         {
+            _session.Character.SpPoint = 1;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
@@ -835,6 +838,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_TransformBefore_Cooldown()
         {
+            _session.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();
             _session.Character.SpCooldown = 30;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
@@ -847,8 +851,22 @@ namespace NosCore.Tests.HandlerTests
         }
 
         [TestMethod]
+        public void Test_Transform_OutOfSpPoint()
+        {
+            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
+        }
+
+        [TestMethod]
         public void Test_Transform_Delay()
         {
+            _session.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
             var item = _session.Character.Inventory.First();
