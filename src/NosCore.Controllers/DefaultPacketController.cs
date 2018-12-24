@@ -425,7 +425,7 @@ namespace NosCore.Controllers
                 ConnectedAccount receiver = null;
 
                 var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
-                foreach (var server in servers)
+                foreach (var server in servers ?? new List<ChannelInfo>())
                 {
                     var accounts = WebApiAccess.Instance
                         .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
@@ -513,7 +513,7 @@ namespace NosCore.Controllers
             ConnectedAccount receiver = null;
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            foreach (var server in servers)
+            foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 var accounts = WebApiAccess.Instance
                     .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
