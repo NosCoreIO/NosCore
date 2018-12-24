@@ -101,7 +101,7 @@ namespace NosCore.Controllers
             Session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
             Session.SendPacket(Session.Character.GenerateTit());
-            //            Session.SendPacket(Session.Character.GenerateSpPoint());
+            Session.SendPacket(Session.Character.GenerateSpPoint());
             Session.SendPacket(Session.Character.GenerateRsfi());
             if (Session.Character.Hp <= 0)
             {

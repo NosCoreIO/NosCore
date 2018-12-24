@@ -196,14 +196,14 @@ namespace NosCore.Controllers
                 }
                 else
                 {
-                    //TODO implement sp points
-                    //if (Session.Character.SpPoint == 0 && Session.Character.SpAdditionPoint == 0)
-                    //{
-                    //    Session.SendPacket(new MsgPacket
-                    //    {
-                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, Session.Account.Language)
-                    //    });
-                    //}
+                    if (Session.Character.SpPoint == 0 && Session.Character.SpAdditionPoint == 0)
+                    {
+                        Session.SendPacket(new MsgPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, Session.Account.Language)
+                        });
+                        return;
+                    }
                     if (currentRunningSeconds >= Session.Character.SpCooldown)
                     {
                         if (spTransformPacket.Type == 1)

@@ -167,14 +167,16 @@ namespace NosCore.GameObject.Services.Inventory
                 var e = new InvalidOperationException(
                     "Cannot add an item of type Specialist without beeing a SpecialistInstance.");
                 _logger.Error(e.Message, e);
+                return null;
             }
 
             if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear)
-                && !(newItem is WearableInstance))
+                && !(newItem is WearableInstance) && !(newItem is SpecialistInstance))
             {
                 var e = new InvalidOperationException(
-                    "Cannot add an item of type Equipment or Wear without beeing a WearableInstance.");
+                    "Cannot add an item of type Equipment or Wear without beeing a WearableInstance or a SpecialistInstance.");
                 _logger.Error(e.Message, e);
+                return null;
             }
 
             this[newItem.Id] = newItem;

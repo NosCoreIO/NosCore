@@ -116,8 +116,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
                 if (requestData.ClientSession.Character.UseSp)
                 {
                     requestData.ClientSession.SendPacket(
-                    requestData.ClientSession.Character.GenerateSay(
-                        requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), Shared.Enumerations.SayColorType.Yellow));
+                        requestData.ClientSession.Character.GenerateSay(
+                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), Shared.Enumerations.SayColorType.Yellow));
                     return;
                 }
 
@@ -135,8 +135,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
             if (requestData.ClientSession.Character.JobLevel < itemInstance.Item.LevelJobMinimum)
             {
                 requestData.ClientSession.SendPacket(
-             requestData.ClientSession.Character.GenerateSay(
-                 requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL), Shared.Enumerations.SayColorType.Yellow));
+                    requestData.ClientSession.Character.GenerateSay(
+                        requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL), Shared.Enumerations.SayColorType.Yellow));
                 return;
             }
 
@@ -148,7 +148,11 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateEq());
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
-
+            if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+            {
+                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
+            }
+         
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance));
