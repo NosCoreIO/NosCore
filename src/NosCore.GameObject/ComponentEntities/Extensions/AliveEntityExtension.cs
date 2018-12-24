@@ -154,15 +154,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static GenericUseItemPacket GenerateGenericUseItem(this IAliveEntity aliveEntity, IItemInstance itemInstance)
+        public static GenericUseItemPacket GenerateGenericUseItem(this IAliveEntity aliveEntity, UseItemPacket packet)
         {
             return new GenericUseItemPacket
             {
                 VisualId = aliveEntity.VisualId,
                 VisualType = aliveEntity.VisualType,
-                Unknown = 1,
-                Slot = itemInstance.Slot,
-                Type = itemInstance.Type
+                UsePacket = packet
             };
         }
 

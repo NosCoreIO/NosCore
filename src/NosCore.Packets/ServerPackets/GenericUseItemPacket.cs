@@ -34,15 +34,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(2)]
         public long VisualId { get; set; }
 
-        [Range(0, 9)]
         [PacketIndex(3)]
-        public PocketType Type { get; set; }
-
-        [PacketIndex(4)]
-        public short Slot { get; set; }
-
-        [PacketIndex(5)]
-        public byte Unknown { get; set; }
-
+        public UseItemPacket UsePacket { get; set; }
     }
 }

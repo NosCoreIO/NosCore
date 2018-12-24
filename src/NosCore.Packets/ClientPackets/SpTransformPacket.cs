@@ -23,17 +23,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("u_i")]
-    public class UseItemPacket : PacketDefinition
+    [PacketHeader("sl")]
+    public class SpTransformPacket : PacketDefinition
     {
-        [Range(0, 9)]
-        [PacketIndex(1)]
-        public PocketType Type { get; set; }
+        [PacketIndex(0)]
+        public byte Type { get; set; }
 
-        [PacketIndex(2)]
-        public short Slot { get; set; }
+        [PacketIndex(1, IsOptional = true)]
+        public int? TransportId { get; set; }
+
+        [PacketIndex(2, IsOptional = true)]
+        public short? SpecialistDamage { get; set; }
 
         [PacketIndex(3, IsOptional = true)]
-        public short? Mode { get; set; }
+        public short? SpecialistDefense { get; set; }
+
+        [PacketIndex(4, IsOptional = true)]
+        public short? SpecialistElement { get; set; }
+
+        [PacketIndex(5, IsOptional = true)]
+        public short? SpecialistHP { get; set; }
+
     }
 }

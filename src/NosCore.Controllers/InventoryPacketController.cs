@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
@@ -150,6 +151,90 @@ namespace NosCore.Controllers
             }
 
             inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(Session, new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
+        }
+
+        /// <summary>
+        /// sl packet
+        /// </summary>
+        /// <param name="spTransformPacket"></param>
+        public void SpTransform(SpTransformPacket spTransformPacket)
+        {
+            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+
+            if (spTransformPacket.Type == 10)
+            {
+                //TODO set points
+            }
+            else if (!Session.Character.IsSitting)
+            {
+                if (specialistInstance == null)
+                {
+                    Session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, Session.Account.Language)
+                    });
+
+                    return;
+                }
+
+                if (Session.Character.IsVehicled)
+                {
+                    Session.SendPacket(new MsgPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, Session.Account.Language)
+                    });
+                    return;
+                }
+
+                double currentRunningSeconds = (SystemTime.Now() - Session.Character.LastSp).TotalSeconds;
+
+                if (Session.Character.UseSp)
+                {
+                    Session.Character.LastSp = SystemTime.Now();
+                    Session.Character.RemoveSp();
+                }
+                else
+                {
+                    //TODO implement sp points
+                    //if (Session.Character.SpPoint == 0 && Session.Character.SpAdditionPoint == 0)
+                    //{
+                    //    Session.SendPacket(new MsgPacket
+                    //    {
+                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, Session.Account.Language)
+                    //    });
+                    //}
+                    if (currentRunningSeconds >= Session.Character.SpCooldown)
+                    {
+                        if (spTransformPacket.Type == 1)
+                        {
+                            Session.Character.ChangeSp();
+                        }
+                        else
+                        {
+                            Session.SendPacket(new DelayPacket
+                            {
+                                Type = 3,
+                                Delay = 5000,
+                                Packet = new SpTransformPacket { Type = 1 }
+                            });
+                            Session.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+                            {
+                                Type = 2,
+                                Argument = 1,
+                                VisualEntityId = Session.Character.CharacterId
+                            });
+                        }
+                    }
+                    else
+                    {
+                        Session.SendPacket(new MsgPacket
+                        {
+                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                                Session.Account.Language), Session.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                        });
+                    }
+                }
+            }
         }
 
         [UsedImplicitly]

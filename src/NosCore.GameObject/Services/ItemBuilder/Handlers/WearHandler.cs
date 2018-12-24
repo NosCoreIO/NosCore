@@ -54,18 +54,23 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
             if (itemInstance.BoundCharacterId == null)
             {
-                if (!packet.IsReturnPacket && itemInstance.Item.RequireBinding)
+                if ((packet.Mode ?? 0) == 0 && itemInstance.Item.RequireBinding)
                 {
                     requestData.ClientSession.SendPacket(
-                    new QnaPacket()
+                    new QnaPacket
                     {
-                        YesPacket = requestData.ClientSession.Character.GenerateGenericUseItem(itemInstance),
+                        YesPacket = requestData.ClientSession.Character.GenerateGenericUseItem(new UseItemPacket
+                        {
+                            Mode = 1,
+                            Slot = itemInstance.Slot,
+                            Type = itemInstance.Type
+                        }),
                         Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                     });
                     return;
                 }
 
-                if (packet.IsReturnPacket)
+                if (packet.Mode != 0)
                 {
                     itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
                 }

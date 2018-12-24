@@ -250,7 +250,7 @@ namespace NosCore.GameObject.Services.Inventory
                 return null;
             }
 
-            if (sourceInstance is SpecialistInstance && targetType != PocketType.Equipment && targetType != PocketType.Specialist)
+            if (sourceInstance is SpecialistInstance && targetType != PocketType.Equipment && targetType != PocketType.Specialist && targetType != PocketType.Wear)
             {
                 var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
                 _logger.Error(e.Message, e);
