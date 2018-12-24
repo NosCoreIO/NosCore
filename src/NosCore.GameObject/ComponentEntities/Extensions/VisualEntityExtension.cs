@@ -128,6 +128,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FairyElement = 0,
                     Unknown = 0,
                     Morph = 0,
+                    Unknown2 = 0,
+                    Unknown3 = 0,
                     WeaponUpgradeRareSubPacket = visualEntity.WeaponUpgradeRareSubPacket,
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
