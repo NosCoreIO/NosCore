@@ -71,15 +71,15 @@ namespace NosCore.Controllers
         public void Kick(KickPacket kickPacket)
         {
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel");
-            ConnectedAccount account = null;
             ServerConfiguration config = null;
 
             foreach (var server in servers)
             {
                 config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
-                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
             }
+
+            ConnectedAccount account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
+                .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
 
             if (account == null) //TODO: Handle 404 in WebApi
             {
