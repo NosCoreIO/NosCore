@@ -48,23 +48,31 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
         public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
 
-        public void CloseExchange(ClientSession session, ClientSession targetSession)
+        public void CloseExchange(ClientSession session, ClientSession targetSession, ExchangeCloseType closeType)
         {
             if (targetSession != null)
             {
-                targetSession.Character.InExchange = false;
-                targetSession.SendPacket(new ExcClosePacket());
-                targetSession.Character.ExchangeData = new ExchangeData();
-                targetSession.Character.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
+                ResetExchangeData(targetSession);
+                targetSession.SendPacket(new ExcClosePacket { Type = closeType });
             }
 
             if (session == null)
             {
                 return;
             }
+            
+            ResetExchangeData(session);
+            session.SendPacket(new ExcClosePacket { Type = closeType });
+        }
+
+        public void ResetExchangeData(ClientSession session)
+        {
+            if (session == null)
+            {
+                return;
+            }
 
             session.Character.InExchange = false;
-            session.SendPacket(new ExcClosePacket());
             session.Character.ExchangeData = new ExchangeData();
             session.Character.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
@@ -73,11 +81,18 @@ namespace NosCore.GameObject.Services.ExchangeInfo
         {
             foreach (var item in session.Character.ExchangeData.ExchangeItems.Values)
             {
-                var temp = session.Character.Inventory.LoadByItemInstanceId<IItemInstance>(item.Id);
-
-                if (temp != null && temp.Amount >= item.Amount)
+                if (session.Character.Inventory.LoadByItemInstanceId<IItemInstance>(item.Id)?.Amount >= item.Amount)
                 {
-                    session.Character.Inventory.RemoveItemAmount(item.ItemVNum, item.Amount);
+                    var temp = session.Character.Inventory.RemoveItemAmountFromInventory(item.Amount, item.Id);
+
+                    if (temp == null)
+                    {
+                        continue;
+                    }
+
+                    session.SendPacket(temp.Amount <= 0
+                        ? ((IItemInstance) null).GeneratePocketChange(temp.Type, temp.Slot)
+                        : item.GeneratePocketChange(item.Type, item.Slot));
                 }
                 else
                 {
@@ -92,6 +107,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
                 itemCpy.Id = Guid.NewGuid();
                 targetSession.Character.Inventory.AddItemToPocket(itemCpy);
+                targetSession.SendPacket(itemCpy.GeneratePocketChange(itemCpy.Type, itemCpy.Slot));
             }
 
             session.Character.Gold -= session.Character.ExchangeData.Gold;
