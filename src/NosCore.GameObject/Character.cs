@@ -575,7 +575,7 @@ namespace NosCore.GameObject
             }
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer);
-            foreach (var server in servers)
+            foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
                     .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
