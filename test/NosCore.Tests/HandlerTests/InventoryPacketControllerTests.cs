@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,13 +25,12 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
+using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -44,6 +40,7 @@ using NosCore.GameObject.Services.ItemBuilder.Handlers;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapItemBuilder.Handlers;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -52,7 +49,9 @@ using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
-using NosCore.GameObject.Services.MapItemBuilder.Handlers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -100,7 +99,8 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
                 new Item {Type = PocketType.Main, VNum = 1013},
                 new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
-                new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
+                new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = 2},
+                new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2, Element = 1},
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             var conf = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999 };
@@ -673,8 +673,8 @@ namespace NosCore.Tests.HandlerTests
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
             var packet = (MsgPacket)_session.LastPacket;
-            Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-                _session.Account.Language), 30));
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                _session.Account.Language));
         }
 
         [TestMethod]
@@ -722,13 +722,13 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            var item = _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
 
             var packet = (QnaPacket)_session.LastPacket;
             Assert.IsTrue(packet.YesPacket is GenericUseItemPacket yespacket
-                && yespacket.UsePacket.Slot == 0 
-                && yespacket.UsePacket.Type == PocketType.Equipment 
+                && yespacket.UsePacket.Slot == 0
+                && yespacket.UsePacket.Type == PocketType.Equipment
                 && packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND));
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
         }
@@ -743,9 +743,120 @@ namespace NosCore.Tests.HandlerTests
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.UseItem(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1});
+            _handler.UseItem(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 });
 
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear && s.Value.BoundCharacterId == _session.Character.VisualId));
+        }
+
+        [TestMethod]
+        public void Test_Transform_NoSp()
+        {
+            _handler.SpTransform(new SpTransformPacket { Type = 0 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
+        }
+
+        [TestMethod]
+        public void Test_Transform_Vehicle()
+        {
+            _session.Character.IsVehicled = true;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 0 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
+        }
+
+
+        [TestMethod]
+        public void Test_Transform_Sitted()
+        {
+            _session.Character.IsSitting = true;
+            _handler.SpTransform(new SpTransformPacket { Type = 0 });
+            Assert.IsNull(_session.LastPacket);
+        }
+
+        [TestMethod]
+        public void Test_RemoveSp()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            _session.Character.UseSp = true;
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            Assert.IsFalse(_session.Character.UseSp);
+        }
+
+        [TestMethod]
+        public void Test_Transform()
+        {
+            _session.Character.Reput = 5000000;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            Assert.IsTrue(_session.Character.UseSp);
+        }
+
+        [TestMethod]
+        public void Test_Transform_BadFairy()
+        {
+            _session.Character.Reput = 5000000;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
+            var fairy = _session.Character.Inventory.Skip(1).First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            fairy.Value.Type = PocketType.Wear;
+            fairy.Value.Slot = (byte)EquipmentType.Fairy;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
+        }
+
+        [TestMethod]
+        public void Test_Transform_BadReput()
+        {
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
+        }
+
+
+        [TestMethod]
+        public void Test_TransformBefore_Cooldown()
+        {
+            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.SpCooldown = 30;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 1 });
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language), 30));
+        }
+
+        [TestMethod]
+        public void Test_Transform_Delay()
+        {
+            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
+            var item = _session.Character.Inventory.First();
+            item.Value.Type = PocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            _handler.SpTransform(new SpTransformPacket { Type = 0 });
+            var packet = (DelayPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Delay == 5000);
         }
     }
 }

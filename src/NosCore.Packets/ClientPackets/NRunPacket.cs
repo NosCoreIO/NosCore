@@ -1,7 +1,4 @@
 ﻿using NosCore.Core.Serializing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Packets.ClientPackets
