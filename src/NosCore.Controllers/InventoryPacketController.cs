@@ -165,8 +165,13 @@ namespace NosCore.Controllers
             {
                 //TODO set points
             }
-            else if (!Session.Character.IsSitting)
+            else
             {
+                if (Session.Character.IsSitting)
+                {
+                    return;
+                }
+
                 if (specialistInstance == null)
                 {
                     Session.SendPacket(new MsgPacket

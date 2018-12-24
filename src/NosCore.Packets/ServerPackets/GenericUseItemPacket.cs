@@ -19,9 +19,6 @@
 
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Packets.ClientPackets
 {
