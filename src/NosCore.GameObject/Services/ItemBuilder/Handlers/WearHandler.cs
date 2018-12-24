@@ -19,7 +19,6 @@
 
 
 using System;
-using System.Diagnostics;
 using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,7 +28,6 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
-using Serilog;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 {
