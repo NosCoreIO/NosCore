@@ -393,7 +393,7 @@ namespace NosCore.Tests.HandlerTests
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.Wear(new WearPacket() { InventorySlot = 0, Type = PocketType.Equipment });
+            _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
             var packet = (SayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -727,8 +727,8 @@ namespace NosCore.Tests.HandlerTests
 
             var packet = (QnaPacket)_session.LastPacket;
             Assert.IsTrue(packet.YesPacket is GenericUseItemPacket yespacket
-                && yespacket.Slot == 0 
-                && yespacket.Type == PocketType.Equipment 
+                && yespacket.UsePacket.Slot == 0 
+                && yespacket.UsePacket.Type == PocketType.Equipment 
                 && packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND));
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
         }
@@ -743,7 +743,7 @@ namespace NosCore.Tests.HandlerTests
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
-            _handler.UseItem(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, IsReturnPacket = true });
+            _handler.UseItem(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1});
 
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear && s.Value.BoundCharacterId == _session.Character.VisualId));
         }

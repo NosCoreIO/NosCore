@@ -194,6 +194,13 @@ namespace NosCore.Shared.I18N
         CANT_EQUIP_DESTROYED_SP,
         BAD_FAIRY,
         SP_INLOADING,
-        ASK_BIND
+        ASK_BIND,
+        NO_SP,
+        REMOVE_VEHICLE,
+        SP_NOPOINTS,
+        TRANSFORM_SP_WITHOUT_CARD,
+        LOW_REP,
+        TRANSFORM_DISAPPEAR,
+        STAY_TIME
     }
 }
