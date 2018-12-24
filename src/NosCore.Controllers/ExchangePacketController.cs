@@ -99,7 +99,7 @@ namespace NosCore.Controllers
 
                     if (!item.Item.IsTradable)
                     {
-                        _exchangeAccessService.CloseExchange(Session, target?.Session);
+                        _exchangeAccessService.CloseExchange(Session, target?.Session, ExchangeCloseType.Failure);
                         return;
                     }
 
@@ -194,7 +194,7 @@ namespace NosCore.Controllers
                     
                     if (exchangeInfo.Gold + target.Gold > _worldConfiguration.MaxGoldAmount)
                     {
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, target.Account.Language)});
                         return;
                     }
@@ -202,28 +202,28 @@ namespace NosCore.Controllers
                     if (targetInfo.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
                     {
 
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, Session.Account.Language) });
                         return;
                     }
 
                     if (exchangeInfo.BankGold + target.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
                     {
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
                         return;
                     }
 
                     if (targetInfo.BankGold + Session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
                     {
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
                         return;
                     }
 
                     if (Session.Character.ExchangeData.ExchangeItems.Values.Any(s => !s.Item.IsTradable))
                     {
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, Session.Account.Language) });
                         return;
                     }
@@ -232,17 +232,17 @@ namespace NosCore.Controllers
                     {
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, Session.Account.Language) });
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, target.Account.Language) });
-                        _exchangeAccessService.CloseExchange(Session, target.Session);
+                        _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         return;
                     }
 
                     _exchangeAccessService.ProcessExchange(Session, target.Session);
                     _exchangeAccessService.ProcessExchange(target.Session, Session);
-                    _exchangeAccessService.CloseExchange(Session, target.Session);
+                    _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Success);
                     break;
                 case RequestExchangeType.Cancelled:
                     target = Broadcaster.Instance.GetCharacter(s => s.VisualId == Session.Character.ExchangeData.TargetVisualId) as Character;
-                    _exchangeAccessService.CloseExchange(Session, target?.Session);
+                    _exchangeAccessService.CloseExchange(Session, target?.Session, ExchangeCloseType.Failure);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -494,7 +494,27 @@ namespace NosCore.GameObject.Services.Inventory
             return true;
         }
 
-        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount = 1)
+        public IItemInstance RemoveItemAmountFromInventory(short amount, Guid id)
+        {
+            var instance = Values.FirstOrDefault(s => s.Id == id);
+
+            if (instance == null)
+            {
+                return null;
+            }
+
+            instance.Amount -= amount;
+            if (amount <= 0)
+            {
+                TryRemove(id, out _);
+            }
+
+            return instance;
+        }
+
+        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum) => RemoveItemAmount(vnum, 1);
+
+        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount)
         {
             var remainingAmount = amount;
 

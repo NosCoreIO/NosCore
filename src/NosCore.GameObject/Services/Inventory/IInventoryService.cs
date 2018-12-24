@@ -48,6 +48,8 @@ namespace NosCore.GameObject.Services.Inventory
             out IItemInstance sourcePocket, out IItemInstance destinationPocket);
 
         bool EnoughPlace(List<IItemInstance> itemInstances);
+        IEnumerable<IItemInstance> RemoveItemAmount(int vnum);
+        IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount);
         IItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }

@@ -20,15 +20,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Interaction;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Shared.Enumerations.Interaction
 {
-    [PacketHeader("exc_close")]
-    public class ExcClosePacket : PacketDefinition
+    public enum ExchangeCloseType : byte
     {
-        [PacketIndex(0)]
-        public ExchangeCloseType Type { get; set; }
+        Failure = 0,
+        Success
     }
 }
