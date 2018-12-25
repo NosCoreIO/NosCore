@@ -1193,6 +1193,9 @@ namespace NosCore.GameObject
             {
                 Morph = 0;
             }
+
+            IsVehicled = false;
+            VehicleSpeed = 0;
             Session.SendPacket(this.GenerateCond());
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
         }

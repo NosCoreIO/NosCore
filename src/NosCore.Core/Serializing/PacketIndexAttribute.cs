@@ -56,5 +56,7 @@ namespace NosCore.Core.Serializing
         public bool IsOptional { get; set; }
 
         public string SpecialSeparator { get; set; }
+
+        public byte MinimumLengthToSerialize { get; set; }
     }
 }

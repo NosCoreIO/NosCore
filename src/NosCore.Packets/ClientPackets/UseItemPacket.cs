@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Items;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,14 +27,23 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("u_i")]
     public class UseItemPacket : PacketDefinition
     {
-        [Range(0, 9)]
+        [PacketIndex(0)]
+        public VisualType VisualType { get; set; }
+
         [PacketIndex(1)]
+        public long VisualId { get; set; }
+
+        [Range(0, 9)]
+        [PacketIndex(2)]
         public PocketType Type { get; set; }
 
-        [PacketIndex(2)]
+        [PacketIndex(3)]
         public short Slot { get; set; }
 
-        [PacketIndex(3, IsOptional = true)]
-        public short? Mode { get; set; }
+        [PacketIndex(4)]
+        public short Mode { get; set; }
+
+        [PacketIndex(5)]
+        public short Parameter { get; set; }
     }
 }
