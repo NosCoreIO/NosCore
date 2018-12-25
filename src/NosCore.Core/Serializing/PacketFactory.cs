@@ -566,9 +566,15 @@ namespace NosCore.Core.Serializing
                         GetSerializationInformation(subpacketPropertyInfo.Value.PropertyType);
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
                     serializedSubpacket = serializedSubpacket.TrimEnd();
-                    serializedSubpacket.Append(SerializeSubpacket(valuesub, subpacketSerializationInfo2, isReturnPacket,
-                        subpacketPropertyInfo.Key.RemoveSeparator,
-                        subpacketPropertyInfo.Key.SpecialSeparator ?? specialSeparator));
+                    var subpacket = SerializeSubpacket(valuesub, subpacketSerializationInfo2, false,
+                        subpacketPropertyInfo.Key.RemoveSeparator, isReturnPacket ? "^" :
+                            subpacketPropertyInfo.Key.SpecialSeparator ?? specialSeparator);
+                    if (isReturnPacket)
+                    {
+                        subpacket = subpacket.TrimStart();
+                    }
+                    serializedSubpacket.Append(subpacket);
+                    serializedSubpacket.Replace("^^", "^");
                     continue;
                 }
 
