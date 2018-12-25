@@ -200,6 +200,7 @@ namespace NosCore.Shared.I18N
         SP_NOPOINTS,
         LOW_REP,
         TRANSFORM_DISAPPEAR,
-        STAY_TIME
+        STAY_TIME,
+        USE_SP_WITHOUT_SP_ERROR
     }
 }
