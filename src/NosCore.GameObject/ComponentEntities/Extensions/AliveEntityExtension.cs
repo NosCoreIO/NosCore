@@ -29,6 +29,7 @@ using NosCore.PathFinder;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -154,13 +155,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static GenericUseItemPacket GenerateGenericUseItem(this IAliveEntity aliveEntity, UseItemPacket packet)
+        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, PocketType type, short slot, byte mode, byte parameter)
         {
-            return new GenericUseItemPacket
+            return new UseItemPacket
             {
                 VisualId = aliveEntity.VisualId,
                 VisualType = aliveEntity.VisualType,
-                UsePacket = packet
+                Type = type,
+                Slot = slot,
+                Mode = mode,
+                Parameter = parameter
             };
         }
 

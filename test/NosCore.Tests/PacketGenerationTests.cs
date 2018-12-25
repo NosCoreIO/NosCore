@@ -77,7 +77,7 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
-        public void GenerateSubPacketInReturnPacket()
+        public void Generate()
         {
             var characterTest = new Character
             {
@@ -91,7 +91,7 @@ namespace NosCore.Tests
             {
                 Type = 3,
                 Delay = 3000,
-                Packet = characterTest.GenerateGenericUseItem(new UseItemPacket { Type = PocketType.Main, Slot = 1, Mode = 2 })
+                Packet = characterTest.GenerateUseItem(PocketType.Main, 1,  2,0 )
             } });
             Assert.AreEqual($"delay 3000 3 #u_i^1^0^1^1^2", packet);
         }
@@ -173,6 +173,13 @@ namespace NosCore.Tests
         {
             var packet = PacketFactory.Deserialize("$CreateItem 1012 1", typeof(CreateItemPacket));
             Assert.IsNotNull(packet);
+        }
+
+        [TestMethod]
+        public void DeserializeSpecial()
+        {
+            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4", typeof(UseItemPacket));
+            Assert.IsNotNull(packet.Mode == 4);
         }
 
         [TestMethod]
