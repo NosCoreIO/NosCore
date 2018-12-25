@@ -105,7 +105,7 @@ namespace NosCore.Controllers
 
                     var itemCpy = (IItemInstance)item.Clone();
                     itemCpy.Amount = value.Amount;
-                    Session.Character.ExchangeData.ExchangeItems.TryAdd(Session.Character.ExchangeData.TargetVisualId, itemCpy);
+                    Session.Character.ExchangeData.ExchangeItems.TryAdd(i, itemCpy);
 
                     var subPacket = new ServerExcListSubPacket
                     {
