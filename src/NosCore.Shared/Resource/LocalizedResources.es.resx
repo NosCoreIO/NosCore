@@ -144,6 +144,9 @@
   <data name="ARCHER" xml:space="preserve">
     <value>Arquero</value>
   </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>¿Deseas vincular este objeto?</value>
+  </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>¿Deseas eliminarlo?</value>
   </data>
@@ -165,6 +168,12 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>La cantidad de items soltados es erronea.</value>
   </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Tu personaje no cumple con los requisitos necesarios para llevar este objeto.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>Tu especialista no es compatible con el elemento de la hada.</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
   </data>
@@ -176,6 +185,12 @@
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>¡No puedes bloquear a tu amigo!</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>No puedes cambiarte a la misma clase.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>¡No puedes equiparte una SP destruida!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>¡No se ha podido encontrar a este personaje!</value>
@@ -195,6 +210,9 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>El personaje está desconectado.</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>¡Tu clase ha sido cambiada exitosamente!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Cliente ha llegado con SessionId = {0}</value>
@@ -238,6 +256,9 @@
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Error al descodificar</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Para cambiar de clase desequipate todos los objetos.</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Se ha producido una excepción: {0}</value>
@@ -396,6 +417,12 @@
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Escuchando el puerto: {0}</value>
   </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Esta SP require de más Nivel de Profesión para usarla.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>Esta SP require de más Reputación para usarla.</value>
+  </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Mago</value>
   </data>
@@ -438,6 +465,9 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>¡Ahora eres el nuevo líder del grupo!</value>
   </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Para cambiar de clase debes ser un Aventurero.</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>No hay suficiente espacio.</value>
   </data>
@@ -452,6 +482,9 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>No hay ninguna tarjeta de especialista equipada.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Ningunas propiedades especiales equipables.</value>
@@ -537,6 +570,10 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
   </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Para transformarte desactiva la montura.</value>
+    <comment>Not used in the official</comment>
+  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>¡{0} RespawnTypes Analizados!</value>
   </data>
@@ -555,8 +592,20 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>¡{0} Skills Analizadas!</value>
   </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>¡Actualmente estás utilizando una SP! Por favor destransformate primero.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>¡No puedes transformarte debido a los efectos secundarios! Por favor espera {0}s</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>¡No tienes suficientes puntos de SP para transformarte!</value>
+  </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
     <value>¡Has recibido {0} puntos de especialista!</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Tiempo de los efectos secundarios de la transofrmación: {0} segundos</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>¡Cargado exitosamente!</value>
@@ -569,6 +618,12 @@
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Espadachín</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Necesitas como minimo "Nivel 15" y "Nivel de Profesión 20" para cambiar de clase.</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>Los efectos secundarios de la transformación han terminado.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Incapaz de enviar la petición de grupo.</value>
