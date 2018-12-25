@@ -201,7 +201,6 @@ namespace NosCore.Controllers
 
                     if (targetInfo.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
                     {
-
                         _exchangeAccessService.CloseExchange(Session, target.Session, ExchangeCloseType.Failure);
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, Session.Account.Language) });
                         return;
