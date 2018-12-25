@@ -140,8 +140,6 @@ namespace NosCore.Tests.HandlerTests
 
             _controller.RequestExchange(packet);
             Assert.IsTrue(!_character.InExchangeOrShop && !_character2.InExchangeOrShop);
-
-
         }
     }
 }
