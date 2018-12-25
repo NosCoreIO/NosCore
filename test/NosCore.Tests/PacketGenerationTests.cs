@@ -91,9 +91,9 @@ namespace NosCore.Tests
             {
                 Type = 3,
                 Delay = 3000,
-                Packet = characterTest.GenerateUseItem(PocketType.Main, 1,  2,0 )
+                Packet = characterTest.GenerateUseItem(PocketType.Main, 1, 2, 0)
             } });
-            Assert.AreEqual($"delay 3000 3 #u_i^1^0^1^1^2", packet);
+            Assert.AreEqual($"delay 3000 3 #u_i^1^0^1^1^2^0", packet);
         }
 
         [TestMethod]
