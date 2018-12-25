@@ -574,7 +574,6 @@ namespace NosCore.Core.Serializing
                         subpacket = subpacket.TrimStart();
                     }
                     serializedSubpacket.Append(subpacket);
-                    serializedSubpacket.Replace("^^", "^");
                     continue;
                 }
 
@@ -583,6 +582,7 @@ namespace NosCore.Core.Serializing
                     subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
             }
 
+            serializedSubpacket.Replace("^^", "^");
             return serializedSubpacket.ToString();
         }
 
@@ -630,7 +630,7 @@ namespace NosCore.Core.Serializing
             }
 
             // enum should be casted to number
-            if (propertyType.BaseType?.Equals(typeof(Enum)) ?? false)
+            if ((propertyType.BaseType?.Equals(typeof(Enum)) ?? false) || (Nullable.GetUnderlyingType(propertyType)?.IsEnum ?? false))
             {
                 return $" {Convert.ToInt16(value)}";
             }

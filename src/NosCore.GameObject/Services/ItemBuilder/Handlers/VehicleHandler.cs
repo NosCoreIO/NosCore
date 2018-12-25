@@ -25,19 +25,20 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
                 return;
             }
 
-            if ((packet.Mode ?? 0) == 1 && !requestData.ClientSession.Character.IsVehicled)
+            if (packet.Mode == 1 && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.SendPacket(new DelayPacket
                 {
                     Type = 3,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateGenericUseItem(new UseItemPacket { Type = itemInstance.Type, Slot = itemInstance.Slot, Mode = 2 })
+                    Packet = requestData.ClientSession.Character.GenerateUseItem(itemInstance.Type, itemInstance.Slot, 2, 0)
                 });
                 return;
             }
 
-            if ((packet.Mode ?? 0) == 2 && !requestData.ClientSession.Character.IsVehicled)
+            if (packet.Mode == 2 && !requestData.ClientSession.Character.IsVehicled)
             {
+                requestData.ClientSession.Character.IsVehicled = true;
                 requestData.ClientSession.Character.VehicleSpeed = itemInstance.Item.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;

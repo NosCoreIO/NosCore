@@ -726,9 +726,9 @@ namespace NosCore.Tests.HandlerTests
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
 
             var packet = (QnaPacket)_session.LastPacket;
-            Assert.IsTrue(packet.YesPacket is GenericUseItemPacket yespacket
-                && yespacket.UsePacket.Slot == 0
-                && yespacket.UsePacket.Type == PocketType.Equipment
+            Assert.IsTrue(packet.YesPacket is UseItemPacket yespacket
+                && yespacket.Slot == 0
+                && yespacket.Type == PocketType.Equipment
                 && packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND));
             Assert.IsTrue(_session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
         }

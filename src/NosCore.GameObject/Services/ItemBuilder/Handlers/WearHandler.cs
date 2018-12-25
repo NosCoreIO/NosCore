@@ -52,12 +52,12 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
             if (itemInstance.BoundCharacterId == null)
             {
-                if ((packet.Mode ?? 0) == 0 && itemInstance.Item.RequireBinding)
+                if (packet.Mode == 0 && itemInstance.Item.RequireBinding)
                 {
                     requestData.ClientSession.SendPacket(
                     new QnaPacket
                     {
-                        YesPacket = requestData.ClientSession.Character.GenerateGenericUseItem(new UseItemPacket
+                        YesPacket = requestData.ClientSession.Character.GenerateUseItem(new UseItemPacket
                         {
                             Mode = 1,
                             Slot = itemInstance.Slot,
