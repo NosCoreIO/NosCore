@@ -151,6 +151,10 @@ namespace NosCore.GameObject
         {
             get
             {
+                if (VehicleSpeed != null)
+                {
+                    return (byte)VehicleSpeed;
+                }
                 //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
                 //    {
                 //        return 0;
@@ -1037,6 +1041,7 @@ namespace NosCore.GameObject
         public DateTime LastSp { get; set; } = SystemTime.Now();
         public short SpCooldown { get; set; }
         public bool IsVehicled { get; set; }
+        public byte? VehicleSpeed { get; set; }
 
         public EquipPacket GenerateEquipment()
         {
@@ -1166,6 +1171,30 @@ namespace NosCore.GameObject
             LoadSpeed();
             Session.SendPacket(this.GenerateCond());
             Session.SendPacket(GenerateStat());
+        }
+
+        public void RemoveVehicle()
+        {
+            if (UseSp)
+            {
+                SpecialistInstance sp = Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+                if (sp != null)
+                {
+                    Morph = sp.Item.Morph;
+                    MorphDesign = sp.Design;
+                    MorphUpgrade = sp.Upgrade;
+                }
+                else
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USE_SP_WITHOUT_SP_ERROR));
+                }
+            }
+            else
+            {
+                Morph = 0;
+            }
+            Session.SendPacket(this.GenerateCond());
+            MapInstance.Sessions.SendPacket(this.GenerateCMode());
         }
     }
 }
