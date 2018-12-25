@@ -32,6 +32,7 @@ using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
 {
@@ -47,7 +48,8 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character {
+            var characterTest = new Character
+            {
                 Name = "characterTest",
                 Account = new AccountDto { Authority = AuthorityType.Administrator },
                 Level = 1,
@@ -72,6 +74,26 @@ namespace NosCore.Tests
             Assert.AreEqual(
                 "dlg #fins^1^1 #fins^2^1 question",
                 packet);
+        }
+
+        [TestMethod]
+        public void GenerateSubPacketInReturnPacket()
+        {
+            var characterTest = new Character
+            {
+                Name = "characterTest",
+                Account = new AccountDto { Authority = AuthorityType.Administrator },
+                Level = 1,
+                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
+            };
+
+            var packet = PacketFactory.Serialize(new[] {new DelayPacket
+            {
+                Type = 3,
+                Delay = 3000,
+                Packet = characterTest.GenerateGenericUseItem(new UseItemPacket { Type = PocketType.Main, Slot = 1, Mode = 2 })
+            } });
+            Assert.AreEqual($"delay 3000 3 #u_i^1^0^1^1^2", packet);
         }
 
         [TestMethod]
@@ -135,6 +157,7 @@ namespace NosCore.Tests
             var packet = PacketFactory.Serialize(new[] { mapNpcTest.GenerateIn() });
             Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
+
 
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForItem()
