@@ -73,15 +73,12 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
             Requests = new Subject<RequestData>();
-            ExchangeData = new ExchangeData();
             ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
-
-        public ExchangeData ExchangeData { get; set; }
 
         public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
 
