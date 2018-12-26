@@ -34,7 +34,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<long, IItemInstance> ExchangeItems { get; set; }
 
-        public long TargetVisualId { get; set; }
+        public long? TargetVisualId { get; set; }
 
         public long Gold { get; set; }
 

@@ -29,13 +29,13 @@ namespace NosCore.Packets.ServerPackets
     public class ServerExcListPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public SenderType SenderType { get; set; }
+        public VisualType VisualType { get; set; }
 
         [PacketIndex(1)]
         public long VisualId { get; set; }
 
         [PacketIndex(2)]
-        public long Gold { get; set; }
+        public long? Gold { get; set; }
 
         [PacketIndex(3)]
         public long BankGold { get; set; }
