@@ -65,7 +65,7 @@ namespace NosCore.Tests.HandlerTests
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
 
-            var account = new AccountDto { Name = "AccountTest", Password =  "test".ToSha512() };
+            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             var account2 = new AccountDto { Name = "AccountTest2", Password = "test".ToSha512() };
 
             _character = new Character
@@ -75,8 +75,7 @@ namespace NosCore.Tests.HandlerTests
                 Slot = 1,
                 AccountId = 1,
                 MapId = 1,
-                State = CharacterState.Active,
-                ExchangeData = new ExchangeData()
+                State = CharacterState.Active
             };
 
             _character2 = new Character
@@ -86,8 +85,7 @@ namespace NosCore.Tests.HandlerTests
                 Slot = 1,
                 AccountId = 2,
                 MapId = 1,
-                State = CharacterState.Active,
-                ExchangeData = new ExchangeData()
+                State = CharacterState.Active
             };
             var channelMock = new Mock<IChannel>();
 
@@ -99,6 +97,7 @@ namespace NosCore.Tests.HandlerTests
             _controller = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
             _controller.RegisterSession(_session);
             _session.SetCharacter(_character);
+            _exchangeAccessService.ExchangeDatas[_session.Character.CharacterId] = new ExchangeData();
             Broadcaster.Instance.RegisterSession(_session);
 
             _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService) });
@@ -109,6 +108,7 @@ namespace NosCore.Tests.HandlerTests
             _controller2 = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
             _controller2.RegisterSession(_session2);
             _session2.SetCharacter(_character2);
+            _exchangeAccessService.ExchangeDatas[_session2.Character.CharacterId] = new ExchangeData();
             Broadcaster.Instance.RegisterSession(_session2);
         }
 
@@ -122,13 +122,13 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _controller.RequestExchange(packet);
-            Assert.IsTrue(_character.ExchangeData.TargetVisualId == _character2.CharacterId && _character2.InExchangeOrShop);
+            Assert.IsTrue(_exchangeAccessService.ExchangeDatas[_session.Character.CharacterId].TargetVisualId == _character2.CharacterId && _character2.InExchangeOrShop);
         }
 
         [TestMethod]
         public void Test_Cancel_Request()
         {
-            _character.ExchangeData.TargetVisualId = _character2.VisualId;
+            _exchangeAccessService.ExchangeDatas[_session.Character.CharacterId].TargetVisualId = _character2.VisualId;
             _character.InExchange = true;
             _character2.InExchange = true;
 

@@ -44,20 +44,19 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
         public ExchangeAccessService()
         {
-            ExchangeData = new ExchangeData();
+            ExchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         [UsedImplicitly]
         public ExchangeAccessService(IItemBuilderService itemBuilderService)
         {
-
-            ExchangeData = new ExchangeData();
+            ExchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             ExchangeRequests = new ConcurrentDictionary<Guid, long>();
             _itemBuilderService = itemBuilderService;
         }
 
-        public ExchangeData ExchangeData { get; set; }
+        public ConcurrentDictionary<long, ExchangeData> ExchangeDatas { get; set; }
 
         public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
 
@@ -86,13 +85,14 @@ namespace NosCore.GameObject.Services.ExchangeInfo
             }
 
             session.Character.InExchange = false;
-            session.Character.ExchangeData = new ExchangeData();
+            ExchangeDatas[session.Character.CharacterId] = new ExchangeData();
             session.Character.ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         public void ProcessExchange(ClientSession session, ClientSession targetSession)
         {
-            foreach (var item in session.Character.ExchangeData.ExchangeItems.Values)
+            var sessionData = ExchangeDatas[session.Character.CharacterId];
+            foreach (var item in sessionData.ExchangeItems.Values)
             {
                 if (session.Character.Inventory.LoadByItemInstanceId<IItemInstance>(item.Id)?.Amount >= item.Amount)
                 {
@@ -108,7 +108,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
                 }
             }
             
-            foreach (var item in session.Character.ExchangeData.ExchangeItems.Values)
+            foreach (var item in sessionData.ExchangeItems.Values)
             {
                 var itemCpy = _itemBuilderService.Create(item.ItemVNum, targetSession.Character.CharacterId,
                     amount: item.Amount, rare: (sbyte) item.Rare, upgrade: item.Upgrade, design: (byte) item.Design);
@@ -123,19 +123,21 @@ namespace NosCore.GameObject.Services.ExchangeInfo
                 targetSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
             }
 
-            session.Character.Gold -= session.Character.ExchangeData.Gold;
-            session.Account.BankMoney -= session.Character.ExchangeData.BankGold * 1000;
+            session.Character.Gold -= sessionData.Gold;
+            session.Account.BankMoney -= sessionData.BankGold * 1000;
             session.SendPacket(session.Character.GenerateGold());
 
-            targetSession.Character.Gold += session.Character.ExchangeData.Gold;
-            targetSession.Account.BankMoney += session.Character.ExchangeData.BankGold;
+            targetSession.Character.Gold += sessionData.Gold;
+            targetSession.Account.BankMoney += sessionData.BankGold * 1000;
             targetSession.SendPacket(targetSession.Character.GenerateGold());
         }
 
         public void OpenExchange(ClientSession session, ClientSession targetSession)
         {
-            session.Character.ExchangeData.TargetVisualId = targetSession.Character.VisualId;
-            targetSession.Character.ExchangeData.TargetVisualId = session.Character.VisualId;
+            var sessionData = ExchangeDatas[session.Character.CharacterId];
+            var targetData = ExchangeDatas[targetSession.Character.CharacterId];
+            sessionData.TargetVisualId = targetSession.Character.VisualId;
+            targetData.TargetVisualId = session.Character.VisualId;
             session.Character.InExchange = true;
             targetSession.Character.InExchange = true;
 
