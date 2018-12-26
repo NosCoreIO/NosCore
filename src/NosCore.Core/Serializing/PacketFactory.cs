@@ -42,7 +42,7 @@ namespace NosCore.Core.Serializing
         public static bool IsInitialized { get; set; }
 
         #region Methods
-
+        
         /// <summary>
         ///     Deserializes a string into a PacketDefinition
         /// </summary>
@@ -68,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning($"The serialized packet has the wrong format. Packet: {packetContent}", e);
+               _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
                 return null;
             }
         }
@@ -178,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                   _logger.Warning("Wrong Packet Format!", e);
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
                     return string.Empty;
                 }
             }
@@ -329,8 +329,7 @@ namespace NosCore.Core.Serializing
                 }
                 else
                 {
-                    throw new ArgumentNullException(
-                        "The amount of splitted subpacket values without delimiter do not match the % property amount of the serialized type.");
+                    throw new ArgumentNullException(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AMOUNT_SPLITTED_SUBPACKET_INCORRECT));
                 }
             }
 
@@ -375,7 +374,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception)
                 {
-                   _logger.Warning($"Could not convert value {currentValue} to type {packetPropertyType.Name}");
+                   _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), packetPropertyType.Name));
                 }
 
                 return convertedValue;
@@ -461,7 +460,7 @@ namespace NosCore.Core.Serializing
 
             if (string.IsNullOrEmpty(header))
             {
-                throw new ArgumentNullException($"Packet header cannot be empty. PacketType: {serializationType.Name}");
+                throw new ArgumentNullException(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_HEADER_CANNOT_EMPTY), serializationType.Name));
             }
 
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
