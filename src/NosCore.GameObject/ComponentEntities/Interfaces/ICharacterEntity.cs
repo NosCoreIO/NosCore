@@ -93,8 +93,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
-        void SetLevel(byte level);
-
         void SetJobLevel(byte level);
 
         void SetHeroLevel(byte level);

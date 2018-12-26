@@ -30,7 +30,7 @@ namespace NosCore.Packets.ServerPackets
     public class ServerExcListSubPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public short ExchangeSlot { get; set; }
+        public short? ExchangeSlot { get; set; }
 
         [PacketIndex(1, IsOptional = true)]
         public PocketType PocketType { get; set; }
@@ -39,10 +39,11 @@ namespace NosCore.Packets.ServerPackets
         public short ItemVnum { get; set; }
 
         [PacketIndex(3, IsOptional = true)]
-        [Range(0, short.MaxValue)]
-        public short Amount { get; set; }
+        [Range(-2, short.MaxValue)]
+        public short AmountOrRare { get; set; }
 
-        [PacketIndex(5, IsOptional = true)]
+        [PacketIndex(4, IsOptional = true)]
+        [Range(0, byte.MaxValue)]
         public byte Upgrade { get; set; }
     }
 }

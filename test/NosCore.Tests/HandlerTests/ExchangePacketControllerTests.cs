@@ -89,23 +89,23 @@ namespace NosCore.Tests.HandlerTests
             };
             var channelMock = new Mock<IChannel>();
 
-            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService) });
+            _session = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService, null) });
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
 
-            _controller = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
+            _controller = new ExchangePacketController(_worldConfiguration, _exchangeAccessService, null);
             _controller.RegisterSession(_session);
             _session.SetCharacter(_character);
             _exchangeAccessService.ExchangeDatas[_session.Character.CharacterId] = new ExchangeData();
             Broadcaster.Instance.RegisterSession(_session);
 
-            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService) });
+            _session2 = new ClientSession(null, new List<PacketController> { new ExchangePacketController(_worldConfiguration, _exchangeAccessService, null) });
             _session2.RegisterChannel(channelMock.Object);
             _session2.InitializeAccount(account2);
             _session2.SessionId = 2;
 
-            _controller2 = new ExchangePacketController(_worldConfiguration, _exchangeAccessService);
+            _controller2 = new ExchangePacketController(_worldConfiguration, _exchangeAccessService, null);
             _controller2.RegisterSession(_session2);
             _session2.SetCharacter(_character2);
             _exchangeAccessService.ExchangeDatas[_session2.Character.CharacterId] = new ExchangeData();

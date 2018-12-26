@@ -66,6 +66,10 @@ namespace NosCore.GameObject
         public MapInstance MapInstance { get; set; }
 
         public short Race => NpcMonster.Race;
+        public void SetLevel(byte level)
+        {
+            throw new NotImplementedException();
+        }
 
         public Shop Shop => null;
 
