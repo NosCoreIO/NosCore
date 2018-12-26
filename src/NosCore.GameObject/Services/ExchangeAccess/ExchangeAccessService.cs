@@ -60,6 +60,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
         public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
 
+        //TODO: replace ClientSessions with VisualId
         public void CloseExchange(ClientSession session, ClientSession targetSession, ExchangeCloseType closeType)
         {
             if (targetSession != null)
@@ -110,14 +111,11 @@ namespace NosCore.GameObject.Services.ExchangeInfo
             
             foreach (var item in sessionData.ExchangeItems.Values)
             {
-                var itemCpy = _itemBuilderService.Create(item.ItemVNum, targetSession.Character.CharacterId,
-                    amount: item.Amount, rare: (sbyte) item.Rare, upgrade: item.Upgrade, design: (byte) item.Design);
-
-                var inv = targetSession.Character.Inventory.AddItemToPocket(itemCpy).FirstOrDefault();
+                var inv = targetSession.Character.Inventory.AddItemToPocket(item).FirstOrDefault();
 
                 if (inv == null)
                 {
-                    continue;
+                    throw new NullReferenceException(nameof(inv));
                 }
                 
                 targetSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
@@ -143,16 +141,16 @@ namespace NosCore.GameObject.Services.ExchangeInfo
 
             session.SendPacket(new ServerExcListPacket
             {
-                SenderType = SenderType.Server,
+                VisualType = VisualType.Player,
                 VisualId = targetSession.Character.VisualId,
-                Gold = -1
+                Gold = null
             });
 
             targetSession.SendPacket(new ServerExcListPacket
             {
-                SenderType = SenderType.Server,
+                VisualType = VisualType.Player,
                 VisualId = session.Character.CharacterId,
-                Gold = -1
+                Gold = null
             });
         }
 
@@ -169,7 +167,7 @@ namespace NosCore.GameObject.Services.ExchangeInfo
                 return;
             }
 
-            if (targetSession.Character.GroupRequestBlocked)
+            if (targetSession.Character.ExchangeBlocked)
             {
                 session.SendPacket(session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, session.Account.Language),

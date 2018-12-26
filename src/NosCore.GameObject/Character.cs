@@ -88,7 +88,7 @@ namespace NosCore.GameObject
 
         public bool IsFriendListFull
         {
-            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).Count(s => s.Value != null)
+            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
                 >= 80;
         }
 

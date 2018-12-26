@@ -26,6 +26,6 @@ namespace NosCore.Shared.Enumerations.Interaction
     public enum ExchangeCloseType : byte
     {
         Failure = 0,
-        Success
+        Success = 1
     }
 }
