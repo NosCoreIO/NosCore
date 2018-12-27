@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
+               _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
                 return null;
             }
         }
@@ -460,7 +460,7 @@ namespace NosCore.Core.Serializing
 
             if (string.IsNullOrEmpty(header))
             {
-                throw new ArgumentNullException(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_HEADER_CANNOT_EMPTY));
+                throw new ArgumentNullException(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_HEADER_CANNOT_EMPTY), serializationType.Name));
             }
 
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
