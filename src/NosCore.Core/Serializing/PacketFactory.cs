@@ -68,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
+               _logger.Warning(packetContent, e);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent), e);
+               _logger.Warning(packetContent, e);
                 return null;
             }
         }
