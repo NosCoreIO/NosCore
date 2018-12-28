@@ -500,10 +500,12 @@ namespace NosCore.GameObject.Services.Inventory
             if (inv != null)
             {
                 inv.Amount -= amount;
-                if (inv.Amount <= 0 && TryRemove(inv.Id, out _))
+                if (inv.Amount <= 0)
                 {
-                    return inv;
+                    TryRemove(inv.Id, out _);
                 }
+
+                return inv;
             }
 
             var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
@@ -511,38 +513,38 @@ namespace NosCore.GameObject.Services.Inventory
             return null;
         }
 
-        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum) => RemoveItemAmount(vnum, 1);
+        //public IEnumerable<IItemInstance> RemoveItemAmount(int vnum) => RemoveItemAmount(vnum, 1);
 
-        public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount)
-        {
-            var remainingAmount = amount;
+        //public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount)
+        //{
+        //    var remainingAmount = amount;
 
-            foreach (var pocket in this.Select(s => s.Value).Where(s => s.ItemVNum == vnum && s.Type != PocketType.Wear && s.Type != PocketType.Bazaar && s.Type != PocketType.Warehouse && s.Type != PocketType.PetWarehouse && s.Type != PocketType.FamilyWareHouse).OrderBy(i => i.Slot))
-            {
-                if (remainingAmount > 0)
-                {
-                    if (pocket.Amount > remainingAmount)
-                    {
-                        // amount completely removed
-                        pocket.Amount -= (short)remainingAmount;
-                        remainingAmount = 0;
-                    }
-                    else
-                    {
-                        // amount partly removed
-                        remainingAmount -= pocket.Amount;
-                        DeleteById(pocket.Id);
-                    }
+        //    foreach (var pocket in this.Select(s => s.Value).Where(s => s.ItemVNum == vnum && s.Type != PocketType.Wear && s.Type != PocketType.Bazaar && s.Type != PocketType.Warehouse && s.Type != PocketType.PetWarehouse && s.Type != PocketType.FamilyWareHouse).OrderBy(i => i.Slot))
+        //    {
+        //        if (remainingAmount > 0)
+        //        {
+        //            if (pocket.Amount > remainingAmount)
+        //            {
+        //                // amount completely removed
+        //                pocket.Amount -= (short)remainingAmount;
+        //                remainingAmount = 0;
+        //            }
+        //            else
+        //            {
+        //                // amount partly removed
+        //                remainingAmount -= pocket.Amount;
+        //                DeleteById(pocket.Id);
+        //            }
 
-                    yield return pocket;
-                }
-                else
-                {
-                    // amount to remove reached
-                    break;
-                }
-            }
-        }
+        //            yield return pocket;
+        //        }
+        //        else
+        //        {
+        //            // amount to remove reached
+        //            break;
+        //        }
+        //    }
+        //}
 
         //    public IEnumerable<ItemInstance> Reorder(ClientSession session, PocketType pocketType)
         //    {

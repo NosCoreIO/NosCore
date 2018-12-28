@@ -32,7 +32,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ExchangeInfo;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -73,14 +72,11 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
             Requests = new Subject<RequestData>();
-            ExchangeRequests = new ConcurrentDictionary<Guid, long>();
         }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
-
-        public ConcurrentDictionary<Guid, long> ExchangeRequests { get; set; }
 
         public AccountDto Account { get; set; }
 

@@ -32,7 +32,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ExchangeInfo;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
@@ -54,7 +53,6 @@ namespace NosCore.Controllers
         private readonly MapInstanceAccessService _mapInstanceAccessService;
         private readonly GuriAccessService _guriAccessService;
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly ExchangeAccessService _exchangeAccessService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         [UsedImplicitly]
@@ -69,7 +67,6 @@ namespace NosCore.Controllers
             _worldConfiguration = worldConfiguration;
             _mapInstanceAccessService = mapInstanceAccessService;
             _guriAccessService = guriAccessService;
-            _exchangeAccessService = exchangeAccessService;
         }
 
         public void GameStart(GameStartPacket _)
@@ -175,7 +172,6 @@ namespace NosCore.Controllers
             Session.Character.SendRelationStatus(true);
             Session.SendPacket(Session.Character.GenerateFinit());
             Session.SendPacket(Session.Character.GenerateBlinit());
-            _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId] = new ExchangeData();
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
