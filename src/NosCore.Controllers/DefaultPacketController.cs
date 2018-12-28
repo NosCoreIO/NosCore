@@ -40,6 +40,7 @@ using NosCore.GameObject.Services.NRunAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
@@ -422,11 +423,11 @@ namespace NosCore.Controllers
 
                 ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
                     var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
+                        .Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
                     {
@@ -510,11 +511,11 @@ namespace NosCore.Controllers
 
             ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c => c.Type == ServerType.WorldServer).ToList();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi);
+                    .Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, server.WebApi);
 
                 if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
                 {
@@ -564,7 +565,7 @@ namespace NosCore.Controllers
         {
             if (_worldConfiguration.FeatureFlags[FeatureFlag.FriendServerEnabled])
             {
-                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 //WebApiAccess.Instance.Post<FriendShip>("api/friend", server.WebApi);
             }
             else

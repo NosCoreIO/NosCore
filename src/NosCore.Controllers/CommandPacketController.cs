@@ -35,6 +35,7 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
@@ -70,14 +71,14 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel").Where(s => s.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute).Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
             foreach (var server in servers)
             {
                 config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", config)
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, config)
                     .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
                 if (account != null)
                 {
@@ -94,7 +95,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Delete<ConnectedAccount>("api/session", config, account.ConnectedCharacter.Id);
+            WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoutes.SessionRoute, config, account.ConnectedCharacter.Id);
         }
 
         [UsedImplicitly]
@@ -353,14 +354,14 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c=>c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
                 
@@ -380,7 +381,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>(WebApiRoutes.StatRoute, data, config);
         }
 
         [UsedImplicitly]
@@ -399,14 +400,14 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c=>c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -426,7 +427,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>(WebApiRoutes.StatRoute, data, config);
         }
 
         [UsedImplicitly]
@@ -445,14 +446,14 @@ namespace NosCore.Controllers
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c=>c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", channel.WebApi);
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoutes.ConnectedAccountRoute, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -472,7 +473,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>("api/stat", data, config);
+            WebApiAccess.Instance.Post<StatData>(WebApiRoutes.StatRoute, data, config);
         }
 
         [UsedImplicitly]

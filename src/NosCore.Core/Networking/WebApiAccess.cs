@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Polly;
@@ -83,7 +84,7 @@ namespace NosCore.Core.Networking
                          _logger.Error(string.Format(
                              LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
                              timeSpan.TotalSeconds))
-                 ).ExecuteAsync(() => client.PostAsync("api/channel", Content));
+                 ).ExecuteAsync(() => client.PostAsync(WebApiRoutes.ChannelRoute, Content));
 
             var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
             Token = result.Token;
@@ -97,7 +98,7 @@ namespace NosCore.Core.Networking
                         (_, __, timeSpan) =>
                             _logger.Verbose(
                                 LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
-                    ).Execute(() => Instance.Patch<HttpStatusCode>("api/channel",
+                    ).Execute(() => Instance.Patch<HttpStatusCode>(WebApiRoutes.ChannelRoute,
                         result.ChannelInfo.ChannelId, SystemTime.Now()));
                 _logger.Error(
                     LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
@@ -236,18 +237,18 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = Instance.Get<List<ChannelInfo>>("api/channel", channelId).FirstOrDefault();
+            var channel = Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute, channelId).FirstOrDefault();
             if (channel != null)
             {
-                Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoutes.PacketRoute, packet, channel.WebApi);
             }
         }
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer))
+            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoutes.ChannelRoute)?.Where(c => c.Type == ServerType.WorldServer))
             {
-                Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoutes.PacketRoute, packet, channel.WebApi);
             }
         }
 

@@ -30,6 +30,7 @@ using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.Shared;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -87,8 +88,8 @@ namespace NosCore.Tests.HandlerTests
             WebApiAccess.Instance.MockValues =
                 new Dictionary<string, object>
                 {
-                    { "api/channel", new List<ChannelInfo> { new ChannelInfo() } },
-                    { "api/connectedAccount", new List<ConnectedAccount>() }
+                    { WebApiRoutes.ChannelRoute, new List<ChannelInfo> { new ChannelInfo() } },
+                    { WebApiRoutes.ConnectedAccountRoute, new List<ConnectedAccount>() }
                 };
 
             var _chara = new CharacterDto
