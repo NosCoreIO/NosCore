@@ -37,7 +37,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ExchangeInfo;
+using NosCore.GameObject.Services.ExchangeAccess;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
