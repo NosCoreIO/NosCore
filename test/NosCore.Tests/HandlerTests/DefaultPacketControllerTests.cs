@@ -30,6 +30,7 @@ using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.Shared;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -85,10 +86,10 @@ namespace NosCore.Tests.HandlerTests
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
-                new Dictionary<string, object>
+                new Dictionary<WebApiRoute, object>
                 {
-                    { "api/channel", new List<ChannelInfo> { new ChannelInfo() } },
-                    { "api/connectedAccount", new List<ConnectedAccount>() }
+                    { WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() } },
+                    { WebApiRoute.ConnectedAccount, new List<ConnectedAccount>() }
                 };
 
             var _chara = new CharacterDto

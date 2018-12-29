@@ -17,7 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Shared;
 
 namespace NosCore.Configuration
 {
@@ -25,5 +27,8 @@ namespace NosCore.Configuration
     {
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public Dictionary<WebApiRoute, string> Routes { get; set; }
     }
 }

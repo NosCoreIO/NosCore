@@ -2,7 +2,7 @@
   "WebApi": {
 		"Host": "http://+",
 		"Port": 5000,
-		"Password": "NosCorePassword",
+		"Password": "NosCorePassword"
   },
   "Language" : "en",
   "Database": {

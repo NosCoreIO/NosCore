@@ -2,7 +2,11 @@
   "MasterCommunication": {
 	    "Password": "NosCorePassword",
 		"Host": "http://localhost",
-		"Port": 5000
+		"Port": 5000,
+		"Routes": {
+			"Channel" : "api/channel",
+			"ConnectedAccount" : "api/connectedAccount"
+		}
   },
   "Host": "127.0.0.1",
   "Port": 4002,

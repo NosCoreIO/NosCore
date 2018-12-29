@@ -88,7 +88,7 @@ namespace NosCore.FriendServer
             });
             LogLanguage.Language = configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Friend API", Version = "v1" }));
-            var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
+            var keyByteArray = Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -118,7 +118,7 @@ namespace NosCore.FriendServer
             .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<FriendConfiguration>();
-            containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
