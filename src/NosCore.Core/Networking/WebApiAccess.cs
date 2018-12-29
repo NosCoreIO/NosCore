@@ -247,7 +247,7 @@ namespace NosCore.Core.Networking
         {
             foreach (var channel in Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer))
             {
-                Instance.Post<PostedPacket>("api/packet", packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
             }
         }
 
