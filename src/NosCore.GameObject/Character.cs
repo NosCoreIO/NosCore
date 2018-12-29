@@ -53,6 +53,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Shared;
 using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
@@ -123,9 +124,11 @@ namespace NosCore.GameObject
 
         public IInventoryService Inventory { get; set; }
 
+        public ExchangeService ExchangeService { get; set; }
+
         public bool InExchangeOrShop => InExchange | InShop;
 
-        public bool InExchange { get; set; }
+        public bool InExchange => ExchangeService.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
 
