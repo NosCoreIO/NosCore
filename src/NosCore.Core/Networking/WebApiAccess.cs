@@ -242,7 +242,7 @@ namespace NosCore.Core.Networking
             var channel = Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel, channelId).FirstOrDefault();
             if (channel != null)
             {
-                Instance.Post<PostedPacket>(WebApiRoute.Channel, packet, channel.WebApi);
+                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
             }
         }
 
