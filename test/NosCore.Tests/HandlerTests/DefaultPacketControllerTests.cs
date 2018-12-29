@@ -87,7 +87,7 @@ namespace NosCore.Tests.HandlerTests
             WebApiAccess.Instance.MockValues =
                 new Dictionary<string, object>
                 {
-                    { "api/channel", new List<ChannelInfo> { new ChannelInfo() } },
+                    { WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() } },
                     { "api/connectedAccount", new List<ConnectedAccount>() }
                 };
 

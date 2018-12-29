@@ -52,6 +52,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NosCore.Shared;
 using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
 
@@ -581,15 +582,15 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c => c.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer);
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
-                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                var account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
                     .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
 
                 if (account != null)
                 {
-                    WebApiAccess.Instance.Delete<CharacterRelation>("api/relation", server.WebApi,
+                    WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
                         targetCharacterRelation.CharacterRelationId);
                     return;
                 }

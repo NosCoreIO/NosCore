@@ -372,9 +372,9 @@ namespace NosCore.Core.Serializing
                         convertedValue = Enum.Parse(packetPropertyType, currentValue);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE));
+                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), currentValue, packetPropertyType.Name, ex);
                 }
 
                 return convertedValue;
@@ -460,7 +460,7 @@ namespace NosCore.Core.Serializing
 
             if (string.IsNullOrEmpty(header))
             {
-                throw new ArgumentNullException(string.Format(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_HEADER_CANNOT_EMPTY), serializationType.Name));
+                throw new ArgumentNullException(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_HEADER_CANNOT_EMPTY), serializationType.Name);
             }
 
             var packetsForPacketDefinition = new Dictionary<PacketIndexAttribute, PropertyInfo>();
