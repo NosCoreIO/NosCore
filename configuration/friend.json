@@ -2,12 +2,15 @@
   "MasterCommunication": {
 	    "Password": "NosCorePassword",
 		"Host": "http://localhost",
-		"Port": 5000
+		"Port": 5000,
+		"Routes": {
+			"Channel" : "api/channel"
+		}
   },
   "WebApi": {
 		"Host": "http://+",
 		"Port": 5003,
-		"Password": "NosCorePassword",
+		"Password": "NosCorePassword"
   },
   "Language" : "en",
   "Database": {
