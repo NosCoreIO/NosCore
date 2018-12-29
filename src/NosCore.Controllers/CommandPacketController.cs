@@ -69,6 +69,48 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void SetReputation(SetReputationPacket setReputationPacket)
+        {
+            if (setReputationPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetReputation(setReputationPacket.Reputation);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateReputation,
+                Character = new Character { Name = setReputationPacket.Name },
+                Data = setReputationPacket.Reputation
+            };
+
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        }
+
+        [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
