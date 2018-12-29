@@ -27,7 +27,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.ExchangeAccess;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.Packets.ClientPackets;
@@ -45,14 +45,14 @@ namespace NosCore.Controllers
     public class ExchangePacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly ExchangeAccessService _exchangeAccessService;
+        private readonly ExchangeService _exchangeService;
         private readonly IItemBuilderService _itemBuilderService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         
-        public ExchangePacketController(WorldConfiguration worldConfiguration, ExchangeAccessService exchangeAccessService, IItemBuilderService itemBuilderService)
+        public ExchangePacketController(WorldConfiguration worldConfiguration, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             _worldConfiguration = worldConfiguration;
-            _exchangeAccessService = exchangeAccessService;
+            _exchangeService = exchangeService;
             _itemBuilderService = itemBuilderService;
         }
 
@@ -80,7 +80,7 @@ namespace NosCore.Controllers
                 SubPackets = new List<ServerExcListSubPacket>()
             };
             
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].TargetVisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeService.GetTargetId(Session.Character.VisualId) && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
 
             if (packet.SubPackets.Count > 0 && target != null)
             {
@@ -91,28 +91,28 @@ namespace NosCore.Controllers
 
                     if (item == null || item.Amount < value.Amount)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_ITEMS));
+                        var closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Failure);
+                        Session.SendPacket(closeExchange);
+                        target.SendPacket(closeExchange);
                         return;
                     }
 
                     if (!item.Item.IsTradable)
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        Session.SendPacket(_exchangeService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
+                        target.SendPacket(_exchangeService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
                         return;
                     }
 
-                    var itemCpy = (IItemInstance)item.Clone();
-                    itemCpy.Amount = value.Amount;
-                    _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].ExchangeItems.TryAdd(i, itemCpy);
+                    _exchangeService.AddItems(Session.Character.CharacterId, item, value.Amount);
 
                     var subPacket = new ServerExcListSubPacket
                     {
                         ExchangeSlot = i,
                         PocketType = value.PocketType,
-                        ItemVnum = itemCpy.ItemVNum,
-                        Upgrade = itemCpy.Upgrade,
-                        AmountOrRare = value.PocketType == PocketType.Equipment ? itemCpy.Rare : itemCpy.Amount
+                        ItemVnum = item.ItemVNum,
+                        Upgrade = item.Upgrade,
+                        AmountOrRare = value.PocketType == PocketType.Equipment ? item.Rare : value.Amount
                     };
 
 
@@ -125,127 +125,141 @@ namespace NosCore.Controllers
                 list.SubPackets.Add(new ServerExcListSubPacket { ExchangeSlot = null });
             }
 
-            _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].Gold = packet.Gold;
-            _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].BankGold = packet.BankGold;
+            _exchangeService.SetGold(Session.Character.CharacterId, packet.Gold, packet.BankGold);
             target?.SendPacket(list);
-            _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].ExchangeListIsValid = true;
         }
 
         [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+            ExcClosePacket closeExchange;
 
-            if (target == null && (packet.RequestType == RequestExchangeType.Requested || packet.RequestType == RequestExchangeType.List))
+            if (target == null && packet.RequestType != RequestExchangeType.Declined)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER));
+                return;
+            }
+
+            if (Session.Character.InShop || (target?.InShop ?? false))
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PLAYER_IN_SHOP));
                 return;
             }
 
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
-                    _exchangeAccessService.RequestExchange(Session, target.Session);
+                    _exchangeService.RequestExchange(Session, target.Session);
                     return;
 
                 case RequestExchangeType.List:
-                    if (target.InExchangeOrShop)
+                    if (!_exchangeService.OpenExchange(Session.Character.VisualId, target.CharacterId))
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE));
                         return;
                     }
-                    
-                    _exchangeAccessService.OpenExchange(Session, target.Session);
+                    Session.SendPacket(new ServerExcListPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = target.VisualId,
+                        Gold = null
+                    });
+
+                    target.SendPacket(new ServerExcListPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = Session.Character.VisualId,
+                        Gold = null
+                    });
                     return;
+
                 case RequestExchangeType.Declined:
                     Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED, Session.Account.Language), SayColorType.Yellow));
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
                     return;
+
                 case RequestExchangeType.Confirmed:
-                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].TargetVisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+                    var success = true;
+                    _exchangeService.ConfirmExchange(Session.Character.VisualId);
 
-                    if (target == null)
-                    {
-                        _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language));
-                        return;
-                    }
-
-                    if (!_exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].ExchangeListIsValid || !_exchangeAccessService.ExchangeDatas[target.CharacterId].ExchangeListIsValid)
-                    {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE_LIST));
-                        return;
-                    }
-
-                    _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].ExchangeConfirmed = true;
-
-                    if (!_exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].ExchangeConfirmed || !_exchangeAccessService.ExchangeDatas[target.CharacterId].ExchangeConfirmed)
+                    if (!_exchangeService.IsExchangeConfirmed(Session.Character.VisualId) || !_exchangeService.IsExchangeConfirmed(target.VisualId))
                     {
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR, Session.Account.Language) });
                         return;
                     }
 
-                    var exchangeInfo = _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId];
-                    var targetInfo = _exchangeAccessService.ExchangeDatas[target.CharacterId];
-                    
+                    var exchangeInfo = _exchangeService.GetData(Session.Character.CharacterId);
+                    var targetInfo = _exchangeService.GetData(target.CharacterId);
+
                     if (exchangeInfo.Gold + target.Gold > _worldConfiguration.MaxGoldAmount)
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        success = false;
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, target.Account.Language)});
-                        return;
                     }
 
-                    if (targetInfo.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+                    if (success && targetInfo.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        success = false;
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, Session.Account.Language) });
-                        return;
                     }
 
-                    if (exchangeInfo.BankGold + target.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+                    if (success && exchangeInfo.BankGold + target.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        success = false;
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
-                        return;
                     }
 
-                    if (targetInfo.BankGold + Session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+                    if (success && targetInfo.BankGold + Session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        success = false;
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
-                        return;
                     }
 
-                    if (exchangeInfo.ExchangeItems.Values.Any(s => !s.Item.IsTradable))
+                    if (success && exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
                     {
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        success = false;
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, Session.Account.Language) });
-                        return;
                     }
 
-                    if (!Session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Values.ToList()) || !target.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Values.ToList()))
+                    if (success && !Session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) || !target.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
                     {
+                        success = false;
                         Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, Session.Account.Language) });
                         target.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, target.Account.Language) });
-                        Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                    }
+
+                    if (success)
+                    {
+                        _exchangeService.ProcessExchange(new Tuple<long, long>(Session.Character.VisualId, target.VisualId), Session.Character.Inventory, target.Inventory);
+
+                        var getData = _exchangeService.GetData(Session.Character.CharacterId);
+                        Session.Character.Gold -= getData.Gold;
+                        Session.Account.BankMoney -= getData.BankGold * 1000;
+                        Session.SendPacket(Session.Character.GenerateGold());
+
+                        target.Gold -= getData.Gold;
+                        target.Account.BankMoney -= getData.BankGold * 1000;
+                        target.SendPacket(target.GenerateGold());
+                    }
+
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, success ? ExchangeCloseType.Success : ExchangeCloseType.Failure);
+                    target?.SendPacket(closeExchange);
+                    Session.SendPacket(closeExchange);
+                    return;
+
+                case RequestExchangeType.Cancelled:
+
+                    if (!_exchangeService.CheckExchange(Session.Character.CharacterId, target.VisualId))
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_IN_EXCHANGE));
                         return;
                     }
 
-                    _exchangeAccessService.ProcessExchange(Session, target.Session);
-                    Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Success));
-                    target.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Success));
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Success);
+                    target?.SendPacket(closeExchange);
+                    Session.SendPacket(closeExchange);
                     return;
-                case RequestExchangeType.Cancelled:
-                    target = (Character)Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeAccessService.ExchangeDatas[Session.Character.CharacterId].TargetVisualId);
 
-                    target?.SendPacket(_exchangeAccessService.CloseExchange(target.VisualId, ExchangeCloseType.Success));
-                    Session.SendPacket(_exchangeAccessService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Success));
-                    return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
