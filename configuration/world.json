@@ -2,7 +2,15 @@
   "MasterCommunication": {
 	    "Password": "NosCorePassword",
 		"Host": "http://localhost",
-		"Port": 5000
+		"Port": 5000,
+		"Routes": {
+			"ConnectedAccount" : "api/connectedAccount",
+			"Channel" : "api/channel",
+			"Session" : "api/session",
+			"Relation" : "api/relation",
+			"Packet" : "api/packet",
+			"Stat": "api/stat"
+		}
   },
   "ServerName": "S1-NosCore",
   "Host": "127.0.0.1",

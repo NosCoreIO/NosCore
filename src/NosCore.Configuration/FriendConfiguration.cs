@@ -27,7 +27,7 @@ namespace NosCore.Configuration
         public WebApiConfiguration MasterCommunication { get; set; }
 
         [Required]
-        public WebApiConfiguration WebApi { get; set; }
+        public ServerConfiguration WebApi { get; set; }
 
         [Required]
         public SqlConnectionConfiguration Database { get; set; }

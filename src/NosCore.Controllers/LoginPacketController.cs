@@ -29,6 +29,7 @@ using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations;
@@ -113,13 +114,13 @@ namespace NosCore.Controllers
                         });
                         break;
                     default:
-                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>("api/channel")?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>("api/connectedAccount",
+                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount,
                                 server.WebApi);
                             connectedAccount.Add(i, channelList);
                             i++;
