@@ -264,6 +264,13 @@ namespace NosCore.GameObject
             SendPacket(Group.GeneratePinit());
         }
 
+        public void SetReputation(long reput)
+        {
+            Reput = reput;
+            SendPacket(GenerateFd());
+            Session.SendPacket(new MsgPacket { Type = MessageType.Whisper, Message = Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language) });
+        }
+
         public void SetLevel(byte level)
         {
             (this as INamedEntity).SetLevel(level);

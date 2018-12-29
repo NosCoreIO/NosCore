@@ -23,6 +23,7 @@ namespace NosCore.Shared.Enumerations
     {
         UpdateLevel,
         UpdateJobLevel,
-        UpdateHeroLevel
+        UpdateHeroLevel,
+        UpdateReputation
     }
 }
