@@ -560,10 +560,12 @@ namespace NosCore.GameObject
         {
             Reput = reput;
             SendPacket(GenerateFd());
-            SendPacket(new MsgPacket
+            SendPacket(new SayPacket
             {
-                Type = MessageType.Whisper,
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language)
+                VisualType = VisualType.Player,
+                VisualId = VisualId,
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
+                Type = SayColorType.Yellow
             });
         }
 
