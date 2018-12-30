@@ -213,6 +213,8 @@ namespace NosCore.Shared.I18N
         REPUT_DECREASED,
         BUY_ITEM_VALID,
         NOT_ENOUGH_REPUT,
-        NOT_ENOUGH_MONEY
+        NOT_ENOUGH_MONEY,
+        ITEM_NOT_SOLDABLE,
+        SELL_ITEM_VALIDE
     }
 }
