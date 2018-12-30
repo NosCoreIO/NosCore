@@ -23,11 +23,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Mapster;
+using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.ItemBuilder;
+using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;
@@ -61,7 +67,11 @@ namespace NosCore.PathFinder.Gui
             _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
             var npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()))
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters, 
+                    new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    new MapNpcBuilderService(new ItemBuilderService(new List<Item>(), new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()), 
+                        new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                    new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
                 {
                     IsSleeping = false
                 };
