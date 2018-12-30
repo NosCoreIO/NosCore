@@ -135,7 +135,7 @@ namespace NosCore.Controllers
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
             ExcClosePacket closeExchange;
 
-            if (target == null && packet.RequestType != RequestExchangeType.Declined)
+            if (target == null && (packet.RequestType == RequestExchangeType.Requested || packet.RequestType == RequestExchangeType.List || packet.RequestType == RequestExchangeType.Cancelled))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER));
                 return;
@@ -179,6 +179,22 @@ namespace NosCore.Controllers
                     return;
 
                 case RequestExchangeType.Confirmed:
+                    var targetId = _exchangeService.GetTargetId(Session.Character.CharacterId);
+
+                    if (!targetId.HasValue)
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
+                        return;
+                    }
+                    
+                    target = Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId.Value && s.MapInstance == Session.Character.MapInstance) as Character;
+
+                    if (target == null)
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER));
+                        return;
+                    }
+
                     var success = true;
                     _exchangeService.ConfirmExchange(Session.Character.VisualId);
 
@@ -230,7 +246,16 @@ namespace NosCore.Controllers
 
                     if (success)
                     {
-                        _exchangeService.ProcessExchange(new Tuple<long, long>(Session.Character.VisualId, target.VisualId), Session.Character.Inventory, target.Inventory);
+                        //TODO: fix this
+                        //var itemList = _exchangeService.ProcessExchange(new Tuple<long, long>(Session.Character.VisualId, target.VisualId), Session.Character.Inventory, target.Inventory);
+
+                        //foreach (var item in itemList)
+                        //{
+                        //    var sessionItem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                        //    var targetItem = target.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                        //    Session.SendPacket(sessionItem.GeneratePocketChange(sessionItem.Type, sessionItem.Slot));
+                        //    target.SendPacket(targetItem.GeneratePocketChange(targetItem.Type, targetItem.Slot));
+                        //}
 
                         var getData = _exchangeService.GetData(Session.Character.CharacterId);
                         Session.Character.Gold -= getData.Gold;
@@ -248,7 +273,6 @@ namespace NosCore.Controllers
                     return;
 
                 case RequestExchangeType.Cancelled:
-
                     if (!_exchangeService.CheckExchange(Session.Character.CharacterId, target.VisualId))
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_IN_EXCHANGE));
