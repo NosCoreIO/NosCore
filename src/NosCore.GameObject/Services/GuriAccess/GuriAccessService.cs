@@ -28,12 +28,12 @@ namespace NosCore.GameObject.Services.GuriAccess
 {
     public class GuriAccessService
     {
-        private List<IHandler<GuriPacket, GuriPacket>> _handlers { get; }
-
         public GuriAccessService(IEnumerable<IHandler<GuriPacket, GuriPacket>> handlers)
         {
             _handlers = handlers.ToList();
         }
+
+        private List<IHandler<GuriPacket, GuriPacket>> _handlers { get; }
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
         {

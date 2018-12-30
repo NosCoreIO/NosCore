@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -30,7 +29,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading;
-using NosCore.Shared;
 
 namespace NosCore.LoginServer
 {

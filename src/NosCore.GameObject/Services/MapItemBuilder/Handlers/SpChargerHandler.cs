@@ -30,7 +30,8 @@ namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
 {
     public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        public bool Condition(MapItem item) => item.ItemInstance.Item.ItemType == ItemType.Map && item.ItemInstance.Item.Effect == 71;
+        public bool Condition(MapItem item) =>
+            item.ItemInstance.Item.ItemType == ItemType.Map && item.ItemInstance.Item.Effect == 71;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
@@ -40,14 +41,15 @@ namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
             {
                 Message = string.Format(
                     Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
-                        requestData.ClientSession.Account.Language), requestData.Data.Item1.ItemInstance.Item.EffectValue),
+                        requestData.ClientSession.Account.Language),
+                    requestData.Data.Item1.ItemInstance.Item.EffectValue),
                 Type = 0
             });
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
 
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
         }
     }
 }
-

@@ -29,8 +29,12 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Shared;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -73,6 +77,8 @@ namespace NosCore.Tests.HandlerTests
             }
         };
 
+        private ItemBuilderService _itemBuilderService;
+
         [TestInitialize]
         public void Setup()
         {
@@ -82,7 +88,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var account = new AccountDto { Name = "AccountTest", Password ="test".ToSha512() };
+            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
@@ -103,18 +109,22 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
+            _itemBuilderService = new ItemBuilderService(new List<Item>(),
+               new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
-                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
+                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null, null) }, instanceAccessService);
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null, null);
+            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             var mapinstance = instanceAccessService.GetBaseMapById(0);
-           
+
             _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
             _session.Character.MapInstance = mapinstance;
             _session.Character.MapInstance.Portals = new List<Portal> { new Portal
@@ -136,7 +146,7 @@ namespace NosCore.Tests.HandlerTests
 
         private void InitializeTargetSession()
         {
-            var targetAccount = new AccountDto { Name = "test2", Password ="test".ToSha512() };
+            var targetAccount = new AccountDto { Name = "test2", Password = "test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
 
             _targetChar = new CharacterDto
@@ -150,10 +160,12 @@ namespace NosCore.Tests.HandlerTests
             };
 
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
-            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 }, 
-                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
-            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null, null) }, instanceAccessService) { SessionId = 2 };
-            var handler2 = new DefaultPacketController(null, instanceAccessService, null, null);
+            var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
+                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService) { SessionId = 2 };
+            var handler2 = new DefaultPacketController(null, instanceAccessService, null);
             handler2.RegisterSession(_targetSession);
 
             _targetSession.InitializeAccount(targetAccount);

@@ -17,9 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Data.StaticEntities
 {
     public class ShopDto : IDto
     {
+        public int MapNpcId { get; set; }
+
+        public byte MenuType { get; set; }
+
+        public string Name { get; set; }
+
+        [Key]
+        public int ShopId { get; set; }
+
+        public byte ShopType { get; set; }
     }
 }

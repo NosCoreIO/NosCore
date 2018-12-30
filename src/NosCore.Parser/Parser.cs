@@ -101,9 +101,9 @@ namespace NosCore.Parser
                         //factory.ImportNpcMonsterData();
                         factory.ImportMapNpcs();
                         factory.ImportMapMonsters();
-                        //factory.ImportShops();
+                        factory.ImportShops();
                         //factory.ImportTeleporters();
-                        //factory.ImportShopItems();
+                        factory.ImportShopItems();
                         //factory.ImportShopSkills();
                         //factory.ImportRecipe();
                         //factory.ImportQuests();
@@ -221,7 +221,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            //factory.ImportShops();
+                            factory.ImportShops();
                         }
 
                         _logger.Information(
@@ -237,7 +237,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            //factory.ImportShopItems();
+                            factory.ImportShopItems();
                         }
 
                         _logger.Information(

@@ -32,17 +32,17 @@ namespace NosCore.GameObject.Services.MapItemBuilder
 {
     public class MapItem : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {
+        private long _visualId;
+
         public MapItem()
         {
             Requests = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
         }
 
-        public Subject<RequestData<Tuple<MapItem, GetPacket>>> Requests { get; set; }
         public IItemInstance ItemInstance { get; set; }
 
-        private long _visualId;
-
         public long? OwnerId { get; set; }
+        public DateTime DroppedAt { get; set; }
 
         public long VisualId
         {
@@ -70,7 +70,8 @@ namespace NosCore.GameObject.Services.MapItemBuilder
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public MapInstance MapInstance { get; set; }
-        public DateTime DroppedAt { get; set; }
+
+        public Subject<RequestData<Tuple<MapItem, GetPacket>>> Requests { get; set; }
 
         public DropPacket GenerateDrop()
         {

@@ -17,11 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations.Interaction
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+
+namespace NosCore.Packets.ServerPackets
 {
-    public enum BuyShopType : byte
+    [PacketHeader("shop")]
+    public class ShopPacket : PacketDefinition
     {
-        CharacterShop = 1,
-        ItemShop = 2
+        [PacketIndex(0)]
+        public VisualType VisualType { get; set; }
+
+        [PacketIndex(1)]
+        public long VisualId { get; set; }
+
+        [PacketIndex(2)]
+        public long ShopId { get; set; }
+
+        [PacketIndex(3)]
+        public byte MenuType { get; set; }
+
+        [PacketIndex(4)]
+        public byte ShopType { get; set; }
+
+        [PacketIndex(5, SerializeToEnd = true)]
+        public string Name { get; set; }
     }
 }

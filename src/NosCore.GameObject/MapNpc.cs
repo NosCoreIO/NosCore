@@ -34,12 +34,15 @@ namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public MapNpc()
         {
             Requests = new Subject<RequestData>();
         }
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public IDisposable Life { get; private set; }
+        public Group Group { get; set; }
         public byte Speed { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
@@ -50,13 +53,11 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Npc;
-        public Subject<RequestData> Requests { get; set; }
         public long VisualId => MapNpcId;
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public Group Group { get; set; }
         public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
@@ -70,6 +71,8 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
+        public Shop Shop { get; set; }
+        public Subject<RequestData> Requests { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

@@ -82,7 +82,8 @@ namespace NosCore.Tests.HandlerTests
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance,
-                    null, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
+                    null, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             }
         }
 

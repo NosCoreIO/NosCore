@@ -65,7 +65,8 @@ namespace NosCore.DAL
         private static GenericDao<Family, FamilyDto> _familyDao;
         private static GenericDao<FamilyCharacter, FamilyCharacterDto> _familyCharacterDao;
         private static GenericDao<FamilyLog, FamilyLogDto> _familyLogDao;
-
+        private static GenericDao<Shop, ShopDto> _shopDao;
+        private static GenericDao<ShopItem, ShopItemDto> _shopItemDao;
         public static GenericDao<Drop, DropDto> DropDao => _dropDao ??
             (_dropDao = new GenericDao<Drop, DropDto>());
 
@@ -83,6 +84,12 @@ namespace NosCore.DAL
 
         public static GenericDao<Skill, SkillDto> SkillDao => _skillDao ??
             (_skillDao = new GenericDao<Skill, SkillDto>());
+
+        public static GenericDao<Shop, ShopDto> ShopDao => _shopDao ??
+            (_shopDao = new GenericDao<Shop, ShopDto>());
+
+        public static GenericDao<ShopItem, ShopItemDto> ShopItemDao => _shopItemDao ??
+            (_shopItemDao = new GenericDao<ShopItem, ShopItemDto>());
 
         public static GenericDao<NpcMonsterSkill, NpcMonsterSkillDto> NpcMonsterSkillDao => _npcMonsterSkillDao ??
             (_npcMonsterSkillDao = new GenericDao<NpcMonsterSkill, NpcMonsterSkillDto>());

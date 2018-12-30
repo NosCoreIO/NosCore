@@ -77,6 +77,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(17, IsOptional = true)]
         public EquipmentSubPacket WeaponSkin { get; set; }
-
     }
 }

@@ -36,6 +36,7 @@ namespace NosCore.GameObject
     public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>, IBroadcastable
     {
         private int _lastId;
+
         public Group(GroupType type)
         {
             Type = type;
@@ -44,17 +45,17 @@ namespace NosCore.GameObject
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        public IChannelGroup Sessions { get; set; }
-
         public long GroupId { get; set; }
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Count == (long)Type;
+        public bool IsGroupFull => Count == (long) Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
 
         public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
+
+        public IChannelGroup Sessions { get; set; }
 
         public PinitPacket GeneratePinit()
         {
@@ -76,8 +77,8 @@ namespace NosCore.GameObject
                 Type = member.VisualType,
                 VisualId = member.VisualId,
                 GroupOrder = ++i,
-                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
-                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
+                HpLeft = (int) (member.Hp / (float) member.MaxHp * 100),
+                MpLeft = (int) (member.Mp / (float) member.MaxMp * 100),
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
                 Race = member.Race,
@@ -99,6 +100,7 @@ namespace NosCore.GameObject
             {
                 Sessions.Add(characterEntity.Channel);
             }
+
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
                 new Tuple<int, INamedEntity>(++_lastId, namedEntity));
         }
@@ -109,6 +111,7 @@ namespace NosCore.GameObject
             {
                 Sessions.Remove(characterEntity.Channel);
             }
+
             TryRemove(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), out _);
         }
     }

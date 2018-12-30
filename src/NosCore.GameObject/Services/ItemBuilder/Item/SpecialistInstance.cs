@@ -36,12 +36,13 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         public SpecialistInstance()
         {
         }
+
         public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
         public Item Item { get; set; }
 
         public object Clone()
         {
-            return (SpecialistInstance)MemberwiseClone();
+            return (SpecialistInstance) MemberwiseClone();
         }
     }
 }

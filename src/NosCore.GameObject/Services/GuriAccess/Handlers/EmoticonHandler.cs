@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -39,7 +38,8 @@ namespace NosCore.GameObject.Services.GuriAccess.Handlers
             if (requestData.Data.VisualEntityId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff(requestData.Data.Data + 4099));//TODO , ReceiverType.AllNoEmoBlocked
+                    requestData.ClientSession.Character.GenerateEff(requestData.Data.Data +
+                        4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
         }
     }

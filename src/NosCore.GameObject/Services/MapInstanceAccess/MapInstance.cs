@@ -25,11 +25,9 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using Mapster;
 using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -42,24 +40,30 @@ using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess
 {
     public class MapInstance : IBroadcastable
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly ConcurrentDictionary<long, MapMonster> _monsters;
+
+        private readonly MapItemBuilderService _mapItemBuilderService;
+        private readonly MapMonsterBuilderService _mapMonsterBuilderService;
+        private readonly MapNpcBuilderService _mapNpcBuilderService;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
 
-        private readonly ConcurrentDictionary<long, MapNpc> _npcs;
-
         private bool _isSleeping;
         private bool _isSleepingRequest;
+        private ConcurrentDictionary<long, MapMonster> _monsters;
 
-        public DateTime LastUnregister { get; set; }
+        private ConcurrentDictionary<long, MapNpc> _npcs;
+
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            List<NpcMonsterDto> npcMonsters, MapItemBuilderService mapItemBuilderService)
+            List<NpcMonsterDto> npcMonsters, MapItemBuilderService mapItemBuilderService,
+            MapNpcBuilderService mapNpcBuilderService, MapMonsterBuilderService mapMonsterBuilderService)
         {
             _npcMonsters = npcMonsters;
             XpRate = 1;
@@ -77,11 +81,11 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
             _mapItemBuilderService = mapItemBuilderService;
+            _mapNpcBuilderService = mapNpcBuilderService;
+            _mapMonsterBuilderService = mapMonsterBuilderService;
         }
 
-        public IChannelGroup Sessions { get; set; }
-
-        private readonly MapItemBuilderService _mapItemBuilderService;
+        public DateTime LastUnregister { get; set; }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }
 
@@ -141,6 +145,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private IDisposable Life { get; set; }
 
+        public IChannelGroup Sessions { get; set; }
+
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
@@ -159,7 +165,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             short mapY = 0;
             var niceSpot = false;
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
-            for (var i =0; i < orderedPossibilities.Count && !niceSpot; i++)
+            for (var i = 0; i < orderedPossibilities.Count && !niceSpot; i++)
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
@@ -181,7 +187,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 return null;
             }
 
-            var newItemInstance = (IItemInstance)inv.Clone();
+            var newItemInstance = (IItemInstance) inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = _mapItemBuilderService.Create(this, newItemInstance, mapX, mapY);
@@ -191,36 +197,18 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 session.Character.Inventory.DeleteById(inv.Id);
             }
-            
+
             return droppedItem;
         }
 
         public void LoadMonsters()
         {
-            var partitioner = Partitioner.Create(DaoFactory.MapMonsterDao.Where(s => s.MapId == Map.MapId),
-                EnumerablePartitionerOptions.None);
-            Parallel.ForEach(partitioner, monster =>
-            {
-                MapMonster mapMonster = monster.Adapt<MapMonster>();
-                mapMonster.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapMonster.VNum));
-                mapMonster.MapInstance = this;
-                mapMonster.MapInstanceId = MapInstanceId;
-                _monsters[mapMonster.MapMonsterId] = mapMonster;
-            });
+            _monsters = _mapMonsterBuilderService.Create(this);
         }
 
         public void LoadNpcs()
         {
-            var partitioner = Partitioner.Create(DaoFactory.MapNpcDao.Where(s => s.MapId == Map.MapId),
-                EnumerablePartitionerOptions.None);
-            Parallel.ForEach(partitioner, npc =>
-            {
-                MapNpc mapNpc = npc.Adapt<MapNpc>();
-                mapNpc.Initialize(_npcMonsters.Find(s => s.NpcMonsterVNum == mapNpc.VNum));
-                mapNpc.MapInstance = this;
-                mapNpc.MapInstanceId = MapInstanceId;
-                _npcs[mapNpc.MapNpcId] = mapNpc;
-            });
+            _npcs = _mapNpcBuilderService.Create(this);
         }
 
         public List<PacketDefinition> GetMapItems()
@@ -229,7 +217,15 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
             Monsters.ForEach(s => packets.Add(s.GenerateIn()));
-            Npcs.ForEach(s => packets.Add(s.GenerateIn()));
+            Npcs.ForEach(s =>
+            {
+                packets.Add(s.GenerateIn());
+
+                if (s.Shop != null)
+                {
+                    packets.Add(s.GenerateShop());
+                }
+            });
             MapItems.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
             return packets;
         }

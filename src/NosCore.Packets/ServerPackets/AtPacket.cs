@@ -26,6 +26,5 @@ namespace NosCore.Packets.ServerPackets
     {
         [PacketIndex(0)]
         public short Cooldown { get; set; }
-        
     }
 }
