@@ -38,16 +38,20 @@ namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(requestData.Data.Item1.ItemInstance).FirstOrDefault();
+            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(requestData.Data.Item1.ItemInstance)
+                .FirstOrDefault();
 
             if (inv != null)
             {
                 requestData.ClientSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
-                requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out var value);
-                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
+                    out var value);
+                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == PickerType.Mate)
                 {
-                    requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateIcon(1, inv.ItemVNum));
+                    requestData.ClientSession.SendPacket(
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemVNum));
                 }
 
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
@@ -58,9 +62,10 @@ namespace NosCore.GameObject.Services.MapItemBuilder.Handlers
                     var name = string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
-                    requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                        $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
-                        SayColorType.Yellow));
+                    requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                        requestData.ClientSession.Character.GenerateSay(
+                            $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
+                            SayColorType.Yellow));
                 }
             }
             else

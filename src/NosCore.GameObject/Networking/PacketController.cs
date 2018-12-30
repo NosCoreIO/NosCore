@@ -24,7 +24,10 @@ namespace NosCore.GameObject.Networking
 {
     public class PacketController : IPacketController
     {
-        protected PacketController() { }
+        protected PacketController()
+        {
+        }
+
         protected ClientSession.ClientSession Session { get; set; }
 
         public void RegisterSession(NetworkClient clientSession)

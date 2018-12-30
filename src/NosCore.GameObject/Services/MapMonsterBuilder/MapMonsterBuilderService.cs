@@ -33,10 +33,11 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
     public class MapMonsterBuilderService : IMapMonsterBuilderService
     {
         private readonly List<Item> _items;
-        private readonly List<ShopDto> _shops;
-        private readonly List<ShopItemDto> _shopItems;
         private readonly List<MapMonsterDto> _mapMonsters;
         private readonly List<NpcMonsterDto> _npcMonsters;
+        private readonly List<ShopItemDto> _shopItems;
+        private readonly List<ShopDto> _shops;
+
         public MapMonsterBuilderService(List<Item> items, List<ShopDto> shops, List<ShopItemDto> shopItems,
             List<NpcMonsterDto> npcMonsters, List<MapMonsterDto> mapMonsters)
         {
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
                 mapMonster.MapInstanceId = mapInstance.MapInstanceId;
                 monsters[mapMonster.MapMonsterId] = mapMonster;
             });
-            
+
             return monsters;
         }
     }

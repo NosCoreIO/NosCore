@@ -31,22 +31,10 @@ namespace NosCore.GameObject.Services.MapItemBuilder
     public class MapItemBuilderService : IMapItemBuilderService
     {
         private readonly List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> _handlers;
+
         public MapItemBuilderService(IEnumerable<IHandler<MapItem, Tuple<MapItem, GetPacket>>> handlers)
         {
             _handlers = handlers.ToList();
-        }
-
-        private void LoadHandlers(MapItem item)
-        {
-            var handlersRequest = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
-            _handlers.ForEach(handler =>
-            {
-                if (handler.Condition(item))
-                {
-                    handlersRequest.Subscribe(handler.Execute);
-                }
-            });
-            item.Requests = handlersRequest;
         }
 
         public MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
@@ -60,6 +48,19 @@ namespace NosCore.GameObject.Services.MapItemBuilder
             };
             LoadHandlers(mapItem);
             return mapItem;
+        }
+
+        private void LoadHandlers(MapItem item)
+        {
+            var handlersRequest = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
+            _handlers.ForEach(handler =>
+            {
+                if (handler.Condition(item))
+                {
+                    handlersRequest.Subscribe(handler.Execute);
+                }
+            });
+            item.Requests = handlersRequest;
         }
     }
 }

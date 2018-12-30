@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public object Clone()
         {
-            return (BoxInstance)MemberwiseClone();
+            return (BoxInstance) MemberwiseClone();
         }
     }
 }
