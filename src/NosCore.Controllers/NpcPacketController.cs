@@ -18,15 +18,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Database.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunAccess;
 using NosCore.Packets.ClientPackets;
+using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.I18N;
 using Serilog;
 using MapNpc = NosCore.GameObject.MapNpc;
@@ -126,34 +131,50 @@ namespace NosCore.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
-            byte shopKind = 100;
-            var percent = 1.0;
-            switch (Session.Character.GetDignityIco())
+
+            var shopRate = Session.Character.GenerateShopRates();
+            Session.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
+        }
+
+        /// <summary>
+        /// buy packet
+        /// </summary>
+        /// <param name="buyPacket"></param>
+        public void BuyShop(BuyPacket buyPacket)
+        {
+            if (Session.Character.InExchangeOrTrade)
             {
-                case 3:
-                    percent = 1.1;
-                    shopKind = 110;
-                    break;
+                //TODO log
+                return;
+            }
 
-                case 4:
-                    percent = 1.2;
-                    shopKind = 120;
-                    break;
+            if (buyPacket.Amount > _worldConfiguration.MaxItemAmount)
+            {
+                //TODO log
+                return;
+            }
 
-                case 5:
-                    percent = 1.5;
-                    shopKind = 150;
+            IAliveEntity aliveEntity;
+            switch (buyPacket.VisualType)
+            {
+                case VisualType.Player:
+                    aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == buyPacket.VisualId);
                     break;
-
-                case 6:
-                    percent = 1.5;
-                    shopKind = 150;
+                case VisualType.Npc:
+                    aliveEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
                     break;
 
                 default:
-                    break;
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), buyPacket.VisualType);
+                    return;
             }
-            Session.SendPacket(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType, shopKind));
+            if (aliveEntity == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                return;
+            }
+
+            Session.Character.Buy(aliveEntity.Shop, buyPacket.Slot, buyPacket.Amount);
         }
     }
 }

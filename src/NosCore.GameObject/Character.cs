@@ -52,6 +52,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.Shared;
 using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
@@ -98,8 +99,6 @@ namespace NosCore.GameObject
 
         public ClientSession Session { get; set; }
 
-        public short? Amount { get; set; }
-
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
@@ -108,6 +107,7 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
         public IInventoryService Inventory { get; set; }
+        public IItemBuilderService ItemBuilderService { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public Group Group { get; set; }
@@ -138,6 +138,39 @@ namespace NosCore.GameObject
         public MapInstance MapInstance { get; set; }
 
         public VisualType VisualType => VisualType.Player;
+
+        public Tuple<double, byte> GenerateShopRates()
+        {
+            byte shopKind = 100;
+            var percent = 1.0;
+            switch (Session.Character.GetDignityIco())
+            {
+                case 3:
+                    percent = 1.1;
+                    shopKind = 110;
+                    break;
+
+                case 4:
+                    percent = 1.2;
+                    shopKind = 120;
+                    break;
+
+                case 5:
+                    percent = 1.5;
+                    shopKind = 150;
+                    break;
+
+                case 6:
+                    percent = 1.5;
+                    shopKind = 150;
+                    break;
+
+                default:
+                    break;
+            }
+
+            return new Tuple<double, byte>(percent, shopKind);
+        }
 
         public short VNum { get; set; }
 
@@ -233,6 +266,71 @@ namespace NosCore.GameObject
             MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
             MapInstance.Sessions.SendPacket(this.GenerateEff(6));
             MapInstance.Sessions.SendPacket(this.GenerateEff(198));
+        }
+
+        public void Buy(Shop shop, short slot, short amount)
+        {
+            var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
+            if (item == null)
+            {
+                return;
+            }
+            var price = item.Price ?? item.ItemInstance.Item.Price * amount;
+            var reputprice = item.Price == null ? item.ItemInstance.Item.ReputPrice * amount : 0;
+            double percent = GenerateShopRates().Item1;
+
+            if (item.ItemInstance.Item.Type == PocketType.Equipment)
+            {
+                amount = 1;
+            }
+
+            if (reputprice == 0 && price * percent > Session.Character.Gold)
+            {
+                Session.SendPacket(new SMemoPacket { Type = 3, Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language) });
+                return;
+            }
+
+            if (reputprice > Session.Character.Reput)
+            {
+                Session.SendPacket(new SMemoPacket { Type = 3, Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language) });
+                return;
+            }
+
+            List<IItemInstance> inv = null;
+            if (item.ItemInstance.CharacterId == -1)
+            {
+                inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+            }
+            else
+            {
+                //TODO character
+            }
+
+            if (inv?.DefaultIfEmpty() != null)
+            {
+                Session.SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
+                Session.SendPacket(new SMemoPacket { Type = 1, Message = Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language) });
+                if (reputprice == 0)
+                {
+                    Session.Character.Gold -= (long)(price * percent);
+                    Session.SendPacket(Session.Character.GenerateGold());
+                }
+                else
+                {
+                    Session.Character.Reput -= reputprice;
+                    Session.SendPacket(Session.Character.GenerateFd());
+                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language), SayColorType.Purple));
+                }
+            }
+            else
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        Session.Account.Language),
+                    Type = 0
+                });
+            }
         }
 
         private void GenerateLevelupPackets()
@@ -1050,7 +1148,7 @@ namespace NosCore.GameObject
             EquipmentSubPacket generateEquipmentSubPacket(EquipmentType eqType)
             {
                 var eq = Inventory.LoadBySlotAndType<IItemInstance>((short)eqType, PocketType.Wear);
-                if(eq == null)
+                if (eq == null)
                 {
                     return null;
                 }
@@ -1063,7 +1161,7 @@ namespace NosCore.GameObject
                     Unknown = 0,
                 };
             }
-          
+
             return new EquipPacket
             {
                 WeaponUpgradeRareSubPacket = WeaponUpgradeRareSubPacket,
@@ -1127,7 +1225,7 @@ namespace NosCore.GameObject
             Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
             {
                 Session.SendPacket(this.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language), SpCooldown), SayColorType.Purple));
-                Session.SendPacket(new SdPacket{Cooldown = 0});
+                Session.SendPacket(new SdPacket { Cooldown = 0 });
             });
         }
 
@@ -1135,7 +1233,7 @@ namespace NosCore.GameObject
         {
             SpecialistInstance sp = Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
             WearableInstance fairy = Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy, PocketType.Wear);
-           
+
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
                 Session.SendPacket(new MsgPacket
