@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Networking
     public class NetworkManager
     {
         private readonly ServerConfiguration _configuration;
-        private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
 
         public NetworkManager(ServerConfiguration configuration,
             Func<ISocketChannel, PipelineFactory> pipelineFactory)

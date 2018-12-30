@@ -62,11 +62,11 @@ namespace NosCore.GameObject.Map
 
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
-            var minX = (short)(-xpoint + firstX);
-            var maxX = (short)(xpoint + firstX);
+            var minX = (short) (-xpoint + firstX);
+            var maxX = (short) (xpoint + firstX);
 
-            var minY = (short)(-ypoint + firstY);
-            var maxY = (short)(ypoint + firstY);
+            var minY = (short) (-ypoint + firstY);
+            var maxY = (short) (ypoint + firstY);
 
             var cells = new List<MapCell>();
             for (var y = minY; y <= maxY; y++)
@@ -75,14 +75,14 @@ namespace NosCore.GameObject.Map
                 {
                     if (x != firstX || y != firstY)
                     {
-                        cells.Add(new MapCell { X = x, Y = y });
+                        cells.Add(new MapCell {X = x, Y = y});
                     }
                 }
             }
 
             foreach (var cell in cells.OrderBy(_ => RandomFactory.Instance.RandomNumber(0, int.MaxValue)))
             {
-                if (IsBlockedZone(firstX, firstY, (short)cell.X, (short)cell.Y))
+                if (IsBlockedZone(firstX, firstY, (short) cell.X, (short) cell.Y))
                 {
                     continue;
                 }
@@ -97,15 +97,15 @@ namespace NosCore.GameObject.Map
 
         public bool IsBlockedZone(short firstX, short firstY, short mapX, short mapY)
         {
-            var posX = (short)Math.Abs(mapX - firstX);
-            var posY = (short)Math.Abs(mapY - firstY);
+            var posX = (short) Math.Abs(mapX - firstX);
+            var posY = (short) Math.Abs(mapY - firstY);
 
             var positiveX = mapX > firstX;
             var positiveY = mapY > firstY;
 
             for (var i = 0; i <= posX; i++)
             {
-                if (!IsWalkable((short)((positiveX ? i : -i) + firstX), firstY))
+                if (!IsWalkable((short) ((positiveX ? i : -i) + firstX), firstY))
                 {
                     return true;
                 }
@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Map
 
             for (var i = 0; i <= posY; i++)
             {
-                if (!IsWalkable(firstX, (short)((positiveY ? i : -i) + firstY)))
+                if (!IsWalkable(firstX, (short) ((positiveY ? i : -i) + firstY)))
                 {
                     return true;
                 }
@@ -121,11 +121,13 @@ namespace NosCore.GameObject.Map
 
             return false;
         }
+
         public bool IsWalkable(short mapX, short mapY)
         {
             if (mapX > XLength || mapX < 0 || mapY > YLength || mapY < 0) return false;
             return IsWalkable(this[mapX, mapY]);
         }
+
         private static bool IsWalkable(byte value)
         {
             return value == 0 || value == 2 || (value >= 16 && value <= 19);

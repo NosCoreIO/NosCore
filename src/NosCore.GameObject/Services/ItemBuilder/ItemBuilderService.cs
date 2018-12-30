@@ -32,10 +32,11 @@ namespace NosCore.GameObject.Services.ItemBuilder
 {
     public class ItemBuilderService : IItemBuilderService
     {
-        private readonly List<Item.Item> _items;
         private readonly List<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
+        private readonly List<Item.Item> _items;
 
-        public ItemBuilderService(List<Item.Item> items, IEnumerable<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
+        public ItemBuilderService(List<Item.Item> items,
+            IEnumerable<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _items = items;
             _handlers = handlers.ToList();
@@ -48,9 +49,29 @@ namespace NosCore.GameObject.Services.ItemBuilder
                 k.Adapt<SpecialistInstance>() ??
                 k.Adapt<WearableInstance>() ??
                 k.Adapt<UsableInstance>() ??
-                (IItemInstance)k.Adapt<ItemInstance>();
+                (IItemInstance) k.Adapt<ItemInstance>();
 
             item.Item = _items.Find(s => s.VNum == k.ItemVNum);
+            LoadHandlers(item);
+            return item;
+        }
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId) =>
+            Create(itemToCreateVNum, characterId, 1);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount) =>
+            Create(itemToCreateVNum, characterId, amount, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare) =>
+            Create(itemToCreateVNum, characterId, amount, rare, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
+
+        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
+            byte upgrade, byte design)
+        {
+            var item = Generate(itemToCreateVNum, characterId, amount, rare, upgrade, design);
             LoadHandlers(item);
             return item;
         }
@@ -67,18 +88,6 @@ namespace NosCore.GameObject.Services.ItemBuilder
             });
             itemInstance.Requests = handlersRequest;
         }
-
-        public IItemInstance Create(short itemToCreateVNum, long characterId) =>
-            Create(itemToCreateVNum, characterId, 1);
-
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount) =>
-            Create(itemToCreateVNum, characterId, amount, 0);
-
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare) =>
-            Create(itemToCreateVNum, characterId, amount, rare, 0);
-
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
-            byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
 
         public IItemInstance Generate(short itemToCreateVNum, long characterId, short amount, sbyte rare,
             byte upgrade, byte design)
@@ -139,13 +148,6 @@ namespace NosCore.GameObject.Services.ItemBuilder
                         CharacterId = characterId
                     };
             }
-        }
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
-          byte upgrade, byte design)
-        {
-            var item = Generate(itemToCreateVNum, characterId, amount, rare, upgrade, design);
-            LoadHandlers(item);
-            return item;
         }
     }
 }

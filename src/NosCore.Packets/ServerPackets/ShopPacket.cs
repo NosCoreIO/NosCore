@@ -42,6 +42,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(5, SerializeToEnd = true)]
         public string Name { get; set; }
-
     }
 }

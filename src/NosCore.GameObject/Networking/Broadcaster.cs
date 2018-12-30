@@ -31,15 +31,16 @@ namespace NosCore.GameObject.Networking
 {
     public class Broadcaster : IBroadcastable
     {
+        private static Broadcaster _instance;
+
         private Broadcaster()
         {
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new ConcurrentDictionary<long, ClientSession.ClientSession>();
-
-        private static Broadcaster _instance;
+        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } =
+            new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
         public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
 
@@ -61,6 +62,7 @@ namespace NosCore.GameObject.Networking
             {
                 Sessions.Add(clientSession.Channel);
             }
+
             ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
@@ -91,7 +93,8 @@ namespace NosCore.GameObject.Networking
                     Name = s.Account.Name,
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character { Name = s.Character.Name, Id = s.Character.CharacterId }
+                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
+                        {Name = s.Character.Name, Id = s.Character.CharacterId}
                 }).ToList();
         }
     }

@@ -35,11 +35,13 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
     public class MapNpcBuilderService : IMapNpcBuilderService
     {
         private readonly IItemBuilderService _itemBuilderService;
-        private readonly List<ShopDto> _shops;
-        private readonly List<ShopItemDto> _shopItems;
         private readonly List<MapNpcDto> _mapNpcs;
         private readonly List<NpcMonsterDto> _npcMonsters;
-        public MapNpcBuilderService(IItemBuilderService itemBuilderService, List<ShopDto> shops, List<ShopItemDto> shopItems,
+        private readonly List<ShopItemDto> _shopItems;
+        private readonly List<ShopDto> _shops;
+
+        public MapNpcBuilderService(IItemBuilderService itemBuilderService, List<ShopDto> shops,
+            List<ShopItemDto> shopItems,
             List<NpcMonsterDto> npcMonsters, List<MapNpcDto> mapNpcs)
         {
             _itemBuilderService = itemBuilderService;
@@ -63,7 +65,7 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
                 mapNpc.Shop = LoadShop(mapNpc.MapNpcId);
                 npcs[mapNpc.MapNpcId] = mapNpc;
             });
-            
+
             return npcs;
         }
 

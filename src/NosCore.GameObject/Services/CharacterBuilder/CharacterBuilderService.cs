@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Services.CharacterBuilder
         {
             Character character = characterDto.Adapt<Character>();
             character.Inventory = _inventory;
-            character.ItemBuilderService =_itemBuilderService;
+            character.ItemBuilderService = _itemBuilderService;
             return character;
         }
     }

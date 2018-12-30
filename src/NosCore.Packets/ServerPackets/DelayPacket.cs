@@ -32,6 +32,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2, IsReturnPacket = true)]
         public PacketDefinition Packet { get; set; }
-
     }
 }

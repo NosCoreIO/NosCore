@@ -36,11 +36,14 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 {
     public class MapInstanceAccessService
     {
-        private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
-            new ConcurrentDictionary<Guid, MapInstance>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps, MapItemBuilderService mapItemBuilderService, MapNpcBuilderService mapNpcBuilderService, MapMonsterBuilderService mapMonsterBuilderService)
+        private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
+            new ConcurrentDictionary<Guid, MapInstance>();
+
+        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps,
+            MapItemBuilderService mapItemBuilderService, MapNpcBuilderService mapNpcBuilderService,
+            MapMonsterBuilderService mapMonsterBuilderService)
         {
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map.Map>();
@@ -50,7 +53,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 var guid = Guid.NewGuid();
                 mapList[map.MapId] = map;
-                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters, mapItemBuilderService, mapNpcBuilderService, mapMonsterBuilderService);
+                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters,
+                    mapItemBuilderService, mapNpcBuilderService, mapMonsterBuilderService);
                 MapInstances.TryAdd(guid, newMap);
                 newMap.LoadMonsters();
                 newMap.LoadNpcs();
