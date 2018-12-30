@@ -58,7 +58,8 @@ namespace NosCore.Parser.Parsers
                                 ItemVNum = short.Parse(item[2])
                             };
                         }
-                        else if (item.Length == 6)
+
+                        if (item.Length == 6)
                         {
                             sitem = new ShopItemDto
                             {

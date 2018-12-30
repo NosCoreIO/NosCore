@@ -66,6 +66,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 using NosCore.GameObject.Services.NRunAccess;
 

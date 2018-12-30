@@ -20,7 +20,7 @@
 using System.Collections.Concurrent;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
-namespace NosCore.GameObject.Services.MapItemBuilder
+namespace NosCore.GameObject.Services.MapMonsterBuilder
 {
     public interface IMapMonsterBuilderService
     {

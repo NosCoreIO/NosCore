@@ -33,6 +33,7 @@ using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Shared;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.Tests.HandlerTests

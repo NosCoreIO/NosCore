@@ -26,6 +26,7 @@ using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
