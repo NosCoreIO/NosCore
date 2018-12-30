@@ -57,9 +57,9 @@ namespace NosCore.GameObject.Services.ExchangeService
             _itemBuilderService = itemBuilderService;
         }
 
-        private ConcurrentDictionary<long, ExchangeData> _exchangeDatas;
+        private readonly ConcurrentDictionary<long, ExchangeData> _exchangeDatas;
 
-        private ConcurrentDictionary<long, long> _exchangeRequests;
+        private readonly ConcurrentDictionary<long, long> _exchangeRequests;
 
         public void SetGold(long visualId, long gold, long bankGold)
         {
@@ -126,14 +126,13 @@ namespace NosCore.GameObject.Services.ExchangeService
                 return null;
             }
             _exchangeDatas.TryRemove(data.Key, out _);
+            _exchangeDatas.TryRemove(data.Value, out _);
 
             return new ExcClosePacket
             {
                 Type = closeType
             };
         }
-
-
 
         public bool OpenExchange(long visualId, long targetVisualId)
         {
@@ -143,6 +142,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 return false;
             }
 
+            _exchangeRequests[visualId] = targetVisualId;
             _exchangeDatas[visualId] = new ExchangeData();
             _exchangeDatas[targetVisualId] = new ExchangeData();
             return true;
@@ -198,7 +198,6 @@ namespace NosCore.GameObject.Services.ExchangeService
                 Type = 0
             });
 
-            _exchangeRequests[session.Character.CharacterId] = targetSession.Character.CharacterId;
             targetSession.Character.SendPacket(new DlgPacket
             {
                 YesPacket = new ExchangeRequestPacket
@@ -220,16 +219,20 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     var destInventory = user == users.Item1 ? sessionInventory : targetInventory;
                     var origintory = user == users.Item2 ? sessionInventory : targetInventory;
+                    var targetId = user == users.Item1 ? users.Item2 : users.Item1;
                     if (item.Value == item.Key.Amount)
                     {
                         origintory.Remove(item.Key.Id);
-                        items.AddRange(destInventory.AddItemToPocket(item.Key));
                     }
                     else
                     {
                         origintory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
-                        items.AddRange(destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum, user)));
                     }
+
+                    var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,
+                        targetId, amount: item.Key.Amount, rare: (sbyte)item.Key.Rare, upgrade: item.Key.Upgrade, design: (byte)item.Key.Design)).FirstOrDefault();
+
+                    items.Add(inv);
                 }
             }
 
