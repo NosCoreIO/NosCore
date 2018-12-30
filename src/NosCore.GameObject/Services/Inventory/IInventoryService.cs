@@ -45,5 +45,8 @@ namespace NosCore.GameObject.Services.Inventory
 
         bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out IItemInstance sourcePocket, out IItemInstance destinationPocket);
+
+        bool EnoughPlace(List<IItemInstance> itemInstances);
+        IItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }
