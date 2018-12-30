@@ -29,6 +29,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Shared;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -107,7 +108,7 @@ namespace NosCore.Tests.HandlerTests
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
                 new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),  new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapNpcBuilderService(new ItemBuilderService(null, null), new List<ShopDto>(), new List<ShopItemDto>(),  new List<NpcMonsterDto>(), new List<MapNpcDto>()),
                 new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService);
@@ -156,7 +157,7 @@ namespace NosCore.Tests.HandlerTests
             DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
             var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 }, 
                 new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()), 
-                new MapNpcBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapNpcBuilderService(new ItemBuilderService(null, null), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
                 new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService) { SessionId = 2 };
             var handler2 = new DefaultPacketController(null, instanceAccessService, null);

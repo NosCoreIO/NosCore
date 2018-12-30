@@ -77,7 +77,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null), null, null);
             _handler.RegisterSession(_session);
         }
 
@@ -86,7 +86,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -181,7 +182,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()));
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

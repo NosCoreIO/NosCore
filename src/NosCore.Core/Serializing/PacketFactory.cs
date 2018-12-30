@@ -501,14 +501,16 @@ namespace NosCore.Core.Serializing
             if (listValueCount > 0)
             {
                 resultListPacket.Append(SerializeValue(propertyType.GenericTypeArguments[0], listValues[0],
-                    propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>()));
+                    propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>(),
+                    null));
 
                 for (var i = 1; i < listValueCount; i++)
                 {
                     resultListPacket.Append(".")
                         .Append(SerializeValue(
                                     propertyType.GenericTypeArguments[0],
-                                    listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>())
+                                    listValues[i], propertyType.GenericTypeArguments[0].GetCustomAttributes<ValidationAttribute>(),
+                                    null)
                         .Replace(" ", ""));
                 }
             }
@@ -548,12 +550,17 @@ namespace NosCore.Core.Serializing
         {
             var serializedSubpacket =
                 new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
-
+            var shouldSeparate = true;
             // iterate thru configure subpacket properties
             foreach (var subpacketPropertyInfo in subpacketSerializationInfo.Value)
             {
+                if (subpacketPropertyInfo.Key.Index == 0)
+                {
+                    shouldSeparate = false;
+                }
+
                 // first element
-                if (subpacketPropertyInfo.Key.Index != 0)
+                if (shouldSeparate)
                 {
                     serializedSubpacket.Append(isReturnPacket ? "^" : shouldRemoveSeparator ? " "
                         : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
@@ -576,12 +583,21 @@ namespace NosCore.Core.Serializing
                     continue;
                 }
 
-                serializedSubpacket.Append(SerializeValue(subpacketPropertyInfo.Value.PropertyType,
+                var serializedValue = SerializeValue(subpacketPropertyInfo.Value.PropertyType,
                     subpacketPropertyInfo.Value.GetValue(value),
-                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>()).Replace(" ", ""));
+                    subpacketPropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(),
+                    subpacketPropertyInfo.Key).Replace(" ", "");
+
+                if (string.IsNullOrEmpty(serializedValue) && subpacketPropertyInfo.Key.IsOptional)
+                {
+                    shouldSeparate = false;
+                    continue;
+                }
+
+                shouldSeparate = true;
+                serializedSubpacket.Append(serializedValue);
             }
 
-            serializedSubpacket.Replace("^^", "^");
             return serializedSubpacket.ToString();
         }
 
@@ -605,7 +621,7 @@ namespace NosCore.Core.Serializing
         }
 
         private static string SerializeValue(Type propertyType, object value,
-            IEnumerable<ValidationAttribute> validationAttributes, PacketIndexAttribute packetIndexAttribute = null)
+            IEnumerable<ValidationAttribute> validationAttributes, PacketIndexAttribute packetIndexAttribute)
         {
             if (propertyType == null || !validationAttributes.All(a => a.IsValid(value)))
             {

@@ -25,6 +25,7 @@ using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
+using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
@@ -33,15 +34,15 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
 {
     public class MapNpcBuilderService : IMapNpcBuilderService
     {
-        private readonly List<Item> _items;
+        private readonly IItemBuilderService _itemBuilderService;
         private readonly List<ShopDto> _shops;
         private readonly List<ShopItemDto> _shopItems;
         private readonly List<MapNpcDto> _mapNpcs;
         private readonly List<NpcMonsterDto> _npcMonsters;
-        public MapNpcBuilderService(List<Item> items, List<ShopDto> shops, List<ShopItemDto> shopItems,
+        public MapNpcBuilderService(IItemBuilderService itemBuilderService, List<ShopDto> shops, List<ShopItemDto> shopItems,
             List<NpcMonsterDto> npcMonsters, List<MapNpcDto> mapNpcs)
         {
-            _items = items;
+            _itemBuilderService = itemBuilderService;
             _npcMonsters = npcMonsters;
             _shops = shops;
             _shopItems = shopItems;
@@ -77,7 +78,7 @@ namespace NosCore.GameObject.Services.MapNpcBuilder
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {
                     var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                    shopItem.Item = _items.Find(s=>s.VNum == shopItemGrouping.ItemVNum);
+                    shopItem.ItemInstance = _itemBuilderService.Create(shopItemGrouping.ItemVNum, -1);
                     shopItems[shopItemGrouping.ShopItemId] = shopItem;
                 });
                 shop = shopObj.Adapt<Shop>();
