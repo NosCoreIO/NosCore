@@ -48,6 +48,8 @@ namespace NosCore.GameObject
 
         public short Race => NpcMonster.Race;
 
+        public Shop Shop => null;
+
         internal void Initialize(NpcMonsterDto npcMonster)
         {
             NpcMonster = npcMonster;

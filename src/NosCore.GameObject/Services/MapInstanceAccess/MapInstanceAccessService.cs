@@ -26,6 +26,7 @@ using Mapster;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             new ConcurrentDictionary<Guid, MapInstance>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps, MapItemBuilderService mapItemBuilderService)
+        public MapInstanceAccessService(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps, MapItemBuilderService mapItemBuilderService, MapNpcBuilderService mapNpcBuilderService, MapMonsterBuilderService mapMonsterBuilderService)
         {
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map.Map>();
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 var guid = Guid.NewGuid();
                 mapList[map.MapId] = map;
-                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters, mapItemBuilderService);
+                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters, mapItemBuilderService, mapNpcBuilderService, mapMonsterBuilderService);
                 MapInstances.TryAdd(guid, newMap);
                 newMap.LoadMonsters();
                 newMap.LoadNpcs();
@@ -75,10 +76,6 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
             });
             maps.AddRange(mapList.Select(s => s.Value));
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED),
-                npccount);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED),
-                monstercount);
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)

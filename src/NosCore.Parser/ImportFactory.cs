@@ -47,6 +47,8 @@ namespace NosCore.Parser
         private readonly PortalParser _portalParser = new PortalParser();
         private readonly RespawnMapTypeParser _respawnMapTypeParser = new RespawnMapTypeParser();
         private readonly SkillParser _skillParser = new SkillParser();
+        private readonly ShopParser _shopParser = new ShopParser();
+        private readonly ShopItemParser _shopItemParser = new ShopItemParser();
 
         public ImportFactory(string folder)
         {
@@ -93,6 +95,15 @@ namespace NosCore.Parser
         public void ImportMapMonsters()
         {
             _mapMonsterParser.InsertMapMonster(_packetList);
+        }
+        public void ImportShops()
+        {
+            _shopParser.InsertShops(_packetList);
+        }
+
+        public void ImportShopItems()
+        {
+            _shopItemParser.InsertShopItems(_packetList);
         }
 
         public void ImportMaps()

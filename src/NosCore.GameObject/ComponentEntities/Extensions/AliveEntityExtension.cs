@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -154,6 +156,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = message
             };
         }
+        
+        public static ShopPacket GenerateShop(this IAliveEntity visualEntity)
+        {
+            return new ShopPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                ShopId = visualEntity.Shop?.ShopId ?? 0,
+                MenuType = visualEntity.Shop?.MenuType ?? 0,
+                ShopType = visualEntity.Shop?.ShopType ?? 0,
+                Name = visualEntity.Shop?.Name ?? string.Empty,
+            };
+        }
 
         public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, PocketType type, short slot, byte mode, byte parameter)
         {
@@ -245,6 +260,32 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             experiencedEntity.LevelXp = 0;
             experiencedEntity.Hp = experiencedEntity.MaxHp;
             experiencedEntity.Mp = experiencedEntity.MaxMp;
+        }
+
+        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, byte typeshop, byte shopKind)
+        {
+            var shopItemList = new List<NInvItemSubPacket>();
+            foreach (var item in aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)))
+            {
+                shopItemList.Add(new NInvItemSubPacket
+                {
+                   Type = item.Type,
+                   Slot = item.Slot,
+                   Price = item.Item.Price * percent,
+                   RareAmount = item.Item.Type == 0 ? (item.Item.IsColored ? item.Color : item.Upgrade) : (short?)null,
+                   UpgradeDesign = item.Item.Type == 0 ? (item.Item.IsColored ? item.Color : item.Upgrade) : (short?)null,
+                   VNum = item.Item.VNum
+                });
+            }
+
+            return new NInvPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                ShopKind = shopKind,
+                Unknown = 0,
+                Items = shopItemList
+            };
         }
     }
 }
