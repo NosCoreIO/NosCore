@@ -71,7 +71,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void SetReputation(SetReputationPacket setReputationPacket)
         {
-            if (setReputationPacket.Name == Session.Character.Name)
+            if (setReputationPacket.Name == Session.Character.Name || string.IsNullOrEmpty(setReputationPacket.Name))
             {
                 Session.Character.SetReputation(setReputationPacket.Reputation);
                 return;
