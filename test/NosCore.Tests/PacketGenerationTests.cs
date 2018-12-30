@@ -97,6 +97,28 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
+        public void GeneratePacketWithNullableOptional()
+        {
+            var testPacket = new NInvPacket
+            {
+                Items = new List<NInvItemSubPacket> {new NInvItemSubPacket
+                {
+                    Type = 0,
+                    Slot = 0,
+                    Price = 0,
+                    RareAmount = null,
+                    UpgradeDesign = null,
+                    VNum = 0
+                } }
+            };
+
+            var packet = PacketFactory.Serialize(new[] { testPacket });
+            Assert.AreEqual(
+                    "n_inv 0 0 0 0 0.0.0.-1.0",
+                    packet);
+        }
+
+        [TestMethod]
         public void GeneratePacketWithSpecialSeparator()
         {
             var dlgTest = new BlinitPacket

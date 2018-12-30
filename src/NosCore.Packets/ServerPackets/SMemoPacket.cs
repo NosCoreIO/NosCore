@@ -18,29 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("n_inv_item")]
-    public class NInvItemSubPacket : PacketDefinition
+    [PacketHeader("s_memo")]
+    public class SMemoPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public PocketType Type { get; set; }
+        public byte Type { get; set; }
 
-        [PacketIndex(1)]
-        public short Slot { get; set; }
-
-        [PacketIndex(2)]
-        public short VNum { get; set; }
-
-        [PacketIndex(3)]
-        public short? RareAmount { get; set; }
-
-        [PacketIndex(4, IsOptional = true)]
-        public short? UpgradeDesign { get; set; }
-
-        [PacketIndex(5)]
-        public int Price { get; set; }
+        [PacketIndex(1, SerializeToEnd = true)]
+        public string Message { get; set; }
     }
 }

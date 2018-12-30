@@ -125,7 +125,7 @@ namespace NosCore.Tests.HandlerTests
                 }
             }
             , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
-            _mapItemBuilderService, new MapNpcBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+            _mapItemBuilderService, new MapNpcBuilderService(new ItemBuilderService(null, null), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
             new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());

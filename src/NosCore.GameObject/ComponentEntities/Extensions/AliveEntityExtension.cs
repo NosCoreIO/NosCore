@@ -265,16 +265,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, byte typeshop, byte shopKind)
         {
             var shopItemList = new List<NInvItemSubPacket>();
-            foreach (var item in aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)))
+            foreach (var item in aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)).OrderBy(s=>s.Slot))
             {
                 shopItemList.Add(new NInvItemSubPacket
                 {
-                   Type = item.Type,
+                   Type = item.ItemInstance.Type,
                    Slot = item.Slot,
-                   Price = item.Item.Price * percent,
-                   RareAmount = item.Item.Type == 0 ? (item.Item.IsColored ? item.Color : item.Upgrade) : (short?)null,
-                   UpgradeDesign = item.Item.Type == 0 ? (item.Item.IsColored ? item.Color : item.Upgrade) : (short?)null,
-                   VNum = item.Item.VNum
+                   Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0 ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
+                   RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare : item.Amount,
+                   UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment ? (item.ItemInstance.Item.IsColored ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
+                   VNum = item.ItemInstance.Item.VNum
                 });
             }
 

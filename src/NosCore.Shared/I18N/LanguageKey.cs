@@ -209,6 +209,10 @@ namespace NosCore.Shared.I18N
         SHOPS_PARSED,
         SHOPITEMS_PARSED,
         SHOPITEMS_LOADED,
-        SHOPS_LOADED
+        SHOPS_LOADED,
+        REPUT_DECREASED,
+        BUY_ITEM_VALID,
+        NOT_ENOUGH_REPUT,
+        NOT_ENOUGH_MONEY
     }
 }
