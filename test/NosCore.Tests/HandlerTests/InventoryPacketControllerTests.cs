@@ -52,6 +52,7 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.Tests.HandlerTests

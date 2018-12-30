@@ -40,6 +40,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.GameObject.Services.MapInstanceAccess

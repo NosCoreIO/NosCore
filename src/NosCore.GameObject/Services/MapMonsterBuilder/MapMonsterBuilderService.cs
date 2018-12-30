@@ -26,9 +26,8 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
 
-namespace NosCore.GameObject.Services.MapNpcBuilder
+namespace NosCore.GameObject.Services.MapMonsterBuilder
 {
     public class MapMonsterBuilderService : IMapMonsterBuilderService
     {
