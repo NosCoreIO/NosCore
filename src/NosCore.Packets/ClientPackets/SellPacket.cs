@@ -34,6 +34,6 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(4)]
         [Range(1, short.MaxValue)]
-        public byte? Amount { get; set; }
+        public short? Amount { get; set; }
     }
 }

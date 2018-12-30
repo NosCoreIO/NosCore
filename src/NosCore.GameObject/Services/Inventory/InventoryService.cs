@@ -413,31 +413,50 @@ namespace NosCore.GameObject.Services.Inventory
                 < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50)
                     ? (short?)nextFreeSlot : null;
         }
+        
+        public bool EnoughPlace(List<IItemInstance> itemInstances)
+        {
+            var place = new Dictionary<PocketType, int>();
+            foreach (var itemGroup in itemInstances.GroupBy(s => s.ItemVNum))
+            {
+                var type = itemGroup.First().Type;
+                var itemList = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
+                if (!place.ContainsKey(type))
+                {
+                    place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12 : 50) - itemList.Count);
+                }
 
-        //    public bool EnoughPlace(List<ItemInstance> itemInstances, int backPack)
-        //    {
-        //        var place = new Dictionary<PocketType, int>();
-        //        foreach (var itemgroup in itemInstances.GroupBy(s => s.ItemVNum))
-        //        {
-        //            var type = itemgroup.First().Type;
-        //            var listitem = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
-        //            if (!place.ContainsKey(type))
-        //            {
-        //                place.Add(type, (type != PocketType.Miniland ? Configuration.BackpackSize + backPack * 12 : 50) - listitem.Count);
-        //            }
+                var amount = itemGroup.Sum(s => s.Amount);
+                var rest = amount % (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount);
+                var newSlotNeeded = itemList.Where(s => s.ItemVNum == itemGroup.Key).Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
+                place[type] -= (amount / (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount)) + (newSlotNeeded ? 1 : 0);
 
-        //            var amount = itemgroup.Sum(s => s.Amount);
-        //            var rest = amount % (type == PocketType.Equipment ? 1 : 99);
-        //            var needanotherslot = listitem.Where(s => s.ItemVNum == itemgroup.Key).Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
-        //            place[type] -= (amount / (type == PocketType.Equipment ? 1 : 99)) + (needanotherslot ? 1 : 0);
+                if (place[type] < 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        public IItemInstance RemoveItemAmountFromInventory(short amount, Guid id)
+        {
+            var inv = this[id];
+            if (inv != null)
+            {
+                inv.Amount -= amount;
+                if (inv.Amount <= 0)
+                {
+                    TryRemove(inv.Id, out _);
+                }
 
-        //            if (place[type] < 0)
-        //            {
-        //                return false;
-        //            }
-        //        }
-        //        return true;
-        //    }
+                return inv;
+            }
+
+            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
+            _logger.Error(e.Message, e);
+            return null;
+        }
 
         //    public IEnumerable<ItemInstance> RemoveItemAmount(int vnum, int amount = 1)
         //    {
@@ -469,24 +488,7 @@ namespace NosCore.GameObject.Services.Inventory
         //            }
         //        }
         //    }
-
-        //    public ItemInstance RemoveItemAmountFromPocket(short amount, Guid id)
-        //    {
-
-        //        var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Id.Equals(id));
-
-        //        if (inv == null)
-        //        {
-        //            return null;
-        //        }
-        //        inv.Amount -= amount;
-        //        if (inv.Amount <= 0)
-        //        {
-        //            TryRemove(inv.Id, out _);
-        //        }
-        //        return inv;
-        //    }
-
+        
         //    public IEnumerable<ItemInstance> Reorder(ClientSession session, PocketType pocketType)
         //    {
         //        var itemsByPocketType = new List<ItemInstance>();
