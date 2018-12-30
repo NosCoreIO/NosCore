@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using NosCore.Data.AliveEntities;
 using NosCore.GameObject.Services.MapInstanceAccess;
 
 namespace NosCore.GameObject.Services.MapItemBuilder

@@ -17,11 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
