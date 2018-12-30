@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
