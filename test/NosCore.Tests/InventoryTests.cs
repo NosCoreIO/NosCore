@@ -216,6 +216,14 @@ namespace NosCore.Tests
         #endregion
 
         #region MoveInPocket
+        //TODO RemoveItemAmountFromInventory
+        #endregion
+
+        #region EnoughPlace
+        //TODO EnoughPlace
+        #endregion
+
+        #region MoveInPocket
 
         [TestMethod]
         public void MoveFashionToFashionPocket()
@@ -276,5 +284,7 @@ namespace NosCore.Tests
             Assert.IsTrue(item.Type == PocketType.Equipment && item.Slot == 1 && item2.Type == PocketType.Wear && item2.Slot == (short)EquipmentType.MainWeapon);
         }
         #endregion
+
+
     }
 }

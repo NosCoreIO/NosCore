@@ -36,7 +36,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
@@ -59,7 +60,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new FinitPacket { SubPackets = subpackets };
+            return new FinitPacket {SubPackets = subpackets};
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
@@ -114,14 +115,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Authority = visualEntity.Authority,
                     Gender = visualEntity.Gender,
-                    HairStyle = (byte)visualEntity.HairStyle,
-                    HairColor = (byte)visualEntity.HairColor,
+                    HairStyle = (byte) visualEntity.HairStyle,
+                    HairColor = (byte) visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
-                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
+                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
+                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.Group.GroupId,
@@ -135,7 +136,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = string.Empty,
-                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -144,7 +145,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
                     ArenaWinner = false,
-                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = 0,
                     HeroLevel = visualEntity.HeroLevel
                 }
@@ -165,11 +166,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
-                    Dialog = visualEntity is MapNpc npc ? npc.Dialog : (short)0,
+                    Dialog = visualEntity is MapNpc npc ? npc.Dialog : (short) 0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
-                        Hp = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
+                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting
                 }

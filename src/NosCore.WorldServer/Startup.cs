@@ -62,9 +62,12 @@ using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
+using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 using NosCore.GameObject.Services.NRunAccess;
 
 namespace NosCore.WorldServer
@@ -117,6 +120,21 @@ namespace NosCore.WorldServer
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count);
                 return monsters;
             }).As<List<NpcMonsterDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                var shopItems = DaoFactory.ShopItemDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SHOPITEMS_LOADED), shopItems.Count);
+                return shopItems;
+            }).As<List<ShopItemDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                var shops = DaoFactory.ShopDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SHOPS_LOADED), shops.Count);
+                return shops;
+            }).As<List<ShopDto>>().SingleInstance();
+
             containerBuilder.Register(_ =>
             {
                 List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
@@ -132,6 +150,21 @@ namespace NosCore.WorldServer
 
                 return maps;
             }).As<List<Map>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                List<MapMonsterDto> monsters = DaoFactory.MapMonsterDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED), monsters.Count);
+                return monsters;
+            }).As<List<MapMonsterDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                List<MapNpcDto> npcs = DaoFactory.MapNpcDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED), npcs.Count);
+                return npcs;
+            }).As<List<MapNpcDto>>().SingleInstance();
+
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
@@ -156,9 +189,11 @@ namespace NosCore.WorldServer
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
-            
+
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
             containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<MapNpcBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<MapMonsterBuilderService>().SingleInstance();
             containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
             containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
 

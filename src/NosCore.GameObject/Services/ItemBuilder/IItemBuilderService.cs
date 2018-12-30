@@ -28,7 +28,10 @@ namespace NosCore.GameObject.Services.ItemBuilder
         IItemInstance Create(short itemToCreateVNum, long characterId, short amount);
         IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare);
         IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade, byte design);
+
+        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade,
+            byte design);
+
         IItemInstance Convert(IItemInstanceDto k);
     }
 }

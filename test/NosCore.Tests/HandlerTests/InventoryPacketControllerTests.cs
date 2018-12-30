@@ -52,6 +52,8 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -123,7 +125,9 @@ namespace NosCore.Tests.HandlerTests
                     0, 0, 0, 0, 0, 0, 0, 0
                 }
             }
-            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(), _mapItemBuilderService);
+            , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
+            _mapItemBuilderService, new MapNpcBuilderService(_itemBuilder, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+            new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance = _map;

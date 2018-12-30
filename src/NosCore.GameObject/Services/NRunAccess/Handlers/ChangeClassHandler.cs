@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 using System;
 using System.Linq;
 using NosCore.GameObject.Networking.ClientSession;
@@ -36,15 +35,18 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public bool Condition(Tuple<MapNpc, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass && item.Item2.Type > 0 && item.Item2.Type < 4;
+        public bool Condition(Tuple<MapNpc, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass &&
+            item.Item2.Type > 0 && item.Item2.Type < 4;
 
         public void Execute(RequestData<Tuple<MapNpc, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.Class != (byte)CharacterClassType.Adventurer)
+            if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
+                        requestData.ClientSession.Account.Language),
+                    Type = MessageType.Whisper
                 });
                 return;
             }
@@ -53,14 +55,17 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+                        requestData.ClientSession.Account.Language),
+                    Type = MessageType.Whisper
                 });
                 return;
             }
 
-            if ((byte)requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
+            if ((byte) requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, requestData.ClientSession.Account.Language));
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS,
+                    requestData.ClientSession.Account.Language));
                 return;
             }
 
@@ -68,12 +73,14 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY, requestData.ClientSession.Account.Language), Type = MessageType.Whisper
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+                        requestData.ClientSession.Account.Language),
+                    Type = MessageType.Whisper
                 });
                 return;
             }
 
-            requestData.ClientSession.Character.ChangeClass((CharacterClassType)requestData.Data.Item2.Type);
+            requestData.ClientSession.Character.ChangeClass((CharacterClassType) requestData.Data.Item2.Type);
         }
     }
 }

@@ -28,12 +28,12 @@ namespace NosCore.GameObject.Services.NRunAccess
 {
     public class NrunAccessService
     {
-        private List<IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>> _handlers { get; }
-
         public NrunAccessService(IEnumerable<IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>> handlers)
         {
             _handlers = handlers.ToList();
         }
+
+        private List<IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>> _handlers { get; }
 
         public void NRunLaunch(ClientSession clientSession, Tuple<MapNpc, NrunPacket> data)
         {
