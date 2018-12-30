@@ -157,7 +157,7 @@ namespace NosCore.Controllers
             //            Session.SendPackets(Session.Character.GenerateScN());
             //            Session.Character.GenerateStartupInventory();
 
-            //            Session.SendPacket(Session.Character.GenerateGold());
+            Session.SendPacket(Session.Character.GenerateGold());
             //            Session.SendPackets(Session.Character.GenerateQuicklist());
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
@@ -791,7 +791,7 @@ namespace NosCore.Controllers
 
             BlackListAdd(blinsPacket);
         }
-     
+
         /// <summary>
         /// rest packet
         /// </summary>
