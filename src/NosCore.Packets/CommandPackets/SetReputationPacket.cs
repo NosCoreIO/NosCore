@@ -30,7 +30,7 @@ namespace NosCore.Packets.CommandPackets
         [Range(0, long.MaxValue)]
         public long Reputation { get; set; }
 
-        [PacketIndex(1, SerializeToEnd = true)]
+        [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]
         public string Name { get; set; }
 
         public string Help()
