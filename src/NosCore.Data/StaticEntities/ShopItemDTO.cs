@@ -17,46 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using System.ComponentModel.DataAnnotations;
+
+namespace NosCore.Data.StaticEntities
 {
-    public interface IAliveEntity : IVisualEntity
+    public class ShopItemDto : IDto
     {
-        bool IsSitting { get; set; }
+        public byte Color { get; set; }
+        
+        public short ItemVNum { get; set; }
 
-        byte Speed { get; }
+        public short Rare { get; set; }
 
-        int Mp { get; set; }
+        public int ShopId { get; set; }
 
-        int Hp { get; set; }
+        [Key]
+        public int ShopItemId { get; set; }
 
-        short Morph { get; }
+        public byte Slot { get; set; }
 
-        byte MorphUpgrade { get; }
+        public byte Type { get; set; }
 
-        short MorphDesign { get; }
-
-        byte MorphBonus { get; }
-
-        bool NoAttack { get; }
-
-        bool NoMove { get; }
-
-        bool IsAlive { get; }
-
-        short MapX { get; }
-
-        short MapY { get; }
-
-        int MaxHp { get; }
-
-        int MaxMp { get; }
-
-        byte Level { get; set; }
-
-        byte HeroLevel { get; }
-
-        short Race { get; }
-
-        Shop Shop { get; }
+        public byte Upgrade { get; set; }
     }
 }

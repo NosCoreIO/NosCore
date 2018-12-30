@@ -93,6 +93,7 @@ namespace NosCore.GameObject
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public short Race => (byte)Class;
+        public Shop Shop => null;
         public DateTime LastPortal { get; set; }
 
         public ClientSession Session { get; set; }
