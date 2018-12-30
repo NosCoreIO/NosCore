@@ -70,6 +70,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
+        public Shop Shop { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

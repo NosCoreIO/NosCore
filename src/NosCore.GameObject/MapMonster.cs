@@ -64,6 +64,7 @@ namespace NosCore.GameObject
         public int MaxMp => NpcMonster.MaxMp;
 
         public short Race => NpcMonster.Race;
+        public Shop Shop => null;
 
         public byte Level { get; set; }
 

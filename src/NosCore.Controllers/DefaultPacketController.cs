@@ -54,7 +54,6 @@ namespace NosCore.Controllers
     public class DefaultPacketController : PacketController
     {
         private readonly MapInstanceAccessService _mapInstanceAccessService;
-        private readonly NrunAccessService _nRunAccessService;
         private readonly GuriAccessService _guriAccessService;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -65,12 +64,11 @@ namespace NosCore.Controllers
         }
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
-            MapInstanceAccessService mapInstanceAccessService, NrunAccessService nRunAccessService,
+            MapInstanceAccessService mapInstanceAccessService,
             GuriAccessService guriAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceAccessService = mapInstanceAccessService;
-            _nRunAccessService = nRunAccessService;
             _guriAccessService = guriAccessService;
         }
 
@@ -796,52 +794,7 @@ namespace NosCore.Controllers
 
             BlackListAdd(blinsPacket);
         }
-
-        /// <summary>
-        /// npc_req packet
-        /// </summary>
-        /// <param name="requestNpcPacket"></param>
-        public void ShowShop(RequestNpcPacket requestNpcPacket)
-        {
-            IRequestableEntity requestableEntity;
-            switch (requestNpcPacket.Type)
-            {
-                case VisualType.Player:
-                    requestableEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
-                    break;
-                case VisualType.Npc:
-                    requestableEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
-                    break;
-
-                default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
-                    return;
-            }
-            if (requestableEntity == null)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
-            }
-
-            requestableEntity.Requests.OnNext(new RequestData(Session));
-        }
-
-        /// <summary>
-        /// nRunPacket packet
-        /// </summary>
-        /// <param name="nRunPacket"></param>
-        public void NRun(NrunPacket nRunPacket)
-        {
-            MapNpc requestableEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.NpcId);
-
-            if (requestableEntity == null)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
-            }
-            _nRunAccessService.NRunLaunch(Session, new Tuple<MapNpc, NrunPacket>(requestableEntity, nRunPacket));
-        }
-
+     
         /// <summary>
         /// rest packet
         /// </summary>

@@ -82,7 +82,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 IconType = iconType
             };
         }
-
+      
         public static OutPacket GenerateOut(this ICharacterEntity visualEntity)
         {
             return new OutPacket

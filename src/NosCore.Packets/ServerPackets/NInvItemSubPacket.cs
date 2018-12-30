@@ -17,46 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using System.Collections.Generic;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+
+namespace NosCore.Packets.ServerPackets
 {
-    public interface IAliveEntity : IVisualEntity
+    [PacketHeader("n_inv_item")]
+    public class NInvItemSubPacket : PacketDefinition
     {
-        bool IsSitting { get; set; }
+        [PacketIndex(0)]
+        public byte Type { get; set; }
 
-        byte Speed { get; }
+        [PacketIndex(1)]
+        public short Slot { get; set; }
 
-        int Mp { get; set; }
+        [PacketIndex(2)]
+        public short VNum { get; set; }
 
-        int Hp { get; set; }
+        [PacketIndex(3)]
+        public short? RareAmount { get; set; }
 
-        short Morph { get; }
+        [PacketIndex(4, IsOptional = true)]
+        public short? UpgradeDesign { get; set; }
 
-        byte MorphUpgrade { get; }
-
-        short MorphDesign { get; }
-
-        byte MorphBonus { get; }
-
-        bool NoAttack { get; }
-
-        bool NoMove { get; }
-
-        bool IsAlive { get; }
-
-        short MapX { get; }
-
-        short MapY { get; }
-
-        int MaxHp { get; }
-
-        int MaxMp { get; }
-
-        byte Level { get; set; }
-
-        byte HeroLevel { get; }
-
-        short Race { get; }
-
-        Shop Shop { get; }
+        [PacketIndex(5)]
+        public double Price { get; set; }
     }
 }

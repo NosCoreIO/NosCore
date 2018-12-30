@@ -17,46 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+using System.Collections.Concurrent;
+using NosCore.Data.AliveEntities;
+using NosCore.GameObject.Services.MapInstanceAccess;
+
+namespace NosCore.GameObject.Services.MapItemBuilder
 {
-    public interface IAliveEntity : IVisualEntity
+    public interface IMapMonsterBuilderService
     {
-        bool IsSitting { get; set; }
-
-        byte Speed { get; }
-
-        int Mp { get; set; }
-
-        int Hp { get; set; }
-
-        short Morph { get; }
-
-        byte MorphUpgrade { get; }
-
-        short MorphDesign { get; }
-
-        byte MorphBonus { get; }
-
-        bool NoAttack { get; }
-
-        bool NoMove { get; }
-
-        bool IsAlive { get; }
-
-        short MapX { get; }
-
-        short MapY { get; }
-
-        int MaxHp { get; }
-
-        int MaxMp { get; }
-
-        byte Level { get; set; }
-
-        byte HeroLevel { get; }
-
-        short Race { get; }
-
-        Shop Shop { get; }
+        ConcurrentDictionary<long, MapMonster> Create(MapInstance mapInstance);
     }
 }
