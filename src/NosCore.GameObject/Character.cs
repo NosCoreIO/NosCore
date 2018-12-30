@@ -394,10 +394,6 @@ namespace NosCore.GameObject
                     break;
 
                 case 5:
-                    percent = 1.5;
-                    shopKind = 150;
-                    break;
-
                 case 6:
                     percent = 1.5;
                     shopKind = 150;
