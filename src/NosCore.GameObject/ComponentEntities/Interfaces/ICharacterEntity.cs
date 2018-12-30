@@ -51,8 +51,18 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool Invisible { get; }
         IChannel Channel { get; }
-       
+
         bool GroupRequestBlocked { get; }
+
+        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
+
+        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
+        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
+        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         void SendPacket(PacketDefinition packetDefinition);
 
@@ -66,16 +76,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void JoinGroup(Group group);
         void Save();
-
-        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
-
-        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
-        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
-        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         void SetJobLevel(byte level);
 

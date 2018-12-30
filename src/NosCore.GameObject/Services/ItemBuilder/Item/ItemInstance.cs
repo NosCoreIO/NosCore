@@ -39,9 +39,10 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
 
         public Item Item { get; set; }
         public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
+
         public object Clone()
         {
-            return (ItemInstance)MemberwiseClone();
+            return (ItemInstance) MemberwiseClone();
         }
     }
 }

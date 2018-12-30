@@ -35,7 +35,8 @@ namespace NosCore.GameObject.Networking
         private readonly MessageToMessageEncoder<string> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession, ServerConfiguration configuration)
+            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession,
+            ServerConfiguration configuration)
         {
             _channel = channel;
             _decoder = decoder;

@@ -40,6 +40,7 @@ namespace NosCore.GameObject.Services.Inventory
         T LoadBySlotAndType<T>(short slot, PocketType type) where T : IItemInstance;
 
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
+
         IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
             short? targetSlot, bool swap);
 

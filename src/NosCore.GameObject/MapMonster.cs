@@ -34,6 +34,7 @@ namespace NosCore.GameObject
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
+        public Group Group { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
         public int Mp { get; set; }
@@ -69,7 +70,6 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Group Group { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

@@ -47,16 +47,19 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
     public class MapInstance : IBroadcastable
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private ConcurrentDictionary<long, MapMonster> _monsters;
+
+        private readonly MapItemBuilderService _mapItemBuilderService;
+        private readonly MapMonsterBuilderService _mapMonsterBuilderService;
+        private readonly MapNpcBuilderService _mapNpcBuilderService;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
 
-        private ConcurrentDictionary<long, MapNpc> _npcs;
-
         private bool _isSleeping;
         private bool _isSleepingRequest;
+        private ConcurrentDictionary<long, MapMonster> _monsters;
 
-        public DateTime LastUnregister { get; set; }
+        private ConcurrentDictionary<long, MapNpc> _npcs;
+
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             List<NpcMonsterDto> npcMonsters, MapItemBuilderService mapItemBuilderService,
             MapNpcBuilderService mapNpcBuilderService, MapMonsterBuilderService mapMonsterBuilderService)
@@ -81,11 +84,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             _mapMonsterBuilderService = mapMonsterBuilderService;
         }
 
-        public IChannelGroup Sessions { get; set; }
-
-        private readonly MapItemBuilderService _mapItemBuilderService;
-        private readonly MapNpcBuilderService _mapNpcBuilderService;
-        private readonly MapMonsterBuilderService _mapMonsterBuilderService;
+        public DateTime LastUnregister { get; set; }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }
 
@@ -145,6 +144,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
 
         private IDisposable Life { get; set; }
 
+        public IChannelGroup Sessions { get; set; }
+
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
@@ -163,7 +164,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             short mapY = 0;
             var niceSpot = false;
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
-            for (var i =0; i < orderedPossibilities.Count && !niceSpot; i++)
+            for (var i = 0; i < orderedPossibilities.Count && !niceSpot; i++)
             {
                 mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
                 mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
@@ -185,7 +186,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 return null;
             }
 
-            var newItemInstance = (IItemInstance)inv.Clone();
+            var newItemInstance = (IItemInstance) inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = _mapItemBuilderService.Create(this, newItemInstance, mapX, mapY);
@@ -195,7 +196,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             {
                 session.Character.Inventory.DeleteById(inv.Id);
             }
-            
+
             return droppedItem;
         }
 
@@ -205,7 +206,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
         }
 
         public void LoadNpcs()
-        { 
+        {
             _npcs = _mapNpcBuilderService.Create(this);
         }
 

@@ -41,6 +41,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(5, IsOptional = true)]
         public short? SpecialistHP { get; set; }
-
     }
 }
