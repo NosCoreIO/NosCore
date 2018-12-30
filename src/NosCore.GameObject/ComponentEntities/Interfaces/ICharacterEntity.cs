@@ -65,10 +65,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
-        bool HasShopOpened { get; }
-
-        bool InExchangeOrTrade { get; }
-
         void SendPacket(PacketDefinition packetDefinition);
 
         void SendPackets(IEnumerable<PacketDefinition> packetDefinitions);
@@ -82,16 +78,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void JoinGroup(Group group);
 
         void Save();
-
-        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
-
-        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
-        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
-        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         void SetJobLevel(byte level);
 

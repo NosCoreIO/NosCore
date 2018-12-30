@@ -75,8 +75,6 @@ namespace NosCore.GameObject
             Requests = new Subject<RequestData>();
         }
 
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
         public AccountDto Account { get; set; }
@@ -96,7 +94,6 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
-        public IInventoryService Inventory { get; set; }
         public IItemBuilderService ItemBuilderService { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
@@ -106,8 +103,6 @@ namespace NosCore.GameObject
         public short SpCooldown { get; set; }
         public bool IsVehicled { get; set; }
         public byte? VehicleSpeed { get; set; }
-
-        public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
         public ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; set; }
 
