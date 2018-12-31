@@ -560,13 +560,7 @@ namespace NosCore.GameObject
         {
             Reput = reput;
             SendPacket(GenerateFd());
-            SendPacket(new SayPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = VisualId,
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
-                Type = SayColorType.Yellow
-            });
+SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language), SayColorType.Purple));
         }
 
         public void SetLevel(byte level)
