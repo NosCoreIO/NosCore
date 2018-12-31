@@ -346,6 +346,11 @@ namespace NosCore.Core.Serializing
             MatchCollection packetMatches,
             bool includesKeepAliveIdentity = false)
         {
+            if (string.IsNullOrEmpty(currentValue) && packetIndexAttribute.IsOptional)
+            {
+                return null;
+            }
+
             var value = currentValue;
             validationAttributes.ToList().ForEach(s =>
             {

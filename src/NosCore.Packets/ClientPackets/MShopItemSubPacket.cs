@@ -17,39 +17,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Items;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("at")]
-    public class AtPacket : PacketDefinition
+    [PacketHeader("m_shop_subpacket")]
+    public class MShopItemSubPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
-        public long CharacterId { get; set; }
+        public PocketType Type { get; set; }
 
         [PacketIndex(1)]
-        public short MapId { get; set; }
+        public short Slot { get; set; }
 
         [PacketIndex(2)]
-        public short PositionX { get; set; }
+        [Range(0, short.MaxValue)]
+        public short Quantity { get; set; }
 
         [PacketIndex(3)]
-        public short PositionY { get; set; }
-
-        [PacketIndex(4)]
-        public byte Unknown1 { get; set; } //TODO to find
-
-        [PacketIndex(5)]
-        public byte Unknown2 { get; set; } //TODO to find
-
-        [PacketIndex(6)]
-        public int Music { get; set; }
-
-        [PacketIndex(7)]
-        public short Unknown3 { get; set; } //TODO to find
-
-        #endregion
+        [Range(0, long.MaxValue)]
+        public long Price { get; set; }
     }
 }

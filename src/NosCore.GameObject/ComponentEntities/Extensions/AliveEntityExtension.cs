@@ -258,6 +258,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
+        public static PflagPacket GeneratePFlag(this IAliveEntity aliveEntity)
+        {
+            return new PflagPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Flag = aliveEntity.Shop != null ? aliveEntity.VisualId : 0
+            };
+        }
+
+        
+
         public static void SetLevel(this INamedEntity experiencedEntity, byte level)
         {
             experiencedEntity.Level = level;
