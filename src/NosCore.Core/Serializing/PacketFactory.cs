@@ -42,7 +42,7 @@ namespace NosCore.Core.Serializing
         public static bool IsInitialized { get; set; }
 
         #region Methods
-        
+
         /// <summary>
         ///     Deserializes a string into a PacketDefinition
         /// </summary>
@@ -68,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT),packetContent, e);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
                 return null;
             }
         }
@@ -178,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
                     return string.Empty;
                 }
             }
@@ -195,6 +195,7 @@ namespace NosCore.Core.Serializing
                 @"([^\040]+[\.][^\040]+[\040]?)+((?=\040)|$)|([^\040]+)((?=\040)|$)");
             if (matches.Count > 0)
             {
+                int? realIndex = null;
                 foreach (var packetBasePropertyInfo in serializationInformation.Value)
                 {
                     var currentIndex =
@@ -204,10 +205,39 @@ namespace NosCore.Core.Serializing
 
                     if (currentIndex < matches.Count + (includesKeepAliveIdentity ? 1 : 0))
                     {
+                        if (packetBasePropertyInfo.Key.Length == -1)
+                        {
+                            packetBasePropertyInfo.Key.Length = sbyte.Parse(matches[currentIndex - 1].Value);
+                        }
+
+                        if (packetBasePropertyInfo.Key.Length > 0 && typeof(ICollection).IsAssignableFrom(packetBasePropertyInfo.Value.PropertyType))
+                        {
+                            packetBasePropertyInfo.Key.SpecialSeparator = " ";
+                            var propertiesAttributes = packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0]
+                                .GetProperties().Select(s => s.GetCustomAttribute<PacketIndexAttribute>());
+                            var length = (propertiesAttributes.Select(s => s?.Index ?? 0).Max() + 1);
+
+                            var listType = typeof(List<>);
+                            var constructedListType = listType.MakeGenericType(packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0]);
+                            var list = (IList)Activator.CreateInstance(constructedListType);
+                            for (var i = 0; i < packetBasePropertyInfo.Key.Length; i++)
+                            {
+                                list.Add(DeserializeValue(packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0], string.Join(".", matches.Skip(currentIndex).Take(length)),
+                                    packetBasePropertyInfo.Key,
+                                    packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(), matches,
+                                    false));
+                                currentIndex += length;
+                            }
+
+                            packetBasePropertyInfo.Value.SetValue(deserializedPacket, list);
+                            realIndex = currentIndex;
+                            continue;
+                        }
+
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
                         {
                             // get the value to the end and stop deserialization
-                            var index = matches.Count > currentIndex ? matches[currentIndex].Index
+                            var index = matches.Count > (realIndex ?? currentIndex) ? matches[realIndex ?? currentIndex].Index
                                 : packetContent.Length;
                             var valueToEnd =
                                 packetContent.Substring(index, packetContent.Length - index);
@@ -378,7 +408,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception ex)
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), currentValue, packetPropertyType.Name, ex);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), currentValue, packetPropertyType.Name, ex);
                 }
 
                 return convertedValue;
@@ -565,7 +595,7 @@ namespace NosCore.Core.Serializing
                 // first element
                 if (shouldSeparate)
                 {
-                    serializedSubpacket.Append(isReturnPacket ? "^" : 
+                    serializedSubpacket.Append(isReturnPacket ? "^" :
                         (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
                 }
 
