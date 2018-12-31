@@ -48,13 +48,13 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(6, IsOptional = true)]
         public byte? Direction { get; set; }
 
-        [PacketIndex(7, IsOptional = true, RemoveSeparator = true)]
+        [PacketIndex(7, IsOptional = true, SpecialSeparator = " ")]
         public InCharacterSubPacket InCharacterSubPacket { get; set; }
 
-        [PacketIndex(8, IsOptional = true, RemoveSeparator = true)]
+        [PacketIndex(8, IsOptional = true, SpecialSeparator = " ")]
         public InItemSubPacket InItemSubPacket { get; set; }
 
-        [PacketIndex(9, IsOptional = true, RemoveSeparator = true)]
+        [PacketIndex(9, IsOptional = true, SpecialSeparator = " ")]
         public InNonPlayerSubPacket InNonPlayerSubPacket { get; set; }
 
         #endregion

@@ -41,15 +41,12 @@ namespace NosCore.Core.Serializing
             Index = index;
             IsReturnPacket = isReturnPacket;
             SerializeToEnd = serializeToEnd;
-            RemoveSeparator = removeSeparator;
             SpecialSeparator = specialSeparator;
         }
 
         public int Index { get; set; }
 
         public bool IsReturnPacket { get; set; }
-
-        public bool RemoveSeparator { get; set; }
 
         public bool SerializeToEnd { get; set; }
 
