@@ -215,7 +215,7 @@ namespace NosCore.Tests
         public void DeserializeListSubPacketWithoutSeparator()
         {
             var packet = (MShopPacket)PacketFactory.Deserialize(
-                "5649 m_shop 0 0 20 1 2400 0 21 1 10692 2 0 8 2500 2 3 2 480 0 0 0 0 0 0 0 0 0 0 0 0 0 0" +
+                "m_shop 0 0 20 1 2400 0 21 1 10692 2 0 8 2500 2 3 2 480 0 0 0 0 0 0 0 0 0 0 0 0 0 0" +
                 " 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 admin Stand",
                 typeof(MShopPacket));
             Assert.IsTrue(packet.Type == 0 
@@ -230,7 +230,7 @@ namespace NosCore.Tests
         public void DeserializeSimpleListSubPacketWithoutSeparator()
         {
             var packet = (SitPacket)PacketFactory.Deserialize(
-                "5649 rest 1 2 3",
+                "rest 1 2 3",
                 typeof(SitPacket));
             Assert.IsTrue(packet.Amount == 1
                 && packet.Users[0].VisualType == VisualType.Npc

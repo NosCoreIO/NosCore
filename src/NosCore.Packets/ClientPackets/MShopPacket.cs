@@ -31,7 +31,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(0)]
         public CreateShopPacketType Type { get; set; }
 
-        [PacketIndex(1, IsOptional = true, SpecialSeparator = " ")]
+        [PacketIndex(1, IsOptional = true, Length = 20)]
         public List<MShopItemSubPacket> ItemList { get; set; }
 
         [PacketIndex(2, SerializeToEnd = true, IsOptional = true)]
