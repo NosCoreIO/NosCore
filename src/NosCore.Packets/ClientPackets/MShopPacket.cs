@@ -21,6 +21,7 @@ using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
+using System.Security.Permissions;
 
 namespace NosCore.Packets.ClientPackets
 {
@@ -30,8 +31,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(0)]
         public CreateShopPacketType Type { get; set; }
 
-        [PacketIndex(1, IsOptional = true, RemoveSeparator = true)]
-        [EnsureLength(20)]
+        [PacketIndex(1, IsOptional = true, SpecialSeparator = " ")]
         public List<MShopItemSubPacket> ItemList { get; set; }
 
         [PacketIndex(2, SerializeToEnd = true, IsOptional = true)]

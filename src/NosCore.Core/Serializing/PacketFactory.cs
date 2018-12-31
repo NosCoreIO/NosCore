@@ -274,9 +274,8 @@ namespace NosCore.Core.Serializing
             return newSubpacket;
         }
 
-        private static IList DeserializeSubpackets(string currentValue, Type packetBasePropertyType,
-            bool shouldRemoveSeparator, MatchCollection packetMatchCollections, int? currentIndex,
-            bool includesKeepAliveIdentity)
+        private static IList DeserializeSubpackets(string currentValue, Type packetBasePropertyType, MatchCollection packetMatchCollections, int? currentIndex,
+            bool includesKeepAliveIdentity, string specialSeparator)
         {
             // split into single values
             var splittedSubpackets = currentValue.Split(' ').ToList();
@@ -288,7 +287,7 @@ namespace NosCore.Core.Serializing
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
 
             // handle subpackets with separator
-            if (shouldRemoveSeparator)
+            if (specialSeparator == " ")
             {
                 if (!currentIndex.HasValue || packetMatchCollections == null)
                 {
@@ -401,9 +400,8 @@ namespace NosCore.Core.Serializing
                 && packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)) // subpacket list
                 && packetPropertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return DeserializeSubpackets(currentValue, packetPropertyType,
-                    packetIndexAttribute?.RemoveSeparator ?? false, packetMatches, packetIndexAttribute?.Index,
-                    includesKeepAliveIdentity);
+                return DeserializeSubpackets(currentValue, packetPropertyType, packetMatches, packetIndexAttribute?.Index,
+                    includesKeepAliveIdentity, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (packetPropertyType.IsGenericType
@@ -551,7 +549,7 @@ namespace NosCore.Core.Serializing
         private static string SerializeSubpacket(object value,
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
                 subpacketSerializationInfo, bool isReturnPacket,
-            bool shouldRemoveSeparator, string specialSeparator)
+           string specialSeparator)
         {
             var serializedSubpacket =
                 new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
@@ -567,8 +565,8 @@ namespace NosCore.Core.Serializing
                 // first element
                 if (shouldSeparate)
                 {
-                    serializedSubpacket.Append(isReturnPacket ? "^" : shouldRemoveSeparator ? " "
-                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
+                    serializedSubpacket.Append(isReturnPacket ? "^" : 
+                        (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
                 }
 
                 if (typeof(PacketDefinition).IsAssignableFrom(subpacketPropertyInfo.Value.PropertyType))
@@ -578,7 +576,7 @@ namespace NosCore.Core.Serializing
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
                     serializedSubpacket = serializedSubpacket.TrimEnd();
                     var subpacket = SerializeSubpacket(valuesub, subpacketSerializationInfo2, false,
-                        subpacketPropertyInfo.Key.RemoveSeparator, isReturnPacket ? "^" :
+                         isReturnPacket ? "^" :
                             subpacketPropertyInfo.Key.SpecialSeparator ?? specialSeparator);
                     if (isReturnPacket)
                     {
@@ -607,7 +605,7 @@ namespace NosCore.Core.Serializing
         }
 
         private static string SerializeSubpackets(IList listValues, Type packetBasePropertyType,
-            bool shouldRemoveSeparator, string specialSeparator)
+             string specialSeparator)
         {
             var serializedSubPacket = new StringBuilder();
             var subpacketSerializationInfo =
@@ -618,7 +616,7 @@ namespace NosCore.Core.Serializing
                 foreach (var listValue in listValues)
                 {
                     serializedSubPacket.Append(SerializeSubpacket(listValue, subpacketSerializationInfo, false,
-                        shouldRemoveSeparator, specialSeparator));
+                         specialSeparator));
                 }
             }
 
@@ -665,24 +663,21 @@ namespace NosCore.Core.Serializing
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
-                    packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (value is PacketDefinition)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(value.GetType());
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
-                    packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList)value, propertyType,
-                    packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                return SerializeSubpackets((IList)value, propertyType, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType

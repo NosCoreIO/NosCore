@@ -46,7 +46,7 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(5)]
         public InEquipmentSubPacket Equipment { get; set; }
 
-        [PacketIndex(6, RemoveSeparator = true)]
+        [PacketIndex(6, SpecialSeparator = " ")]
         public InAliveSubPacket InAliveSubPacket { get; set; }
 
         [PacketIndex(7)]
