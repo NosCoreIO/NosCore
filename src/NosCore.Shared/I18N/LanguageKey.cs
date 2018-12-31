@@ -215,6 +215,9 @@ namespace NosCore.Shared.I18N
         NOT_ENOUGH_REPUT,
         NOT_ENOUGH_MONEY,
         ITEM_NOT_SOLDABLE,
-        SELL_ITEM_VALIDE
+        SELL_ITEM_VALIDE,
+        SHOP_NOT_ALLOWED,
+        SHOP_NOT_ALLOWED_IN_RAID,
+        SHOP_NEAR_PORTAL
     }
 }

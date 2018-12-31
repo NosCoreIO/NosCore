@@ -200,8 +200,41 @@ namespace NosCore.Tests
         [TestMethod]
         public void DeserializeSpecial()
         {
-            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4", typeof(UseItemPacket));
-            Assert.IsNotNull(packet.Mode == 4);
+            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4 5 6", typeof(UseItemPacket));
+            Assert.IsTrue(packet.Mode == 6);
+        }
+
+        [TestMethod]
+        public void DeserializeOptionalListPacket()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize("m_shop 1", typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == CreateShopPacketType.Close);
+        }
+
+        [TestMethod]
+        public void DeserializeListSubPacketWithoutSeparator()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize(
+                "5649 m_shop 0 0 20 1 2400 0 21 1 10692 2 0 8 2500 2 3 2 480 0 0 0 0 0 0 0 0 0 0 0 0 0 0" +
+                " 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 admin Stand",
+                typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == 0 
+                && packet.ItemList[1].Type == 0 
+                && packet.ItemList[1].Slot == 21 
+                && packet.ItemList[1].Quantity == 1 
+                && packet.ItemList[1].Price == 10692
+                && packet.Name == "admin Stand");
+        }
+
+        [TestMethod]
+        public void DeserializeSimpleListSubPacketWithoutSeparator()
+        {
+            var packet = (SitPacket)PacketFactory.Deserialize(
+                "5649 rest 1 2 3",
+                typeof(SitPacket));
+            Assert.IsTrue(packet.Amount == 1
+                && packet.Users[0].VisualType == VisualType.Npc
+                && packet.Users[0].VisualId == 3);
         }
 
         [TestMethod]
