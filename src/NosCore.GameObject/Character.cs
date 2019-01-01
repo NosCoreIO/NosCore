@@ -198,7 +198,7 @@ namespace NosCore.GameObject
 
             IsSitting = false;
             LoadSpeed();
-            Session.SendPacket(this.GenerateCond());
+            SendPacket(this.GenerateCond());
             MapInstance.Sessions.SendPacket(this.GenerateRest());
         }
 
@@ -213,7 +213,7 @@ namespace NosCore.GameObject
             HeroLevel = level;
             HeroXp = 0;
             GenerateLevelupPackets();
-            Session.SendPacket(new MsgPacket
+            SendPacket(new MsgPacket
             {
                 Type = MessageType.Whisper,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
@@ -236,7 +236,7 @@ namespace NosCore.GameObject
 
                 s.SendPacket(this.GenerateEff(8));
             });
-            Session.SendPacket(new MsgPacket
+            SendPacket(new MsgPacket
             {
                 Type = MessageType.Whisper,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
@@ -299,11 +299,11 @@ namespace NosCore.GameObject
 
             if (relationType == CharacterRelationType.Blocked)
             {
-                Session.SendPacket(GenerateBlinit());
+                SendPacket(GenerateBlinit());
                 return relation;
             }
 
-            Session.SendPacket(this.GenerateFinit());
+            SendPacket(this.GenerateFinit());
             return relation;
         }
 
@@ -476,7 +476,7 @@ namespace NosCore.GameObject
 
             if (reputprice == 0 && price * percent > Session.Character.Gold)
             {
-                Session.SendPacket(new SMemoPacket
+                SendPacket(new SMemoPacket
                 {
                     Type = 3,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
@@ -486,7 +486,7 @@ namespace NosCore.GameObject
 
             if (reputprice > Session.Character.Reput)
             {
-                Session.SendPacket(new SMemoPacket
+                SendPacket(new SMemoPacket
                 {
                     Type = 3,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
@@ -494,8 +494,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var slotChar = item.ItemInstance.Slot;
-            var type = item.ItemInstance.Type;
+            short slotChar = item.ItemInstance.Slot;
             List<IItemInstance> inv;
             if (shop.Session == null)
             {
@@ -515,67 +514,30 @@ namespace NosCore.GameObject
             if (inv?.DefaultIfEmpty() != null)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
-                if (shop.Session != null)
+                var packet = shop.Session?.Character.BuyFrom(item, amount, slotChar);
+                if (packet != null)
                 {
-                    var itemInstance = amount == item.ItemInstance.Amount
-                        ? shop.Session.Character.Inventory.DeleteById(item.ItemInstance.Id)
-                        : shop.Session.Character.Inventory.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
-
-                    item.Amount -= amount;
-                    if (item.Amount == 0)
-                    {
-                        shop.ShopItems.TryRemove(slot, out _);
-                    }
-                    shop.Session.SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
-                    shop.Session.SendPacket(new SMemoPacket
-                    {
-                        Type = 1,
-                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name, item.ItemInstance.Item.Name, amount)
-                    });
-                    var sellAmount = (item?.Price ?? 0) * amount;
-                    shop.Session.Character.Gold += sellAmount;
-                    shop.Session.SendPacket(shop.Session.Character.GenerateGold());
-                    shop.Sell += sellAmount;
-
-                    shop.Session.SendPacket(new SellListPacket
-                    {
-                        ValueSold = shop.Sell,
-                        SellListSubPacket = new List<SellListSubPacket>
-                        {
-                            new SellListSubPacket
-                            {
-                                Amount = amount,
-                                Slot = slot,
-                                SellAmount = sellAmount
-                            }
-                        }
-                    });
-                    Session.SendPacket(shop.Session.Character.GenerateNInv(1, 0, 0));
+                    SendPacket(packet);
                 }
 
-                Session.SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
-                Session.SendPacket(new SMemoPacket
+                SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
+                SendPacket(new SMemoPacket
                 {
                     Type = 1,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
                 });
                 if (reputprice == 0)
                 {
-                    Session.Character.Gold -= (long)(price * percent);
-                    Session.SendPacket(Session.Character.GenerateGold());
+                    Gold -= (long)(price * percent);
+                    SendPacket(Session.Character.GenerateGold());
                 }
                 else
                 {
-                    Session.Character.Reput -= reputprice;
-                    Session.SendPacket(Session.Character.GenerateFd());
-                    Session.SendPacket(Session.Character.GenerateSay(
+                    Reput -= reputprice;
+                    SendPacket(Session.Character.GenerateFd());
+                    SendPacket(Session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple));
-                }
-
-                if (shop.ShopItems.Count == 0)
-                {
-                    shop.Session?.Character.CloseShop();
                 }
             }
             else
@@ -587,6 +549,52 @@ namespace NosCore.GameObject
                     Type = 0
                 });
             }
+        }
+
+        private NInvPacket BuyFrom(ShopItem item, short amount, short slotChar)
+        {
+            var type = item.ItemInstance.Type;
+            var itemInstance = amount == item.ItemInstance.Amount
+                ? Inventory.DeleteById(item.ItemInstance.Id)
+                : Inventory.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
+            var slot = item.Slot;
+            item.Amount -= amount;
+            if ((item?.Amount ?? 0) == 0)
+            {
+                Shop.ShopItems.TryRemove(slot, out _);
+            }
+            SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
+            SendPacket(new SMemoPacket
+            {
+                Type = 1,
+                Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name, item.ItemInstance.Item.Name, amount)
+            });
+            var sellAmount = (item?.Price ?? 0) * amount;
+            Gold += sellAmount;
+            SendPacket(GenerateGold());
+            Shop.Sell += sellAmount;
+
+            SendPacket(new SellListPacket
+            {
+                ValueSold = Shop.Sell,
+                SellListSubPacket = new List<SellListSubPacket>
+                        {
+                            new SellListSubPacket
+                            {
+                                Amount = item?.Amount ?? 0,
+                                Slot = slot,
+                                SellAmount = sellAmount
+                            }
+                        }
+            });
+
+            if (Shop.ShopItems.Count == 0)
+            {
+                CloseShop();
+                return null;
+            }
+
+            return this.GenerateNInv(1, 0, 0);
         }
 
         private void GenerateLevelupPackets()
@@ -815,7 +823,7 @@ namespace NosCore.GameObject
 
             if (relation == null)
             {
-                Session.SendPacket(new InfoPacket
+                SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         Session.Account.Language)
@@ -824,7 +832,7 @@ namespace NosCore.GameObject
             }
 
             CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
-            Session.SendPacket(GenerateBlinit());
+            SendPacket(GenerateBlinit());
         }
 
         public void DeleteRelation(long relatedCharacterId)
@@ -841,7 +849,7 @@ namespace NosCore.GameObject
 
             CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
-            Session.SendPacket(this.GenerateFinit());
+            SendPacket(this.GenerateFinit());
 
             var targetSession = Broadcaster.Instance.GetCharacter(s =>
                 s.VisualId == targetCharacterRelation.CharacterId);
@@ -1316,13 +1324,13 @@ namespace NosCore.GameObject
             MorphUpgrade = 0;
             MorphDesign = 0;
             LoadSpeed();
-            Session.SendPacket(this.GenerateCond());
-            Session.SendPacket(GenerateLev());
+            SendPacket(this.GenerateCond());
+            SendPacket(GenerateLev());
             SpCooldown = 30;
-            Session.SendPacket(this.GenerateSay(
+            SendPacket(this.GenerateSay(
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
-            Session.SendPacket(new SdPacket { Cooldown = SpCooldown });
+            SendPacket(new SdPacket { Cooldown = SpCooldown });
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
@@ -1330,15 +1338,15 @@ namespace NosCore.GameObject
                 Argument = 1,
                 VisualEntityId = CharacterId
             });
-            Session.SendPacket(GenerateStat());
+            SendPacket(GenerateStat());
 
             Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
             {
-                Session.SendPacket(this.GenerateSay(
+                SendPacket(this.GenerateSay(
                     string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
                         SpCooldown), SayColorType.Purple));
-                Session.SendPacket(new SdPacket { Cooldown = 0 });
+                SendPacket(new SdPacket { Cooldown = 0 });
             });
         }
 
@@ -1351,7 +1359,7 @@ namespace NosCore.GameObject
 
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
-                Session.SendPacket(new MsgPacket
+                SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
                         Session.Account.Language)
@@ -1362,7 +1370,7 @@ namespace NosCore.GameObject
             if (fairy != null && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element &&
                 fairy.Item.Element != sp.Item.SecondaryElement)
             {
-                Session.SendPacket(new MsgPacket
+                SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                         Session.Account.Language)
@@ -1376,7 +1384,7 @@ namespace NosCore.GameObject
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
-            Session.SendPacket(GenerateLev());
+            SendPacket(GenerateLev());
             MapInstance.Sessions.SendPacket(this.GenerateEff(196));
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
@@ -1384,10 +1392,10 @@ namespace NosCore.GameObject
                 Argument = 1,
                 VisualEntityId = CharacterId
             });
-            Session.SendPacket(GenerateSpPoint());
+            SendPacket(GenerateSpPoint());
             LoadSpeed();
-            Session.SendPacket(this.GenerateCond());
-            Session.SendPacket(GenerateStat());
+            SendPacket(this.GenerateCond());
+            SendPacket(GenerateStat());
         }
 
         public void RemoveVehicle()
@@ -1414,7 +1422,7 @@ namespace NosCore.GameObject
 
             IsVehicled = false;
             VehicleSpeed = 0;
-            Session.SendPacket(this.GenerateCond());
+            SendPacket(this.GenerateCond());
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
         }
     }
