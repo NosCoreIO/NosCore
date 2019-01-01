@@ -209,9 +209,14 @@ namespace NosCore.Controllers
                 case CreateShopPacketType.Open:
                     Session.Character.Shop = new Shop();
                     short shopSlot = -1;
-                    foreach (var item in mShopPacket.ItemList.Where(it => it.Amount > 0))
+                    foreach (var item in mShopPacket.ItemList)
                     {
                         shopSlot++;
+                        if (item.Amount == 0)
+                        {
+                            continue;
+                        }
+
                         var inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
                         if (inv == null)
                         {
@@ -256,7 +261,7 @@ namespace NosCore.Controllers
                     Session.Character.Shop.Session = Session;
                     Session.Character.Shop.MenuType = 3;
                     Session.Character.Shop.ShopId = 501;
-                    Session.Character.Shop.Size = 20;
+                    Session.Character.Shop.Size = 60;
                     Session.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
                         Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
