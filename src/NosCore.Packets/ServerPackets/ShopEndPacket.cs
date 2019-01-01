@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -25,6 +26,6 @@ namespace NosCore.Packets.ServerPackets
     public class ShopEndPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Type { get; set; }
+        public ShopEndType Type { get; set; }
     }
 }

@@ -17,22 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.Shared.Enumerations.Items;
-
-namespace NosCore.GameObject
+namespace NosCore.Shared.Enumerations
 {
-    public class ShopItem
+    public enum ShopEndType : byte
     {
-        public IItemInstance ItemInstance { get; set; }
-
-        public PocketType Type { get; set; }
-
-        public short Slot { get; set; }
-
-        public long? Price { get; set; }
-
-        public short? Amount { get; set; }
+        Closed = 0
     }
 }

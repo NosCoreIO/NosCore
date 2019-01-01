@@ -215,7 +215,7 @@ namespace NosCore.GameObject
             GenerateLevelupPackets();
             SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
             });
         }
@@ -238,7 +238,7 @@ namespace NosCore.GameObject
             });
             SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
             });
         }
@@ -264,7 +264,7 @@ namespace NosCore.GameObject
                     groupMember?.SendPacket(new MsgPacket
                     {
                         Message = groupMember.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
-                        Type = MessageType.Whisper
+                        Type = MessageType.White
                     });
                 }
 
@@ -447,7 +447,7 @@ namespace NosCore.GameObject
             SendPacket(new MsgPacket
             {
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
-                Type = MessageType.Whisper
+                Type = MessageType.White
             });
             MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
 
@@ -478,7 +478,7 @@ namespace NosCore.GameObject
             {
                 SendPacket(new SMemoPacket
                 {
-                    Type = 3,
+                    Type = SMemoType.FatalError,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
                 });
                 return;
@@ -488,7 +488,7 @@ namespace NosCore.GameObject
             {
                 SendPacket(new SMemoPacket
                 {
-                    Type = 3,
+                    Type = SMemoType.FatalError,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
                 });
                 return;
@@ -523,7 +523,7 @@ namespace NosCore.GameObject
                 SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
                 SendPacket(new SMemoPacket
                 {
-                    Type = 1,
+                    Type = SMemoType.Success,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
                 });
                 if (reputprice == 0)
@@ -566,7 +566,7 @@ namespace NosCore.GameObject
             SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
             SendPacket(new SMemoPacket
             {
-                Type = 1,
+                Type = SMemoType.Success,
                 Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name, item.ItemInstance.Item.Name, amount)
             });
             var sellAmount = (item?.Price ?? 0) * amount;
@@ -635,7 +635,7 @@ namespace NosCore.GameObject
             GenerateLevelupPackets();
             Session.SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
             });
         }
