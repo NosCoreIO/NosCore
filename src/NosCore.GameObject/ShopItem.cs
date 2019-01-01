@@ -30,7 +30,7 @@ namespace NosCore.GameObject
 
         public short Slot { get; set; }
 
-        public short? Price { get; set; }
+        public long? Price { get; set; }
 
         public short? Amount { get; set; }
     }

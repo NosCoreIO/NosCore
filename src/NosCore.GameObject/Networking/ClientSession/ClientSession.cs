@@ -267,7 +267,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
                         ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
-
+                    if (s.Shop != null)
+                    {
+                        SendPacket(s.GeneratePFlag());
+                        SendPacket(s.GenerateShop());
+                    }
+                  
                     if (!Character.Invisible)
                     {
                         s.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator

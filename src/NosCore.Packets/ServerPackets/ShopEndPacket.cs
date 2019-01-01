@@ -22,7 +22,7 @@ using NosCore.Core.Serializing;
 namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("shop_end")]
-    public class ShopEnd : PacketDefinition
+    public class ShopEndPacket : PacketDefinition
     {
         [PacketIndex(0)]
         public byte Type { get; set; }

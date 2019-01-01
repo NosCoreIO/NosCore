@@ -193,7 +193,7 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            MapInstance.Sessions.SendPacket(new ShopEnd {Type = 0});
+            MapInstance.Sessions.SendPacket(new ShopEndPacket {Type = 0});
             MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
 
             IsSitting = false;
