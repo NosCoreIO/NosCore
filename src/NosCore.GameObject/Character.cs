@@ -556,6 +556,13 @@ namespace NosCore.GameObject
             SendPacket(Group.GeneratePinit());
         }
 
+        public void SetReputation(long reput)
+        {
+            Reput = reput;
+            SendPacket(GenerateFd());
+SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language), SayColorType.Purple));
+        }
+
         public void SetLevel(byte level)
         {
             (this as INamedEntity).SetLevel(level);
