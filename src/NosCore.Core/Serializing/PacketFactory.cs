@@ -645,8 +645,9 @@ namespace NosCore.Core.Serializing
             {
                 foreach (var listValue in listValues)
                 {
-                    serializedSubPacket.Append(SerializeSubpacket(listValue, subpacketSerializationInfo, false,
-                         specialSeparator));
+                    serializedSubPacket.Append(listValue == null 
+                        ? " -1" 
+                        : SerializeSubpacket(listValue, subpacketSerializationInfo, false, specialSeparator));
                 }
             }
 

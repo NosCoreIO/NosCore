@@ -17,30 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-using System.Linq;
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Core.Serializing;
 
-namespace NosCore.GameObject
+namespace NosCore.Packets.ClientPackets
 {
-    public class Shop : ShopDto
+    [PacketHeader("sell_list_subpacket")]
+    public class SellListSubPacket : PacketDefinition
     {
-        public Shop()
-        {
-            ShopItems = new ConcurrentDictionary<int, ShopItem>();
-        }
+        [PacketIndex(0)]
+        public short Slot { get; set; }
 
-        public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; }
+        [PacketIndex(1)]
+        public long Amount { get; set; }
 
-        public ClientSession Session { get; set; }
-        public long Sell { get; internal set; }
-
-        private int? _size;
-        public int Size
-        {
-            get => _size ?? ShopItems.Values.Max(s => s.Slot);
-            set => _size = value;
-        }
+        [PacketIndex(2)]
+        public long SellAmount { get; set; }
     }
 }

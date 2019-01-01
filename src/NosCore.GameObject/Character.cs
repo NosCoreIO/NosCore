@@ -193,7 +193,7 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            MapInstance.Sessions.SendPacket(new ShopEndPacket {Type = 0});
+            MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
             MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
 
             IsSitting = false;
@@ -468,9 +468,10 @@ namespace NosCore.GameObject
             var reputprice = item.Price == null ? item.ItemInstance.Item.ReputPrice * amount : 0;
             double percent = GenerateShopRates().Item1;
 
-            if (item.ItemInstance.Item.Type == PocketType.Equipment)
+            if (amount > item.Amount)
             {
-                amount = 1;
+                //todo LOG
+                return;
             }
 
             if (reputprice == 0 && price * percent > Session.Character.Gold)
@@ -493,19 +494,65 @@ namespace NosCore.GameObject
                 return;
             }
 
-            List<IItemInstance> inv = null;
-            if (item.ItemInstance.CharacterId == -1)
+            var slotChar = item.ItemInstance.Slot;
+            var type = item.ItemInstance.Type;
+            List<IItemInstance> inv;
+            if (shop.Session == null)
             {
                 inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId,
                     amount));
             }
+            else if (amount == item.ItemInstance.Amount)
+            {
+                inv = Inventory.AddItemToPocket(item.ItemInstance);
+            }
             else
             {
-                //TODO character
+                inv = Inventory.AddItemToPocket(
+                    ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
             }
 
             if (inv?.DefaultIfEmpty() != null)
             {
+                inv.ForEach(it => it.CharacterId = CharacterId);
+                if (shop.Session != null)
+                {
+                    var itemInstance = amount == item.ItemInstance.Amount
+                        ? shop.Session.Character.Inventory.DeleteById(item.ItemInstance.Id)
+                        : shop.Session.Character.Inventory.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
+
+                    item.Amount -= amount;
+                    if (item.Amount == 0)
+                    {
+                        shop.ShopItems.TryRemove(slot, out _);
+                    }
+                    shop.Session.SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
+                    shop.Session.SendPacket(new SMemoPacket
+                    {
+                        Type = 1,
+                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name, item.ItemInstance.Item.Name, amount)
+                    });
+                    var sellAmount = (item?.Price ?? 0) * amount;
+                    shop.Session.Character.Gold += sellAmount;
+                    shop.Session.SendPacket(shop.Session.Character.GenerateGold());
+                    shop.Sell += sellAmount;
+
+                    shop.Session.SendPacket(new SellListPacket
+                    {
+                        ValueSold = shop.Sell,
+                        SellListSubPacket = new List<SellListSubPacket>
+                        {
+                            new SellListSubPacket
+                            {
+                                Amount = amount,
+                                Slot = slot,
+                                SellAmount = sellAmount
+                            }
+                        }
+                    });
+                    Session.SendPacket(shop.Session.Character.GenerateNInv(1, 0, 0));
+                }
+
                 Session.SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
                 Session.SendPacket(new SMemoPacket
                 {
@@ -524,6 +571,11 @@ namespace NosCore.GameObject
                     Session.SendPacket(Session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple));
+                }
+
+                if (shop.ShopItems.Count == 0)
+                {
+                    shop.Session?.Character.CloseShop();
                 }
             }
             else
