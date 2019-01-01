@@ -82,5 +82,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void SetHeroLevel(byte level);
 
         void SetReputation(long reput);
+
+        void SetGold(long gold, long maxGold);
     }
 }

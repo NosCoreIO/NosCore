@@ -220,11 +220,6 @@ namespace NosCore.Shared.I18N
         SHOP_NOT_ALLOWED,
         SHOP_NOT_ALLOWED_IN_RAID,
         SHOP_NEAR_PORTAL,
-        SHOP_ONLY_TRADABLE_ITEMS,
-        SHOP_EMPTY,
-        SHOP_PRIVATE_SHOP,
-        SHOP_OPEN,
-        BUY_ITEM_FROM,
-        TOO_RICH_SELLER
+        UPDATE_GOLD,
     }
 }
