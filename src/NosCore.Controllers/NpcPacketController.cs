@@ -166,12 +166,10 @@ namespace NosCore.Controllers
                 //todo log
                 return;
             }
-
-            if (Session.Character.MapInstance.Portals.Any(por
-                => Session.Character.PositionX < por.SourceX + 6
-                && Session.Character.PositionX > por.SourceX - 6
-                && Session.Character.PositionY < por.SourceY + 6
-                && Session.Character.PositionY > por.SourceY - 6))
+            var portal = Session.Character.MapInstance.Portals.Find(port =>
+                Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
+                    Math.Abs(Session.Character.PositionY - port.SourceY)) <= 6);
+            if (portal == null)
             {
                 Session.SendPacket(new MsgPacket
                 {
@@ -181,14 +179,14 @@ namespace NosCore.Controllers
                 });
                 return;
             }
-
+           
             if (Session.Character.Group != null && Session.Character.Group?.Type != GroupType.Group)
             {
                 Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
                         Session.Account.Language),
-                    Type = 0
+                    Type = MessageType.White
                 });
                 return;
             }
@@ -199,7 +197,7 @@ namespace NosCore.Controllers
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
                         Session.Account.Language),
-                    Type = 0
+                    Type = MessageType.White
                 });
                 return;
             }
@@ -234,7 +232,7 @@ namespace NosCore.Controllers
                             Session.SendPacket(Session.Character.GenerateSay(
                                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
                                 SayColorType.Yellow));
-                            Session.SendPacket(new ShopEndPacket { Type = 0 });
+                            Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
                             return;
                         }
 
@@ -244,7 +242,7 @@ namespace NosCore.Controllers
                                 Amount = item.Amount,
                                 Price = item.Price,
                                 Slot = shopSlot,
-                                Type = 0,
+                                Type = inv.Type,
                                 ItemInstance = inv
                             });
                     }
@@ -254,7 +252,7 @@ namespace NosCore.Controllers
                         Session.SendPacket(Session.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
                             SayColorType.Yellow));
-                        Session.SendPacket(new ShopEndPacket { Type = 0 });
+                        Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
                         return;
                     }
 
@@ -318,7 +316,7 @@ namespace NosCore.Controllers
 
                 if (!inv.Item.IsSoldable)
                 {
-                    Session.SendPacket(new SMemoPacket { Type = 2, Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language) });
+                    Session.SendPacket(new SMemoPacket { Type = SMemoType.Error, Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language) });
                     return;
                 }
                 long price = inv.Item.ItemType == ItemType.Sell ? inv.Item.Price : inv.Item.Price / 20;
@@ -334,7 +332,7 @@ namespace NosCore.Controllers
                     return;
                 }
                 Session.Character.Gold += price * sellPacket.Amount.Value;
-                Session.SendPacket(new SMemoPacket { Type = 1, Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), inv.Item.Name, sellPacket.Amount.Value) });
+                Session.SendPacket(new SMemoPacket { Type = SMemoType.Success, Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), inv.Item.Name, sellPacket.Amount.Value) });
                 
                 Session.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.Id);
                 Session.SendPacket(Session.Character.GenerateGold());

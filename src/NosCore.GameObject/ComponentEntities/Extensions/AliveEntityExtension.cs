@@ -268,8 +268,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-
-
         public static void SetLevel(this INamedEntity experiencedEntity, byte level)
         {
             experiencedEntity.Level = level;
