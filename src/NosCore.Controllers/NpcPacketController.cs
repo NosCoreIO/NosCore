@@ -242,7 +242,7 @@ namespace NosCore.Controllers
                                 Amount = item.Amount,
                                 Price = item.Price,
                                 Slot = shopSlot,
-                                Type = inv.Type,
+                                Type = 0,
                                 ItemInstance = inv
                             });
                     }
