@@ -39,7 +39,7 @@ namespace NosCore.GameObject
         private int? _size;
         public int Size
         {
-            get => _size ?? ShopItems.Values.Max(s => s.Slot);
+            get => _size ?? ShopItems.Values.Max(s => s.Slot) + 1;
             set => _size = value;
         }
     }

@@ -283,7 +283,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             var shopItemList = new List<NInvItemSubPacket>();
             var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)).ToList();
-            for (var i = 0; i <= aliveEntity.Shop.Size; i++)
+            for (var i = 0; i < aliveEntity.Shop.Size; i++)
             {
                 var item = list.Find(s=>s.Slot == i);
                 if (item == null)
