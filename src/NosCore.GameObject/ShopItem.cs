@@ -19,6 +19,7 @@
 
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject
 {
@@ -26,11 +27,11 @@ namespace NosCore.GameObject
     {
         public IItemInstance ItemInstance { get; set; }
 
-        public byte Type { get; set; }
+        public PocketType Type { get; set; }
 
         public short Slot { get; set; }
 
-        public short? Price { get; set; }
+        public long? Price { get; set; }
 
         public short? Amount { get; set; }
     }

@@ -18,17 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using System.Collections.Generic;
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("rest")]
-    public class SitPacket : PacketDefinition
+    [PacketHeader("sell_list_subpacket")]
+    public class SellListSubPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Amount { get; set; }
+        public short Slot { get; set; }
 
-        [PacketIndex(1, Length = -1)]
-        public List<SitSubPacket> Users { get; set; }
+        [PacketIndex(1)]
+        public long Amount { get; set; }
+
+        [PacketIndex(2)]
+        public long SellAmount { get; set; }
     }
 }

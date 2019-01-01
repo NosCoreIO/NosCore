@@ -18,35 +18,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Subjects;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
+using NosCore.Shared.Enumerations.Interaction;
 
-namespace NosCore.GameObject.Services.NRunAccess
+namespace NosCore.GameObject.Services.NRunAccess.Handlers
 {
-    public class NrunAccessService
+    public class OpenShopHandler : IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public NrunAccessService(IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
-        {
-            _handlers = handlers.ToList();
-        }
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop;
 
-        private List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers { get; }
-
-        public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
+        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
-            _handlers.ForEach(handler =>
+            requestData.ClientSession.ReceivePacket(new ShoppingPacket
             {
-                if (handler.Condition(data))
-                {
-                    handlersRequest.Subscribe(handler.Execute);
-                }
+                OriginalHeader = "shopping",
+                VisualType = requestData.Data.Item2.VisualType,
+                VisualId = requestData.Data.Item2.VisualId,
+                ShopType = requestData.Data.Item2.Type,
+                Unknown = 0
             });
-            handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
         }
     }
 }

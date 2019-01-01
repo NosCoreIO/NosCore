@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -200,8 +201,41 @@ namespace NosCore.Tests
         [TestMethod]
         public void DeserializeSpecial()
         {
-            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4", typeof(UseItemPacket));
-            Assert.IsNotNull(packet.Mode == 4);
+            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4 5 6", typeof(UseItemPacket));
+            Assert.IsTrue(packet.Mode == 6);
+        }
+
+        [TestMethod]
+        public void DeserializeOptionalListPacket()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize("m_shop 1", typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == CreateShopPacketType.Close);
+        }
+
+        [TestMethod]
+        public void DeserializeListSubPacketWithoutSeparator()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize(
+                "m_shop 0 0 20 1 2400 0 21 1 10692 2 0 8 2500 2 3 2 480 0 0 0 0 0 0 0 0 0 0 0 0 0 0" +
+                " 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 admin Stand",
+                typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == 0
+                && packet.ItemList[1].Type == 0
+                && packet.ItemList[1].Slot == 21
+                && packet.ItemList[1].Amount == 1
+                && packet.ItemList[1].Price == 10692
+                && packet.Name == "admin Stand");
+        }
+
+        [TestMethod]
+        public void DeserializeSimpleListSubPacketWithoutSeparator()
+        {
+            var packet = (SitPacket)PacketFactory.Deserialize(
+                "rest 1 2 3",
+                typeof(SitPacket));
+            Assert.IsTrue(packet.Amount == 1
+                && packet.Users[0].VisualType == VisualType.Npc
+                && packet.Users[0].VisualId == 3);
         }
 
         [TestMethod]
@@ -221,6 +255,31 @@ namespace NosCore.Tests
         {
             var serializedPacket = PacketFactory.Deserialize("/ ");
             Assert.AreEqual(serializedPacket, null);
+        }
+
+        [TestMethod]
+        public void TestSerializeEmptyListItem()
+        {
+            var items = new ConcurrentDictionary<int, ShopItem>();
+            var item = new UsableInstance
+            {
+                Item = new Item()
+            };
+
+            items.TryAdd(0,
+                new ShopItem {Slot = 0, Type = 0, Amount = 1, ItemInstance = item, Price = 1});
+            items.TryAdd(1,
+                new ShopItem {Slot = 2, Type = 0, Amount = 2, ItemInstance = item, Price = 1});
+            var chara = new Character
+            {
+                Shop = new Shop
+                {
+                    ShopItems = items
+                }
+            };
+
+            var packet = PacketFactory.Serialize(new[] { chara.GenerateNInv(1, 0, 0) });
+            Assert.AreEqual("n_inv 1 0 0 0 0.0.0.0.0.1 -1 0.2.0.0.0.1", packet);
         }
     }
 }

@@ -32,6 +32,6 @@ namespace NosCore.Packets.ServerPackets
         public long VisualId { get; set; }
 
         [PacketIndex(2)]
-        public short Dialog { get; set; }
+        public long Dialog { get; set; }
     }
 }

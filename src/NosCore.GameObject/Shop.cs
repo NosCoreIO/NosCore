@@ -18,7 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
+using System.Linq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject
 {
@@ -30,5 +32,15 @@ namespace NosCore.GameObject
         }
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; }
+
+        public ClientSession Session { get; set; }
+        public long Sell { get; internal set; }
+
+        private int? _size;
+        public int Size
+        {
+            get => _size ?? ShopItems.Values.Max(s => s.Slot) + 1;
+            set => _size = value;
+        }
     }
 }

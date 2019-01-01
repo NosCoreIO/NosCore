@@ -26,18 +26,23 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.NRunAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
 using MapNpc = NosCore.GameObject.MapNpc;
+using Shop = NosCore.GameObject.Shop;
+using ShopItem = NosCore.GameObject.ShopItem;
 
 namespace NosCore.Controllers
 {
@@ -93,14 +98,27 @@ namespace NosCore.Controllers
         /// <param name="nRunPacket"></param>
         public void NRun(NrunPacket nRunPacket)
         {
-            MapNpc requestableEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.NpcId);
+            IAliveEntity aliveEntity;
+            switch (nRunPacket.VisualType)
+            {
+                case VisualType.Player:
+                    aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == nRunPacket.VisualId);
+                    break;
+                case VisualType.Npc:
+                    aliveEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
+                    break;
 
-            if (requestableEntity == null)
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), nRunPacket.Type);
+                    return;
+            }
+
+            if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
-            _nRunAccessService.NRunLaunch(Session, new Tuple<MapNpc, NrunPacket>(requestableEntity, nRunPacket));
+            _nRunAccessService.NRunLaunch(Session, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
         }
 
         /// <summary>
@@ -115,18 +133,20 @@ namespace NosCore.Controllers
                 return;
             }
 
+            var shopRate = new Tuple<double, byte>(0, 0);
             IAliveEntity aliveEntity;
-            switch (shoppingPacket.Type)
+            switch (shoppingPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == shoppingPacket.TargetId);
+                    aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == shoppingPacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    aliveEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.TargetId);
+                    shopRate = Session.Character.GenerateShopRates();
+                    aliveEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), shoppingPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), shoppingPacket.VisualType);
                     return;
             }
             if (aliveEntity == null)
@@ -135,8 +155,140 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var shopRate = Session.Character.GenerateShopRates();
+         
             Session.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
+        }
+
+        public void CreateShop(MShopPacket mShopPacket)
+        {
+            if (Session.Character.InExchangeOrTrade)
+            {
+                //todo log
+                return;
+            }
+            var portal = Session.Character.MapInstance.Portals.Find(port =>
+                Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
+                    Math.Abs(Session.Character.PositionY - port.SourceY)) <= 6);
+            if (portal == null)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
+                        Session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+           
+            if (Session.Character.Group != null && Session.Character.Group?.Type != GroupType.Group)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
+                        Session.Account.Language),
+                    Type = MessageType.White
+                });
+                return;
+            }
+
+            if (!Session.Character.MapInstance.ShopAllowed)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
+                        Session.Account.Language),
+                    Type = MessageType.White
+                });
+                return;
+            }
+
+            switch (mShopPacket.Type)
+            {
+                case CreateShopPacketType.Open:
+                    Session.Character.Shop = new Shop();
+                    short shopSlot = -1;
+                    foreach (var item in mShopPacket.ItemList)
+                    {
+                        shopSlot++;
+                        if (item.Amount == 0)
+                        {
+                            continue;
+                        }
+
+                        var inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                        if (inv == null)
+                        {
+                            //log
+                            continue;
+                        }
+                        if (inv.Amount < item.Amount)
+                        {
+                            //todo log
+                            return;
+                        }
+
+                        if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
+                        {
+                            Session.SendPacket(Session.Character.GenerateSay(
+                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
+                                SayColorType.Yellow));
+                            Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                            return;
+                        }
+
+                        Session.Character.Shop.ShopItems.TryAdd(shopSlot,
+                            new ShopItem
+                            {
+                                Amount = item.Amount,
+                                Price = item.Price,
+                                Slot = shopSlot,
+                                Type = inv.Type,
+                                ItemInstance = inv
+                            });
+                    }
+
+                    if (Session.Character.Shop.ShopItems.Count == 0)
+                    {
+                        Session.SendPacket(Session.Character.GenerateSay(
+                            Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
+                            SayColorType.Yellow));
+                        Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                        return;
+                    }
+
+                    Session.Character.Shop.Session = Session;
+                    Session.Character.Shop.MenuType = 3;
+                    Session.Character.Shop.ShopId = 501;
+                    Session.Character.Shop.Size = 60;
+                    Session.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
+                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
+                        mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
+
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
+                            Session.Account.Language)
+                    });
+
+                    Session.Character.Requests.Subscribe(data =>
+                        data.ClientSession.SendPacket(Session.Character.GenerateNpcReq(Session.Character.Shop.ShopId)));
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag(), new EveryoneBut(Session.Channel.Id));
+                    Session.Character.IsSitting = true;
+                    Session.Character.LoadSpeed();
+                    Session.SendPacket(Session.Character.GenerateCond());
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateRest());
+                    break;
+                case CreateShopPacketType.Close:
+                    Session.Character.CloseShop();
+                    break;
+                case CreateShopPacketType.Create:
+                    Session.SendPacket(new IshopPacket());
+                    break;
+                default:
+                    //todo log
+                    return;
+            }
         }
 
         /// <summary>
@@ -164,7 +316,7 @@ namespace NosCore.Controllers
 
                 if (!inv.Item.IsSoldable)
                 {
-                    Session.SendPacket(new SMemoPacket { Type = 2, Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language) });
+                    Session.SendPacket(new SMemoPacket { Type = SMemoType.Error, Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language) });
                     return;
                 }
                 long price = inv.Item.ItemType == ItemType.Sell ? inv.Item.Price : inv.Item.Price / 20;
@@ -180,7 +332,7 @@ namespace NosCore.Controllers
                     return;
                 }
                 Session.Character.Gold += price * sellPacket.Amount.Value;
-                Session.SendPacket(new SMemoPacket { Type = 1, Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), inv.Item.Name, sellPacket.Amount.Value) });
+                Session.SendPacket(new SMemoPacket { Type = SMemoType.Success, Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), inv.Item.Name, sellPacket.Amount.Value) });
                 
                 Session.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.Id);
                 Session.SendPacket(Session.Character.GenerateGold());

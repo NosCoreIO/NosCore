@@ -17,39 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
+using System.Security.Permissions;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("at")]
-    public class AtPacket : PacketDefinition
+    [PacketHeader("m_shop")]
+    public class MShopPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
-        public long CharacterId { get; set; }
+        public CreateShopPacketType Type { get; set; }
 
-        [PacketIndex(1)]
-        public short MapId { get; set; }
+        [PacketIndex(1, IsOptional = true, Length = 20)]
+        public List<MShopItemSubPacket> ItemList { get; set; }
 
-        [PacketIndex(2)]
-        public short PositionX { get; set; }
-
-        [PacketIndex(3)]
-        public short PositionY { get; set; }
-
-        [PacketIndex(4)]
-        public byte Unknown1 { get; set; } //TODO to find
-
-        [PacketIndex(5)]
-        public byte Unknown2 { get; set; } //TODO to find
-
-        [PacketIndex(6)]
-        public int Music { get; set; }
-
-        [PacketIndex(7)]
-        public short Unknown3 { get; set; } //TODO to find
-
-        #endregion
+        [PacketIndex(2, SerializeToEnd = true, IsOptional = true)]
+        public string Name { get; set; }
     }
 }

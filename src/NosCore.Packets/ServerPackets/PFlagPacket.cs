@@ -18,17 +18,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using System.Collections.Generic;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("rest")]
-    public class SitPacket : PacketDefinition
+    [PacketHeader("pflag")]
+    public class PflagPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Amount { get; set; }
+        public VisualType VisualType { get; set; }
 
-        [PacketIndex(1, Length = -1)]
-        public List<SitSubPacket> Users { get; set; }
+        [PacketIndex(1)]
+        public long VisualId { get; set; }
+
+        [PacketIndex(2)]
+        public long Flag { get; set; }
     }
 }

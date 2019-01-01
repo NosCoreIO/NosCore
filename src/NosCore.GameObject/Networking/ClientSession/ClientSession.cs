@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     typeof(PacketDefinition).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -227,15 +227,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -248,7 +248,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GeneratePairy(
-                    Character.Inventory.LoadBySlotAndType<WearableInstance>((byte) EquipmentType.Fairy,
+                    Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy,
                         PocketType.Wear)));
                 SendPackets(Character.MapInstance.GetMapItems());
 
@@ -267,6 +267,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
                         ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+                    if (s.Shop != null)
+                    {
+                        SendPacket(s.GeneratePFlag());
+                        SendPacket(s.GenerateShop());
+                    }
 
                     if (!Character.Invisible)
                     {
@@ -320,39 +325,52 @@ namespace NosCore.GameObject.Networking.ClientSession
                     return;
                 }
 
-                try
+                //check for the correct authority
+                if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                 {
-                    //check for the correct authority
-                    if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
-                    {
-                        return;
-                    }
-
-                    var deserializedPacket = PacketFactory.Deserialize(packet, _headerMethod[methodReference.Key].Item2,
-                        IsAuthenticated);
-
-                    if (deserializedPacket != null)
-                    {
-                        methodReference.Value.Invoke(_headerMethod[methodReference.Key].Item1, deserializedPacket);
-                    }
-                    else
-                    {
-                        _logger.Warning(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
-                    }
+                    return;
                 }
-                catch (Exception ex)
+                var deserializedPacket = PacketFactory.Deserialize(packet, _headerMethod[methodReference.Key].Item2,
+                                       IsAuthenticated);
+                if (deserializedPacket != null)
                 {
-                    // disconnect if something unexpected happens
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
-                        ex);
-                    Disconnect();
+                    HandlePacket(deserializedPacket, methodReference);
                 }
+                else
+                {
+                    _logger.Warning(string.Format(
+                        LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
+                }
+
             }
             else
             {
                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
                     packetHeader);
+            }
+        }
+
+        public void ReceivePacket(PacketDefinition deserializedPacket)
+        {
+            var methodReference = _controllerMethods.FirstOrDefault(t => t.Key.Identification == deserializedPacket.OriginalHeader);
+            if (methodReference.Value != null && deserializedPacket != null)
+            {
+                HandlePacket(deserializedPacket, methodReference);
+            }
+        }
+
+        private void HandlePacket(PacketDefinition deserializedPacket, KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
+        {
+            try
+            {
+                methodReference.Value.Invoke(_headerMethod[methodReference.Key].Item1, deserializedPacket);
+            }
+            catch (Exception ex)
+            {
+                // disconnect if something unexpected happens
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
+                    ex);
+                Disconnect();
             }
         }
 
@@ -398,7 +416,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');
