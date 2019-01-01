@@ -24,6 +24,7 @@ namespace NosCore.Shared.Enumerations
         UpdateLevel,
         UpdateJobLevel,
         UpdateHeroLevel,
-        UpdateReputation
+        UpdateReputation,
+        UpdateGold
     }
 }
