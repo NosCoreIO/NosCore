@@ -64,6 +64,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.GameObject.Services.MapMonsterBuilder;
@@ -180,8 +181,8 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).Assembly)
-                .Where(t => typeof(IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>).IsAssignableFrom(t))
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 

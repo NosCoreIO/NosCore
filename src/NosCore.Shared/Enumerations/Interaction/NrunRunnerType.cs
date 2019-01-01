@@ -19,8 +19,9 @@
 
 namespace NosCore.Shared.Enumerations.Interaction
 {
-    public enum NrunRunnerType : byte
+    public enum NrunRunnerType : short
     {
-        ChangeClass = 1
+        ChangeClass = 1,
+        OpenShop = 900
     }
 }

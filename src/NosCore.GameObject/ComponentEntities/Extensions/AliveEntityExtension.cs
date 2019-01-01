@@ -37,7 +37,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, short dialog)
+        public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, long dialog)
         {
             return new NpcReqPacket
             {
@@ -264,7 +264,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
-                Flag = aliveEntity.Shop != null ? aliveEntity.VisualId : 0
+                Flag = aliveEntity.Shop?.ShopId ?? 0
             };
         }
 

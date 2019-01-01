@@ -30,5 +30,8 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(1)]
         public long TargetId { get; set; }
+
+        [PacketIndex(2)]
+        public long? Data { get; set; }
     }
 }
