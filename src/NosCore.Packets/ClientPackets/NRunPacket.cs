@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Packets.ClientPackets
@@ -32,9 +33,9 @@ namespace NosCore.Packets.ClientPackets
         public byte Type { get; set; }
 
         [PacketIndex(2)]
-        public short Value { get; set; }
+        public VisualType VisualType { get; set; }
 
         [PacketIndex(3)]
-        public int NpcId { get; set; }
+        public long VisualId { get; set; }
     }
 }

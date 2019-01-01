@@ -18,17 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using System.Collections.Generic;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("rest")]
-    public class SitPacket : PacketDefinition
+    [PacketHeader("sd")]
+    public class SdPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Amount { get; set; }
-
-        [PacketIndex(1, Length = -1)]
-        public List<SitSubPacket> Users { get; set; }
+        public short Cooldown { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace NosCore.Core.Serializing
         public static bool IsInitialized { get; set; }
 
         #region Methods
-        
+
         /// <summary>
         ///     Deserializes a string into a PacketDefinition
         /// </summary>
@@ -68,7 +68,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace NosCore.Core.Serializing
             }
             catch (Exception e)
             {
-               _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT),packetContent, e);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), packetContent, e);
                 return null;
             }
         }
@@ -178,7 +178,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception e)
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PACKET_WRONG_FORMAT), e);
                     return string.Empty;
                 }
             }
@@ -195,6 +195,7 @@ namespace NosCore.Core.Serializing
                 @"([^\040]+[\.][^\040]+[\040]?)+((?=\040)|$)|([^\040]+)((?=\040)|$)");
             if (matches.Count > 0)
             {
+                int? realIndex = null;
                 foreach (var packetBasePropertyInfo in serializationInformation.Value)
                 {
                     var currentIndex =
@@ -204,10 +205,39 @@ namespace NosCore.Core.Serializing
 
                     if (currentIndex < matches.Count + (includesKeepAliveIdentity ? 1 : 0))
                     {
+                        if (packetBasePropertyInfo.Key.Length == -1)
+                        {
+                            packetBasePropertyInfo.Key.Length = sbyte.Parse(matches[currentIndex - 1].Value);
+                        }
+
+                        if (packetBasePropertyInfo.Key.Length > 0 && typeof(ICollection).IsAssignableFrom(packetBasePropertyInfo.Value.PropertyType))
+                        {
+                            packetBasePropertyInfo.Key.SpecialSeparator = " ";
+                            var propertiesAttributes = packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0]
+                                .GetProperties().Select(s => s.GetCustomAttribute<PacketIndexAttribute>());
+                            var length = (propertiesAttributes.Select(s => s?.Index ?? 0).Max() + 1);
+
+                            var listType = typeof(List<>);
+                            var constructedListType = listType.MakeGenericType(packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0]);
+                            var list = (IList)Activator.CreateInstance(constructedListType);
+                            for (var i = 0; i < packetBasePropertyInfo.Key.Length; i++)
+                            {
+                                list.Add(DeserializeValue(packetBasePropertyInfo.Value.PropertyType.GetGenericArguments()[0], string.Join(".", matches.Skip(currentIndex).Take(length)),
+                                    packetBasePropertyInfo.Key,
+                                    packetBasePropertyInfo.Value.GetCustomAttributes<ValidationAttribute>(), matches,
+                                    false));
+                                currentIndex += length;
+                            }
+
+                            packetBasePropertyInfo.Value.SetValue(deserializedPacket, list);
+                            realIndex = currentIndex;
+                            continue;
+                        }
+
                         if (packetBasePropertyInfo.Key.SerializeToEnd)
                         {
                             // get the value to the end and stop deserialization
-                            var index = matches.Count > currentIndex ? matches[currentIndex].Index
+                            var index = matches.Count > (realIndex ?? currentIndex) ? matches[realIndex ?? currentIndex].Index
                                 : packetContent.Length;
                             var valueToEnd =
                                 packetContent.Substring(index, packetContent.Length - index);
@@ -274,9 +304,8 @@ namespace NosCore.Core.Serializing
             return newSubpacket;
         }
 
-        private static IList DeserializeSubpackets(string currentValue, Type packetBasePropertyType,
-            bool shouldRemoveSeparator, MatchCollection packetMatchCollections, int? currentIndex,
-            bool includesKeepAliveIdentity)
+        private static IList DeserializeSubpackets(string currentValue, Type packetBasePropertyType, MatchCollection packetMatchCollections, int? currentIndex,
+            bool includesKeepAliveIdentity, string specialSeparator)
         {
             // split into single values
             var splittedSubpackets = currentValue.Split(' ').ToList();
@@ -288,7 +317,7 @@ namespace NosCore.Core.Serializing
             var subpacketSerializationInfo = GetSerializationInformation(subPacketType);
 
             // handle subpackets with separator
-            if (shouldRemoveSeparator)
+            if (specialSeparator == " ")
             {
                 if (!currentIndex.HasValue || packetMatchCollections == null)
                 {
@@ -346,6 +375,11 @@ namespace NosCore.Core.Serializing
             MatchCollection packetMatches,
             bool includesKeepAliveIdentity = false)
         {
+            if (string.IsNullOrEmpty(currentValue) && packetIndexAttribute.IsOptional)
+            {
+                return null;
+            }
+
             var value = currentValue;
             validationAttributes.ToList().ForEach(s =>
             {
@@ -374,7 +408,7 @@ namespace NosCore.Core.Serializing
                 }
                 catch (Exception ex)
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), currentValue, packetPropertyType.Name, ex);
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_CONVERT_VALUE), currentValue, packetPropertyType.Name, ex);
                 }
 
                 return convertedValue;
@@ -396,9 +430,8 @@ namespace NosCore.Core.Serializing
                 && packetPropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)) // subpacket list
                 && packetPropertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return DeserializeSubpackets(currentValue, packetPropertyType,
-                    packetIndexAttribute?.RemoveSeparator ?? false, packetMatches, packetIndexAttribute?.Index,
-                    includesKeepAliveIdentity);
+                return DeserializeSubpackets(currentValue, packetPropertyType, packetMatches, packetIndexAttribute?.Index,
+                    includesKeepAliveIdentity, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (packetPropertyType.IsGenericType
@@ -546,7 +579,7 @@ namespace NosCore.Core.Serializing
         private static string SerializeSubpacket(object value,
             KeyValuePair<Tuple<Type, string>, Dictionary<PacketIndexAttribute, PropertyInfo>>
                 subpacketSerializationInfo, bool isReturnPacket,
-            bool shouldRemoveSeparator, string specialSeparator)
+           string specialSeparator)
         {
             var serializedSubpacket =
                 new StringBuilder(isReturnPacket ? $" #{subpacketSerializationInfo.Key.Item2}^" : " ");
@@ -562,8 +595,8 @@ namespace NosCore.Core.Serializing
                 // first element
                 if (shouldSeparate)
                 {
-                    serializedSubpacket.Append(isReturnPacket ? "^" : shouldRemoveSeparator ? " "
-                        : (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
+                    serializedSubpacket.Append(isReturnPacket ? "^" :
+                        (specialSeparator != "." ? specialSeparator : subpacketPropertyInfo.Key.SpecialSeparator));
                 }
 
                 if (typeof(PacketDefinition).IsAssignableFrom(subpacketPropertyInfo.Value.PropertyType))
@@ -573,7 +606,7 @@ namespace NosCore.Core.Serializing
                     var valuesub = subpacketPropertyInfo.Value.GetValue(value);
                     serializedSubpacket = serializedSubpacket.TrimEnd();
                     var subpacket = SerializeSubpacket(valuesub, subpacketSerializationInfo2, false,
-                        subpacketPropertyInfo.Key.RemoveSeparator, isReturnPacket ? "^" :
+                         isReturnPacket ? "^" :
                             subpacketPropertyInfo.Key.SpecialSeparator ?? specialSeparator);
                     if (isReturnPacket)
                     {
@@ -602,7 +635,7 @@ namespace NosCore.Core.Serializing
         }
 
         private static string SerializeSubpackets(IList listValues, Type packetBasePropertyType,
-            bool shouldRemoveSeparator, string specialSeparator)
+             string specialSeparator)
         {
             var serializedSubPacket = new StringBuilder();
             var subpacketSerializationInfo =
@@ -612,8 +645,9 @@ namespace NosCore.Core.Serializing
             {
                 foreach (var listValue in listValues)
                 {
-                    serializedSubPacket.Append(SerializeSubpacket(listValue, subpacketSerializationInfo, false,
-                        shouldRemoveSeparator, specialSeparator));
+                    serializedSubPacket.Append(listValue == null 
+                        ? " -1" 
+                        : SerializeSubpacket(listValue, subpacketSerializationInfo, false, specialSeparator));
                 }
             }
 
@@ -660,24 +694,21 @@ namespace NosCore.Core.Serializing
             {
                 var subpacketSerializationInfo = GetSerializationInformation(propertyType);
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
-                    packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (value is PacketDefinition)
             {
                 var subpacketSerializationInfo = GetSerializationInformation(value.GetType());
                 return SerializeSubpacket(value, subpacketSerializationInfo,
-                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.RemoveSeparator ?? false,
-                    packetIndexAttribute?.SpecialSeparator);
+                    packetIndexAttribute?.IsReturnPacket ?? false, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType
                 && propertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))
                 && propertyType.GenericTypeArguments[0].BaseType == typeof(PacketDefinition))
             {
-                return SerializeSubpackets((IList)value, propertyType,
-                    packetIndexAttribute?.RemoveSeparator ?? false, packetIndexAttribute?.SpecialSeparator);
+                return SerializeSubpackets((IList)value, propertyType, packetIndexAttribute?.SpecialSeparator);
             }
 
             if (propertyType.IsGenericType

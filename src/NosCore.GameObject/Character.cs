@@ -110,8 +110,8 @@ namespace NosCore.GameObject
         public Subject<RequestData> Requests { get; set; }
         public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
-        public short Race => (byte) Class;
-        public Shop Shop => null;
+        public short Race => (byte)Class;
+        public Shop Shop { get; set; }
 
         public bool Camouflage { get; set; }
 
@@ -150,7 +150,7 @@ namespace NosCore.GameObject
             {
                 if (VehicleSpeed != null)
                 {
-                    return (byte) VehicleSpeed;
+                    return (byte)VehicleSpeed;
                 }
                 //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
                 //    {
@@ -164,13 +164,13 @@ namespace NosCore.GameObject
                     return 59;
                 }
 
-                return (byte) (_speed + bonusSpeed);
+                return (byte)(_speed + bonusSpeed);
             }
 
             set
             {
                 LastSpeedChange = SystemTime.Now();
-                _speed = value > 59 ? (byte) 59 : value;
+                _speed = value > 59 ? (byte)59 : value;
             }
         }
 
@@ -189,27 +189,40 @@ namespace NosCore.GameObject
 
         public AuthorityType Authority => Account.Authority;
 
+        public void CloseShop()
+        {
+            Shop = null;
+
+            MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
+            MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
+
+            IsSitting = false;
+            LoadSpeed();
+            SendPacket(this.GenerateCond());
+            MapInstance.Sessions.SendPacket(this.GenerateRest());
+        }
+
         public bool IsAlive { get; set; }
 
-        public int MaxHp => (int) HpLoad();
+        public int MaxHp => (int)HpLoad();
 
-        public int MaxMp => (int) MpLoad();
+        public int MaxMp => (int)MpLoad();
 
         public void SetHeroLevel(byte level)
         {
             HeroLevel = level;
             HeroXp = 0;
             GenerateLevelupPackets();
-            Session.SendPacket(new MsgPacket
+            SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
             });
         }
 
         public void SetJobLevel(byte jobLevel)
         {
-            JobLevel = (byte) ((CharacterClassType) Class == CharacterClassType.Adventurer && jobLevel > 20 ? 20
+            JobLevel = (byte)((CharacterClassType)Class == CharacterClassType.Adventurer && jobLevel > 20 ? 20
                 : jobLevel);
             JobLevelXp = 0;
             SendPacket(GenerateLev());
@@ -223,9 +236,9 @@ namespace NosCore.GameObject
 
                 s.SendPacket(this.GenerateEff(8));
             });
-            Session.SendPacket(new MsgPacket
+            SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
             });
         }
@@ -251,7 +264,7 @@ namespace NosCore.GameObject
                     groupMember?.SendPacket(new MsgPacket
                     {
                         Message = groupMember.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
-                        Type = MessageType.Whisper
+                        Type = MessageType.White
                     });
                 }
 
@@ -286,11 +299,11 @@ namespace NosCore.GameObject
 
             if (relationType == CharacterRelationType.Blocked)
             {
-                Session.SendPacket(GenerateBlinit());
+                SendPacket(GenerateBlinit());
                 return relation;
             }
 
-            Session.SendPacket(this.GenerateFinit());
+            SendPacket(this.GenerateFinit());
             return relation;
         }
 
@@ -301,7 +314,7 @@ namespace NosCore.GameObject
                 var account = Session.Account;
                 DaoFactory.AccountDao.InsertOrUpdate(ref account);
 
-                CharacterDto character = (Character) MemberwiseClone();
+                CharacterDto character = (Character)MemberwiseClone();
                 DaoFactory.CharacterDao.InsertOrUpdate(ref character);
 
                 var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
@@ -321,19 +334,19 @@ namespace NosCore.GameObject
 
         public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
         {
-            Armor = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Armor, PocketType.Wear)?.ItemVNum,
-            CostumeHat = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.CostumeHat, PocketType.Wear)
+            Armor = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Armor, PocketType.Wear)?.ItemVNum,
+            CostumeHat = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.CostumeHat, PocketType.Wear)
                 ?.ItemVNum,
-            CostumeSuit = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.CostumeSuit, PocketType.Wear)
+            CostumeSuit = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.CostumeSuit, PocketType.Wear)
                 ?.ItemVNum,
-            Fairy = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Fairy, PocketType.Wear)?.ItemVNum,
-            Hat = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Hat, PocketType.Wear)?.ItemVNum,
-            MainWeapon = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.MainWeapon, PocketType.Wear)
+            Fairy = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Fairy, PocketType.Wear)?.ItemVNum,
+            Hat = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Hat, PocketType.Wear)?.ItemVNum,
+            MainWeapon = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.MainWeapon, PocketType.Wear)
                 ?.ItemVNum,
-            Mask = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Mask, PocketType.Wear)?.ItemVNum,
+            Mask = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.Mask, PocketType.Wear)?.ItemVNum,
             SecondaryWeapon = Inventory
-                .LoadBySlotAndType<IItemInstance>((short) EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemVNum,
-            WeaponSkin = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.WeaponSkin, PocketType.Wear)
+                .LoadBySlotAndType<IItemInstance>((short)EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemVNum,
+            WeaponSkin = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.WeaponSkin, PocketType.Wear)
                 ?.ItemVNum
         };
 
@@ -342,11 +355,11 @@ namespace NosCore.GameObject
             get
             {
                 var weapon =
-                    Inventory.LoadBySlotAndType<WearableInstance>((short) EquipmentType.MainWeapon, PocketType.Wear);
+                    Inventory.LoadBySlotAndType<WearableInstance>((short)EquipmentType.MainWeapon, PocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = weapon?.Upgrade ?? 0,
-                    Rare = (byte) (weapon?.Rare ?? 0)
+                    Rare = (byte)(weapon?.Rare ?? 0)
                 };
             }
         }
@@ -355,11 +368,11 @@ namespace NosCore.GameObject
         {
             get
             {
-                var armor = Inventory.LoadBySlotAndType<WearableInstance>((short) EquipmentType.Armor, PocketType.Wear);
+                var armor = Inventory.LoadBySlotAndType<WearableInstance>((short)EquipmentType.Armor, PocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = armor?.Upgrade ?? 0,
-                    Rare = (byte) (armor?.Rare ?? 0)
+                    Rare = (byte)(armor?.Rare ?? 0)
                 };
             }
         }
@@ -434,7 +447,7 @@ namespace NosCore.GameObject
             SendPacket(new MsgPacket
             {
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
-                Type = MessageType.Whisper
+                Type = MessageType.White
             });
             MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
 
@@ -455,16 +468,17 @@ namespace NosCore.GameObject
             var reputprice = item.Price == null ? item.ItemInstance.Item.ReputPrice * amount : 0;
             double percent = GenerateShopRates().Item1;
 
-            if (item.ItemInstance.Item.Type == PocketType.Equipment)
+            if (amount > item.Amount)
             {
-                amount = 1;
+                //todo LOG
+                return;
             }
 
             if (reputprice == 0 && price * percent > Session.Character.Gold)
             {
-                Session.SendPacket(new SMemoPacket
+                SendPacket(new SMemoPacket
                 {
-                    Type = 3,
+                    Type = SMemoType.FatalError,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
                 });
                 return;
@@ -472,43 +486,56 @@ namespace NosCore.GameObject
 
             if (reputprice > Session.Character.Reput)
             {
-                Session.SendPacket(new SMemoPacket
+                SendPacket(new SMemoPacket
                 {
-                    Type = 3,
+                    Type = SMemoType.FatalError,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
                 });
                 return;
             }
 
-            List<IItemInstance> inv = null;
-            if (item.ItemInstance.CharacterId == -1)
+            short slotChar = item.ItemInstance.Slot;
+            List<IItemInstance> inv;
+            if (shop.Session == null)
             {
                 inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId,
                     amount));
             }
+            else if (amount == item.ItemInstance.Amount)
+            {
+                inv = Inventory.AddItemToPocket(item.ItemInstance);
+            }
             else
             {
-                //TODO character
+                inv = Inventory.AddItemToPocket(
+                    ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
             }
 
             if (inv?.DefaultIfEmpty() != null)
             {
-                Session.SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
-                Session.SendPacket(new SMemoPacket
+                inv.ForEach(it => it.CharacterId = CharacterId);
+                var packet = shop.Session?.Character.BuyFrom(item, amount, slotChar);
+                if (packet != null)
                 {
-                    Type = 1,
+                    SendPacket(packet);
+                }
+
+                SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
+                SendPacket(new SMemoPacket
+                {
+                    Type = SMemoType.Success,
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
                 });
                 if (reputprice == 0)
                 {
-                    Session.Character.Gold -= (long) (price * percent);
-                    Session.SendPacket(Session.Character.GenerateGold());
+                    Gold -= (long)(price * percent);
+                    SendPacket(Session.Character.GenerateGold());
                 }
                 else
                 {
-                    Session.Character.Reput -= reputprice;
-                    Session.SendPacket(Session.Character.GenerateFd());
-                    Session.SendPacket(Session.Character.GenerateSay(
+                    Reput -= reputprice;
+                    SendPacket(Session.Character.GenerateFd());
+                    SendPacket(Session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple));
                 }
@@ -522,6 +549,52 @@ namespace NosCore.GameObject
                     Type = 0
                 });
             }
+        }
+
+        private NInvPacket BuyFrom(ShopItem item, short amount, short slotChar)
+        {
+            var type = item.ItemInstance.Type;
+            var itemInstance = amount == item.ItemInstance.Amount
+                ? Inventory.DeleteById(item.ItemInstance.Id)
+                : Inventory.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
+            var slot = item.Slot;
+            item.Amount -= amount;
+            if ((item?.Amount ?? 0) == 0)
+            {
+                Shop.ShopItems.TryRemove(slot, out _);
+            }
+            SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
+            SendPacket(new SMemoPacket
+            {
+                Type = SMemoType.Success,
+                Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name, item.ItemInstance.Item.Name, amount)
+            });
+            var sellAmount = (item?.Price ?? 0) * amount;
+            Gold += sellAmount;
+            SendPacket(GenerateGold());
+            Shop.Sell += sellAmount;
+
+            SendPacket(new SellListPacket
+            {
+                ValueSold = Shop.Sell,
+                SellListSubPacket = new List<SellListSubPacket>
+                        {
+                            new SellListSubPacket
+                            {
+                                Amount = item?.Amount ?? 0,
+                                Slot = slot,
+                                SellAmount = item?.Amount ?? 0
+                            }
+                        }
+            });
+
+            if (Shop.ShopItems.Count == 0)
+            {
+                CloseShop();
+                return null;
+            }
+
+            return this.GenerateNInv(1, 0, 0);
         }
 
         private void GenerateLevelupPackets()
@@ -569,7 +642,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             GenerateLevelupPackets();
             Session.SendPacket(new MsgPacket
             {
-                Type = MessageType.Whisper,
+                Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
             });
         }
@@ -582,13 +655,13 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 LevelXp = LevelXp,
                 JobLevel = JobLevel,
                 JobLevelXp = JobLevelXp,
-                XpLoad = (int) CharacterHelper.Instance.XpLoad(Level),
-                JobXpLoad = (int) CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
+                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
+                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
                 Reputation = Reput,
                 SkillCp = 0,
                 HeroXp = HeroXp,
                 HeroLevel = HeroLevel,
-                HeroXpLoad = (int) CharacterHelper.Instance.HeroXpLoad(HeroLevel)
+                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
             };
         }
 
@@ -597,7 +670,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             return new FdPacket
             {
                 Reput = Reput,
-                Dignity = (int) Dignity,
+                Dignity = (int)Dignity,
                 ReputIcon = GetReputIco(),
                 DignityIcon = Math.Abs(GetDignityIco())
             };
@@ -718,7 +791,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                             }
                         }),
                         ReceiverType = ReceiverType.OnlySomeone,
-                        SenderCharacter = new Data.WebApi.Character {Id = CharacterId, Name = Name},
+                        SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
                         ReceiverCharacter = new Data.WebApi.Character
                         {
                             Id = characterRelation.Value.RelatedCharacterId,
@@ -747,7 +820,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 });
             }
 
-            return new BlinitPacket {SubPackets = subpackets};
+            return new BlinitPacket { SubPackets = subpackets };
         }
 
         public void DeleteBlackList(long characterId)
@@ -757,7 +830,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
 
             if (relation == null)
             {
-                Session.SendPacket(new InfoPacket
+                SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         Session.Account.Language)
@@ -766,7 +839,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             }
 
             CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
-            Session.SendPacket(GenerateBlinit());
+            SendPacket(GenerateBlinit());
         }
 
         public void DeleteRelation(long relatedCharacterId)
@@ -783,7 +856,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
 
             CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
             RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
-            Session.SendPacket(this.GenerateFinit());
+            SendPacket(this.GenerateFinit());
 
             var targetSession = Broadcaster.Instance.GetCharacter(s =>
                 s.VisualId == targetCharacterRelation.CharacterId);
@@ -819,12 +892,12 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public IEnumerable<PacketDefinition> GenerateInv()
         {
-            var inv0 = new InvPacket {Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv1 = new InvPacket {Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv2 = new InvPacket {Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv3 = new InvPacket {Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv6 = new InvPacket {Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv7 = new InvPacket {Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>()};
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
 
             if (Inventory != null)
             {
@@ -866,17 +939,17 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
 
                         case PocketType.Main:
                             inv1.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Etc:
                             inv2.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Miniland:
                             inv3.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount });
                             break;
 
                         case PocketType.Specialist:
@@ -921,7 +994,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 }
             }
 
-            return new List<PacketDefinition> {inv0, inv1, inv2, inv3, inv6, inv7};
+            return new List<PacketDefinition> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
@@ -1087,19 +1160,19 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
 
         public GoldPacket GenerateGold()
         {
-            return new GoldPacket {Gold = Gold};
+            return new GoldPacket { Gold = Gold };
         }
 
         public void LoadSpeed()
         {
-            Speed = CharacterHelper.Instance.SpeedData[(byte) Class];
+            Speed = CharacterHelper.Instance.SpeedData[(byte)Class];
         }
 
         public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int) ((CharacterHelper.Instance.MpData[(byte) Class][Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData[(byte)Class][Level] + mp) * multiplicator);
         }
 
         public double HpLoad()
@@ -1107,7 +1180,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int) ((CharacterHelper.Instance.HpData[(byte) Class][Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData[(byte)Class][Level] + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -1129,7 +1202,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
         {
             return new TitPacket
             {
-                ClassType = Session.GetMessageFromKey((LanguageKey) Enum.Parse(typeof(LanguageKey),
+                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
                     Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpperInvariant())),
                 Name = Name
             };
@@ -1146,13 +1219,13 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 FamilyId = -1,
                 FamilyName = string.Empty,
                 CharacterId = CharacterId,
-                Authority = (byte) Account.Authority,
+                Authority = (byte)Account.Authority,
                 Gender = Gender,
                 HairStyle = HairStyle,
                 HairColor = HairColor,
                 Class = Class,
-                Icon = (byte) (GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
-                Compliment = (short) (Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
+                Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
                 Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,
@@ -1196,7 +1269,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
         {
             EquipmentSubPacket generateEquipmentSubPacket(EquipmentType eqType)
             {
-                var eq = Inventory.LoadBySlotAndType<IItemInstance>((short) eqType, PocketType.Wear);
+                var eq = Inventory.LoadBySlotAndType<IItemInstance>((short)eqType, PocketType.Wear);
                 if (eq == null)
                 {
                     return null;
@@ -1240,7 +1313,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             return new EqPacket
             {
                 VisualId = VisualId,
-                Visibility = (byte) (Authority < AuthorityType.GameMaster ? 0 : 2),
+                Visibility = (byte)(Authority < AuthorityType.GameMaster ? 0 : 2),
                 Gender = Gender,
                 HairStyle = HairStyle,
                 Haircolor = HairColor,
@@ -1258,13 +1331,13 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             MorphUpgrade = 0;
             MorphDesign = 0;
             LoadSpeed();
-            Session.SendPacket(this.GenerateCond());
-            Session.SendPacket(GenerateLev());
+            SendPacket(this.GenerateCond());
+            SendPacket(GenerateLev());
             SpCooldown = 30;
-            Session.SendPacket(this.GenerateSay(
+            SendPacket(this.GenerateSay(
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
-            Session.SendPacket(new SdPacket {Cooldown = SpCooldown});
+            SendPacket(new SdPacket { Cooldown = SpCooldown });
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
@@ -1272,28 +1345,28 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 Argument = 1,
                 VisualEntityId = CharacterId
             });
-            Session.SendPacket(GenerateStat());
+            SendPacket(GenerateStat());
 
             Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
             {
-                Session.SendPacket(this.GenerateSay(
+                SendPacket(this.GenerateSay(
                     string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
                         SpCooldown), SayColorType.Purple));
-                Session.SendPacket(new SdPacket {Cooldown = 0});
+                SendPacket(new SdPacket { Cooldown = 0 });
             });
         }
 
         public void ChangeSp()
         {
             SpecialistInstance sp =
-                Inventory.LoadBySlotAndType<SpecialistInstance>((byte) EquipmentType.Sp, PocketType.Wear);
+                Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
             WearableInstance fairy =
-                Inventory.LoadBySlotAndType<WearableInstance>((byte) EquipmentType.Fairy, PocketType.Wear);
+                Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy, PocketType.Wear);
 
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
-                Session.SendPacket(new MsgPacket
+                SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
                         Session.Account.Language)
@@ -1304,7 +1377,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             if (fairy != null && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element &&
                 fairy.Item.Element != sp.Item.SecondaryElement)
             {
-                Session.SendPacket(new MsgPacket
+                SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                         Session.Account.Language)
@@ -1318,7 +1391,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
-            Session.SendPacket(GenerateLev());
+            SendPacket(GenerateLev());
             MapInstance.Sessions.SendPacket(this.GenerateEff(196));
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
@@ -1326,10 +1399,10 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
                 Argument = 1,
                 VisualEntityId = CharacterId
             });
-            Session.SendPacket(GenerateSpPoint());
+            SendPacket(GenerateSpPoint());
             LoadSpeed();
-            Session.SendPacket(this.GenerateCond());
-            Session.SendPacket(GenerateStat());
+            SendPacket(this.GenerateCond());
+            SendPacket(GenerateStat());
         }
 
         public void RemoveVehicle()
@@ -1337,7 +1410,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
             if (UseSp)
             {
                 SpecialistInstance sp =
-                    Inventory.LoadBySlotAndType<SpecialistInstance>((byte) EquipmentType.Sp, PocketType.Wear);
+                    Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
                 if (sp != null)
                 {
                     Morph = sp.Item.Morph;
@@ -1356,7 +1429,7 @@ SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(Lan
 
             IsVehicled = false;
             VehicleSpeed = 0;
-            Session.SendPacket(this.GenerateCond());
+            SendPacket(this.GenerateCond());
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
         }
     }

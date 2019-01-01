@@ -32,9 +32,9 @@ namespace NosCore.Packets.ClientPackets
         public byte Unknown { get; set; }
 
         [PacketIndex(2)]
-        public VisualType Type { get; set; }
+        public VisualType VisualType { get; set; }
 
         [PacketIndex(3)]
-        public int TargetId { get; set; }
+        public long VisualId { get; set; }
     }
 }

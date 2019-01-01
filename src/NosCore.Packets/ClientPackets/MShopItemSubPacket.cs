@@ -17,18 +17,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Serializing;
-using System.Collections.Generic;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Packets.ClientPackets
 {
-    [PacketHeader("rest")]
-    public class SitPacket : PacketDefinition
+    [PacketHeader("m_shop_subpacket")]
+    public class MShopItemSubPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte Amount { get; set; }
+        public PocketType Type { get; set; }
 
-        [PacketIndex(1, Length = -1)]
-        public List<SitSubPacket> Users { get; set; }
+        [PacketIndex(1)]
+        public short Slot { get; set; }
+
+        [PacketIndex(2)]
+        [Range(0, short.MaxValue)]
+        public short Amount { get; set; }
+
+        [PacketIndex(3)]
+        [Range(0, long.MaxValue)]
+        public long Price { get; set; }
     }
 }
