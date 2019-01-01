@@ -583,7 +583,7 @@ namespace NosCore.GameObject
                             {
                                 Amount = item?.Amount ?? 0,
                                 Slot = slot,
-                                SellAmount = sellAmount
+                                SellAmount = item?.Amount ?? 0
                             }
                         }
             });
