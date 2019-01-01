@@ -292,7 +292,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     shopItemList.Add(new NInvItemSubPacket
                     {
-                        Type = item.ItemInstance.Type,
+                        Type = 0,
                         Slot = item.Slot,
                         Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
