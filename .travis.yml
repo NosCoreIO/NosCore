@@ -6,9 +6,9 @@ dotnet: 2.2
 script:
     - dotnet restore
     - dotnet build
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory!=OPTIONAL-TEST
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST
 after_script:
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory=OPTIONAL-TEST
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory=OPTIONAL-TEST
     - pip install --user awscli
     - export PATH=$PATH:$HOME/.local/bin
     - aws ecr get-login --region us-west-2 --no-include-email
