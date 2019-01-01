@@ -25,6 +25,7 @@ using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -124,132 +125,6 @@ namespace NosCore.Controllers
             if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePairy((WearableInstance)null));
-            }
-        }
-
-        public void CreateShop(MShopPacket mShopPacket)
-        {
-            if (Session.Character.InExchangeOrTrade)
-            {
-                //todo log
-                return;
-            }
-
-            if (Session.Character.MapInstance.Portals.Any(por
-                => Session.Character.PositionX < por.SourceX + 6
-                && Session.Character.PositionX > por.SourceX - 6
-                && Session.Character.PositionY < por.SourceY + 6
-                && Session.Character.PositionY > por.SourceY - 6))
-            {
-                Session.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
-                        Session.Account.Language),
-                    Type = 0
-                });
-                return;
-            }
-
-            if (Session.Character.Group != null && Session.Character.Group?.Type != GroupType.Group)
-            {
-                Session.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
-                        Session.Account.Language),
-                    Type = 0
-                });
-                return;
-            }
-
-            if (!Session.Character.MapInstance.ShopAllowed)
-            {
-                Session.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
-                        Session.Account.Language),
-                    Type = 0
-                });
-                return;
-            }
-
-            switch (mShopPacket.Type)
-            {
-                case CreateShopPacketType.Open:
-                    Session.Character.Shop = new Shop();
-                    short shopSlot = -1;
-                    foreach (var item in mShopPacket.ItemList.Where(it => it.Amount > 0))
-                    {
-                        shopSlot++;
-                        var inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
-                        if (inv == null)
-                        {
-                            //log
-                            continue;
-                        }
-                        if (inv.Amount < item.Amount)
-                        {
-                            //todo log
-                            return;
-                        }
-
-                        if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
-                        {
-                            Session.SendPacket(Session.Character.GenerateSay(
-                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
-                                SayColorType.Yellow));
-                            Session.SendPacket(new ShopEndPacket { Type = 0 });
-                            return;
-                        }
-
-                        Session.Character.Shop.ShopItems.TryAdd(shopSlot,
-                            new ShopItem
-                            {
-                                Amount = item.Amount,
-                                Price = item.Price,
-                                Slot = shopSlot,
-                                Type = 0,
-                                ItemInstance = inv
-                            });
-                    }
-
-                    if (Session.Character.Shop.ShopItems.Count == 0)
-                    {
-                        Session.SendPacket(Session.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
-                            SayColorType.Yellow));
-                        Session.SendPacket(new ShopEndPacket { Type = 0 });
-                        return;
-                    }
-
-                    Session.Character.Shop.MenuType = 3;
-                    Session.Character.Shop.ShopId = (int)Session.Character.VisualId;
-                    Session.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
-                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
-                        mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
-
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
-                    Session.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
-                            Session.Account.Language)
-                    });
-
-
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
-                    Session.Character.IsSitting = true;
-                    Session.Character.LoadSpeed();
-                    Session.SendPacket(Session.Character.GenerateCond());
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateRest());
-                    break;
-                case CreateShopPacketType.Close:
-                    Session.Character.CloseShop();
-                    break;
-                case CreateShopPacketType.Create:
-                    Session.SendPacket(new IshopPacket());
-                    break;
-                default:
-                    //todo log
-                    return;
             }
         }
 

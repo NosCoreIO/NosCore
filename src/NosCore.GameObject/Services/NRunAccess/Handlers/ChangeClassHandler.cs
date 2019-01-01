@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
@@ -31,14 +32,14 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.NRunAccess.Handlers
 {
-    public class ChangeClassHandler : IHandler<Tuple<MapNpc, NrunPacket>, Tuple<MapNpc, NrunPacket>>
+    public class ChangeClassHandler : IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public bool Condition(Tuple<MapNpc, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass &&
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass &&
             item.Item2.Type > 0 && item.Item2.Type < 4;
 
-        public void Execute(RequestData<Tuple<MapNpc, NrunPacket>> requestData)
+        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
             {
