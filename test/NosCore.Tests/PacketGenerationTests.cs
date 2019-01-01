@@ -279,7 +279,7 @@ namespace NosCore.Tests
             };
 
             var packet = PacketFactory.Serialize(new[] { chara.GenerateNInv(1, 0, 0) });
-            Assert.AreEqual("n_inv 1 0 0 0 0.0.0.0.0.1 -1 0.2.0.0.0.1", packet);;
+            Assert.AreEqual("n_inv 1 0 0 0 0.0.0.0.0.1 -1 0.2.0.0.0.1", packet);
         }
     }
 }
