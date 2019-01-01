@@ -37,10 +37,10 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(3)]
         public byte MenuType { get; set; }
 
-        [PacketIndex(4)]
-        public byte ShopType { get; set; }
+        [PacketIndex(4, IsOptional = true)]
+        public byte? ShopType { get; set; }
 
-        [PacketIndex(5, SerializeToEnd = true)]
+        [PacketIndex(5, IsOptional = true, SerializeToEnd = true)]
         public string Name { get; set; }
     }
 }

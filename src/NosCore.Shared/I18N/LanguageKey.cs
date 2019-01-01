@@ -222,6 +222,7 @@ namespace NosCore.Shared.I18N
         SHOP_ONLY_TRADABLE_ITEMS,
         SHOP_EMPTY,
         SHOP_PRIVATE_SHOP,
-        SHOP_OPEN
+        SHOP_OPEN,
+        BUY_ITEM_FROM
     }
 }

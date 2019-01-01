@@ -253,8 +253,10 @@ namespace NosCore.Controllers
                         return;
                     }
 
+                    Session.Character.Shop.Session = Session;
                     Session.Character.Shop.MenuType = 3;
-                    Session.Character.Shop.ShopId = 500+(int)Session.Character.VisualId;
+                    Session.Character.Shop.ShopId = 501;
+                    Session.Character.Shop.Size = 20;
                     Session.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
                         Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));

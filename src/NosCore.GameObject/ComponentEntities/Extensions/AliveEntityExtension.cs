@@ -83,8 +83,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
-                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
+                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
+                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -107,10 +107,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     short mapX = nonPlayableEntity.MapX;
                     short mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
                             Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
@@ -167,8 +167,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = visualEntity.VisualId,
                 ShopId = visualEntity.Shop?.ShopId ?? 0,
                 MenuType = visualEntity.Shop?.MenuType ?? 0,
-                ShopType = visualEntity.Shop?.ShopType ?? 0,
-                Name = visualEntity.Shop?.Name ?? string.Empty,
+                ShopType = visualEntity.Shop?.ShopType,
+                Name = visualEntity.Shop?.Name,
             };
         }
 
@@ -268,7 +268,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        
+
 
         public static void SetLevel(this INamedEntity experiencedEntity, byte level)
         {
@@ -282,20 +282,28 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             byte shopKind)
         {
             var shopItemList = new List<NInvItemSubPacket>();
-            foreach (var item in aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop))
-                .OrderBy(s => s.Slot))
+            var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)).ToList();
+            for (var i = 0; i <= aliveEntity.Shop.Size; i++)
             {
-                shopItemList.Add(new NInvItemSubPacket
+                var item = list.Find(s=>s.Slot == i);
+                if (item == null)
                 {
-                    Type = item.ItemInstance.Type,
-                    Slot = item.Slot,
-                    Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
-                        ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                    RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare : item.Amount,
-                    UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment ? (item.ItemInstance.Item.IsColored
-                        ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
-                    VNum = item.ItemInstance.Item.VNum
-                });
+                    shopItemList.Add(null);
+                }
+                else
+                {
+                    shopItemList.Add(new NInvItemSubPacket
+                    {
+                        Type = item.ItemInstance.Type,
+                        Slot = item.Slot,
+                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                            ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
+                        RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare : item.Amount,
+                        UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment ? (item.ItemInstance.Item.IsColored
+                            ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
+                        VNum = item.ItemInstance.Item.VNum
+                    });
+                }
             }
 
             return new NInvPacket
