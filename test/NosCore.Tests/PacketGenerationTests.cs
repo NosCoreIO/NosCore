@@ -221,7 +221,7 @@ namespace NosCore.Tests
             Assert.IsTrue(packet.Type == 0 
                 && packet.ItemList[1].Type == 0 
                 && packet.ItemList[1].Slot == 21 
-                && packet.ItemList[1].Quantity == 1 
+                && packet.ItemList[1].Amount == 1 
                 && packet.ItemList[1].Price == 10692
                 && packet.Name == "admin Stand");
         }

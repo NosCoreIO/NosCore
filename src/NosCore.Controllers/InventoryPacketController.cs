@@ -22,6 +22,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -125,7 +126,7 @@ namespace NosCore.Controllers
                 Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePairy((WearableInstance)null));
             }
         }
-        
+
         public void CreateShop(MShopPacket mShopPacket)
         {
             if (Session.Character.InExchangeOrTrade)
@@ -134,7 +135,11 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (Session.Character.MapInstance.Portals.Any(por => Session.Character.PositionX < por.SourceX + 6 && Session.Character.PositionX > por.SourceX - 6 && Session.Character.PositionY < por.SourceY + 6 && Session.Character.PositionY > por.SourceY - 6))
+            if (Session.Character.MapInstance.Portals.Any(por
+                => Session.Character.PositionX < por.SourceX + 6
+                && Session.Character.PositionX > por.SourceX - 6
+                && Session.Character.PositionY < por.SourceY + 6
+                && Session.Character.PositionY > por.SourceY - 6))
             {
                 Session.SendPacket(new MsgPacket
                 {
@@ -170,6 +175,71 @@ namespace NosCore.Controllers
             switch (mShopPacket.Type)
             {
                 case CreateShopPacketType.Open:
+                    Session.Character.Shop = new Shop();
+                    short shopSlot = -1;
+                    foreach (var item in mShopPacket.ItemList.Where(it => it.Amount > 0))
+                    {
+                        shopSlot++;
+                        var inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                        if (inv == null)
+                        {
+                            //log
+                            continue;
+                        }
+                        if (inv.Amount < item.Amount)
+                        {
+                            //todo log
+                            return;
+                        }
+
+                        if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
+                        {
+                            Session.SendPacket(Session.Character.GenerateSay(
+                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
+                                SayColorType.Yellow));
+                            Session.SendPacket(new ShopEndPacket { Type = 0 });
+                            return;
+                        }
+
+                        Session.Character.Shop.ShopItems.TryAdd(shopSlot,
+                            new ShopItem
+                            {
+                                Amount = item.Amount,
+                                Price = item.Price,
+                                Slot = shopSlot,
+                                Type = 0,
+                                ItemInstance = inv
+                            });
+                    }
+
+                    if (Session.Character.Shop.ShopItems.Count == 0)
+                    {
+                        Session.SendPacket(Session.Character.GenerateSay(
+                            Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
+                            SayColorType.Yellow));
+                        Session.SendPacket(new ShopEndPacket { Type = 0 });
+                        return;
+                    }
+
+                    Session.Character.Shop.MenuType = 3;
+                    Session.Character.Shop.ShopId = (int)Session.Character.VisualId;
+                    Session.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
+                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
+                        mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
+
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
+                    Session.SendPacket(new InfoPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
+                            Session.Account.Language)
+                    });
+
+
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
+                    Session.Character.IsSitting = true;
+                    Session.Character.LoadSpeed();
+                    Session.SendPacket(Session.Character.GenerateCond());
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateRest());
                     break;
                 case CreateShopPacketType.Close:
                     Session.Character.CloseShop();
@@ -181,110 +251,6 @@ namespace NosCore.Controllers
                     //todo log
                     return;
             }
-
-            //if (typePacket == 0)
-            //{
-            //    if (Session.CurrentMapInstance.UserShops.Count(s => s.Value.OwnerId == Session.Character.CharacterId) != 0)
-            //    {
-            //        return;
-            //    }
-            //    MapShop myShop = new MapShop();
-
-            //    if (packetsplit.Length > 82)
-            //    {
-            //        short shopSlot = 0;
-
-            //        for (short j = 3, i = 0; j < 82; j += 4, i++)
-            //        {
-            //            Enum.TryParse(packetsplit[j], out type[i]);
-            //            short.TryParse(packetsplit[j + 1], out slot[i]);
-            //            byte.TryParse(packetsplit[j + 2], out qty[i]);
-
-            //            long.TryParse(packetsplit[j + 3], out gold[i]);
-            //            if (gold[i] < 0)
-            //            {
-            //                return;
-            //            }
-            //            if (qty[i] <= 0)
-            //            {
-            //                continue;
-            //            }
-            //            ItemInstance inv = Session.Character.Inventory.LoadBySlotAndType(slot[i], type[i]);
-            //            if (inv == null)
-            //            {
-            //                continue;
-            //            }
-            //            if (inv.Amount < qty[i])
-            //            {
-            //                return;
-            //            }
-            //            if (!inv.Item.IsTradable || inv.IsBound)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("SHOP_ONLY_TRADABLE_ITEMS"), 10));
-            //                Session.SendPacket("shop_end 0");
-            //                return;
-            //            }
-
-            //            PersonalShopItem personalshopitem = new PersonalShopItem
-            //            {
-            //                ShopSlot = shopSlot,
-            //                Price = gold[i],
-            //                ItemInstance = inv,
-            //                SellAmount = qty[i]
-            //            };
-            //            myShop.Items.Add(personalshopitem);
-            //            shopSlot++;
-            //        }
-            //    }
-            //    if (myShop.Items.Count != 0)
-            //    {
-            //        if (!myShop.Items.Any(s => !s.ItemInstance.Item.IsSoldable || s.ItemInstance.IsBound))
-            //        {
-            //            for (int i = 83; i < packetsplit.Length; i++)
-            //            {
-            //                shopname += $"{packetsplit[i]} ";
-            //            }
-
-            //            // trim shopname
-            //            shopname = shopname.TrimEnd(' ');
-
-            //            // create default shopname if it's empty
-            //            if (string.IsNullOrWhiteSpace(shopname) || string.IsNullOrEmpty(shopname))
-            //            {
-            //                shopname = Language.Instance.GetMessageFromKey("SHOP_PRIVATE_SHOP");
-            //            }
-
-            //            // truncate the string to a max-length of 20
-            //            shopname = shopname.Truncate(20);
-            //            myShop.OwnerId = Session.Character.CharacterId;
-            //            myShop.Name = shopname;
-            //            Session.CurrentMapInstance.UserShops.Add(Session.CurrentMapInstance.LastUserShopId++, myShop);
-
-            //            Session.Character.HasShopOpened = true;
-
-            //            Session.CurrentMapInstance?.Broadcast(Session, Session.Character.GeneratePlayerFlag(Session.CurrentMapInstance.LastUserShopId), ReceiverType.AllExceptMe);
-            //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateShop(shopname));
-            //            Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo(Language.Instance.GetMessageFromKey("SHOP_OPEN")));
-
-            //            Session.Character.IsSitting = true;
-            //            Session.Character.IsShopping = true;
-
-            //            Session.Character.LoadSpeed();
-            //            Session.SendPacket(Session.Character.GenerateCond());
-            //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateRest());
-            //        }
-            //        else
-            //        {
-            //            Session.SendPacket("shop_end 0");
-            //            Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("ITEM_NOT_SOLDABLE"), 10));
-            //        }
-            //    }
-            //    else
-            //    {
-            //        Session.SendPacket("shop_end 0");
-            //        Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("SHOP_EMPTY"), 10));
-            //    }
-            //}
         }
 
         /// <summary>
