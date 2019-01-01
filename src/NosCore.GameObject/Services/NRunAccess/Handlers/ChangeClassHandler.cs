@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                         requestData.ClientSession.Account.Language),
-                    Type = MessageType.Whisper
+                    Type = MessageType.White
                 });
                 return;
             }
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                         requestData.ClientSession.Account.Language),
-                    Type = MessageType.Whisper
+                    Type = MessageType.White
                 });
                 return;
             }
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                         requestData.ClientSession.Account.Language),
-                    Type = MessageType.Whisper
+                    Type = MessageType.White
                 });
                 return;
             }
