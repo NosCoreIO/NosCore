@@ -54,13 +54,16 @@ namespace NosCore.WorldServer.Controllers
             switch (data.ActionType)
             {
                 case UpdateStatActionType.UpdateLevel:
-                    session.SetLevel(data.Data);
+                    session.SetLevel((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    session.SetJobLevel(data.Data);
+                    session.SetJobLevel((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    session.SetHeroLevel(data.Data);
+                    session.SetHeroLevel((byte)data.Data);
+                    break;
+                case UpdateStatActionType.UpdateReputation:
+                    session.SetReputation(data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));

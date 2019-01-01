@@ -17,16 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Shared.Enumerations;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Account;
 
-namespace NosCore.Data.WebApi
+namespace NosCore.Packets.CommandPackets
 {
-    public class StatData
+    [PacketHeader("$SetReputation", Authority = AuthorityType.GameMaster)]
+    public class SetReputationPacket : PacketDefinition, ICommandPacket
     {
-        public Character Character { get; set; }
+        [PacketIndex(0)]
+        [Range(0, long.MaxValue)]
+        public long Reputation { get; set; }
 
-        public UpdateStatActionType ActionType { get; set; }
+        [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]
+        public string Name { get; set; }
 
-        public long Data { get; set; } //TODO: find other type(s)
+        public string Help()
+        {
+            return "$SetReputation NAME VALUE";
+        }
     }
 }
