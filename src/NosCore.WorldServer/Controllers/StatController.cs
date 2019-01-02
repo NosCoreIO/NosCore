@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -73,6 +74,11 @@ namespace NosCore.WorldServer.Controllers
                     session.SetReputation(data.Data);
                     break;
                 case UpdateStatActionType.UpdateGold:
+                    if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
+                    {
+                        session.SendPacket(session.GenerateSay(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_FAILED_SENT_GOLD), SayColorType.Purple));
+                        return BadRequest(); // MaxGold
+                    }
                     session.SetGold(data.Data);
                     break;
                 default:

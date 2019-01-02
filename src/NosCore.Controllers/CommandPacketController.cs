@@ -236,6 +236,7 @@ namespace NosCore.Controllers
                 });
                 return;
             }
+
             WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
