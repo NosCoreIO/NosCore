@@ -511,7 +511,7 @@ namespace NosCore.GameObject
                     ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
             }
 
-            if (inv?.DefaultIfEmpty() != null)
+            if (inv?.Count > 0 == true)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
                 var packet = shop.Session?.Character.BuyFrom(item, amount, slotChar);
