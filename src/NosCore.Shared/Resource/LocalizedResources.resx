@@ -188,6 +188,9 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>This Player has blocked you!</value>
   </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>[{0}] purchased: {1} x {2}</value>
+  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>You have purchased an item!</value>
   </data>
@@ -209,6 +212,9 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Channel</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>The channel will exit in brief moments.</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Character Not loaded</value>
     <comment>check</comment>
@@ -227,6 +233,9 @@
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Connection closed.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>Connection lost.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Corrupted Keepalive on client {0}</value>
@@ -379,7 +388,7 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>This item can't be sold!</value>
+    <value>This item can not be sold!</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items Loaded!</value>
@@ -477,7 +486,7 @@
     <value>You are not an adventurer.</value>
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>You don't have enough money to purchase that item!</value>
+    <value>You do not have enough money to purchase that item!</value>
   </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Not enough place.</value>
@@ -619,6 +628,27 @@
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>You refused to share the point of return with the group members</value>
   </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>You can not open an empty shop!</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Open a shop away from the portal please.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>You can not open a shop in this map.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_RAID" xml:space="preserve">
+    <value>You can not open a shop in a raid.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADEABLE_ITEMS" xml:space="preserve">
+    <value>There is an tradeable!</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>You have opened a shop.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Proceed to open the shop as you set it up?</value>
+  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems Loaded!</value>
   </data>
@@ -661,11 +691,14 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Swordman</value>
   </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>The secondary effects have finished.</value>
+  </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>You need at least "Level 15" and "Job Level 20" to change your class.</value>
   </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>The secondary effects have finished.</value>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>The seller does not have sufficient space to handle your money.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Unable to request the group</value>
