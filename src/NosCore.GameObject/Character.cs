@@ -193,8 +193,8 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
-            MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag());
+            MapInstance.Sessions.SendPacket(this.GenerateShop());
+            MapInstance.Sessions.SendPacket(this.GeneratePFlag());
 
             IsSitting = false;
             LoadSpeed();
@@ -394,7 +394,7 @@ namespace NosCore.GameObject
         {
             byte shopKind = 100;
             var percent = 1.0;
-            switch (Session.Character.GetDignityIco())
+            switch (GetDignityIco())
             {
                 case 3:
                     percent = 1.1;
@@ -474,7 +474,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (reputprice == 0 && price * percent > Session.Character.Gold)
+            if (reputprice == 0 && price * percent > Gold)
             {
                 SendPacket(new SMemoPacket
                 {
@@ -484,7 +484,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (reputprice > Session.Character.Reput)
+            if (reputprice > Reput)
             {
                 SendPacket(new SMemoPacket
                 {
@@ -501,17 +501,30 @@ namespace NosCore.GameObject
                 inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId,
                     amount));
             }
-            else if (amount == item.ItemInstance.Amount)
-            {
-                inv = Inventory.AddItemToPocket(item.ItemInstance);
-            }
             else
             {
-                inv = Inventory.AddItemToPocket(
-                    ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                if (price + shop.Session.Character.Gold > shop.Session.WorldConfiguration.MaxGoldAmount)
+                {
+                    SendPacket(new SMemoPacket
+                    {
+                        Type = SMemoType.FatalError,
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Account.Language)
+                    });
+                    return;
+                }
+
+                if (amount == item.ItemInstance.Amount)
+                {
+                    inv = Inventory.AddItemToPocket(item.ItemInstance);
+                }
+                else
+                {
+                    inv = Inventory.AddItemToPocket(
+                        ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                }
             }
 
-            if (inv?.Count > 0 == true)
+            if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
                 var packet = shop.Session?.Character.BuyFrom(item, amount, slotChar);
@@ -529,20 +542,20 @@ namespace NosCore.GameObject
                 if (reputprice == 0)
                 {
                     Gold -= (long)(price * percent);
-                    SendPacket(Session.Character.GenerateGold());
+                    SendPacket(GenerateGold());
                 }
                 else
                 {
                     Reput -= reputprice;
-                    SendPacket(Session.Character.GenerateFd());
-                    SendPacket(Session.Character.GenerateSay(
+                    SendPacket(GenerateFd());
+                    SendPacket(this.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple));
                 }
             }
             else
             {
-                Session.SendPacket(new MsgPacket
+                SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         Session.Account.Language),
@@ -633,14 +646,14 @@ namespace NosCore.GameObject
         {
             Reput = reput;
             SendPacket(GenerateFd());
-SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language), SayColorType.Purple));
+            SendPacket(this.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language), SayColorType.Purple));
         }
 
         public void SetLevel(byte level)
         {
             (this as INamedEntity).SetLevel(level);
             GenerateLevelupPackets();
-            Session.SendPacket(new MsgPacket
+            SendPacket(new MsgPacket
             {
                 Type = MessageType.White,
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
