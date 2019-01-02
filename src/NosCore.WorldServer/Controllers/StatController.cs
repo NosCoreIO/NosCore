@@ -73,7 +73,7 @@ namespace NosCore.WorldServer.Controllers
                     session.SetReputation(data.Data);
                     break;
                 case UpdateStatActionType.UpdateGold:
-                    session.SetGold(data.Data, _worldConfiguration.MaxGoldAmount);
+                    session.SetGold(data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));

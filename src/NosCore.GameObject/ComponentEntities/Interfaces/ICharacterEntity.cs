@@ -83,6 +83,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void SetReputation(long reput);
 
-        void SetGold(long gold, long maxGold);
+        void SetGold(long gold);
     }
 }
