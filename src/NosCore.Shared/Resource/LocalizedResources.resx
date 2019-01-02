@@ -637,7 +637,7 @@
   <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
     <value>You can not open a shop in this map.</value>
   </data>
-  <data name="SHOP_NOT_ALLOWED_RAID" xml:space="preserve">
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>You can not open a shop in a raid.</value>
   </data>
   <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
