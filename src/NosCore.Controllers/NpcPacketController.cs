@@ -169,7 +169,7 @@ namespace NosCore.Controllers
             var portal = Session.Character.MapInstance.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
                     Math.Abs(Session.Character.PositionY - port.SourceY)) <= 6);
-            if (portal == null)
+            if (portal != null)
             {
                 Session.SendPacket(new MsgPacket
                 {
@@ -229,10 +229,11 @@ namespace NosCore.Controllers
 
                         if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
                         {
+                            Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
                             Session.SendPacket(Session.Character.GenerateSay(
                                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
                                 SayColorType.Yellow));
-                            Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                            Session.Character.Shop = null;
                             return;
                         }
 
@@ -249,10 +250,11 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Shop.ShopItems.Count == 0)
                     {
+                        Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
                         Session.SendPacket(Session.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
                             SayColorType.Yellow));
-                        Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                        Session.Character.Shop = null;
                         return;
                     }
 
