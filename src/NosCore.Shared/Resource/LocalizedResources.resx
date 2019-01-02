@@ -641,7 +641,7 @@
     <value>You can not open a shop in a raid.</value>
   </data>
   <data name="SHOP_ONLY_TRADEABLE_ITEMS" xml:space="preserve">
-    <value>There is an tradeable!</value>
+    <value>You can only sell tradeable items! Please, check the items you want to sell.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>You have opened a shop.</value>
