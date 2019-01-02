@@ -143,7 +143,7 @@ namespace NosCore.Tests.HandlerTests
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            var conf = new WorldConfiguration(){BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
+            var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             _handler = new NpcPacketController(conf, new NrunAccessService(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
@@ -268,6 +268,24 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsNotNull(_session.Character.Shop);
         }
 
+        public void UserCanNotCreateShopInExchange()
+        {
+            _session.Character.InExchangeOrTrade = true;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
+
+            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _handler.CreateShop(shopPacket);
+            Assert.IsNull(_session.Character.Shop);
+        }
+
         [TestMethod]
         public void UserCanNotCreateEmptyShop()
         {
@@ -283,7 +301,67 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
         }
 
-        //sellshop
+        [TestMethod]
+        public void UserCanNotSellInExchange()
+        {
+            _session.Character.InExchangeOrTrade = true;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
+
+            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _handler.SellShop(new SellPacket{Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
+            Assert.IsTrue(_session.Character.Gold == 0);
+            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+        }
+
+        [TestMethod]
+        public void UserCanNotSellNotSoldable()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = false},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
+
+            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
+            var packet = (SMemoPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
+            Assert.IsTrue(_session.Character.Gold == 0);
+            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+        }
+
+        [TestMethod]
+        public void UserCanSell()
+        {
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
+
+            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
+            Assert.IsTrue(_session.Character.Gold > 0);
+            Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+
+        }
+        
         //buyshop
 
     }
