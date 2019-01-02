@@ -224,6 +224,7 @@ namespace NosCore.Shared.I18N
         SHOP_EMPTY,
         SHOP_PRIVATE_SHOP,
         SHOP_OPEN,
-        BUY_ITEM_FROM
+        BUY_ITEM_FROM,
+        TOO_RICH_SELLER
     }
 }
