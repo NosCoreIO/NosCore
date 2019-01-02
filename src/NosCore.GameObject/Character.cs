@@ -646,7 +646,7 @@ namespace NosCore.GameObject
         {
             Gold = gold;
             SendPacket(GenerateGold());
-            SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language), SayColorType.Purple));
+            SendPacket(this.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language), SayColorType.Purple));
         }
 
         public void SetReputation(long reput)

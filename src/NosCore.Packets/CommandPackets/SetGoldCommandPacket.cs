@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$SetGold", Authority = AuthorityType.GameMaster)]
+    [PacketHeader("$Gold", Authority = AuthorityType.GameMaster)]
     public class SetGoldCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
