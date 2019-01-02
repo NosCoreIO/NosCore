@@ -585,4 +585,141 @@
   <data name="ACCEPTED_SHARE" xml:space="preserve">
     <value>{0} a accepté le point de retour de {0}.</value>
   </data>
+  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
+    <value>La quantité de sous-packets est invalide .</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Désirez vous lier cet item à votre personnage ? </value>
+  </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Vous ne pouvez pas équiper cet équipement.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>La fée est d'un élément différent de la SPque vous tentez d'équiper.</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value />
+    <comment>Pas de trad anglaise/missing context</comment>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>Vous avez acheté un objet.</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>Vous ne pouvez pas équiper une SPdétruite. Seul une pierre de résurection d'âme peut rammener votre spécialiste à la vie.</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Votre classe a été changée avec succès.</value>
+  </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Veuillez retirer tout votre équipement avant de changer de classe.</value>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>Une exception à été générée.</value>
+  </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Cet objet ne peut pas etre vendu.</value>
+  </data>
+  <data name="LOW_JOB_LEVEL" xml:space="preserve">
+    <value>Votre niveau de métier est trop bas.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>Vous manquez de réputation pour équiper cette carte SP.</value>
+  </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Impossible d'équiper cet objet en tant qu'aventurier.</value>
+  </data>
+  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
+    <value>Erreur lors de la déserialisation d'une valeur ! Valeur : {0} | PacketPropertyType: {1} .</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>Vous n'avez pas assez d'argent.</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>Vous n'avez pas assez de réputation !</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>Vous n'avez aucune SPéquipée.</value>
+  </data>
+  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
+    <value>Le Packet n'as pas de Header ! SerializationType: {0}.</value>
+  </data>
+  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
+    <value>Le Packet à un format invalide.</value>
+  </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Veuillez quitter la locomotion pour équiper une carte SP.</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>Votre réputation a changée.</value>
+  </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>Votre réputation a diminuée.</value>
+  </data>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>Votre objet a été vendu.</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>{0} ShopItem chargés.</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>{0} ShopItems parsés.</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>{0} Shops chargés.</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>{0} Shops parsés.</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>Impossible d'ouvir le magasin car il est vide.</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Le magasin est trop pret du téléporteur.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>Impossible d'ouvrir un magasin ici.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>Impossible d'ouvrir un magasin en tant que membre du raid.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>Certains objets ne peuvent pas etre vendus. Vérifiez les objets avant d'ouvrir le magasin.</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Un magasin a été ouvert.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value />
+    <comment>Pas de trad anglaise/missing context</comment>
+  </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Impossible de changer de SPcar vous en utilisez déjà une. Veuillez retirer la SP que vous portez.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Transformation impossible. Délais avant réutilisation : {0} secondes.</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Effet restant avant de pouvoir se transformer à nouveau : {0} secondes.</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Vous devez etre niveau 15 de combat et 20 de métier pour changer de classe.</value>
+  </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>L'effet secondaire de la transformation a disparru. Vous pouvez équiper une SP  à nouveau.</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Une carte SP invalide a été détéctée.</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>la visualentity n'existe pas.</value>
+  </data>
 </root>
