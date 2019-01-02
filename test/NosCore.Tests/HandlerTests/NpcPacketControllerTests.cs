@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Transport.Channels;
@@ -148,7 +149,7 @@ namespace NosCore.Tests.HandlerTests
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara.Adapt<Character>());
             var mapinstance = _instanceAccessService.GetBaseMapById(0);
-
+            _session.Character.Account = account;
             _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(0);
             _session.Character.MapInstance = mapinstance;
             _session.Character.MapInstance.Portals = new List<Portal> { new Portal
@@ -316,7 +317,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
-            _handler.SellShop(new SellPacket{Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
         }
@@ -361,8 +362,171 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
 
         }
-        
-        //buyshop
 
+        [TestMethod]
+        public void UserCanNotShopNonExistingSlot()
+        {
+            _session.Character.Gold = 9999999999;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Buy(shop, 1, 99);
+            Assert.IsNull(_session.LastPacket);
+        }
+
+        [TestMethod]
+        public void UserCantShopMoreThanQuantityNonExistingSlot()
+        {
+            _session.Character.Gold = 9999999999;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Buy(shop, 0, 99);
+            Assert.IsNull(_session.LastPacket);
+        }
+
+        [TestMethod]
+        public void UserCantShopWithoutMoney()
+        {
+            _session.Character.Gold = 500000;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Buy(shop, 0, 99);
+            
+            var packet = (SMemoPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+        }
+
+        [TestMethod]
+        public void UserCantShopWithoutReput()
+        {
+            _session.Character.Reput = 500000;
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Buy(shop, 0, 99);
+
+            var packet = (SMemoPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
+        }
+
+        [TestMethod]
+        public void UserCantShopWithoutPlace()
+        {
+            _session.Character.Gold = 500000;
+          
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemBuilderService = itemBuilder;
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 999), PocketType.Etc, 2);
+
+            _session.Character.Buy(shop, 0, 999);
+            var packet = (MsgPacket)_session.LastPacket;
+            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
+        }
+
+        [TestMethod]
+        public void UserCanShop()
+        {
+            _session.Character.Gold = 500000;
+
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemBuilderService = itemBuilder;
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 1), PocketType.Etc, 2);
+
+            _session.Character.Buy(shop, 0, 998);
+            Assert.IsTrue(_session.Character.Inventory.All(s=>s.Value.Amount == 999));
+            Assert.IsTrue(_session.Character.Gold == 499002);
+
+        }
+
+        [TestMethod]
+        public void UserCanShopReput()
+        {
+            _session.Character.Reput = 500000;
+
+            var items = new List<Item>
+            {
+                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
+            };
+            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemBuilderService = itemBuilder;
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            var shop = new Shop
+            {
+                ShopItems = list
+            };
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 1), PocketType.Etc, 2);
+
+            _session.Character.Buy(shop, 0, 998);
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Amount == 999));
+            Assert.IsTrue(_session.Character.Reput == 499002);
+
+        }
+
+        //test buyfrom
     }
 }
