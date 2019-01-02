@@ -642,9 +642,9 @@ namespace NosCore.GameObject
             SendPacket(Group.GeneratePinit());
         }
 
-        public void SetGold(long gold, long maxGold)
+        public void SetGold(long gold)
         {
-            Gold = Gold + gold > maxGold ? maxGold : gold;
+            Gold = gold;
             SendPacket(GenerateGold());
             SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language), SayColorType.Purple));
         }

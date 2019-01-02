@@ -27,7 +27,7 @@ namespace NosCore.Packets.CommandPackets
     public class SetGoldCommandPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
-        [Range(1, long.MaxValue)]
+        [Range(1, 1000000000)]
         public long Gold { get; set; }
 
         [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]

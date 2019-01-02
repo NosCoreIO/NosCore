@@ -202,7 +202,7 @@ namespace NosCore.Controllers
         {
             if (goldPacket.Name == Session.Character.Name || string.IsNullOrEmpty(goldPacket.Name))
             {
-                Session.Character.SetGold(goldPacket.Gold, _worldConfiguration.MaxGoldAmount);
+                Session.Character.SetGold(goldPacket.Gold);
                 return;
             }
 
