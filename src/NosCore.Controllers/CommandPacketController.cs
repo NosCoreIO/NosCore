@@ -200,12 +200,6 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void SetGold(SetGoldCommandPacket goldPacket)
         {
-            if (goldPacket.Name == Session.Character.Name || string.IsNullOrEmpty(goldPacket.Name))
-            {
-                Session.Character.SetGold(goldPacket.Gold);
-                return;
-            }
-
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
