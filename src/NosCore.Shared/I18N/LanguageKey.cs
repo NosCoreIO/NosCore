@@ -221,6 +221,7 @@ namespace NosCore.Shared.I18N
         SHOP_NOT_ALLOWED_IN_RAID,
         SHOP_NEAR_PORTAL,
         UPDATE_GOLD,
-        USER_FAILED_SENT_GOLD
+        USER_FAILED_SENT_GOLD,
+        TOO_RICH_SELLER
     }
 }
