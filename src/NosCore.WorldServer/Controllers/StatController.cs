@@ -75,7 +75,6 @@ namespace NosCore.WorldServer.Controllers
                 case UpdateStatActionType.UpdateGold:
                     if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
                     {
-                        session.SendPacket(session.GenerateSay(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_FAILED_SENT_GOLD), SayColorType.Purple));
                         return BadRequest(); // MaxGold
                     }
                     session.SetGold(data.Data);
