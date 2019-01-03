@@ -141,6 +141,9 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>¡Este nombre ya lo tiene otro usuario!</value>
   </data>
+  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
+    <value>¡La cantidad de subpaquetes es incorrecta!</value>
+  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arquero</value>
   </data>
@@ -182,6 +185,12 @@
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>¡Este jugador te ha bloqueado!</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>[{0}] ha comprado: {1} x {2}</value>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>¡El intercambio ha tenido éxito!</value>
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>¡No puedes bloquear a tu amigo!</value>
@@ -376,6 +385,9 @@
     <value>InviteType desconocida</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>¡Este objeto no puede ser vendido!</value>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>¡{0} Items Cargados!</value>
   </data>
@@ -468,8 +480,17 @@
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Para cambiar de clase debes ser un Aventurero.</value>
   </data>
+  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
+    <value>¡Ha aparecido una Excepción mientras se deserializaba un valor! Value: {0}  PacketPropertyType: {1}</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>¡No tienes suficiente oro para comprar ese objeto!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>No hay suficiente espacio.</value>
+    <value>No hay suficiente espacio en tu inventario.</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>¡No tienes suficiente reputación para comprar ese objeto!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>¡Este jugador no está en tu lista negra!</value>
@@ -497,6 +518,12 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>¡{0} MapNpcs (NPCs de los Mapas) Analizados!</value>
+  </data>
+  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
+    <value>¡El formato de este paquete es incorrecto! Paquete: {0}</value>
+  </data>
+  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
+    <value>¡Este paquete no tiene un encabezado! SerializationType: {0}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>¿Quieres analizar las Cuentas?</value>
@@ -574,6 +601,12 @@
     <value>Para transformarte desactiva la montura.</value>
     <comment>Not used in the official</comment>
   </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>¡Tu reputación ha disminuido!</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>¡Tu reptuación ha cambiado!</value>
+  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>¡{0} RespawnTypes Analizados!</value>
   </data>
@@ -583,11 +616,47 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Por favor, seleccione una MapId:</value>
   </data>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>¡Tu objeto ha sido vendido!</value>
+  </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Mensaje mandado a [{0}].</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>¡No puedes abrir una tienda vacia!</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Abre una tienda lejos del portal.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>No puedes abrir una tienda en este mapa.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>No puedes abrir una tienda en un raid.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>¡Solo puedes vender objetos negociables! Por favor, revisa los objetos que quieres vender.</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Has abierto una tienda.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>¿Quiere proceder a abrir la tienda tal y como esta?</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>¡{0} ShopItems Cargados!</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>¡{0} ShopItems Analizados!</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>¡{0} Shops Cargadas!</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>¡{0} Shops Analizadas!</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>¡{0} Skills Analizadas!</value>
@@ -619,11 +688,14 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Espadachín</value>
   </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>Los efectos secundarios de la transformación han terminado.</value>
+  </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Necesitas como minimo "Nivel 15" y "Nivel de Profesión 20" para cambiar de clase.</value>
   </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Los efectos secundarios de la transformación han terminado.</value>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>El vendedor no tiene suficiente espacio para recibir tus oros.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Incapaz de enviar la petición de grupo.</value>
@@ -643,6 +715,9 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>¡El usuario no está conectado!</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>¡Tarjeta SP invalida detectada!</value>
   </data>
   <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
     <value>VisualEntity no existe: {0}</value>
