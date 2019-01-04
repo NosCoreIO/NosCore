@@ -246,16 +246,16 @@ namespace NosCore.Controllers
 
                     if (success)
                     {
-                        //TODO: fix this
-                        //var itemList = _exchangeService.ProcessExchange(new Tuple<long, long>(Session.Character.VisualId, target.VisualId), Session.Character.Inventory, target.Inventory);
+                        var itemList = _exchangeService.ProcessExchange(new Tuple<long, long>(Session.Character.VisualId, target.VisualId), Session.Character.Inventory, target.Inventory);
 
-                        //foreach (var item in itemList)
-                        //{
-                        //    var sessionItem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
-                        //    var targetItem = target.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
-                        //    Session.SendPacket(sessionItem.GeneratePocketChange(sessionItem.Type, sessionItem.Slot));
-                        //    target.SendPacket(targetItem.GeneratePocketChange(targetItem.Type, targetItem.Slot));
-                        //}
+                        foreach (var item in itemList)
+                        {
+                            var sessionItem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                            var targetItem = target.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+
+                            Session.SendPacket(sessionItem.GeneratePocketChange(item.Type, item.Slot));
+                            target.SendPacket(targetItem.GeneratePocketChange(item.Type, item.Slot));
+                        }
 
                         var getData = _exchangeService.GetData(Session.Character.CharacterId);
                         Session.Character.Gold -= getData.Gold;
