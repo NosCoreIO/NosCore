@@ -86,5 +86,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void SetGold(long gold);
 
         long Gold { get; }
+
+        void ChangeClass(CharacterClassType classType);
     }
 }
