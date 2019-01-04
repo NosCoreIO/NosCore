@@ -52,6 +52,7 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
@@ -133,6 +134,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance = _map;
             _session.Character.Account = _acc;
             _session.Character.Inventory = new InventoryService(items, conf);
+            _session.Character.ExchangeService = new ExchangeService(null);
 
         }
 
