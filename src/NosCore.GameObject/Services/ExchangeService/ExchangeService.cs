@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -127,6 +127,8 @@ namespace NosCore.GameObject.Services.ExchangeService
             }
             _exchangeDatas.TryRemove(data.Key, out _);
             _exchangeDatas.TryRemove(data.Value, out _);
+            _exchangeRequests.TryRemove(data.Key, out _);
+            _exchangeRequests.TryRemove(data.Value, out _);
 
             return new ExcClosePacket
             {
@@ -143,6 +145,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             }
 
             _exchangeRequests[visualId] = targetVisualId;
+            _exchangeRequests[targetVisualId] = visualId;
             _exchangeDatas[visualId] = new ExchangeData();
             _exchangeDatas[targetVisualId] = new ExchangeData();
             return true;
