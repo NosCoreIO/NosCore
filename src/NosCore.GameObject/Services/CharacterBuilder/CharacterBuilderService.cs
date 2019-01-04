@@ -28,13 +28,13 @@ namespace NosCore.GameObject.Services.CharacterBuilder
     {
         private readonly IInventoryService _inventory;
         private readonly IItemBuilderService _itemBuilderService;
-        private readonly ExchangeService.ExchangeService _exchangeInfo;
+        private readonly ExchangeService.ExchangeService _exchangeService;
         
-        public CharacterBuilderService(IInventoryService inventory, ExchangeService.ExchangeService exchangeInfo, IItemBuilderService itemBuilderService)
+        public CharacterBuilderService(IInventoryService inventory, ExchangeService.ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             _inventory = inventory;
             _itemBuilderService = itemBuilderService;
-            _exchangeInfo = exchangeInfo;
+            _exchangeService = exchangeService;
         }
 
         public Character LoadCharacter(CharacterDto characterDto)
@@ -42,6 +42,7 @@ namespace NosCore.GameObject.Services.CharacterBuilder
             Character character = characterDto.Adapt<Character>();
             character.Inventory = _inventory;
             character.ItemBuilderService = _itemBuilderService;
+            character.ExchangeService = _exchangeService;
             return character;
         }
     }
