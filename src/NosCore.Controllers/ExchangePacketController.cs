@@ -250,11 +250,14 @@ namespace NosCore.Controllers
 
                         foreach (var item in itemList)
                         {
-                            var sessionItem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
-                            var targetItem = target.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
-
-                            Session.SendPacket(sessionItem.GeneratePocketChange(item.Type, item.Slot));
-                            target.SendPacket(targetItem.GeneratePocketChange(item.Type, item.Slot));
+                            if (item.Key == Session.Character.CharacterId)
+                            {
+                                Session.SendPacket(item.Value);
+                            }
+                            else
+                            {
+                                target.SendPacket(item.Value);
+                            }
                         }
 
                         var getData = _exchangeService.GetData(Session.Character.CharacterId);
