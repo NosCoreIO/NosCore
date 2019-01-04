@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.AspNetCore.Mvc;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -34,6 +35,12 @@ namespace NosCore.WorldServer.Controllers
     public class StatController : Controller
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public StatController(WorldConfiguration worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
 
         // POST api/stat
         [HttpPost]
@@ -64,6 +71,13 @@ namespace NosCore.WorldServer.Controllers
                     break;
                 case UpdateStatActionType.UpdateReputation:
                     session.SetReputation(data.Data);
+                    break;
+                case UpdateStatActionType.UpdateGold:
+                    if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
+                    {
+                        return BadRequest(); // MaxGold
+                    }
+                    session.SetGold(data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
