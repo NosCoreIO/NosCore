@@ -81,10 +81,6 @@ namespace NosCore.WorldServer.Controllers
                     session.SetGold(data.Data);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    if ((byte) session.Class == data.Data)
-                    {
-                        return BadRequest(); // CAN'T CHOOSE SAME CLASS
-                    }
                     session.ChangeClass((CharacterClassType)data.Data);
                     break;
                 default:
