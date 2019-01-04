@@ -198,16 +198,40 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
-        public void Gold(GoldCommandPacket goldPacket)
+        public void SetGold(SetGoldCommandPacket goldPacket)
         {
-            if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            var data = new StatData
             {
-                Session.SendPacket(Session.Character.GenerateSay(goldPacket.Help(), SayColorType.Yellow));
+                ActionType = UpdateStatActionType.UpdateGold,
+                Character = new Character { Name = goldPacket.Name },
+                Data = goldPacket.Gold
+            };
+
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
                 return;
             }
 
-            Session.Character.Gold += goldPacket.Gold;
-            Session.SendPacket(Session.Character.GenerateGold());
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         public void Shout(ShoutPacket shoutPacket)

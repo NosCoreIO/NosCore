@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -225,6 +225,8 @@ namespace NosCore.Shared.I18N
         SHOP_PRIVATE_SHOP,
         SHOP_OPEN,
         BUY_ITEM_FROM,
-        TOO_RICH_SELLER
+        TOO_RICH_SELLER,
+        UPDATE_GOLD,
+        USER_FAILED_SENT_GOLD
     }
 }
