@@ -469,25 +469,6 @@ namespace NosCore.GameObject.Services.Inventory
                     ? (short?)nextFreeSlot : null;
         }
 
-        public IItemInstance RemoveItemAmountFromInventory(short amount, Guid id)
-        {
-            var inv = this[id];
-            if (inv != null)
-            {
-                inv.Amount -= amount;
-                if (inv.Amount <= 0)
-                {
-                    TryRemove(inv.Id, out _);
-                }
-
-                return inv;
-            }
-
-            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            _logger.Error(e.Message, e);
-            return null;
-        }
-
         //public IEnumerable<IItemInstance> RemoveItemAmount(int vnum) => RemoveItemAmount(vnum, 1);
 
         //public IEnumerable<IItemInstance> RemoveItemAmount(int vnum, int amount)
