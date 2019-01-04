@@ -31,10 +31,12 @@ using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
+using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
@@ -56,13 +58,16 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly MapInstanceAccessService _mapInstanceAccessService;
 
+        private readonly ExchangeService _exchangeService;
+
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            MapInstanceAccessService mapInstanceAccessService) : this(configuration, packetControllers)
+            MapInstanceAccessService mapInstanceAccessService, ExchangeService exchangeService) : this(configuration, packetControllers)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
+            _exchangeService = exchangeService;
         }
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
@@ -154,6 +159,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.SendRelationStatus(false);
+                _exchangeService.CloseExchange(Character.VisualId, ExchangeCloseType.Failure);
                 Character.LeaveGroup();
                 Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
 

@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___  
+﻿//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -84,7 +84,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public void AddItems(long visualId, IItemInstance item, short amount)
         {
-            var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
+            var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId);
             if (data.Equals(default))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
@@ -220,16 +220,16 @@ namespace NosCore.GameObject.Services.ExchangeService
             {
                 foreach (var item in _exchangeDatas[user].ExchangeItems)
                 {
-                    var destInventory = user == users.Item1 ? sessionInventory : targetInventory;
-                    var origintory = user == users.Item2 ? sessionInventory : targetInventory;
+                    var destInventory = user == users.Item1 ? targetInventory : sessionInventory;
+                    var originInventory = user == users.Item1 ? sessionInventory : targetInventory;
                     var targetId = user == users.Item1 ? users.Item2 : users.Item1;
                     if (item.Value == item.Key.Amount)
                     {
-                        origintory.Remove(item.Key.Id);
+                        originInventory.DeleteById(item.Key.Id);
                     }
                     else
                     {
-                        origintory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
+                        originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
                     }
 
                     var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,

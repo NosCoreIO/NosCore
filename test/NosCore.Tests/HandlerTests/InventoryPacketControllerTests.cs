@@ -62,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
     public class InventoryPacketControllerTests
     {
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> { new InventoryPacketController() }, null);
+            new List<PacketController> { new InventoryPacketController() }, null, null);
 
         private CharacterDto _chara;
         private InventoryPacketController _handler;
