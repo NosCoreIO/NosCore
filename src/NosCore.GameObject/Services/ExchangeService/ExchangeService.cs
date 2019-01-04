@@ -211,10 +211,10 @@ namespace NosCore.GameObject.Services.ExchangeService
             });
         }
 
-        public List<IItemInstance> ProcessExchange(Tuple<long, long> users, IInventoryService sessionInventory, IInventoryService targetInventory)
+        public List<KeyValuePair<long, IvnPacket>> ProcessExchange(Tuple<long, long> users, IInventoryService sessionInventory, IInventoryService targetInventory)
         {
             var usersArray = new[] { users.Item1, users.Item2 };
-            var items = new List<IItemInstance>();
+            var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
 
             foreach (var user in usersArray)
             {
@@ -223,19 +223,14 @@ namespace NosCore.GameObject.Services.ExchangeService
                     var destInventory = user == users.Item1 ? targetInventory : sessionInventory;
                     var originInventory = user == users.Item1 ? sessionInventory : targetInventory;
                     var targetId = user == users.Item1 ? users.Item2 : users.Item1;
-                    if (item.Value == item.Key.Amount)
-                    {
-                        originInventory.DeleteById(item.Key.Id);
-                    }
-                    else
-                    {
-                        originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
-                    }
+                    var sessionId = user == users.Item1 ? users.Item1 : users.Item2;
+                    var newItem = item.Value == item.Key.Amount ? originInventory.DeleteById(item.Key.Id) : originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
 
                     var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,
                         targetId, amount: item.Key.Amount, rare: (sbyte)item.Key.Rare, upgrade: item.Key.Upgrade, design: (byte)item.Key.Design)).FirstOrDefault();
 
-                    items.Add(inv);
+                    items.Add(new KeyValuePair<long, IvnPacket>(sessionId, newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));
+                    items.Add(new KeyValuePair<long, IvnPacket>(targetId, item.Key.GeneratePocketChange(inv.Type, inv.Slot)));
                 }
             }
 
