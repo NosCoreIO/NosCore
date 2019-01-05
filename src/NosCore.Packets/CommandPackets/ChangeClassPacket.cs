@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 
 namespace NosCore.Packets.CommandPackets
 {
@@ -27,10 +27,9 @@ namespace NosCore.Packets.CommandPackets
     public class ChangeClassPacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
-        [Range(0, 4)]
-        public byte ClassType { get; set; }
+        public CharacterClassType ClassType { get; set; }
 
-        [PacketIndex(1, SerializeToEnd = true)]
+        [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]
         public string Name { get; set; }
 
         public string Help()

@@ -71,11 +71,17 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void ChangeClass(ChangeClassPacket changeClassPacket)
         {
+            if (changeClassPacket.Name == Session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
+            {
+                Session.Character.ChangeClass(changeClassPacket.ClassType);
+                return;
+            }
+
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateClass,
                 Character = new Character { Name = changeClassPacket.Name },
-                Data = changeClassPacket.ClassType,
+                Data = (byte)changeClassPacket.ClassType,
             };
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
