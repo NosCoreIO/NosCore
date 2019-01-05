@@ -25,6 +25,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
 using Serilog;
 
@@ -78,6 +79,9 @@ namespace NosCore.WorldServer.Controllers
                         return BadRequest(); // MaxGold
                     }
                     session.SetGold(data.Data);
+                    break;
+                case UpdateStatActionType.UpdateClass:
+                    session.ChangeClass((CharacterClassType)data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));

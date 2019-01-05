@@ -17,15 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Character;
+
+namespace NosCore.Packets.CommandPackets
 {
-    public enum UpdateStatActionType : byte
+    [PacketHeader("$ChangeClass", Authority = AuthorityType.GameMaster)]
+    public class ChangeClassPacket : PacketDefinition, ICommandPacket
     {
-        UpdateLevel,
-        UpdateJobLevel,
-        UpdateHeroLevel,
-        UpdateReputation,
-        UpdateGold,
-        UpdateClass
+        [PacketIndex(0)]
+        public CharacterClassType ClassType { get; set; }
+
+        [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]
+        public string Name { get; set; }
+
+        public string Help()
+        {
+            return "$ChangeClass VALUE NAME";
+        }
     }
 }
