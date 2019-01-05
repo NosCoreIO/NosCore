@@ -421,6 +421,12 @@ namespace NosCore.GameObject
 
         public void ChangeClass(CharacterClassType classType)
         {
+            if (Class == classType)
+            {
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Account.Language));
+                return;
+            }
+
             JobLevel = 1;
             JobLevelXp = 0;
             SendPacket(new NpInfoPacket());
