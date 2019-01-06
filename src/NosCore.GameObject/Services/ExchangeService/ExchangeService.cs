@@ -125,10 +125,16 @@ namespace NosCore.GameObject.Services.ExchangeService
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
                 return null;
             }
-            _exchangeDatas.TryRemove(data.Key, out _);
-            _exchangeDatas.TryRemove(data.Value, out _);
-            _exchangeRequests.TryRemove(data.Key, out _);
-            _exchangeRequests.TryRemove(data.Value, out _);
+
+            if (!_exchangeDatas.TryRemove(data.Key, out _) || !_exchangeRequests.TryRemove(data.Key, out _))
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRY_REMOVE_FAILED), data.Key);
+            }
+
+            if (!_exchangeDatas.TryRemove(data.Value, out _) || !_exchangeRequests.TryRemove(data.Value, out _))
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRY_REMOVE_FAILED), data.Value);
+            }
 
             return new ExcClosePacket
             {
@@ -211,20 +217,29 @@ namespace NosCore.GameObject.Services.ExchangeService
             });
         }
 
-        public List<KeyValuePair<long, IvnPacket>> ProcessExchange(Tuple<long, long> users, IInventoryService sessionInventory, IInventoryService targetInventory)
+        public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser, IInventoryService sessionInventory, IInventoryService targetInventory)
         {
-            var usersArray = new[] { users.Item1, users.Item2 };
+            var usersArray = new[] { firstUser, secondUser };
             var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
 
             foreach (var user in usersArray)
             {
                 foreach (var item in _exchangeDatas[user].ExchangeItems)
                 {
-                    var destInventory = user == users.Item1 ? targetInventory : sessionInventory;
-                    var originInventory = user == users.Item1 ? sessionInventory : targetInventory;
-                    var targetId = user == users.Item1 ? users.Item2 : users.Item1;
-                    var sessionId = user == users.Item1 ? users.Item1 : users.Item2;
-                    var newItem = item.Value == item.Key.Amount ? originInventory.DeleteById(item.Key.Id) : originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
+                    var destInventory = user == firstUser ? targetInventory : sessionInventory;
+                    var originInventory = user == firstUser ? sessionInventory : targetInventory;
+                    var targetId = user == firstUser ? secondUser : firstUser;
+                    var sessionId = user == firstUser ? firstUser : secondUser;
+                    IItemInstance newItem = null;
+
+                    if (item.Value == item.Key.Amount)
+                    {
+                        originInventory.Remove(item.Key.Id);
+                    }
+                    else
+                    {
+                        newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
+                    }
 
                     var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,
                         targetId, amount: item.Key.Amount, rare: (sbyte)item.Key.Rare, upgrade: item.Key.Upgrade, design: (byte)item.Key.Design)).FirstOrDefault();

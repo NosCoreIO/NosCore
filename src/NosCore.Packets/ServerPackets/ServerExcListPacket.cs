@@ -38,7 +38,7 @@ namespace NosCore.Packets.ServerPackets
         public long? Gold { get; set; }
 
         [PacketIndex(3)]
-        public long BankGold { get; set; }
+        public long? BankGold { get; set; }
 
         [PacketIndex(4, IsOptional = true)]
         public List<ServerExcListSubPacket> SubPackets { get; set; }

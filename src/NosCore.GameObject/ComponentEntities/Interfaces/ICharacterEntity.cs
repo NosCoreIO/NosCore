@@ -22,7 +22,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Services.Inventory;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
@@ -88,6 +90,20 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void SetGold(long gold);
 
         long Gold { get; }
+
+        long BankGold { get; }
+
+        void AddGold(long gold);
+
+        void RemoveGold(long gold);
+
+        void AddBankGold(long bankGold);
+
+        void RemoveBankGold(long bankGold);
+
+        IInventoryService Inventory { get; }
+
+        RegionType AccountLanguage { get; }
 
         void ChangeClass(CharacterClassType classType);
     }

@@ -62,7 +62,7 @@ namespace NosCore.Controllers
         {
             if (Session.Character.InExchangeOrShop)
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP, Session.Account.Language));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace NosCore.Controllers
             // check if the character is allowed to move the item
             if (Session.Character.InExchangeOrShop)
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP, Session.Account.Language));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
@@ -98,6 +98,7 @@ namespace NosCore.Controllers
         {
             if (Session.Character.InExchangeOrShop)
             {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
@@ -394,6 +395,7 @@ namespace NosCore.Controllers
                 case RequestDeletionType.Confirmed:
                     if (Session.Character.InExchangeOrShop)
                     {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                         return;
                     }
 
