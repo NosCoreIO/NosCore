@@ -159,7 +159,14 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.SendRelationStatus(false);
-                _exchangeService.CloseExchange(Character.VisualId, ExchangeCloseType.Failure);
+                var targetId = _exchangeService.GetTargetId(Character.VisualId);
+                var closeExchange = _exchangeService.CloseExchange(Character.VisualId, ExchangeCloseType.Failure);
+
+                if (targetId.HasValue && Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                {
+                    target.SendPacket(closeExchange);
+                }
+
                 Character.LeaveGroup();
                 Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
 

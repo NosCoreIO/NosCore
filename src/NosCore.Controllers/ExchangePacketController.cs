@@ -46,14 +46,12 @@ namespace NosCore.Controllers
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ExchangeService _exchangeService;
-        private readonly IItemBuilderService _itemBuilderService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         
-        public ExchangePacketController(WorldConfiguration worldConfiguration, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
+        public ExchangePacketController(WorldConfiguration worldConfiguration, ExchangeService exchangeService)
         {
             _worldConfiguration = worldConfiguration;
             _exchangeService = exchangeService;
-            _itemBuilderService = itemBuilderService;
         }
 
         [UsedImplicitly]
@@ -145,7 +143,61 @@ namespace NosCore.Controllers
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
-                    _exchangeService.RequestExchange(Session, target.Session);
+                    if (_exchangeService.CheckExchange(Session.Character.CharacterId) || _exchangeService.CheckExchange(target.VisualId))
+                    {
+                        Session.SendPacket(new MsgPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
+                                Session.Account.Language),
+                            Type = MessageType.White
+                        });
+                        return;
+                    }
+
+                    if (target.ExchangeBlocked)
+                    {
+                        Session.SendPacket(Session.Character.GenerateSay(
+                            Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, Session.Account.Language),
+                            SayColorType.Purple));
+                        return;
+                    }
+
+                    if (Session.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
+                    {
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                                Session.Account.Language)
+                        });
+                        return;
+                    }
+
+                    if (Session.Character.InShop || target.InShop)
+                    {
+                        Session.SendPacket(new MsgPacket
+                        {
+                            Message =
+                                Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, Session.Account.Language),
+                            Type = MessageType.White
+                        });
+                        return;
+                    }
+
+                    Session.SendPacket(new ModalPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
+                            Session.Account.Language),
+                        Type = 0
+                    });
+
+                    target.SendPacket(new DlgPacket
+                    {
+                        YesPacket = new ExchangeRequestPacket
+                        { RequestType = RequestExchangeType.List, VisualId = Session.Character.VisualId },
+                        NoPacket = new ExchangeRequestPacket
+                        { RequestType = RequestExchangeType.Declined, VisualId = Session.Character.VisualId },
+                        Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, Session.Account.Language)
+                    });
                     return;
 
                 case RequestExchangeType.List:
@@ -180,7 +232,6 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    var success = true;
                     _exchangeService.ConfirmExchange(Session.Character.VisualId);
 
                     if (!_exchangeService.IsExchangeConfirmed(Session.Character.VisualId) || !_exchangeService.IsExchangeConfirmed(exchangeTarget.VisualId))
@@ -189,47 +240,23 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    var exchangeInfo = _exchangeService.GetData(Session.Character.CharacterId);
-                    var targetInfo = _exchangeService.GetData(exchangeTarget.VisualId);
+                    var success = _exchangeService.ValidateExchange(Session, exchangeTarget);
 
-                    if (exchangeInfo.Gold + exchangeTarget.Gold > _worldConfiguration.MaxGoldAmount)
+                    if (!success.Item1)
                     {
-                        success = false;
-                        exchangeTarget.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, exchangeTarget.AccountLanguage)});
+                        foreach (var infoPacket in success.Item2)
+                        {
+                            if (infoPacket.Key == Session.Character.CharacterId)
+                            {
+                                Session.SendPacket(infoPacket.Value);
+                            }
+                            else if (infoPacket.Key == exchangeTarget.VisualId)
+                            {
+                                exchangeTarget.SendPacket(infoPacket.Value);
+                            }
+                        }
                     }
-
-                    if (success && targetInfo.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
-                    {
-                        success = false;
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, Session.Account.Language) });
-                    }
-
-                    if (success && exchangeInfo.BankGold + exchangeTarget.BankGold > _worldConfiguration.MaxBankGoldAmount)
-                    {
-                        success = false;
-                        exchangeTarget.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
-                    }
-
-                    if (success && targetInfo.BankGold + Session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
-                    {
-                        success = false;
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, Session.Account.Language) });
-                    }
-
-                    if (success && exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
-                    {
-                        success = false;
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, Session.Account.Language) });
-                    }
-
-                    if (success && !Session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) || !exchangeTarget.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
-                    {
-                        success = false;
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, Session.Account.Language) });
-                        exchangeTarget.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, exchangeTarget.AccountLanguage) });
-                    }
-
-                    if (success)
+                    else
                     {
                         var itemList = _exchangeService.ProcessExchange(Session.Character.VisualId, exchangeTarget.VisualId, Session.Character.Inventory, exchangeTarget.Inventory);
 
@@ -260,20 +287,23 @@ namespace NosCore.Controllers
                         Session.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
-                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, success ? ExchangeCloseType.Success : ExchangeCloseType.Failure);
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, success.Item1 ? ExchangeCloseType.Success : ExchangeCloseType.Failure);
                     exchangeTarget?.SendPacket(closeExchange);
                     Session.SendPacket(closeExchange);
                     return;
 
                 case RequestExchangeType.Cancelled:
-                    if (!_exchangeService.GetTargetId(Session.Character.CharacterId).HasValue)
+                    var cancelId = _exchangeService.GetTargetId(Session.Character.CharacterId);
+                    if (!cancelId.HasValue)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_IN_EXCHANGE));
                         return;
                     }
 
-                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Success);
-                    target?.SendPacket(closeExchange);
+                    var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
+
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Failure);
+                    cancelTarget?.SendPacket(closeExchange);
                     Session.SendPacket(closeExchange);
                     return;
 
