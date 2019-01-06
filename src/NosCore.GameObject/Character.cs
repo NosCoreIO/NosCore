@@ -75,6 +75,10 @@ namespace NosCore.GameObject
             Requests = new Subject<RequestData>();
         }
 
+        public long BankGold => Account.BankMoney;
+
+        public RegionType AccountLanguage => Account.Language;
+
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
 
         public AccountDto Account { get; set; }
@@ -121,7 +125,7 @@ namespace NosCore.GameObject
 
         public ExchangeService ExchangeService { get; set; }
 
-        public bool InExchangeOrShop => InExchange | InShop;
+        public bool InExchangeOrShop => InExchange || InShop;
 
         public bool InExchange => ExchangeService.CheckExchange(VisualId);
 
@@ -558,7 +562,7 @@ namespace NosCore.GameObject
                 if (reputprice == 0)
                 {
                     Gold -= (long)(price * percent);
-                    SendPacket(GenerateGold());
+                    SendPacket(this.GenerateGold());
                 }
                 else
                 {
@@ -600,7 +604,7 @@ namespace NosCore.GameObject
             });
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
-            SendPacket(GenerateGold());
+            SendPacket(this.GenerateGold());
             Shop.Sell += sellAmount;
 
             SendPacket(new SellListPacket
@@ -658,10 +662,32 @@ namespace NosCore.GameObject
             SendPacket(Group.GeneratePinit());
         }
 
+        public void AddGold(long gold)
+        {
+            Gold += gold;
+            SendPacket(this.GenerateGold());
+        }
+
+        public void RemoveGold(long gold)
+        {
+            Gold -= gold;
+            SendPacket(this.GenerateGold());
+        }
+
+        public void AddBankGold(long bankGold)
+        {
+            Account.BankMoney += bankGold;
+        }
+
+        public void RemoveBankGold(long bankGold)
+        {
+            Account.BankMoney -= bankGold;
+        }
+
         public void SetGold(long gold)
         {
             Gold = gold;
-            SendPacket(GenerateGold());
+            SendPacket(this.GenerateGold());
             SendPacket(this.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language), SayColorType.Purple));
         }
 
@@ -1192,11 +1218,6 @@ namespace NosCore.GameObject
             }
 
             return 0;
-        }
-
-        public GoldPacket GenerateGold()
-        {
-            return new GoldPacket { Gold = Gold };
         }
 
         public void LoadSpeed()

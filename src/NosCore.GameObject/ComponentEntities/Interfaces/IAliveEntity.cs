@@ -56,8 +56,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         byte HeroLevel { get; }
 
         short Race { get; }
-        
-        void SetLevel(byte level);
 
         Shop Shop { get; }
     }

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations.Items;
 
@@ -32,6 +33,7 @@ namespace NosCore.Packets.ClientPackets
         public short Slot { get; set; }
 
         [PacketIndex(2)]
+        [Range(1, short.MaxValue)]
         public short Amount { get; set; }
     }
 }
