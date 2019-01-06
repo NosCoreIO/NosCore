@@ -22,7 +22,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.Inventory;
@@ -42,6 +44,7 @@ namespace NosCore.GameObject.Services.ExchangeService
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IItemBuilderService _itemBuilderService;
+        private readonly WorldConfiguration _worldConfiguration;
 
         public ExchangeService()
         {
@@ -50,11 +53,12 @@ namespace NosCore.GameObject.Services.ExchangeService
         }
 
         [UsedImplicitly]
-        public ExchangeService(IItemBuilderService itemBuilderService)
+        public ExchangeService(IItemBuilderService itemBuilderService, WorldConfiguration worldConfiguration)
         {
             _exchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             _exchangeRequests = new ConcurrentDictionary<long, long>();
             _itemBuilderService = itemBuilderService;
+            _worldConfiguration = worldConfiguration;
         }
 
         private readonly ConcurrentDictionary<long, ExchangeData> _exchangeDatas;
@@ -65,6 +69,73 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             _exchangeDatas[visualId].Gold = gold;
             _exchangeDatas[visualId].BankGold = bankGold;
+        }
+
+        //TODO: Remove these clientsessions as parameter
+        public Tuple<bool, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session, ICharacterEntity targetSession)
+        {
+            var exchangeInfo = GetData(session.Character.CharacterId);
+            var targetInfo = GetData(targetSession.VisualId);
+            var dictionary = new Dictionary<long, InfoPacket>();
+
+            if (exchangeInfo.Gold + targetSession.Gold > _worldConfiguration.MaxGoldAmount)
+            {
+                dictionary.Add(targetSession.VisualId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, targetSession.AccountLanguage)
+                });
+            }
+
+            if (targetInfo.Gold + session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            {
+                dictionary.Add(targetSession.VisualId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
+                });
+                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+            }
+
+            if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.MaxBankGoldAmount)
+            {
+                dictionary.Add(targetSession.VisualId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                });
+                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+            }
+
+            if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+            {
+                dictionary.Add(session.Character.CharacterId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                });
+                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+            }
+
+            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
+            {
+                dictionary.Add(session.Character.CharacterId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, session.Account.Language)
+                });
+                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+            }
+
+            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) || !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
+            {
+                dictionary.Add(session.Character.CharacterId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
+                });
+                dictionary.Add(targetSession.VisualId, new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, targetSession.AccountLanguage)
+                });
+                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+            }
+
+            return new Tuple<bool, Dictionary<long, InfoPacket>>(true, null);
         }
 
         public void ConfirmExchange(long visualId)
@@ -155,66 +226,6 @@ namespace NosCore.GameObject.Services.ExchangeService
             _exchangeDatas[visualId] = new ExchangeData();
             _exchangeDatas[targetVisualId] = new ExchangeData();
             return true;
-        }
-
-        //TODO MOVE TO CONTROLLER
-        public void RequestExchange(ClientSession session, ClientSession targetSession)
-        {
-            if (targetSession.Character.InExchangeOrShop || session.Character.InExchangeOrShop)
-            {
-                session.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
-                        session.Account.Language),
-                    Type = MessageType.White
-                });
-                return;
-            }
-
-            if (targetSession.Character.ExchangeBlocked)
-            {
-                session.SendPacket(session.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, session.Account.Language),
-                    SayColorType.Purple));
-                return;
-            }
-
-            if (session.Character.IsRelatedToCharacter(targetSession.Character.VisualId, CharacterRelationType.Blocked))
-            {
-                session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                        session.Account.Language)
-                });
-                return;
-            }
-
-            if (session.Character.InShop || targetSession.Character.InShop)
-            {
-                session.SendPacket(new MsgPacket
-                {
-                    Message =
-                        Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, session.Account.Language),
-                    Type = MessageType.White
-                });
-                return;
-            }
-
-            session.SendPacket(new ModalPacket
-            {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
-                    session.Account.Language),
-                Type = 0
-            });
-
-            targetSession.Character.SendPacket(new DlgPacket
-            {
-                YesPacket = new ExchangeRequestPacket
-                { RequestType = RequestExchangeType.List, VisualId = session.Character.VisualId },
-                NoPacket = new ExchangeRequestPacket
-                { RequestType = RequestExchangeType.Declined, VisualId = session.Character.VisualId },
-                Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, session.Account.Language)
-            });
         }
 
         public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser, IInventoryService sessionInventory, IInventoryService targetInventory)

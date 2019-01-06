@@ -134,7 +134,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance = _map;
             _session.Character.Account = _acc;
             _session.Character.Inventory = new InventoryService(items, conf);
-            _session.Character.ExchangeService = new ExchangeService(null);
+            _session.Character.ExchangeService = new ExchangeService(null, null);
 
         }
 
