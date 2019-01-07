@@ -17,14 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace NosCore.Shared.Enumerations.Interaction
 {
-    public enum VisualType : byte
+    public enum ExchangeCloseType : byte
     {
-        Map = 0,
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
+        Failure = 0,
+        Success = 1
     }
 }

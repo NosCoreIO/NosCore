@@ -19,7 +19,7 @@ namespace NosCore.Shared.Resource {
     // à l'aide d'un outil, tel que ResGen ou Visual Studio.
     // Pour ajouter ou supprimer un membre, modifiez votre fichier .ResX, puis réexécutez ResGen
     // avec l'option /str ou régénérez votre projet VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LocalizedResources {
@@ -691,6 +691,15 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Waiting for {0] to end the trade.
+        /// </summary>
+        public static string IN_WAITING_FOR {
+            get {
+                return ResourceManager.GetString("IN_WAITING_FOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -714,6 +723,15 @@ namespace NosCore.Shared.Resource {
         public static string INVALID_PASSWORD {
             get {
                 return ResourceManager.GetString("INVALID_PASSWORD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your inventory is full.
+        /// </summary>
+        public static string INVENTORY_FULL {
+            get {
+                return ResourceManager.GetString("INVENTORY_FULL", resourceCulture);
             }
         }
         
@@ -777,6 +795,15 @@ namespace NosCore.Shared.Resource {
         public static string ITEM_NOT_DROPPABLE_HERE {
             get {
                 return ResourceManager.GetString("ITEM_NOT_DROPPABLE_HERE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t trade some item.
+        /// </summary>
+        public static string ITEM_NOT_TRADABLE {
+            get {
+                return ResourceManager.GetString("ITEM_NOT_TRADABLE", resourceCulture);
             }
         }
         
@@ -1434,6 +1461,15 @@ namespace NosCore.Shared.Resource {
         public static string USER_NOT_CONNECTED {
             get {
                 return ResourceManager.GetString("USER_NOT_CONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à VisualEntity does not exist: {0}.
+        /// </summary>
+        public static string VISUALENTITY_DOES_NOT_EXIST {
+            get {
+                return ResourceManager.GetString("VISUALENTITY_DOES_NOT_EXIST", resourceCulture);
             }
         }
         

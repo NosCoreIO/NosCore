@@ -52,6 +52,7 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
@@ -61,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
     public class InventoryPacketControllerTests
     {
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> { new InventoryPacketController() }, null);
+            new List<PacketController> { new InventoryPacketController() }, null, null);
 
         private CharacterDto _chara;
         private InventoryPacketController _handler;
@@ -133,6 +134,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance = _map;
             _session.Character.Account = _acc;
             _session.Character.Inventory = new InventoryService(items, conf);
+            _session.Character.ExchangeService = new ExchangeService(null, null);
 
         }
 

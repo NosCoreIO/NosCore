@@ -17,14 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using System;
+using System.Collections.Generic;
+using System.Text;
+using NosCore.Core.Serializing;
+
+namespace NosCore.Packets.ServerPackets
 {
-    public enum VisualType : byte
+    [PacketHeader("modal")]
+    public class ModalPacket : PacketDefinition
     {
-        Map = 0,
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
+        [PacketIndex(0)]
+        public byte Type { get; set; } //TODO: find modal types
+
+        [PacketIndex(1, SerializeToEnd = true)]
+        public string Message { get; set; }
     }
 }
