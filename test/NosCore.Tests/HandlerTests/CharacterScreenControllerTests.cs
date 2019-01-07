@@ -50,7 +50,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> {new CharacterScreenPacketController()}, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null, null);
         
         private CharacterDto _chara;
         private CharacterScreenPacketController _handler;
@@ -77,7 +77,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null), null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null), null, null);
             _handler.RegisterSession(_session);
         }
 

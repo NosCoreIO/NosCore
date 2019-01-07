@@ -17,14 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Interaction;
+
+namespace NosCore.Packets.ClientPackets
 {
-    public enum VisualType : byte
+    [PacketHeader("req_exc")]
+    public class ExchangeRequestPacket : PacketDefinition
     {
-        Map = 0,
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
+        [PacketIndex(0)]
+        public RequestExchangeType RequestType { get; set; }
+
+        [PacketIndex(1, IsOptional = true)]
+        [Range(0, long.MaxValue)]
+        public long? VisualId { get; set; }
     }
 }

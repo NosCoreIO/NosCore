@@ -718,5 +718,13 @@
   </data>
   <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
     <value>la visualentity n'existe pas.</value>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>La compte en banque à atteint sa valeur max</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Il faut attendre que {0} valide le commerce.</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Un ou plusieurs objets ne sont pas échangeables.</value>
   </data>
 </root>

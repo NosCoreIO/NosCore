@@ -140,7 +140,7 @@ namespace NosCore.Tests.HandlerTests
                 new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
 
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService);
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService, null);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
@@ -530,7 +530,7 @@ namespace NosCore.Tests.HandlerTests
         private ClientSession prepareSessionShop()
         {
             var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService);
+            var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
