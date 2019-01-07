@@ -608,7 +608,7 @@
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
   <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Vous ne pouvez pas équiper une SPdétruite. Seul une pierre de résurection d'âme peut rammener votre spécialiste à la vie.</value>
+    <value>Vous ne pouvez pas équiper une SP détruite. Seul une pierre de résurection d'âme peut rammener votre spécialiste à la vie.</value>
   </data>
   <data name="CLASS_CHANGED" xml:space="preserve">
     <value>Votre classe a été changée avec succès.</value>
@@ -621,9 +621,6 @@
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Cet objet ne peut pas etre vendu.</value>
-  </data>
-  <data name="LOW_JOB_LEVEL" xml:space="preserve">
-    <value>Votre niveau de métier est trop bas.</value>
   </data>
   <data name="LOW_REP" xml:space="preserve">
     <value>Vous manquez de réputation pour équiper cette carte SP.</value>
