@@ -17,14 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations.Items;
+
+namespace NosCore.Packets.ClientPackets
 {
-    public enum VisualType : byte
+    [PacketHeader("exc_list_sub_packet")]
+    public class ExcListSubPacket : PacketDefinition
     {
-        Map = 0,
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
+        [PacketIndex(0)]
+        public PocketType PocketType { get; set; }
+
+        [PacketIndex(1)]
+        public short Slot { get; set; }
+
+        [PacketIndex(2)]
+        [Range(1, short.MaxValue)]
+        public short Amount { get; set; }
     }
 }

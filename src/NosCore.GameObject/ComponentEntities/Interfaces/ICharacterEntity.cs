@@ -22,7 +22,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Services.Inventory;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
@@ -50,6 +52,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         bool Camouflage { get; }
 
         bool Invisible { get; }
+
         IChannel Channel { get; }
 
         bool GroupRequestBlocked { get; }
@@ -75,6 +78,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
 
         void JoinGroup(Group group);
+
         void Save();
 
         void SetJobLevel(byte level);
@@ -86,6 +90,20 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void SetGold(long gold);
 
         long Gold { get; }
+
+        long BankGold { get; }
+
+        void AddGold(long gold);
+
+        void RemoveGold(long gold);
+
+        void AddBankGold(long bankGold);
+
+        void RemoveBankGold(long bankGold);
+
+        IInventoryService Inventory { get; }
+
+        RegionType AccountLanguage { get; }
 
         void ChangeClass(CharacterClassType classType);
     }

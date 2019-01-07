@@ -51,5 +51,7 @@ namespace NosCore.Configuration
         public byte BackpackSize { get; set; }
 
         public long MaxGoldAmount { get; set; }
+
+        public long MaxBankGoldAmount { get; set; }
     }
 }
