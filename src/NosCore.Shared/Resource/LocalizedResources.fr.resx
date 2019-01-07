@@ -718,6 +718,7 @@
   </data>
   <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
     <value>la visualentity n'existe pas.</value>
+  </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>La compte en banque à atteint sa valeur max</value>
   </data>
