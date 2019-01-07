@@ -27,11 +27,14 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 {
     public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
             || item.ItemType == ItemType.Jewelery
             || item.ItemType == ItemType.Armor
@@ -44,8 +47,9 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
-            if (requestData.ClientSession.Character.InExchangeOrTrade)
+            if (requestData.ClientSession.Character.InExchangeOrShop)
             {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_ITEM_IN_SHOP));
                 return;
             }
 

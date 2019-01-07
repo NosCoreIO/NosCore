@@ -17,22 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Account;
 
-namespace NosCore.Packets.CommandPackets
+namespace NosCore.Packets.ServerPackets
 {
-    [PacketHeader("$Gold", Authority = AuthorityType.GameMaster)]
-    public class GoldCommandPacket : PacketDefinition, ICommandPacket
+    [PacketHeader("modal")]
+    public class ModalPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        [Range(1, 1000000000)]
-        public long Gold { get; set; }
+        public byte Type { get; set; } //TODO: find modal types
 
-        public string Help()
-        {
-            return "$Gold value";
-        }
+        [PacketIndex(1, SerializeToEnd = true)]
+        public string Message { get; set; }
     }
 }

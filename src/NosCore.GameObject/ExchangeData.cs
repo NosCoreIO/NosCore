@@ -17,14 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Shared.Enumerations
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+
+namespace NosCore.GameObject
 {
-    public enum VisualType : byte
+    public class ExchangeData
     {
-        Map = 0,
-        Player = 1,
-        Npc = 2,
-        Monster = 3,
-        Object = 9
+        public ExchangeData()
+        {
+            ExchangeItems = new ConcurrentDictionary<IItemInstance, short>();
+        }
+
+        public ConcurrentDictionary<IItemInstance, short> ExchangeItems { get; set; }
+
+        public long Gold { get; set; }
+
+        public long BankGold { get; set; }
+
+        public bool ExchangeConfirmed { get; set; }
     }
 }

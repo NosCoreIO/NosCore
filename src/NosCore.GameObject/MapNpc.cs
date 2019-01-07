@@ -64,6 +64,7 @@ namespace NosCore.GameObject
         public bool IsAlive { get; set; }
 
         public short Race => NpcMonster.Race;
+
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;

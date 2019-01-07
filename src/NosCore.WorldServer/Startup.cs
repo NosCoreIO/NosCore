@@ -64,6 +64,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
@@ -197,6 +198,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<MapMonsterBuilderService>().SingleInstance();
             containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
             containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
+            containerBuilder.RegisterType<ExchangeService>().SingleInstance();
 
             containerBuilder.Populate(services);
         }

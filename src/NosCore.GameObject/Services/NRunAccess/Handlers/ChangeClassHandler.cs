@@ -63,13 +63,6 @@ namespace NosCore.GameObject.Services.NRunAccess.Handlers
                 return;
             }
 
-            if ((byte) requestData.ClientSession.Character.Class == requestData.Data.Item2.Type)
-            {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS,
-                    requestData.ClientSession.Account.Language));
-                return;
-            }
-
             if (requestData.ClientSession.Character.Inventory.Any(s => s.Value.Type == PocketType.Wear))
             {
                 requestData.ClientSession.SendPacket(new MsgPacket

@@ -116,7 +116,7 @@ namespace NosCore.Tests.HandlerTests
                 new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
                 new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService);
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService, null);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
@@ -164,7 +164,7 @@ namespace NosCore.Tests.HandlerTests
                 new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
                 new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
-            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService) { SessionId = 2 };
+            _targetSession = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, instanceAccessService, null) }, instanceAccessService, null) { SessionId = 2 };
             var handler2 = new DefaultPacketController(null, instanceAccessService, null);
             handler2.RegisterSession(_targetSession);
 
