@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         }
 
         //TODO: Remove these clientsessions as parameter
-        public Tuple<bool, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session, ICharacterEntity targetSession)
+        public Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session, ICharacterEntity targetSession)
         {
             var exchangeInfo = GetData(session.Character.CharacterId);
             var targetInfo = GetData(targetSession.VisualId);
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
                 });
-                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
             }
 
             if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.MaxBankGoldAmount)
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
             }
 
             if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
@@ -110,7 +110,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
             }
 
             if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
@@ -119,7 +119,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, session.Account.Language)
                 });
-                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
             }
 
             if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) || !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
@@ -132,10 +132,10 @@ namespace NosCore.GameObject.Services.ExchangeService
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, targetSession.AccountLanguage)
                 });
-                return new Tuple<bool, Dictionary<long, InfoPacket>>(false, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
             }
 
-            return new Tuple<bool, Dictionary<long, InfoPacket>>(true, null);
+            return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Success, null);
         }
 
         public void ConfirmExchange(long visualId)
@@ -188,10 +188,10 @@ namespace NosCore.GameObject.Services.ExchangeService
                 _exchangeRequests.Any(k => k.Key == targetId && k.Value == targetId);
         }
 
-        public ExcClosePacket CloseExchange(long visualId, ExchangeCloseType closeType)
+        public ExcClosePacket CloseExchange(long visualId, ExchangeResultType resultType)
         {
             var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
-            if (data.Equals(default))
+            if (data.Key == 0 && data.Value == 0)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
                 return null;
@@ -209,7 +209,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             return new ExcClosePacket
             {
-                Type = closeType
+                Type = resultType
             };
         }
 
