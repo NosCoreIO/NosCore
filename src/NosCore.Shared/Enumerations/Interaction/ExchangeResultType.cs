@@ -23,7 +23,7 @@ using System.Text;
 
 namespace NosCore.Shared.Enumerations.Interaction
 {
-    public enum ExchangeCloseType : byte
+    public enum ExchangeResultType : byte
     {
         Failure = 0,
         Success = 1
