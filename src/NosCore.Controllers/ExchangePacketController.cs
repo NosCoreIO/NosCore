@@ -82,7 +82,7 @@ namespace NosCore.Controllers
 
                     if (item == null || item.Amount < value.Amount)
                     {
-                        var closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Failure);
+                        var closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
                         Session.SendPacket(closeExchange);
                         target.SendPacket(closeExchange);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE_LIST));
@@ -91,8 +91,8 @@ namespace NosCore.Controllers
 
                     if (!item.Item.IsTradable)
                     {
-                        Session.SendPacket(_exchangeService.CloseExchange(Session.Character.CharacterId, ExchangeCloseType.Failure));
-                        target.SendPacket(_exchangeService.CloseExchange(target.VisualId, ExchangeCloseType.Failure));
+                        Session.SendPacket(_exchangeService.CloseExchange(Session.Character.CharacterId, ExchangeResultType.Failure));
+                        target.SendPacket(_exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure));
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
                         return;
                     }
@@ -242,7 +242,7 @@ namespace NosCore.Controllers
 
                     var success = _exchangeService.ValidateExchange(Session, exchangeTarget);
 
-                    if (!success.Item1)
+                    if (success.Item1 == ExchangeResultType.Success)
                     {
                         foreach (var infoPacket in success.Item2)
                         {
@@ -287,7 +287,7 @@ namespace NosCore.Controllers
                         Session.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
-                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, success.Item1 ? ExchangeCloseType.Success : ExchangeCloseType.Failure);
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, success.Item1);
                     exchangeTarget?.SendPacket(closeExchange);
                     Session.SendPacket(closeExchange);
                     return;
@@ -302,7 +302,7 @@ namespace NosCore.Controllers
 
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
 
-                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeCloseType.Failure);
+                    closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
                     cancelTarget?.SendPacket(closeExchange);
                     Session.SendPacket(closeExchange);
                     return;

@@ -29,6 +29,6 @@ namespace NosCore.Packets.ServerPackets
     public class ExcClosePacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public ExchangeCloseType Type { get; set; }
+        public ExchangeResultType Type { get; set; }
     }
 }
