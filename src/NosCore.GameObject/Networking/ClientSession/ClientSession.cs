@@ -160,7 +160,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.SendRelationStatus(false);
                 var targetId = _exchangeService.GetTargetId(Character.VisualId);
-                var closeExchange = _exchangeService.CloseExchange(Character.VisualId, ExchangeCloseType.Failure);
+                var closeExchange = _exchangeService.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
 
                 if (targetId.HasValue && Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
                 {
