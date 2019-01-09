@@ -775,7 +775,7 @@
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>La quantité d'or en inventaire a été mise à jour.</value>
   </data>
-  <data name="USER_FAILED_SEND_GOLD" xml:space="preserve">
+  <data name="USER_FAILED_SENT_GOLD" xml:space="preserve">
     <value>Le joueur {0} n'ap as pu envoyer l'or.</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
