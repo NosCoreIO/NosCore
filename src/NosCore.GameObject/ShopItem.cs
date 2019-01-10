@@ -27,7 +27,7 @@ namespace NosCore.GameObject
     {
         public IItemInstance ItemInstance { get; set; }
 
-        public byte Type { get; set; }
+        public short Type { get; set; }
 
         public short Slot { get; set; }
 
