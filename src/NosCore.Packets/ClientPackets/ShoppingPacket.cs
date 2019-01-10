@@ -26,7 +26,7 @@ namespace NosCore.Packets.ClientPackets
     public class ShoppingPacket : PacketDefinition
     {
         [PacketIndex(0)]
-        public byte ShopType { get; set; }
+        public short ShopType { get; set; }
 
         [PacketIndex(1)]
         public byte Unknown { get; set; }
