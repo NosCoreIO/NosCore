@@ -736,8 +736,7 @@
     <value>Impossible de mettre l'objet dans le magasin car il est non échangeable</value>
   </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value />
-    <comment>No comprendo amigo</comment>
+    <value>L'objet ne peut pas etre mis en vente.</value>
   </data>
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Le joueur à bloqué les échanges.</value>
