@@ -281,5 +281,11 @@ namespace NosCore.Tests
             var packet = PacketFactory.Serialize(new[] { chara.GenerateNInv(1, 0, 0) });
             Assert.AreEqual("n_inv 1 0 0 0 0.0.0.0.0.1 -1 0.2.0.0.0.1", packet);
         }
+
+        [TestMethod]
+        public void TestDeserializeSimpleList()
+        {
+            Assert.IsNotNull(PacketFactory.Deserialize("exc_list 0 0 0 0 1 0 1 1 0 2 1", typeof(ExcListPacket)));
+        }
     }
 }

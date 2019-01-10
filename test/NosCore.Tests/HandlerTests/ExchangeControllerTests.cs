@@ -53,9 +53,13 @@ namespace NosCore.Tests.HandlerTests
 
         private ExchangePacketController _handler2;
 
+        private ExchangePacketController _handler3;
+
         private ClientSession _session;
 
         private ClientSession _session2;
+
+        private ClientSession _session3;
 
         private MapInstance _map;
 
@@ -83,6 +87,8 @@ namespace NosCore.Tests.HandlerTests
 
             _session2 = new ClientSession(_worldConfiguration, new List<PacketController> { new ExchangePacketController() }, null, _exchangeService);
 
+            _session3 = new ClientSession(_worldConfiguration, new List<PacketController> { new ExchangePacketController() }, null, _exchangeService);
+
             var account1 = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             var character1 = new CharacterDto
             {
@@ -105,12 +111,25 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
+            var account3 = new AccountDto { Name = "Account3", Password = "test".ToSha512() };
+            var character3 = new CharacterDto
+            {
+                CharacterId = 3,
+                Name = "TestExistingCharacter3",
+                Slot = 1,
+                AccountId = account3.AccountId,
+                MapId = 1,
+                State = CharacterState.Active
+            };
+
             _session.InitializeAccount(account1);
             _session2.InitializeAccount(account2);
+            _session3.InitializeAccount(account3);
             
             _itemBuilderService = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _handler = new ExchangePacketController(_worldConfiguration, _exchangeService);
             _handler2 = new ExchangePacketController(_worldConfiguration, _exchangeService);
+            _handler3 = new ExchangePacketController(_worldConfiguration, _exchangeService);
             _map = new MapInstance(new Map
             {
                 Name = "testMap",
@@ -130,24 +149,32 @@ namespace NosCore.Tests.HandlerTests
             , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(), null, null, null);
             _handler.RegisterSession(_session);
             _handler2.RegisterSession(_session2);
+            _handler3.RegisterSession(_session3);
 
             _session.SetCharacter(character1.Adapt<Character>());
             _session2.SetCharacter(character2.Adapt<Character>());
+            _session3.SetCharacter(character3.Adapt<Character>());
 
             _session.Character.MapInstance = _map;
             _session2.Character.MapInstance = _map;
+            _session3.Character.MapInstance = _map;
 
             _session.Character.Account = account1;
             _session2.Character.Account = account2;
+            _session3.Character.Account = account3;
 
             _session.Character.Inventory = new InventoryService(items, _worldConfiguration);
             _session2.Character.Inventory = new InventoryService(items, _worldConfiguration);
+            _session3.Character.Inventory = new InventoryService(items, _worldConfiguration);
 
             _session.Character.ExchangeService = _exchangeService;
             _session2.Character.ExchangeService = _exchangeService;
+            _session3.Character.ExchangeService = _exchangeService;
             _session2.SessionId = 1;
+            _session3.SessionId = 2;
             Broadcaster.Instance.RegisterSession(_session);
             Broadcaster.Instance.RegisterSession(_session2);
+            Broadcaster.Instance.RegisterSession(_session3);
         }
 
         [TestMethod]
@@ -162,5 +189,63 @@ namespace NosCore.Tests.HandlerTests
             _handler.RequestExchange(requestPacket);
             Assert.IsTrue(_exchangeService.CheckExchange(_session.Character.VisualId) && _exchangeService.CheckExchange(_session2.Character.CharacterId));
         }
+
+        [TestMethod]
+        public void Test_Open_Second_Exchange()
+        {
+            var requestPacket = new ExchangeRequestPacket
+            {
+                RequestType = RequestExchangeType.List,
+                VisualId = _session2.Character.VisualId
+            };
+
+            _handler.RequestExchange(requestPacket);
+            Assert.IsTrue(_exchangeService.CheckExchange(_session.Character.VisualId) && _exchangeService.CheckExchange(_session2.Character.CharacterId));
+
+            requestPacket.VisualId = _session3.Character.VisualId;
+
+            _handler.RequestExchange(requestPacket);
+            Assert.IsFalse(_exchangeService.CheckExchange(_session3.Character.CharacterId));
+        }
+        
+        [TestMethod]
+        public void Test_Exchange_User_Blocked()
+        {
+            var guid = Guid.NewGuid();
+
+            var characterRelation = new CharacterRelation
+            {
+                CharacterId = _session.Character.CharacterId,
+                CharacterRelationId = guid,
+                RelatedCharacterId = _session2.Character.CharacterId,
+                RelationType = CharacterRelationType.Blocked
+            };
+
+            _session.Character.CharacterRelations.TryAdd(guid, characterRelation);
+
+            var requestPacket = new ExchangeRequestPacket
+            {
+                RequestType = RequestExchangeType.List,
+                VisualId = _session2.Character.VisualId
+            };
+
+            _handler.RequestExchange(requestPacket);
+            Assert.IsFalse(_exchangeService.CheckExchange(_session.Character.VisualId) && _exchangeService.CheckExchange(_session2.Character.CharacterId));
+        }
+
+        //TODO: Test Exchange List (Need to fix packet factory first)
+        //TODO: Test invalid exchange list
+        //TODO: Test decline exchange
+        //TODO: Test cancel exchange
+        //TODO: Test cancel when not in exchange
+        //TODO: Test actual exchange
+        //TODO: Test invalid exchange (not existing items, not tradable items)
+        //TODO: Test gold exchange
+        //TODO: Test invalid gold exchange
+        //TODO: Test exchange with full inventory on one character
+        //TODO: Test exchange will full inventory on both characters
+        //TODO: Test exchange when target has blocked exchange requests
+        //TODO: Test cancel exchange when someone has set exchanges in trade
+        //TODO: Test character disconnection in exchange
     }
 }

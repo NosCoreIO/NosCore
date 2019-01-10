@@ -140,6 +140,16 @@ namespace NosCore.Controllers
                 return;
             }
 
+            if (target != null && Session.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED, Session.Account.Language),
+                    Type = MessageType.White
+                });
+                return;
+            }
+
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
