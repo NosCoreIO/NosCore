@@ -598,8 +598,7 @@
     <value>La fée est d'un élément différent de la SPque vous tentez d'équiper.</value>
   </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value />
-    <comment>Pas de trad anglaise/missing context</comment>
+    <value>{0} a acheté l'objet {1} * {2}.</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Vous avez acheté un objet.</value>
@@ -689,8 +688,7 @@
     <value>Un magasin a été ouvert.</value>
   </data>
   <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value />
-    <comment>Pas de trad anglaise/missing context</comment>
+    <value>Ouvrir le magasin maintenant ?</value>
   </data>
   <data name="SP_BLOCKED" xml:space="preserve">
     <value>Impossible de changer de SPcar vous en utilisez déjà une. Veuillez retirer la SP que vous portez.</value>
@@ -727,5 +725,62 @@
   </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Un ou plusieurs objets ne sont pas échangeables.</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Le joueur est déjà en commerce. Ressayez plus tard.</value>
+  </data>
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
+    <value>Vous ne pouvez pas échanger des objets liés a votre compte.</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Impossible de mettre l'objet dans le magasin car il est non échangeable</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>L'objet ne peut pas etre mis en vente.</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Le joueur à bloqué les échanges.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>{0} a annulé le commerce.</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Le joueur ciblé à un magasin déjà ouvert.</value>
+  </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>Accepter l'échange de {0}.</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Liste d'échange invalide.</value>
+  </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Votre inventaire est plein.</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Votre niveau de métier est trop bas.</value>
+  </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>Pas assez d'or pour acheter cet objet.</value>
+  </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>Le joueur {0} est en mode magasin privé.</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>L'échange  {0} contenant {1} à échoué.</value>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>La quantité d'or en inventaire a été mise à jour.</value>
+  </data>
+  <data name="USER_FAILED_SENT_GOLD" xml:space="preserve">
+    <value>Le joueur {0} n'ap as pu envoyer l'or.</value>
+  </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>{0} a annulé l'échange.</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Vous avez fait une demande de commerce à {0}.</value>
   </data>
 </root>
