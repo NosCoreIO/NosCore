@@ -30,7 +30,7 @@ namespace NosCore.Packets.ClientPackets
         public NrunRunnerType Runner { get; set; }
 
         [PacketIndex(1)]
-        public byte Type { get; set; }
+        public short Type { get; set; }
 
         [PacketIndex(2)]
         public VisualType VisualType { get; set; }

@@ -276,7 +276,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             experiencedEntity.Mp = experiencedEntity.MaxMp;
         }
 
-        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, byte typeshop,
+        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop,
             byte shopKind)
         {
             var shopItemList = new List<NInvItemSubPacket>();
