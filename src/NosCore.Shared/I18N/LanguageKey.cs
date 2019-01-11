@@ -173,7 +173,6 @@ namespace NosCore.Shared.I18N
         ITEMTYPE_UNKNOWN,
         UNKWNOWN_RECEIVERTYPE,
         NO_SPECIAL_PROPERTIES_WEARABLE,
-        REP_CHANGED,
         NOT_YOUR_ITEM,
         EXCHANGE_BLOCKED,
         HAS_SHOP_OPENED,
@@ -244,7 +243,6 @@ namespace NosCore.Shared.I18N
         BUY_ITEM_FROM,
         TOO_RICH_SELLER,
         UPDATE_GOLD,
-        USER_FAILED_SENT_GOLD,
         CANNOT_TRADE_NOT_TRADABLE_ITEM,
         CANT_USE_ITEM_IN_SHOP,
         TRY_REMOVE_FAILED
