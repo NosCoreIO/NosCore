@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class WearableInstance : ItemInstance
     {
-        #region Properties
-
         public byte? Ammo { get; set; }
 
         public byte? Cellon { get; set; }
@@ -82,7 +80,5 @@ namespace NosCore.Database.Entities
         public short? WaterResistance { get; set; }
 
         public long? Xp { get; set; }
-
-        #endregion
     }
 }

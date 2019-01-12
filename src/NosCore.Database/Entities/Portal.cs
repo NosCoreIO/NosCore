@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class Portal
     {
-        #region Properties
-
         public short DestinationMapId { get; set; }
 
         public short DestinationX { get; set; }
@@ -46,7 +44,5 @@ namespace NosCore.Database.Entities
         public short SourceY { get; set; }
 
         public PortalType Type { get; set; }
-
-        #endregion
     }
 }

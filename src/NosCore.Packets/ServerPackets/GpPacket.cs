@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("gp")]
     public class GpPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public short SourceX { get; set; }
 
@@ -44,7 +42,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(5)]
         public int IsDisabled { get; set; }
-
-        #endregion
     }
 }

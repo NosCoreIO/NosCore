@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class QuestReward
     {
-        #region Properties
-
         public long QuestRewardId { get; set; }
 
         public byte RewardType { get; set; }
@@ -40,7 +38,5 @@ namespace NosCore.Database.Entities
         public short QuestId { get; set; }
 
         public virtual Quest Quest { get; set; }
-
-        #endregion
     }
 }

@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("in")]
     public class InPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
 
@@ -56,7 +54,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(9, IsOptional = true, SpecialSeparator = " ")]
         public InNonPlayerSubPacket InNonPlayerSubPacket { get; set; }
-
-        #endregion
     }
 }

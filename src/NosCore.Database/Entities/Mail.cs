@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Mail
     {
-        #region Properties
-
         public byte AttachmentAmount { get; set; }
 
         public byte AttachmentRarity { get; set; }
@@ -72,7 +70,5 @@ namespace NosCore.Database.Entities
 
         [MaxLength(255)]
         public string Title { get; set; }
-
-        #endregion
     }
 }

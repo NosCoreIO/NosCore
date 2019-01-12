@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class ShopSkill
     {
-        #region Properties
-
         public virtual Shop Shop { get; set; }
 
         public int ShopId { get; set; }
@@ -36,7 +34,5 @@ namespace NosCore.Database.Entities
         public byte Slot { get; set; }
 
         public byte Type { get; set; }
-
-        #endregion
     }
 }

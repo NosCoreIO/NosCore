@@ -29,8 +29,6 @@ namespace NosCore.Database.Entities
     /// </summary>
     public class Item
     {
-        #region Instantiation
-
         public Item()
         {
             Drop = new HashSet<Drop>();
@@ -42,10 +40,6 @@ namespace NosCore.Database.Entities
             ShopItem = new HashSet<ShopItem>();
             BCards = new HashSet<BCard>();
         }
-
-        #endregion
-
-        #region Properties
 
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }
@@ -215,7 +209,5 @@ namespace NosCore.Database.Entities
         public short WaterResistance { get; set; }
 
         public byte Width { get; set; }
-
-        #endregion
     }
 }

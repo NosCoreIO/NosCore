@@ -34,8 +34,6 @@ namespace NosCore.Core.Networking
 
         public IChannel Channel { get; private set; }
 
-        #region Members
-
         public bool HasSelectedCharacter { get; set; }
 
         public bool IsAuthenticated { get; set; }
@@ -49,10 +47,6 @@ namespace NosCore.Core.Networking
         {
             Channel = channel;
         }
-
-        #endregion
-
-        #region Methods
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
@@ -107,7 +101,5 @@ namespace NosCore.Core.Networking
             LastPacket = packetDefinitions.Last();
             Channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
         }
-
-        #endregion
     }
 }

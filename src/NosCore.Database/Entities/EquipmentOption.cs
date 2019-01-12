@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class EquipmentOption : SynchronizableBaseEntity
     {
-        #region Properties
-
         public byte Level { get; set; }
 
         public byte Type { get; set; }
@@ -37,7 +35,5 @@ namespace NosCore.Database.Entities
         public virtual WearableInstance WearableInstance { get; set; }
 
         public Guid WearableInstanceId { get; set; }
-
-        #endregion
     }
 }

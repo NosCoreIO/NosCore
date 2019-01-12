@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("say")]
     public class SayPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
 
@@ -38,7 +36,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(3, SerializeToEnd = true)]
         public string Message { get; set; }
-
-        #endregion
     }
 }

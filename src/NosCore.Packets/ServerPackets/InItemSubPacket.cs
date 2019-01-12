@@ -24,8 +24,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("in_item_subpacket")]
     public class InItemSubPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public int Amount { get; set; }
 
@@ -34,7 +32,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public long Owner { get; set; }
-
-        #endregion
     }
 }

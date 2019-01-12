@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class RecipeItem
     {
-        #region Properties
-
         public short Amount { get; set; }
 
         public virtual Item Item { get; set; }
@@ -34,7 +32,5 @@ namespace NosCore.Database.Entities
         public short RecipeId { get; set; }
 
         public short RecipeItemId { get; set; }
-
-        #endregion
     }
 }
