@@ -20,7 +20,7 @@
 using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.ServerPackets
 {
     [PacketHeader("dir")]
     public class DirPacket : PacketDefinition
