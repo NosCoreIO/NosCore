@@ -49,7 +49,7 @@ namespace NosCore.LoginServer
             ConnectMaster();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(5000);
             };
             try
@@ -57,7 +57,7 @@ namespace NosCore.LoginServer
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 _networkManager.RunServerAsync().Wait();

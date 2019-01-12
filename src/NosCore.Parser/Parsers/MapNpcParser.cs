@@ -115,7 +115,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<MapNpcDto> npcDtos = npcs;
             DaoFactory.MapNpcDao.InsertOrUpdate(npcDtos);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCS_PARSED), npcCounter);
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
         }
     }
 }

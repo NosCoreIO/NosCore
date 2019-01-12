@@ -94,7 +94,7 @@ namespace NosCore.Parser.Parsers
             IEnumerable<ShopItemDto> shopItemDtos = shopitems;
 
             DaoFactory.ShopItemDao.InsertOrUpdate(shopItemDtos);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SHOPITEMS_PARSED),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }
     }

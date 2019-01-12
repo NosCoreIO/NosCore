@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_EQUIPMENTTYPE),
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_EQUIPMENTTYPE),
                         Item.EquipmentSlot);
                     break;
             }

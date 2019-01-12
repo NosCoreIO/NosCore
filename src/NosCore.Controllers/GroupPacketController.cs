@@ -303,7 +303,7 @@ namespace NosCore.Controllers
                     });
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.GROUPREQUESTTYPE_UNKNOWN));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN));
                     break;
             }
         }

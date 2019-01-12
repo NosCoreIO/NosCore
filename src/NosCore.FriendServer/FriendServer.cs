@@ -61,13 +61,13 @@ namespace NosCore.FriendServer
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 //TODO save friends
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(5000);
             };
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_friendServerConfiguration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             try
             {
                 Console.Title += $" - WebApi : {_friendServerConfiguration.WebApi}";

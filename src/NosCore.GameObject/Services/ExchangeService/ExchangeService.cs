@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId);
             if (data.Equals(default))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
                 return;
             }
 
@@ -193,18 +193,18 @@ namespace NosCore.GameObject.Services.ExchangeService
             var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
             if (data.Key == 0 && data.Value == 0)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
                 return null;
             }
 
             if (!_exchangeDatas.TryRemove(data.Key, out _) || !_exchangeRequests.TryRemove(data.Key, out _))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRY_REMOVE_FAILED), data.Key);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_REMOVE_FAILED), data.Key);
             }
 
             if (!_exchangeDatas.TryRemove(data.Value, out _) || !_exchangeRequests.TryRemove(data.Value, out _))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.TRY_REMOVE_FAILED), data.Value);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_REMOVE_FAILED), data.Value);
             }
 
             return new ExcClosePacket
@@ -217,7 +217,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             if (CheckExchange(visualId) || CheckExchange(targetVisualId))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_EXCHANGE));
                 return false;
             }
 
