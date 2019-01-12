@@ -17,28 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.Core.Serializing;
 using NosCore.Shared.Enumerations;
+using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.Packets.ClientPackets
 {
-    public interface IVisualEntity
+    [PacketHeader("dir")]
+    public class ClientDirPacket : PacketDefinition
     {
-        VisualType VisualType { get; }
+        [PacketIndex(0)]
+        [Range(0, 7)]
+        public byte Direction { get; set; }
 
-        short VNum { get; }
+        [PacketIndex(1)]
+        public VisualType VisualType { get; set; }
 
-        long VisualId { get; }
+        [PacketIndex(2)]
+        public long VisualId { get; set; }
 
-        byte Direction { get; set; }
-
-        Guid MapInstanceId { get; }
-
-        MapInstance MapInstance { get; }
-
-        short PositionX { get; set; }
-
-        short PositionY { get; set; }
     }
 }
