@@ -324,7 +324,7 @@ namespace NosCore.Controllers
             Session.Character.PositionX = walkPacket.XCoordinate;
             Session.Character.PositionY = walkPacket.YCoordinate;
 
-            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove());
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(), new EveryoneBut(Session.Channel.Id));
             Session.SendPacket(Session.Character.GenerateCond());
             Session.Character.LastMove = SystemTime.Now();
         }
@@ -813,6 +813,25 @@ namespace NosCore.Controllers
                 }
                 entity.Rest();
             });
+        }
+
+        /// <summary>
+        /// dir packet
+        /// </summary>
+        /// <param name="dirpacket"></param>
+        public void ChangeDir(ClientDirPacket dirpacket)
+        {
+            IAliveEntity entity;
+            switch (dirpacket.VisualType)
+            {
+                case VisualType.Player:
+                    entity = Session.Character;
+                    break;
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
+                    return;
+            }
+            entity.ChangeDir(dirpacket.Direction);
         }
     }
 }
