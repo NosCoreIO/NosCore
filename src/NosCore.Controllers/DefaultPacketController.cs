@@ -827,9 +827,6 @@ namespace NosCore.Controllers
                 case VisualType.Player:
                     entity = Session.Character;
                     break;
-                //case VisualType.Monster:
-                //entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
-                //break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
                     return;
