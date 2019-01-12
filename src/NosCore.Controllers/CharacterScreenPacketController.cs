@@ -369,6 +369,7 @@ namespace NosCore.Controllers
                 character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
+                character.Direction = 2;
                 character.Account = Session.Account;
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
