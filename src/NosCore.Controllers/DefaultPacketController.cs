@@ -293,7 +293,7 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
                     return;
             }
 
@@ -670,7 +670,7 @@ namespace NosCore.Controllers
                         Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
                         break;
                     default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVITETYPE_UNKNOWN));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVITETYPE_UNKNOWN));
                         break;
                 }
             }
@@ -808,7 +808,7 @@ namespace NosCore.Controllers
                         entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
                         break;
                     default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), u.VisualType);
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), u.VisualType);
                         return;
                 }
                 entity.Rest();

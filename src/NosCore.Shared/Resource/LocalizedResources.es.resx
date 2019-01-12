@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Has aceptado el punto de regreso de [{0}].</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Cuenta con SessionId {0} ha llegado.</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>¡Este jugador te ha bloqueado!</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>[{0}] ha comprado: {1} x {2}</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>¡El intercambio ha tenido éxito!</value>
@@ -278,9 +272,6 @@
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>¡Tu lista de amigos está llena!</value>
   </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>¿Quieres hacerte amigo de [{0}]?</value>
-  </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>¡Petición de amistad aceptada!</value>
   </data>
@@ -315,14 +306,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>¡El grupo está lleno!</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Has enviado una petición de grupo a [{0}].</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Has abandonado el grupo.</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>[{0}] ha rechazado tu petición de grupo.</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Has enviado una petición para compartir el punto de regreso con tus miembros del grupo.</value>
@@ -375,12 +360,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
   </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Deseas poner como punto de regreso: {0} ?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] te ha invitado a su grupo.</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>InviteType desconocida</value>
     <comment>insert missing type data</comment>
@@ -401,9 +380,6 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Adquirido</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>[{0}] adquirido.</value>
-  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>¡No puedes soltar ese objeto!</value>
   </data>
@@ -419,9 +395,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lenguaje faltante</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] ha abandonado el grupo.</value>
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Tu nivel ha sido modificado.</value>
@@ -619,9 +592,6 @@
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
     <value>¡Tu objeto ha sido vendido!</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Mensaje mandado a [{0}].</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
   </data>
@@ -670,17 +640,11 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>¡No tienes suficientes puntos de SP para transformarte!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>¡Has recibido {0} puntos de especialista!</value>
-  </data>
   <data name="STAY_TIME" xml:space="preserve">
     <value>Tiempo de los efectos secundarios de la transofrmación: {0} segundos</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>¡Cargado exitosamente!</value>
-  </data>
-  <data name="SUPPORT" xml:space="preserve">
-    <value>Ayudante {0}</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>¿Estas seguro que deseas eliminar este objeto?</value>

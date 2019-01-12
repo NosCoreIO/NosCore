@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_ITEM_IN_SHOP));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
                 return;
             }
 

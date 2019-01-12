@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_character != null && !HasSelectedCharacter)
                 {
                     // cant access an
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_NOT_INIT));
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_NOT_INIT));
                     return null;
                 }
 
@@ -174,7 +174,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
 
             Broadcaster.Instance.UnregisterSession(this);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
         }
 
         public void ChangeMap() => ChangeMap(null, null, null);
@@ -303,7 +303,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception)
             {
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_CHANGE_MAP));
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_CHANGE_MAP));
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -352,13 +352,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                 else
                 {
                     _logger.Warning(string.Format(
-                        LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPT_PACKET), packetHeader, packet));
+                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packetHeader, packet));
                 }
 
             }
             else
             {
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_NOT_FOUND),
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
                     packetHeader);
             }
         }
@@ -381,7 +381,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             catch (Exception ex)
             {
                 // disconnect if something unexpected happens
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.HANDLER_ERROR),
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_ERROR),
                     ex);
                 Disconnect();
             }
@@ -419,7 +419,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SessionId = sessid;
                 SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
 
-                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_ARRIVED), SessionId);
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
 
                 if (!_waitForPacketsAmount.HasValue)
                 {
@@ -441,7 +441,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
                         && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CORRUPTED_KEEPALIVE),
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
                             ClientId);
                         Disconnect();
                         return;

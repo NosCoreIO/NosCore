@@ -24,8 +24,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("at")]
     public class AtPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public long CharacterId { get; set; }
 
@@ -49,7 +47,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(7)]
         public short Unknown3 { get; set; } //TODO to find
-
-        #endregion
     }
 }

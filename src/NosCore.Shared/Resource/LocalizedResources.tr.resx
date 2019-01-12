@@ -371,7 +371,7 @@
     <value>Başarıyla Yüklendi!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
-    <value>Destek {0}</value>
+    <value>Destek</value>
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Savaşcı</value>

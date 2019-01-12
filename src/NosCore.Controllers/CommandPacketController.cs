@@ -424,7 +424,7 @@ namespace NosCore.Controllers
             }
             else
             {
-                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
             }
 
             Session.SendPacket(Session.Character.GenerateSay(

@@ -24,8 +24,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("c_map")]
     public class CMapPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public byte Type { get; set; }
 
@@ -34,7 +32,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public bool MapType { get; set; }
-
-        #endregion
     }
 }

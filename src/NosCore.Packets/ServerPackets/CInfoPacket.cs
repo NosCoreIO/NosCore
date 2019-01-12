@@ -26,8 +26,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("c_info")]
     public class CInfoPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public string Name { get; set; }
 
@@ -82,7 +80,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(17)]
         public bool ArenaWinner { get; set; }
-
-        #endregion
     }
 }

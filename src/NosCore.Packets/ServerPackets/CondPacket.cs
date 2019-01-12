@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("cond")]
     public class CondPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
 
@@ -41,7 +39,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(4)]
         public byte Speed { get; set; }
-
-        #endregion
     }
 }

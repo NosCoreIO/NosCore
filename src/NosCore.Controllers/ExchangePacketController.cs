@@ -65,7 +65,7 @@ namespace NosCore.Controllers
         {
             if (packet.Gold > Session.Character.Gold || packet.BankGold > Session.Account.BankMoney)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_GOLD));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
                 return;
             }
             var subPacketList = new List<ServerExcListSubPacket>();
@@ -85,7 +85,7 @@ namespace NosCore.Controllers
                         var closeExchange = _exchangeService.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
                         Session.SendPacket(closeExchange);
                         target.SendPacket(closeExchange);
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE_LIST));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
                         return;
                     }
 
@@ -93,7 +93,7 @@ namespace NosCore.Controllers
                     {
                         Session.SendPacket(_exchangeService.CloseExchange(Session.Character.CharacterId, ExchangeResultType.Failure));
                         target.SendPacket(_exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure));
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
                         return;
                     }
 
@@ -130,13 +130,13 @@ namespace NosCore.Controllers
 
             if (target != null && (packet.RequestType == RequestExchangeType.Confirmed || packet.RequestType == RequestExchangeType.Cancelled))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
                 return;
             }
 
             if (Session.Character.InShop || (target?.InShop ?? false))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.PLAYER_IN_SHOP));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP));
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace NosCore.Controllers
 
                     if (!targetId.HasValue)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_EXCHANGE));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
                         return;
                     }
                     
@@ -228,7 +228,7 @@ namespace NosCore.Controllers
 
                     if (exchangeTarget == null)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
                         return;
                     }
 
@@ -296,7 +296,7 @@ namespace NosCore.Controllers
                     var cancelId = _exchangeService.GetTargetId(Session.Character.CharacterId);
                     if (!cancelId.HasValue)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_IN_EXCHANGE));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USER_NOT_IN_EXCHANGE));
                         return;
                     }
 

@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class BazaarItem
     {
-        #region Properties
-
         public byte Amount { get; set; }
 
         public long BazaarItemId { get; set; }
@@ -46,7 +44,5 @@ namespace NosCore.Database.Entities
         public long Price { get; set; }
 
         public long SellerId { get; set; }
-
-        #endregion
     }
 }

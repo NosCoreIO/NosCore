@@ -616,7 +616,7 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
                 DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
                 DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_PARSED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED),
                     counter);
             }
 

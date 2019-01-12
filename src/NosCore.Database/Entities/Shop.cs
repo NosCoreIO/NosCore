@@ -24,17 +24,11 @@ namespace NosCore.Database.Entities
 {
     public class Shop
     {
-        #region Instantiation
-
         public Shop()
         {
             ShopItem = new HashSet<ShopItem>();
             ShopSkill = new HashSet<ShopSkill>();
         }
-
-        #endregion
-
-        #region Properties
 
         public virtual MapNpc MapNpc { get; set; }
 
@@ -52,7 +46,5 @@ namespace NosCore.Database.Entities
         public virtual ICollection<ShopSkill> ShopSkill { get; set; }
 
         public byte ShopType { get; set; }
-
-        #endregion
     }
 }

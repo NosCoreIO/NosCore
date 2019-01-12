@@ -26,8 +26,6 @@ namespace NosCore.GameObject.Helper
     {
         private static CharacterHelper _instance;
 
-        #region Instantiation
-
         private CharacterHelper()
         {
             LoadSpeedData();
@@ -44,11 +42,7 @@ namespace NosCore.GameObject.Helper
             LoadMpHealthStand();
         }
 
-        #endregion
-
         public static CharacterHelper Instance => _instance ?? (_instance = new CharacterHelper());
-
-        #region Members
 
         private int[][] _criticalDist;
         private int[][] _criticalDistRate;
@@ -71,10 +65,6 @@ namespace NosCore.GameObject.Helper
         // STAT DATA
 
         // same for all class
-
-        #endregion
-
-        #region Properties
 
         public double[] FirstJobXpData { get; private set; }
 
@@ -99,10 +89,6 @@ namespace NosCore.GameObject.Helper
         public double[] SpxpData { get; private set; }
 
         public double[] XpData { get; private set; }
-
-        #endregion
-
-        #region Methods
 
         public double HeroXpLoad(byte heroLevel)
         {
@@ -1241,7 +1227,5 @@ namespace NosCore.GameObject.Helper
                 }
             }
         }
-
-        #endregion
     }
 }

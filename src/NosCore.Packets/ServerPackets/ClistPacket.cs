@@ -26,8 +26,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("clist")]
     public class ClistPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public byte Slot { get; set; }
 
@@ -78,7 +76,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(16)]
         public byte Unknown3 { get; set; } //TODO to find
-
-        #endregion
     }
 }

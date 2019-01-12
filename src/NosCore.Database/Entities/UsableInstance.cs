@@ -21,12 +21,8 @@ namespace NosCore.Database.Entities
 {
     public class UsableInstance : ItemInstance
     {
-        #region Properties
-
         public short? Hp { get; set; }
 
         public short? Mp { get; set; }
-
-        #endregion
     }
 }

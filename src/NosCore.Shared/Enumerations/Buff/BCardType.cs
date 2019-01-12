@@ -21,8 +21,6 @@ namespace NosCore.Shared.Enumerations.Buff
 {
     public class BCardType
     {
-        #region Enums
-
         public enum CardType : byte
         {
             // 1-20
@@ -126,6 +124,4 @@ namespace NosCore.Shared.Enumerations.Buff
             Spsl = 200
         }
     }
-
-    #endregion
 }

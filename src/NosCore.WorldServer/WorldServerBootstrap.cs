@@ -46,7 +46,7 @@ namespace NosCore.WorldServer
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LanguageKey.EXCEPTION), ex.Message);
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 

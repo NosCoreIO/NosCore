@@ -293,7 +293,7 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.ComboDao.InsertOrUpdate(comboDtos);
                 DaoFactory.BCardDao.InsertOrUpdate(bCardDtos);
 
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SKILLS_PARSED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED),
                     counter);
             }
         }

@@ -54,8 +54,6 @@ namespace NosCore.Tests
             Inventory = new InventoryService(items, new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 });
         }
 
-        #region AddItemToPocket
-
         [TestMethod]
         public void CreateItem()
         {
@@ -125,10 +123,6 @@ namespace NosCore.Tests
             Assert.IsTrue(Inventory.Values.First(item => item.Slot == 0).Amount == 990);
         }
 
-        #endregion
-
-        #region LoadBySlotAndType  
-
         [TestMethod]
         public void LoadItemOnAnNotEmptySlot()
         {
@@ -144,10 +138,6 @@ namespace NosCore.Tests
             var item = Inventory.LoadBySlotAndType<ItemInstance>(1, PocketType.Main);
             Assert.IsNull(item);
         }
-
-        #endregion
-
-        #region Delete
 
         [TestMethod]
         public void DeleteFromTypeAndSlot()
@@ -170,10 +160,6 @@ namespace NosCore.Tests
             Assert.IsNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }
-
-        #endregion
-
-        #region Move
 
         [TestMethod]
         public void MoveFullSlot()
@@ -213,17 +199,9 @@ namespace NosCore.Tests
             Assert.IsTrue(destinationItem?.Amount == 999 && destinationItem.Slot == 1);
         }
 
-        #endregion
-
-        #region MoveInPocket
         //TODO RemoveItemAmountFromInventory
-        #endregion
 
-        #region EnoughPlace
         //TODO EnoughPlace
-        #endregion
-
-        #region MoveInPocket
 
         [TestMethod]
         public void MoveFashionToFashionPocket()
@@ -283,8 +261,5 @@ namespace NosCore.Tests
 
             Assert.IsTrue(item.Type == PocketType.Equipment && item.Slot == 1 && item2.Type == PocketType.Wear && item2.Slot == (short)EquipmentType.MainWeapon);
         }
-        #endregion
-
-
     }
 }

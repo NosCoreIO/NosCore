@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Přijmul si místo návratu od {0}!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
@@ -276,14 +273,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Skupina je plná!</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Pozvánka do skupiny byla poslána hráči: {0}</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Opustil si skupinu</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} Odmítl tvé pozvání do skupiny!</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Sdílel si místo návratu s členy skupiny</value>
@@ -333,12 +324,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Chceš sdílet místo návratu s:{0}?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} ti poslal pozvánku do skupiny</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý typ pozvánky</value>
   </data>
@@ -368,9 +353,6 @@
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} opustil skupinu</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
@@ -519,9 +501,6 @@
   </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Prosím vybere ID Mapy</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Zpráva odeslána na {0}</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
