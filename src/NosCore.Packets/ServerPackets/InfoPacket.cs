@@ -24,11 +24,7 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("info")]
     public class InfoPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0, true, false, false)]
         public string Message { get; set; }
-
-        #endregion
     }
 }

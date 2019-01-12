@@ -24,8 +24,6 @@ namespace NosCore.Database.Entities
 {
     public class CharacterRelation
     {
-        #region Properties
-
         public virtual Character Character1 { get; set; }
 
         public virtual Character Character2 { get; set; }
@@ -37,7 +35,5 @@ namespace NosCore.Database.Entities
         public long RelatedCharacterId { get; set; }
 
         public CharacterRelationType RelationType { get; set; }
-
-        #endregion
     }
 }

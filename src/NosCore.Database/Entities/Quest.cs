@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Quest
     {
-        #region Properties
-
         public Quest()
         {
             CharacterQuest = new HashSet<CharacterQuest>();
@@ -63,7 +61,5 @@ namespace NosCore.Database.Entities
         public bool IsDaily { get; set; }
 
         public int? SpecialData { get; set; }
-
-        #endregion
     }
 }

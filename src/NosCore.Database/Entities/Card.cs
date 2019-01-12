@@ -26,16 +26,10 @@ namespace NosCore.Database.Entities
 {
     public class Card
     {
-        #region Instantiation
-
         public Card()
         {
             BCards = new HashSet<BCard>();
         }
-
-        #endregion
-
-        #region Properties
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -63,7 +57,5 @@ namespace NosCore.Database.Entities
         public virtual ICollection<BCard> BCards { get; set; }
 
         public virtual ICollection<StaticBuff> StaticBuff { get; set; }
-
-        #endregion
     }
 }

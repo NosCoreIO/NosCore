@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class BCard
     {
-        #region Properties
-
         [Key]
         public short BCardId { get; set; }
 
@@ -59,7 +57,5 @@ namespace NosCore.Database.Entities
         public bool IsLevelScaled { get; set; }
 
         public bool IsLevelDivided { get; set; }
-
-        #endregion
     }
 }

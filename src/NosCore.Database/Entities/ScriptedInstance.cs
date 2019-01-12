@@ -24,8 +24,6 @@ namespace NosCore.Database.Entities
 {
     public class ScriptedInstance
     {
-        #region Properties
-
         public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
@@ -42,7 +40,5 @@ namespace NosCore.Database.Entities
         public short ScriptedInstanceId { get; set; }
 
         public ScriptedInstanceType Type { get; set; }
-
-        #endregion
     }
 }

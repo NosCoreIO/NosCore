@@ -23,16 +23,10 @@ namespace NosCore.Database.Entities
 {
     public class Recipe
     {
-        #region Instantiation
-
         public Recipe()
         {
             RecipeItem = new HashSet<RecipeItem>();
         }
-
-        #endregion
-
-        #region Properties
 
         public byte Amount { get; set; }
 
@@ -47,7 +41,5 @@ namespace NosCore.Database.Entities
         public short RecipeId { get; set; }
 
         public virtual ICollection<RecipeItem> RecipeItem { get; set; }
-
-        #endregion
     }
 }

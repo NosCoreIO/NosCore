@@ -41,8 +41,6 @@ namespace NosCore.Core.Serializing
 
         public static bool IsInitialized { get; set; }
 
-        #region Methods
-
         /// <summary>
         ///     Deserializes a string into a PacketDefinition
         /// </summary>
@@ -726,7 +724,5 @@ namespace NosCore.Core.Serializing
             packetDefinition.OriginalContent = packetContent;
             packetDefinition.OriginalHeader = packetHeader;
         }
-
-        #endregion
     }
 }

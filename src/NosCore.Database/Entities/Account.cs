@@ -26,17 +26,11 @@ namespace NosCore.Database.Entities
 {
     public class Account
     {
-        #region Instantiation
-
         public Account()
         {
             Character = new HashSet<Character>();
             PenaltyLog = new HashSet<PenaltyLog>();
         }
-
-        #endregion
-
-        #region Properties
 
         public long AccountId { get; set; }
 
@@ -62,7 +56,5 @@ namespace NosCore.Database.Entities
         public string VerificationToken { get; set; }
 
         public RegionType Language { get; set; }
-
-        #endregion
     }
 }

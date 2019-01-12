@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class PenaltyLog
     {
-        #region Properties
-
         public virtual Account Account { get; set; }
 
         public long AccountId { get; set; }
@@ -44,7 +42,5 @@ namespace NosCore.Database.Entities
 
         [MaxLength(255)]
         public string Reason { get; set; }
-
-        #endregion
     }
 }

@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class MapMonster
     {
-        #region Properties
-
         public bool IsDisabled { get; set; }
 
         public bool IsMoving { get; set; }
@@ -45,7 +43,5 @@ namespace NosCore.Database.Entities
         public virtual NpcMonster NpcMonster { get; set; }
 
         public byte Direction { get; set; }
-
-        #endregion
     }
 }

@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class SpecialistInstance : WearableInstance
     {
-        #region Properties
-
         public short? SlDamage { get; set; }
 
         public short? SlDefence { get; set; }
@@ -50,7 +48,5 @@ namespace NosCore.Database.Entities
         public byte? SpStoneUpgrade { get; set; }
 
         public byte? SpWater { get; set; }
-
-        #endregion
     }
 }

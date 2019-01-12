@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Map
     {
-        #region Instantiation
-
         public Map()
         {
             Character = new HashSet<Character>();
@@ -40,10 +38,6 @@ namespace NosCore.Database.Entities
             Respawn = new HashSet<Respawn>();
             RespawnMapType = new HashSet<RespawnMapType>();
         }
-
-        #endregion
-
-        #region Properties
 
         public virtual ICollection<Character> Character { get; set; }
 
@@ -76,7 +70,5 @@ namespace NosCore.Database.Entities
         public bool ShopAllowed { get; set; }
 
         public virtual ICollection<Teleporter> Teleporter { get; set; }
-
-        #endregion
     }
 }

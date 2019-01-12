@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class MinilandObject
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -48,7 +46,5 @@ namespace NosCore.Database.Entities
         public short MapY { get; set; }
 
         public long MinilandObjectId { get; set; }
-
-        #endregion
     }
 }

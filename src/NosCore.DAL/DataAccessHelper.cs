@@ -30,19 +30,13 @@ namespace NosCore.DAL
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private static DataAccessHelper _instance;
 
-        #region Members
-
         private DbContextOptions _option;
-
-        #endregion
 
         private DataAccessHelper()
         {
         }
 
         public static DataAccessHelper Instance => _instance ?? (_instance = new DataAccessHelper());
-
-        #region Methods
 
         /// <summary>
         ///     Creates new instance of database context.
@@ -76,7 +70,5 @@ namespace NosCore.DAL
                 }
             }
         }
-
-        #endregion
     }
 }

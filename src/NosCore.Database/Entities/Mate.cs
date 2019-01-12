@@ -24,8 +24,6 @@ namespace NosCore.Database.Entities
 {
     public class Mate
     {
-        #region Properties
-
         public byte Attack { get; set; }
 
         public bool CanPickUp { get; set; }
@@ -69,7 +67,5 @@ namespace NosCore.Database.Entities
         public short VNum { get; set; }
 
         public short Skin { get; set; }
-
-        #endregion
     }
 }

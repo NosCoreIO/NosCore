@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class Respawn
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -40,7 +38,5 @@ namespace NosCore.Database.Entities
         public short X { get; set; }
 
         public short Y { get; set; }
-
-        #endregion
     }
 }

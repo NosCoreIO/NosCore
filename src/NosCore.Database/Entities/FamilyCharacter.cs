@@ -24,8 +24,6 @@ namespace NosCore.Database.Entities
 {
     public class FamilyCharacter
     {
-        #region Properties
-
         public FamilyAuthority Authority { get; set; }
 
         public virtual Character Character { get; set; }
@@ -44,7 +42,5 @@ namespace NosCore.Database.Entities
         public long FamilyId { get; set; }
 
         public FamilyMemberRank Rank { get; set; }
-
-        #endregion
     }
 }

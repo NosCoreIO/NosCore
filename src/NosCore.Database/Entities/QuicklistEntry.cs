@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class QuicklistEntry : SynchronizableBaseEntity
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -40,7 +38,5 @@ namespace NosCore.Database.Entities
         public short Slot { get; set; }
 
         public short Type { get; set; }
-
-        #endregion
     }
 }
