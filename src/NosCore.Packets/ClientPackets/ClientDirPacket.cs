@@ -26,8 +26,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("dir")]
     public class ClientDirPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         [Range(0, 7)]
         public byte Direction { get; set; }
@@ -38,6 +36,5 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(2)]
         public long VisualId { get; set; }
 
-        #endregion
     }
 }
