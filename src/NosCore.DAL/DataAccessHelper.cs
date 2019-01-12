@@ -60,12 +60,12 @@ namespace NosCore.DAL
                 {
                     context.Database.Migrate();
                     context.Database.GetDbConnection().Open();
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)
                 {
                     _logger.Error("Database Error", ex);
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                     throw;
                 }
             }

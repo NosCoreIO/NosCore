@@ -111,7 +111,7 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_LOADED),
                     items.Count);
                 return items;
             }).As<List<Item>>().SingleInstance();
@@ -119,21 +119,21 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_LOADED), monsters.Count);
                 return monsters;
             }).As<List<NpcMonsterDto>>().SingleInstance();
 
             containerBuilder.Register(_ =>
             {
                 var shopItems = DaoFactory.ShopItemDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SHOPITEMS_LOADED), shopItems.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_LOADED), shopItems.Count);
                 return shopItems;
             }).As<List<ShopItemDto>>().SingleInstance();
 
             containerBuilder.Register(_ =>
             {
                 var shops = DaoFactory.ShopDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SHOPS_LOADED), shops.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_LOADED), shops.Count);
                 return shops;
             }).As<List<ShopDto>>().SingleInstance();
 
@@ -142,12 +142,12 @@ namespace NosCore.WorldServer
                 List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
                 if (maps.Count != 0)
                 {
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED),
                         maps.Count);
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
                 }
 
                 return maps;
@@ -156,14 +156,14 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 List<MapMonsterDto> monsters = DaoFactory.MapMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPMONSTERS_LOADED), monsters.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monsters.Count);
                 return monsters;
             }).As<List<MapMonsterDto>>().SingleInstance();
 
             containerBuilder.Register(_ =>
             {
                 List<MapNpcDto> npcs = DaoFactory.MapNpcDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPNPCS_LOADED), npcs.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPNPCS_LOADED), npcs.Count);
                 return npcs;
             }).As<List<MapNpcDto>>().SingleInstance();
 

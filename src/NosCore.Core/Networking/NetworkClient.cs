@@ -50,7 +50,7 @@ namespace NosCore.Core.Networking
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_CONNECTED),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED),
                 ClientId);
         }
 
@@ -62,7 +62,7 @@ namespace NosCore.Core.Networking
                 {
                     case SocketError.ConnectionReset:
                         _logger.Information(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.CLIENT_DISCONNECTED),
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED),
                             ClientId));
                         break;
                     default:
@@ -80,7 +80,7 @@ namespace NosCore.Core.Networking
 
         public void Disconnect()
         {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.FORCED_DISCONNECTION),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
                 ClientId);
             Channel?.DisconnectAsync();
         }

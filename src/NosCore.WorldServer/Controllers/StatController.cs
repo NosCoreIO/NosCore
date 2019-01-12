@@ -84,7 +84,7 @@ namespace NosCore.WorldServer.Controllers
                     session.ChangeClass((CharacterClassType)data.Data);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

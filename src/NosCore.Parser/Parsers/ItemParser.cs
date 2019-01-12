@@ -1078,7 +1078,7 @@ namespace NosCore.Parser.Parsers
                             case ItemType.MinilandTheme:
                                 break;
                             default:
-                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMTYPE_UNKNOWN));
+                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMTYPE_UNKNOWN));
                                 break;
                         }
 
@@ -1135,7 +1135,7 @@ namespace NosCore.Parser.Parsers
 
                 DaoFactory.ItemDao.InsertOrUpdate(_items);
                 DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED),
                     _itemCounter);
             }
         }

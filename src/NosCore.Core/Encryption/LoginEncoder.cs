@@ -59,7 +59,7 @@ namespace NosCore.Core.Encryption
             }
             catch (Exception ex)
             {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ENCODE_ERROR), ex);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENCODE_ERROR), ex);
             }
         }
     }

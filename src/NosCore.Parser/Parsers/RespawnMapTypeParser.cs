@@ -92,7 +92,7 @@ namespace NosCore.Parser.Parsers
             };
             IEnumerable<RespawnMapTypeDto> respawnMapTypeDtos = respawnmaptypemaps;
             DaoFactory.RespawnMapTypeDao.InsertOrUpdate(respawnMapTypeDtos);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.RESPAWNTYPE_PARSED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED));
         }
     }
 }

@@ -57,14 +57,14 @@ namespace NosCore.MasterServer.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR));
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
+                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
             if (data.MasterCommunication.Password != _apiConfiguration.Password)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_ERROR));
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
             var claims = new ClaimsIdentity(new[]
@@ -83,7 +83,7 @@ namespace NosCore.MasterServer.Controllers
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
 
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(), data.ClientName);
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(), data.ClientName);
 
             try
             {
@@ -134,7 +134,7 @@ namespace NosCore.MasterServer.Controllers
                 if (chann.LastPing.AddSeconds(10) < SystemTime.Now() && !System.Diagnostics.Debugger.IsAttached)
                 {
                     MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CONNECTION_LOST), _id.ToString());
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
                     return HttpStatusCode.RequestTimeout;
                 }
 
