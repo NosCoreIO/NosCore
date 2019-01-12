@@ -814,5 +814,27 @@ namespace NosCore.Controllers
                 entity.Rest();
             });
         }
+
+        /// <summary>
+        /// dir packet
+        /// </summary>
+        /// <param name="dirpacket"></param>
+        public void ChangeDir(DirPacket dirpacket)
+        {
+            IAliveEntity entity;
+            switch (dirpacket.VisualType)
+            {
+                case VisualType.Player:
+                    entity = Session.Character;
+                    break;
+                //case VisualType.Monster:
+                //entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
+                //break;
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
+                    return;
+            }
+            entity.ChangeDir(dirpacket.Direction);
+        }
     }
 }
