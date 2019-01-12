@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class ShopItem
     {
-        #region Properties
-
         public byte Color { get; set; }
 
         public virtual Item Item { get; set; }
@@ -42,7 +40,5 @@ namespace NosCore.Database.Entities
         public byte Type { get; set; }
 
         public byte Upgrade { get; set; }
-
-        #endregion
     }
 }

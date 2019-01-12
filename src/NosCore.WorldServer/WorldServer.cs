@@ -73,7 +73,7 @@ namespace NosCore.WorldServer
                 return;
             }
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e =>
             {
                 Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
@@ -83,12 +83,12 @@ namespace NosCore.WorldServer
             {
                 var eventSaveAll = new SaveAll();
                 eventSaveAll.Execution();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL_WILL_EXIT));
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);
             };
             try
             {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port);
                 Console.Title +=
                     $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";

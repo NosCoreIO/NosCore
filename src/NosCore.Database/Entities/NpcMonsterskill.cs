@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class NpcMonsterSkill
     {
-        #region Properties
-
         public virtual NpcMonster NpcMonster { get; set; }
 
         [Key]
@@ -37,7 +35,5 @@ namespace NosCore.Database.Entities
         public virtual Skill Skill { get; set; }
 
         public short SkillVNum { get; set; }
-
-        #endregion
     }
 }

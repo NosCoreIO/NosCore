@@ -25,8 +25,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("walk")]
     public class WalkPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public short XCoordinate { get; set; }
 
@@ -39,7 +37,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(3)]
         public short Speed { get; set; }
-
-        #endregion
     }
 }

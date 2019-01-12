@@ -258,14 +258,14 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
                         Session.Disconnect();
                         return;
                     }
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
@@ -273,7 +273,7 @@ namespace NosCore.Controllers
 
             var characters = DaoFactory.CharacterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                 Session.Account.Name);
 
             // load characterlist packet for each character in Character

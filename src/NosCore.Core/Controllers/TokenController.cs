@@ -46,13 +46,13 @@ namespace NosCore.Core.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_ERROR)));
+                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
             var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
             if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LanguageKey.AUTH_INCORRECT));
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
             var claims = new ClaimsIdentity(new[]

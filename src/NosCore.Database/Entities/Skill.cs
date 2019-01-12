@@ -25,12 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Skill
     {
-        #region Instantiation
-
-        #endregion
-
-        #region Properties
-
         public short AttackAnimation { get; set; }
 
         public short CastAnimation { get; set; }
@@ -103,7 +97,5 @@ namespace NosCore.Database.Entities
         public short UpgradeType { get; set; }
 
         public virtual ICollection<BCard> BCards { get; set; } = new HashSet<BCard>();
-
-        #endregion
     }
 }

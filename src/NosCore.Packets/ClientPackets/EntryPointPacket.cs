@@ -25,8 +25,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("EntryPoint", 3, AnonymousAccess = true)]
     public class EntryPointPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         [UsedImplicitly]
         public string Title { get; set; }
@@ -44,7 +42,5 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(4)]
         public string Password { get; set; }
-
-        #endregion
     }
 }

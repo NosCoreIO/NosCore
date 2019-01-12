@@ -55,7 +55,7 @@ namespace NosCore.LoginServer
             builder.Build().Bind(loginConfiguration);
             Validator.ValidateObject(loginConfiguration, new ValidationContext(loginConfiguration), validateAllProperties: true);
             LogLanguage.Language = loginConfiguration.Language;
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             return loginConfiguration;
         }
 
@@ -78,7 +78,7 @@ namespace NosCore.LoginServer
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LanguageKey.EXCEPTION), ex.Message);
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 

@@ -26,8 +26,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("in_character_subpacket")]
     public class InCharacterSubPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public AuthorityType Authority { get; set; }
 
@@ -118,7 +116,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(29)]
         public byte HeroLevel { get; set; }
-
-        #endregion
     }
 }

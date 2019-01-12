@@ -1050,7 +1050,7 @@ namespace NosCore.GameObject
                         case PocketType.PetWarehouse:
                             break;
                         default:
-                            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.POCKETTYPE_UNKNOWN));
+                            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.POCKETTYPE_UNKNOWN));
                             break;
                     }
                 }
@@ -1476,7 +1476,7 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.USE_SP_WITHOUT_SP_ERROR));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
                 }
             }
             else

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Du hast {0} dem teilen eurer Punkte zugestimmt!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account mit SessionId {0} ist angekommen.</value>
   </data>
@@ -242,9 +239,6 @@
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Deine Freundschaftsliste ist voll!</value>
   </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Möchtest du ein Freund von {0} sein?</value>
-  </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Freundschaftsanfrage akzeptiert!</value>
   </data>
@@ -279,14 +273,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Gruppe ist voll!</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Gruppeneinladung gesendet an: {0}</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Du hast die Party verlassen!</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} hat deine Gruppeneinladung abgelehnt</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Du hast eine Anfrage an deine Gruppe gesendet, um euren Rückkehrpunkt zu teilen</value>
@@ -337,12 +325,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Falsches Password!</value>
   </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Möchtest du {0} als deinen Rückkehrposten setzten?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} hat dir eine Gruppeneinladung gesendet!</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Einladungs typ</value>
     <comment>insert missing type data</comment>
@@ -360,9 +342,6 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Item erlangt</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>{0} erlangt</value>
-  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
   </data>
@@ -375,9 +354,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Fehlende Sprache/Übersetzung!</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} hat die Party verlassen!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
@@ -525,23 +501,14 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Bitte wähle eine MapId</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Nachricht an {0} gesendet.</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Du hast deinen Gruppenmitgliedern verweigert deinen Rückkehrposten zu teilen</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Du hast {0} SP Points erhalten!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
-  </data>
-  <data name="SUPPORT" xml:space="preserve">
-    <value>Supporter {0}</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>

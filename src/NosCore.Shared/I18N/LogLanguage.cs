@@ -47,8 +47,8 @@ namespace NosCore.Shared.I18N
 
         public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 
-        public string GetMessageFromKey(LanguageKey messageKey) => GetMessageFromKey(messageKey, null);
-        public string GetMessageFromKey(LanguageKey messageKey, string culture)
+        public string GetMessageFromKey(LogLanguageKey messageKey) => GetMessageFromKey(messageKey, null);
+        public string GetMessageFromKey(LogLanguageKey messageKey, string culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
             var resourceMessage = _manager != null && messageKey.ToString() != null

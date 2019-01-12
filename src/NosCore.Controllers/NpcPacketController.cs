@@ -80,12 +80,12 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
                     return;
             }
             if (requestableEntity == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
 
@@ -109,13 +109,13 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), nRunPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), nRunPacket.Type);
                     return;
             }
 
             if (aliveEntity == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
             _nRunAccessService.NRunLaunch(Session, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
@@ -146,12 +146,12 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), shoppingPacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), shoppingPacket.VisualType);
                     return;
             }
             if (aliveEntity == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
 
@@ -375,12 +375,12 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), buyPacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), buyPacket.VisualType);
                     return;
             }
             if (aliveEntity == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
 

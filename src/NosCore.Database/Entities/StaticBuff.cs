@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class StaticBuff
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -34,7 +32,5 @@ namespace NosCore.Database.Entities
         public int RemainingTime { get; set; }
 
         public long StaticBuffId { get; set; }
-
-        #endregion
     }
 }

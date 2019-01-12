@@ -23,12 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class RollGeneratedItem
     {
-        #region Instantiation
-
-        #endregion
-
-        #region Properties
-
         [Key]
         public short RollGeneratedItemId { get; set; }
 
@@ -55,7 +49,5 @@ namespace NosCore.Database.Entities
         public virtual Item ItemGenerated { get; set; }
 
         public bool IsSuperReward { get; set; }
-
-        #endregion
     }
 }

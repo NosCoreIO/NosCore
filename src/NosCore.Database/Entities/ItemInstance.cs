@@ -27,17 +27,11 @@ namespace NosCore.Database.Entities
 {
     public class ItemInstance : SynchronizableBaseEntity
     {
-        #region Instantiation
-
         public ItemInstance()
         {
             BazaarItem = new HashSet<BazaarItem>();
             MinilandObject = new HashSet<MinilandObject>();
         }
-
-        #endregion
-
-        #region Properties
 
         public short Amount { get; set; }
 
@@ -73,7 +67,5 @@ namespace NosCore.Database.Entities
         public PocketType Type { get; set; }
 
         public byte Upgrade { get; set; }
-
-        #endregion
     }
 }

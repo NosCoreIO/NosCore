@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class Teleporter
     {
-        #region Properties
-
         public short Index { get; set; }
 
         public TeleporterType Type { get; set; }
@@ -42,7 +40,5 @@ namespace NosCore.Database.Entities
         public short MapY { get; set; }
 
         public short TeleporterId { get; set; }
-
-        #endregion
     }
 }

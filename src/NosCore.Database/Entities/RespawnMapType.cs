@@ -25,18 +25,12 @@ namespace NosCore.Database.Entities
 {
     public class RespawnMapType
     {
-        #region Instantiation
-
         public RespawnMapType()
         {
             Respawn = new HashSet<Respawn>();
             MapTypes = new HashSet<MapType>();
             MapTypes1 = new HashSet<MapType>();
         }
-
-        #endregion
-
-        #region Properties
 
         public short MapId { get; set; }
 
@@ -57,7 +51,5 @@ namespace NosCore.Database.Entities
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long RespawnMapTypeId { get; set; }
-
-        #endregion
     }
 }

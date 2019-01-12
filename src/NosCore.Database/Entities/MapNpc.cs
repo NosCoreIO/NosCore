@@ -24,18 +24,12 @@ namespace NosCore.Database.Entities
 {
     public class MapNpc
     {
-        #region Instantiation
-
         public MapNpc()
         {
             Recipe = new HashSet<Recipe>();
             Shop = new HashSet<Shop>();
             Teleporter = new HashSet<Teleporter>();
         }
-
-        #endregion
-
-        #region Properties
 
         public short Dialog { get; set; }
 
@@ -71,7 +65,5 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Shop> Shop { get; set; }
 
         public virtual ICollection<Teleporter> Teleporter { get; set; }
-
-        #endregion
     }
 }

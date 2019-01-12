@@ -48,7 +48,7 @@ namespace NosCore.Core.Encryption
             }
             catch
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ERROR_DECODING));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
             }
         }
     }

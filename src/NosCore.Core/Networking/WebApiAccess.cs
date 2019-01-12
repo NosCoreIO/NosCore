@@ -84,13 +84,13 @@ namespace NosCore.Core.Networking
                  .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                      (_, __, timeSpan) =>
                          _logger.Error(string.Format(
-                             LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
+                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
                              timeSpan.TotalSeconds))
                  ).ExecuteAsync(() => client.PostAsync(WebApiRoutes[WebApiRoute.Channel], Content));
 
             var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
             Token = result.Token;
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.REGISTRED_ON_MASTER));
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
             MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
             Task.Run(() =>
             {
@@ -99,11 +99,11 @@ namespace NosCore.Core.Networking
                     .WaitAndRetryForever(retryAttempt => TimeSpan.FromSeconds(1),
                         (_, __, timeSpan) =>
                             _logger.Verbose(
-                                LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING))
+                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
                     ).Execute(() => Instance.Patch<HttpStatusCode>(WebApiRoute.Channel,
                         result.ChannelInfo.ChannelId, SystemTime.Now()));
                 _logger.Error(
-                    LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_PING_FAILED));
+                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));
                 Environment.Exit(0);
             });
         }

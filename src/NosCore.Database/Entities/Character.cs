@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Character
     {
-        #region Instantiation
-
         public Character()
         {
             CharacterSkill = new HashSet<CharacterSkill>();
@@ -44,10 +42,6 @@ namespace NosCore.Database.Entities
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
         }
-
-        #endregion
-
-        #region Properties
 
         public virtual Account Account { get; set; }
 
@@ -198,7 +192,5 @@ namespace NosCore.Database.Entities
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
-
-        #endregion
     }
 }
