@@ -37,6 +37,23 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
+        {
+            aliveEntity.Direction = direction;
+            aliveEntity.MapInstance.Sessions.SendPacket(
+                aliveEntity.GenerateChangeDir());
+        }
+
+        public static Dir_Packet GenerateChangeDir(this IAliveEntity namedEntity)
+        {
+            return new Dir_Packet
+            {
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
+                Direction = namedEntity.Direction,
+            };
+        }
+
         public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, long dialog)
         {
             return new NpcReqPacket

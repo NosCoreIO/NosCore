@@ -31,7 +31,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         long VisualId { get; }
 
-        byte Direction { get; }
+        byte Direction { get; set; }
 
         Guid MapInstanceId { get; }
 
