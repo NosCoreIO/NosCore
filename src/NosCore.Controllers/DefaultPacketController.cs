@@ -324,7 +324,7 @@ namespace NosCore.Controllers
             Session.Character.PositionX = walkPacket.XCoordinate;
             Session.Character.PositionY = walkPacket.YCoordinate;
 
-            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove());
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(), new EveryoneBut(Session.Channel.Id));
             Session.SendPacket(Session.Character.GenerateCond());
             Session.Character.LastMove = SystemTime.Now();
         }
