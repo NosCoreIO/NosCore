@@ -366,9 +366,6 @@
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Personnage hors ligne</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Message envoyé à {0}</value>
-  </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
     <value>Les PNJ ont été chargés avec succès !</value>
   </data>
@@ -383,9 +380,6 @@
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Ajouté à votre liste noire.</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Vous êtes dans la liste noire de {0}.</value>
   </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Impossible de bloquer vos amis.</value>
@@ -477,20 +471,8 @@
   <data name="GROUP_INVITE" xml:space="preserve">
     <value>Invitation envoyée.</value>
   </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>{0} a quitté le groupe.</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} a refusé l'invitation dans le groupe.</value>
-  </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} t'a invité dans un groupe.</value>
-  </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Vous avez rejoint le groupe de {0}</value>
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>La carte selectionnée n'existe pas.</value>
@@ -504,9 +486,6 @@
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>Type d'inventaire non reconnu.</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>{0} a refusé le point de retour de {0}</value>
-  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Le joueur ne peut pas être invité en groupe.</value>
   </data>
@@ -516,17 +495,11 @@
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utilisateur n'est pas dans ta liste d'ami.</value>
   </data>
-  <data name="USER_NOT_CONNECTED" xml:space="preserve">
-    <value>{0} n'est pas connecté.</value>
-  </data>
   <data name="GROUP_BLOCKED" xml:space="preserve">
     <value>Vous ne pouvez plus recevoir d'invitation dans un groupe.</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} a quitté le groupe.</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Vous ne pouvez pas récuperer cet objet. veuillez patienter un peu.</value>
@@ -582,9 +555,6 @@
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
     <value>Ping échoué, aucune réponse du serveur master.</value>
   </data>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>{0} a accepté le point de retour de {0}.</value>
-  </data>
   <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
     <value>La quantité de sous-packets est invalide .</value>
   </data>
@@ -596,9 +566,6 @@
   </data>
   <data name="BAD_FAIRY" xml:space="preserve">
     <value>La fée est d'un élément différent de la SPque vous tentez d'équiper.</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>{0} a acheté l'objet {1} * {2}.</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Vous avez acheté un objet.</value>
@@ -720,9 +687,6 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>La compte en banque à atteint sa valeur max</value>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>Il faut attendre que {0} valide le commerce.</value>
-  </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Un ou plusieurs objets ne sont pas échangeables.</value>
   </data>
@@ -741,14 +705,8 @@
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Le joueur à bloqué les échanges.</value>
   </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>{0} a annulé le commerce.</value>
-  </data>
   <data name="HAS_SHOP_OPENED" xml:space="preserve">
     <value>Le joueur ciblé à un magasin déjà ouvert.</value>
-  </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>Accepter l'échange de {0}.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
@@ -776,8 +734,5 @@
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>{0} a annulé l'échange.</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Vous avez fait une demande de commerce à {0}.</value>
   </data>
 </root>

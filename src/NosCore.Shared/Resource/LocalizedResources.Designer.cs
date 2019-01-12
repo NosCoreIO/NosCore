@@ -61,15 +61,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You accepted point share with {0}!.
-        /// </summary>
-        public static string ACCEPTED_SHARE {
-            get {
-                return ResourceManager.GetString("ACCEPTED_SHARE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Account with SessionId {0} has arrived..
         /// </summary>
         public static string ACCOUNT_ARRIVED {
@@ -264,15 +255,6 @@ namespace NosCore.Shared.Resource {
         public static string BLACKLIST_BLOCKED {
             get {
                 return ResourceManager.GetString("BLACKLIST_BLOCKED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à [{0}] purchased: {1} x {2}.
-        /// </summary>
-        public static string BUY_ITEM_FROM {
-            get {
-                return ResourceManager.GetString("BUY_ITEM_FROM", resourceCulture);
             }
         }
         
@@ -529,15 +511,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Be a friend of {0}?.
-        /// </summary>
-        public static string FRIEND_ADD {
-            get {
-                return ResourceManager.GetString("FRIEND_ADD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Friend request accepted!.
         /// </summary>
         public static string FRIEND_ADDED {
@@ -637,29 +610,11 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Group invite request sent to: {0}.
-        /// </summary>
-        public static string GROUP_INVITE {
-            get {
-                return ResourceManager.GetString("GROUP_INVITE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You left the party.
         /// </summary>
         public static string GROUP_LEFT {
             get {
                 return ResourceManager.GetString("GROUP_LEFT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} refused your group request.
-        /// </summary>
-        public static string GROUP_REFUSED {
-            get {
-                return ResourceManager.GetString("GROUP_REFUSED", resourceCulture);
             }
         }
         
@@ -799,15 +754,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Waiting for {0] to end the trade.
-        /// </summary>
-        public static string IN_WAITING_FOR {
-            get {
-                return ResourceManager.GetString("IN_WAITING_FOR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -844,24 +790,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Do you want to set as a return point from : {0} ?.
-        /// </summary>
-        public static string INVITED_GROUP_SHARE {
-            get {
-                return ResourceManager.GetString("INVITED_GROUP_SHARE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} sent you a group request.
-        /// </summary>
-        public static string INVITED_YOU_GROUP {
-            get {
-                return ResourceManager.GetString("INVITED_YOU_GROUP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Unknown Invite type.
         /// </summary>
         public static string INVITETYPE_UNKNOWN {
@@ -876,15 +804,6 @@ namespace NosCore.Shared.Resource {
         public static string ITEM_ACQUIRED {
             get {
                 return ResourceManager.GetString("ITEM_ACQUIRED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} Acquired.
-        /// </summary>
-        public static string ITEM_ACQUIRED_LOD {
-            get {
-                return ResourceManager.GetString("ITEM_ACQUIRED_LOD", resourceCulture);
             }
         }
         
@@ -975,15 +894,6 @@ namespace NosCore.Shared.Resource {
         public static string LANGUAGE_MISSING {
             get {
                 return ResourceManager.GetString("LANGUAGE_MISSING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} left the party.
-        /// </summary>
-        public static string LEAVE_GROUP {
-            get {
-                return ResourceManager.GetString("LEAVE_GROUP", resourceCulture);
             }
         }
         
@@ -1573,15 +1483,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Message sent to {0}.
-        /// </summary>
-        public static string SEND_MESSAGE_TO_CHARACTER {
-            get {
-                return ResourceManager.GetString("SEND_MESSAGE_TO_CHARACTER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You refused to share the point of return with the group members.
         /// </summary>
         public static string SHARED_REFUSED {
@@ -1726,15 +1627,6 @@ namespace NosCore.Shared.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You received {0} SP Points!.
-        /// </summary>
-        public static string SP_POINTSADDED {
-            get {
-                return ResourceManager.GetString("SP_POINTSADDED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Time left of the secondary effects: {0} seconds.
         /// </summary>
         public static string STAY_TIME {
@@ -1749,15 +1641,6 @@ namespace NosCore.Shared.Resource {
         public static string SUCCESSFULLY_LOADED {
             get {
                 return ResourceManager.GetString("SUCCESSFULLY_LOADED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Supporter {0}.
-        /// </summary>
-        public static string SUPPORT {
-            get {
-                return ResourceManager.GetString("SUPPORT", resourceCulture);
             }
         }
         
