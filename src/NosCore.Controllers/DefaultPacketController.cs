@@ -831,7 +831,7 @@ namespace NosCore.Controllers
                 //entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
                 //break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
                     return;
             }
             entity.ChangeDir(dirpacket.Direction);
