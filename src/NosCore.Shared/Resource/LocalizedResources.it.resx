@@ -129,6 +129,9 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Già nella lista nera!</value>
   </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>L'utente sta già scambiando.</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Siete già amici!</value>
   </data>
@@ -138,8 +141,14 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Questo nome è già in uso !</value>
   </data>
+  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
+    <value>L'importo disponibille è incorretto.</value>
+  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arciere</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Vuoi davvero usare questo oggetto? L'oggetto sarà di uso esclusivo tuo.</value>
   </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>L'item verrà distrutto.</value>
@@ -162,8 +171,17 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Quantita' di drop errata.</value>
   </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Il tuo personaggio non ha i requisiti necessari per poter utilizzare questo item.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>La Carta Speciale e la tua fata hanno attributi diversi.</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Password errata</value>
+  </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>La Banca è piena.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Personaggio aggiunto alla lista nera</value>
@@ -174,8 +192,17 @@
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Non puoi bloccare un tuo amico!</value>
   </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>Hai già cambiato Classe.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>Non puoi equipaggiare una SP distrutta.</value>
+  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Impossibile trovare questo personaggio!</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Il personaggio non può moversi quando l'itemshop è aperto.</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Sincronizzate!</value>
@@ -183,12 +210,18 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Canale</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>Hai lasciato il canale.</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Personaggio non inizializzato.</value>
     <comment>revisionare</comment>
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Il Personaggio è offline</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>La tua classe è stata cambiata.</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connesso, SessionId: {0}</value>
@@ -198,6 +231,9 @@
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Connessione persa.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>Connesione persa.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Keepalive corrotto nel client {0}</value>
@@ -223,11 +259,23 @@
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Il tuo inventario è pieno.</value>
+  </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Errore di decodifica</value>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>Eccezione.</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Da questo momento in poi gli scambi verranno bloccati.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>{0} ha rifiutato il commercio</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Disconnessione forzata del client {0}, troppe connessioni</value>
@@ -281,6 +329,12 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
   </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Non puoi scambiare con uno che ha il negozio aperto.</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Il livello eroe è stato cambiato!</value>
+  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Sincronizzati! Regione: {1}</value>
   </data>
@@ -311,18 +365,33 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skills Sincronizzate! Regione: {1}</value>
   </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} vuole scambiare con te.</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
     <value>Il nome contiene caratteri non ammessi.</value>
   </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Scambio Non valido.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Elenco per lo scambio non è disponibile.</value>
+  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
+  </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>L'inventario è pieno.</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di invito sconosciuto</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>In attesa di {0}</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Item caricati.</value>
@@ -343,6 +412,12 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Non puoi gettare quest'oggetto in questa mappa!</value>
   </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Non puoi gettare questo item.</value>
+  </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Livello Lavoro Aumentato.</value>
+  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Ti sei unito al gruppo</value>
   </data>
@@ -350,8 +425,17 @@
     <value>Lingua mancante</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Il tuo livello di combattimento è stato incrementato.</value>
+  </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Ascolto della porta {0}</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Il livello di lavoro è troppo basso.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>Reputazione - {0}</value>
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Mago</value>
@@ -377,6 +461,12 @@
   <data name="MARTIALARTIST" xml:space="preserve">
     <value>Artista Marziale</value>
   </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Master Server Ping!</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>Ping Master Server Fallito.</value>
+  </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al server master! Provando ancora tra {0} secondi...</value>
   </data>
@@ -388,6 +478,15 @@
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Sei il nuovo leader del gruppo!</value>
+  </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Puoi cambiare classe una sola volta.</value>
+  </data>
+  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
+    <value>Il valore non può essere convertito.</value>
+  </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>Non hai abbastanza oro.</value>
   </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Non hai spazio sufficiente!</value>
@@ -404,6 +503,9 @@
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
   </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>Nessuna carta speciale in uso</value>
+  </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Nessuna proprietà speciale indossabile</value>
   </data>
@@ -415,6 +517,12 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs Sincronizzati!</value>
+  </data>
+  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
+    <value>L'intestazione del pacchetto non può essere svuotata.</value>
+  </data>
+  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
+    <value>Formato Sbagliato!</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Vuoi sincronizzare gli Account?</value>
@@ -479,6 +587,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Vuoi sincronizzare TimeSpaces?</value>
   </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>Il giocatore {0} è sta scambiando con un altro giocatore.</value>
+  </data>
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>PocketType sconosciuto</value>
     <comment>insert missing type data</comment>
@@ -489,6 +600,15 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Prima di trasformarti devi rimuovere il veicolo.</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>La tua reputazione è cambiata.</value>
+  </data>
+  <data name="REP_CHANGED" xml:space="preserve">
+    <value>La tua reputazione è cambiata.</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
@@ -505,6 +625,18 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Non puoi cambiare una Carta Speciale durante la trasformazione.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Aspetta {0} secondi!</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Non hai punti SP rimasti! Non puoi trasformarti ora!</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>La trasformazione non essere realizzata a causa dell'effetto collaterale della trasformazione, aspetta: {0} secondi</value>
+  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>
@@ -516,6 +648,12 @@
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Spadaccino</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Il tuo livello è troppo basso.</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>L'effetto secondario della trasformazione è finito</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Impossibile richiedere il gruppo</value>
@@ -537,10 +675,22 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
   </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>Il giocatore {0} non puo commerciare.</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Utilizza l' SP senza errore.</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>VisualEntity non esiste.</value>
+  </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>MapId errato!</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Lo scambio è stato rifiutato!</value>
   </data>
 </root>

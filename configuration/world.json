@@ -13,7 +13,7 @@
 		}
   },
   "ServerName": "S1-NosCore",
-  "Host": "127.0.0.1",
+  "Host": "207.180.242.146",
   "Port": 1337,
   "ConnectedAccountLimit": 100,
   "ServerGroup": 0,
@@ -29,7 +29,7 @@
 	  "Port" : 5432,
 	  "Database" : "postgres",
 	  "Username" : "postgres",
-	  "Password" : "password",
+	  "Password" : "Amoremio1991L",
 	},
 	"BackpackSize":48,
 	"MaxItemAmount":999,
