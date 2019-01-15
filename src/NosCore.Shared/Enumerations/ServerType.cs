@@ -22,6 +22,7 @@ namespace NosCore.Shared.Enumerations
     public enum ServerType
     {
         WorldServer,
-        LoginServer
+        LoginServer,
+        FriendServer
     }
 }

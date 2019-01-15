@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Du hast {0} dem teilen eurer Punkte zugestimmt!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account mit SessionId {0} ist angekommen.</value>
   </data>
@@ -242,9 +239,6 @@
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Deine Freundschaftsliste ist voll!</value>
   </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Möchtest du ein Freund von {0} sein?</value>
-  </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Freundschaftsanfrage akzeptiert!</value>
   </data>
@@ -263,9 +257,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Gold changed!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Gruppeneinladungs Typ</value>
     <comment>insert missing type data</comment>
@@ -282,17 +273,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Gruppe ist voll!</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Gruppeneinladung gesendet an: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Gruppenleiter gewechselt!</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Du hast die Party verlassen!</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} hat deine Gruppeneinladung abgelehnt</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Du hast eine Anfrage an deine Gruppe gesendet, um euren Rückkehrpunkt zu teilen</value>
@@ -343,15 +325,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Falsches Password!</value>
   </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Unbekannte Teleport-Argumente!</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Möchtest du {0} als deinen Rückkehrposten setzten?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} hat dir eine Gruppeneinladung gesendet!</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Einladungs typ</value>
     <comment>insert missing type data</comment>
@@ -369,9 +342,6 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Item erlangt</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>{0} erlangt</value>
-  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
   </data>
@@ -384,9 +354,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Fehlende Sprache/Übersetzung!</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} hat die Party verlassen!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
@@ -411,9 +378,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Die Map existiert nicht!</value>
-  </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer erfolgreich gestartet!</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Keine Verbindung zum MasterServer! Versuche erneut in {0} sekunden...</value>
@@ -524,15 +488,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portale geladen!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Angemeldet auf MasterServer</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
     <comment>check</comment>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Ansehen verändert</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes geladen!</value>
@@ -543,23 +501,14 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Bitte wähle eine MapId</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Nachricht an {0} gesendet.</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Du hast deinen Gruppenmitgliedern verweigert deinen Rückkehrposten zu teilen</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Du hast {0} SP Points erhalten!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
-  </data>
-  <data name="SUPPORT" xml:space="preserve">
-    <value>Supporter {0}</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>
@@ -580,28 +529,14 @@
     <value>Unbekannter Empfänger typ</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Unbekanntes Master Paket!</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Abgemeldet vom Master!</value>
-    <comment>check</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Benutzer ist kein Freund!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Benutzer ist nicht verbunden!</value>
   </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>Benutzer zu nicht existierender Karte teleportiert!</value>
-  </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter VisualType: {0}</value>
-  </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Kämpfer</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Falsche MapId!</value>

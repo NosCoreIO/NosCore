@@ -23,19 +23,17 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
     {
         bool IsSitting { get; set; }
 
-        byte Class { get; }
-
         byte Speed { get; }
 
-        int Mp { get; }
+        int Mp { get; set; }
 
-        int Hp { get; }
+        int Hp { get; set; }
 
-        byte Morph { get; }
+        short Morph { get; }
 
         byte MorphUpgrade { get; }
 
-        byte MorphDesign { get; }
+        short MorphDesign { get; }
 
         byte MorphBonus { get; }
 
@@ -53,8 +51,12 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         int MaxMp { get; }
 
-        byte Level { get; }
+        byte Level { get; set; }
 
         byte HeroLevel { get; }
+
+        short Race { get; }
+
+        Shop Shop { get; }
     }
 }

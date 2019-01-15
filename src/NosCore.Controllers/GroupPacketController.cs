@@ -285,7 +285,7 @@ namespace NosCore.Controllers
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
                             Session.Account.Language),
-                        Type = MessageType.Whisper
+                        Type = MessageType.White
                     });
 
                     //TODO: add a way to change respawn points when system will be done
@@ -303,7 +303,7 @@ namespace NosCore.Controllers
                     });
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.GROUPREQUESTTYPE_UNKNOWN));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN));
                     break;
             }
         }
@@ -378,7 +378,7 @@ namespace NosCore.Controllers
                     session.SendPacket(new MsgPacket
                     {
                         Message = session.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
-                        Type = MessageType.Whisper
+                        Type = MessageType.White
                     });
 
                     session.LeaveGroup();

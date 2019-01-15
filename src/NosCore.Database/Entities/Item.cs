@@ -29,8 +29,6 @@ namespace NosCore.Database.Entities
     /// </summary>
     public class Item
     {
-        #region Instantiation
-
         public Item()
         {
             Drop = new HashSet<Drop>();
@@ -43,16 +41,12 @@ namespace NosCore.Database.Entities
             BCards = new HashSet<BCard>();
         }
 
-        #endregion
-
-        #region Properties
-
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }
         public bool Flag2 { get; set; }
         public bool Flag3 { get; set; }
         public bool Flag4 { get; set; }
-        public bool Flag5 { get; set; }
+        public bool RequireBinding { get; set; }
         public bool Flag6 { get; set; }
         public bool Flag7 { get; set; }
         public bool Flag8 { get; set; }
@@ -215,7 +209,5 @@ namespace NosCore.Database.Entities
         public short WaterResistance { get; set; }
 
         public byte Width { get; set; }
-
-        #endregion
     }
 }

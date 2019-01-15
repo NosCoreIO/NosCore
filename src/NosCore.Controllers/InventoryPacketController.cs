@@ -21,18 +21,22 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
 
@@ -56,23 +60,25 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void MoveEquipment(MvePacket mvePacket)
         {
-            if (Session.Character.InExchangeOrTrade)
+            if (Session.Character.InExchangeOrShop)
             {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
         [UsedImplicitly]
         public void MoveItem(MviPacket mviPacket)
         {
             // check if the character is allowed to move the item
-            if (Session.Character.InExchangeOrTrade)
+            if (Session.Character.InExchangeOrShop)
             {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
@@ -83,153 +89,200 @@ namespace NosCore.Controllers
             Session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
 
-        [UsedImplicitly]
-        public void GetItem(GetPacket getPacket)
+
+        /// <summary>
+        /// remove packet
+        /// </summary>
+        /// <param name="removePacket"></param>
+        public void Remove(RemovePacket removePacket)
         {
-            if (getPacket.VisualId < 100000)
+            if (Session.Character.InExchangeOrShop)
             {
-                //TODO buttons
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
+                return;
+            }
+
+            IItemInstance inventory = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>((short)removePacket.InventorySlot, PocketType.Wear);
+            if (inventory == null)
+            {
+                return;
+            }
+
+            IItemInstance inv = Session.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot, PocketType.Wear, PocketType.Equipment);
+
+            if (inv == null)
+            {
+                Session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq());
+            Session.SendPacket(Session.Character.GenerateEquipment());
+
+            if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
+            {
+                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePairy((WearableInstance)null));
+            }
+        }
+
+        /// <summary>
+        /// wear packet
+        /// </summary>
+        /// <param name="wearPacket"></param>
+        [UsedImplicitly]
+        public void Wear(WearPacket wearPacket)
+        {
+            UseItem(new UseItemPacket { Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
+        }
+
+        /// <summary>
+        /// u_i packet
+        /// </summary>
+        /// <param name="useItemPacket"></param>
+        public void UseItem(UseItemPacket useItemPacket)
+        {
+            IItemInstance inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
+            if (inv?.Requests == null)
+            {
+                return;
+            }
+
+            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(Session, new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
+        }
+
+        /// <summary>
+        /// sl packet
+        /// </summary>
+        /// <param name="spTransformPacket"></param>
+        public void SpTransform(SpTransformPacket spTransformPacket)
+        {
+            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+
+            if (spTransformPacket.Type == 10)
+            {
+                //TODO set points
             }
             else
             {
-                if (!Session.Character.MapInstance.DroppedList.ContainsKey(getPacket.VisualId))
+                if (Session.Character.IsSitting)
                 {
                     return;
                 }
 
-                var mapItem = Session.Character.MapInstance.DroppedList[getPacket.VisualId];
-
-                var canpick = false;
-                switch (getPacket.PickerType)
+                if (specialistInstance == null)
                 {
-                    case PickerType.Character:
-                        canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
-                            Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
-                        break;
-
-                    case PickerType.Mate:
-                        return;
-
-                    default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKNOWN_PICKERTYPE));
-                        return;
-                }
-
-                if (!canpick)
-                {
-                    return;
-                }
-
-                //TODO add group drops
-                if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > DateTime.Now && mapItem.OwnerId != Session.Character.CharacterId)
-                {
-                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
-                    return;
-                }
-
-                IItemInstance mapItemInstance = mapItem.ItemInstance;
-                //TODO not your item
-                if (mapItem.VNum != 1046)
-                {
-                    if (mapItemInstance.Item.ItemType == ItemType.Map)
+                    Session.SendPacket(new MsgPacket
                     {
-                        if (GetMapItemInstance(mapItemInstance).Item.Effect == 71)
-                        {
-                            Session.Character.SpPoint += mapItemInstance.Item.EffectValue;
-                            if (Session.Character.SpPoint > 10000)
-                            {
-                                Session.Character.SpPoint = 10000;
-                            }
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, Session.Account.Language)
+                    });
 
-                            Session.SendPacket(new MsgPacket
-                            {
-                                Message = string.Format(
-                                    Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
-                                        Session.Account.Language), mapItemInstance.Item.EffectValue),
-                                Type = 0
-                            });
-                            Session.SendPacket(Session.Character.GenerateSpPoint());
-                        }
+                    return;
+                }
 
-                        Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                        Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
-                    }
-                    else
+                if (Session.Character.IsVehicled)
+                {
+                    Session.SendPacket(new MsgPacket
                     {
-                        var amount = mapItem.Amount;
-                        var inv = Session.Character.Inventory.AddItemToPocket(mapItemInstance).FirstOrDefault();
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, Session.Account.Language)
+                    });
+                    return;
+                }
 
-                        if (inv != null)
-                        {
-                            Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
-                            Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out var value);
-                            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
-                            if (getPacket.PickerType == PickerType.Mate)
-                            {
-                                Session.SendPacket(Session.Character.GenerateIcon(1, inv.ItemVNum));
-                            }
+                double currentRunningSeconds = (SystemTime.Now() - Session.Character.LastSp).TotalSeconds;
 
-                            Session.SendPacket(Session.Character.GenerateSay(
-                                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {inv.Item.Name} x {amount}",
-                                SayColorType.Green));
-                            if (Session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
-                            {
-                                var name = string.Format(
-                                    Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
-                                        Session.Account.Language), Session.Character.Name);
-                                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateSay(
-                                    $"{name}: {inv.Item.Name} x {mapItem.Amount}",
-                                    SayColorType.Yellow));
-                            }
-                        }
-                        else
-                        {
-                            Session.SendPacket(new MsgPacket
-                            {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                                    Session.Account.Language),
-                                Type = 0
-                            });
-                        }
-                    }
+                if (Session.Character.UseSp)
+                {
+                    Session.Character.LastSp = SystemTime.Now();
+                    Session.Character.RemoveSp();
                 }
                 else
                 {
-                    // handle gold drop
-                    var maxGold = _worldConfiguration.MaxGoldAmount;
-                    if (Session.Character.Gold + mapItem.Amount <= maxGold)
+                    if (Session.Character.SpPoint == 0 && Session.Character.SpAdditionPoint == 0)
                     {
-                        if (getPacket.PickerType == PickerType.Mate)
+                        Session.SendPacket(new MsgPacket
                         {
-                            Session.SendPacket(Session.Character.GenerateIcon(1, mapItem.VNum));
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, Session.Account.Language)
+                        });
+                        return;
+                    }
+                    if (currentRunningSeconds >= Session.Character.SpCooldown)
+                    {
+                        if (spTransformPacket.Type == 1)
+                        {
+                            Session.Character.ChangeSp();
                         }
-
-                        Session.Character.Gold += mapItem.Amount;
-                        Session.SendPacket(Session.Character.GenerateSay(
-                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, Session.Account.Language)}: {mapItemInstance.Item.Name} x {mapItem.Amount}",
-                            SayColorType.Green));
+                        else
+                        {
+                            Session.SendPacket(new DelayPacket
+                            {
+                                Type = 3,
+                                Delay = 5000,
+                                Packet = new SpTransformPacket { Type = 1 }
+                            });
+                            Session.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+                            {
+                                Type = 2,
+                                Argument = 1,
+                                VisualEntityId = Session.Character.CharacterId
+                            });
+                        }
                     }
                     else
                     {
-                        Session.Character.Gold = maxGold;
                         Session.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                                Session.Account.Language),
-                            Type = 0
+                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                                Session.Account.Language), Session.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         });
                     }
-
-                    Session.SendPacket(Session.Character.GenerateGold());
-                    Session.Character.MapInstance.DroppedList.TryRemove(getPacket.VisualId, out _);
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateGet(getPacket.VisualId));
                 }
             }
         }
 
-        private static IItemInstance GetMapItemInstance(IItemInstance mapItemInstance)
+        [UsedImplicitly]
+        public void GetItem(GetPacket getPacket)
         {
-            return mapItemInstance;
+            if (!Session.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
+            {
+                return;
+            }
+
+            var mapItem = Session.Character.MapInstance.MapItems[getPacket.VisualId];
+
+            var canpick = false;
+            switch (getPacket.PickerType)
+            {
+                case PickerType.Character:
+                    canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
+                        Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
+                    break;
+
+                case PickerType.Mate:
+                    return;
+
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_PICKERTYPE));
+                    return;
+            }
+
+            if (!canpick)
+            {
+                return;
+            }
+
+            //TODO add group drops
+            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() && mapItem.OwnerId != Session.Character.CharacterId)
+            {
+                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
+                return;
+            }
+            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(Session, new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
         }
 
         [UsedImplicitly]
@@ -239,11 +292,11 @@ namespace NosCore.Controllers
             {
                 var invitem =
                     Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
-                if ((invitem?.Item.IsDroppable ?? false) && !Session.Character.InExchangeOrTrade)
+                if ((invitem?.Item.IsDroppable ?? false) && !Session.Character.InExchangeOrShop)
                 {
                     if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                     {
-                        if (Session.Character.MapInstance.DroppedList.Count < 200)
+                        if (Session.Character.MapInstance.MapItems.Count < 200)
                         {
                             var droppedItem =
                                 Session.Character.MapInstance.PutItem(putPacket.Amount, invitem, Session);
@@ -257,14 +310,8 @@ namespace NosCore.Controllers
                                 });
                                 return;
                             }
-
-                            if (droppedItem.Amount == 0)
-                            {
-                                Session.Character.Inventory.DeleteFromTypeAndSlot(invitem.Type, invitem.Slot);
-                            }
-
-                            Session.SendPacket(invitem.GeneratePocketChange(invitem.Type, invitem.Slot));
-
+                            invitem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
+                            Session.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                             Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                         }
                         else
@@ -309,12 +356,14 @@ namespace NosCore.Controllers
                         {
                             YesPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Requested
                             },
                             NoPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
@@ -328,12 +377,14 @@ namespace NosCore.Controllers
                         {
                             YesPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Confirmed
                             },
                             NoPacket = new BiPacket
                             {
-                                PocketType = bIPacket.PocketType, Slot = bIPacket.Slot,
+                                PocketType = bIPacket.PocketType,
+                                Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
@@ -342,8 +393,9 @@ namespace NosCore.Controllers
                     break;
 
                 case RequestDeletionType.Confirmed:
-                    if (Session.Character.InExchangeOrTrade)
+                    if (Session.Character.InExchangeOrShop)
                     {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                         return;
                     }
 

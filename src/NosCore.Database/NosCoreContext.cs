@@ -28,8 +28,6 @@ namespace NosCore.Database
         {
         }
 
-        #region Methods
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // remove automatic pluralization
@@ -494,10 +492,6 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
-        #endregion
-
-        #region Properties
-
         public virtual DbSet<Account> Account { get; set; }
 
         public virtual DbSet<BazaarItem> BazaarItem { get; set; }
@@ -605,7 +599,5 @@ namespace NosCore.Database
         public virtual DbSet<I18NQuest> I18NQuest { get; set; }
 
         public virtual DbSet<I18NSkill> I18NSkill { get; set; }
-
-        #endregion
     }
 }

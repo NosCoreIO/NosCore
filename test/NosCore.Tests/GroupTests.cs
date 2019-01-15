@@ -21,7 +21,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Group;
@@ -84,10 +83,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Monster_Join_Group()
         {
-            var entity = new MapMonster
-            {
-                Name = "test"
-            };
+            var entity = new Pet();
 
             _group.JoinGroup(entity);
 

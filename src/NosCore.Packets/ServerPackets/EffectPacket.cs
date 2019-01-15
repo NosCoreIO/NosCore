@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("eff")]
     public class EffectPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public VisualType EffectType { get; set; }
 
@@ -35,7 +33,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public int Id { get; set; }
-
-        #endregion
     }
 }

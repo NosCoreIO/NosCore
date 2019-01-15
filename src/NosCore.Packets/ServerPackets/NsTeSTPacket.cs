@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("NsTeST")]
     public class NsTestPacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public string AccountName { get; set; }
 
@@ -35,7 +33,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public List<NsTeStSubPacket> SubPacket { get; set; }
-
-        #endregion
     }
 }

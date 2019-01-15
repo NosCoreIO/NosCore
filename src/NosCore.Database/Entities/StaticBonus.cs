@@ -24,8 +24,6 @@ namespace NosCore.Database.Entities
 {
     public class StaticBonus
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -35,7 +33,5 @@ namespace NosCore.Database.Entities
         public long StaticBonusId { get; set; }
 
         public StaticBonusType StaticBonusType { get; set; }
-
-        #endregion
     }
 }

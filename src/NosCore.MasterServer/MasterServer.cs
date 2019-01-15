@@ -18,12 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
+using System.Linq;
+using System.Reactive.Linq;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -46,54 +44,24 @@ namespace NosCore.MasterServer
             {
                 return;
             }
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels.Where(s =>
+                             s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList().ForEach(_id =>
+                             {
+                                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
+                                 MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                             }));
+            }
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             try
             {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
-                    _masterConfiguration.Port);
-                Console.Title +=
-                    $" - Port : {Convert.ToInt32(_masterConfiguration.Port)} - WebApi : {_masterConfiguration.WebApi}";
-                RunMasterServerAsync(Convert.ToInt32(_masterConfiguration.Port), _masterConfiguration.Password).Wait();
+                Console.Title += $" - WebApi : {_masterConfiguration.WebApi}";
             }
             catch
             {
                 Console.ReadKey();
-            }
-        }
-
-        public static async Task RunMasterServerAsync(int port, string password)
-        {
-            var bossGroup = new MultithreadEventLoopGroup(1);
-            var workerGroup = new MultithreadEventLoopGroup();
-
-            try
-            {
-                var bootstrap = new ServerBootstrap();
-                bootstrap
-                    .Group(bossGroup, workerGroup)
-                    .Channel<TcpServerSocketChannel>()
-                    .Option(ChannelOption.SoBacklog, 100)
-                    .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                    {
-                        var pipeline = channel.Pipeline;
-                        pipeline.AddLast("framing-enc", new LengthFieldPrepender(2));
-                        pipeline.AddLast("framing-dec", new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
-
-                        pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterServerSession(password));
-                    }));
-
-                var bootstrapChannel = await bootstrap.BindAsync(port);
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_LISTENING));
-                Console.ReadLine();
-
-                await bootstrapChannel.CloseAsync();
-            }
-            finally
-            {
-                Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), workerGroup.ShutdownGracefullyAsync());
             }
         }
     }

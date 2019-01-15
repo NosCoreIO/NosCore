@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
 	<TieredCompilation>true</TieredCompilation>
 	<LangVersion>7.3</LangVersion>
   </PropertyGroup>
@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTK.NETCore" Version="1.1.2749.6433" />
-    <PackageReference Include="System.Memory" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="System.Reactive" Version="4.1.2" />
   </ItemGroup>
 

@@ -28,8 +28,6 @@ namespace NosCore.Core
 {
     public static class DelegateBuilder
     {
-        #region Methods
-
         public static T BuildDelegate<T>(MethodInfo method, params object[] missingParamValues) where T : class
         {
             var queueMissingParams = new Queue<object>(missingParamValues);
@@ -91,7 +89,5 @@ namespace NosCore.Core
 
             return Expression.Constant(null);
         }
-
-        #endregion
     }
 }

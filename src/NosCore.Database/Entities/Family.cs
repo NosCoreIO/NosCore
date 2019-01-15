@@ -26,17 +26,11 @@ namespace NosCore.Database.Entities
 {
     public class Family
     {
-        #region Instantiation
-
         public Family()
         {
             FamilyCharacters = new HashSet<FamilyCharacter>();
             FamilyLogs = new HashSet<FamilyLog>();
         }
-
-        #endregion
-
-        #region Properties
 
         public virtual ICollection<FamilyCharacter> FamilyCharacters { get; set; }
 
@@ -75,7 +69,5 @@ namespace NosCore.Database.Entities
         public string Name { get; set; }
 
         public byte WarehouseSize { get; set; }
-
-        #endregion
     }
 }

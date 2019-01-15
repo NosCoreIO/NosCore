@@ -164,7 +164,7 @@ namespace NosCore.Parser.Parsers
                 DaoFactory.CardDao.InsertOrUpdate(Cards);
                 DaoFactory.BcardDao.InsertOrUpdate(Bcards);
 
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.CARDS_PARSED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED),
                     _counter);
             }
         }

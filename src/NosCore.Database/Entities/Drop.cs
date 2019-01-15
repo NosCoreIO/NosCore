@@ -21,8 +21,6 @@ namespace NosCore.Database.Entities
 {
     public class Drop
     {
-        #region Properties
-
         public int Amount { get; set; }
 
         public int DropChance { get; set; }
@@ -40,7 +38,5 @@ namespace NosCore.Database.Entities
         public short? MonsterVNum { get; set; }
 
         public virtual NpcMonster NpcMonster { get; set; }
-
-        #endregion
     }
 }

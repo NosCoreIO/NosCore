@@ -25,19 +25,20 @@ namespace NosCore.GameObject.Networking.Group
     {
         private static GroupAccess _instance;
 
+        private long _lastGroupId = 1;
+
         private GroupAccess()
         {
         }
 
         public static GroupAccess Instance => _instance ?? (_instance = new GroupAccess());
 
-        private long _lastGroupId = 1;
-        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } = new ConcurrentDictionary<long, GameObject.Group>();
+        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } =
+            new ConcurrentDictionary<long, GameObject.Group>();
 
         public long GetNextGroupId()
         {
             return ++_lastGroupId;
         }
-
     }
 }

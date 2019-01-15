@@ -22,18 +22,18 @@ using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface INonPlayableEntity : INamedEntity
+    public interface INonPlayableEntity : IAliveEntity
     {
         bool IsMoving { get; }
 
-        short Effect { get;}
+        short Effect { get; }
 
         short EffectDelay { get; }
 
-        bool IsDisabled { get;}
+        bool IsDisabled { get; }
 
         NpcMonsterDto NpcMonster { get; }
 
-        DateTime LastMove { get; set;  }
+        DateTime LastMove { get; set; }
     }
 }

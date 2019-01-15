@@ -17,10 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Configuration
 {
-    public class MasterConfiguration : WebApiConfiguration
+    public class MasterConfiguration : LanguageConfiguration
     {
+        [Required]
+        public WebApiConfiguration WebApi { get; set; }
+
+        [Required]
         public SqlConnectionConfiguration Database { get; set; }
     }
 }

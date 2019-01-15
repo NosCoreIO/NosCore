@@ -43,6 +43,7 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {
@@ -64,6 +65,33 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public CharacterScreenPacketController()
         {
+        }
+
+        /// <summary>
+        ///     Char_NEW_JOB character creation character
+        /// </summary>
+        /// <param name="martialArtistCreatePacket"></param>
+        public void CreateMartialArtist(CharNewJobPacket martialArtistCreatePacket)
+        {
+            //TODO add a flag on Account
+            if (DaoFactory.CharacterDao.FirstOrDefault(s =>
+                s.Level >= 80 && s.Account.AccountId == Session.Account.AccountId && s.State == CharacterState.Active) == null)
+            {
+                //Needs at least a level 80 to create a martial artist
+                //TODO log
+                return;
+            }
+            if (DaoFactory.CharacterDao.FirstOrDefault(s =>
+                s.Account.AccountId == Session.Account.AccountId &&
+                s.Class == (byte)CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
+            {
+                //If already a martial artist, can't create another
+                //TODO log
+                return;
+            }
+            //todo add cooldown for recreate 30days
+            
+            CreateCharacter(martialArtistCreatePacket);
         }
 
         /// <summary>
@@ -98,17 +126,17 @@ namespace NosCore.Controllers
                 {
                     var chara = new CharacterDto
                     {
-                        Class = (byte) CharacterClassType.Adventurer,
+                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist :  CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
                         HairColor = characterCreatePacket.HairColor,
                         HairStyle = characterCreatePacket.HairStyle,
-                        Hp = 221,
+                        Hp = characterCreatePacket.IsMartialArtist ? 12965 : 221,
                         JobLevel = 1,
-                        Level = 1,
+                        Level = (byte)(characterCreatePacket.IsMartialArtist ? 81 : 1),
                         MapId = 1,
                         MapX = (short) RandomFactory.Instance.RandomNumber(78, 81),
                         MapY = (short) RandomFactory.Instance.RandomNumber(114, 118),
-                        Mp = 221,
+                        Mp = characterCreatePacket.IsMartialArtist ? 2369 : 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
                         SpAdditionPoint = 0,
@@ -155,7 +183,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (account.Password.ToLower() == EncryptionHelper.Sha512(characterDeletePacket.Password))
+            if (account.Password.ToLower() == characterDeletePacket.Password.ToSha512())
             {
                 var character = DaoFactory.CharacterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
@@ -188,13 +216,13 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<WorldServerInfo>>("api/channels");
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
-                foreach (var server in servers)
+                foreach (var server in servers ?? new List<ChannelInfo>())
                 {
                     if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>("api/connectedAccount", server.WebApi)
+                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
                         .Any(a => a.Name == name))
                     {
                         alreadyConnnected = true;
@@ -212,7 +240,7 @@ namespace NosCore.Controllers
 
                 if (account != null)
                 {
-                    if (account.Password.Equals(EncryptionHelper.Sha512(packet.Password),
+                    if (account.Password.Equals(packet.Password.ToSha512(),
                         StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto
@@ -230,14 +258,14 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_PASSWORD));
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
                         Session.Disconnect();
                         return;
                     }
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.INVALID_ACCOUNT));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
                     Session.Disconnect();
                     return;
                 }
@@ -245,7 +273,7 @@ namespace NosCore.Controllers
 
             var characters = DaoFactory.CharacterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ACCOUNT_ARRIVED),
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                 Session.Account.Name);
 
             // load characterlist packet for each character in Character
@@ -341,6 +369,7 @@ namespace NosCore.Controllers
                 character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
+                character.Direction = 2;
                 character.Account = Session.Account;
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);

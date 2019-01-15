@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Hai accettato la condivisione del punto con {0}!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
@@ -238,9 +235,6 @@
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>La tua lista amici è piena!</value>
   </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Vuoi essere amico di {0}?</value>
-  </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Richiesta d'amicizia accettata!</value>
   </data>
@@ -259,9 +253,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Richiesta di amicizia inviata</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Oro assegnato</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di richiesta gruppo sconosciuto</value>
     <comment>insert missing type data</comment>
@@ -278,17 +269,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Il gruppo è pieno</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Richiesta di invito di gruppo inviata a: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Il leader del gruppo è cambiato!</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Sei uscito dal gruppo</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} ha rifiutato la tua richiesta di gruppo</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Hai inviato una richiesta per condividere il punto di ritorno con i membri del tuo gruppo</value>
@@ -338,15 +320,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
   </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Argomenti di teletrasporto non validi</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Vuoi impostare come punto di ritorno da: {0}?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} ti ha inviato una richiesta di gruppo</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di invito sconosciuto</value>
     <comment>insert missing type data</comment>
@@ -364,9 +337,6 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Hai ricevuto</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>{0} Ha ricevuto</value>
-  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Non puoi gettare questo item.</value>
   </data>
@@ -379,9 +349,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lingua mancante</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} ha lasciato il gruppo</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Ascolto della porta {0}</value>
@@ -407,8 +374,8 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Questa mappa non esiste!</value>
   </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer avviato con successo.</value>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Artista Marziale</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al server master! Provando ancora tra {0} secondi...</value>
@@ -519,15 +486,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portali Sincronizzati!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registrato su MasterServer</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
-  </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>La tua reputazione è cambiata</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
@@ -538,23 +499,17 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Seleziona un MapId:</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Messaggio inviato a {0}</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Hai rifiutato di condividere il punto di ritorno con i membri del gruppo</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Hai ricevuto {0} punti SP!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
-    <value>Supporter {0}</value>
+    <value>Supporter</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>L'item verrà distrutto.</value>
@@ -576,28 +531,14 @@
     <value>Tipo di destinatario sconosciuto</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Pacchetto Master non riconosciuto</value>
-    <comment>revisionare</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Non registrato dal MasterServer</value>
-    <comment>revisionare</comment>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utente non è un amico!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
   </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>Utente teleportato su una mappa non esistente</value>
-  </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
-  </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Lottatore</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>MapId errato!</value>

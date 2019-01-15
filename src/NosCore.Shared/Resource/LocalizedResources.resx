@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>You accepted point share with {0}!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account with SessionId {0} has arrived.</value>
   </data>
@@ -141,8 +138,14 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>This name is already taken!</value>
   </data>
+  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
+    <value>The amount of subpackets is incorrect!</value>
+  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Archer</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Do you wish to bind with this item?</value>
   </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>Do you want to delete?</value>
@@ -155,7 +158,7 @@
     <comment>check</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Authenticated Success!</value>
+    <value>Client : {1} authenticated successfully!</value>
     <comment>check</comment>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
@@ -167,6 +170,12 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Bad drop amount.</value>
   </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Your character does not fulfil the requirements needed to wear this item.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>Your specialist does not match with the fairy element.</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Wrong password!</value>
   </data>
@@ -176,8 +185,17 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>This Player has blocked you!</value>
   </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>You have purchased an item!</value>
+  </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Can't block your friend!</value>
+    <value>Can not block your friend!</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>You can not change to the same class.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>You can not equip a destroyed SP!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Unable to find this character!</value>
@@ -188,12 +206,18 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Channel</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>The channel will exit in brief moments.</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Character Not loaded</value>
     <comment>check</comment>
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>The Character is offline</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Your class was changed succesfully!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
@@ -203,6 +227,9 @@
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Connection closed.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>Connection lost.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Corrupted Keepalive on client {0}</value>
@@ -235,14 +262,17 @@
     <value>Decoding error</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>To change of class dequip all your items please.</value>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>An exception has been thrown : {0}</value>
+  </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Forced Disconnecting of client {0}, too much connections.</value>
   </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Your Friendlist is full!</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Be a friend of {0}?</value>
   </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Friend request accepted!</value>
@@ -262,9 +292,6 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Friend request sent</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Gold changed!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Group request type</value>
     <comment>insert missing type data</comment>
@@ -281,17 +308,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Group is full</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Group invite request sent to: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Group leader changed!</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>You left the party</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} refused your group request</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>You sent a request to share the point of return with the members of your group</value>
@@ -301,6 +319,9 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Your hero level have changed</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Parsed! Region: {1}</value>
@@ -341,18 +362,15 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
   </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Invalid teleport arguments</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Do you want to set as a return point from : {0} ?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} sent you a group request</value>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Your inventory is full</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Invite type</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>This item can not be sold!</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items Loaded!</value>
@@ -367,14 +385,17 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Acquired</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>{0} Acquired</value>
-  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>You cant drop that item!</value>
+    <value>You can not drop that item!</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>You can't drop that item!</value>
+    <value>You can not drop that item here!</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>You can't trade some item</value>
+  </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Your job level has changed!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
@@ -383,11 +404,17 @@
     <value>Missing language</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} left the party</value>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Your level has changed!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>This SP requires more Job Level to use it.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>This SP requires more Reputation to use it.</value>
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Magician</value>
@@ -410,8 +437,14 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>This map does not exist!</value>
   </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer started successfully.</value>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Martial Artist</value>
+  </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Ping to master server</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>Ping to master server failed</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Cannot connect to Master Server! Trying again in {0} seconds...</value>
@@ -425,20 +458,35 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>You are the new party leader!</value>
   </data>
+  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
+    <value>Exception while deserializing a value! Value: {0}  PacketPropertyType: {1}</value>
+  </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>You are not an adventurer.</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>You do not have enough money to purchase that item!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Not enough place.</value>
   </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>You don't have enough reputation to purchase that item!</value>
+  </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
-    <value>This player isn't on your blacklist!</value>
+    <value>This player is not on your blacklist!</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>The item is not yours!</value>
   </data>
   <data name="NO_ITEM" xml:space="preserve">
-    <value>Item doesn't exist!</value>
+    <value>Item does not exist!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>There is no specialist card equipped.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>No special properties wearable</value>
@@ -451,6 +499,12 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs Parsed!</value>
+  </data>
+  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
+    <value>This packet format is wrong! Packet: {0}</value>
+  </data>
+  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
+    <value>This packet doesn't have a header! SerializationType: {0}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Do you want to parse Accounts?</value>
@@ -521,15 +575,19 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portal Parsed!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registered on MasterServer</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REP_CHANGED" xml:space="preserve">
-    <value>Reputation changed</value>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>To transform dismount the vehicle.</value>
+    <comment>Not used in the official</comment>
+  </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>Your reputation has decreased!</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>Your reputation has changed!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
@@ -540,29 +598,77 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Please, Select a MapId:</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Message sent to {0}</value>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>Your item has been sold!</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>You refused to share the point of return with the group members</value>
   </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>You can not open an empty shop!</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Open a shop away from the portal please.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>You can not open a shop in this map.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>You can not open a shop in a raid.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>You can only sell tradable items! Please, check the items you want to sell.</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>You have opened a shop.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Proceed to open the shop as you set it up?</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>{0} ShopItems Loaded!</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>{0} ShopItems Parsed!</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>{0} Shops Loaded!</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>{0} Shops Parsed!</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>You received {0} SP Points!</value>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>You are actually using an SP! Please untransform first.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Your SP is still at cooldown! Please wait {0}s</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>You do not have sufficient SP points to transform!</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Time left of the secondary effects: {0} seconds</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
-  </data>
-  <data name="SUPPORT" xml:space="preserve">
-    <value>Supporter {0}</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Are you sure you want to delete this item?</value>
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Swordman</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>The secondary effects have finished.</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>You need at least "Level 15" and "Job Level 20" to change your class.</value>
+  </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>The seller does not have sufficient space to handle your money.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Unable to request the group</value>
@@ -577,13 +683,8 @@
     <value>Unknown Reciever type</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Unrecognized Master Packet.</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Unregistred From Master.</value>
-    <comment>check</comment>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Invalid SP card detected!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>User is not a friend!</value>
@@ -591,14 +692,11 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>User is not connected</value>
   </data>
-  <data name="USER_TELEPORTED_TO_NOT_EXISTING_MAP" xml:space="preserve">
-    <value>User teleported to not existing map</value>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>VisualEntity does not exist: {0}</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>
-  </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Wrestler</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Wrong MapId!</value>

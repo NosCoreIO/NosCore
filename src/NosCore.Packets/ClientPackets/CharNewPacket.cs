@@ -42,5 +42,7 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(4)]
         public HairColorType HairColor { get; set; }
+
+        public bool IsMartialArtist { get; set; }
     }
 }

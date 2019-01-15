@@ -14,7 +14,7 @@ namespace NosCore.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("NosCore.Database.Entities.Account", b =>
@@ -48,36 +48,6 @@ namespace NosCore.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Account");
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
-                {
-                    b.Property<long>("BazaarItemId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<byte>("Amount");
-
-                    b.Property<DateTime>("DateStart");
-
-                    b.Property<short>("Duration");
-
-                    b.Property<bool>("IsPackage");
-
-                    b.Property<Guid>("ItemInstanceId");
-
-                    b.Property<bool>("MedalUsed");
-
-                    b.Property<long>("Price");
-
-                    b.Property<long>("SellerId");
-
-                    b.HasKey("BazaarItemId");
-
-                    b.HasIndex("ItemInstanceId");
-
-                    b.HasIndex("SellerId");
-
-                    b.ToTable("BazaarItem");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
@@ -120,6 +90,36 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("SkillVNum");
 
                     b.ToTable("BCard");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
+                {
+                    b.Property<long>("BazaarItemId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<byte>("Amount");
+
+                    b.Property<DateTime>("DateStart");
+
+                    b.Property<short>("Duration");
+
+                    b.Property<bool>("IsPackage");
+
+                    b.Property<Guid>("ItemInstanceId");
+
+                    b.Property<bool>("MedalUsed");
+
+                    b.Property<long>("Price");
+
+                    b.Property<long>("SellerId");
+
+                    b.HasKey("BazaarItemId");
+
+                    b.HasIndex("ItemInstanceId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("BazaarItem");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Card", b =>
@@ -746,8 +746,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<bool>("Flag4");
 
-                    b.Property<bool>("Flag5");
-
                     b.Property<bool>("Flag6");
 
                     b.Property<bool>("Flag7");
@@ -830,6 +828,8 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("ReputPrice");
 
                     b.Property<byte>("ReputationMinimum");
+
+                    b.Property<bool>("RequireBinding");
 
                     b.Property<byte>("SecondaryElement");
 
@@ -1788,8 +1788,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short?>("Mp");
 
-                    b.ToTable("UsableInstance");
-
                     b.HasDiscriminator().HasValue("UsableInstance");
                 });
 
@@ -1896,8 +1894,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<byte?>("SpWater");
 
-                    b.ToTable("SpecialistInstance");
-
                     b.HasDiscriminator().HasValue("SpecialistInstance");
                 });
 
@@ -1907,22 +1903,7 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short?>("HoldingVNum");
 
-                    b.ToTable("BoxInstance");
-
                     b.HasDiscriminator().HasValue("BoxInstance");
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
-                {
-                    b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
-                        .WithMany("BazaarItem")
-                        .HasForeignKey("ItemInstanceId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("NosCore.Database.Entities.Character", "Character")
-                        .WithMany("BazaarItem")
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
@@ -1945,6 +1926,19 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Skill", "Skill")
                         .WithMany("BCards")
                         .HasForeignKey("SkillVNum")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
+                        .WithMany("BazaarItem")
+                        .HasForeignKey("ItemInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("BazaarItem")
+                        .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

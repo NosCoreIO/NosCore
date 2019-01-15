@@ -17,17 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Configuration;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
 {
@@ -43,12 +49,16 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character {Name = "characterTest", Account = new AccountDto {Authority = AuthorityType.Administrator}, Level = 1};
+            var characterTest = new Character
+            {
+                Name = "characterTest",
+                Account = new AccountDto { Authority = AuthorityType.Administrator },
+                Level = 1,
+                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
+            };
 
-            var packet = PacketFactory.Serialize(new[] {characterTest.GenerateIn("")});
-            Assert.AreEqual(
-                $"in 1 characterTest - 0 0 0 0 {(byte) characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 0 0 -1 - 1 0 0 0 0 1 0 0 0 0 0",
-                packet);
+            var packet = PacketFactory.Serialize(new[] { characterTest.GenerateIn("") });
+            Assert.AreEqual($"in 1 characterTest - 0 0 0 0 {(byte)characterTest.Authority} 0 0 0 0 -1.-1.-1.-1.-1.-1.-1.-1.-1 0 0 0 -1 0 0 0 0 0 0 00 00 -1 - 1 0 0 0 0 1 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -56,14 +66,57 @@ namespace NosCore.Tests
         {
             var dlgTest = new DlgPacket
             {
-                Question = "question", NoPacket = new FinsPacket {Type = FinsPacketType.Rejected, CharacterId = 1},
-                YesPacket = new FinsPacket {Type = FinsPacketType.Accepted, CharacterId = 1}
+                Question = "question",
+                NoPacket = new FinsPacket { Type = FinsPacketType.Rejected, CharacterId = 1 },
+                YesPacket = new FinsPacket { Type = FinsPacketType.Accepted, CharacterId = 1 }
             };
 
-            var packet = PacketFactory.Serialize(new[] {dlgTest});
+            var packet = PacketFactory.Serialize(new[] { dlgTest });
             Assert.AreEqual(
                 "dlg #fins^1^1 #fins^2^1 question",
                 packet);
+        }
+
+        [TestMethod]
+        public void Generate()
+        {
+            var characterTest = new Character
+            {
+                Name = "characterTest",
+                Account = new AccountDto { Authority = AuthorityType.Administrator },
+                Level = 1,
+                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
+            };
+
+            var packet = PacketFactory.Serialize(new[] {new DelayPacket
+            {
+                Type = 3,
+                Delay = 3000,
+                Packet = characterTest.GenerateUseItem(PocketType.Main, 1, 2, 0)
+            } });
+            Assert.AreEqual($"delay 3000 3 #u_i^1^0^1^1^2^0", packet);
+        }
+
+        [TestMethod]
+        public void GeneratePacketWithNullableOptional()
+        {
+            var testPacket = new NInvPacket
+            {
+                Items = new List<NInvItemSubPacket> {new NInvItemSubPacket
+                {
+                    Type = 0,
+                    Slot = 0,
+                    Price = 0,
+                    RareAmount = null,
+                    UpgradeDesign = null,
+                    VNum = 0
+                } }
+            };
+
+            var packet = PacketFactory.Serialize(new[] { testPacket });
+            Assert.AreEqual(
+                    "n_inv 0 0 0 0 0.0.0.-1.0",
+                    packet);
         }
 
         [TestMethod]
@@ -78,7 +131,7 @@ namespace NosCore.Tests
                 }
             };
 
-            var packet = PacketFactory.Serialize(new[] {dlgTest});
+            var packet = PacketFactory.Serialize(new[] { dlgTest });
             Assert.AreEqual(
                 "blinit 1|test 2|test2",
                 packet);
@@ -89,7 +142,7 @@ namespace NosCore.Tests
         {
             var mapMonsterTest = new MapMonster();
 
-            var packet = PacketFactory.Serialize(new[] {mapMonsterTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] { mapMonsterTest.GenerateIn() });
             Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
 
@@ -115,7 +168,7 @@ namespace NosCore.Tests
                 SessionId = 1
             };
 
-            var packet = PacketFactory.Serialize(new[] {nstestpacket});
+            var packet = PacketFactory.Serialize(new[] { nstestpacket });
             Assert.AreEqual("NsTeST test 1 -1:-1:-1:10000.10000.1", packet);
         }
 
@@ -124,17 +177,18 @@ namespace NosCore.Tests
         {
             var mapNpcTest = new MapNpc();
 
-            var packet = PacketFactory.Serialize(new[] {mapNpcTest.GenerateIn()});
+            var packet = PacketFactory.Serialize(new[] { mapNpcTest.GenerateIn() });
             Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
         }
+
 
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForItem()
         {
             var mapItemTest = new MapItem();
 
-            var packet = PacketFactory.Serialize(new[] {mapItemTest.GenerateIn()});
-            Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 0 {mapItemTest.Amount} 0 0", packet);
+            var packet = PacketFactory.Serialize(new[] { mapItemTest.GenerateIn() });
+            Assert.AreEqual($"in 9 - {mapItemTest.VisualId} 0 0 {mapItemTest.Amount} 0 0", packet);
         }
 
         [TestMethod]
@@ -145,6 +199,46 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
+        public void DeserializeSpecial()
+        {
+            var packet = (UseItemPacket)PacketFactory.Deserialize("u_i 2 3 4 5 6", typeof(UseItemPacket));
+            Assert.IsTrue(packet.Mode == 6);
+        }
+
+        [TestMethod]
+        public void DeserializeOptionalListPacket()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize("m_shop 1", typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == CreateShopPacketType.Close);
+        }
+
+        [TestMethod]
+        public void DeserializeListSubPacketWithoutSeparator()
+        {
+            var packet = (MShopPacket)PacketFactory.Deserialize(
+                "m_shop 0 0 20 1 2400 0 21 1 10692 2 0 8 2500 2 3 2 480 0 0 0 0 0 0 0 0 0 0 0 0 0 0" +
+                " 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 admin Stand",
+                typeof(MShopPacket));
+            Assert.IsTrue(packet.Type == 0
+                && packet.ItemList[1].Type == 0
+                && packet.ItemList[1].Slot == 21
+                && packet.ItemList[1].Amount == 1
+                && packet.ItemList[1].Price == 10692
+                && packet.Name == "admin Stand");
+        }
+
+        [TestMethod]
+        public void DeserializeSimpleListSubPacketWithoutSeparator()
+        {
+            var packet = (SitPacket)PacketFactory.Deserialize(
+                "rest 1 2 3",
+                typeof(SitPacket));
+            Assert.IsTrue(packet.Amount == 1
+                && packet.Users[0].VisualType == VisualType.Npc
+                && packet.Users[0].VisualId == 3);
+        }
+
+        [TestMethod]
         public void CheckWhisperIsNotCorrupted()
         {
             var packet = new WhisperPacket
@@ -152,7 +246,7 @@ namespace NosCore.Tests
                 Message = "test message !"
             };
 
-            var serializedPacket = PacketFactory.Serialize(new[] {packet});
+            var serializedPacket = PacketFactory.Serialize(new[] { packet });
             Assert.AreEqual("/ test message !", serializedPacket);
         }
 
@@ -161,6 +255,31 @@ namespace NosCore.Tests
         {
             var serializedPacket = PacketFactory.Deserialize("/ ");
             Assert.AreEqual(serializedPacket, null);
+        }
+
+        [TestMethod]
+        public void TestSerializeEmptyListItem()
+        {
+            var items = new ConcurrentDictionary<int, ShopItem>();
+            var item = new UsableInstance
+            {
+                Item = new Item()
+            };
+
+            items.TryAdd(0,
+                new ShopItem {Slot = 0, Type = 0, Amount = 1, ItemInstance = item, Price = 1});
+            items.TryAdd(1,
+                new ShopItem {Slot = 2, Type = 0, Amount = 2, ItemInstance = item, Price = 1});
+            var chara = new Character
+            {
+                Shop = new Shop
+                {
+                    ShopItems = items
+                }
+            };
+
+            var packet = PacketFactory.Serialize(new[] { chara.GenerateNInv(1, 0, 0) });
+            Assert.AreEqual("n_inv 1 0 0 0 0.0.0.0.0.1 -1 0.2.0.0.0.1", packet);
         }
     }
 }

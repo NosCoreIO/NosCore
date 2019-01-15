@@ -18,24 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Net;
-using System.Threading.Tasks;
-using DotNetty.Codecs;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Sockets;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Client;
 using NosCore.Core.Networking;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Polly;
 using Serilog;
+using System.Threading;
 
 namespace NosCore.LoginServer
 {
@@ -54,12 +47,17 @@ namespace NosCore.LoginServer
         public void Run()
         {
             ConnectMaster();
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
+                Thread.Sleep(5000);
+            };
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.LISTENING_PORT),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 _networkManager.RunServerAsync().Wait();
@@ -72,53 +70,14 @@ namespace NosCore.LoginServer
 
         private void ConnectMaster()
         {
-            async Task RunMasterClient(string targetHost, int port, string password, MasterClient clientType,
-                int connectedAccountLimit = 0, int clientPort = 0, byte serverGroup = 0, string serverHost = "")
+            WebApiAccess.RegisterBaseAdress(new Channel
             {
-                var group = new MultithreadEventLoopGroup();
-
-                var bootstrap = new Bootstrap();
-                bootstrap
-                    .Group(group)
-                    .Channel<TcpSocketChannel>()
-                    .Option(ChannelOption.TcpNodelay, true)
-                    .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
-                    {
-                        var pipeline = channel.Pipeline;
-
-                        pipeline.AddLast(new LengthFieldPrepender(2));
-                        pipeline.AddLast(new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));
-
-                        pipeline.AddLast(new StringEncoder(), new StringDecoder());
-                        pipeline.AddLast(new MasterClientSession(password, ConnectMaster));
-                    }));
-                var connection = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(targetHost), port));
-                await connection.WriteAndFlushAsync(new Channel
-                {
-                    Password = password,
-                    ClientName = clientType.Name,
-                    ClientType = (byte) clientType.Type,
-                    ConnectedAccountLimit = connectedAccountLimit,
-                    Port = clientPort,
-                    ServerGroup = serverGroup,
-                    Host = serverHost
-                });
-            }
-
-            WebApiAccess.RegisterBaseAdress(_loginConfiguration.MasterCommunication.WebApi.ToString(),
-                _loginConfiguration.MasterCommunication.Password);
-            Policy
-                .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        _logger.Error(string.Format(
-                            LogLanguage.Instance.GetMessageFromKey(LanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => RunMasterClient(_loginConfiguration.MasterCommunication.Host,
-                    Convert.ToInt32(_loginConfiguration.MasterCommunication.Port),
-                    _loginConfiguration.MasterCommunication.Password,
-                    new MasterClient {Name = "LoginServer", Type = ServerType.LoginServer})
-                ).Wait();
+                MasterCommunication = _loginConfiguration.MasterCommunication,
+                ClientType = ServerType.LoginServer,
+                ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
+                Port = _loginConfiguration.Port,
+                Host = _loginConfiguration.Host
+            });
         }
     }
 }

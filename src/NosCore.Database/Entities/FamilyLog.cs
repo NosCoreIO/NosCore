@@ -25,8 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class FamilyLog
     {
-        #region Properties
-
         public virtual Family Family { get; set; }
 
         public long FamilyId { get; set; }
@@ -39,7 +37,5 @@ namespace NosCore.Database.Entities
         public FamilyLogType FamilyLogType { get; set; }
 
         public DateTime Timestamp { get; set; }
-
-        #endregion
     }
 }

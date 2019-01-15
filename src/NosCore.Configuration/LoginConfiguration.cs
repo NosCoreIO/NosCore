@@ -18,14 +18,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Shared.Enumerations;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
 {
-    public class LoginConfiguration : GameServerConfiguration
+    public class LoginConfiguration : ServerConfiguration
     {
+        [Required]
+        public WebApiConfiguration MasterCommunication { get; set; }
+
+        [Required]
         public SqlConnectionConfiguration Database { get; set; }
 
         public RegionType UserLanguage { get; set; }
+
         public string ClientData { get; set; }
     }
 }

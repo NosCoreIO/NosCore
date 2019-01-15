@@ -60,6 +60,17 @@ using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Controllers;
+using NosCore.Data.AliveEntities;
+using NosCore.GameObject;
+using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Services.GuriAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.MapNpcBuilder;
+using NosCore.GameObject.Services.NRunAccess;
 
 namespace NosCore.WorldServer
 {
@@ -77,6 +88,7 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(worldConfiguration);
+            Validator.ValidateObject(worldConfiguration, new ValidationContext(worldConfiguration), validateAllProperties: true);
             return worldConfiguration;
         }
 
@@ -99,37 +111,94 @@ namespace NosCore.WorldServer
             containerBuilder.Register(_ =>
             {
                 var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_LOADED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_LOADED),
                     items.Count);
                 return items;
             }).As<List<Item>>().SingleInstance();
+
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NPCMONSTERS_LOADED), monsters.Count);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_LOADED), monsters.Count);
                 return monsters;
             }).As<List<NpcMonsterDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                var shopItems = DaoFactory.ShopItemDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_LOADED), shopItems.Count);
+                return shopItems;
+            }).As<List<ShopItemDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                var shops = DaoFactory.ShopDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_LOADED), shops.Count);
+                return shops;
+            }).As<List<ShopDto>>().SingleInstance();
+
             containerBuilder.Register(_ =>
             {
                 List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
                 if (maps.Count != 0)
                 {
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.MAPS_LOADED),
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED),
                         maps.Count);
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_MAP));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
                 }
 
                 return maps;
             }).As<List<Map>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                List<MapMonsterDto> monsters = DaoFactory.MapMonsterDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monsters.Count);
+                return monsters;
+            }).As<List<MapMonsterDto>>().SingleInstance();
+
+            containerBuilder.Register(_ =>
+            {
+                List<MapNpcDto> npcs = DaoFactory.MapNpcDao.LoadAll().ToList();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPNPCS_LOADED), npcs.Count);
+                return npcs;
+            }).As<List<MapNpcDto>>().SingleInstance();
+
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
-            
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+                .InstancePerLifetimeScope()
+                .AsImplementedInterfaces();
+
             containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
+            containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<MapNpcBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<MapMonsterBuilderService>().SingleInstance();
+            containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
+            containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
+            containerBuilder.RegisterType<ExchangeService>().SingleInstance();
 
             containerBuilder.Populate(services);
         }
@@ -145,12 +214,12 @@ namespace NosCore.WorldServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {configuration.WebApi.ToString()}
+                Addresses = { configuration.WebApi.ToString() }
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             var keyByteArray =
-                Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.MasterCommunication.Password));
+                Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -174,11 +243,14 @@ namespace NosCore.WorldServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
 
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<GameServerConfiguration>();
-            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<MasterCommunicationConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<WebApiConfiguration>();
             InitializeContainer(ref containerBuilder, services);
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

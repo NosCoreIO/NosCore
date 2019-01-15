@@ -17,7 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Reactive.Subjects;
 using NosCore.Data;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets;
 
 namespace NosCore.GameObject.Services.ItemBuilder.Item
 {
@@ -34,10 +38,11 @@ namespace NosCore.GameObject.Services.ItemBuilder.Item
         }
 
         public Item Item { get; set; }
+        public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
 
         public object Clone()
         {
-            return (BoxInstance)MemberwiseClone();
+            return (BoxInstance) MemberwiseClone();
         }
     }
 }

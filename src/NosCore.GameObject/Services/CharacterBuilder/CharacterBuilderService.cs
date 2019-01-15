@@ -20,22 +20,29 @@
 using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Services.ItemBuilder;
 
 namespace NosCore.GameObject.Services.CharacterBuilder
 {
     public class CharacterBuilderService : ICharacterBuilderService
     {
         private readonly IInventoryService _inventory;
-
-        public CharacterBuilderService(IInventoryService inventory)
+        private readonly IItemBuilderService _itemBuilderService;
+        private readonly ExchangeService.ExchangeService _exchangeService;
+        
+        public CharacterBuilderService(IInventoryService inventory, ExchangeService.ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             _inventory = inventory;
+            _itemBuilderService = itemBuilderService;
+            _exchangeService = exchangeService;
         }
 
         public Character LoadCharacter(CharacterDto characterDto)
         {
             Character character = characterDto.Adapt<Character>();
             character.Inventory = _inventory;
+            character.ItemBuilderService = _itemBuilderService;
+            character.ExchangeService = _exchangeService;
             return character;
         }
     }

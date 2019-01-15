@@ -68,13 +68,13 @@ namespace NosCore.WorldServer.Controllers
 
                     if (receiverSession == null)
                     {
-                        return Ok();
+                        return Ok(); //TODO: not found
                     }
 
                     receiverSession.SendPacket(message);
                     break;
                 default:
-                   _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.UNKWNOWN_RECEIVERTYPE));
+                   _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

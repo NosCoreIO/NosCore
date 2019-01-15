@@ -1,9 +1,8 @@
 {
-  "Port": 6969,
-  "Password": "NosCorePassword",
   "WebApi": {
 		"Host": "http://+",
-		"Port": 5000
+		"Port": 5000,
+		"Password": "NosCorePassword"
   },
   "Language" : "en",
   "Database": {

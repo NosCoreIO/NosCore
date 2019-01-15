@@ -34,18 +34,17 @@ namespace NosCore.GameObject
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         public IDisposable Life { get; private set; }
+        public Group Group { get; set; }
         public bool IsSitting { get; set; }
-        public byte Class { get; set; }
         public byte Speed { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
-        public byte Morph { get; set; }
+        public short Morph { get; set; }
         public byte MorphUpgrade { get; set; }
-        public byte MorphDesign { get; set; }
+        public short MorphDesign { get; set; }
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
-
         public VisualType VisualType => VisualType.Monster;
 
         public long VisualId => MapMonsterId;
@@ -56,7 +55,6 @@ namespace NosCore.GameObject
 
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
-        public string Name { get; set; }
         public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
@@ -66,10 +64,12 @@ namespace NosCore.GameObject
 
         public int MaxMp => NpcMonster.MaxMp;
 
+        public short Race => NpcMonster.Race;
+        public Shop Shop => null;
+
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Group Group { get; set; }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

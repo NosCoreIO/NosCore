@@ -267,9 +267,6 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>MapTypeleri Çözümlendi.</value>
   </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>MasterServer uçuşa geçti :).</value>
-  </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>MasterServer'a bağlanılamıyor , lütfen 5 saniye sonra tekrar dene..</value>
   </data>
@@ -351,9 +348,6 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portal Çözümlendi!</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>MasterServer'e Başarıyla Bağlandı..</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>MasterServer'e Başarıyla Bağlandı..</value>
     <comment>check</comment>
@@ -377,21 +371,10 @@
     <value>Başarıyla Yüklendi!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
-    <value>Destek {0}</value>
+    <value>Destek</value>
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Savaşcı</value>
-  </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Tanınmayan Master Paket.</value>
-    <comment>check</comment>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Hata! MasterServer'e bağlanılamadı.</value>
-    <comment>check</comment>
-  </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Boksör</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Hatalı MapId!</value>

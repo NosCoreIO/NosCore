@@ -1,12 +1,16 @@
 {
   "MasterCommunication": {
-    "Password": "NosCorePassword",
-    "Host": "127.0.0.1",
-    "Port": 6969,
-	 "WebApi": {
+	    "Password": "NosCorePassword",
 		"Host": "http://localhost",
-		"Port": 5000
-	},
+		"Port": 5000,
+		"Routes": {
+			"ConnectedAccount" : "api/connectedAccount",
+			"Channel" : "api/channel",
+			"Session" : "api/session",
+			"Relation" : "api/relation",
+			"Packet" : "api/packet",
+			"Stat": "api/stat"
+		}
   },
   "ServerName": "S1-NosCore",
   "Host": "127.0.0.1",
@@ -16,7 +20,8 @@
   "WorldInformation": true,
   "WebApi": {
 		"Host": "http://localhost",
-		"Port": 5001
+		"Port": 5001,
+		"Password": "NosCorePassword2"
   },
   "Language" : "en",
   "Database": {
@@ -28,5 +33,6 @@
 	},
 	"BackpackSize":48,
 	"MaxItemAmount":999,
-	"MaxGoldAmount":1000000000
+	"MaxGoldAmount":1000000000,
+	"MaxBankGoldAmount":100000000000
 }

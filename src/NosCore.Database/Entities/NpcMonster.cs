@@ -26,8 +26,6 @@ namespace NosCore.Database.Entities
 {
     public class NpcMonster
     {
-        #region Instantiation
-
         public NpcMonster()
         {
             Drop = new HashSet<Drop>();
@@ -38,10 +36,6 @@ namespace NosCore.Database.Entities
             BCards = new HashSet<BCard>();
             MonsterType = MonsterType.Unknown;
         }
-
-        #endregion
-
-        #region Properties
 
         public byte AmountRequired { get; set; }
 
@@ -147,7 +141,5 @@ namespace NosCore.Database.Entities
         public int GiveDamagePercentage { get; set; }
 
         public virtual ICollection<BCard> BCards { get; set; }
-
-        #endregion
     }
 }

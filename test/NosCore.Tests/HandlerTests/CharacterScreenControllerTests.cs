@@ -37,6 +37,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.CharacterBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Map;
@@ -49,7 +50,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> {new CharacterScreenPacketController()}, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null, null);
         
         private CharacterDto _chara;
         private CharacterScreenPacketController _handler;
@@ -64,7 +65,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
             DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var _acc = new AccountDto {Name = "AccountTest", Password = EncryptionHelper.Sha512("test")};
+            var _acc = new AccountDto {Name = "AccountTest", Password ="test".ToSha512()};
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
             _chara = new CharacterDto
             {
@@ -76,7 +77,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null), null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null), null, null);
             _handler.RegisterSession(_session);
         }
 
@@ -85,7 +86,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -180,7 +182,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters);
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
@@ -34,11 +35,13 @@ using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
+using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.Controllers
 {
@@ -63,6 +66,120 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public CommandPacketController()
         {
+        }
+
+        [UsedImplicitly]
+        public void ChangeClass(ChangeClassPacket changeClassPacket)
+        {
+            if (changeClassPacket.Name == Session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
+            {
+                Session.Character.ChangeClass(changeClassPacket.ClassType);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateClass,
+                Character = new Character { Name = changeClassPacket.Name },
+                Data = (byte)changeClassPacket.ClassType,
+            };
+
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        }
+
+        [UsedImplicitly]
+        public void SetReputation(SetReputationPacket setReputationPacket)
+        {
+            if (setReputationPacket.Name == Session.Character.Name || string.IsNullOrEmpty(setReputationPacket.Name))
+            {
+                Session.Character.SetReputation(setReputationPacket.Reputation);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateReputation,
+                Character = new Character { Name = setReputationPacket.Name },
+                Data = setReputationPacket.Reputation
+            };
+
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        }
+
+        [UsedImplicitly]
+        public void Kick(KickPacket kickPacket)
+        {
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
         }
 
         [UsedImplicitly]
@@ -123,16 +240,40 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
-        public void Gold(GoldCommandPacket goldPacket)
+        public void SetGold(SetGoldCommandPacket goldPacket)
         {
-            if (goldPacket.Gold + Session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            var data = new StatData
             {
-                Session.SendPacket(Session.Character.GenerateSay(goldPacket.Help(), SayColorType.Yellow));
+                ActionType = UpdateStatActionType.UpdateGold,
+                Character = new Character { Name = goldPacket.Name },
+                Data = goldPacket.Gold
+            };
+
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            ServerConfiguration config = null;
+            ConnectedAccount account = null;
+
+            foreach (var server in servers)
+            {
+                config = server.WebApi;
+                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
+                if (account != null)
+                {
+                    break;
+                }
+            }
+
+            if (account == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
                 return;
             }
 
-            Session.Character.Gold += goldPacket.Gold;
-            Session.SendPacket(Session.Character.GenerateGold());
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         public void Shout(ShoutPacket shoutPacket)
@@ -283,7 +424,7 @@ namespace NosCore.Controllers
             }
             else
             {
-                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
             }
 
             Session.SendPacket(Session.Character.GenerateSay(
@@ -303,6 +444,144 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(Session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
             }
+        }
+
+        [UsedImplicitly]
+        public void HeroLevel(SetHeroLevelCommandPacket levelPacket)
+        {
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetHeroLevel(levelPacket.Level);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateHeroLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            };
+
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels ?? new List<ChannelInfo>())
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+                
+                if (target != null) 
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        }
+
+        [UsedImplicitly]
+        public void Level(SetLevelCommandPacket levelPacket)
+        {
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetLevel(levelPacket.Level);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            };
+
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels ?? new List<ChannelInfo>())
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        }
+
+        [UsedImplicitly]
+        public void JobLevel(SetJobLevelCommandPacket levelPacket)
+        {
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            {
+                Session.Character.SetJobLevel(levelPacket.Level);
+                return;
+            }
+
+            var data = new StatData
+            {
+                ActionType = UpdateStatActionType.UpdateJobLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
+            };
+
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels ?? new List<ChannelInfo>())
+            {
+                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+
+                if (target != null)
+                {
+                    receiver = target;
+                    config = channel.WebApi;
+                }
+            }
+
+            if (receiver == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+                return;
+            }
+
+            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]

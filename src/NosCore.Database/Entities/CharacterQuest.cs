@@ -23,8 +23,6 @@ namespace NosCore.Database.Entities
 {
     public class CharacterQuest : SynchronizableBaseEntity
     {
-        #region Properties
-
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
@@ -44,7 +42,5 @@ namespace NosCore.Database.Entities
         public int FifthObjective { get; set; }
 
         public bool IsMainQuest { get; set; }
-
-        #endregion
     }
 }

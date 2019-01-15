@@ -44,6 +44,8 @@ using NosCore.DAL;
 using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Core.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -60,6 +62,7 @@ namespace NosCore.MasterServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("master.json", false);
             builder.Build().Bind(masterConfiguration);
+            Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration), validateAllProperties: true);
             return masterConfiguration;
         }
 
@@ -85,7 +88,7 @@ namespace NosCore.MasterServer
             });
             LogLanguage.Language = configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
-            var keyByteArray = Encoding.Default.GetBytes(EncryptionHelper.Sha512(configuration.Password));
+            var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -109,9 +112,13 @@ namespace NosCore.MasterServer
                     .RequireAuthenticatedUser()
                     .Build();
                 o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly).AddControllersAsServices();
+            })
+            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>().As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
+            containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);

@@ -22,13 +22,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
+using NosCore.GameObject.Services.Inventory;
+using NosCore.Packets.ServerPackets;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
-    public interface ICharacterEntity : INamedEntity, IExperiencedEntity
+    public interface ICharacterEntity : INamedEntity, IRequestableEntity
     {
         AuthorityType Authority { get; }
 
@@ -38,7 +41,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         HairColorType HairColor { get; }
 
-        byte Equipment { get; }
+        CharacterClassType Class { get; }
+
+        InEquipmentSubPacket Equipment { get; }
 
         int ReputIcon { get; }
 
@@ -47,9 +52,20 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         bool Camouflage { get; }
 
         bool Invisible { get; }
+
         IChannel Channel { get; }
-       
+
         bool GroupRequestBlocked { get; }
+
+        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
+
+        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
+
+        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
+        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
+        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         void SendPacket(PacketDefinition packetDefinition);
 
@@ -62,14 +78,33 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
 
         void JoinGroup(Group group);
+
         void Save();
 
-        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
+        void SetJobLevel(byte level);
 
-        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
+        void SetHeroLevel(byte level);
 
-        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
+        void SetReputation(long reput);
 
-        ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
+        void SetGold(long gold);
+
+        long Gold { get; }
+
+        long BankGold { get; }
+
+        void AddGold(long gold);
+
+        void RemoveGold(long gold);
+
+        void AddBankGold(long bankGold);
+
+        void RemoveBankGold(long bankGold);
+
+        IInventoryService Inventory { get; }
+
+        RegionType AccountLanguage { get; }
+
+        void ChangeClass(CharacterClassType classType);
     }
 }

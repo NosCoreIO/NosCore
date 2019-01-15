@@ -108,7 +108,6 @@ namespace NosCore.Parser.Parsers
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
                         item.EquipmentSlot = (EquipmentType)Enum.Parse(typeof(EquipmentType),
                             currentLine[5] != "-1" ? currentLine[5] : "0");
-
                         switch (item.VNum)
                         {
                             case 4101:
@@ -446,7 +445,7 @@ namespace NosCore.Parser.Parsers
 
                         if (currentLine.Length > 15)
                         {
-                            item.Flag5 = currentLine[15] == "1";
+                            item.RequireBinding = currentLine[15] == "1";
                         }
 
                         if (currentLine.Length > 16)
@@ -1079,7 +1078,7 @@ namespace NosCore.Parser.Parsers
                             case ItemType.MinilandTheme:
                                 break;
                             default:
-                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMTYPE_UNKNOWN));
+                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMTYPE_UNKNOWN));
                                 break;
                         }
 
@@ -1136,7 +1135,7 @@ namespace NosCore.Parser.Parsers
 
                 DaoFactory.ItemDao.InsertOrUpdate(_items);
                 DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.ITEMS_PARSED),
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED),
                     _itemCounter);
             }
         }

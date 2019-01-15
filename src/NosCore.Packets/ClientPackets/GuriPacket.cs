@@ -25,8 +25,6 @@ namespace NosCore.Packets.ClientPackets
     [PacketHeader("guri")]
     public class GuriPacket : PacketDefinition
     {
-        #region Properties        
-
         [PacketIndex(0)]
         public int Type { get; set; }
 
@@ -40,9 +38,7 @@ namespace NosCore.Packets.ClientPackets
         [PacketIndex(3)]
         public int Data { get; set; }
 
-        [PacketIndex(4, true, false, false)]
+        [PacketIndex(4, true, false, false, SerializeToEnd = true)]
         public string Value { get; set; }
-
-        #endregion
     }
 }

@@ -47,6 +47,8 @@ namespace NosCore.Parser
         private readonly PortalParser _portalParser = new PortalParser();
         private readonly RespawnMapTypeParser _respawnMapTypeParser = new RespawnMapTypeParser();
         private readonly SkillParser _skillParser = new SkillParser();
+        private readonly ShopParser _shopParser = new ShopParser();
+        private readonly ShopItemParser _shopItemParser = new ShopItemParser();
 
         public ImportFactory(string folder)
         {
@@ -59,7 +61,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
-                Password = EncryptionHelper.Sha512("test")
+                Password = "test".ToSha512()
             };
 
             if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
@@ -71,7 +73,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.User,
                 Name = "test",
-                Password = EncryptionHelper.Sha512("test")
+                Password = "test".ToSha512()
             };
 
             if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
@@ -93,6 +95,15 @@ namespace NosCore.Parser
         public void ImportMapMonsters()
         {
             _mapMonsterParser.InsertMapMonster(_packetList);
+        }
+        public void ImportShops()
+        {
+            _shopParser.InsertShops(_packetList);
+        }
+
+        public void ImportShopItems()
+        {
+            _shopItemParser.InsertShopItems(_packetList);
         }
 
         public void ImportMaps()

@@ -25,12 +25,8 @@ namespace NosCore.Database.Entities.Base
 {
     public abstract class SynchronizableBaseEntity
     {
-        #region Properties
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
-
-        #endregion
     }
 }

@@ -198,9 +198,6 @@
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>{0} Map Wprowadzonych !</value>
   </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Komunikacja z Master Server została rozpoczęta</value>
-  </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Nie udało się połączyć z MasterServer Ponowne połaczenie się ....</value>
   </data>
@@ -264,9 +261,6 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Czy chcesz wprowadzic Czaso-Przestrzenie?</value>
   </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Rejestracja z MasterServer </value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowany w MASTER</value>
   </data>
@@ -275,12 +269,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Pomyślnie załadowany</value>
-  </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Nierozpoznany Master Pakiet</value>
-  </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Wyrejestrowany z MASTER</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Błędnie wybrane MapID</value>

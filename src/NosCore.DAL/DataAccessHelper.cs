@@ -30,19 +30,13 @@ namespace NosCore.DAL
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private static DataAccessHelper _instance;
 
-        #region Members
-
         private DbContextOptions _option;
-
-        #endregion
 
         private DataAccessHelper()
         {
         }
 
         public static DataAccessHelper Instance => _instance ?? (_instance = new DataAccessHelper());
-
-        #region Methods
 
         /// <summary>
         ///     Creates new instance of database context.
@@ -66,17 +60,15 @@ namespace NosCore.DAL
                 {
                     context.Database.Migrate();
                     context.Database.GetDbConnection().Open();
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_INITIALIZED));
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)
                 {
                     _logger.Error("Database Error", ex);
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LanguageKey.DATABASE_NOT_UPTODATE));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                     throw;
                 }
             }
         }
-
-        #endregion
     }
 }

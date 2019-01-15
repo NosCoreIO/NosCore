@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Přijmul si místo návratu od {0}!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
@@ -222,11 +219,17 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Mapa je plná předmětů více jich zde nemůže být!</value>
   </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Chyba v kódování: {0}</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Chyba v Dekódování</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
@@ -252,8 +255,8 @@
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Žádosti o přátelství jsou blokovány!</value>
   </data>
-  <data name="GOLD_SET" xml:space="preserve">
-    <value>Zlato nastaveno!</value>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Žádost o přátelství zaslána</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý požadavek na skupinu!</value>
@@ -270,17 +273,8 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Skupina je plná!</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Pozvánka do skupiny byla poslána hráči: {0}</value>
-  </data>
-  <data name="GROUP_LEADER_CHANGE" xml:space="preserve">
-    <value>Vedoucí skupiny byl změněn!</value>
-  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Opustil si skupinu</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} Odmítl tvé pozvání do skupiny!</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Sdílel si místo návratu s členy skupiny</value>
@@ -330,15 +324,6 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
-  <data name="INVALID_TELEPORT_ARGUMENTS" xml:space="preserve">
-    <value>Neplatné argumenty teleportu!</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Chceš sdílet místo návratu s:{0}?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} ti poslal pozvánku do skupiny</value>
-  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý typ pozvánky</value>
   </data>
@@ -362,6 +347,9 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Tento předmět zde nejde vyhodit!</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Vstoupil si do skupiny!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
@@ -390,8 +378,8 @@
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Mapa neexistuje</value>
   </data>
-  <data name="MASTER_SERVER_LISTENING" xml:space="preserve">
-    <value>Master Server Se spustil správně</value>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Mistr Boje</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Znovu připojení k Master Serveru</value>
@@ -411,11 +399,17 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
   </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>Tento Item není tvůj!</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Nebyly nalezeny žádné předměty!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Žádné speciální vlastnosti k nošení</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Nahrána!</value>
@@ -489,11 +483,11 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Chceš nahrát Časoprostory</value>
   </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Nesnámý PocketType</value>
+  </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
-  </data>
-  <data name="REGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Registrováno na Master Serveru</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
@@ -507,9 +501,6 @@
   </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Prosím vybere ID Mapy</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Zpráva odeslána na {0}</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
@@ -532,16 +523,26 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Bojovník s Mečem</value>
   </data>
-  <data name="UNRECOGNIZED_MASTER_PACKET" xml:space="preserve">
-    <value>Neznámý Master Packet</value>
-    <comment>check</comment>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Nemožné požádat o skupinu</value>
   </data>
-  <data name="UNREGISTRED_FROM_MASTER" xml:space="preserve">
-    <value>Neregistrováno na Master Serveru</value>
-    <comment>check</comment>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Neznámý EquipmentType</value>
   </data>
-  <data name="WRESTLER" xml:space="preserve">
-    <value>Wrestler</value>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>Neznámý PickerType</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Neznámý ReceiverType</value>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>Uživatel není Kamarád</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>Uživatel není připojen</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Neznámý VisualType</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Špatně vybrané ID Mapy</value>

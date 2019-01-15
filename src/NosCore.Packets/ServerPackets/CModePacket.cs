@@ -25,8 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("c_mode")]
     public class CModePacket : PacketDefinition
     {
-        #region Properties
-
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
 
@@ -34,17 +32,15 @@ namespace NosCore.Packets.ServerPackets
         public long VisualId { get; set; }
 
         [PacketIndex(2)]
-        public byte Morph { get; set; }
+        public short Morph { get; set; }
 
         [PacketIndex(3)]
         public byte MorphUpgrade { get; set; }
 
         [PacketIndex(4)]
-        public byte MorphDesign { get; set; }
+        public short MorphDesign { get; set; }
 
         [PacketIndex(5, IsOptional = true)]
         public byte MorphBonus { get; set; }
-
-        #endregion
     }
 }

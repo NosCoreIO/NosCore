@@ -34,6 +34,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
@@ -57,10 +58,10 @@ namespace NosCore.Tests.HandlerTests
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> {handler}, null) {SessionId = i};
+                var session = new ClientSession(null, new List<PacketController> { handler }, null, null) { SessionId = i };
 
                 Broadcaster.Instance.RegisterSession(session);
-                var acc = new AccountDto { Name = $"AccountTest{i}", Password = EncryptionHelper.Sha512("test") };
+                var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
                 var charaDto = new CharacterDto
                 {
                     CharacterId = i,
@@ -80,7 +81,9 @@ namespace NosCore.Tests.HandlerTests
                 _characters.Add(i, chara);
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
-                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance, null);
+                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance,
+                    null, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, null);
             }
         }
 

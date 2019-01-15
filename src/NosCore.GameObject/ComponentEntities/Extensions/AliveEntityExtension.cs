@@ -18,19 +18,52 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
+using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Shared;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
+using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
+        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
+        {
+            aliveEntity.Direction = direction;
+            aliveEntity.MapInstance.Sessions.SendPacket(
+                aliveEntity.GenerateChangeDir());
+        }
+
+        public static DirPacket GenerateChangeDir(this IAliveEntity namedEntity)
+        {
+            return new DirPacket
+            {
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
+                Direction = namedEntity.Direction,
+            };
+        }
+
+        public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, long dialog)
+        {
+            return new NpcReqPacket
+            {
+                VisualType = namedEntity.VisualType,
+                VisualId = namedEntity.VisualId,
+                Dialog = dialog,
+            };
+        }
+
         public static PinitSubPacket GenerateSubPinit(this INamedEntity namedEntity, int groupPosition)
         {
             return new PinitSubPacket
@@ -41,13 +74,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Level = namedEntity.Level,
                 Name = namedEntity.Name,
                 Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
-                Class = namedEntity.Class,
+                Race = namedEntity.Race,
                 Morph = namedEntity.Morph,
                 HeroLevel = namedEntity.HeroLevel
             };
         }
 
-        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity) => playableEntity.GenerateSubPidx(false);
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity) =>
+            playableEntity.GenerateSubPidx(false);
+
         public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
         {
             return new PidxSubPacket
@@ -82,7 +117,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
             if (nonPlayableEntity.IsMoving && nonPlayableEntity.Speed > 0)
             {
-                var time = (DateTime.Now - nonPlayableEntity.LastMove).TotalMilliseconds;
+                var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
 
                 if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
@@ -103,7 +138,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                     nonPlayableEntity.PositionY = mapY;
                                 });
 
-                        nonPlayableEntity.LastMove = DateTime.Now.AddMilliseconds(value);
+                        nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
                         nonPlayableEntity.MapInstance.Sessions.SendPacket(
                             nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
@@ -141,6 +176,47 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
+        public static ShopPacket GenerateShop(this IAliveEntity visualEntity)
+        {
+            return new ShopPacket
+            {
+                VisualType = visualEntity.VisualType,
+                VisualId = visualEntity.VisualId,
+                ShopId = visualEntity.Shop?.ShopId ?? 0,
+                MenuType = visualEntity.Shop?.MenuType ?? 0,
+                ShopType = visualEntity.Shop?.ShopType,
+                Name = visualEntity.Shop?.Name,
+            };
+        }
+
+        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, PocketType type, short slot,
+            byte mode, byte parameter)
+        {
+            return new UseItemPacket
+            {
+                VisualId = aliveEntity.VisualId,
+                VisualType = aliveEntity.VisualType,
+                Type = type,
+                Slot = slot,
+                Mode = mode,
+                Parameter = parameter
+            };
+        }
+
+        public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance fairy)
+        {
+            bool isBuffed = false; //TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
+            return new PairyPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Unknown = fairy == null ? 0 : 4,
+                Element = fairy?.Item.Element ?? 0,
+                ElementRate = fairy?.ElementRate + fairy?.Item.ElementRate ?? 0,
+                Morph = fairy?.Item.Morph ?? 0 + (isBuffed ? 5 : 0)
+            };
+        }
+
         public static CModePacket GenerateCMode(this IAliveEntity aliveEntity)
         {
             return new CModePacket
@@ -155,6 +231,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static MovePacket GenerateMove(this IAliveEntity aliveEntity) => aliveEntity.GenerateMove(null, null);
+
         public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX, short? mapY)
         {
             return new MovePacket
@@ -195,6 +272,62 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
                 IsSitting = aliveEntity.IsSitting
+            };
+        }
+
+        public static PflagPacket GeneratePFlag(this IAliveEntity aliveEntity)
+        {
+            return new PflagPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Flag = aliveEntity.Shop?.ShopId ?? 0
+            };
+        }
+
+        public static void SetLevel(this INamedEntity experiencedEntity, byte level)
+        {
+            experiencedEntity.Level = level;
+            experiencedEntity.LevelXp = 0;
+            experiencedEntity.Hp = experiencedEntity.MaxHp;
+            experiencedEntity.Mp = experiencedEntity.MaxMp;
+        }
+
+        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop,
+            byte shopKind)
+        {
+            var shopItemList = new List<NInvItemSubPacket>();
+            var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)).ToList();
+            for (var i = 0; i < aliveEntity.Shop.Size; i++)
+            {
+                var item = list.Find(s=>s.Slot == i);
+                if (item == null)
+                {
+                    shopItemList.Add(null);
+                }
+                else
+                {
+                    shopItemList.Add(new NInvItemSubPacket
+                    {
+                        Type = 0,
+                        Slot = item.Slot,
+                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                            ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
+                        RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare : item.Amount,
+                        UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment ? (item.ItemInstance.Item.IsColored
+                            ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
+                        VNum = item.ItemInstance.Item.VNum
+                    });
+                }
+            }
+
+            return new NInvPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                ShopKind = shopKind,
+                Unknown = 0,
+                Items = shopItemList
             };
         }
     }
