@@ -37,15 +37,18 @@ namespace NosCore.Packets.ServerPackets
         public short PositionY { get; set; }
 
         [PacketIndex(4)]
-        public byte Unknown1 { get; set; } //TODO to find
+        public byte Dir { get; set; }
 
         [PacketIndex(5)]
-        public byte Unknown2 { get; set; } //TODO to find
+        public byte Unknown1 { get; set; } //TODO to find
 
         [PacketIndex(6)]
         public int Music { get; set; }
 
         [PacketIndex(7)]
+        public short Unknown2 { get; set; } //TODO to find
+
+        [PacketIndex(8)]
         public short Unknown3 { get; set; } //TODO to find
     }
 }
