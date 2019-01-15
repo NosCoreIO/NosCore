@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Du hast {0} dem teilen eurer Punkte zugestimmt!</value>
+    <value>Du hast dem teilen eurer Punkte zugestimmt!</value>
   </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account mit SessionId {0} ist angekommen.</value>
@@ -193,9 +193,6 @@
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Dieser Spieler hat dich blockiert.</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>[{0}] gekauft: {1} x {2}</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Du hast ein Item gekauft!</value>
@@ -300,7 +297,7 @@
     <value>Deine Freundschaftsliste ist voll!</value>
   </data>
   <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Möchtest du ein Freund von {0} sein?</value>
+    <value>Möchtest du eine Freundschaftsanfrage senden?</value>
   </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Freundschaftsanfrage akzeptiert!</value>
@@ -337,13 +334,13 @@
     <value>Gruppe ist voll!</value>
   </data>
   <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Gruppeneinladung gesendet an: {0}</value>
+    <value>Deine Gruppeneinladung wurde verwendet!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Du hast die Party verlassen!</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>{0} hat deine Gruppeneinladung abgelehnt</value>
+    <value>Deine Gruppeneinladung wurde abgelehnt!</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Du hast eine Anfrage an deine Gruppe gesendet, um euren Rückkehrpunkt zu teilen</value>
@@ -401,10 +398,10 @@
     <value>Dein Inventar ist voll</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Möchtest du {0} als deinen Rückkehrposten setzten?</value>
+    <value>Möchtest du diesen Ort als deinen Rückkehrort setzen?</value>
   </data>
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} hat dir eine Gruppeneinladung gesendet!</value>
+    <value>Dir wurde eine Gruppeneinladung gesendet!</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Einladungs typ</value>
@@ -424,7 +421,7 @@
     <value>Item erlangt</value>
   </data>
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>{0} erlangt</value>
+    <value>Item erlangt</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
@@ -443,7 +440,7 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} hat die Party verlassen!</value>
+    <value>Ein Spieler hat die Gruppe verlassen!</value>
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Dein Level hat sich geändert!</value>
@@ -646,7 +643,7 @@
     <value>Dein Item wurde verkauft!</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Nachricht an {0} gesendet.</value>
+    <value>Nachricht an Empfänger gesendet.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Du hast deinen Gruppenmitgliedern verweigert deinen Rückkehrposten zu teilen</value>
@@ -685,13 +682,13 @@
     <value>{0} Skills geladen!</value>
   </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Du hast {0} SP Points erhalten!</value>
+    <value>Du hast SP Points erhalten!</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
-    <value>Supporter {0}</value>
+    <value>Supporter</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>
