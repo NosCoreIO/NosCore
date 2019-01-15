@@ -21,13 +21,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using GraphQL;
+using GraphQL.Client;
 using JetBrains.Annotations;
 using Mapster;
+using Newtonsoft.Json.Linq;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
@@ -44,6 +48,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.Shared.Enumerations;
 using Character = NosCore.GameObject.Character;
+using GraphQL.Common.Request;
 
 namespace NosCore.Controllers
 {
@@ -90,7 +95,7 @@ namespace NosCore.Controllers
                 return;
             }
             //todo add cooldown for recreate 30days
-            
+
             CreateCharacter(martialArtistCreatePacket);
         }
 
@@ -126,7 +131,7 @@ namespace NosCore.Controllers
                 {
                     var chara = new CharacterDto
                     {
-                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist :  CharacterClassType.Adventurer,
+                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist : CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
                         HairColor = characterCreatePacket.HairColor,
                         HairStyle = characterCreatePacket.HairStyle,
@@ -134,8 +139,8 @@ namespace NosCore.Controllers
                         JobLevel = 1,
                         Level = (byte)(characterCreatePacket.IsMartialArtist ? 81 : 1),
                         MapId = 1,
-                        MapX = (short) RandomFactory.Instance.RandomNumber(78, 81),
-                        MapY = (short) RandomFactory.Instance.RandomNumber(114, 118),
+                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
                         Mp = characterCreatePacket.IsMartialArtist ? 2369 : 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
@@ -216,14 +221,16 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
+                var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-                        .Any(a => a.Name == name))
+                    var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
+                    var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                    var connected = graphQlResponse.Data.connectedAccounts as JArray;
+                    if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == name))
                     {
                         alreadyConnnected = true;
                         break;
@@ -277,7 +284,7 @@ namespace NosCore.Controllers
                 Session.Account.Name);
 
             // load characterlist packet for each character in Character
-            Session.SendPacket(new ClistStartPacket {Type = 0});
+            Session.SendPacket(new ClistStartPacket { Type = 0 });
             foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
@@ -313,11 +320,11 @@ namespace NosCore.Controllers
                     Slot = character.Slot,
                     Name = character.Name,
                     Unknown = 0,
-                    Gender = (byte) character.Gender,
-                    HairStyle = (byte) character.HairStyle,
-                    HairColor = (byte) character.HairColor,
+                    Gender = (byte)character.Gender,
+                    HairStyle = (byte)character.HairStyle,
+                    HairColor = (byte)character.HairColor,
                     Unknown1 = 0,
-                    Class = (CharacterClassType) character.Class,
+                    Class = (CharacterClassType)character.Class,
                     Level = character.Level,
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>
@@ -336,8 +343,8 @@ namespace NosCore.Controllers
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored ?? false
-                        ? equipment[(byte) EquipmentType.Hat].Design : 0,
+                    Design = equipment[(byte)EquipmentType.Hat]?.Item.IsColored ?? false
+                        ? equipment[(byte)EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });
             }
@@ -383,12 +390,12 @@ namespace NosCore.Controllers
 
                 if (Session.Character.Hp > Session.Character.HpLoad())
                 {
-                    Session.Character.Hp = (int) Session.Character.HpLoad();
+                    Session.Character.Hp = (int)Session.Character.HpLoad();
                 }
 
                 if (Session.Character.Mp > Session.Character.MpLoad())
                 {
-                    Session.Character.Mp = (int) Session.Character.MpLoad();
+                    Session.Character.Mp = (int)Session.Character.MpLoad();
                 }
 
                 var relations =

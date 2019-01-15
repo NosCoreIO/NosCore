@@ -58,8 +58,12 @@ using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using GraphQL;
+using GraphQL.Types;
 using NosCore.Core.Controllers;
+using NosCore.Core.GraphQl;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.GraphQl;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
@@ -67,6 +71,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.WorldServer.GraphQl;
 
 namespace NosCore.WorldServer
 {
@@ -104,8 +109,26 @@ namespace NosCore.WorldServer
 
             //NosCore.Controllers
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
+            services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
 
             //NosCore.Core
+            //services.AddSingleton<IDocumentWriter, DocumentWriter>();
+            services.AddSingleton<ISchema, GraphQlSchema>();
+
+            services.AddSingleton<GraphQlQuery>();
+            services.AddSingleton<GraphQlMutation>();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(ConnectedAccountsResolver).GetTypeInfo().Assembly)
+                .Where(t => t.GetInterfaces()
+                    .Any(i => i.IsAssignableFrom(typeof(IQueryResolver))))
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(IGraphQlType).GetTypeInfo().Assembly)
+                .Where(t => t.GetInterfaces()
+                    .Any(i => i.IsAssignableFrom(typeof(IGraphQlType))))
+                .AsSelf();
+
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
@@ -222,7 +245,6 @@ namespace NosCore.WorldServer
             Logger.PrintHeader(ConsoleText);
             PacketFactory.Initialize<NoS0575Packet>();
             InitializeConfiguration();
-
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature

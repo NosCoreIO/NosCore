@@ -24,6 +24,7 @@ using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Networking;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
@@ -93,8 +94,7 @@ namespace NosCore.GameObject.Networking
                     Name = s.Account.Name,
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
-                        {Name = s.Character.Name, Id = s.Character.CharacterId}
+                    ConnectedCharacter = s.Character == null ? null : new ConnectedCharacter {Name = s.Character.Name, Id = s.Character.CharacterId}
                 }).ToList();
         }
     }

@@ -20,12 +20,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GraphQL;
+using GraphQL.Client;
+using GraphQL.Common.Request;
 using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -87,20 +92,22 @@ namespace NosCore.Controllers
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            bool accountConnected = false;
 
+            var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
             foreach (var server in servers)
             {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
-                if (account != null)
+                var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                var connected = graphQlResponse.Data.connectedAccounts as JArray;
+                if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == changeClassPacket.Name))
                 {
+                    accountConnected = true;
                     break;
                 }
             }
 
-            if (account == null) //TODO: Handle 404 in WebApi
+            if (!accountConnected) //TODO: Handle 404 in WebApi
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -129,20 +136,21 @@ namespace NosCore.Controllers
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
-            ConnectedAccount account = null;
-
+            bool accountConnected = false;
+            var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
             foreach (var server in servers)
             {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
-                if (account != null)
+                var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                var connected = graphQlResponse.Data.connectedAccounts as JArray;
+                if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == setReputationPacket.Name))
                 {
+                    accountConnected = true;
                     break;
                 }
             }
 
-            if (account == null) //TODO: Handle 404 in WebApi
+            if (!accountConnected) //TODO: Handle 404 in WebApi
             {
                 Session.SendPacket(new InfoPacket
                 {
@@ -156,31 +164,31 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            //var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            //ServerConfiguration config = null;
+            //ConnectedAccount account = null;
 
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
+            //foreach (var server in servers)
+            //{
+            //    config = server.WebApi;
+            //    account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+            //        .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
+            //    if (account != null)
+            //    {
+            //        break;
+            //    }
+            //}
 
-            if (account == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-                });
-                return;
-            }
+            //if (account == null) //TODO: Handle 404 in WebApi
+            //{
+            //    Session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
+            //WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
         }
 
         [UsedImplicitly]
@@ -266,38 +274,38 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void SetGold(SetGoldCommandPacket goldPacket)
         {
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name },
-                Data = goldPacket.Gold
-            };
+            //var data = new StatData
+            //{
+            //    ActionType = UpdateStatActionType.UpdateGold,
+            //    Character = new Character { Name = goldPacket.Name },
+            //    Data = goldPacket.Gold
+            //};
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            //var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            //ServerConfiguration config = null;
+            //ConnectedAccount account = null;
 
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
+            //foreach (var server in servers)
+            //{
+            //    config = server.WebApi;
+            //    account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+            //        .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
+            //    if (account != null)
+            //    {
+            //        break;
+            //    }
+            //}
 
-            if (account == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-                });
-                return;
-            }
+            //if (account == null) //TODO: Handle 404 in WebApi
+            //{
+            //    Session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            //WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         public void Shout(ShoutPacket shoutPacket)
@@ -473,139 +481,139 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void HeroLevel(SetHeroLevelCommandPacket levelPacket)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
-            {
-                Session.Character.SetHeroLevel(levelPacket.Level);
-                return;
-            }
+            //if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            //{
+            //    Session.Character.SetHeroLevel(levelPacket.Level);
+            //    return;
+            //}
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateHeroLevel,
-                Character = new Character { Name = levelPacket.Name },
-                Data = levelPacket.Level
-            };
+            //var data = new StatData
+            //{
+            //    ActionType = UpdateStatActionType.UpdateHeroLevel,
+            //    Character = new Character { Name = levelPacket.Name },
+            //    Data = levelPacket.Level
+            //};
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            //var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
+            //ConnectedAccount receiver = null;
+            //ServerConfiguration config = null;
 
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+            //foreach (var channel in channels ?? new List<ChannelInfo>())
+            //{
+            //    var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+            //    var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
                 
-                if (target != null) 
-                {
-                    receiver = target;
-                    config = channel.WebApi;
-                }
-            }
+            //    if (target != null) 
+            //    {
+            //        receiver = target;
+            //        config = channel.WebApi;
+            //    }
+            //}
 
-            if (receiver == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-                });
-                return;
-            }
+            //if (receiver == null) //TODO: Handle 404 in WebApi
+            //{
+            //    Session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            //WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]
         public void Level(SetLevelCommandPacket levelPacket)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
-            {
-                Session.Character.SetLevel(levelPacket.Level);
-                return;
-            }
+            //if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            //{
+            //    Session.Character.SetLevel(levelPacket.Level);
+            //    return;
+            //}
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateLevel,
-                Character = new Character { Name = levelPacket.Name },
-                Data = levelPacket.Level
-            };
+            //var data = new StatData
+            //{
+            //    ActionType = UpdateStatActionType.UpdateLevel,
+            //    Character = new Character { Name = levelPacket.Name },
+            //    Data = levelPacket.Level
+            //};
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            //var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
+            //ConnectedAccount receiver = null;
+            //ServerConfiguration config = null;
 
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+            //foreach (var channel in channels ?? new List<ChannelInfo>())
+            //{
+            //    var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+            //    var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
-                if (target != null)
-                {
-                    receiver = target;
-                    config = channel.WebApi;
-                }
-            }
+            //    if (target != null)
+            //    {
+            //        receiver = target;
+            //        config = channel.WebApi;
+            //    }
+            //}
 
-            if (receiver == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-                });
-                return;
-            }
+            //if (receiver == null) //TODO: Handle 404 in WebApi
+            //{
+            //    Session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            //WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket levelPacket)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
-            {
-                Session.Character.SetJobLevel(levelPacket.Level);
-                return;
-            }
+        //    if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+        //    {
+        //        Session.Character.SetJobLevel(levelPacket.Level);
+        //        return;
+        //    }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateJobLevel,
-                Character = new Character { Name = levelPacket.Name },
-                Data = levelPacket.Level
-            };
+        //    var data = new StatData
+        //    {
+        //        ActionType = UpdateStatActionType.UpdateJobLevel,
+        //        Character = new Character { Name = levelPacket.Name },
+        //        Data = levelPacket.Level
+        //    };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+        //    var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
+        //    ConnectedAccount receiver = null;
+        //    ServerConfiguration config = null;
 
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+        //    foreach (var channel in channels ?? new List<ChannelInfo>())
+        //    {
+        //        var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+        //        var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
-                if (target != null)
-                {
-                    receiver = target;
-                    config = channel.WebApi;
-                }
-            }
+        //        if (target != null)
+        //        {
+        //            receiver = target;
+        //            config = channel.WebApi;
+        //        }
+        //    }
 
-            if (receiver == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-                });
-                return;
-            }
+        //    if (receiver == null) //TODO: Handle 404 in WebApi
+        //    {
+        //        Session.SendPacket(new InfoPacket
+        //        {
+        //            Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+        //        });
+        //        return;
+        //    }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+        //    WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]

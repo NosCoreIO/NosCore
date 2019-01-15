@@ -41,7 +41,6 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Database;
 using NosCore.DAL;
-using NosCore.MasterServer.Controllers;
 using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;

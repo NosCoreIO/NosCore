@@ -26,6 +26,7 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -368,109 +369,109 @@ namespace NosCore.Controllers
         /// <param name="whisperPacket"></param>
         public void Whisper(WhisperPacket whisperPacket)
         {
-            try
-            {
-                var messageBuilder = new StringBuilder();
+            //try
+            //{
+            //    var messageBuilder = new StringBuilder();
 
-                //Todo: review this
-                var messageData = whisperPacket.Message.Split(' ');
-                var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+            //    //Todo: review this
+            //    var messageData = whisperPacket.Message.Split(' ');
+            //    var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
 
-                for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
-                {
-                    messageBuilder.Append(messageData[i]).Append(" ");
-                }
+            //    for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
+            //    {
+            //        messageBuilder.Append(messageData[i]).Append(" ");
+            //    }
 
-                var message = new StringBuilder(messageBuilder.ToString().Length > 60 ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
+            //    var message = new StringBuilder(messageBuilder.ToString().Length > 60 ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
-                {
-                    SpeakType = SpeakType.Player,
-                    Message = message.ToString()
-                }));
+            //    Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
+            //    {
+            //        SpeakType = SpeakType.Player,
+            //        Message = message.ToString()
+            //    }));
 
-                var speakPacket = Session.Character.GenerateSpk(new SpeakPacket
-                {
-                    SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
-                        : SpeakType.Player,
-                    Message = message.ToString()
-                });
+            //    var speakPacket = Session.Character.GenerateSpk(new SpeakPacket
+            //    {
+            //        SpeakType = Session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
+            //            : SpeakType.Player,
+            //        Message = message.ToString()
+            //    });
 
-                var receiverSession =
-                    Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
-                if (receiverSession != null)
-                {
-                    if (receiverSession.CharacterRelations.Values.Any(s =>
-                        s.RelatedCharacterId == Session.Character.CharacterId
-                        && s.RelationType == CharacterRelationType.Blocked))
-                    {
-                        Session.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                Session.Account.Language)
-                        });
-                        return;
-                    }
+            //    var receiverSession =
+            //        Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
+            //    if (receiverSession != null)
+            //    {
+            //        if (receiverSession.CharacterRelations.Values.Any(s =>
+            //            s.RelatedCharacterId == Session.Character.CharacterId
+            //            && s.RelationType == CharacterRelationType.Blocked))
+            //        {
+            //            Session.SendPacket(new InfoPacket
+            //            {
+            //                Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+            //                    Session.Account.Language)
+            //            });
+            //            return;
+            //        }
 
-                    receiverSession.SendPacket(speakPacket);
-                    return;
-                }
+            //        receiverSession.SendPacket(speakPacket);
+            //        return;
+            //    }
 
-                ConnectedAccount receiver = null;
+            //    ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
-                foreach (var server in servers ?? new List<ChannelInfo>())
-                {
-                    var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
+            //    var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            //    foreach (var server in servers ?? new List<ChannelInfo>())
+            //    {
+            //        var accounts = WebApiAccess.Instance
+            //            .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
 
-                    if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
-                    {
-                        receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
-                        break;
-                    }
-                }
+            //        if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
+            //        {
+            //            receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
+            //            break;
+            //        }
+            //    }
 
-                if (receiver == null)
-                {
-                    Session.SendPacket(Session.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, Session.Account.Language),
-                        SayColorType.Yellow));
-                    return;
-                }
+            //    if (receiver == null)
+            //    {
+            //        Session.SendPacket(Session.Character.GenerateSay(
+            //            Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, Session.Account.Language),
+            //            SayColorType.Yellow));
+            //        return;
+            //    }
 
-                if (Session.Character.RelationWithCharacter.Values.Any(s =>
-                    s.RelationType == CharacterRelationType.Blocked && s.CharacterId == receiver.ConnectedCharacter.Id))
-                {
-                    Session.SendPacket(new SayPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                            Session.Account.Language),
-                        Type = SayColorType.Yellow
-                    });
-                    return;
-                }
+            //    if (Session.Character.RelationWithCharacter.Values.Any(s =>
+            //        s.RelationType == CharacterRelationType.Blocked && s.CharacterId == receiver.ConnectedCharacter.Id))
+            //    {
+            //        Session.SendPacket(new SayPacket
+            //        {
+            //            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+            //                Session.Account.Language),
+            //            Type = SayColorType.Yellow
+            //        });
+            //        return;
+            //    }
 
-                speakPacket.Message =
-                    $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
+            //    speakPacket.Message =
+            //        $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-                {
-                    Packet = PacketFactory.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
-                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
-                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                    ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.ChannelId);
+            //    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            //    {
+            //        Packet = PacketFactory.Serialize(new[] { speakPacket }),
+            //        ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+            //        SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
+            //        OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+            //        ReceiverType = ReceiverType.OnlySomeone
+            //    }, receiver.ChannelId);
 
-                Session.SendPacket(Session.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
-                        Session.Account.Language), SayColorType.Purple));
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Whisper failed.", e);
-            }
+            //    Session.SendPacket(Session.Character.GenerateSay(
+            //        Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
+            //            Session.Account.Language), SayColorType.Purple));
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.Error("Whisper failed.", e);
+            //}
         }
 
         /// <summary>
@@ -479,64 +480,64 @@ namespace NosCore.Controllers
         /// <param name="btkPacket"></param>
         public void FriendTalk(BtkPacket btkPacket)
         {
-            if (!Session.Character.CharacterRelations.Values.Any(s =>
-                s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
-            {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
-                    Session.Account.Language));
-                return;
-            }
+            //if (!Session.Character.CharacterRelations.Values.Any(s =>
+            //    s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            //{
+            //    _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+            //        Session.Account.Language));
+            //    return;
+            //}
 
-            var message = btkPacket.Message;
-            if (message.Length > 60)
-            {
-                message = message.Substring(0, 60);
-            }
+            //var message = btkPacket.Message;
+            //if (message.Length > 60)
+            //{
+            //    message = message.Substring(0, 60);
+            //}
 
-            message = message.Trim();
-            var receiverSession =
-                Broadcaster.Instance.GetCharacter(s =>
-                    s.VisualId == btkPacket.CharacterId);
+            //message = message.Trim();
+            //var receiverSession =
+            //    Broadcaster.Instance.GetCharacter(s =>
+            //        s.VisualId == btkPacket.CharacterId);
 
-            if (receiverSession != null)
-            {
-                receiverSession.SendPacket(Session.Character.GenerateTalk(message));
-                return;
-            }
+            //if (receiverSession != null)
+            //{
+            //    receiverSession.SendPacket(Session.Character.GenerateTalk(message));
+            //    return;
+            //}
 
-            ConnectedAccount receiver = null;
+            //ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
+            //var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            //foreach (var server in servers ?? new List<ChannelInfo>())
+            //{
+            //    var accounts = WebApiAccess.Instance
+            //        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
 
-                if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
-                {
-                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
-                }
-            }
+            //    if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
+            //    {
+            //        receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
+            //    }
+            //}
 
-            if (receiver == null)
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, Session.Account.Language)
-                });
-                return;
-            }
+            //if (receiver == null)
+            //{
+            //    Session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, Session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-            {
-                Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
-                ReceiverCharacter = new Data.WebApi.Character
-                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
-                SenderCharacter = new Data.WebApi.Character
-                { Name = Session.Character.Name, Id = Session.Character.CharacterId },
-                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.ChannelId);
+            //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            //{
+            //    Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
+            //    ReceiverCharacter = new Data.WebApi.Character
+            //    { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
+            //    SenderCharacter = new Data.WebApi.Character
+            //    { Name = Session.Character.Name, Id = Session.Character.CharacterId },
+            //    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+            //    ReceiverType = ReceiverType.OnlySomeone
+            //}, receiver.ChannelId);
         }
 
         /// <summary>

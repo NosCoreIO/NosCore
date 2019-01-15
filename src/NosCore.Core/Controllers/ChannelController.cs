@@ -28,14 +28,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.Core.Controllers
 {
     [Route("api/[controller]")]
     public class ChannelController : Controller

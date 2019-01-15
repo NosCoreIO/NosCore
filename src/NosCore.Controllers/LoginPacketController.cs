@@ -20,10 +20,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GraphQL;
+using GraphQL.Client;
+using GraphQL.Common.Request;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
@@ -33,6 +37,8 @@ using NosCore.Shared;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations;
+using Mapster;
+using Newtonsoft.Json.Linq;
 
 namespace NosCore.Controllers
 {
@@ -116,17 +122,20 @@ namespace NosCore.Controllers
                     default:
                         var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
-                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
+                        var connectedAccountCount = new Dictionary<int, int>();
                         var i = 1;
+                        var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" };
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount,
-                                server.WebApi);
-                            connectedAccount.Add(i, channelList);
+                            var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
+                            var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                            var connected = graphQlResponse.Data.connectedAccounts as JArray;
+                            connectedAccountCount.Add(i, connected.Count);
                             i++;
-                            if (channelList.Any(a => a.Name == acc.Name))
+                            if (connected.Select(ACC => acc.GetPropertyValue("name")).Any(account => account.GetValue().ToString() == acc.Name))
                             {
                                 alreadyConnnected = true;
+                                break;
                             }
                         }
 
@@ -166,7 +175,7 @@ namespace NosCore.Controllers
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccountCount[i] / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {

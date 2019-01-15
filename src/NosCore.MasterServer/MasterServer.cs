@@ -47,11 +47,11 @@ namespace NosCore.MasterServer
             if (!System.Diagnostics.Debugger.IsAttached)
             {
                 Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels.Where(s =>
-                             s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList().ForEach(_id =>
-                             {
-                                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
-                                 MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                             }));
+                              s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList().ForEach(_id =>
+                              {
+                                  _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
+                                  MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                              }));
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));

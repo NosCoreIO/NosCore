@@ -28,6 +28,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.GraphQl;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;

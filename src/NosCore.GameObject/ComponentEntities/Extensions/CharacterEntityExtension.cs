@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data.GraphQl;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
@@ -68,11 +69,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                accounts.AddRange(
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
-            }
+            //foreach (var server in servers ?? new List<ChannelInfo>())
+            //{
+            //    accounts.AddRange(
+            //        WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
+            //}
 
             var subpackets = new List<FinitSubPacket>();
             foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
