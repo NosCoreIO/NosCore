@@ -143,7 +143,7 @@ namespace NosCore.Tests
             var mapMonsterTest = new MapMonster();
 
             var packet = PacketFactory.Serialize(new[] { mapMonsterTest.GenerateIn() });
-            Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
+            Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 1 0 -1 - 2 -1 0 0 0 0 0 0 0 0", packet);
         }
 
         [TestMethod]
@@ -178,7 +178,7 @@ namespace NosCore.Tests
             var mapNpcTest = new MapNpc();
 
             var packet = PacketFactory.Serialize(new[] { mapNpcTest.GenerateIn() });
-            Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 0 0 -1 - 0 -1 0 0 0 0 0 0 0 0", packet);
+            Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 1 0 -1 - 2 -1 0 0 0 0 0 0 0 0", packet);
         }
 
 
