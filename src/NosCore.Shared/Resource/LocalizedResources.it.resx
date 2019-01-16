@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Hai accettato il punto di condivisione di {0}!</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
@@ -189,6 +192,15 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Questo giocatore ti ha bloccato!</value>
   </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>{0}: compra &lt;{1} {2}: pezzo &gt;</value>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>Hai comprato {1} di {0}</value>
+  </data>
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
+    <value>Questo oggetto non è commerciabile.</value>
+  </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Non puoi bloccare un tuo amico!</value>
   </data>
@@ -203,6 +215,9 @@
   </data>
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Il personaggio non può moversi quando l'itemshop è aperto.</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Non puoi usare l'oggetto in commercio.</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Sincronizzate!</value>
@@ -283,6 +298,9 @@
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>La tua lista amici è piena!</value>
   </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>Vuoi essere amico di {0}?</value>
+  </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Richiesta d'amicizia accettata!</value>
   </data>
@@ -317,8 +335,14 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Il gruppo è pieno</value>
   </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Hai ricevuto un invito al gruppo.</value>
+  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Sei uscito dal gruppo</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Richiesta gruppo rifiutata</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Hai inviato una richiesta per condividere il punto di ritorno con i membri del tuo gruppo</value>
@@ -386,6 +410,12 @@
   <data name="INVENTORY_FULL" xml:space="preserve">
     <value>L'inventario è pieno.</value>
   </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Vuoi impostare il punto di ritorno: {0}?</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} ti ha inviato una richiesta di gruppo</value>
+  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di invito sconosciuto</value>
     <comment>insert missing type data</comment>
@@ -406,11 +436,17 @@
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Hai ricevuto</value>
   </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>Hai ricevuto {0} un oggetto in LOD.</value>
+  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Non puoi gettare questo item.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Non puoi gettare quest'oggetto in questa mappa!</value>
+  </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Questo item non può essere venduto.</value>
   </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Non puoi gettare questo item.</value>
@@ -424,6 +460,9 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lingua mancante</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} ha lasciato il gruppo</value>
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Il tuo livello di combattimento è stato incrementato.</value>
@@ -488,8 +527,14 @@
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Non hai abbastanza oro.</value>
   </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>Non hai abbastanza oro.</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Non hai spazio sufficiente!</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>Reputazione insufficiente</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Questo giocatore non è nella tua lista nera!</value>
@@ -607,6 +652,9 @@
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>La tua reputazione è cambiata.</value>
   </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>Reputazione diminuita!</value>
+  </data>
   <data name="REP_CHANGED" xml:space="preserve">
     <value>La tua reputazione è cambiata.</value>
   </data>
@@ -619,8 +667,47 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Seleziona un MapId:</value>
   </data>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>{0}: vendi &lt;{1} : pezzi &gt;</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Invia un messaggio al giocatore.</value>
+  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Hai rifiutato di condividere il punto di ritorno con i membri del gruppo</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>{0} Oggetti negli shop caricati!</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>Oggetti negli shop Parsati</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>{0} Negozi Caricati!</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>Negozi Parsati</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>Il negozio non può essere vuoto</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Non puoi aprire un negozio così vicino ad un portale!</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>Non puoi aprire il negozio nelle mappe generali.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>Non puoi aprire il negozio nelle mappe RAID.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>Puoi solo vendere gli item commerciabili!</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Il negozio è stato aperto</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Bottega Privata</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
@@ -633,6 +720,9 @@
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Non hai punti SP rimasti! Non puoi trasformarti ora!</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Hai ricevuto {0} punti SP!</value>
   </data>
   <data name="STAY_TIME" xml:space="preserve">
     <value>La trasformazione non essere realizzata a causa dell'effetto collaterale della trasformazione, aspetta: {0} secondi</value>
@@ -652,8 +742,14 @@
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Il tuo livello è troppo basso.</value>
   </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>Oro massimo raggiunto.</value>
+  </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>L'effetto secondario della trasformazione è finito</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>La rimozione è fallita.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Impossibile richiedere il gruppo</value>
@@ -668,6 +764,12 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Tipo di destinatario sconosciuto</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>Aggiornamento Oro.</value>
+  </data>
+  <data name="USER_FAILED_SENT_GOLD" xml:space="preserve">
+    <value>L'utente non ha inviato l'oro</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utente non è un amico!</value>
