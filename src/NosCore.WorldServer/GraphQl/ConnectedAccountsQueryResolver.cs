@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using GraphQL.Types;
 using NosCore.Core.GraphQl;
 using NosCore.Data.GraphQl;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.WorldServer.GraphQl
 {
-    public class ConnectedAccountsResolver : IQueryResolver
+    public class ConnectedAccountsQueryResolver : IQueryResolver
     {
         public void Resolve(GraphQlQuery graphQlQuery)
         {

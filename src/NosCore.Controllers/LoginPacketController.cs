@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GraphQL;
 using GraphQL.Client;
+using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using JetBrains.Annotations;
 using NosCore.Configuration;
@@ -131,8 +132,8 @@ namespace NosCore.Controllers
                         };
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
-                            var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                            var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                            var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
                             var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
                             connectedAccountCount.Add(i, connected.Count);
                             i++;

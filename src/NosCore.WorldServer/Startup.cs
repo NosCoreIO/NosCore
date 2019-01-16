@@ -113,15 +113,19 @@ namespace NosCore.WorldServer
             services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
 
             //NosCore.Core
-            //services.AddSingleton<IDocumentWriter, DocumentWriter>();
             services.AddSingleton<ISchema, GraphQlSchema>();
 
             services.AddSingleton<GraphQlQuery>();
             services.AddSingleton<GraphQlMutation>();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(ConnectedAccountsResolver).GetTypeInfo().Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(ConnectedAccountsQueryResolver).GetTypeInfo().Assembly)
                 .Where(t => t.GetInterfaces()
                     .Any(i => i.IsAssignableFrom(typeof(IQueryResolver))))
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(ConnectedAccountsMutationResolver).GetTypeInfo().Assembly)
+                .Where(t => t.GetInterfaces()
+                    .Any(i => i.IsAssignableFrom(typeof(IMutationResolver))))
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IGraphQlType).GetTypeInfo().Assembly)

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using GraphQL;
 using GraphQL.Client;
+using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
@@ -101,8 +102,8 @@ namespace NosCore.Controllers
             };
             foreach (var server in servers)
             {
-                var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
-                var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.SendMutationAsync(connectedAccountRequest).Result; //TODO move to async
                 var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
                 if (connected.Count > 0)
                 {
@@ -148,10 +149,10 @@ namespace NosCore.Controllers
             };
             foreach (var server in servers)
             {
-                var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
-                var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
                 var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
-                if (connected.Count>0)
+                if (connected.Count > 0)
                 {
                     accountConnected = true;
                     break;
@@ -172,31 +173,30 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            //var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
-            //ServerConfiguration config = null;
-            //ConnectedAccount account = null;
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var connectedAccountRequest = new GraphQLRequest
+            {
+                Query = $"mutation {{ disconnectConnectedAccount(name:\"{ kickPacket.Name }\") {{ name }} }}"
+            };
+            ConnectedAccountType connected = null;
+            foreach (var server in servers)
+            {
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.SendMutationAsync(connectedAccountRequest).Result; //TODO move to async
+                connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("disconnectConnectedAccount")?.FirstOrDefault();
+                if (connected != null)
+                {
+                    break;
+                }
+            }
 
-            //foreach (var server in servers)
-            //{
-            //    config = server.WebApi;
-            //    account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-            //        .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
-            //    if (account != null)
-            //    {
-            //        break;
-            //    }
-            //}
-
-            //if (account == null) //TODO: Handle 404 in WebApi
-            //{
-            //    Session.SendPacket(new InfoPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-            //    });
-            //    return;
-            //}
-
-            //WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
+            if (connected == null) //TODO: Handle 404 in WebApi
+            {
+                Session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                });
+            }
         }
 
         [UsedImplicitly]
@@ -512,7 +512,7 @@ namespace NosCore.Controllers
             //    var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
             //    var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
-                
+
             //    if (target != null) 
             //    {
             //        receiver = target;
@@ -581,47 +581,47 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void JobLevel(SetJobLevelCommandPacket levelPacket)
         {
-        //    if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
-        //    {
-        //        Session.Character.SetJobLevel(levelPacket.Level);
-        //        return;
-        //    }
+            //    if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == Session.Character.Name)
+            //    {
+            //        Session.Character.SetJobLevel(levelPacket.Level);
+            //        return;
+            //    }
 
-        //    var data = new StatData
-        //    {
-        //        ActionType = UpdateStatActionType.UpdateJobLevel,
-        //        Character = new Character { Name = levelPacket.Name },
-        //        Data = levelPacket.Level
-        //    };
+            //    var data = new StatData
+            //    {
+            //        ActionType = UpdateStatActionType.UpdateJobLevel,
+            //        Character = new Character { Name = levelPacket.Name },
+            //        Data = levelPacket.Level
+            //    };
 
-        //    var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            //    var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
 
-        //    ConnectedAccount receiver = null;
-        //    ServerConfiguration config = null;
+            //    ConnectedAccount receiver = null;
+            //    ServerConfiguration config = null;
 
-        //    foreach (var channel in channels ?? new List<ChannelInfo>())
-        //    {
-        //        var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+            //    foreach (var channel in channels ?? new List<ChannelInfo>())
+            //    {
+            //        var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
-        //        var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+            //        var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
-        //        if (target != null)
-        //        {
-        //            receiver = target;
-        //            config = channel.WebApi;
-        //        }
-        //    }
+            //        if (target != null)
+            //        {
+            //            receiver = target;
+            //            config = channel.WebApi;
+            //        }
+            //    }
 
-        //    if (receiver == null) //TODO: Handle 404 in WebApi
-        //    {
-        //        Session.SendPacket(new InfoPacket
-        //        {
-        //            Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
-        //        });
-        //        return;
-        //    }
+            //    if (receiver == null) //TODO: Handle 404 in WebApi
+            //    {
+            //        Session.SendPacket(new InfoPacket
+            //        {
+            //            Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+            //        });
+            //        return;
+            //    }
 
-        //    WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            //    WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]

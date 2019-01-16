@@ -49,6 +49,7 @@ using Serilog;
 using NosCore.Shared.Enumerations;
 using Character = NosCore.GameObject.Character;
 using GraphQL.Common.Request;
+using GraphQL.Client.Http;
 
 namespace NosCore.Controllers
 {
@@ -229,8 +230,8 @@ namespace NosCore.Controllers
                 };
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
-                    var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
+                    var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                    var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
                     var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
                     if (connected.Count > 0)
                     {
