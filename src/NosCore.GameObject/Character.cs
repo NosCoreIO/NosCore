@@ -1248,9 +1248,10 @@ namespace NosCore.GameObject
                 MapId = MapId,
                 PositionX = PositionX,
                 PositionY = PositionY,
-                Unknown1 = 2,
-                Unknown2 = 0,
+                Direction = Direction,
+                Unknown1 = 0,
                 Music = MapInstance.Map.Music,
+                Unknown2 = 0,
                 Unknown3 = -1
             };
         }

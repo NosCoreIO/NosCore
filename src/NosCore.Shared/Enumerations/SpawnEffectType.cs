@@ -17,38 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using System.Diagnostics.CodeAnalysis;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Shared.Enumerations
 {
-    [PacketHeader("at")]
-    public class AtPacket : PacketDefinition
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public enum SpawnEffectType : byte
     {
-        [PacketIndex(0)]
-        public long CharacterId { get; set; }
-
-        [PacketIndex(1)]
-        public short MapId { get; set; }
-
-        [PacketIndex(2)]
-        public short PositionX { get; set; }
-
-        [PacketIndex(3)]
-        public short PositionY { get; set; }
-
-        [PacketIndex(4)]
-        public byte Direction { get; set; }
-
-        [PacketIndex(5)]
-        public byte Unknown1 { get; set; } //TODO to find
-
-        [PacketIndex(6)]
-        public int Music { get; set; }
-
-        [PacketIndex(7)]
-        public short Unknown2 { get; set; } //TODO to find
-
-        [PacketIndex(8)]
-        public short Unknown3 { get; set; } //TODO to find
+        Summon = 0,
+        NoEffect = 1,
+        FallingFromSky = 2
     }
 }
