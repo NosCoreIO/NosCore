@@ -35,7 +35,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
     public static class VisualEntityExtension
     {
         //Pet Monster in packet
-        public static InPacket GenerateIn(this INonPlayableEntity visualEntity, byte effect2)
+        public static InPacket GenerateIn(this INonPlayableEntity visualEntity)
         {
             return new InPacket
             {
@@ -55,7 +55,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    Effect2 = effect2,
+                    SpawnEffect = SpawnEffectType.NoEffect,
                     Unknow1 = 2
                 }
             };
