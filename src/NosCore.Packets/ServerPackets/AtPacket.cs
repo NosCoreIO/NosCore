@@ -37,7 +37,7 @@ namespace NosCore.Packets.ServerPackets
         public short PositionY { get; set; }
 
         [PacketIndex(4)]
-        public byte Dir { get; set; }
+        public byte Direction { get; set; }
 
         [PacketIndex(5)]
         public byte Unknown1 { get; set; } //TODO to find
