@@ -224,13 +224,15 @@ namespace NosCore.Controllers
                 var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
-                var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
+                var connectedAccountRequest = new GraphQLRequest { Query =
+                    $"{{ connectedAccounts(name:\"{name}\") {{ name }} }}"
+                };
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
                     var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
                     var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
-                    var connected = graphQlResponse.Data.connectedAccounts as JArray;
-                    if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == name))
+                    var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                    if (connected.Count > 0)
                     {
                         alreadyConnnected = true;
                         break;
@@ -324,7 +326,7 @@ namespace NosCore.Controllers
                     HairStyle = (byte)character.HairStyle,
                     HairColor = (byte)character.HairColor,
                     Unknown1 = 0,
-                    Class = (CharacterClassType)character.Class,
+                    Class = character.Class,
                     Level = character.Level,
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>

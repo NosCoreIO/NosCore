@@ -94,13 +94,17 @@ namespace NosCore.Controllers
             ServerConfiguration config = null;
             bool accountConnected = false;
 
-            var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
+            var connectedAccountRequest = new GraphQLRequest
+            {
+                Query =
+                    $"{{ connectedAccounts(name:\"{changeClassPacket.Name}\") {{ name }} }}"
+            };
             foreach (var server in servers)
             {
                 var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
                 var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
-                var connected = graphQlResponse.Data.connectedAccounts as JArray;
-                if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == changeClassPacket.Name))
+                var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                if (connected.Count > 0)
                 {
                     accountConnected = true;
                     break;
@@ -137,13 +141,17 @@ namespace NosCore.Controllers
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             bool accountConnected = false;
-            var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" }; //TODO filter on name
+            var connectedAccountRequest = new GraphQLRequest
+            {
+                Query =
+                    $"{{ connectedAccounts(name:\"{setReputationPacket.Name}\") {{ name }} }}"
+            };
             foreach (var server in servers)
             {
                 var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
                 var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
-                var connected = graphQlResponse.Data.connectedAccounts as JArray;
-                if (connected.Select(acc => acc.GetPropertyValue("name")).Any(acc => acc.GetValue().ToString() == setReputationPacket.Name))
+                var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                if (connected.Count>0)
                 {
                     accountConnected = true;
                     break;

@@ -124,15 +124,19 @@ namespace NosCore.Controllers
                         var alreadyConnnected = false;
                         var connectedAccountCount = new Dictionary<int, int>();
                         var i = 1;
-                        var connectedAccountRequest = new GraphQLRequest { Query = "{ connectedAccounts { name } }" };
+                        var connectedAccountRequest = new GraphQLRequest
+                        {
+                            Query =
+                                $"{{ connectedAccounts(name:\"{loginPacket.Name}\") {{ name }} }}"
+                        };
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
                             var graphQlClient = new GraphQLClient($"{server.WebApi}/api/graphql");
                             var graphQlResponse = graphQlClient.PostAsync(connectedAccountRequest).Result; //TODO move to async
-                            var connected = graphQlResponse.Data.connectedAccounts as JArray;
+                            var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
                             connectedAccountCount.Add(i, connected.Count);
                             i++;
-                            if (connected.Select(ACC => acc.GetPropertyValue("name")).Any(account => account.GetValue().ToString() == acc.Name))
+                            if (connected.Count > 0)
                             {
                                 alreadyConnnected = true;
                                 break;
