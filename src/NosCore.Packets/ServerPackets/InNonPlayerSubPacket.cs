@@ -19,6 +19,7 @@
 
 using JetBrains.Annotations;
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Packets.ServerPackets
 {
@@ -36,7 +37,7 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(4)]
         [UsedImplicitly]
-        public short Effect { get; set; }
+        public short GroupEffect { get; set; }
 
         [PacketIndex(5)]
         [UsedImplicitly]
@@ -44,7 +45,7 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(6)]
         [UsedImplicitly]
-        public short Unknow { get; set; }
+        public SpawnEffectType SpawnEffect { get; set; }
 
         [PacketIndex(7)]
         [UsedImplicitly]
@@ -59,15 +60,15 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(10)]
         [UsedImplicitly]
-        public byte Unknow2 { get; set; }
+        public byte Unknow1 { get; set; }
 
         [PacketIndex(11)]
         [UsedImplicitly]
-        public short? Unknow3 { get; set; }
+        public short? Unknow2 { get; set; }
 
         [PacketIndex(12)]
         [UsedImplicitly]
-        public byte Unknow4 { get; set; }
+        public byte Unknow3 { get; set; }
 
         [PacketIndex(13)]
         [UsedImplicitly]
@@ -95,6 +96,6 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(19)]
         [UsedImplicitly]
-        public byte Unknow5 { get; set; }
+        public byte Unknow4 { get; set; }
     }
 }

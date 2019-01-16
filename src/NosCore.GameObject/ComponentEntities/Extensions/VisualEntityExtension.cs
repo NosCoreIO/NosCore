@@ -54,7 +54,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
                         Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
-                    IsSitting = visualEntity.IsSitting
+                    IsSitting = visualEntity.IsSitting,
+                    SpawnEffect = SpawnEffectType.NoEffect,
+                    Unknow1 = 2
                 }
             };
         }
