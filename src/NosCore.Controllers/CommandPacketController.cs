@@ -192,6 +192,13 @@ namespace NosCore.Controllers
         }
 
         [UsedImplicitly]
+        public void Size(SizePacket sizePacket)
+        {
+            Session.Character.Size = sizePacket.Size;
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateCMode());
+        }
+
+        [UsedImplicitly]
         public void Position(PositionPacket positionPacket)
         {
             Session.SendPacket(Session.Character.GenerateSay(

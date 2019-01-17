@@ -370,6 +370,7 @@ namespace NosCore.Controllers
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
+                character.Size = 10;
                 character.Account = Session.Account;
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
