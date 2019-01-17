@@ -18,32 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
+using NosCore.Shared.Enumerations.Account;
 
-namespace NosCore.Packets.ServerPackets
+namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("c_mode")]
-    public class CModePacket : PacketDefinition
+    [PacketHeader("$Size", Authority = AuthorityType.GameMaster)]
+    public class SizePacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
-
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public short Morph { get; set; }
-
-        [PacketIndex(3)]
-        public byte MorphUpgrade { get; set; }
-
-        [PacketIndex(4)]
-        public short MorphDesign { get; set; }
-
-        [PacketIndex(5, IsOptional = true)]
-        public byte MorphBonus { get; set; }
-
-        [PacketIndex(6, IsOptional = true)]
         public byte Size { get; set; }
+
+        public string Help()
+        {
+            return "$Size VALUE";
+        }
     }
 }

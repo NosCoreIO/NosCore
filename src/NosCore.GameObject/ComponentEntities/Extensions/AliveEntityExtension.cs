@@ -226,7 +226,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Morph = aliveEntity.Morph,
                 MorphUpgrade = aliveEntity.MorphUpgrade,
                 MorphDesign = aliveEntity.MorphDesign,
-                MorphBonus = aliveEntity.MorphBonus
+                MorphBonus = aliveEntity.MorphBonus,
+                Size = aliveEntity is ICharacterEntity chara ? chara.Size : Convert.ToByte(null)
             };
         }
 

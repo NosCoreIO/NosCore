@@ -175,7 +175,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FamilyLevel = 0,
                     ArenaWinner = false,
                     Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
-                    Size = 0,
+                    Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }
             };
