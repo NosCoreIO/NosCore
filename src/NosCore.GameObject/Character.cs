@@ -154,7 +154,7 @@ namespace NosCore.GameObject
 
         public byte Direction { get; set; }
 
-        public byte Size { get; set; }
+        public byte Size { get; set; } = 10;
 
         public short PositionX { get; set; }
 

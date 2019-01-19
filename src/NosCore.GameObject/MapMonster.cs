@@ -37,7 +37,7 @@ namespace NosCore.GameObject
         public Group Group { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
-        public byte Size { get; set; }
+        public byte Size { get; set; } = 10;
         public int Mp { get; set; }
         public int Hp { get; set; }
         public short Morph { get; set; }
@@ -80,7 +80,6 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             Speed = NpcMonster.Speed;
-            Size = 10;
             IsAlive = true;
         }
 
