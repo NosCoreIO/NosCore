@@ -25,6 +25,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         byte Speed { get; }
 
+        byte Size { get; set; }
+
         int Mp { get; set; }
 
         int Hp { get; set; }
