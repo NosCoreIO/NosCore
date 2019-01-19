@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
@@ -26,11 +27,17 @@ namespace NosCore.Packets.CommandPackets
     public class SizePacket : PacketDefinition, ICommandPacket
     {
         [PacketIndex(0)]
+        public VisualType VisualType { get; set; }
+
+        [PacketIndex(1)]
+        public long VisualId { get; set; }
+
+        [PacketIndex(2)]
         public byte Size { get; set; }
 
         public string Help()
         {
-            return "$Size VALUE";
+            return "$Size VISUALTYPE VISUALID VALUE";
         }
     }
 }

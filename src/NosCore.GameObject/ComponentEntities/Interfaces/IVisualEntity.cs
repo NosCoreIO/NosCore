@@ -33,6 +33,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         byte Direction { get; set; }
 
+        byte Size { get; set; }
+
         Guid MapInstanceId { get; }
 
         MapInstance MapInstance { get; }

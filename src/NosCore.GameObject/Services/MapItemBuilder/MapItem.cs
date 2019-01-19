@@ -66,6 +66,7 @@ namespace NosCore.GameObject.Services.MapItemBuilder
         public short VNum => ItemInstance?.ItemVNum ?? 0;
 
         public byte Direction { get; set; }
+        public byte Size { get; set; }
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
