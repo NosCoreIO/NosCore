@@ -226,7 +226,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Morph = aliveEntity.Morph,
                 MorphUpgrade = aliveEntity.MorphUpgrade,
                 MorphDesign = aliveEntity.MorphDesign,
-                MorphBonus = aliveEntity.MorphBonus
+                MorphBonus = aliveEntity.MorphBonus,
+                Size = (aliveEntity as ICharacterEntity)?.Size
+            };
+        }
+
+        public static CharScPacket GenerateCharSc(this IAliveEntity aliveEntity)
+        {
+            return new CharScPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Size = aliveEntity.Size
             };
         }
 

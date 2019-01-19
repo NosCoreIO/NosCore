@@ -216,7 +216,16 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             var packets = new List<PacketDefinition>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
-            Monsters.ForEach(s => packets.Add(s.GenerateIn()));
+            Monsters.ForEach(s =>
+            {
+                packets.Add(s.GenerateIn());
+
+                if (s.Size != 10)
+                {
+                    packets.Add(s.GenerateCharSc());
+                }
+            });
+
             Npcs.ForEach(s =>
             {
                 packets.Add(s.GenerateIn());
@@ -224,6 +233,11 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
                 if (s.Shop != null)
                 {
                     packets.Add(s.GenerateShop());
+                }
+
+                if (s.Size != 10)
+                {
+                    packets.Add(s.GenerateCharSc());
                 }
             });
             MapItems.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));

@@ -28,6 +28,7 @@ using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ItemBuilder;
@@ -189,6 +190,29 @@ namespace NosCore.Controllers
             Session.Character.Invisible = !Session.Character.Invisible;
             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
+        }
+
+        [UsedImplicitly]
+        public void Size(SizePacket sizePacket)
+        {
+            IAliveEntity entity;
+            switch (sizePacket.VisualType)
+            {
+                case VisualType.Player:
+                    entity = Session.Character;
+                    break;
+                case VisualType.Monster:
+                    entity = Session.Character.MapInstance.Monsters.Find(s => s.VisualId == sizePacket.VisualId);
+                    break;
+                case VisualType.Npc:
+                    entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId);
+                    break;
+                default:
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), sizePacket.VisualType);
+                    return;
+            }
+            entity.Size = sizePacket.Size;
+            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc());
         }
 
         [UsedImplicitly]
