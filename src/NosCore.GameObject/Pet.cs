@@ -36,6 +36,7 @@ namespace NosCore.GameObject
         public DateTime LastMove { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
+        public byte Size { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
         public short Morph { get; set; }
