@@ -334,24 +334,18 @@ namespace NosCore.Controllers
                 Message = message
             };
 
-            var sayPostedPacket = new PostedPacket
-            {
-                Packet = PacketFactory.Serialize(new[] { sayPacket }),
-                SenderCharacter = new Character
-                {
-                    Name = Session.Character.Name,
-                    Id = Session.Character.CharacterId
-                },
-                ReceiverType = ReceiverType.All
-            };
+            var msg = PacketFactory.Serialize(new PacketDefinition[] { msgPacket, sayPacket });
 
-            var msgPostedPacket = new PostedPacket
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var msgRequest = new GraphQLRequest
             {
-                Packet = PacketFactory.Serialize(new[] { msgPacket }),
-                ReceiverType = ReceiverType.All
+                Query = $"mutation {{ sendPacketToConnectedAccount(packet:\"{ msg }\" ) {{ name }} }}"
             };
-
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            foreach (var server in servers)
+            {
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var _ = graphQlClient.SendMutationAsync(msgRequest).Result; //TODO move to async
+            }
         }
 
         [UsedImplicitly]

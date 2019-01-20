@@ -2,6 +2,7 @@
 using System.Linq;
 using GraphQL.Types;
 using NosCore.Core.GraphQl;
+using NosCore.Core.Serializing;
 using NosCore.Data.GraphQl;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
@@ -25,9 +26,42 @@ namespace NosCore.WorldServer.GraphQl
                     if (connectedAccount != null)
                     {
                         list.Add(connectedAccount);
-                        (Broadcaster.Instance.GetCharacter(s => s.Name == name) as Character)?.Session.Disconnect();
+                        Broadcaster.Instance.GetCharacter(s => s.Name == name).Disconnect();
                     }
                     return list;
+                });
+
+            graphQlMutation.Field<ListGraphType<ConnectedAccountType>>(
+                "SendPacketToConnectedAccount",
+                arguments: new QueryArguments(
+                    new QueryArgument<StringGraphType> { Name = "name" },
+                              new QueryArgument<StringGraphType> { Name = "id" },
+                              new QueryArgument<StringGraphType> { Name = "packet" }
+                ),
+                resolve: context =>
+                {
+                    var name = context.GetArgument<string>("name");
+                    var id = context.GetArgument<string>("id");
+                    var packet = context.GetArgument<string>("packet");
+                    List<ConnectedAccount> connectedAccounts = null;
+                    if (string.IsNullOrEmpty(id) && string.IsNullOrEmpty(name))
+                    {
+                        connectedAccounts = Broadcaster.Instance.ConnectedAccounts();
+                    }
+                    else
+                    {
+                        connectedAccounts = Broadcaster.Instance.ConnectedAccounts().Where(s => s.ConnectedCharacter.Name == name || s.ConnectedCharacter.Id.ToString() == id).ToList();
+                    }
+
+
+                    foreach (var connectedAccount in connectedAccounts)
+                    {
+                        var message = PacketFactory.Deserialize(packet);
+                        var receiverSession = Broadcaster.Instance.GetCharacter(s =>
+                            s.Name == connectedAccount.Name);
+                        receiverSession.SendPacket(message);
+                    }
+                    return connectedAccounts;
                 });
         }
     }

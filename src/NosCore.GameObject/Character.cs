@@ -50,6 +50,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NosCore.GameObject.Providers.ExchangeProvider;
+using GraphQL.Common.Request;
 using NosCore.Data.GraphQl;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -58,6 +59,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Shared;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
+using GraphQL.Client.Http;
 
 namespace NosCore.GameObject
 {
@@ -147,6 +149,8 @@ namespace NosCore.GameObject
 
         public void SendPackets(IEnumerable<PacketDefinition> packetDefinitions) =>
             Session.SendPackets(packetDefinitions);
+
+        public void Disconnect() => Session.Disconnect();
 
         public MapInstance MapInstance { get; set; }
 
@@ -842,30 +846,33 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                    var sayPacket = PacketFactory.Serialize(new[]
                     {
-                        Packet = PacketFactory.Serialize(new[]
+                        new FinfoPacket
                         {
-                            new FinfoPacket
+                            FriendList = new List<FinfoSubPackets>
                             {
-                                FriendList = new List<FinfoSubPackets>
+                                new FinfoSubPackets
                                 {
-                                    new FinfoSubPackets
-                                    {
-                                        CharacterId = CharacterId,
-                                        IsConnected = status
-                                    }
+                                    CharacterId = CharacterId,
+                                    IsConnected = status
                                 }
                             }
-                        }),
-                        ReceiverType = ReceiverType.OnlySomeone,
-                        SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
-                        ReceiverCharacter = new Data.WebApi.Character
-                        {
-                            Id = characterRelation.Value.RelatedCharacterId,
-                            Name = characterRelation.Value.CharacterName
                         }
                     });
+
+                    var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+
+                    var sayRequest = new GraphQLRequest
+                    {
+                        Query = $"mutation {{ sendPacketToConnectedAccount(name:\"{ Session.Character.Name }\",id:\"{ Session.Character.VisualId }\", packet:\"{ sayPacket }\" ) {{ name }} }}"
+                    };
+
+                    foreach (var server in servers)
+                    {
+                        var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                        var __ = graphQlClient.SendMutationAsync(sayRequest).Result; //TODO move to async
+                    }
                 }
             }
         }

@@ -236,38 +236,5 @@ namespace NosCore.Core.Networking
 
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
-
-        public void BroadcastPacket(PostedPacket packet, int channelId)
-        {
-            var channel = Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel, channelId).FirstOrDefault();
-            if (channel != null)
-            {
-                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
-            }
-        }
-
-        public void BroadcastPacket(PostedPacket packet)
-        {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
-            {
-                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
-            }
-        }
-
-        public void BroadcastPackets(List<PostedPacket> packets)
-        {
-            foreach (var packet in packets)
-            {
-                BroadcastPacket(packet);
-            }
-        }
-
-        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
-        {
-            foreach (var packet in packets)
-            {
-                BroadcastPacket(packet, channelId);
-            }
-        }
     }
 }

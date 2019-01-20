@@ -70,7 +70,7 @@ namespace NosCore.Controllers
             var subPacketList = new List<ServerExcListSubPacket>();
             
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeProvider.GetTargetId(Session.Character.VisualId) &&
-                s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+                s.MapInstanceId == Session.Character.MapInstanceId);
 
             if (packet.SubPackets.Count > 0 && target != null)
             {
@@ -124,7 +124,7 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId);
             ExcClosePacket closeExchange;
 
             if (target != null && (packet.RequestType == RequestExchangeType.Confirmed || packet.RequestType == RequestExchangeType.Cancelled))

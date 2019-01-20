@@ -104,7 +104,10 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         IInventoryService Inventory { get; }
 
         RegionType AccountLanguage { get; }
+        bool InShop { get; }
+        bool ExchangeBlocked { get; }
 
         void ChangeClass(CharacterClassType classType);
+        void Disconnect();
     }
 }
