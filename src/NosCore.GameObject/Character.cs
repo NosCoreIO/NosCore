@@ -1325,6 +1325,16 @@ namespace NosCore.GameObject
             }
         }
 
+        public void AddAdditionalSpPoints(int spPoint)
+        {
+            SpAdditionPoint += spPoint;
+            if (SpAdditionPoint > 1000000)
+            {
+                SpPoint = 1000000;
+            }
+            SendPacket(GenerateSpPoint());
+        }
+
         public EquipPacket GenerateEquipment()
         {
             EquipmentSubPacket generateEquipmentSubPacket(EquipmentType eqType)
