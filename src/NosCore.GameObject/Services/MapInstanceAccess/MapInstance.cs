@@ -153,9 +153,9 @@ namespace NosCore.GameObject.Services.MapInstanceAccess
             MapItem droppedItem = null;
             List<MapCell> possibilities = new List<MapCell>();
 
-            for (short x = -2; x < 3; x++)
+            for (short x = -1; x < 2; x++)
             {
-                for (short y = -2; y < 3; y++)
+                for (short y = -1; y < 2; y++)
                 {
                     possibilities.Add(new MapCell {X = x, Y = y});
                 }
