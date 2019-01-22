@@ -362,14 +362,14 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (iteminfo.IsColored || iteminfo.Effect == Shared.Enumerations.Items.Effect.BoxEffect)
+            if (iteminfo.IsColored || iteminfo.Effect == Shared.Enumerations.Items.ItemEffectType.BoxEffect)
             {
                 if (createItemPacket.DesignOrAmount.HasValue)
                 {
                     design = (byte)createItemPacket.DesignOrAmount.Value;
                 }
 
-                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == Shared.Enumerations.Items.Effect.BoxEffect
+                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == Shared.Enumerations.Items.ItemEffectType.BoxEffect
                     ? (sbyte)createItemPacket.Upgrade.Value : rare;
             }
             else if (iteminfo.Type == PocketType.Equipment)
