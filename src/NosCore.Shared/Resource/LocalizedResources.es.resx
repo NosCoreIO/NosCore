@@ -692,4 +692,7 @@
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>¡La Id del Mapa (IdMap) es incorrecta!</value>
   </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>¡Has alcanzado la máxima cantidad de puntos adicionales!</value>
+  </data>
 </root>
