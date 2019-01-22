@@ -348,27 +348,27 @@ namespace NosCore.Parser.Parsers
                                             break;
 
                                         case 282: // Red amulet
-                                            item.Effect = Effect.RedAmulet;
+                                            item.Effect = ItemEffectType.RedAmulet;
                                             item.EffectValue = 3;
                                             break;
 
                                         case 283: // Blue amulet
-                                            item.Effect = Effect.BlueAmulet;
+                                            item.Effect = ItemEffectType.BlueAmulet;
                                             item.EffectValue = 3;
                                             break;
 
                                         case 284: // Reinforcement amulet
-                                            item.Effect = Effect.ReinforcementAmulet;
+                                            item.Effect = ItemEffectType.ReinforcementAmulet;
                                             item.EffectValue = 3;
                                             break;
 
                                         case 4264: // Heroic
-                                            item.Effect = Effect.Heroic;
+                                            item.Effect = ItemEffectType.Heroic;
                                             item.EffectValue = 3;
                                             break;
 
                                         case 4262: // Random heroic
-                                            item.Effect = Effect.RandomHeroic;
+                                            item.Effect = ItemEffectType.RandomHeroic;
                                             item.EffectValue = 3;
                                             break;
 
@@ -517,22 +517,22 @@ namespace NosCore.Parser.Parsers
                                     // sure its unique for boxitems
 
                                     case 287:
-                                        item.Effect = Effect.Undefined;
+                                        item.Effect = ItemEffectType.Undefined;
                                         item.EffectValue = 1;
                                         break;
 
                                     case 4240:
-                                        item.Effect = Effect.Undefined;
+                                        item.Effect = ItemEffectType.Undefined;
                                         item.EffectValue = 2;
                                         break;
 
                                     case 4194:
-                                        item.Effect = Effect.Undefined;
+                                        item.Effect = ItemEffectType.Undefined;
                                         item.EffectValue = 3;
                                         break;
 
                                     case 4106:
-                                        item.Effect = Effect.Undefined;
+                                        item.Effect = ItemEffectType.Undefined;
                                         item.EffectValue = 4;
                                         break;
 
@@ -541,11 +541,11 @@ namespace NosCore.Parser.Parsers
                                     case 882: // Morcos
                                     case 942: // Calvina
                                     case 999: //Berios
-                                        item.Effect = Effect.BoxEffect;
+                                        item.Effect = ItemEffectType.BoxEffect;
                                         break;
 
                                     default:
-                                        item.Effect = (Effect)Convert.ToUInt16(currentLine[2]);
+                                        item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                         item.EffectValue = Convert.ToInt32(currentLine[3]);
                                         item.LevelMinimum = Convert.ToByte(currentLine[4]);
                                         break;
@@ -725,128 +725,128 @@ namespace NosCore.Parser.Parsers
                                 switch (item.VNum)
                                 {
                                     case 1245:
-                                        item.Effect = Effect.CraftedSpRecharger;
+                                        item.Effect = ItemEffectType.CraftedSpRecharger;
                                         item.EffectValue = 10_000;
                                         break;
                                     case 1246:
                                     case 9020:
-                                        item.Effect = Effect.BuffPotions;
+                                        item.Effect = ItemEffectType.BuffPotions;
                                         item.EffectValue = 1;
                                         break;
 
                                     case 1247:
                                     case 9021:
-                                        item.Effect = Effect.BuffPotions;
+                                        item.Effect = ItemEffectType.BuffPotions;
                                         item.EffectValue = 2;
                                         break;
 
                                     case 1248:
                                     case 9022:
-                                        item.Effect = Effect.BuffPotions;
+                                        item.Effect = ItemEffectType.BuffPotions;
                                         item.EffectValue = 3;
                                         break;
 
                                     case 1249:
                                     case 9023:
-                                        item.Effect = Effect.BuffPotions;
+                                        item.Effect = ItemEffectType.BuffPotions;
                                         item.EffectValue = 4;
                                         break;
 
                                     case 5130:
                                     case 9072:
-                                        item.Effect = Effect.PetSpaceUpgrade;
+                                        item.Effect = ItemEffectType.PetSpaceUpgrade;
                                         break;
 
                                     case 1272:
                                     case 1858:
                                     case 9047:
-                                        item.Effect = Effect.InventoryUpgrade;
+                                        item.Effect = ItemEffectType.InventoryUpgrade;
                                         item.EffectValue = 10;
                                         break;
 
                                     case 1273:
                                     case 9024:
-                                        item.Effect = Effect.InventoryUpgrade;
+                                        item.Effect = ItemEffectType.InventoryUpgrade;
                                         item.EffectValue = 30;
                                         break;
 
                                     case 1274:
                                     case 9025:
-                                        item.Effect = Effect.InventoryUpgrade;
+                                        item.Effect = ItemEffectType.InventoryUpgrade;
                                         item.EffectValue = 60;
                                         break;
 
                                     case 1279:
                                     case 9029:
-                                        item.Effect = Effect.PetBasketUpgrade;
+                                        item.Effect = ItemEffectType.PetBasketUpgrade;
                                         item.EffectValue = 30;
                                         break;
 
                                     case 1280:
                                     case 9030:
-                                        item.Effect = Effect.PetBasketUpgrade;
+                                        item.Effect = ItemEffectType.PetBasketUpgrade;
                                         item.EffectValue = 60;
                                         break;
 
                                     case 1923:
                                     case 9056:
-                                        item.Effect = Effect.PetBasketUpgrade;
+                                        item.Effect = ItemEffectType.PetBasketUpgrade;
                                         item.EffectValue = 10;
                                         break;
 
                                     case 1275:
                                     case 1886:
                                     case 9026:
-                                        item.Effect = Effect.PetBackpackUpgrade;
+                                        item.Effect = ItemEffectType.PetBackpackUpgrade;
                                         item.EffectValue = 10;
                                         break;
 
                                     case 1276:
                                     case 9027:
-                                        item.Effect = Effect.PetBackpackUpgrade;
+                                        item.Effect = ItemEffectType.PetBackpackUpgrade;
                                         item.EffectValue = 30;
                                         break;
 
                                     case 1277:
                                     case 9028:
-                                        item.Effect = Effect.PetBackpackUpgrade;
+                                        item.Effect = ItemEffectType.PetBackpackUpgrade;
                                         item.EffectValue = 60;
                                         break;
 
                                     case 5060:
                                     case 9066:
-                                        item.Effect = Effect.GoldNosMerchantUpgrade;
+                                        item.Effect = ItemEffectType.GoldNosMerchantUpgrade;
                                         item.EffectValue = 30;
                                         break;
 
                                     case 5061:
                                     case 9067:
-                                        item.Effect = Effect.SilverNosMerchantUpgrade;
+                                        item.Effect = ItemEffectType.SilverNosMerchantUpgrade;
                                         item.EffectValue = 7;
                                         break;
 
                                     case 5062:
                                     case 9068:
-                                        item.Effect = Effect.SilverNosMerchantUpgrade;
+                                        item.Effect = ItemEffectType.SilverNosMerchantUpgrade;
                                         item.EffectValue = 1;
                                         break;
 
                                     case 5105:
-                                        item.Effect = Effect.ChangeGender;
+                                        item.Effect = ItemEffectType.ChangeGender;
                                         break;
 
                                     case 1336:
                                     case 1427:
                                     case 5115:
-                                        item.Effect = Effect.PointInitialisation;
+                                        item.Effect = ItemEffectType.PointInitialisation;
                                         break;
 
                                     case 1981:
-                                        item.Effect = Effect.MarriageProposal; // imagined number as for I = √(-1), complex z = a + bi
+                                        item.Effect = ItemEffectType.MarriageProposal; // imagined number as for I = √(-1), complex z = a + bi
                                         break;
 
                                     case 1982:
-                                        item.Effect = Effect.MarriageSeparation; // imagined number as for I = √(-1), complex z = a + bi
+                                        item.Effect = ItemEffectType.MarriageSeparation; // imagined number as for I = √(-1), complex z = a + bi
                                         break;
 
                                     case 1894:
@@ -859,7 +859,7 @@ namespace NosCore.Parser.Parsers
                                     case 1901:
                                     case 1902:
                                     case 1903:
-                                        item.Effect = Effect.SealedTarotCard;
+                                        item.Effect = ItemEffectType.SealedTarotCard;
                                         item.EffectValue = item.VNum + 2152;
                                         break;
 
@@ -873,19 +873,19 @@ namespace NosCore.Parser.Parsers
                                     case 4053:
                                     case 4054:
                                     case 4055:
-                                        item.Effect = Effect.TarotCard;
+                                        item.Effect = ItemEffectType.TarotCard;
                                         break;
 
                                     case 5119: // Speed booster
-                                        item.Effect = Effect.SpeedBooster;
+                                        item.Effect = ItemEffectType.SpeedBooster;
                                         break;
 
                                     case 180: // attack amulet
-                                        item.Effect = Effect.AttackAmulet;
+                                        item.Effect = ItemEffectType.AttackAmulet;
                                         break;
 
                                     case 181: // defense amulet
-                                        item.Effect = Effect.DefenseAmulet;
+                                        item.Effect = ItemEffectType.DefenseAmulet;
                                         break;
 
                                     default:
@@ -893,11 +893,11 @@ namespace NosCore.Parser.Parsers
                                             || (item.VNum > 9100 && item.VNum < 9109))
                                         {
                                             item.Effect =
-                                                Effect.Undefined; // imagined number as for I = √(-1), complex z = a + bi
+                                                ItemEffectType.Undefined; // imagined number as for I = √(-1), complex z = a + bi
                                         }
                                         else
                                         {
-                                            item.Effect = (Effect)Convert.ToUInt16(currentLine[2]);
+                                            item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                         }
 
                                         break;
@@ -905,8 +905,8 @@ namespace NosCore.Parser.Parsers
 
                                 switch (item.Effect)
                                 {
-                                    case Effect.DroppedSpRecharger:
-                                    case Effect.PremiumSpRecharger:
+                                    case ItemEffectType.DroppedSpRecharger:
+                                    case ItemEffectType.PremiumSpRecharger:
                                         if (Convert.ToInt32(currentLine[4]) == 1)
                                         {
                                             item.EffectValue = 30000;
@@ -926,11 +926,11 @@ namespace NosCore.Parser.Parsers
 
                                         break;
 
-                                    case Effect.SpecialistMedal:
+                                    case ItemEffectType.SpecialistMedal:
                                         item.EffectValue = 30_000;
                                         break;
 
-                                    case Effect.ApplySkinPartner:
+                                    case ItemEffectType.ApplySkinPartner:
                                         item.EffectValue = Convert.ToInt32(currentLine[5]);
                                         item.Morph = Convert.ToInt16(currentLine[4]);
                                         break;
@@ -947,11 +947,11 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Magical:
                                 if (item.VNum > 2059 && item.VNum < 2070)
                                 {
-                                    item.Effect = Effect.ApplyHairDie;
+                                    item.Effect = ItemEffectType.ApplyHairDie;
                                 }
                                 else
                                 {
-                                    item.Effect = (Effect)Convert.ToUInt16(currentLine[2]);
+                                    item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 }
 
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
@@ -1027,12 +1027,12 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Map:
                             case ItemType.Main:
                             case ItemType.Teacher:
-                                item.Effect = (Effect)Convert.ToUInt16(currentLine[2]);
+                                item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
                                 break;
 
                             case ItemType.Upgrade:
-                                item.Effect = (Effect)Convert.ToUInt16(currentLine[2]);
+                                item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 switch (item.VNum)
                                 {
                                     // UpgradeItems (needed to be hardcoded)

@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 {
     public class SpRechargerHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
-        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect >= Effect.DroppedSpRecharger && item.Effect <= Effect.CraftedSpRecharger;
+        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
 
         public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {
