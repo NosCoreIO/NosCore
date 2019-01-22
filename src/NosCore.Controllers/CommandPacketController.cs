@@ -343,7 +343,6 @@ namespace NosCore.Controllers
         {
             var vnum = createItemPacket.VNum;
             sbyte rare = 0;
-            const short boxEffect = 999;
             byte upgrade = 0;
             byte design = 0;
             short amount = 1;
@@ -363,14 +362,14 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (iteminfo.IsColored || iteminfo.Effect == boxEffect)
+            if (iteminfo.IsColored || iteminfo.Effect == Shared.Enumerations.Items.Effect.BoxEffect)
             {
                 if (createItemPacket.DesignOrAmount.HasValue)
                 {
                     design = (byte)createItemPacket.DesignOrAmount.Value;
                 }
 
-                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == boxEffect
+                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == Shared.Enumerations.Items.Effect.BoxEffect
                     ? (sbyte)createItemPacket.Upgrade.Value : rare;
             }
             else if (iteminfo.Type == PocketType.Equipment)

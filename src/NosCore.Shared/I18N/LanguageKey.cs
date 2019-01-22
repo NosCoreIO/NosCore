@@ -253,5 +253,6 @@ namespace NosCore.Shared.I18N
         BUY_ITEM_FROM,
         TOO_RICH_SELLER,
         UPDATE_GOLD,
+        SP_ADDPOINTS_FULL,
     }
 }

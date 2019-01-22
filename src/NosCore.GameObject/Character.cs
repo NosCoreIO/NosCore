@@ -809,9 +809,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = 1000000,
+                MaxAdditionalPoint = 1_000_000,
                 SpPoint = SpPoint,
-                MaxSpPoint = 10000
+                MaxSpPoint = 10_000
             };
         }
 
@@ -1328,9 +1328,9 @@ namespace NosCore.GameObject
         public void AddAdditionalSpPoints(int spPoint)
         {
             SpAdditionPoint += spPoint;
-            if (SpAdditionPoint > 1000000)
+            if (SpAdditionPoint > 1_000_000)
             {
-                SpPoint = 1000000;
+                SpAdditionPoint = 1_000_000;
             }
             SendPacket(GenerateSpPoint());
         }
