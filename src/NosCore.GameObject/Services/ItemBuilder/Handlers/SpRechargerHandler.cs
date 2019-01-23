@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 
         public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAddSpPoints)
+            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.Id);

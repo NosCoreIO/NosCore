@@ -56,6 +56,6 @@ namespace NosCore.Configuration
 
         public int MaxSpPoints { get; set; }
 
-        public int MaxAddSpPoints { get; set; }
+        public int MaxAdditionalSpPoints { get; set; }
     }
 }
