@@ -21,6 +21,7 @@ namespace NosCore.Shared.Enumerations.Items
 {
     public enum ItemEffectType : ushort
     {
+        NoEffect = 0,
         ApplyHairDie = 10,
         MarriageProposal = 34,
         Undefined = 69,

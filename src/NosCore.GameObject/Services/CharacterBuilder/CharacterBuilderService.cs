@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
+using NosCore.Configuration;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject.Services.Inventory;
 using NosCore.GameObject.Services.ItemBuilder;
@@ -29,12 +30,14 @@ namespace NosCore.GameObject.Services.CharacterBuilder
         private readonly IInventoryService _inventory;
         private readonly IItemBuilderService _itemBuilderService;
         private readonly ExchangeService.ExchangeService _exchangeService;
-        
-        public CharacterBuilderService(IInventoryService inventory, ExchangeService.ExchangeService exchangeService, IItemBuilderService itemBuilderService)
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public CharacterBuilderService(IInventoryService inventory, ExchangeService.ExchangeService exchangeService, IItemBuilderService itemBuilderService, WorldConfiguration worldConfiguration)
         {
             _inventory = inventory;
             _itemBuilderService = itemBuilderService;
             _exchangeService = exchangeService;
+            _worldConfiguration = worldConfiguration;
         }
 
         public Character LoadCharacter(CharacterDto characterDto)
@@ -43,6 +46,7 @@ namespace NosCore.GameObject.Services.CharacterBuilder
             character.Inventory = _inventory;
             character.ItemBuilderService = _itemBuilderService;
             character.ExchangeService = _exchangeService;
+            character.WorldConfiguration = _worldConfiguration;
             return character;
         }
     }

@@ -21,6 +21,7 @@ using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Configuration;
 using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
@@ -100,6 +101,8 @@ namespace NosCore.GameObject
         public DateTime LastMove { get; set; }
         public IItemBuilderService ItemBuilderService { get; set; }
         public bool InExchangeOrTrade { get; set; }
+
+        public WorldConfiguration WorldConfiguration { get; set; }
 
         public bool UseSp { get; set; }
 
@@ -809,9 +812,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = 1_000_000,
+                MaxAdditionalPoint = WorldConfiguration.MaxAddSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = 10_000
+                MaxSpPoint = WorldConfiguration.MaxSpPoints
             };
         }
 
@@ -1318,20 +1321,13 @@ namespace NosCore.GameObject
 
         public void AddSpPoints(int spPoint)
         {
-            SpPoint += spPoint;
-            if (SpPoint > 10_000)
-            {
-                SpPoint = 10_000;
-            }
+            SpPoint = SpPoint + spPoint > WorldConfiguration.MaxSpPoints ? WorldConfiguration.MaxSpPoints : SpPoint + spPoint;
+            SendPacket(GenerateSpPoint());
         }
 
         public void AddAdditionalSpPoints(int spPoint)
         {
-            SpAdditionPoint += spPoint;
-            if (SpAdditionPoint > 1_000_000)
-            {
-                SpAdditionPoint = 1_000_000;
-            }
+            SpAdditionPoint = SpAdditionPoint + spPoint > WorldConfiguration.MaxAddSpPoints ? WorldConfiguration.MaxAddSpPoints : SpAdditionPoint + spPoint;
             SendPacket(GenerateSpPoint());
         }
 
