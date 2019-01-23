@@ -812,7 +812,7 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = WorldConfiguration.MaxAddSpPoints,
+                MaxAdditionalPoint = WorldConfiguration.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
                 MaxSpPoint = WorldConfiguration.MaxSpPoints
             };
@@ -1327,7 +1327,7 @@ namespace NosCore.GameObject
 
         public void AddAdditionalSpPoints(int spPoint)
         {
-            SpAdditionPoint = SpAdditionPoint + spPoint > WorldConfiguration.MaxAddSpPoints ? WorldConfiguration.MaxAddSpPoints : SpAdditionPoint + spPoint;
+            SpAdditionPoint = SpAdditionPoint + spPoint > WorldConfiguration.MaxAdditionalSpPoints ? WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPoint;
             SendPacket(GenerateSpPoint());
         }
 

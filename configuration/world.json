@@ -36,5 +36,5 @@
 	"MaxGoldAmount":1000000000,
 	"MaxBankGoldAmount":100000000000,
 	"MaxSpPoints":10000,
-	"MaxAddSpPoints":1000000
+	"MaxAdditionalSpPoints":1000000
 }
