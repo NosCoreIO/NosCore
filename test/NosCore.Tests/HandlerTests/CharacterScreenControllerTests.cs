@@ -23,6 +23,7 @@ using System.Linq;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
@@ -77,7 +78,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null), null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null, new WorldConfiguration { MaxSpPoints = 10_000, MaxAddSpPoints = 1_000_000 }), null, null);
             _handler.RegisterSession(_session);
         }
 

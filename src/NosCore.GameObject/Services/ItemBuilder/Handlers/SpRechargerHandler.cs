@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemBuilder.Item;
@@ -31,11 +32,17 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
 {
     public class SpRechargerHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
+        private readonly WorldConfiguration _worldConfiguration;
+        public SpRechargerHandler(WorldConfiguration worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
+
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
 
         public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.SpAdditionPoint < 1_000_000)
+            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAddSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.Id);
@@ -43,7 +50,8 @@ namespace NosCore.GameObject.Services.ItemBuilder.Handlers
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.Item.EffectValue);
             } else
             {
-                requestData.ClientSession.Character.SendPacket(new MsgPacket {
+                requestData.ClientSession.Character.SendPacket(new MsgPacket
+                {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, requestData.ClientSession.Character.Account.Language),
                     Type = MessageType.White
                 });
