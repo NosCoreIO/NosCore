@@ -78,7 +78,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null, new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 }), null, null);
+            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null), null, null);
             _handler.RegisterSession(_session);
         }
 

@@ -102,8 +102,6 @@ namespace NosCore.GameObject
         public IItemBuilderService ItemBuilderService { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
-        public WorldConfiguration WorldConfiguration { get; set; }
-
         public bool UseSp { get; set; }
 
         public DateTime LastSp { get; set; } = SystemTime.Now();
@@ -812,9 +810,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = WorldConfiguration.MaxAdditionalSpPoints,
+                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = WorldConfiguration.MaxSpPoints
+                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
             };
         }
 
@@ -1319,15 +1317,15 @@ namespace NosCore.GameObject
             };
         }
 
-        public void AddSpPoints(int spPoint)
+        public void AddSpPoints(int spPointToAdd)
         {
-            SpPoint = SpPoint + spPoint > WorldConfiguration.MaxSpPoints ? WorldConfiguration.MaxSpPoints : SpPoint + spPoint;
+            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
             SendPacket(GenerateSpPoint());
         }
 
-        public void AddAdditionalSpPoints(int spPoint)
+        public void AddAdditionalSpPoints(int spPointToAdd)
         {
-            SpAdditionPoint = SpAdditionPoint + spPoint > WorldConfiguration.MaxAdditionalSpPoints ? WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPoint;
+            SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
             SendPacket(GenerateSpPoint());
         }
 

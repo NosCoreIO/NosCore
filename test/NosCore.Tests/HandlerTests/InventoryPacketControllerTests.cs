@@ -376,7 +376,7 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Slot == (short)type && s.Value.Type == PocketType.Wear));
@@ -595,7 +595,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_SpInUse()
         {
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.HeroLevel = 1;
             var items = new List<Item>
             {
@@ -623,7 +623,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_SpInLoading()
         {
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.HeroLevel = 1;
             var items = new List<Item>
             {
@@ -675,7 +675,7 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -697,7 +697,7 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -716,7 +716,7 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -805,7 +805,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Transform()
         {
-            _session.Character.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
