@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GraphQL.Types;
 using NosCore.Core.GraphQl;
 using NosCore.Core.Serializing;
 using NosCore.Data.GraphQl;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 
 namespace NosCore.WorldServer.GraphQl
@@ -27,6 +29,30 @@ namespace NosCore.WorldServer.GraphQl
                     {
                         list.Add(connectedAccount);
                         Broadcaster.Instance.GetCharacter(s => s.Name == name).Disconnect();
+                    }
+                    return list;
+                });
+
+            graphQlMutation.Field<ListGraphType<ConnectedAccountType>>(
+                "deleteRelationConnectedAccount",
+                arguments: new QueryArguments(
+                    new QueryArgument<StringGraphType> { Name = "id" }
+                ),
+                resolve: context =>
+                {
+                    var list = new List<ConnectedAccount>();
+                    var id = context.GetArgument<string>("id");
+                    var connectedAccount = Broadcaster.Instance.GetCharacter(s =>
+                        s.CharacterRelations.Any(r => r.Key == Guid.Parse(id)));
+                    if (connectedAccount != null)
+                    {
+                        list.Add(Broadcaster.Instance.ConnectedAccounts().Find(s => s.ConnectedCharacter.Name == connectedAccount.Name));
+                        connectedAccount.CharacterRelations.TryRemove(Guid.Parse(id), out var relation);
+                        connectedAccount.CharacterRelations.TryRemove(
+                            connectedAccount.RelationWithCharacter.Values.First(s => s.RelatedCharacterId == relation.CharacterId)
+                                .CharacterRelationId, out _);
+
+                        connectedAccount.SendPacket(connectedAccount.GenerateFinit());
                     }
                     return list;
                 });

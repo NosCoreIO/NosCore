@@ -919,48 +919,52 @@ namespace NosCore.GameObject
 
         public void DeleteRelation(long relatedCharacterId)
         {
-            //var characterRelation =
-            //    CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
-            //var targetCharacterRelation =
-            //    RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
+            var characterRelation =
+                CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
+            var targetCharacterRelation =
+                RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
 
-            //if (characterRelation == null || targetCharacterRelation == null)
-            //{
-            //    return;
-            //}
+            if (characterRelation == null || targetCharacterRelation == null)
+            {
+                return;
+            }
 
-            //CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
-            //RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
-            //SendPacket(this.GenerateFinit());
+            CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
+            RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
+            SendPacket(this.GenerateFinit());
 
-            //var targetSession = Broadcaster.Instance.GetCharacter(s =>
-            //    s.VisualId == targetCharacterRelation.CharacterId);
-            //if (targetSession != null)
-            //{
-            //    targetSession.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
-            //        out _);
-            //    targetSession.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
-            //    targetSession.SendPacket(targetSession.GenerateFinit());
-            //    return;
-            //}
+            var targetSession = Broadcaster.Instance.GetCharacter(s =>
+                s.VisualId == targetCharacterRelation.CharacterId);
+            if (targetSession != null)
+            {
+                targetSession.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
+                    out _);
+                targetSession.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
+                targetSession.SendPacket(targetSession.GenerateFinit());
+                return;
+            }
 
-            //var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-            //    ?.Where(c => c.Type == ServerType.WorldServer);
-            //foreach (var server in servers ?? new List<ChannelInfo>())
-            //{
-            //    var account = WebApiAccess.Instance
-            //        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-            //        .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+         
+            var connectedAccountRequest = new GraphQLRequest
+            {
+                Query =
+                    $"{{ connectedAccounts(name:\"{targetSession.Name}\") {{ name }} }}"
+            };
+            foreach (var server in servers ?? new List<ChannelInfo>())
+            {
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
+                var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                if (connected.Count > 0)
+                {
+                    WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
+                        targetCharacterRelation.CharacterRelationId);
+                    break;
+                }
 
-            //    if (account != null)
-            //    {
-            //        WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
-            //            targetCharacterRelation.CharacterRelationId);
-            //        return;
-            //    }
-            //}
-
-            //DaoFactory.CharacterRelationDao.Delete(targetCharacterRelation);
+            }
+            DaoFactory.CharacterRelationDao.Delete(targetCharacterRelation);
         }
 
         [Obsolete(
