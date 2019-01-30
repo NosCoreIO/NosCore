@@ -64,8 +64,7 @@ namespace NosCore.GameObject
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
-
-        public Character() : this(null, null, null) { }
+        
         public Character(IInventoryService inventory, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             Inventory = inventory;
