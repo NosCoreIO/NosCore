@@ -120,7 +120,8 @@ namespace NosCore.Tests.HandlerTests
                     { WebApiRoute.ConnectedAccount, new List<ConnectedAccount>() }
                 };
 
-            var _chara = new CharacterDto
+            var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
+            var _chara = new Character(new InventoryService(new List<Item>(), conf), null, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -129,9 +130,7 @@ namespace NosCore.Tests.HandlerTests
                 MapId = 1,
                 State = CharacterState.Active
             };
-
-            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
-
+            
             _itemBuilderService = new ItemBuilderService(new List<Item>(),
                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
@@ -144,10 +143,9 @@ namespace NosCore.Tests.HandlerTests
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             _handler = new NpcPacketController(conf, new NrunAccessService(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(_session);
-            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.SetCharacter(_chara);
             var mapinstance = _instanceAccessService.GetBaseMapById(0);
             _session.Character.Account = account;
             _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(0);
@@ -165,8 +163,7 @@ namespace NosCore.Tests.HandlerTests
                 SourceX = 0,
                 SourceY = 0,
             } };
-
-            _session.Character.Inventory = new InventoryService(new List<Item>(), conf);
+            
             Broadcaster.Instance.RegisterSession(_session);
         }
 
@@ -540,7 +537,7 @@ namespace NosCore.Tests.HandlerTests
             _handler = new NpcPacketController(conf,
                 new NrunAccessService(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new CharacterDto
+            session2.SetCharacter(new Character(new InventoryService(new List<Item>(), conf), null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -548,12 +545,11 @@ namespace NosCore.Tests.HandlerTests
                 AccountId = 1,
                 MapId = 1,
                 State = CharacterState.Active
-            }.Adapt<Character>());
+            });
             var mapinstance = _instanceAccessService.GetBaseMapById(0);
             session2.Character.Account = account;
             session2.Character.MapInstance = _instanceAccessService.GetBaseMapById(0);
             session2.Character.MapInstance = mapinstance;
-            session2.Character.Inventory = new InventoryService(new List<Item>(), conf);
 
             _session.Character.Gold = 500000;
             var items = new List<Item>

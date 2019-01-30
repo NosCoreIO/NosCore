@@ -52,6 +52,8 @@ using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.DependancyInjection;
+using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
@@ -64,7 +66,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> { new InventoryPacketController() }, null, null);
 
-        private CharacterDto _chara;
+        private Character _chara;
         private InventoryPacketController _handler;
         private ItemBuilderService _itemBuilder;
         private MapItemBuilderService _mapItemBuilderService;
@@ -86,16 +88,6 @@ namespace NosCore.Tests.HandlerTests
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var _acc = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
-            _chara = new CharacterDto
-            {
-                CharacterId = 1,
-                Name = "TestExistingCharacter",
-                Slot = 1,
-                AccountId = _acc.AccountId,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-            _session.InitializeAccount(_acc);
 
             var items = new List<Item>
             {
@@ -107,6 +99,18 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             var conf = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999 };
+
+            _chara = new Character(new InventoryService(items, conf), new ExchangeService(null, null), null)
+            {
+                CharacterId = 1,
+                Name = "TestExistingCharacter",
+                Slot = 1,
+                AccountId = _acc.AccountId,
+                MapId = 1,
+                State = CharacterState.Active
+            };
+            _session.InitializeAccount(_acc);
+           
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _handler = new InventoryPacketController(conf);
             _mapItemBuilderService = new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
@@ -130,11 +134,9 @@ namespace NosCore.Tests.HandlerTests
             _mapItemBuilderService, new MapNpcBuilderService(_itemBuilder, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
             new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _handler.RegisterSession(_session);
-            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.SetCharacter(_chara);
             _session.Character.MapInstance = _map;
             _session.Character.Account = _acc;
-            _session.Character.Inventory = new InventoryService(items, conf);
-            _session.Character.ExchangeService = new ExchangeService(null, null);
 
         }
 

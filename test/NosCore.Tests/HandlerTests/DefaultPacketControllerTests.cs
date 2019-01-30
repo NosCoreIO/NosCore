@@ -43,7 +43,7 @@ namespace NosCore.Tests.HandlerTests
     {
         private ClientSession _session;
         private ClientSession _targetSession;
-        private CharacterDto _targetChar;
+        private Character _targetChar;
         private DefaultPacketController _handler;
 
         private readonly Map _map = new Map
@@ -98,7 +98,7 @@ namespace NosCore.Tests.HandlerTests
                     { WebApiRoute.ConnectedAccount, new List<ConnectedAccount>() }
                 };
 
-            var _chara = new CharacterDto
+            var _chara = new Character(null, null, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -107,8 +107,7 @@ namespace NosCore.Tests.HandlerTests
                 MapId = 1,
                 State = CharacterState.Active
             };
-
-            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
+            
             _itemBuilderService = new ItemBuilderService(new List<Item>(),
                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
@@ -122,7 +121,7 @@ namespace NosCore.Tests.HandlerTests
             _session.SessionId = 1;
             _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null);
             _handler.RegisterSession(_session);
-            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.SetCharacter(_chara);
             var mapinstance = instanceAccessService.GetBaseMapById(0);
 
             _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
@@ -149,7 +148,7 @@ namespace NosCore.Tests.HandlerTests
             var targetAccount = new AccountDto { Name = "test2", Password = "test".ToSha512() };
             DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
 
-            _targetChar = new CharacterDto
+            _targetChar = new Character(null,null,null)
             {
                 CharacterId = 1,
                 Name = "TestChar2",
@@ -159,7 +158,8 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            DaoFactory.CharacterDao.InsertOrUpdate(ref _targetChar);
+            CharacterDto character = _targetChar;
+            DaoFactory.CharacterDao.InsertOrUpdate(ref character);
             var instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
                 new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
@@ -170,7 +170,7 @@ namespace NosCore.Tests.HandlerTests
 
             _targetSession.InitializeAccount(targetAccount);
 
-            _targetSession.SetCharacter(_targetChar.Adapt<Character>());
+            _targetSession.SetCharacter(_targetChar);
             _targetSession.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
             _targetSession.Character.CharacterId = 2;
             Broadcaster.Instance.RegisterSession(_targetSession);

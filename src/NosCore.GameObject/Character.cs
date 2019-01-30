@@ -65,6 +65,7 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
 
+        public Character() : this(null, null, null) { }
         public Character(IInventoryService inventory, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             Inventory = inventory;
@@ -124,9 +125,9 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public IInventoryService Inventory { get; set; }
+        public IInventoryService Inventory { get; }
 
-        public ExchangeService ExchangeService { get; set; }
+        public ExchangeService ExchangeService { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
