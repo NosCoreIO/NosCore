@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using GraphQL;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;

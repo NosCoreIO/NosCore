@@ -66,6 +66,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Services.GuriAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.GameObject.Services.MapMonsterBuilder;
@@ -95,6 +96,7 @@ namespace NosCore.WorldServer
         private static void InitializeContainer(ref ContainerBuilder containerBuilder, IServiceCollection services)
         {
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
