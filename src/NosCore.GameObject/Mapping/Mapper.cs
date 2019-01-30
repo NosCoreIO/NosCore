@@ -18,11 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using GraphQL;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 
 namespace NosCore.GameObject.Mapping
