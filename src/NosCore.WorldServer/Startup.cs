@@ -98,11 +98,14 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
+            containerBuilder.RegisterType<Character>().PropertiesAutowired();
+            containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
+
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-
+            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
             containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
@@ -199,7 +202,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
             containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
             containerBuilder.RegisterType<ExchangeService>().SingleInstance();
-
             containerBuilder.Populate(services);
         }
 
@@ -256,7 +258,7 @@ namespace NosCore.WorldServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-            Mapper.InitializeMapperItemInstance();
+            container.Resolve<Mapper>().InitializeMapperItemInstance();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }

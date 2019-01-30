@@ -17,18 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using GraphQL;
 using Mapster;
+using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data;
+using NosCore.Data.AliveEntities;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 
 namespace NosCore.GameObject.Mapping
 {
-    public static class Mapper
+    public class Mapper
     {
+        private readonly IDependencyResolver _dependencyResolver;
+
+        public Mapper(IDependencyResolver dependencyResolver)
+        {
+            _dependencyResolver = dependencyResolver;
+        }
+        
+
         //TODO cleanup
-        public static void InitializeMapperItemInstance()
+        public void InitializeMapperItemInstance()
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
+
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig()
+                .ConstructUsing(src => _dependencyResolver.Resolve<Character>());
 
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()
