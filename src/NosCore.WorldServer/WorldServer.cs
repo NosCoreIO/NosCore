@@ -30,6 +30,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemBuilder.Item;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -50,11 +51,12 @@ namespace NosCore.WorldServer
         [UsedImplicitly] private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly List<IGlobalEvent> _events;
+        [UsedImplicitly] private readonly Mapper _mapper;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
             List<NpcMonsterDto> npcmonsters, List<Map> maps, MapInstanceAccessService mapInstanceAccessService,
-            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
+            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers, Mapper mapper)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -64,6 +66,7 @@ namespace NosCore.WorldServer
             _maps = maps;
             _mapInstanceAccessService = mapInstanceAccessService;
             _events = events.ToList();
+            _mapper = mapper;
         }
 
         public void Run()
