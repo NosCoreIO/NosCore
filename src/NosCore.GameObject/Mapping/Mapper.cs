@@ -35,15 +35,17 @@ namespace NosCore.GameObject.Mapping
         {
             _dependencyResolver = dependencyResolver;
         }
-        
-
+ 
         //TODO cleanup
         public void InitializeMapperItemInstance()
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
 
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig()
-                .ConstructUsing(src => _dependencyResolver.Resolve<Character>());
+            if (_dependencyResolver != null)
+            {
+                TypeAdapterConfig<CharacterDto, Character>.NewConfig()
+                    .ConstructUsing(src => _dependencyResolver.Resolve<Character>());
+            }
 
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()

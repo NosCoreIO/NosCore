@@ -19,6 +19,8 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Autofac;
+using Autofac.Builder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.Serializing;
@@ -49,12 +51,11 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character(null, null, null)
+            var characterTest = new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null)
             {
                 Name = "characterTest",
                 Account = new AccountDto { Authority = AuthorityType.Administrator },
                 Level = 1,
-                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
             };
 
             var packet = PacketFactory.Serialize(new[] { characterTest.GenerateIn("") });
@@ -80,12 +81,11 @@ namespace NosCore.Tests
         [TestMethod]
         public void Generate()
         {
-            var characterTest = new Character(null, null, null)
+            var characterTest = new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null)
             {
                 Name = "characterTest",
                 Account = new AccountDto { Authority = AuthorityType.Administrator },
                 Level = 1,
-                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
             };
 
             var packet = PacketFactory.Serialize(new[] {new DelayPacket

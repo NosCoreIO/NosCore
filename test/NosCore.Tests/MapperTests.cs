@@ -35,7 +35,7 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            new Mapper(new FuncDependencyResolver(null)).InitializeMapperItemInstance();
+            new Mapper(null).InitializeMapperItemInstance();
         }
 
         [TestMethod]

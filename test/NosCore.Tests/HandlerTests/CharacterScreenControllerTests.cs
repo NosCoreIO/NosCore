@@ -33,6 +33,7 @@ using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccess;
@@ -51,7 +52,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly ClientSession _session = new ClientSession(null,
             new List<PacketController> {new CharacterScreenPacketController()}, null, null);
         
-        private CharacterDto _chara;
+        private Character _chara;
         private CharacterScreenPacketController _handler;
 
         [TestInitialize]
@@ -66,7 +67,7 @@ namespace NosCore.Tests.HandlerTests
             DaoFactory.MapDao.InsertOrUpdate(ref map);
             var _acc = new AccountDto {Name = "AccountTest", Password ="test".ToSha512()};
             DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
-            _chara = new CharacterDto
+            _chara = new Character(null,null,null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -74,16 +75,17 @@ namespace NosCore.Tests.HandlerTests
                 MapId = 1,
                 State = CharacterState.Active
             };
-            DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
+            CharacterDto character = _chara;
+            DaoFactory.CharacterDao.InsertOrUpdate(ref character);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(null, null, null);
+            _handler = new CharacterScreenPacketController(null, null, new Adapter());
             _handler.RegisterSession(_session);
         }
 
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
-            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.SetCharacter(_chara);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, null);
@@ -179,7 +181,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            _session.SetCharacter(_chara.Adapt<Character>());
+            _session.SetCharacter(_chara);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, null);
