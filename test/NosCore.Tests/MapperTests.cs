@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using GraphQL;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data;
@@ -34,7 +35,7 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            Mapper.InitializeMapperItemInstance();
+            new Mapper(new FuncDependencyResolver(null)).InitializeMapperItemInstance();
         }
 
         [TestMethod]

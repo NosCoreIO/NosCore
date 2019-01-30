@@ -35,7 +35,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.CharacterBuilder;
 using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.GameObject.Services.MapItemBuilder;
 using NosCore.Packets.ClientPackets;
@@ -77,7 +76,7 @@ namespace NosCore.Tests.HandlerTests
             };
             DaoFactory.CharacterDao.InsertOrUpdate(ref _chara);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(new CharacterBuilderService(null, null, null), null, null);
+            _handler = new CharacterScreenPacketController(null, null, null);
             _handler.RegisterSession(_session);
         }
 

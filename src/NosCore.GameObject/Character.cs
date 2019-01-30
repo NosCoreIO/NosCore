@@ -65,8 +65,11 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
 
-        public Character()
+        public Character(IInventoryService inventory, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
+            Inventory = inventory;
+            ExchangeService = exchangeService;
+            ItemBuilderService = itemBuilderService;
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
