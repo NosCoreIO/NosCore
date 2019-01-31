@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public WorldConfiguration WorldConfiguration { get; set; }
+        public WorldConfiguration WorldConfiguration { get; }
 
         public bool GameStarted { get; set; }
 

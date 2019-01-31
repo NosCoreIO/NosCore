@@ -61,7 +61,7 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class InventoryPacketControllerTests
     {
-        private readonly ClientSession _session = new ClientSession(null,
+        private readonly ClientSession _session = new ClientSession(new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 },
             new List<PacketController> { new InventoryPacketController() }, null, null);
 
         private CharacterDto _chara;
@@ -104,11 +104,11 @@ namespace NosCore.Tests.HandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
                 new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = 2},
                 new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2, Element = 1},
-                new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
+                new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
+                new Item {Type = PocketType.Main, VNum = 1078, ItemType = ItemType.Special, Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000}
             };
-            var conf = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999 };
-            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _handler = new InventoryPacketController(conf);
+            _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new SpRechargerHandler(_session.WorldConfiguration), new VehicleHandler(), new WearHandler() });
+            _handler = new InventoryPacketController(_session.WorldConfiguration);
             _mapItemBuilderService = new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
             _map = new MapInstance(new Map
             {
@@ -133,7 +133,7 @@ namespace NosCore.Tests.HandlerTests
             _session.SetCharacter(_chara.Adapt<Character>());
             _session.Character.MapInstance = _map;
             _session.Character.Account = _acc;
-            _session.Character.Inventory = new InventoryService(items, conf);
+            _session.Character.Inventory = new InventoryService(items, _session.WorldConfiguration);
             _session.Character.ExchangeService = new ExchangeService(null, null);
 
         }
@@ -376,7 +376,6 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _handler.Wear(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment });
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Slot == (short)type && s.Value.Type == PocketType.Wear));
@@ -595,7 +594,6 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_SpInUse()
         {
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.HeroLevel = 1;
             var items = new List<Item>
             {
@@ -623,7 +621,6 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_SpInLoading()
         {
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.HeroLevel = 1;
             var items = new List<Item>
             {
@@ -675,7 +672,6 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -697,7 +693,6 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -716,7 +711,6 @@ namespace NosCore.Tests.HandlerTests
             };
             _itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearHandler() });
 
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(2, 1));
             _handler.Wear(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment });
@@ -805,7 +799,6 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Transform()
         {
-            _session.WorldConfiguration = new WorldConfiguration { MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
             _session.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
             _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(912, 1));
@@ -887,6 +880,26 @@ namespace NosCore.Tests.HandlerTests
             _handler.SpTransform(new SpTransformPacket { Type = 0 });
             var packet = (DelayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Delay == 5000);
+        }
+
+        [TestMethod]
+        public void Test_Increment_SpAdditionPoints()
+        {
+            _session.Character.SpAdditionPoint = 0;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1078, 1));
+            var item = _session.Character.Inventory.First();
+            _handler.UseItem(new UseItemPacket { VisualType = _session.Character.VisualType, VisualId = _session.Character.VisualId, Type = item.Value.Type, Slot = item.Value.Slot, Mode = 0, Parameter = 0 });
+            Assert.IsTrue(_session.Character.SpAdditionPoint != 0);
+        }
+
+        [TestMethod]
+        public void Test_Overflow_SpAdditionPoints()
+        {
+            _session.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
+            _session.Character.Inventory.AddItemToPocket(_itemBuilder.Create(1078, 1));
+            var item = _session.Character.Inventory.First();
+            _handler.UseItem(new UseItemPacket { VisualType = _session.Character.VisualType, VisualId = _session.Character.VisualId, Type = item.Value.Type, Slot = item.Value.Slot, Mode = 0, Parameter = 0 });
+            Assert.IsTrue(_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints && _session.LastPacket is MsgPacket);
         }
     }
 }
