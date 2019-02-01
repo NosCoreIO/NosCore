@@ -253,6 +253,10 @@ namespace NosCore.Controllers
                             {
                                 exchangeTarget.SendPacket(infoPacket.Value);
                             }
+                            else
+                            {
+                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
+                            }
                         }
                     }
                     else
