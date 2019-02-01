@@ -86,7 +86,7 @@ namespace NosCore.Tests.HandlerTests
             }
         };
 
-        private MShopPacket shopPacket = new MShopPacket
+        private readonly MShopPacket shopPacket = new MShopPacket
         {
             Type = CreateShopPacketType.Open,
             ItemList = new List<MShopItemSubPacket>
@@ -97,9 +97,7 @@ namespace NosCore.Tests.HandlerTests
             },
             Name = "TEST SHOP"
         };
-
-        private ItemProvider _itemProvider;
-
+        
         [TestInitialize]
         public void Setup()
         {
@@ -129,12 +127,12 @@ namespace NosCore.Tests.HandlerTests
                 MapId = 1,
                 State = CharacterState.Active
             };
-            
-            _itemProvider = new ItemProvider(new List<Item>(),
+
+            ItemProvider itemProvider = new ItemProvider(new List<Item>(),
                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _instanceProvider = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapNpcProvider(itemProvider, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
 
             var channelMock = new Mock<IChannel>();
@@ -523,7 +521,7 @@ namespace NosCore.Tests.HandlerTests
 
         }
 
-        private ClientSession prepareSessionShop()
+        private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) }, _instanceProvider, null);
@@ -575,7 +573,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanShopFromSession()
         {
-            var session2 = prepareSessionShop();
+            var session2 = PrepareSessionShop();
             _session.Character.Buy(session2.Character.Shop, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 0);
@@ -584,7 +582,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanShopFromSessionPartial()
         {
-            var session2 = prepareSessionShop();
+            var session2 = PrepareSessionShop();
             _session.Character.Buy(session2.Character.Shop, 0, 998);
             Assert.IsTrue(session2.Character.Gold == 998);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 1);
@@ -593,7 +591,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotShopMoreThanShop()
         {
-            var session2 = prepareSessionShop();
+            var session2 = PrepareSessionShop();
             _session.Character.Buy(session2.Character.Shop, 1, 501);
             Assert.IsTrue(session2.Character.Gold == 0);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 999);
@@ -602,7 +600,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanShopFull()
         {
-            var session2 = prepareSessionShop();
+            var session2 = PrepareSessionShop();
             _session.Character.Buy(session2.Character.Shop, 1, 500);
             Assert.IsTrue(session2.Character.Gold == 500);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 499);
@@ -611,7 +609,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotShopTooRich()
         {
-            var session2 = prepareSessionShop();
+            var session2 = PrepareSessionShop();
             session2.Character.Gold = 999_999_999;
             _session.Character.Buy(session2.Character.Shop, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
