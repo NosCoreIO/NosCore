@@ -27,7 +27,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Mapping;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.Tests
@@ -106,7 +106,7 @@ namespace NosCore.Tests
         public void WearableInstanceToItemInstanceGo()
         {
             var wearableInstanceGo = new WearableInstance(new Item());
-            var itemInstanceGo = _adapter.Adapt<GameObject.Services.ItemBuilder.Item.ItemInstance>(wearableInstanceGo);
+            var itemInstanceGo = _adapter.Adapt<GameObject.Services.ItemBuilderService.Item.ItemInstance>(wearableInstanceGo);
             Assert.IsNotNull(itemInstanceGo);
         }
 
@@ -121,7 +121,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void ItemInstanceToItemInstanceEntity()
         {
-            var itemInstanceGo = new GameObject.Services.ItemBuilder.Item.ItemInstance(new Item());
+            var itemInstanceGo = new GameObject.Services.ItemBuilderService.Item.ItemInstance(new Item());
             var itemInstanceEntity = _adapter.Adapt<ItemInstance>(itemInstanceGo);
             Assert.IsNotNull(itemInstanceEntity);
         }

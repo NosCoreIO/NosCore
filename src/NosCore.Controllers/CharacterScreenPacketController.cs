@@ -32,9 +32,9 @@ using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared;
@@ -51,11 +51,11 @@ namespace NosCore.Controllers
     {
         private readonly IItemBuilderService _itemBuilderService;
         private readonly IAdapter _adapter;
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceAccessService _mapInstanceAccessService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CharacterScreenPacketController(
-            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService, IAdapter adapter)
+            IItemBuilderService itemBuilderService, IMapInstanceAccessService mapInstanceAccessService, IAdapter adapter)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
             _itemBuilderService = itemBuilderService;

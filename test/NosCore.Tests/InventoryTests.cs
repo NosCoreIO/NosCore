@@ -23,9 +23,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Items;
 

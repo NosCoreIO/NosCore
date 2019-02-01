@@ -32,8 +32,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.GuriAccess;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.GuriAccessService;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -50,8 +50,8 @@ namespace NosCore.Controllers
 {
     public class DefaultPacketController : PacketController
     {
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
-        private readonly GuriAccessService _guriAccessService;
+        private readonly IMapInstanceAccessService _mapInstanceAccessService;
+        private readonly IGuriAccessService _guriAccessService;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -61,8 +61,8 @@ namespace NosCore.Controllers
         }
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
-            MapInstanceAccessService mapInstanceAccessService,
-            GuriAccessService guriAccessService)
+            IMapInstanceAccessService mapInstanceAccessService,
+            IGuriAccessService guriAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceAccessService = mapInstanceAccessService;

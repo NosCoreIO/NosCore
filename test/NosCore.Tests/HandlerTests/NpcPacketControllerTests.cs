@@ -22,8 +22,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.PortalGeneration;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Character;
@@ -31,18 +29,19 @@ using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapItemBuilderService;
+using NosCore.GameObject.Services.MapMonsterBuilderService;
 using NosCore.Shared;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapMonsterBuilder;
 using NosCore.GameObject.Services.MapNpcBuilder;
-using NosCore.GameObject.Services.NRunAccess;
+using NosCore.GameObject.Services.NRunAccessService;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations.Items;
-using NosCore.GameObject.Services.Inventory;
 
 namespace NosCore.Tests.HandlerTests
 {

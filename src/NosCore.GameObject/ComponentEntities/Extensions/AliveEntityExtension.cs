@@ -24,7 +24,7 @@ using System.Reactive.Linq;
 using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;

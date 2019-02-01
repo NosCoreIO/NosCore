@@ -29,8 +29,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.NRunAccess;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.NRunAccessService;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -50,14 +50,14 @@ namespace NosCore.Controllers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly NrunAccessService _nRunAccessService;
+        private readonly INrunAccessService _nRunAccessService;
 
         [UsedImplicitly]
         public NpcPacketController()
         {
         }
 
-        public NpcPacketController(WorldConfiguration worldConfiguration, NrunAccessService nRunAccessService)
+        public NpcPacketController(WorldConfiguration worldConfiguration, INrunAccessService nRunAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _nRunAccessService = nRunAccessService;

@@ -32,7 +32,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
@@ -41,7 +41,7 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
-using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
+using WearableInstance = NosCore.GameObject.Services.ItemBuilderService.Item.WearableInstance;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -56,15 +56,15 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly bool _isWorldClient;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceAccessService _mapInstanceAccessService;
 
-        private readonly ExchangeService _exchangeService;
+        private readonly IExchangeService _exchangeService;
 
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            MapInstanceAccessService mapInstanceAccessService, ExchangeService exchangeService) : this(configuration, packetControllers)
+            IMapInstanceAccessService mapInstanceAccessService, IExchangeService exchangeService) : this(configuration, packetControllers)
         {
             _mapInstanceAccessService = mapInstanceAccessService;
             _exchangeService = exchangeService;

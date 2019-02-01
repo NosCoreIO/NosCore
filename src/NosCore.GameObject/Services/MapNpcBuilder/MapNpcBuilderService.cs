@@ -25,10 +25,8 @@ using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 
 namespace NosCore.GameObject.Services.MapNpcBuilder
 {

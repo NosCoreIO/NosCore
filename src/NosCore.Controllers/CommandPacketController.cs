@@ -31,9 +31,9 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared;
@@ -51,12 +51,12 @@ namespace NosCore.Controllers
     {
         private readonly IItemBuilderService _itemBuilderService;
         private readonly List<Item> _items;
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceAccessService _mapInstanceAccessService;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
-            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
+            IItemBuilderService itemBuilderService, IMapInstanceAccessService mapInstanceAccessService)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;

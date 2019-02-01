@@ -34,13 +34,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Handlers;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
-using NosCore.GameObject.Services.MapItemBuilder.Handlers;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -55,7 +48,14 @@ using System.Linq;
 using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Handlers;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapItemBuilderService;
+using NosCore.GameObject.Services.MapItemBuilderService.Handlers;
+using NosCore.GameObject.Services.MapMonsterBuilderService;
 using NosCore.GameObject.Services.MapNpcBuilder;
 
 namespace NosCore.Tests.HandlerTests
@@ -68,7 +68,7 @@ namespace NosCore.Tests.HandlerTests
 
         private Character _chara;
         private InventoryPacketController _handler;
-        private ItemBuilderService _itemBuilder;
+        private IItemBuilderService _itemBuilder;
         private MapItemBuilderService _mapItemBuilderService;
         private MapInstance _map;
 

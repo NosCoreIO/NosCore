@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 
-namespace NosCore.GameObject.Services.MapItemBuilder
+namespace NosCore.GameObject.Services.MapNpcBuilder
 {
     public interface IMapNpcBuilderService
     {
