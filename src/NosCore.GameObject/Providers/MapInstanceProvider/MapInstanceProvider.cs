@@ -36,8 +36,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstanceProvider : IMapInstanceProvider
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 

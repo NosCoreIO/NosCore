@@ -318,7 +318,11 @@ namespace NosCore.Controllers
 
                 if (!inv.Item.IsSoldable)
                 {
-                    Session.SendPacket(new SMemoPacket { Type = SMemoType.Error, Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language) });
+                    Session.SendPacket(new SMemoPacket
+                    {
+                        Type = SMemoType.Error,
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language)
+                    });
                     return;
                 }
                 long price = inv.Item.ItemType == ItemType.Sell ? inv.Item.Price : inv.Item.Price / 20;
