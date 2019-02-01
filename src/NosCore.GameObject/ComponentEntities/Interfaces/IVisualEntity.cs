@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces

@@ -61,13 +61,12 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.MapItemBuilderService;
-using NosCore.GameObject.Services.MapNpcBuilder;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapItemProvider;
 
 namespace NosCore.WorldServer
 {
@@ -97,22 +96,37 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ref ContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
+
+            //NosCore.Configuration
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
+
+            //NosCore.Controllers
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+
+            //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
+            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+
+            //NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
+
+            //NosCore.GameObject
             containerBuilder.RegisterType<Character>().PropertiesAutowired();
             containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
-            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
-            containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
+                .PropertiesAutowired();
+            containerBuilder.RegisterAssemblyTypes(typeof(IExchangeProvider).Assembly)
+                .Where(t => t.Name.EndsWith("Provider"))
+                .AsImplementedInterfaces()
+                .SingleInstance()
                 .PropertiesAutowired();
 
             containerBuilder.Register(_ =>
@@ -123,6 +137,7 @@ namespace NosCore.WorldServer
                 return items;
             }).As<List<Item>>().SingleInstance();
 
+            
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
@@ -197,13 +212,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
-                .AsImplementedInterfaces();
-            
-            containerBuilder.RegisterAssemblyTypes(Assembly.LoadFrom("NosCore.GameObject"))
-                .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();     
         }
 
         [UsedImplicitly]

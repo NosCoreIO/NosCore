@@ -29,8 +29,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.NRunAccessService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -50,17 +49,17 @@ namespace NosCore.Controllers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly INrunAccessService _nRunAccessService;
+        private readonly INrunProvider _nRunProvider;
 
         [UsedImplicitly]
         public NpcPacketController()
         {
         }
 
-        public NpcPacketController(WorldConfiguration worldConfiguration, INrunAccessService nRunAccessService)
+        public NpcPacketController(WorldConfiguration worldConfiguration, INrunProvider nRunProvider)
         {
             _worldConfiguration = worldConfiguration;
-            _nRunAccessService = nRunAccessService;
+            _nRunProvider = nRunProvider;
         }
 
         /// <summary>
@@ -118,7 +117,7 @@ namespace NosCore.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
-            _nRunAccessService.NRunLaunch(Session, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
+            _nRunProvider.NRunLaunch(Session, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
         }
 
         /// <summary>

@@ -29,15 +29,14 @@ using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemBuilderService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MapItemBuilderService;
-using NosCore.GameObject.Services.MapMonsterBuilderService;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Providers.MapMonsterProvider;
+using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Shared;
-using NosCore.GameObject.Services.MapNpcBuilder;
-using NosCore.GameObject.Services.NRunAccessService;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Group;
 using NosCore.Shared.I18N;
@@ -51,7 +50,7 @@ namespace NosCore.Tests.HandlerTests
         private ClientSession _session;
         private NpcPacketController _handler;
 
-        MapInstanceAccessService _instanceAccessService;
+        MapInstanceProvider _instanceProvider;
 
         private readonly Map _map = new Map
         {
@@ -98,7 +97,7 @@ namespace NosCore.Tests.HandlerTests
             Name = "TEST SHOP"
         };
 
-        private ItemBuilderService _itemBuilderService;
+        private ItemProvider _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -130,31 +129,31 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
             
-            _itemBuilderService = new ItemBuilderService(new List<Item>(),
+            _itemProvider = new ItemProvider(new List<Item>(),
                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _instanceAccessService = new MapInstanceAccessService(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
-                new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcBuilderService(_itemBuilderService, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
-                new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+            _instanceProvider = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
+                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
 
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService, null);
+            _session = new ClientSession(null, new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) }, _instanceProvider, null);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new NpcPacketController(conf, new NrunAccessService(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
+            _handler = new NpcPacketController(conf, new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
-            var mapinstance = _instanceAccessService.GetBaseMapById(0);
+            var mapinstance = _instanceProvider.GetBaseMapById(0);
             _session.Character.Account = account;
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(0);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             _session.Character.MapInstance = mapinstance;
             _session.Character.MapInstance.Portals = new List<Portal> { new Portal
             {
                 DestinationMapId =_map.MapId,
                 Type = PortalType.Open,
                 SourceMapInstanceId = mapinstance.MapInstanceId,
-                DestinationMapInstanceId = _instanceAccessService.GetBaseMapById(0).MapInstanceId,
+                DestinationMapInstanceId = _instanceProvider.GetBaseMapById(0).MapInstanceId,
                 DestinationX = 5,
                 DestinationY = 5,
                 PortalId = 1,
@@ -218,10 +217,10 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1));
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(shopPacket);
             Assert.IsNull(_session.Character.Shop);
         }
@@ -234,13 +233,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(shopPacket);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayPacket)_session.LastPacket;
@@ -254,13 +253,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(shopPacket);
             Assert.IsNotNull(_session.Character.Shop);
         }
@@ -272,13 +271,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(shopPacket);
             Assert.IsNull(_session.Character.Shop);
         }
@@ -286,7 +285,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotCreateEmptyShop()
         {
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(new MShopPacket
             {
                 Type = CreateShopPacketType.Open,
@@ -306,13 +305,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
@@ -325,13 +324,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = false},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             var packet = (SMemoPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
@@ -346,13 +345,13 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceAccessService.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
@@ -367,7 +366,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -387,7 +386,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
@@ -407,7 +406,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -429,7 +428,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -452,8 +451,8 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _session.Character.ItemBuilderService = itemBuilder;
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
@@ -478,8 +477,8 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _session.Character.ItemBuilderService = itemBuilder;
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
@@ -505,8 +504,8 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _session.Character.ItemBuilderService = itemBuilder;
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
@@ -526,7 +525,7 @@ namespace NosCore.Tests.HandlerTests
         private ClientSession prepareSessionShop()
         {
             var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceAccessService, null) }, _instanceAccessService, null);
+            var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) }, _instanceProvider, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
@@ -534,7 +533,7 @@ namespace NosCore.Tests.HandlerTests
             session2.SessionId = 1;
           
             _handler = new NpcPacketController(conf,
-                new NrunAccessService(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
+                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(session2);
             session2.SetCharacter(new Character(new InventoryService(new List<Item>(), conf), null, null)
             {
@@ -545,9 +544,9 @@ namespace NosCore.Tests.HandlerTests
                 MapId = 1,
                 State = CharacterState.Active
             });
-            var mapinstance = _instanceAccessService.GetBaseMapById(0);
+            var mapinstance = _instanceProvider.GetBaseMapById(0);
             session2.Character.Account = account;
-            session2.Character.MapInstance = _instanceAccessService.GetBaseMapById(0);
+            session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             session2.Character.MapInstance = mapinstance;
 
             _session.Character.Gold = 500000;
@@ -555,8 +554,8 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _session.Character.ItemBuilderService = itemBuilder;
+            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 1, 999);
             session2.Character.Inventory.AddItemToPocket(it, PocketType.Etc, 0);

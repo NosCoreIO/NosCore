@@ -49,14 +49,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemBuilderService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Shared;
-using SpecialistInstance = NosCore.GameObject.Services.ItemBuilderService.Item.SpecialistInstance;
-using WearableInstance = NosCore.GameObject.Services.ItemBuilderService.Item.WearableInstance;
+using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
+using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
 namespace NosCore.GameObject
 {
@@ -65,11 +65,11 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
         
-        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemBuilderService itemBuilderService)
+        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider)
         {
             Inventory = inventory;
-            ExchangeService = exchangeService;
-            ItemBuilderService = itemBuilderService;
+            ExchangeProvider = exchangeProvider;
+            ItemProvider = itemProvider;
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
@@ -101,7 +101,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
-        public IItemBuilderService ItemBuilderService { get; set; }
+        public IItemProvider ItemProvider { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public bool UseSp { get; set; }
@@ -126,11 +126,11 @@ namespace NosCore.GameObject
 
         public IInventoryService Inventory { get; }
 
-        public IExchangeService ExchangeService { get; }
+        public IExchangeProvider ExchangeProvider { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
-        public bool InExchange => ExchangeService.CheckExchange(VisualId);
+        public bool InExchange => ExchangeProvider.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
 
@@ -523,7 +523,7 @@ namespace NosCore.GameObject
             List<IItemInstance> inv;
             if (shop.Session == null)
             {
-                inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId,
+                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId,
                     amount));
             }
             else
@@ -545,7 +545,7 @@ namespace NosCore.GameObject
                 else
                 {
                     inv = Inventory.AddItemToPocket(
-                        ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                        ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
                 }
             }
 
