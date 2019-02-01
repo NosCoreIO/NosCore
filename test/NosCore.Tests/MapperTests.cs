@@ -35,7 +35,7 @@ namespace NosCore.Tests
     [TestClass]
     public class MapperTests
     {
-        private Adapter _adapter = new Adapter();
+        private readonly Adapter _adapter = new Adapter();
 
         [TestInitialize]
         public void Setup()
