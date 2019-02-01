@@ -36,6 +36,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
+using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.Shared;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Group;
