@@ -22,7 +22,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
-using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject
 {

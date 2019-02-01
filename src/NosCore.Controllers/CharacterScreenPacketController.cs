@@ -32,9 +32,9 @@ using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.ItemBuilderService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared;
@@ -49,16 +49,16 @@ namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-        private readonly IItemBuilderService _itemBuilderService;
+        private readonly IItemProvider _itemProvider;
         private readonly IAdapter _adapter;
-        private readonly IMapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CharacterScreenPacketController(
-            IItemBuilderService itemBuilderService, IMapInstanceAccessService mapInstanceAccessService, IAdapter adapter)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter)
         {
-            _mapInstanceAccessService = mapInstanceAccessService;
-            _itemBuilderService = itemBuilderService;
+            _mapInstanceProvider = mapInstanceProvider;
+            _itemProvider = itemProvider;
             _adapter = adapter;
         }
 
@@ -365,8 +365,8 @@ namespace NosCore.Controllers
 
                 var character = _adapter.Adapt<Character>(characterDto);
 
-                character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
+                character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
@@ -376,7 +376,7 @@ namespace NosCore.Controllers
 
                 var inventories = DaoFactory.ItemInstanceDao.Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
+                inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
 #pragma warning restore CS0618

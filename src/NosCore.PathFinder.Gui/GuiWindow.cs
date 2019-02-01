@@ -28,12 +28,12 @@ using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Services.ItemBuilderService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
-using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MapItemBuilderService;
-using NosCore.GameObject.Services.MapMonsterBuilderService;
-using NosCore.GameObject.Services.MapNpcBuilder;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Providers.MapMonsterProvider;
+using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Map;
 using OpenTK;
@@ -68,10 +68,10 @@ namespace NosCore.PathFinder.Gui
             var npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters, 
-                    new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    new MapNpcBuilderService(new ItemBuilderService(new List<Item>(), new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()), 
+                    new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    new MapNpcProvider(new ItemProvider(new List<Item>(), new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()), 
                         new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
-                    new MapMonsterBuilderService(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
+                    new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
                 {
                     IsSleeping = false
                 };

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject
 {

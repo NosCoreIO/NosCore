@@ -32,8 +32,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.GuriAccessService;
-using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Providers.GuriProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
@@ -50,8 +50,8 @@ namespace NosCore.Controllers
 {
     public class DefaultPacketController : PacketController
     {
-        private readonly IMapInstanceAccessService _mapInstanceAccessService;
-        private readonly IGuriAccessService _guriAccessService;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IGuriProvider _guriProvider;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -61,12 +61,12 @@ namespace NosCore.Controllers
         }
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
-            IMapInstanceAccessService mapInstanceAccessService,
-            IGuriAccessService guriAccessService)
+            IMapInstanceProvider mapInstanceProvider,
+            IGuriProvider guriProvider)
         {
             _worldConfiguration = worldConfiguration;
-            _mapInstanceAccessService = mapInstanceAccessService;
-            _guriAccessService = guriAccessService;
+            _mapInstanceProvider = mapInstanceProvider;
+            _guriProvider = guriProvider;
         }
 
         public void GameStart(GameStartPacket _)
@@ -259,9 +259,9 @@ namespace NosCore.Controllers
 
             Session.Character.LastPortal = SystemTime.Now();
 
-            if (_mapInstanceAccessService.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
+            if (_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
                 != MapInstanceType.BaseMapInstance
-                && _mapInstanceAccessService.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
+                && _mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
                 == MapInstanceType.BaseMapInstance)
             {
                 Session.ChangeMap(Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
@@ -335,7 +335,7 @@ namespace NosCore.Controllers
         /// <param name="guriPacket"></param>
         public void Guri(GuriPacket guriPacket)
         {
-            _guriAccessService.GuriLaunch(Session, guriPacket);
+            _guriProvider.GuriLaunch(Session, guriPacket);
         }
 
         public void Pulse(PulsePacket pulsePacket)

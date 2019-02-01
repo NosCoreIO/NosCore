@@ -24,10 +24,10 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemBuilderService;
-using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
@@ -37,11 +37,11 @@ namespace NosCore.Tests
     [TestClass]
     public class ExchangeTests
     {
-        private ExchangeService _exchangeService;
+        private ExchangeProvider _exchangeProvider;
 
         private WorldConfiguration _worldConfiguration;
 
-        private ItemBuilderService _itemBuilderService;
+        private ItemProvider _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -60,19 +60,19 @@ namespace NosCore.Tests
                 new Item { Type = PocketType.Main, VNum = 1013 },
             };
 
-            _itemBuilderService = new ItemBuilderService(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _exchangeService = new ExchangeService(_itemBuilderService, _worldConfiguration);
+            _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration);
         }
 
         [TestMethod]
         public void Test_Set_Gold()
         {
-            _exchangeService.OpenExchange(1, 2);
-            _exchangeService.SetGold(1, 1000, 1000);
-            _exchangeService.SetGold(2, 2000, 2000);
+            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider.SetGold(1, 1000, 1000);
+            _exchangeProvider.SetGold(2, 2000, 2000);
 
-            var data1 = _exchangeService.GetData(1);
-            var data2 = _exchangeService.GetData(2);
+            var data1 = _exchangeProvider.GetData(1);
+            var data2 = _exchangeProvider.GetData(2);
 
             Assert.IsTrue(data1.Gold == 1000 && data1.BankGold == 1000 && data2.Gold == 2000 && data2.BankGold == 2000);
         }
@@ -80,12 +80,12 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Confirm_Exchange()
         {
-            _exchangeService.OpenExchange(1, 2);
-            _exchangeService.ConfirmExchange(1);
-            _exchangeService.ConfirmExchange(2);
+            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider.ConfirmExchange(1);
+            _exchangeProvider.ConfirmExchange(2);
 
-            var data1 = _exchangeService.GetData(1);
-            var data2 = _exchangeService.GetData(2);
+            var data1 = _exchangeProvider.GetData(1);
+            var data2 = _exchangeProvider.GetData(2);
 
             Assert.IsTrue(data1.ExchangeConfirmed && data2.ExchangeConfirmed);
         }
@@ -93,7 +93,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Items()
         {
-            _exchangeService.OpenExchange(1, 2);
+            _exchangeProvider.OpenExchange(1, 2);
 
             var item = new ItemInstance
             {
@@ -101,9 +101,9 @@ namespace NosCore.Tests
                 ItemVNum = 1012
             };
 
-            _exchangeService.AddItems(1, item, item.Amount);
+            _exchangeProvider.AddItems(1, item, item.Amount);
 
-            var data1 = _exchangeService.GetData(1);
+            var data1 = _exchangeProvider.GetData(1);
 
             Assert.IsTrue(data1.ExchangeItems.Any(s => s.Key.ItemVNum == 1012 && s.Key.Amount == 1));
         }
@@ -111,9 +111,9 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Check_Exchange()
         {
-            var wrongExchange = _exchangeService.CheckExchange(1);
-            _exchangeService.OpenExchange(1, 2);
-            var goodExchange = _exchangeService.CheckExchange(1);
+            var wrongExchange = _exchangeProvider.CheckExchange(1);
+            _exchangeProvider.OpenExchange(1, 2);
+            var goodExchange = _exchangeProvider.CheckExchange(1);
 
             Assert.IsTrue(!wrongExchange && goodExchange);
         }
@@ -121,29 +121,29 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Close_Exchange()
         {
-            var wrongClose = _exchangeService.CloseExchange(1, ExchangeResultType.Failure);
+            var wrongClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
 
             Assert.IsNull(wrongClose);
 
-            _exchangeService.OpenExchange(1, 2);
-            var goodClose = _exchangeService.CloseExchange(1, ExchangeResultType.Failure);
+            _exchangeProvider.OpenExchange(1, 2);
+            var goodClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
             Assert.IsTrue(goodClose != null && goodClose.Type == ExchangeResultType.Failure);
         }
 
         [TestMethod]
         public void Test_Open_Exchange()
         {
-            var exchange = _exchangeService.OpenExchange(1, 2);
+            var exchange = _exchangeProvider.OpenExchange(1, 2);
             Assert.IsTrue(exchange);
         }
 
         [TestMethod]
         public void Test_Open_Second_Exchange()
         {
-            var exchange = _exchangeService.OpenExchange(1, 2);
+            var exchange = _exchangeProvider.OpenExchange(1, 2);
             Assert.IsTrue(exchange);
 
-            var wrongExchange = _exchangeService.OpenExchange(1, 3);
+            var wrongExchange = _exchangeProvider.OpenExchange(1, 3);
             Assert.IsFalse(wrongExchange);
         }
 
@@ -152,13 +152,13 @@ namespace NosCore.Tests
         {
             IInventoryService inventory1 = new InventoryService(new List<Item> { new Item {VNum = 1012, Type = PocketType.Main } }, _worldConfiguration);
             IInventoryService inventory2 = new InventoryService(new List<Item> { new Item { VNum = 1013, Type = PocketType.Main } }, _worldConfiguration);
-            var item1 = inventory1.AddItemToPocket(_itemBuilderService.Create(1012, 1)).First();
-            var item2 = inventory2.AddItemToPocket(_itemBuilderService.Create(1013, 1)).First();
+            var item1 = inventory1.AddItemToPocket(_itemProvider.Create(1012, 1)).First();
+            var item2 = inventory2.AddItemToPocket(_itemProvider.Create(1013, 1)).First();
 
-            _exchangeService.OpenExchange(1, 2);
-            _exchangeService.AddItems(1, item1, 1);
-            _exchangeService.AddItems(2, item2, 1);
-            var itemList = _exchangeService.ProcessExchange(1, 2, inventory1, inventory2);
+            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider.AddItems(1, item1, 1);
+            _exchangeProvider.AddItems(2, item2, 1);
+            var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
             Assert.IsTrue(itemList.Count(s => s.Key == 1) == 2 && itemList.Count(s => s.Key == 2) == 2);
         }
     }
