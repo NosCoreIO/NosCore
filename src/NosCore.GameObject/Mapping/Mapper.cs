@@ -21,7 +21,7 @@ using Mapster;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject.DependancyInjection;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 
 namespace NosCore.GameObject.Mapping
 {

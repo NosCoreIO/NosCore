@@ -32,9 +32,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -52,11 +49,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.ItemBuilder;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Shared;
-using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
-using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
+using SpecialistInstance = NosCore.GameObject.Services.ItemBuilderService.Item.SpecialistInstance;
+using WearableInstance = NosCore.GameObject.Services.ItemBuilderService.Item.WearableInstance;
 
 namespace NosCore.GameObject
 {
@@ -65,7 +65,7 @@ namespace NosCore.GameObject
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
         
-        public Character(IInventoryService inventory, ExchangeService exchangeService, IItemBuilderService itemBuilderService)
+        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemBuilderService itemBuilderService)
         {
             Inventory = inventory;
             ExchangeService = exchangeService;
@@ -126,7 +126,7 @@ namespace NosCore.GameObject
 
         public IInventoryService Inventory { get; }
 
-        public ExchangeService ExchangeService { get; }
+        public IExchangeService ExchangeService { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 

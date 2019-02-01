@@ -53,9 +53,6 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
@@ -67,11 +64,10 @@ using NosCore.GameObject;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
-using NosCore.GameObject.Services.GuriAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
-using NosCore.GameObject.Services.MapMonsterBuilder;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
+using NosCore.GameObject.Services.MapItemBuilderService;
 using NosCore.GameObject.Services.MapNpcBuilder;
-using NosCore.GameObject.Services.NRunAccess;
 
 namespace NosCore.WorldServer
 {
@@ -202,14 +198,12 @@ namespace NosCore.WorldServer
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
-
-            containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
-            containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<MapNpcBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<MapMonsterBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
-            containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
-            containerBuilder.RegisterType<ExchangeService>().SingleInstance();
+            
+            containerBuilder.RegisterAssemblyTypes(Assembly.LoadFrom("NosCore.GameObject"))
+                .Where(t => t.Name.EndsWith("Service"))
+                .AsImplementedInterfaces()
+                .SingleInstance()
+                .PropertiesAutowired();
         }
 
         [UsedImplicitly]

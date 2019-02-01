@@ -27,9 +27,9 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemBuilderService;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -40,7 +40,7 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
-    public class ExchangeService
+    public class ExchangeService : IExchangeService
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IItemBuilderService _itemBuilderService;

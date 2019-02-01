@@ -28,8 +28,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Services.ItemBuilderService.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -45,10 +44,10 @@ namespace NosCore.Controllers
     public class ExchangePacketController : PacketController
     {
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly ExchangeService _exchangeService;
+        private readonly IExchangeService _exchangeService;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         
-        public ExchangePacketController(WorldConfiguration worldConfiguration, ExchangeService exchangeService)
+        public ExchangePacketController(WorldConfiguration worldConfiguration, IExchangeService exchangeService)
         {
             _worldConfiguration = worldConfiguration;
             _exchangeService = exchangeService;
