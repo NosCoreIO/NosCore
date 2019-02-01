@@ -26,7 +26,7 @@ using NosCore.Packets.ClientPackets;
 
 namespace NosCore.GameObject.Providers.GuriProvider
 {
-    public class GuriProvider : IGuriAccessProvider
+    public class GuriProvider : IGuriProvider
     {
         public GuriProvider(IEnumerable<IHandler<GuriPacket, GuriPacket>> handlers)
         {

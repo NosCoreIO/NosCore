@@ -27,6 +27,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Interaction;
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
     public class ExchangeProvider : IExchangeProvider
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IItemBuilderService _itemBuilderService;
+        private readonly IItemProvider _itemBuilderService;
         private readonly WorldConfiguration _worldConfiguration;
 
         public ExchangeProvider()
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         }
 
         [UsedImplicitly]
-        public ExchangeProvider(IItemBuilderService itemBuilderService, WorldConfiguration worldConfiguration)
+        public ExchangeProvider(IItemProvider itemBuilderService, WorldConfiguration worldConfiguration)
         {
             _exchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             _exchangeRequests = new ConcurrentDictionary<long, long>();

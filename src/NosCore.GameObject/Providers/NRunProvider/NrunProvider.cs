@@ -27,9 +27,9 @@ using NosCore.Packets.ClientPackets;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {
-    public class NrunAccessService : INrunAccessService
+    public class NrunProvider : INrunProvider
     {
-        public NrunAccessService(IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
+        public NrunProvider(IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
         {
             _handlers = handlers.ToList();
         }
