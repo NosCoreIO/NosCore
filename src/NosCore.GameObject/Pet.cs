@@ -20,9 +20,9 @@
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Shared.Enumerations;
 using System;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject
 {

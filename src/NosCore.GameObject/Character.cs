@@ -32,9 +32,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
@@ -52,11 +49,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Shared;
-using SpecialistInstance = NosCore.GameObject.Services.ItemBuilder.Item.SpecialistInstance;
-using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
+using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
+using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
 namespace NosCore.GameObject
 {
@@ -64,9 +64,12 @@ namespace NosCore.GameObject
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
-
-        public Character()
+        
+        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider)
         {
+            Inventory = inventory;
+            ExchangeProvider = exchangeProvider;
+            ItemProvider = itemProvider;
             FriendRequestCharacters = new ConcurrentDictionary<long, long>();
             CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
             RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
@@ -98,7 +101,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
-        public IItemBuilderService ItemBuilderService { get; set; }
+        public IItemProvider ItemProvider { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public bool UseSp { get; set; }
@@ -121,13 +124,13 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public IInventoryService Inventory { get; set; }
+        public IInventoryService Inventory { get; }
 
-        public ExchangeService ExchangeService { get; set; }
+        public IExchangeProvider ExchangeProvider { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
-        public bool InExchange => ExchangeService.CheckExchange(VisualId);
+        public bool InExchange => ExchangeProvider.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
 
@@ -520,7 +523,7 @@ namespace NosCore.GameObject
             List<IItemInstance> inv;
             if (shop.Session == null)
             {
-                inv = Inventory.AddItemToPocket(ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId,
+                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId,
                     amount));
             }
             else
@@ -542,7 +545,7 @@ namespace NosCore.GameObject
                 else
                 {
                     inv = Inventory.AddItemToPocket(
-                        ItemBuilderService.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                        ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
                 }
             }
 
