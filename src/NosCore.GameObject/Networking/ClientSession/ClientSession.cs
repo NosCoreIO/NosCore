@@ -31,8 +31,8 @@ using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Account;
 using NosCore.Shared.Enumerations.Group;
@@ -41,7 +41,7 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.Enumerations.Map;
 using NosCore.Shared.I18N;
 using Serilog;
-using WearableInstance = NosCore.GameObject.Services.ItemBuilder.Item.WearableInstance;
+using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -56,18 +56,18 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly bool _isWorldClient;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
 
-        private readonly ExchangeService _exchangeService;
+        private readonly IExchangeProvider _exchangeProvider;
 
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            MapInstanceAccessService mapInstanceAccessService, ExchangeService exchangeService) : this(configuration, packetControllers)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider) : this(configuration, packetControllers)
         {
-            _mapInstanceAccessService = mapInstanceAccessService;
-            _exchangeService = exchangeService;
+            _mapInstanceProvider = mapInstanceProvider;
+            _exchangeProvider = exchangeProvider;
         }
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
@@ -159,8 +159,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.SendRelationStatus(false);
-                var targetId = _exchangeService.GetTargetId(Character.VisualId);
-                var closeExchange = _exchangeService.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
+                var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
 
                 if (targetId.HasValue && Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
                 {
@@ -188,12 +188,12 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
             {
-                _mapInstanceAccessService.GetMapInstance(Character.MapInstanceId);
+                _mapInstanceProvider.GetMapInstance(Character.MapInstanceId);
             }
             catch
             {
@@ -234,7 +234,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstanceAccessService.GetMapInstance(mapInstanceId);
+                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId);
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;

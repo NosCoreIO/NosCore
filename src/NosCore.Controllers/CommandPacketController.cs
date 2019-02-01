@@ -31,9 +31,9 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared;
@@ -49,19 +49,19 @@ namespace NosCore.Controllers
     [UsedImplicitly]
     public class CommandPacketController : PacketController
     {
-        private readonly IItemBuilderService _itemBuilderService;
+        private readonly IItemProvider _itemProvider;
         private readonly List<Item> _items;
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
-            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
-            _itemBuilderService = itemBuilderService;
-            _mapInstanceAccessService = mapInstanceAccessService;
+            _itemProvider = itemProvider;
+            _mapInstanceProvider = mapInstanceProvider;
         }
 
         [UsedImplicitly]
@@ -251,7 +251,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var mapInstance = _mapInstanceAccessService.GetBaseMapById(mapId);
+            var mapInstance = _mapInstanceProvider.GetBaseMapById(mapId);
 
             if (mapInstance == null)
             {
@@ -412,7 +412,7 @@ namespace NosCore.Controllers
                     ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = Session.Character.Inventory.AddItemToPocket(_itemBuilderService.Create(vnum,
+            var inv = Session.Character.Inventory.AddItemToPocket(_itemProvider.Create(vnum,
                 Session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
 
             if (inv.Count <= 0)
