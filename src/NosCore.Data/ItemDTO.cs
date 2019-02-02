@@ -62,7 +62,7 @@ namespace NosCore.Data
 
         public short DistanceDefenceDodge { get; set; }
 
-        public short Effect { get; set; }
+        public ItemEffectType Effect { get; set; }
 
         public int EffectValue { get; set; }
 

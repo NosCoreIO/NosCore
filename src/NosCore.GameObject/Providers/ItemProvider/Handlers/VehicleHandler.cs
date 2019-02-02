@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect == 1000;
+        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
 
         public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {

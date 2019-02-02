@@ -53,5 +53,9 @@ namespace NosCore.Configuration
         public long MaxGoldAmount { get; set; }
 
         public long MaxBankGoldAmount { get; set; }
+
+        public int MaxSpPoints { get; set; }
+
+        public int MaxAdditionalSpPoints { get; set; }
     }
 }

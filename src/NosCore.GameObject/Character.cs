@@ -812,9 +812,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = 1000000,
+                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = 10000
+                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
             };
         }
 
@@ -1319,13 +1319,16 @@ namespace NosCore.GameObject
             };
         }
 
-        public void AddSpPoints(int spPoint)
+        public void AddSpPoints(int spPointToAdd)
         {
-            SpPoint += spPoint;
-            if (SpPoint > 10_000)
-            {
-                SpPoint = 10_000;
-            }
+            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
+            SendPacket(GenerateSpPoint());
+        }
+
+        public void AddAdditionalSpPoints(int spPointToAdd)
+        {
+            SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
+            SendPacket(GenerateSpPoint());
         }
 
         public EquipPacket GenerateEquipment()

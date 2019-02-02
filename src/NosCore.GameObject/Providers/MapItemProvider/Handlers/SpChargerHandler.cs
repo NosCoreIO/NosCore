@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
     public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
         public bool Condition(MapItem item) =>
-            item.ItemInstance.Item.ItemType == ItemType.Map && item.ItemInstance.Item.Effect == 71;
+            item.ItemInstance.Item.ItemType == ItemType.Map && item.ItemInstance.Item.Effect == ItemEffectType.SpCharger;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {

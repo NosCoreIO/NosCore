@@ -34,5 +34,7 @@
 	"BackpackSize":48,
 	"MaxItemAmount":999,
 	"MaxGoldAmount":1000000000,
-	"MaxBankGoldAmount":100000000000
+	"MaxBankGoldAmount":100000000000,
+	"MaxSpPoints":10000,
+	"MaxAdditionalSpPoints":1000000
 }
