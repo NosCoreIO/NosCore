@@ -523,7 +523,7 @@ namespace NosCore.Tests.HandlerTests
 
         private ClientSession PrepareSessionShop()
         {
-            var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
+            var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) }, _instanceProvider, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
