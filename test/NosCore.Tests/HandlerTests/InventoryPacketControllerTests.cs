@@ -111,19 +111,14 @@ namespace NosCore.Tests.HandlerTests
             };
             _session.InitializeAccount(_acc);
            
-            _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>
+            _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> 
             {
                 new SpRechargerHandler(_session.WorldConfiguration),
                 new VehicleHandler(),
                 new WearHandler()
             });
             _handler = new InventoryPacketController(_session.WorldConfiguration);
-            _mapItemProvider = new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>
-            {
-                new DropHandler(),
-                new SpChargerHandler(),
-                new GoldDropHandler()
-            });
+            _mapItemProvider = new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> { new DropHandler(), new SpChargerHandler(), new GoldDropHandler() });
             _map = new MapInstance(new Map
             {
                 Name = "testMap",
