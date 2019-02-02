@@ -33,8 +33,8 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Services.MapInstanceAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations.Character;
@@ -62,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
-                var charaDto = new CharacterDto
+                var charaDto = new Character(null, null, null)
                 {
                     CharacterId = i,
                     Name = $"TestExistingCharacter{i}",
@@ -76,13 +76,13 @@ namespace NosCore.Tests.HandlerTests
                 _handlers.Add(handler);
                 handler.RegisterSession(session);
 
-                var chara = charaDto.Adapt<Character>();
+                var chara = charaDto;
                 chara.Session = session;
                 _characters.Add(i, chara);
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true, MapInstanceType.BaseMapInstance,
-                    null, new MapItemBuilderService(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null, new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, null);
             }
         }

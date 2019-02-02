@@ -32,10 +32,9 @@ using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Services.CharacterBuilder;
-using NosCore.GameObject.Services.ItemBuilder;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared;
@@ -44,22 +43,23 @@ using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.Shared.Enumerations;
+using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-        private readonly ICharacterBuilderService _characterBuilderService;
-        private readonly IItemBuilderService _itemBuilderService;
-        private readonly MapInstanceAccessService _mapInstanceAccessService;
+        private readonly IItemProvider _itemProvider;
+        private readonly IAdapter _adapter;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public CharacterScreenPacketController(ICharacterBuilderService characterBuilderService,
-            IItemBuilderService itemBuilderService, MapInstanceAccessService mapInstanceAccessService)
+        public CharacterScreenPacketController(
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter)
         {
-            _mapInstanceAccessService = mapInstanceAccessService;
-            _characterBuilderService = characterBuilderService;
-            _itemBuilderService = itemBuilderService;
+            _mapInstanceProvider = mapInstanceProvider;
+            _itemProvider = itemProvider;
+            _adapter = adapter;
         }
 
         [UsedImplicitly]
@@ -278,7 +278,7 @@ namespace NosCore.Controllers
 
             // load characterlist packet for each character in Character
             Session.SendPacket(new ClistStartPacket {Type = 0});
-            foreach (var character in characters.Select(_characterBuilderService.LoadCharacter))
+            foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -363,10 +363,10 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var character = _characterBuilderService.LoadCharacter(characterDto);
+                var character = _adapter.Adapt<Character>(characterDto);
 
-                character.MapInstanceId = _mapInstanceAccessService.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = _mapInstanceAccessService.GetMapInstance(character.MapInstanceId);
+                character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
@@ -376,7 +376,7 @@ namespace NosCore.Controllers
 
                 var inventories = DaoFactory.ItemInstanceDao.Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = _itemBuilderService.Convert(k));
+                inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
 #pragma warning disable CS0618
                 Session.SendPackets(Session.Character.GenerateInv());
 #pragma warning restore CS0618
@@ -401,13 +401,13 @@ namespace NosCore.Controllers
                 var relatedCharacters = DaoFactory.CharacterDao.Where(s =>
                     relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
-                foreach (var relation in relations.Adapt<IEnumerable<CharacterRelation>>())
+                foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relations))
                 {
                     relation.CharacterName = characters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
                     Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
                 }
 
-                foreach (var relation in relationsWithCharacter.Adapt<IEnumerable<CharacterRelation>>())
+                foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relationsWithCharacter))
                 {
                     relation.CharacterName =
                         relatedCharacters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;

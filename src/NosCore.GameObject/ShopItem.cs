@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Services.ItemBuilder.Item;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject

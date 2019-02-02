@@ -53,9 +53,6 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapInstanceAccess;
 using NosCore.Packets.ClientPackets;
 using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
@@ -64,13 +61,12 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Services.GuriAccess;
-using NosCore.GameObject.Services.MapItemBuilder;
-using NosCore.GameObject.Services.MapMonsterBuilder;
-using NosCore.GameObject.Services.MapNpcBuilder;
-using NosCore.GameObject.Services.NRunAccess;
+using NosCore.GameObject.DependancyInjection;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapItemProvider;
 
 namespace NosCore.WorldServer
 {
@@ -80,32 +76,57 @@ namespace NosCore.WorldServer
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
         private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static WorldConfiguration _worldConfiguration;
 
-        private static WorldConfiguration InitializeConfiguration()
+        private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
-            var worldConfiguration = new WorldConfiguration();
+            _worldConfiguration = new WorldConfiguration();
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("world.json", false);
-            builder.Build().Bind(worldConfiguration);
-            Validator.ValidateObject(worldConfiguration, new ValidationContext(worldConfiguration), validateAllProperties: true);
-            return worldConfiguration;
+            builder.Build().Bind(_worldConfiguration);
+            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration), validateAllProperties: true);
+
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(_worldConfiguration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+
+            LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        private static void InitializeContainer(ref ContainerBuilder containerBuilder, IServiceCollection services)
+        private static void InitializeContainer(ref ContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
+
+            //NosCore.Configuration
+            containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
+
+            //NosCore.Controllers
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+
+            //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
-            containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+
+            //NosCore.WorldServer
+            containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
+
+            //NosCore.GameObject
+            containerBuilder.RegisterType<Character>().PropertiesAutowired();
+            containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-
-            containerBuilder.RegisterAssemblyTypes(typeof(InventoryService).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
+                .PropertiesAutowired();
+            containerBuilder.RegisterAssemblyTypes(typeof(IExchangeProvider).Assembly)
+                .Where(t => t.Name.EndsWith("Provider"))
+                .AsImplementedInterfaces()
+                .SingleInstance()
                 .PropertiesAutowired();
 
             containerBuilder.Register(_ =>
@@ -116,6 +137,7 @@ namespace NosCore.WorldServer
                 return items;
             }).As<List<Item>>().SingleInstance();
 
+            
             containerBuilder.Register(_ =>
             {
                 List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
@@ -190,17 +212,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
-                .AsImplementedInterfaces();
-
-            containerBuilder.RegisterType<MapInstanceAccessService>().SingleInstance();
-            containerBuilder.RegisterType<MapItemBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<MapNpcBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<MapMonsterBuilderService>().SingleInstance();
-            containerBuilder.RegisterType<NrunAccessService>().SingleInstance();
-            containerBuilder.RegisterType<GuriAccessService>().SingleInstance();
-            containerBuilder.RegisterType<ExchangeService>().SingleInstance();
-
-            containerBuilder.Populate(services);
+                .AsImplementedInterfaces();     
         }
 
         [UsedImplicitly]
@@ -209,18 +221,15 @@ namespace NosCore.WorldServer
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
             PacketFactory.Initialize<NoS0575Packet>();
-            var configuration = InitializeConfiguration();
+            InitializeConfiguration();
 
+            services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { configuration.WebApi.ToString() }
+                Addresses = { _worldConfiguration.WebApi.ToString() }
             });
-            LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
-            var keyByteArray =
-                Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
@@ -229,7 +238,7 @@ namespace NosCore.WorldServer
                     cfg.SaveToken = true;
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        IssuerSigningKey = signinKey,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
                         ValidAudience = "Audience",
                         ValidIssuer = "Issuer",
                         ValidateIssuerSigningKey = true,
@@ -238,28 +247,26 @@ namespace NosCore.WorldServer
                 });
 
             services.AddMvc(o =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                o.Filters.Add(new AuthorizeFilter(policy));
-            })
-            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
-            .AddControllersAsServices();
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    o.Filters.Add(new AuthorizeFilter(policy));
+                })
+                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+                .AddControllersAsServices();
+
 
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterInstance(configuration).As<WorldConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterInstance(configuration.MasterCommunication).As<WebApiConfiguration>();
-            InitializeContainer(ref containerBuilder, services);
+            InitializeContainer(ref containerBuilder);
+            containerBuilder.Populate(services);
             var container = containerBuilder.Build();
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-            Mapper.InitializeMapperItemInstance();
+
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }
+
 
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)

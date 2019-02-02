@@ -19,15 +19,17 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Autofac;
+using Autofac.Builder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Services.Inventory;
-using NosCore.GameObject.Services.ItemBuilder.Item;
-using NosCore.GameObject.Services.MapItemBuilder;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
@@ -49,12 +51,11 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
-            var characterTest = new Character
+            var characterTest = new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null)
             {
                 Name = "characterTest",
                 Account = new AccountDto { Authority = AuthorityType.Administrator },
                 Level = 1,
-                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
             };
 
             var packet = PacketFactory.Serialize(new[] { characterTest.GenerateIn("") });
@@ -80,12 +81,11 @@ namespace NosCore.Tests
         [TestMethod]
         public void Generate()
         {
-            var characterTest = new Character
+            var characterTest = new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null)
             {
                 Name = "characterTest",
                 Account = new AccountDto { Authority = AuthorityType.Administrator },
                 Level = 1,
-                Inventory = new InventoryService(new List<Item>(), new WorldConfiguration())
             };
 
             var packet = PacketFactory.Serialize(new[] {new DelayPacket
@@ -270,7 +270,7 @@ namespace NosCore.Tests
                 new ShopItem {Slot = 0, Type = 0, Amount = 1, ItemInstance = item, Price = 1});
             items.TryAdd(1,
                 new ShopItem {Slot = 2, Type = 0, Amount = 2, ItemInstance = item, Price = 1});
-            var chara = new Character
+            var chara = new Character(null, null, null)
             {
                 Shop = new Shop
                 {

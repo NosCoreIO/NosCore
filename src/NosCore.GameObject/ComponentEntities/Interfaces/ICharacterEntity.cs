@@ -22,7 +22,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
-using NosCore.GameObject.Services.Inventory;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.Packets.ServerPackets;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Enumerations.Account;

@@ -25,7 +25,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapInstanceAccess;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
