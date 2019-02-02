@@ -338,7 +338,15 @@ namespace NosCore.Controllers
                     return;
                 }
                 Session.Character.Gold += price * sellPacket.Amount.Value;
-                Session.SendPacket(new SMemoPacket { Type = SMemoType.Success, Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), inv.Item.Name, sellPacket.Amount.Value) });
+                Session.SendPacket(new SMemoPacket
+                {
+                    Type = SMemoType.Success,
+                    Message = string.Format(
+                            Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), 
+                            inv.Item.Name, 
+                            sellPacket.Amount.Value
+                        )
+                });
                 
                 Session.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.Id);
                 Session.SendPacket(Session.Character.GenerateGold());
