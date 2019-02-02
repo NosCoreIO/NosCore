@@ -21,7 +21,6 @@ using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
-using NosCore.Configuration;
 using NosCore.DAL;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
