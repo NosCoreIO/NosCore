@@ -34,8 +34,6 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class ChangeClassHandler : IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ChangeClass &&
             item.Item2.Type > 0 && item.Item2.Type < 4;
 

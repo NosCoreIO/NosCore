@@ -25,7 +25,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Castle.Core.Internal;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Shared.Enumerations;
@@ -36,11 +35,11 @@ namespace NosCore.Tests
     [TestClass]
     public class LogLanguageTests
     {
-        Dictionary<string, int> _dict = new Dictionary<string, int>();
+        readonly Dictionary<string, int> _dict = new Dictionary<string, int>();
         public LogLanguageTests()
         {
             var uselessKeys = new StringBuilder();
-           
+
             var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs", SearchOption.AllDirectories);
             foreach (var file in list)
             {

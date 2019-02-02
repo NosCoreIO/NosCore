@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
@@ -41,16 +42,19 @@ namespace NosCore.Parser.Parsers
                 {
                     continue;
                 }
-                string name = string.Empty;
+                StringBuilder name = new StringBuilder();
                 for (int j = 6; j < currentPacket.Length; j++)
                 {
-                    name += $"{currentPacket[j]} ";
+                    name.Append($"{currentPacket[j]}");
+                    if (j != currentPacket.Length - 1)
+                    {
+                        name.Append(" ");
+                    }
                 }
-                name = name.Trim();
 
                 var shop = new ShopDto
                 {
-                    Name = name,
+                    Name = name.ToString(),
                     MapNpcId = npc.MapNpcId,
                     MenuType = byte.Parse(currentPacket[4]),
                     ShopType = byte.Parse(currentPacket[5])
