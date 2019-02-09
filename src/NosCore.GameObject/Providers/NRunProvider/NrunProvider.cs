@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Providers.NRunProvider
             _handlers = handlers.ToList();
         }
 
-        private List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
+        private readonly List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
 
         public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {

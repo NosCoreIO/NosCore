@@ -117,7 +117,7 @@ namespace NosCore.Tests.HandlerTests
                     { WebApiRoute.ConnectedAccount, new List<ConnectedAccount>() }
                 };
 
-            var conf = new WorldConfiguration() { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
+            var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var _chara = new Character(new InventoryService(new List<Item>(), conf), null, null)
             {
                 CharacterId = 1,
