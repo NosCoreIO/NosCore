@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Providers.GuriProvider
             _handlers = handlers.ToList();
         }
 
-        private List<IHandler<GuriPacket, GuriPacket>> _handlers;
+        private readonly List<IHandler<GuriPacket, GuriPacket>> _handlers;
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
         {
