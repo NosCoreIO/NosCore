@@ -264,9 +264,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy,
                         PocketType.Wear)));
                 SendPackets(Character.MapInstance.GetMapItems());
-
                 SendPacket(Character.Group.GeneratePinit());
-                SendPackets(Character.Group.GeneratePst());
+
+                if (!Character.Group.IsEmpty)
+                {
+                    SendPackets(Character.Group.GeneratePst());
+                }
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
