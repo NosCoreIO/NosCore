@@ -264,10 +264,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy,
                         PocketType.Wear)));
                 SendPackets(Character.MapInstance.GetMapItems());
+                SendPacket(Character.Group.GeneratePinit());
 
                 if (!Character.Group.IsEmpty)
                 {
-                    SendPacket(Character.Group.GeneratePinit());
                     SendPackets(Character.Group.GeneratePst());
                 }
 
