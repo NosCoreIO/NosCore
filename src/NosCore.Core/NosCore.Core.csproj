@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.9.0" />
+    <PackageReference Include="Autofac" Version="4.9.1" />
     <PackageReference Include="DotNetty.Buffers" Version="0.6.0" />
     <PackageReference Include="DotNetty.Codecs" Version="0.6.0" />
     <PackageReference Include="DotNetty.Common" Version="0.6.0" />
