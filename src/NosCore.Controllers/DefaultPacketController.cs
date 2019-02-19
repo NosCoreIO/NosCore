@@ -158,6 +158,7 @@ namespace NosCore.Controllers
             //            Session.Character.GenerateStartupInventory();
 
             Session.SendPacket(Session.Character.GenerateGold());
+            Session.SendPacket(Session.Character.GenerateCond());
             //            Session.SendPackets(Session.Character.GenerateQuicklist());
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
@@ -325,7 +326,6 @@ namespace NosCore.Controllers
             Session.Character.PositionY = walkPacket.YCoordinate;
 
             Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(), new EveryoneBut(Session.Channel.Id));
-            Session.SendPacket(Session.Character.GenerateCond());
             Session.Character.LastMove = SystemTime.Now();
         }
 
