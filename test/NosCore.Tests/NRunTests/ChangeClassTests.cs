@@ -87,7 +87,8 @@ namespace NosCore.Tests.NRunTests
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration {MaxItemAmount = 999, BackpackSize = 99};
             _session = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null) }, instanceAccessService, null);
-
+            _handler = new NpcPacketController(new WorldConfiguration(),
+                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> { new ChangeClassHandler() }));
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null)
             {
                 CharacterId = 1,
@@ -119,8 +120,6 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
         {
             _session.Character.Level = 15;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
@@ -142,8 +141,6 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowJobLevel(CharacterClassType characterClass)
         {
             _session.Character.JobLevel = 20;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
@@ -165,8 +162,6 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeBadClass(CharacterClassType characterClass)
         {
             _session.Character.Class = characterClass;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
@@ -188,8 +183,6 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
@@ -210,8 +203,6 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
@@ -235,8 +226,6 @@ namespace NosCore.Tests.NRunTests
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
-            _handler = new NpcPacketController(new WorldConfiguration(),
-              new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>() { new ChangeClassHandler() }));
             _handler.RegisterSession(_session);
             _handler.NRun(new NrunPacket
             {
