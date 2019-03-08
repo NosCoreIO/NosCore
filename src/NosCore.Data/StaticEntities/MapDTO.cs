@@ -17,10 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
+    [IsRequired(Message = LogLanguageKey.NO_MAP)]
+    [IsLoaded(Message = LogLanguageKey.MAPS_LOADED)]
     public class MapDto : IDto
     {
         [Key]

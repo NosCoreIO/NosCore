@@ -158,7 +158,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             CharacterDto character = _targetChar;
-            DaoFactory.CharacterDao.InsertOrUpdate(ref character);
+            DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref character);
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map, _map2 },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),

@@ -310,10 +310,10 @@ namespace NosCore.GameObject
             CharacterRelations[relation.CharacterRelationId] = relation;
             CharacterRelationDto relationDto = relation;
 
-            if (DaoFactory.CharacterRelationDao.FirstOrDefault(s =>
+            if (DaoFactory.GetGenericDao<CharacterRelationDto>().FirstOrDefault(s =>
                 s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
             {
-                DaoFactory.CharacterRelationDao.InsertOrUpdate(ref relationDto);
+                DaoFactory.GetGenericDao<CharacterRelationDto>().InsertOrUpdate(ref relationDto);
             }
 
             if (relationType == CharacterRelationType.Blocked)
@@ -331,19 +331,19 @@ namespace NosCore.GameObject
             try
             {
                 var account = Session.Account;
-                DaoFactory.AccountDao.InsertOrUpdate(ref account);
+                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
 
                 CharacterDto character = (Character)MemberwiseClone();
-                DaoFactory.CharacterDao.InsertOrUpdate(ref character);
+                DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref character);
 
-                var savedRelations = DaoFactory.CharacterRelationDao.Where(s => s.CharacterId == CharacterId);
-                DaoFactory.CharacterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
-                DaoFactory.CharacterRelationDao.InsertOrUpdate(CharacterRelations.Values);
+                var savedRelations = DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.CharacterId == CharacterId);
+                DaoFactory.GetGenericDao<CharacterRelationDto>().Delete(savedRelations.Except(CharacterRelations.Values));
+                DaoFactory.GetGenericDao<CharacterRelationDto>().InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
-                var currentlySavedInventorys = DaoFactory.ItemInstanceDao.Where(i => i.CharacterId == CharacterId);
-                DaoFactory.ItemInstanceDao.Delete(currentlySavedInventorys.Except(Inventory.Values));
-                DaoFactory.ItemInstanceDao.InsertOrUpdate(Inventory.Values);
+                var currentlySavedInventorys = DaoFactory.GetGenericDao<IItemInstanceDto>().Where(i => i.CharacterId == CharacterId);
+                DaoFactory.GetGenericDao<IItemInstanceDto>().Delete(currentlySavedInventorys.Except(Inventory.Values.ToArray()));
+                DaoFactory.GetGenericDao<IItemInstanceDto>().InsertOrUpdate(Inventory.Values.ToArray());
             }
             catch (Exception e)
             {
@@ -952,7 +952,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            DaoFactory.CharacterRelationDao.Delete(targetCharacterRelation);
+            DaoFactory.GetGenericDao<CharacterRelationDto>().Delete(targetCharacterRelation);
         }
 
         [Obsolete(

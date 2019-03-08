@@ -67,7 +67,7 @@ namespace NosCore.Tests.NRunTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
 
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref account);
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(null, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto> { new NpcMonsterDto() }, new List<MapNpcDto> { new MapNpcDto() }),

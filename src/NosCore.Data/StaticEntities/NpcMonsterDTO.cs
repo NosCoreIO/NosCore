@@ -20,10 +20,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.DataAttributes;
 using NosCore.Shared.Enumerations.Map;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
+    [IsLoaded(Message = LogLanguageKey.NPCMONSTERS_LOADED)]
     public class NpcMonsterDto : IDto
     {
         public byte AmountRequired { get; set; }

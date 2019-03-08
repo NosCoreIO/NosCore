@@ -18,10 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data
 {
+    [IsLoaded(Message = LogLanguageKey.ITEMS_LOADED)]
     public class ItemDto : IDto
     {
         public byte BasicUpgrade { get; set; }

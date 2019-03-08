@@ -18,9 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data.AliveEntities
 {
+    [IsLoaded(Message = LogLanguageKey.MAPNPCS_LOADED)]
     public class MapNpcDto : IDto
     {
         public short Dialog { get; set; }
