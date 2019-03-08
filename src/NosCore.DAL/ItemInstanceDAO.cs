@@ -33,7 +33,7 @@ using Serilog;
 
 namespace NosCore.DAL
 {
-    public class ItemInstanceDao
+    public class ItemInstanceDao : IGenericDao<IItemInstanceDto>
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
@@ -136,8 +136,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate)
-        where TEntity : ItemInstance
+        public IItemInstanceDto FirstOrDefault(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
             try
             {
@@ -148,8 +147,8 @@ namespace NosCore.DAL
 
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var dbset = context.Set<TEntity>();
-                    var ent = dbset.FirstOrDefault(predicate);
+                    var dbset = context.Set<ItemInstance>();
+                    var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
 
                     return ent is BoxInstance ? ent.Adapt<BoxInstanceDto>() :
                         ent is SpecialistInstance ? ent.Adapt<SpecialistInstanceDto>() :
@@ -165,7 +164,7 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(ref ItemInstanceDto dto)
+        public SaveResult InsertOrUpdate(ref IItemInstanceDto dto)
         {
             try
             {
@@ -299,7 +298,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<IItemInstanceDto> Where(Expression<Func<ItemInstance, bool>> predicate)
+        public IEnumerable<IItemInstanceDto> Where(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
@@ -307,7 +306,7 @@ namespace NosCore.DAL
                 var entities = Enumerable.Empty<ItemInstance>();
                 try
                 {
-                    entities = dbset.Where(predicate).ToList();
+                    entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>()).ToList();
                 }
                 catch (Exception e)
                 {

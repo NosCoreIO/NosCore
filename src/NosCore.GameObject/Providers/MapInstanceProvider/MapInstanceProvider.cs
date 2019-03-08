@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
             {
                 var partitioner = Partitioner.Create(
-                    DaoFactory.PortalDao.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
+                    DaoFactory.GetGenericDao<PortalDto>().Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
                     EnumerablePartitionerOptions.None);
                 var portalList = new ConcurrentDictionary<int, Portal>();
                 Parallel.ForEach(partitioner, portalDto =>

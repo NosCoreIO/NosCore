@@ -18,9 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
+    [IsLoaded(Message = LogLanguageKey.SHOPS_LOADED)]
     public class ShopDto : IDto
     {
         public int MapNpcId { get; set; }

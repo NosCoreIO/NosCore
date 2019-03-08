@@ -70,10 +70,10 @@ namespace NosCore.GameObject.Providers.MapNpcProvider
         private Shop LoadShop(int mapNpcId)
         {
             Shop shop = null;
-            var shopObj = DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == mapNpcId);
+            var shopObj = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == mapNpcId);
             if (shopObj != null)
             {
-                var shopItemsDto = DaoFactory.ShopItemDao.Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsDto = DaoFactory.GetGenericDao<ShopItemDto>().Where(s => s.ShopId == shopObj.ShopId);
                 var shopItems = new ConcurrentDictionary<int, ShopItem>();
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {

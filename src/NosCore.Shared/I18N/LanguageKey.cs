@@ -139,6 +139,7 @@ namespace NosCore.Shared.I18N
         VISUALENTITY_DOES_NOT_EXIST,
         ALREADY_EXCHANGE,
         CANT_FIND_CHARACTER,
+        LOADING_MAPINSTANCES
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

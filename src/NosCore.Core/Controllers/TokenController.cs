@@ -27,6 +27,7 @@ using NosCore.DAL;
 using NosCore.Shared.I18N;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Data;
 
 namespace NosCore.Core.Controllers
 {
@@ -49,7 +50,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
+            var account = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == userName);
             if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));

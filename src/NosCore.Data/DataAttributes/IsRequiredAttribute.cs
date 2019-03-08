@@ -17,27 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
+using System;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class QuestRewardDto : IDto
+    public class IsRequiredAttribute : Attribute
     {
-        [Key]
-        public long QuestRewardId { get; set; }
-
-        public byte RewardType { get; set; }
-
-        public int Data { get; set; }
-
-        public byte Design { get; set; }
-
-        public byte Rarity { get; set; }
-
-        public byte Upgrade { get; set; }
-
-        public int Amount { get; set; }
-
-        public long QuestId { get; set; }
+        public LogLanguageKey Message { get; set; }
     }
 }

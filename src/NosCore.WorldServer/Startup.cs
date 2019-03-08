@@ -67,6 +67,8 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.Data.DataAttributes;
+using NosCore.Data;
 
 namespace NosCore.WorldServer
 {
@@ -94,6 +96,30 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
+        private static void RegisterDatabaseObject<TGameObject, TDto>(ref ContainerBuilder containerBuilder)
+        {
+            var attrRequired = typeof(TDto).GetCustomAttribute<IsRequiredAttribute>();
+            var attrLoaded = typeof(TDto).GetCustomAttribute<IsLoadedAttribute>();
+
+            containerBuilder.Register(_ =>
+            {
+                var items = DaoFactory.GetGenericDao<TDto>().LoadAll().Adapt<List<TGameObject>>().ToList();
+                if (items.Count != 0 || attrRequired == null)
+                {
+                    if (attrLoaded != null)
+                    {
+                        _logger.Information(LogLanguage.Instance.GetMessageFromKey(attrLoaded.Message),
+                            items.Count);
+                    }
+                }
+                else
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(attrRequired.Message));
+                }
+                return items;
+            }).As<List<TGameObject>>().SingleInstance();
+        }
+
         private static void InitializeContainer(ref ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
@@ -114,7 +140,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
-            containerBuilder.RegisterType<Character>().PropertiesAutowired();
+            containerBuilder.RegisterType<GameObject.Character>().PropertiesAutowired();
             containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
@@ -129,65 +155,13 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .PropertiesAutowired();
 
-            containerBuilder.Register(_ =>
-            {
-                var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_LOADED),
-                    items.Count);
-                return items;
-            }).As<List<Item>>().SingleInstance();
-
-            
-            containerBuilder.Register(_ =>
-            {
-                List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_LOADED), monsters.Count);
-                return monsters;
-            }).As<List<NpcMonsterDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                var shopItems = DaoFactory.ShopItemDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_LOADED), shopItems.Count);
-                return shopItems;
-            }).As<List<ShopItemDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                var shops = DaoFactory.ShopDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_LOADED), shops.Count);
-                return shops;
-            }).As<List<ShopDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
-                if (maps.Count != 0)
-                {
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED),
-                        maps.Count);
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
-                }
-
-                return maps;
-            }).As<List<Map>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<MapMonsterDto> monsters = DaoFactory.MapMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monsters.Count);
-                return monsters;
-            }).As<List<MapMonsterDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<MapNpcDto> npcs = DaoFactory.MapNpcDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPNPCS_LOADED), npcs.Count);
-                return npcs;
-            }).As<List<MapNpcDto>>().SingleInstance();
+            RegisterDatabaseObject<Item, ItemDto>(ref containerBuilder);
+            RegisterDatabaseObject<NpcMonsterDto, NpcMonsterDto>(ref containerBuilder);
+            RegisterDatabaseObject<ShopItemDto, ShopItemDto>(ref containerBuilder);
+            RegisterDatabaseObject<ShopDto, ShopDto>(ref containerBuilder);
+            RegisterDatabaseObject<Map, MapDto>(ref containerBuilder);
+            RegisterDatabaseObject<MapMonsterDto, MapMonsterDto>(ref containerBuilder);
+            RegisterDatabaseObject<MapNpcDto, MapNpcDto>(ref containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
@@ -212,7 +186,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
-                .AsImplementedInterfaces();     
+                .AsImplementedInterfaces();
         }
 
         [UsedImplicitly]

@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data;
 using NosCore.Data.WebApi;
 using NosCore.DAL;
 using NosCore.GameObject.Networking;
@@ -74,7 +75,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var acc = DaoFactory.AccountDao.FirstOrDefault(s =>
+                var acc = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s =>
                     string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (acc != null && acc.Name != loginPacket.Name)
@@ -141,7 +142,7 @@ namespace NosCore.Controllers
                         }
 
                         acc.Language = _loginConfiguration.UserLanguage;
-                        DaoFactory.AccountDao.InsertOrUpdate(ref acc);
+                        DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc);
                         if (servers.Count <= 0)
                         {
                             Session.SendPacket(new FailcPacket
