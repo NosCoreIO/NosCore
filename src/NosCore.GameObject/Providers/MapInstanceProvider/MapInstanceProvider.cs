@@ -36,6 +36,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstanceProvider : IMapInstanceProvider
     {
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
@@ -43,6 +45,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             IMapItemProvider mapItemProvider, IMapNpcProvider mapNpcProvider,
             IMapMonsterProvider mapMonsterProvider)
         {
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
             var mapList = new ConcurrentDictionary<short, Map.Map>();
             var npccount = 0;
