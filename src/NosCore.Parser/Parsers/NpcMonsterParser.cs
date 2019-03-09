@@ -505,8 +505,8 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (DaoFactory.SkillDao.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) == null
-                                || DaoFactory.NpcMonsterSkillDao.Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                            if (DaoFactory.GetGenericDao<SkillDto>().FirstOrDefault(s => s.SkillVNum.Equals(vnum)) == null
+                                || DaoFactory.GetGenericDao<NpcMonsterSkillDto>().Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                                     .Count(s => s.SkillVNum == vnum) != 0)
                             {
                                 continue;
@@ -575,7 +575,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
                     {
-                        if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                        if (DaoFactory.GetGenericDao<NpcMonsterDto>().FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                             == null)
                         {
                             npcs.Add(npc);
@@ -590,7 +590,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (DaoFactory.DropDao.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
+                            if (DaoFactory.GetGenericDao<DropDto>().Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
                                 .Count(s => s.VNum == vnum) != 0)
                             {
                                 continue;
@@ -613,15 +613,15 @@ namespace NosCore.Parser.Parsers
                 IEnumerable<NpcMonsterSkillDto> npcMonsterSkillDtos = skills;
                 IEnumerable<BCardDto> monsterBCardDtos = monstercards;
 
-                DaoFactory.NpcMonsterDao.InsertOrUpdate(npcMonsterDtos);
-                DaoFactory.NpcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
-                DaoFactory.BCardDao.InsertOrUpdate(monsterBCardDtos);
+                DaoFactory.GetGenericDao<NpcMonsterDto>().InsertOrUpdate(npcMonsterDtos);
+                DaoFactory.GetGenericDao<NpcMonsterSkillDto>().InsertOrUpdate(npcMonsterSkillDtos);
+                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(monsterBCardDtos);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED),
                     counter);
             }
 
             IEnumerable<DropDto> dropDtos = drops;
-            DaoFactory.DropDao.InsertOrUpdate(dropDtos);
+            DaoFactory.GetGenericDao<DropDto>().InsertOrUpdate(dropDtos);
         }
     }
 }

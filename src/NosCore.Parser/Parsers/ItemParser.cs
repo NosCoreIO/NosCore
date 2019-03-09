@@ -67,7 +67,7 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (DaoFactory.ItemDao.FirstOrDefault(s => s.VNum == item.VNum) == null)
+                        if (DaoFactory.GetGenericDao<ItemDto>().FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
                             _items.Add(item);
                             _itemCounter++;
@@ -1139,8 +1139,8 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                DaoFactory.ItemDao.InsertOrUpdate(_items);
-                DaoFactory.BcardDao.InsertOrUpdate(_itemCards);
+                DaoFactory.GetGenericDao<ItemDto>().InsertOrUpdate(_items);
+                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(_itemCards);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED),
                     _itemCounter);
             }

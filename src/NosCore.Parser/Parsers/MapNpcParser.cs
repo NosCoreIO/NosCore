@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -102,8 +103,8 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || DaoFactory.MapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
+                if (DaoFactory.GetGenericDao<NpcMonsterDto>().FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
                     continue;
@@ -114,7 +115,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapNpcDto> npcDtos = npcs;
-            DaoFactory.MapNpcDao.InsertOrUpdate(npcDtos);
+            DaoFactory.GetGenericDao<MapNpcDto>().InsertOrUpdate(npcDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
         }
     }

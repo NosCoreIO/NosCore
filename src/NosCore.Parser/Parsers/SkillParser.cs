@@ -83,7 +83,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            if (DaoFactory.ComboDao.FirstOrDefault(s =>
+                            if (DaoFactory.GetGenericDao<ComboDto>().FirstOrDefault(s =>
                                 s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
                                 && s.Effect.Equals(comb.Effect)) == null)
                             {
@@ -275,7 +275,7 @@ namespace NosCore.Parser.Parsers
                     {
                         // investigate
                         var skill1 = skill;
-                        if (DaoFactory.SkillDao.FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
+                        if (DaoFactory.GetGenericDao<SkillDto>().FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
                         }
@@ -289,9 +289,9 @@ namespace NosCore.Parser.Parsers
                 IEnumerable<ComboDto> comboDtos = combo;
                 IEnumerable<BCardDto> bCardDtos = skillCards;
 
-                DaoFactory.SkillDao.InsertOrUpdate(skillDtos);
-                DaoFactory.ComboDao.InsertOrUpdate(comboDtos);
-                DaoFactory.BCardDao.InsertOrUpdate(bCardDtos);
+                DaoFactory.GetGenericDao<SkillDto>().InsertOrUpdate(skillDtos);
+                DaoFactory.GetGenericDao<ComboDto>().InsertOrUpdate(comboDtos);
+                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(bCardDtos);
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED),
                     counter);

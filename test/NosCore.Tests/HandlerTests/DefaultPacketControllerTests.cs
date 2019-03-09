@@ -86,9 +86,9 @@ namespace NosCore.Tests.HandlerTests
             var contextBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
-            DaoFactory.MapDao.InsertOrUpdate(ref map);
+            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref account);
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
                 new Dictionary<WebApiRoute, object>
@@ -145,7 +145,7 @@ namespace NosCore.Tests.HandlerTests
         private void InitializeTargetSession()
         {
             var targetAccount = new AccountDto { Name = "test2", Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref targetAccount);
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref targetAccount);
 
             _targetChar = new Character(null,null,null)
             {

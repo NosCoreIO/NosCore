@@ -29,6 +29,7 @@ using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
 using OpenTK.Graphics;
 using Serilog;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -71,7 +72,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DaoFactory.MapDao.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

@@ -105,7 +105,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (DaoFactory.MapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }
@@ -115,7 +115,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapDto> mapDtos = maps;
-            DaoFactory.MapDao.InsertOrUpdate(mapDtos);
+            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(mapDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), i);
         }
     }
