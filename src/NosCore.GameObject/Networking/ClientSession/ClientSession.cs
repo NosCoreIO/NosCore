@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     typeof(PacketDefinition).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute) Array.Find(type?.GetCustomAttributes(true),
+                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
                         ca => ca.GetType() == typeof(PacketHeaderAttribute));
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
@@ -161,12 +161,13 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.SendRelationStatus(false);
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
-                var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
-
-                if (targetId.HasValue &&
-                    Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                if (targetId.HasValue)
                 {
-                    target.SendPacket(closeExchange);
+                    var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                    if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                    {
+                        target.SendPacket(closeExchange);
+                    }
                 }
 
                 Character.LeaveGroup();
@@ -190,7 +191,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -242,15 +243,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if (mapX != null && mapY != null)
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if (mapX != null && mapY != null)
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -263,7 +264,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GeneratePairy(
-                    Character.Inventory.LoadBySlotAndType<WearableInstance>((byte) EquipmentType.Fairy,
+                    Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy,
                         PocketType.Wear)));
                 SendPackets(Character.MapInstance.GetMapItems());
                 SendPacket(Character.Group.GeneratePinit());
@@ -344,7 +345,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 //check for the correct authority
-                if (IsAuthenticated && (byte) methodReference.Key.Authority > (byte) Account.Authority)
+                if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
                 {
                     return;
                 }
@@ -436,7 +437,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            foreach (var packet in packetConcatenated.Split(new[] {(char) 0xFF}, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var packetstring = packet.Replace('^', ' ');
                 var packetsplit = packetstring.Split(' ');
