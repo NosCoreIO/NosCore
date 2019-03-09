@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ namespace NosCore.Parser.Parsers
     internal class ShopItemParser
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public void InsertShopItems(List<string[]> packetList)
         {
             List<ShopItemDto> shopitems = new List<ShopItemDto>();
@@ -39,10 +40,11 @@ namespace NosCore.Parser.Parsers
                 if (currentPacket[0].Equals("n_inv"))
                 {
                     short npcid = short.Parse(currentPacket[2]);
-                    if (DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == npcid) == null)
+                    if (DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid) == null)
                     {
                         continue;
                     }
+
                     for (int i = 5; i < currentPacket.Length; i++)
                     {
                         string[] item = currentPacket[i].Split('.');
@@ -52,7 +54,8 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == npcid).ShopId,
+                                ShopId = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid)
+                                    .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
                                 ItemVNum = short.Parse(item[2])
@@ -63,7 +66,8 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == npcid).ShopId,
+                                ShopId = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid)
+                                    .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
                                 ItemVNum = short.Parse(item[2]),
@@ -72,8 +76,10 @@ namespace NosCore.Parser.Parsers
                             };
                         }
 
-                        if (sitem == null || shopitems.Any(s => s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId)) 
-                            || DaoFactory.ShopItemDao.Where(s => s.ShopId == sitem.ShopId).Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
+                        if (sitem == null || shopitems.Any(s =>
+                                s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
+                            || DaoFactory.GetGenericDao<ShopItemDto>().Where(s => s.ShopId == sitem.ShopId)
+                                .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
                         {
                             continue;
                         }
@@ -93,7 +99,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<ShopItemDto> shopItemDtos = shopitems;
 
-            DaoFactory.ShopItemDao.InsertOrUpdate(shopItemDtos);
+            DaoFactory.GetGenericDao<ShopItemDto>().InsertOrUpdate(shopItemDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }

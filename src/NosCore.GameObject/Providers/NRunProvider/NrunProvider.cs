@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,12 +29,13 @@ namespace NosCore.GameObject.Providers.NRunProvider
 {
     public class NrunProvider : INrunProvider
     {
-        public NrunProvider(IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
+        private readonly List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
+
+        public NrunProvider(
+            IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
         {
             _handlers = handlers.ToList();
         }
-
-        private readonly List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
 
         public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {

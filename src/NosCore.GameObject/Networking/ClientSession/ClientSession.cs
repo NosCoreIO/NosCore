@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> _controllerMethods =
             new Dictionary<PacketHeaderAttribute, Action<object, object>>();
 
+        private readonly IExchangeProvider _exchangeProvider;
+
         private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
 
@@ -58,13 +60,12 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
-        private readonly IExchangeProvider _exchangeProvider;
-
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider) : this(configuration, packetControllers)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider) : this(configuration,
+            packetControllers)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _exchangeProvider = exchangeProvider;
@@ -160,11 +161,13 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.SendRelationStatus(false);
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
-                var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
-
-                if (targetId.HasValue && Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                if (targetId.HasValue)
                 {
-                    target.SendPacket(closeExchange);
+                    var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                    if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                    {
+                        target.SendPacket(closeExchange);
+                    }
                 }
 
                 Character.LeaveGroup();
@@ -346,8 +349,9 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     return;
                 }
+
                 var deserializedPacket = PacketFactory.Deserialize(packet, _headerMethod[methodReference.Key].Item2,
-                                       IsAuthenticated);
+                    IsAuthenticated);
                 if (deserializedPacket != null)
                 {
                     HandlePacket(deserializedPacket, methodReference);
@@ -357,7 +361,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                     _logger.Warning(string.Format(
                         LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packetHeader, packet));
                 }
-
             }
             else
             {
@@ -368,14 +371,16 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public void ReceivePacket(PacketDefinition deserializedPacket)
         {
-            var methodReference = _controllerMethods.FirstOrDefault(t => t.Key.Identification == deserializedPacket.OriginalHeader);
+            var methodReference =
+                _controllerMethods.FirstOrDefault(t => t.Key.Identification == deserializedPacket.OriginalHeader);
             if (methodReference.Value != null && deserializedPacket != null)
             {
                 HandlePacket(deserializedPacket, methodReference);
             }
         }
 
-        private void HandlePacket(PacketDefinition deserializedPacket, KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
+        private void HandlePacket(PacketDefinition deserializedPacket,
+            KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
         {
             try
             {

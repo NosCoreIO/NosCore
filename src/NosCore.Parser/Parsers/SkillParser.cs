@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileSkillId = "\\Skill.dat";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         internal void InsertSkills(string folder)
         {
             var skills = new List<SkillDto>();
@@ -83,7 +84,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            if (DaoFactory.ComboDao.FirstOrDefault(s =>
+                            if (DaoFactory.GetGenericDao<ComboDto>().FirstOrDefault(s =>
                                 s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
                                 && s.Effect.Equals(comb.Effect)) == null)
                             {
@@ -259,8 +260,8 @@ namespace NosCore.Parser.Parsers
                             SkillVNum = skill.SkillVNum,
                             Type = type,
                             SubType = (byte) (((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                            IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
-                            IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
+                            IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
+                            IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2,
                             FirstData = (short) (first > 0 ? first : -first / 4),
                             SecondData = (short) (int.Parse(currentLine[6]) / 4),
                             ThirdData = (short) (int.Parse(currentLine[7]) / 4)
@@ -275,7 +276,8 @@ namespace NosCore.Parser.Parsers
                     {
                         // investigate
                         var skill1 = skill;
-                        if (DaoFactory.SkillDao.FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
+                        if (DaoFactory.GetGenericDao<SkillDto>()
+                            .FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
                         }
@@ -289,9 +291,9 @@ namespace NosCore.Parser.Parsers
                 IEnumerable<ComboDto> comboDtos = combo;
                 IEnumerable<BCardDto> bCardDtos = skillCards;
 
-                DaoFactory.SkillDao.InsertOrUpdate(skillDtos);
-                DaoFactory.ComboDao.InsertOrUpdate(comboDtos);
-                DaoFactory.BCardDao.InsertOrUpdate(bCardDtos);
+                DaoFactory.GetGenericDao<SkillDto>().InsertOrUpdate(skillDtos);
+                DaoFactory.GetGenericDao<ComboDto>().InsertOrUpdate(comboDtos);
+                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(bCardDtos);
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED),
                     counter);

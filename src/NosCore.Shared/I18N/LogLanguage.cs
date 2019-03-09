@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@ namespace NosCore.Shared.I18N
     {
         private static LogLanguage _instance;
 
-        public static RegionType Language { get; set; }
-
         private static readonly CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
 
         private readonly ResourceManager _manager;
@@ -45,9 +43,12 @@ namespace NosCore.Shared.I18N
             }
         }
 
+        public static RegionType Language { get; set; }
+
         public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 
         public string GetMessageFromKey(LogLanguageKey messageKey) => GetMessageFromKey(messageKey, null);
+
         public string GetMessageFromKey(LogLanguageKey messageKey, string culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
@@ -60,6 +61,7 @@ namespace NosCore.Shared.I18N
         }
 
         public ResourceSet GetRessourceSet() => GetRessourceSet(null);
+
         public ResourceSet GetRessourceSet(string culture)
         {
             return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);

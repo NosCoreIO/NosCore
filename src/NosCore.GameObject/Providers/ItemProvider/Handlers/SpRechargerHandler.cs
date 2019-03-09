@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,12 +33,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
     public class SpRechargerHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly WorldConfiguration _worldConfiguration;
+
         public SpRechargerHandler(WorldConfiguration worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
 
-        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special && item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
+        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special &&
+            item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
 
         public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
         {
@@ -46,13 +48,16 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.Id);
-                requestData.ClientSession.SendPacket(itemInstance.GeneratePocketChange(itemInstance.Type, itemInstance.Slot));
+                requestData.ClientSession.SendPacket(
+                    itemInstance.GeneratePocketChange(itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.Item.EffectValue);
-            } else
+            }
+            else
             {
                 requestData.ClientSession.Character.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, requestData.ClientSession.Character.Account.Language),
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
+                        requestData.ClientSession.Character.Account.Language),
                     Type = MessageType.White
                 });
             }

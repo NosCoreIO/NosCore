@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ using Serilog;
 
 namespace NosCore.DAL
 {
-    public class GenericDao<TEntity, TDto> where TEntity : class
+    public class GenericDao<TEntity, TDto> : IGenericDao<TDto> where TEntity : class
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
@@ -43,7 +43,7 @@ namespace NosCore.DAL
             {
                 var pis = typeof(TDto).GetProperties();
                 var exit = false;
-                for (var index = 0; index < pis.Length || !exit; index++)
+                for (var index = 0; index < pis.Length && !exit; index++)
                 {
                     var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
@@ -134,7 +134,7 @@ namespace NosCore.DAL
             }
         }
 
-        public TDto FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
+        public TDto FirstOrDefault(Expression<Func<TDto, bool>> predicate)
         {
             try
             {
@@ -146,7 +146,7 @@ namespace NosCore.DAL
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
                     var dbset = context.Set<TEntity>();
-                    var ent = dbset.FirstOrDefault(predicate);
+                    var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<TDto, TEntity>());
                     return ent.Adapt<TDto>();
                 }
             }
@@ -264,7 +264,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<TDto> Where(Expression<Func<TEntity, bool>> predicate)
+        public IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate)
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
@@ -272,7 +272,7 @@ namespace NosCore.DAL
                 var entities = Enumerable.Empty<TEntity>();
                 try
                 {
-                    entities = dbset.Where(predicate).ToList();
+                    entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>()).ToList();
                 }
                 catch (Exception e)
                 {
@@ -285,5 +285,17 @@ namespace NosCore.DAL
                 }
             }
         }
+    }
+
+    public interface IGenericDao<TDto>
+    {
+        SaveResult Delete(object dtokey);
+        TDto FirstOrDefault(Expression<Func<TDto, bool>> predicate);
+        SaveResult InsertOrUpdate(ref TDto dto);
+        SaveResult InsertOrUpdate(IEnumerable<TDto> dtos);
+
+        IEnumerable<TDto> LoadAll();
+
+        IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate);
     }
 }

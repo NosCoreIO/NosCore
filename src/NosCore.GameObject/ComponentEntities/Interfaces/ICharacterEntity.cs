@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,6 +67,14 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
+        long Gold { get; }
+
+        long BankGold { get; }
+
+        IInventoryService Inventory { get; }
+
+        RegionType AccountLanguage { get; }
+
         void SendPacket(PacketDefinition packetDefinition);
 
         void SendPackets(IEnumerable<PacketDefinition> packetDefinitions);
@@ -89,10 +97,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void SetGold(long gold);
 
-        long Gold { get; }
-
-        long BankGold { get; }
-
         void AddGold(long gold);
 
         void RemoveGold(long gold);
@@ -100,10 +104,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void AddBankGold(long bankGold);
 
         void RemoveBankGold(long bankGold);
-
-        IInventoryService Inventory { get; }
-
-        RegionType AccountLanguage { get; }
 
         void ChangeClass(CharacterClassType classType);
     }

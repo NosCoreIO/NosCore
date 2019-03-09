@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ namespace NosCore.GameObject
 {
     public class Shop : ShopDto
     {
+        private int? _size;
+
         public Shop()
         {
             ShopItems = new ConcurrentDictionary<int, ShopItem>();
@@ -36,7 +38,6 @@ namespace NosCore.GameObject
         public ClientSession Session { get; set; }
         public long Sell { get; internal set; }
 
-        private int? _size;
         public int Size
         {
             get => _size ?? ShopItems.Values.Max(s => s.Slot) + 1;

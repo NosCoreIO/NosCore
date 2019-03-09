@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Leader_Change()
         {
-            for (var i = 0; i < (long)_group.Type; i++)
+            for (var i = 0; i < (long) _group.Type; i++)
             {
                 var entity = new Character(null, null, null)
                 {

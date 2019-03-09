@@ -1,4 +1,23 @@
-﻿using System;
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2019 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,14 +67,15 @@ namespace NosCore.Tests.NRunTests
     [TestClass]
     public class ChangeClassTests
     {
-        private ClientSession _session;
-        private NpcPacketController _handler;
-        private ItemProvider _item;
         private readonly Map _map = new Map
         {
             MapId = 0,
             Name = "Map"
         };
+
+        private NpcPacketController _handler;
+        private ItemProvider _item;
+        private ClientSession _session;
 
         [TestInitialize]
         public void Setup()
@@ -66,12 +86,14 @@ namespace NosCore.Tests.NRunTests
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
 
-            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref account);
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map },
+            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
+            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(null, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto> { new NpcMonsterDto() }, new List<MapNpcDto> { new MapNpcDto() }),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                new MapNpcProvider(null, new List<ShopDto>(), new List<ShopItemDto>(),
+                    new List<NpcMonsterDto> {new NpcMonsterDto()}, new List<MapNpcDto> {new MapNpcDto()}),
+                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
+                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
 
             var items = new List<Item>
             {
@@ -79,16 +101,27 @@ namespace NosCore.Tests.NRunTests
                 new Item {Type = PocketType.Main, VNum = 1013},
                 new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
                 new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = 2},
-                new Item {Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2, Element = 1},
+                new Item
+                {
+                    Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2,
+                    Element = 1
+                },
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
-                new Item {Type = PocketType.Main, VNum = 1078, ItemType = ItemType.Special, Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000}
+                new Item
+                {
+                    Type = PocketType.Main, VNum = 1078, ItemType = ItemType.Special,
+                    Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000
+                }
             };
 
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration {MaxItemAmount = 999, BackpackSize = 99};
-            _session = new ClientSession(conf, new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null) }, instanceAccessService, null);
+            _session = new ClientSession(conf,
+                new List<PacketController> {new DefaultPacketController(conf, instanceAccessService, null)},
+                instanceAccessService, null);
             _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> { new ChangeClassHandler() }));
+                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
+                    {new ChangeClassHandler()}));
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null)
             {
                 CharacterId = 1,
@@ -100,7 +133,7 @@ namespace NosCore.Tests.NRunTests
                 Account = account
             };
 
-           var channelMock = new Mock<IChannel>();
+            var channelMock = new Mock<IChannel>();
 
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
@@ -126,10 +159,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             });
 
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -147,10 +180,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             });
 
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -168,10 +201,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)CharacterClassType.Swordman
+                Type = (byte) CharacterClassType.Swordman
             });
 
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -189,10 +222,11 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             });
 
-            Assert.IsTrue(_session.Character.Class == CharacterClassType.Adventurer && _session.Character.Level == 15 && _session.Character.JobLevel == 20);
+            Assert.IsTrue(_session.Character.Class == CharacterClassType.Adventurer && _session.Character.Level == 15 &&
+                _session.Character.JobLevel == 20);
         }
 
         [DataTestMethod]
@@ -209,10 +243,11 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             });
 
-            Assert.IsTrue(_session.Character.Class == characterClass && _session.Character.Level == 15 && _session.Character.JobLevel == 1);
+            Assert.IsTrue(_session.Character.Class == characterClass && _session.Character.Level == 15 &&
+                _session.Character.JobLevel == 1);
         }
 
         [DataTestMethod]
@@ -232,10 +267,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             });
 
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }

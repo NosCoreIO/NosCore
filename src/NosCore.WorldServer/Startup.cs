@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,6 +67,8 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.Data.DataAttributes;
+using NosCore.Data;
 
 namespace NosCore.WorldServer
 {
@@ -85,13 +87,38 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(_worldConfiguration);
-            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration), validateAllProperties: true);
+            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
+                validateAllProperties: true);
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_worldConfiguration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
             LogLanguage.Language = _worldConfiguration.Language;
+        }
+
+        private static void RegisterDatabaseObject<TGameObject, TDto>(ref ContainerBuilder containerBuilder)
+        {
+            var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
+
+            containerBuilder.Register(_ =>
+            {
+                var items = DaoFactory.GetGenericDao<TDto>().LoadAll().Adapt<List<TGameObject>>().ToList();
+                if (items.Count != 0 || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
+                {
+                    if (staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                    {
+                        _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                            items.Count);
+                    }
+                }
+                else
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                }
+
+                return items;
+            }).As<List<TGameObject>>().SingleInstance();
         }
 
         private static void InitializeContainer(ref ContainerBuilder containerBuilder)
@@ -114,7 +141,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
-            containerBuilder.RegisterType<Character>().PropertiesAutowired();
+            containerBuilder.RegisterType<GameObject.Character>().PropertiesAutowired();
             containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
@@ -129,65 +156,13 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .PropertiesAutowired();
 
-            containerBuilder.Register(_ =>
-            {
-                var items = DaoFactory.ItemDao.LoadAll().Adapt<List<Item>>().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_LOADED),
-                    items.Count);
-                return items;
-            }).As<List<Item>>().SingleInstance();
-
-            
-            containerBuilder.Register(_ =>
-            {
-                List<NpcMonsterDto> monsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_LOADED), monsters.Count);
-                return monsters;
-            }).As<List<NpcMonsterDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                var shopItems = DaoFactory.ShopItemDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_LOADED), shopItems.Count);
-                return shopItems;
-            }).As<List<ShopItemDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                var shops = DaoFactory.ShopDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_LOADED), shops.Count);
-                return shops;
-            }).As<List<ShopDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<Map> maps = DaoFactory.MapDao.LoadAll().Adapt<List<Map>>();
-                if (maps.Count != 0)
-                {
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_LOADED),
-                        maps.Count);
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_MAP));
-                }
-
-                return maps;
-            }).As<List<Map>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<MapMonsterDto> monsters = DaoFactory.MapMonsterDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPMONSTERS_LOADED), monsters.Count);
-                return monsters;
-            }).As<List<MapMonsterDto>>().SingleInstance();
-
-            containerBuilder.Register(_ =>
-            {
-                List<MapNpcDto> npcs = DaoFactory.MapNpcDao.LoadAll().ToList();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPNPCS_LOADED), npcs.Count);
-                return npcs;
-            }).As<List<MapNpcDto>>().SingleInstance();
+            RegisterDatabaseObject<Item, ItemDto>(ref containerBuilder);
+            RegisterDatabaseObject<NpcMonsterDto, NpcMonsterDto>(ref containerBuilder);
+            RegisterDatabaseObject<ShopItemDto, ShopItemDto>(ref containerBuilder);
+            RegisterDatabaseObject<ShopDto, ShopDto>(ref containerBuilder);
+            RegisterDatabaseObject<Map, MapDto>(ref containerBuilder);
+            RegisterDatabaseObject<MapMonsterDto, MapMonsterDto>(ref containerBuilder);
+            RegisterDatabaseObject<MapNpcDto, MapNpcDto>(ref containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
@@ -204,15 +179,18 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
-                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(
+                    typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
+                    .IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
-                .AsImplementedInterfaces();     
+                .AsImplementedInterfaces();
         }
 
         [UsedImplicitly]
@@ -224,11 +202,11 @@ namespace NosCore.WorldServer
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { _worldConfiguration.WebApi.ToString() }
+                Addresses = {_worldConfiguration.WebApi.ToString()}
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -238,7 +216,8 @@ namespace NosCore.WorldServer
                     cfg.SaveToken = true;
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
                         ValidAudience = "Audience",
                         ValidIssuer = "Issuer",
                         ValidateIssuerSigningKey = true,

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,9 +30,10 @@ namespace NosCore.Parser.Parsers
     public class MapTypeParser
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         internal void InsertMapTypes()
         {
-            var list = DaoFactory.MapTypeDao.LoadAll().ToList();
+            var list = DaoFactory.GetGenericDao<MapTypeDto>().LoadAll().ToList();
             var mt1 = new MapTypeDto
             {
                 MapTypeId = (short) MapTypeType.Act1,
@@ -43,7 +44,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt1.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt1);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt1);
             }
 
             var mt2 = new MapTypeDto
@@ -56,7 +57,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt2.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt2);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt2);
             }
 
             var mt3 = new MapTypeDto
@@ -69,7 +70,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt3.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt3);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt3);
             }
 
             var mt4 = new MapTypeDto
@@ -80,7 +81,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt4.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt4);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt4);
             }
 
             var mt5 = new MapTypeDto
@@ -93,7 +94,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt5.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt5);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt5);
             }
 
             var mt6 = new MapTypeDto
@@ -106,7 +107,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt6.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt6);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt6);
             }
 
             var mt7 = new MapTypeDto
@@ -119,7 +120,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt7.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt7);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt7);
             }
 
             var mt8 = new MapTypeDto
@@ -132,7 +133,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt8.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt8);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt8);
             }
 
             var mt9 = new MapTypeDto
@@ -145,7 +146,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt9.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt9);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt9);
             }
 
             var mt10 = new MapTypeDto
@@ -158,7 +159,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt10.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt10);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt10);
             }
 
             var mt11 = new MapTypeDto
@@ -171,7 +172,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt11.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt11);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt11);
             }
 
             var mt12 = new MapTypeDto
@@ -184,7 +185,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt12.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt12);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt12);
             }
 
             var mt13 = new MapTypeDto
@@ -197,7 +198,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt13.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt13);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt13);
             }
 
             var mt14 = new MapTypeDto
@@ -210,7 +211,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt14.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt14);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt14);
             }
 
             var mt15 = new MapTypeDto
@@ -223,7 +224,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt15.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt15);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt15);
             }
 
             var mt16 = new MapTypeDto
@@ -236,7 +237,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt16.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt16);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt16);
             }
 
             var mt17 = new MapTypeDto
@@ -249,7 +250,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt17.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt17);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt17);
             }
 
             var mt18 = new MapTypeDto
@@ -262,7 +263,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt18.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt18);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt18);
             }
 
             var mt19 = new MapTypeDto
@@ -273,7 +274,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt19.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt19);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt19);
             }
 
             var mt20 = new MapTypeDto
@@ -284,7 +285,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt20.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt20);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt20);
             }
 
             var mt21 = new MapTypeDto
@@ -295,7 +296,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt21.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt21);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt21);
             }
 
             var mt23 = new MapTypeDto
@@ -306,7 +307,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt23.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt23);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt23);
             }
 
             var mt24 = new MapTypeDto
@@ -317,7 +318,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt24.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt24);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt24);
             }
 
             var mt25 = new MapTypeDto
@@ -330,7 +331,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt25.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt25);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt25);
             }
 
             var mt26 = new MapTypeDto
@@ -341,7 +342,7 @@ namespace NosCore.Parser.Parsers
             };
             if (list.All(s => s.MapTypeId != mt26.MapTypeId))
             {
-                DaoFactory.MapTypeDao.InsertOrUpdate(ref mt26);
+                DaoFactory.GetGenericDao<MapTypeDto>().InsertOrUpdate(ref mt26);
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPTYPES_PARSED));
