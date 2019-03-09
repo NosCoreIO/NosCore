@@ -49,7 +49,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.DAL;
 using NosCore.GameObject.Event;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -69,6 +68,18 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
+using NosCore.Data.I18N;
+using NosCore.Database.Entities;
+using Character = NosCore.GameObject.Character;
+using CharacterRelation = NosCore.GameObject.CharacterRelation;
+using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
+using Map = NosCore.GameObject.Map.Map;
+using MapMonster = NosCore.GameObject.MapMonster;
+using MapNpc = NosCore.GameObject.MapNpc;
+using MapType = Mapster.MapType;
+using Portal = NosCore.GameObject.Portal;
+using Shop = NosCore.GameObject.Shop;
+using ShopItem = NosCore.GameObject.ShopItem;
 
 namespace NosCore.WorldServer
 {
@@ -101,9 +112,9 @@ namespace NosCore.WorldServer
         {
             var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
 
-            containerBuilder.Register(_ =>
+            containerBuilder.Register(c =>
             {
-                var items = DaoFactory.GetGenericDao<TDto>().LoadAll().Adapt<List<TGameObject>>().ToList();
+                var items = c.Resolve<IGenericDao<TDto>>().LoadAll().Adapt<List<TGameObject>>().ToList();
                 if (items.Count != 0 || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
                 {
                     if (staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
@@ -155,7 +166,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .SingleInstance()
                 .PropertiesAutowired();
-
+            RegisterDao(ref containerBuilder);
             RegisterDatabaseObject<Item, ItemDto>(ref containerBuilder);
             RegisterDatabaseObject<NpcMonsterDto, NpcMonsterDto>(ref containerBuilder);
             RegisterDatabaseObject<ShopItemDto, ShopItemDto>(ref containerBuilder);
@@ -193,6 +204,48 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
         }
 
+        private static void RegisterDao(ref ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Character, CharacterDto>>().As<IGenericDao<CharacterDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Map, MapDto>>().As<IGenericDao<MapDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.MapNpc, MapNpcDto>>().As<IGenericDao<MapNpcDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>>().As<IGenericDao<NpcMonsterDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Card, CardDto>>().As<IGenericDao<CardDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Drop, DropDto>>().As<IGenericDao<DropDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.BCard, BCardDto>>().As<IGenericDao<BCardDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Item, ItemDto>>().As<IGenericDao<ItemDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Quest, QuestDto>>().As<IGenericDao<QuestDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.QuestReward, QuestRewardDto>>().As<IGenericDao<QuestRewardDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.QuestObjective, QuestObjectiveDto>>().As<IGenericDao<QuestObjectiveDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Mate, MateDto>>().As<IGenericDao<MateDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.MapType, MapTypeDto>>().As<IGenericDao<MapTypeDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Portal, PortalDto>>().As<IGenericDao<PortalDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Combo, ComboDto>>().As<IGenericDao<ComboDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.RespawnMapType, RespawnMapTypeDto>>().As<IGenericDao<RespawnMapTypeDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.MapTypeMap, MapTypeMapDto>>().As<IGenericDao<MapTypeMapDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NActDesc, I18NActDescDto>>().As<IGenericDao<I18NActDescDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NCard, I18NCardDto>>().As<IGenericDao<I18NCardDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NBCard, I18NbCardDto>>().As<IGenericDao<I18NbCardDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NItem, I18NItemDto>>().As<IGenericDao<I18NItemDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NMapIdData, I18NMapIdDataDto>>().As<IGenericDao<I18NMapIdDataDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NMapPointData, I18NMapPointDataDto>>().As<IGenericDao<I18NMapPointDataDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NNpcMonster, I18NNpcMonsterDto>>().As<IGenericDao<I18NNpcMonsterDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NNpcMonsterTalk, I18NNpcMonsterTalkDto>>().As<IGenericDao<I18NNpcMonsterTalkDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NQuest, I18NQuestDto>>().As<IGenericDao<I18NQuestDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NSkill, I18NSkillDto>>().As<IGenericDao<I18NSkillDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Skill, SkillDto>>().As<IGenericDao<SkillDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.NpcMonsterSkill, NpcMonsterSkillDto>>().As<IGenericDao<NpcMonsterSkillDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.MapMonster, MapMonsterDto>>().As<IGenericDao<MapMonsterDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>>().As<IGenericDao<CharacterRelationDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Family, FamilyDto>>().As<IGenericDao<FamilyDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.FamilyCharacter, FamilyCharacterDto>>().As<IGenericDao<FamilyCharacterDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.FamilyLog, FamilyLogDto>>().As<IGenericDao<FamilyLogDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.Shop, ShopDto>>().As<IGenericDao<ShopDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Database.Entities.ShopItem, ShopItemDto>>().As<IGenericDao<ShopItemDto>>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+        }
+
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -202,11 +255,11 @@ namespace NosCore.WorldServer
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {_worldConfiguration.WebApi.ToString()}
+                Addresses = { _worldConfiguration.WebApi.ToString() }
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)

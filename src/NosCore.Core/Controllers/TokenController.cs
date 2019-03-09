@@ -35,10 +35,12 @@ namespace NosCore.Core.Controllers
     public class TokenController : Controller
     {
         private readonly WebApiConfiguration _apiConfiguration;
+        private readonly IGenericDao<AccountDto> _accountDao;
 
-        public TokenController(WebApiConfiguration apiConfiguration)
+        public TokenController(WebApiConfiguration apiConfiguration, IGenericDao<AccountDto> accountDao)
         {
             _apiConfiguration = apiConfiguration;
+            _accountDao = accountDao;
         }
 
         [AllowAnonymous]
@@ -50,7 +52,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            var account = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == userName);
+            var account = _accountDao.FirstOrDefault(s => s.Name == userName);
             if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));

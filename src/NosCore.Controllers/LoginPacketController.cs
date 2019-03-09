@@ -40,15 +40,17 @@ namespace NosCore.Controllers
     public class LoginPacketController : PacketController
     {
         private readonly LoginConfiguration _loginConfiguration;
+        private readonly IGenericDao<AccountDto> _accountDao;
 
         [UsedImplicitly]
         public LoginPacketController()
         {
         }
 
-        public LoginPacketController(LoginConfiguration loginConfiguration)
+        public LoginPacketController(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao)
         {
             _loginConfiguration = loginConfiguration;
+            _accountDao = accountDao;
         }
 
         public void VerifyLogin(NoS0575Packet loginPacket)
@@ -75,7 +77,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var acc = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s =>
+                var acc = _accountDao.FirstOrDefault(s =>
                     string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (acc != null && acc.Name != loginPacket.Name)
@@ -144,7 +146,7 @@ namespace NosCore.Controllers
                         }
 
                         acc.Language = _loginConfiguration.UserLanguage;
-                        DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc);
+                        _accountDao.InsertOrUpdate(ref acc);
                         if (servers.Count <= 0)
                         {
                             Session.SendPacket(new FailcPacket
