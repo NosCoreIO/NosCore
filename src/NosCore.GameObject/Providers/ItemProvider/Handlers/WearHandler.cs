@@ -115,8 +115,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                requestData.ClientSession.Account.Language),
-                            requestData.ClientSession.Character.SpCooldown - (int) Math.Round(timeSpanSinceLastSpUsage))
+                                requestData.ClientSession.Account.Language), requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
                     return;
                 }

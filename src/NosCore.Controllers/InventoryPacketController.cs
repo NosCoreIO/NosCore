@@ -254,8 +254,7 @@ namespace NosCore.Controllers
                         Session.SendPacket(new MsgPacket
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                    Session.Account.Language),
-                                Session.Character.SpCooldown - (int) Math.Round(currentRunningSeconds))
+                                Session.Account.Language), Session.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         });
                     }
                 }

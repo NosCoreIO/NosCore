@@ -697,8 +697,7 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
                 s.Value.ItemVNum == 2 && s.Value.Type == PocketType.Equipment));
             var packet = (MsgPacket) _session.LastPacket;
-            Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                _session.Account.Language), 30));
+            Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language), 30));
         }
 
         [TestMethod]

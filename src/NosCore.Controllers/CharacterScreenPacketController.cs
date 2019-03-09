@@ -398,14 +398,14 @@ namespace NosCore.Controllers
                 }
 
                 //var relations =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.CharacterId == Session.Character.CharacterId).ToList();
+                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.CharacterId == Session.Character.CharacterId);
                 //var relationsWithCharacter =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.RelatedCharacterId == Session.Character.CharacterId).ToList();
+                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
 
                 //var characters = DaoFactory.GetGenericDao<CharacterDto>()
-                //    .Where(s => relations.Select(v => v.RelatedCharacterId).ToList().Contains(s.CharacterId)).ToList();
+                //    .Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
                 //var relatedCharacters = DaoFactory.GetGenericDao<CharacterDto>().Where(s =>
-                //    relationsWithCharacter.Select(v => v.RelatedCharacterId).ToList().Contains(s.CharacterId)).ToList();
+                //    relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
                 //foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relations))
                 //{
