@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,16 +36,19 @@ namespace NosCore.Tests
     public class LogLanguageTests
     {
         readonly Dictionary<string, int> _dict = new Dictionary<string, int>();
+
         public LogLanguageTests()
         {
             var uselessKeys = new StringBuilder();
 
-            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs", SearchOption.AllDirectories);
+            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs",
+                SearchOption.AllDirectories);
             foreach (var file in list)
             {
                 foreach (var content in File.ReadAllLines(file))
                 {
-                    Regex regex = new Regex(@"string\.Format\(Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[0-9A-Za-z_]*)*\)",
+                    Regex regex = new Regex(
+                        @"string\.Format\(Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[0-9A-Za-z_]*)*\)",
                         RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                     Match match = regex.Match(content);
                     if (match.Success)
@@ -111,7 +114,8 @@ namespace NosCore.Tests
         {
             var uselessKeys = new StringBuilder();
             var dict = new Dictionary<string, int>();
-            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs", SearchOption.AllDirectories);
+            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs",
+                SearchOption.AllDirectories);
             foreach (var file in list)
             {
                 foreach (var content in File.ReadAllLines(file))
@@ -131,6 +135,7 @@ namespace NosCore.Tests
                     }
                 }
             }
+
             foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
             {
                 var type = val.GetType();
@@ -185,7 +190,9 @@ namespace NosCore.Tests
                     : _dict[$"LanguageKey.{val}"];
                 if (value != $"#<{val.ToString()}>" && expectedCount != paramCount)
                 {
-                    unfound.Append(val).Append($" does not contain the correct amount of parameters. Expected:{expectedCount} Given: {paramCount}");
+                    unfound.Append(val)
+                        .Append(
+                            $" does not contain the correct amount of parameters. Expected:{expectedCount} Given: {paramCount}");
                 }
             }
 
@@ -208,7 +215,8 @@ namespace NosCore.Tests
         {
             var unfound = new StringBuilder();
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
-            var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString()).ToList();
+            var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
+                .ToList();
             foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
             {
                 var resourceKey = entry.Key.ToString();

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,20 +43,21 @@ namespace NosCore.WorldServer
 {
     public class WorldServer
     {
-        [UsedImplicitly] private readonly List<Item> _items;
+        private readonly List<IGlobalEvent> _events;
         [UsedImplicitly] private readonly IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
+        [UsedImplicitly] private readonly List<Item> _items;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         [UsedImplicitly] private readonly IMapInstanceProvider _mapInstanceProvider;
+        [UsedImplicitly] private readonly Mapper _mapper;
         [UsedImplicitly] private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
         [UsedImplicitly] private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly List<IGlobalEvent> _events;
-        [UsedImplicitly] private readonly Mapper _mapper;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
             List<NpcMonsterDto> npcmonsters, List<Map> maps, IMapInstanceProvider mapInstanceProvider,
-            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers, Mapper mapper)
+            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers,
+            Mapper mapper)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -77,10 +78,7 @@ namespace NosCore.WorldServer
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-            _events.ForEach(e =>
-            {
-                Observable.Interval(e.Delay).Subscribe(_ => e.Execution());
-            });
+            _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
             ConnectMaster();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {

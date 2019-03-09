@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ using NosCore.DAL;
 using NosCore.Shared.I18N;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Data;
 
 namespace NosCore.Core.Controllers
 {
@@ -49,7 +50,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            var account = DaoFactory.AccountDao.FirstOrDefault(s => s.Name == userName);
+            var account = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == userName);
             if (!(account?.Password.ToLower().Equals(password.ToSha512()) ?? false))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));

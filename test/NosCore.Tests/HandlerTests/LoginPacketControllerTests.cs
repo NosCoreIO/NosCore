@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ namespace NosCore.Tests.HandlerTests
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =
-            new ClientSession(null, new List<PacketController> { new LoginPacketController() }, null, null);
+            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null, null);
 
         private LoginPacketController _handler;
 
@@ -59,10 +59,10 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var map = new MapDto { MapId = 1 };
-            DaoFactory.MapDao.InsertOrUpdate(ref map);
-            var _acc = new AccountDto { Name = Name, Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
+            var map = new MapDto {MapId = 1};
+            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
+            var _acc = new AccountDto {Name = Name, Password = "test".ToSha512()};
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
             _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);
@@ -80,11 +80,11 @@ namespace NosCore.Tests.HandlerTests
             _handler.RegisterSession(_session);
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.OldClient);
+            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.OldClient);
         }
 
         [TestMethod]
@@ -92,11 +92,11 @@ namespace NosCore.Tests.HandlerTests
         {
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = "noaccount"
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
+            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
@@ -104,21 +104,21 @@ namespace NosCore.Tests.HandlerTests
         {
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = Name.ToUpperInvariant()
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
+            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.WrongCaps);
         }
 
         [TestMethod]
         public void Login()
         {
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() });
+            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> {new ChannelInfo()});
             WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount, new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is NsTestPacket);
@@ -127,16 +127,16 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() });
+            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> {new ChannelInfo()});
             WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount,
-                new List<ConnectedAccount> { new ConnectedAccount { Name = Name } });
+                new List<ConnectedAccount> {new ConnectedAccount {Name = Name}});
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AlreadyConnected);
+            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.AlreadyConnected);
         }
 
         [TestMethod]
@@ -146,11 +146,11 @@ namespace NosCore.Tests.HandlerTests
             WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount, new List<ConnectedAccount>());
             _handler.VerifyLogin(new NoS0575Packet
             {
-                Password ="test".ToSha512(),
+                Password = "test".ToSha512(),
                 Name = Name
             });
             Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.CantConnect);
+            Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.CantConnect);
         }
 
         //[TestMethod]

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,9 +51,9 @@ namespace NosCore.Controllers
     {
         private readonly IItemProvider _itemProvider;
         private readonly List<Item> _items;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
             IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider)
@@ -81,11 +81,12 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character { Name = changeClassPacket.Name },
-                Data = (byte)changeClassPacket.ClassType,
+                Character = new Character {Name = changeClassPacket.Name},
+                Data = (byte) changeClassPacket.ClassType,
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
@@ -104,10 +105,12 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
+
             WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
@@ -123,11 +126,12 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateReputation,
-                Character = new Character { Name = setReputationPacket.Name },
+                Character = new Character {Name = setReputationPacket.Name},
                 Data = setReputationPacket.Reputation
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
@@ -146,17 +150,20 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
+
             WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
 
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
         {
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
@@ -175,7 +182,8 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
@@ -208,9 +216,11 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), sizePacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        sizePacket.VisualType);
                     return;
             }
+
             entity.Size = sizePacket.Size;
             Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc());
         }
@@ -220,15 +230,15 @@ namespace NosCore.Controllers
         {
             Session.SendPacket(Session.Character.GenerateSay(
                 $"Map:{Session.Character.MapInstance.Map.MapId} - X:{Session.Character.PositionX} - Y:{Session.Character.PositionY} - " +
-                    $"Dir:{Session.Character.Direction} - Cell:{Session.Character.MapInstance.Map[Session.Character.PositionX, Session.Character.PositionY]}",
-                        SayColorType.Green));
+                $"Dir:{Session.Character.Direction} - Cell:{Session.Character.MapInstance.Map[Session.Character.PositionX, Session.Character.PositionY]}",
+                SayColorType.Green));
         }
 
         [UsedImplicitly]
         public void Effect(EffectCommandPacket effectCommandpacket)
         {
             Session.Character.MapInstance.Sessions.SendPacket(
-                    Session.Character.GenerateEff(effectCommandpacket.EffectId));
+                Session.Character.GenerateEff(effectCommandpacket.EffectId));
         }
 
         [UsedImplicitly]
@@ -236,7 +246,7 @@ namespace NosCore.Controllers
         {
             var session =
                 Broadcaster.Instance.GetCharacter(s =>
-                s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
+                    s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
@@ -256,7 +266,7 @@ namespace NosCore.Controllers
             if (mapInstance == null)
             {
                 _logger.Error(
-                     Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
+                    Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, Session.Account.Language));
                 return;
             }
 
@@ -269,11 +279,12 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name },
+                Character = new Character {Name = goldPacket.Name},
                 Data = goldPacket.Gold
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel).Where(s => s.Type == ServerType.WorldServer);
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
 
@@ -292,7 +303,8 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
@@ -320,7 +332,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { sayPacket }),
+                Packet = PacketFactory.Serialize(new[] {sayPacket}),
                 SenderCharacter = new Character
                 {
                     Name = Session.Character.Name,
@@ -331,11 +343,11 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { msgPacket }),
+                Packet = PacketFactory.Serialize(new[] {msgPacket}),
                 ReceiverType = ReceiverType.All
             };
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
         }
 
         [UsedImplicitly]
@@ -366,11 +378,11 @@ namespace NosCore.Controllers
             {
                 if (createItemPacket.DesignOrAmount.HasValue)
                 {
-                    design = (byte)createItemPacket.DesignOrAmount.Value;
+                    design = (byte) createItemPacket.DesignOrAmount.Value;
                 }
 
                 rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == ItemEffectType.BoxEffect
-                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
+                    ? (sbyte) createItemPacket.Upgrade.Value : rare;
             }
             else if (iteminfo.Type == PocketType.Equipment)
             {
@@ -396,11 +408,11 @@ namespace NosCore.Controllers
                 {
                     if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                     {
-                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                        upgrade = (byte) createItemPacket.DesignOrAmount.Value;
                     }
                     else
                     {
-                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                        rare = (sbyte) createItemPacket.DesignOrAmount.Value;
                     }
                 }
             }
@@ -419,7 +431,7 @@ namespace NosCore.Controllers
                 Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                    Session.Account.Language),
+                        Session.Account.Language),
                     Type = 0
                 });
                 return;
@@ -429,7 +441,7 @@ namespace NosCore.Controllers
             var firstItem = inv[0];
             var wearable =
                 Session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
-                firstItem.Type);
+                    firstItem.Type);
 
             if (wearable?.Item.EquipmentSlot is EquipmentType.Armor ||
                 wearable?.Item.EquipmentSlot is EquipmentType.MainWeapon ||
@@ -440,10 +452,10 @@ namespace NosCore.Controllers
             else if (wearable?.Item.EquipmentSlot is EquipmentType.Boots ||
                 wearable?.Item.EquipmentSlot is EquipmentType.Gloves)
             {
-                wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
-                wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
-                wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
-                wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
+                wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
+                wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
+                wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
             }
             else
             {
@@ -460,7 +472,7 @@ namespace NosCore.Controllers
         {
             if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
             {
-                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
+                Session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
                 Session.SendPacket(Session.Character.GenerateCond());
             }
             else
@@ -481,22 +493,24 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateHeroLevel,
-                Character = new Character { Name = levelPacket.Name },
+                Character = new Character {Name = levelPacket.Name},
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                var accounts =
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
-                
-                if (target != null) 
+
+                if (target != null)
                 {
                     receiver = target;
                     config = channel.WebApi;
@@ -507,7 +521,8 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
@@ -527,18 +542,20 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateLevel,
-                Character = new Character { Name = levelPacket.Name },
+                Character = new Character {Name = levelPacket.Name},
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                var accounts =
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -553,7 +570,8 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }
@@ -573,18 +591,20 @@ namespace NosCore.Controllers
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateJobLevel,
-                Character = new Character { Name = levelPacket.Name },
+                Character = new Character {Name = levelPacket.Name},
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer);
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
             ServerConfiguration config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                var accounts =
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -599,7 +619,8 @@ namespace NosCore.Controllers
             {
                 Session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER, Session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                        Session.Account.Language)
                 });
                 return;
             }

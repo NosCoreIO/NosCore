@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,14 +64,18 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DaoFactory.MapMonsterDao.Where(s => s.MapId == map.MapId).Adapt<List<MapMonster>>();
-            var npcMonsters = DaoFactory.NpcMonsterDao.LoadAll().ToList();
+            _monsters = DaoFactory.GetGenericDao<MapMonsterDto>().Where(s => s.MapId == map.MapId)
+                .Adapt<List<MapMonster>>();
+            var npcMonsters = DaoFactory.GetGenericDao<NpcMonsterDto>().LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters, 
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    new MapNpcProvider(new ItemProvider(new List<Item>(), new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()), 
+                    new MapNpcProvider(
+                        new ItemProvider(new List<Item>(),
+                            new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()),
                         new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
-                    new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
+                    new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
+                        new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
                 {
                     IsSleeping = false
                 };
@@ -87,7 +91,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = DaoFactory.MapNpcDao.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            _npcs = DaoFactory.GetGenericDao<MapNpcDto>().Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;

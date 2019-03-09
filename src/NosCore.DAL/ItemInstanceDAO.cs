@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ using Serilog;
 
 namespace NosCore.DAL
 {
-    public class ItemInstanceDao
+    public class ItemInstanceDao : IGenericDao<IItemInstanceDto>
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
@@ -136,8 +136,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IItemInstanceDto FirstOrDefault<TEntity>(Expression<Func<TEntity, bool>> predicate)
-        where TEntity : ItemInstance
+        public IItemInstanceDto FirstOrDefault(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
             try
             {
@@ -148,8 +147,8 @@ namespace NosCore.DAL
 
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var dbset = context.Set<TEntity>();
-                    var ent = dbset.FirstOrDefault(predicate);
+                    var dbset = context.Set<ItemInstance>();
+                    var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
 
                     return ent is BoxInstance ? ent.Adapt<BoxInstanceDto>() :
                         ent is SpecialistInstance ? ent.Adapt<SpecialistInstanceDto>() :
@@ -165,17 +164,17 @@ namespace NosCore.DAL
             }
         }
 
-        public SaveResult InsertOrUpdate(ref ItemInstanceDto dto)
+        public SaveResult InsertOrUpdate(ref IItemInstanceDto dto)
         {
             try
             {
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
                     var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
-                       : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-                       : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-                       : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                       : dto.Adapt<ItemInstance>();
+                        : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                        : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                        : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                        : dto.Adapt<ItemInstance>();
 
                     var dbset = context.Set<ItemInstance>();
 
@@ -190,8 +189,9 @@ namespace NosCore.DAL
                         entityfound = dbset.Find(value);
                     }
 
-                  var newentity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
-                        entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() :
+                    var newentity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
+                        entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
+                        :
                         entity is WearableInstance ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
                         entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() :
                         entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
@@ -254,10 +254,13 @@ namespace NosCore.DAL
                         }
 
                         entity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
-                            entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() :
-                            entity is WearableInstance ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
-                            entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() :
-                            entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+                            entity is SpecialistInstance
+                                ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() :
+                                entity is WearableInstance
+                                    ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
+                                    entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
+                                        :
+                                        entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
 
                         if (entityfound != null)
                         {
@@ -299,7 +302,7 @@ namespace NosCore.DAL
             }
         }
 
-        public IEnumerable<IItemInstanceDto> Where(Expression<Func<ItemInstance, bool>> predicate)
+        public IEnumerable<IItemInstanceDto> Where(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
             using (var context = DataAccessHelper.Instance.CreateContext())
             {
@@ -307,7 +310,7 @@ namespace NosCore.DAL
                 var entities = Enumerable.Empty<ItemInstance>();
                 try
                 {
-                    entities = dbset.Where(predicate).ToList();
+                    entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>()).ToList();
                 }
                 catch (Exception e)
                 {

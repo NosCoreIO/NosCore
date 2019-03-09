@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,24 +26,6 @@ namespace NosCore.GameObject.Helper
     {
         private static CharacterHelper _instance;
 
-        private CharacterHelper()
-        {
-            LoadSpeedData();
-            LoadJobXpData();
-            LoadSpxpData();
-            LoadHeroXpData();
-            LoadXpData();
-            LoadHpData();
-            LoadMpData();
-            LoadStats();
-            LoadHpHealth();
-            LoadMpHealth();
-            LoadHpHealthStand();
-            LoadMpHealthStand();
-        }
-
-        public static CharacterHelper Instance => _instance ?? (_instance = new CharacterHelper());
-
         private int[][] _criticalDist;
         private int[][] _criticalDistRate;
         private int[][] _criticalHit;
@@ -61,6 +43,24 @@ namespace NosCore.GameObject.Helper
 
         // difference between class
         private int[][] _minHit;
+
+        private CharacterHelper()
+        {
+            LoadSpeedData();
+            LoadJobXpData();
+            LoadSpxpData();
+            LoadHeroXpData();
+            LoadXpData();
+            LoadHpData();
+            LoadMpData();
+            LoadStats();
+            LoadHpHealth();
+            LoadMpHealth();
+            LoadHpHealthStand();
+            LoadMpHealthStand();
+        }
+
+        public static CharacterHelper Instance => _instance ?? (_instance = new CharacterHelper());
 
         // STAT DATA
 

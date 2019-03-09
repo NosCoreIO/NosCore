@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,10 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations.Items;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Data
 {
+    [StaticDto(LoadedMessage = LogLanguageKey.ITEMS_LOADED)]
     public class ItemDto : IDto
     {
         public byte BasicUpgrade { get; set; }

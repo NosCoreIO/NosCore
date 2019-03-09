@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,7 +62,8 @@ namespace NosCore.MasterServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("master.json", false);
             builder.Build().Bind(masterConfiguration);
-            Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration), validateAllProperties: true);
+            Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
+                validateAllProperties: true);
             return masterConfiguration;
         }
 
@@ -107,15 +108,15 @@ namespace NosCore.MasterServer
                 });
 
             services.AddMvc(o =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                o.Filters.Add(new AuthorizeFilter(policy));
-            })
-            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
-            .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
-            .AddControllersAsServices();
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    o.Filters.Add(new AuthorizeFilter(policy));
+                })
+                .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
+                .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();

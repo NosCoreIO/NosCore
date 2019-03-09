@@ -31,7 +31,10 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
     public interface IExchangeProvider
     {
         void SetGold(long visualId, long gold, long bankGold);
-        Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session, ICharacterEntity targetSession);
+
+        Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session,
+            ICharacterEntity targetSession);
+
         void ConfirmExchange(long visualId);
         bool IsExchangeConfirmed(long visualId);
         ExchangeData GetData(long visualId);
@@ -41,6 +44,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         bool CheckExchange(long visualId, long targetId);
         ExcClosePacket CloseExchange(long visualId, ExchangeResultType resultType);
         bool OpenExchange(long visualId, long targetVisualId);
-        List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser, IInventoryService sessionInventory, IInventoryService targetInventory);
+
+        List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser,
+            IInventoryService sessionInventory, IInventoryService targetInventory);
     }
 }

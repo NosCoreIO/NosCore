@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileMapIdDat = "\\MapIDData.dat";
         private readonly string _folderMap = "\\map";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
             var fileMapIdDat = folder + _fileMapIdDat;
@@ -105,7 +106,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (DaoFactory.MapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }
@@ -115,7 +116,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapDto> mapDtos = maps;
-            DaoFactory.MapDao.InsertOrUpdate(mapDtos);
+            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(mapDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), i);
         }
     }

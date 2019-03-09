@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            Inventory = new InventoryService(items, new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 });
+            Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999});
         }
 
         [TestMethod]
@@ -247,8 +247,10 @@ namespace NosCore.Tests
         public void SwapWithEmpty()
         {
             var weapon = Inventory.AddItemToPocket(_itemProvider.Create(1, 0)).First();
-            var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear, (short)EquipmentType.MainWeapon, true);
-            Assert.IsTrue(item.Type == PocketType.Wear && Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Equipment) == null);
+            var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear,
+                (short) EquipmentType.MainWeapon, true);
+            Assert.IsTrue(item.Type == PocketType.Wear &&
+                Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Equipment) == null);
         }
 
         [TestMethod]
@@ -256,10 +258,13 @@ namespace NosCore.Tests
         {
             var weapon = Inventory.AddItemToPocket(_itemProvider.Create(2, 0)).First();
             var weapon2 = Inventory.AddItemToPocket(_itemProvider.Create(1, 0)).First();
-            var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear, (short)EquipmentType.MainWeapon, true);
-            var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, PocketType.Wear, (short)EquipmentType.MainWeapon, true);
+            var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, PocketType.Wear,
+                (short) EquipmentType.MainWeapon, true);
+            var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, PocketType.Wear,
+                (short) EquipmentType.MainWeapon, true);
 
-            Assert.IsTrue(item.Type == PocketType.Equipment && item.Slot == 1 && item2.Type == PocketType.Wear && item2.Slot == (short)EquipmentType.MainWeapon);
+            Assert.IsTrue(item.Type == PocketType.Equipment && item.Slot == 1 && item2.Type == PocketType.Wear &&
+                item2.Slot == (short) EquipmentType.MainWeapon);
         }
     }
 }

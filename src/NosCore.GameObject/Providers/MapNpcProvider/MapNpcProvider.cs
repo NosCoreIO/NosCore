@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,10 +70,10 @@ namespace NosCore.GameObject.Providers.MapNpcProvider
         private Shop LoadShop(int mapNpcId)
         {
             Shop shop = null;
-            var shopObj = DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == mapNpcId);
+            var shopObj = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == mapNpcId);
             if (shopObj != null)
             {
-                var shopItemsDto = DaoFactory.ShopItemDao.Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsDto = DaoFactory.GetGenericDao<ShopItemDto>().Where(s => s.ShopId == shopObj.ShopId);
                 var shopItems = new ConcurrentDictionary<int, ShopItem>();
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {

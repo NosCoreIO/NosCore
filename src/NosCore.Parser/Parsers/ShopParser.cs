@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
@@ -30,18 +31,21 @@ namespace NosCore.Parser.Parsers
     internal class ShopParser
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public void InsertShops(List<string[]> packetList)
         {
             int shopCounter = 0;
             var shops = new List<ShopDto>();
-            foreach (var currentPacket in packetList.Where(o => o.Length > 6 && o[0].Equals("shop") && o[1].Equals("2")))
+            foreach (var currentPacket in packetList.Where(o => o.Length > 6 && o[0].Equals("shop") && o[1].Equals("2"))
+            )
             {
                 short npcid = short.Parse(currentPacket[2]);
-                var npc = DaoFactory.MapNpcDao.FirstOrDefault(s => s.MapNpcId == npcid);
+                var npc = DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId == npcid);
                 if (npc == null)
                 {
                     continue;
                 }
+
                 StringBuilder name = new StringBuilder();
                 for (int j = 6; j < currentPacket.Length; j++)
                 {
@@ -60,16 +64,18 @@ namespace NosCore.Parser.Parsers
                     ShopType = byte.Parse(currentPacket[5])
                 };
 
-                if (DaoFactory.ShopDao.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null || shops.Any(s => s.MapNpcId == npc.MapNpcId))
+                if (DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
+                    shops.Any(s => s.MapNpcId == npc.MapNpcId))
                 {
                     continue;
                 }
+
                 shops.Add(shop);
                 shopCounter++;
             }
-            
+
             IEnumerable<ShopDto> shopDtos = shops;
-            DaoFactory.ShopDao.InsertOrUpdate(shopDtos);
+            DaoFactory.GetGenericDao<ShopDto>().InsertOrUpdate(shopDtos);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_PARSED),
                 shopCounter);

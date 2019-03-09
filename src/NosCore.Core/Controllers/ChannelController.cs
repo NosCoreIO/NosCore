@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,9 +40,8 @@ namespace NosCore.MasterServer.Controllers
     [Route("api/[controller]")]
     public class ChannelController : Controller
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         private readonly WebApiConfiguration _apiConfiguration;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private int _id;
 
@@ -53,7 +52,7 @@ namespace NosCore.MasterServer.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Connect([FromBody]Channel data)
+        public IActionResult Connect([FromBody] Channel data)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +82,8 @@ namespace NosCore.MasterServer.Controllers
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
             });
 
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(), data.ClientName);
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(),
+                data.ClientName);
 
             try
             {
@@ -110,7 +110,7 @@ namespace NosCore.MasterServer.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
+            return Ok(new ConnectionInfo {Token = handler.WriteToken(securityToken), ChannelInfo = data});
         }
 
         // GET api/channel
@@ -126,7 +126,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody]DateTime data)
+        public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann != null)
@@ -134,7 +134,8 @@ namespace NosCore.MasterServer.Controllers
                 if (chann.LastPing.AddSeconds(10) < SystemTime.Now() && !System.Diagnostics.Debugger.IsAttached)
                 {
                     MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                        _id.ToString());
                     return HttpStatusCode.RequestTimeout;
                 }
 

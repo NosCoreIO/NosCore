@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ namespace NosCore.Packets.ServerPackets
     [PacketHeader("dir")]
     public class DirPacket : PacketDefinition
     {
-
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
 
@@ -34,6 +33,5 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(2)]
         public byte Direction { get; set; }
-
     }
 }

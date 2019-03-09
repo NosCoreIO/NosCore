@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,14 +44,18 @@ namespace NosCore.MasterServer
             {
                 return;
             }
+
             if (!System.Diagnostics.Debugger.IsAttached)
             {
-                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels.Where(s =>
-                             s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList().ForEach(_id =>
-                             {
-                                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST), _id.ToString());
-                                 MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                             }));
+                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels
+                    .Where(s =>
+                        s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList()
+                    .ForEach(_id =>
+                    {
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                            _id.ToString());
+                        MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                    }));
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));

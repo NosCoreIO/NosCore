@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,10 +50,10 @@ namespace NosCore.Controllers
 {
     public class DefaultPacketController : PacketController
     {
-        private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IGuriProvider _guriProvider;
-        private readonly WorldConfiguration _worldConfiguration;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
         public DefaultPacketController()
@@ -81,7 +81,7 @@ namespace NosCore.Controllers
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                Session.SendPacket(new ScenePacket { SceneId = 40 });
+                Session.SendPacket(new ScenePacket {SceneId = 40});
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -240,7 +240,8 @@ namespace NosCore.Controllers
         /// <param name="_"></param>
         public void Preq(PreqPacket _)
         {
-            if ((SystemTime.Now() - Session.Character.LastPortal).TotalSeconds < 4 || Session.Character.LastPortal > Session.Character.LastMove)
+            if ((SystemTime.Now() - Session.Character.LastPortal).TotalSeconds < 4 ||
+                Session.Character.LastPortal > Session.Character.LastMove)
             {
                 return;
             }
@@ -294,7 +295,8 @@ namespace NosCore.Controllers
                     entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), ncifPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        ncifPacket.Type);
                     return;
             }
 
@@ -307,7 +309,7 @@ namespace NosCore.Controllers
         /// <param name="walkPacket"></param>
         public void Walk(WalkPacket walkPacket)
         {
-            var distance = (int)Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
+            var distance = (int) Heuristic.Octile(Math.Abs(Session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(Session.Character.PositionY - walkPacket.YCoordinate));
 
             if ((Session.Character.Speed < walkPacket.Speed
@@ -325,7 +327,8 @@ namespace NosCore.Controllers
             Session.Character.PositionX = walkPacket.XCoordinate;
             Session.Character.PositionY = walkPacket.YCoordinate;
 
-            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(), new EveryoneBut(Session.Channel.Id));
+            Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(),
+                new EveryoneBut(Session.Channel.Id));
             Session.Character.LastMove = SystemTime.Now();
         }
 
@@ -381,7 +384,8 @@ namespace NosCore.Controllers
                     messageBuilder.Append(messageData[i]).Append(" ");
                 }
 
-                var message = new StringBuilder(messageBuilder.ToString().Length > 60 ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
+                var message = new StringBuilder(messageBuilder.ToString().Length > 60
+                    ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
                 Session.SendPacket(Session.Character.GenerateSpk(new SpeakPacket
                 {
@@ -418,7 +422,8 @@ namespace NosCore.Controllers
 
                 ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
                     var accounts = WebApiAccess.Instance
@@ -456,9 +461,9 @@ namespace NosCore.Controllers
 
                 WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
-                    Packet = PacketFactory.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
-                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
+                    Packet = PacketFactory.Serialize(new[] {speakPacket}),
+                    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
+                    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -506,7 +511,8 @@ namespace NosCore.Controllers
 
             ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 var accounts = WebApiAccess.Instance
@@ -529,11 +535,11 @@ namespace NosCore.Controllers
 
             WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] { Session.Character.GenerateTalk(message) }),
+                Packet = PacketFactory.Serialize(new[] {Session.Character.GenerateTalk(message)}),
                 ReceiverCharacter = new Data.WebApi.Character
-                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
+                    {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
                 SenderCharacter = new Data.WebApi.Character
-                { Name = Session.Character.Name, Id = Session.Character.CharacterId },
+                    {Name = Session.Character.Name, Id = Session.Character.CharacterId},
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.ChannelId);
@@ -560,7 +566,8 @@ namespace NosCore.Controllers
         {
             if (_worldConfiguration.FeatureFlags[FeatureFlag.FriendServerEnabled])
             {
-                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 //WebApiAccess.Instance.Post<FriendShip>("api/friend", server.WebApi);
             }
             else
@@ -569,7 +576,8 @@ namespace NosCore.Controllers
                 {
                     Session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL, Session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
+                            Session.Account.Language)
                     });
                     return;
                 }
@@ -588,7 +596,8 @@ namespace NosCore.Controllers
                 {
                     Session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND, Session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
+                            Session.Account.Language)
                     });
                     return;
                 }
@@ -627,9 +636,9 @@ namespace NosCore.Controllers
                             Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, Session.Account.Language),
                             Session.Character.Name),
                         YesPacket = new FinsPacket
-                        { Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId },
+                            {Type = FinsPacketType.Accepted, CharacterId = Session.Character.CharacterId},
                         NoPacket = new FinsPacket
-                        { Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId }
+                            {Type = FinsPacketType.Rejected, CharacterId = Session.Character.CharacterId}
                     });
                     Session.Character.FriendRequestCharacters[Session.Character.CharacterId] = finsPacket.CharacterId;
                     return;
@@ -655,7 +664,8 @@ namespace NosCore.Controllers
                         var targetRelation = targetSession.AddRelation(Session.Character.CharacterId,
                             CharacterRelationType.Friend);
 
-                        Session.Character.RelationWithCharacter.TryAdd(targetRelation.CharacterRelationId, targetRelation);
+                        Session.Character.RelationWithCharacter.TryAdd(targetRelation.CharacterRelationId,
+                            targetRelation);
                         targetSession.RelationWithCharacter.TryAdd(relation.CharacterRelationId, relation);
 
                         Session.Character.FriendRequestCharacters.TryRemove(Session.Character.CharacterId, out _);
@@ -684,7 +694,8 @@ namespace NosCore.Controllers
         {
             if (Broadcaster.Instance.GetCharacter(s => s.VisualId == blinsPacket.CharacterId) == null)
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED, Session.Account.Language));
+                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                    Session.Account.Language));
                 return;
             }
 
@@ -793,7 +804,7 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
-        /// rest packet
+        ///     rest packet
         /// </summary>
         /// <param name="sitpacket"></param>
         public void Rest(SitPacket sitpacket)
@@ -808,15 +819,17 @@ namespace NosCore.Controllers
                         entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
                         break;
                     default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), u.VisualType);
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                            u.VisualType);
                         return;
                 }
+
                 entity.Rest();
             });
         }
 
         /// <summary>
-        /// dir packet
+        ///     dir packet
         /// </summary>
         /// <param name="dirpacket"></param>
         public void ChangeDir(ClientDirPacket dirpacket)
@@ -828,9 +841,11 @@ namespace NosCore.Controllers
                     entity = Session.Character;
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), dirpacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        dirpacket.VisualType);
                     return;
             }
+
             entity.ChangeDir(dirpacket.Direction);
         }
     }

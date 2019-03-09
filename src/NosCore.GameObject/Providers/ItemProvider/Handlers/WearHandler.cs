@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         new QnaPacket
                         {
                             YesPacket = requestData.ClientSession.Character.GenerateUseItem(itemInstance.Type,
-                                itemInstance.Slot, (byte)packet.Mode, (byte)packet.Parameter),
+                                itemInstance.Slot, (byte) packet.Mode, (byte) packet.Parameter),
                             Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                         });
                     return;
@@ -76,9 +76,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (itemInstance.Item.LevelMinimum > (itemInstance.Item.IsHeroic
                     ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level)
                 || itemInstance.Item.Sex != 0 &&
-                ((itemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) != 1
+                ((itemInstance.Item.Sex >> (byte) requestData.ClientSession.Character.Gender) & 1) != 1
                 || itemInstance.Item.Class != 0 &&
-                ((itemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) != 1)
+                ((itemInstance.Item.Class >> (byte) requestData.ClientSession.Character.Class) & 1) != 1)
             {
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.UseSp && itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(
-                    (byte)EquipmentType.Sp, PocketType.Wear);
+                    (byte) EquipmentType.Sp, PocketType.Wear);
 
                 if (sp != null && sp.Item.Element != 0 && itemInstance.Item.Element != sp.Item.Element &&
                     itemInstance.Item.Element != sp.Item.SecondaryElement)
@@ -109,14 +109,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 double timeSpanSinceLastSpUsage =
                     (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(
-                    (byte)EquipmentType.Sp, PocketType.Wear);
+                    (byte) EquipmentType.Sp, PocketType.Wear);
                 if (timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown && sp != null)
                 {
                     requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                requestData.ClientSession.Account.Language),
-                            requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
+                                requestData.ClientSession.Account.Language), requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
                     return;
                 }
@@ -151,7 +150,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             }
 
             requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, packet.Type, PocketType.Wear,
-                (short)itemInstance.Item.EquipmentSlot, true);
+                (short) itemInstance.Item.EquipmentSlot, true);
             var newItem =
                 requestData.ClientSession.Character.Inventory
                     .LoadBySlotAndType<IItemInstance>(packet.Slot, packet.Type);
