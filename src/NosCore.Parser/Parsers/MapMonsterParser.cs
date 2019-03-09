@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
 using NosCore.DAL;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -70,8 +71,8 @@ namespace NosCore.Parser.Parsers
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (DaoFactory.NpcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
-                    || DaoFactory.MapMonsterDao.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
+                if (DaoFactory.GetGenericDao<NpcMonsterDto>().FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
+                    || DaoFactory.GetGenericDao<MapMonsterDto>().FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
                     || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
                 {
                     continue;
@@ -83,7 +84,7 @@ namespace NosCore.Parser.Parsers
 
 
             IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
-            DaoFactory.MapMonsterDao.InsertOrUpdate(mapMonsterDtos);
+            DaoFactory.GetGenericDao<MapMonsterDto>().InsertOrUpdate(mapMonsterDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MONSTERS_PARSED),
                 monsterCounter);
         }

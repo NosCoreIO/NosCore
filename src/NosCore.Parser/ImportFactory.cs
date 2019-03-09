@@ -64,9 +64,9 @@ namespace NosCore.Parser
                 Password = "test".ToSha512()
             };
 
-            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DaoFactory.AccountDao.InsertOrUpdate(ref acc1);
+                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc1);
             }
 
             var acc2 = new AccountDto
@@ -76,9 +76,9 @@ namespace NosCore.Parser
                 Password = "test".ToSha512()
             };
 
-            if (DaoFactory.AccountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DaoFactory.AccountDao.InsertOrUpdate(ref acc2);
+                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc2);
             }
         }
 

@@ -70,7 +70,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<CharacterSkill> CharacterSkill { get; set; }
 
-        public byte Class { get; set; }
+        public CharacterClassType Class { get; set; }
 
         public short Compliment { get; set; }
 

@@ -3779,7 +3779,7 @@ namespace NosCore.Parser.Parsers
 
 
             IEnumerable<DropDto> dropDtos = drops;
-            DaoFactory.DropDao.InsertOrUpdate(dropDtos);
+            DaoFactory.GetGenericDao<DropDto>().InsertOrUpdate(dropDtos);
         }
     }
 }

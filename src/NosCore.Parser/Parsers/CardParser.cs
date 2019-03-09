@@ -95,7 +95,7 @@ namespace NosCore.Parser.Parsers
             _card.TimeoutBuff = short.Parse(currentLine[2]);
             _card.TimeoutBuffChance = byte.Parse(currentLine[3]);
             // investigate
-            if (DaoFactory.CardDao.FirstOrDefault(s => s.CardId == _card.CardId) == null)
+            if (DaoFactory.GetGenericDao<CardDto>().FirstOrDefault(s => s.CardId == _card.CardId) == null)
             {
                 Cards.Add(_card);
                 _counter++;
@@ -161,8 +161,8 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                DaoFactory.CardDao.InsertOrUpdate(Cards);
-                DaoFactory.BcardDao.InsertOrUpdate(Bcards);
+                DaoFactory.GetGenericDao<CardDto>().InsertOrUpdate(Cards);
+                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(Bcards);
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED),
                     _counter);

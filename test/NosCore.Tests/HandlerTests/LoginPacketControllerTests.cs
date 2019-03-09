@@ -60,9 +60,9 @@ namespace NosCore.Tests.HandlerTests
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto { MapId = 1 };
-            DaoFactory.MapDao.InsertOrUpdate(ref map);
+            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
             var _acc = new AccountDto { Name = Name, Password = "test".ToSha512() };
-            DaoFactory.AccountDao.InsertOrUpdate(ref _acc);
+            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
             _handler = new LoginPacketController(new LoginConfiguration());
             _handler.RegisterSession(_session);
