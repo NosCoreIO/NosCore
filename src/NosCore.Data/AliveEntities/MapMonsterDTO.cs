@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.Data.AliveEntities
 {
-    [IsLoaded(Message = LogLanguageKey.MAPMONSTERS_LOADED)]
+    [StaticDto(LoadedMessage = LogLanguageKey.MAPMONSTERS_LOADED)]
     public class MapMonsterDto : IDto
     {
         public bool IsDisabled { get; set; }

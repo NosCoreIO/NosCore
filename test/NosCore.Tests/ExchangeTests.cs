@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@ namespace NosCore.Tests
     {
         private ExchangeProvider _exchangeProvider;
 
-        private WorldConfiguration _worldConfiguration;
-
         private ItemProvider _itemProvider;
+
+        private WorldConfiguration _worldConfiguration;
 
         [TestInitialize]
         public void Setup()
@@ -56,8 +56,8 @@ namespace NosCore.Tests
 
             var items = new List<Item>
             {
-                new Item { Type = PocketType.Main, VNum = 1012 },
-                new Item { Type = PocketType.Main, VNum = 1013 },
+                new Item {Type = PocketType.Main, VNum = 1012},
+                new Item {Type = PocketType.Main, VNum = 1013},
             };
 
             _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
@@ -150,8 +150,12 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Process_Exchange()
         {
-            IInventoryService inventory1 = new InventoryService(new List<Item> { new Item {VNum = 1012, Type = PocketType.Main } }, _worldConfiguration);
-            IInventoryService inventory2 = new InventoryService(new List<Item> { new Item { VNum = 1013, Type = PocketType.Main } }, _worldConfiguration);
+            IInventoryService inventory1 =
+                new InventoryService(new List<Item> {new Item {VNum = 1012, Type = PocketType.Main}},
+                    _worldConfiguration);
+            IInventoryService inventory2 =
+                new InventoryService(new List<Item> {new Item {VNum = 1013, Type = PocketType.Main}},
+                    _worldConfiguration);
             var item1 = inventory1.AddItemToPocket(_itemProvider.Create(1012, 1)).First();
             var item2 = inventory2.AddItemToPocket(_itemProvider.Create(1013, 1)).First();
 

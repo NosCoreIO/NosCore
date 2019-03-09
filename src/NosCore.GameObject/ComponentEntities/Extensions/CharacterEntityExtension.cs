@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -37,10 +37,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
     {
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
-            return new GoldPacket { Gold = characterEntity.Gold };
+            return new GoldPacket {Gold = characterEntity.Gold};
         }
 
-        public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold, long? bankGold, List<ServerExcListSubPacket> subPackets)
+        public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
+            long? bankGold, List<ServerExcListSubPacket> subPackets)
         {
             return new ServerExcListPacket
             {
@@ -89,7 +90,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new FinitPacket { SubPackets = subpackets };
+            return new FinitPacket {SubPackets = subpackets};
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
@@ -144,14 +145,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Authority = visualEntity.Authority,
                     Gender = visualEntity.Gender,
-                    HairStyle = (byte)visualEntity.HairStyle,
-                    HairColor = (byte)visualEntity.HairColor,
+                    HairStyle = (byte) visualEntity.HairStyle,
+                    HairColor = (byte) visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
-                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
+                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
+                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.Group.GroupId,
@@ -165,7 +166,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = string.Empty,
-                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -174,7 +175,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
                     ArenaWinner = false,
-                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }

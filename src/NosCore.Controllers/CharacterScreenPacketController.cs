@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,10 +49,10 @@ namespace NosCore.Controllers
 {
     public class CharacterScreenPacketController : PacketController
     {
-        private readonly IItemProvider _itemProvider;
         private readonly IAdapter _adapter;
-        private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IMapInstanceProvider _mapInstanceProvider;
 
         public CharacterScreenPacketController(
             IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter)
@@ -81,6 +81,7 @@ namespace NosCore.Controllers
                 //TODO log
                 return;
             }
+
             if (DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
                 s.AccountId == Session.Account.AccountId &&
                 s.Class == CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
@@ -90,7 +91,7 @@ namespace NosCore.Controllers
                 return;
             }
             //todo add cooldown for recreate 30days
-            
+
             CreateCharacter(martialArtistCreatePacket);
         }
 
@@ -126,13 +127,14 @@ namespace NosCore.Controllers
                 {
                     var chara = new CharacterDto
                     {
-                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist :  CharacterClassType.Adventurer,
+                        Class = characterCreatePacket.IsMartialArtist ? CharacterClassType.MartialArtist
+                            : CharacterClassType.Adventurer,
                         Gender = characterCreatePacket.Gender,
                         HairColor = characterCreatePacket.HairColor,
                         HairStyle = characterCreatePacket.HairStyle,
                         Hp = characterCreatePacket.IsMartialArtist ? 12965 : 221,
                         JobLevel = 1,
-                        Level = (byte)(characterCreatePacket.IsMartialArtist ? 81 : 1),
+                        Level = (byte) (characterCreatePacket.IsMartialArtist ? 81 : 1),
                         MapId = 1,
                         MapX = (short) RandomFactory.Instance.RandomNumber(78, 81),
                         MapY = (short) RandomFactory.Instance.RandomNumber(114, 118),
@@ -177,7 +179,8 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var account = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.AccountId.Equals(Session.Account.AccountId));
+            var account = DaoFactory.GetGenericDao<AccountDto>()
+                .FirstOrDefault(s => s.AccountId.Equals(Session.Account.AccountId));
             if (account == null)
             {
                 return;
@@ -216,7 +219,8 @@ namespace NosCore.Controllers
         {
             if (Session.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers ?? new List<ChannelInfo>())
@@ -293,7 +297,8 @@ namespace NosCore.Controllers
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = DaoFactory.GetGenericDao<MateDto>().Where(s => s.CharacterId == character.CharacterId).ToList();
+                var mates = DaoFactory.GetGenericDao<MateDto>().Where(s => s.CharacterId == character.CharacterId)
+                    .ToList();
                 for (var i = 0; i < 26; i++)
                 {
                     if (mates.Count > i)
@@ -374,7 +379,8 @@ namespace NosCore.Controllers
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
 
-                var inventories = DaoFactory.GetGenericDao<IItemInstanceDto>().Where(s => s.CharacterId == character.CharacterId)
+                var inventories = DaoFactory.GetGenericDao<IItemInstanceDto>()
+                    .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
 #pragma warning disable CS0618

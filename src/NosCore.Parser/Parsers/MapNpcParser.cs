@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ namespace NosCore.Parser.Parsers
     public class MapNpcParser
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         public void InsertMapNpcs(List<string[]> packetList)
         {
             var npcCounter = 0;
@@ -103,8 +104,10 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DaoFactory.GetGenericDao<NpcMonsterDto>().FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) != null
+                if (DaoFactory.GetGenericDao<NpcMonsterDto>()
+                        .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
+                    null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
                     continue;

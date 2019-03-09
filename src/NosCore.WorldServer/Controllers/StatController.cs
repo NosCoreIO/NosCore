@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,13 +62,13 @@ namespace NosCore.WorldServer.Controllers
             switch (data.ActionType)
             {
                 case UpdateStatActionType.UpdateLevel:
-                    session.SetLevel((byte)data.Data);
+                    session.SetLevel((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    session.SetJobLevel((byte)data.Data);
+                    session.SetJobLevel((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    session.SetHeroLevel((byte)data.Data);
+                    session.SetHeroLevel((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateReputation:
                     session.SetReputation(data.Data);
@@ -78,10 +78,11 @@ namespace NosCore.WorldServer.Controllers
                     {
                         return BadRequest(); // MaxGold
                     }
+
                     session.SetGold(data.Data);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    session.ChangeClass((CharacterClassType)data.Data);
+                    session.ChangeClass((CharacterClassType) data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,13 +33,14 @@ namespace NosCore.Parser.Parsers
     public class CardParser
     {
         private const string FileCardDat = "\\Card.dat";
-        private int _counter;
-        private CardDto _card = new CardDto();
-        private bool _itemAreaBegin;
-        private readonly List<CardDto> Cards = new List<CardDto>();
-        private readonly List<BCardDto> Bcards = new List<BCardDto>();
-  
+
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly List<BCardDto> Bcards = new List<BCardDto>();
+        private readonly List<CardDto> Cards = new List<CardDto>();
+        private CardDto _card = new CardDto();
+        private int _counter;
+        private bool _itemAreaBegin;
+
         public void AddFirstData(string[] currentLine)
         {
             for (var i = 0; i < 3; i++)
@@ -74,7 +75,7 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-               var first = int.Parse(currentLine[(i * 6) + 6]);
+                var first = int.Parse(currentLine[(i * 6) + 6]);
                 var bcard = new BCardDto
                 {
                     CardId = _card.CardId,
@@ -83,8 +84,8 @@ namespace NosCore.Parser.Parsers
                     FirstData = (first > 0 ? first : -first) / 4,
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
-                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
-                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2
+                    IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
+                    IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2
                 };
                 Bcards.Add(bcard);
             }

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ namespace NosCore.Core.Networking
     public class WebApiAccess
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static WebApiAccess _instance;
 
-        public static Dictionary<WebApiRoute, string> WebApiRoutes { get; set; }
         private WebApiAccess()
         {
             if (BaseAddress == null)
@@ -48,7 +48,8 @@ namespace NosCore.Core.Networking
                 throw new ArgumentNullException(nameof(BaseAddress));
             }
         }
-        private static WebApiAccess _instance;
+
+        public static Dictionary<WebApiRoute, string> WebApiRoutes { get; set; }
 
         private static Uri BaseAddress { get; set; }
 
@@ -61,6 +62,7 @@ namespace NosCore.Core.Networking
         public static StringContent Content { get; private set; }
 
         public static void RegisterBaseAdress() => RegisterBaseAdress(null);
+
         public static void RegisterBaseAdress(Channel channel)
         {
             if (string.IsNullOrEmpty(channel?.MasterCommunication?.ToString()))
@@ -79,16 +81,17 @@ namespace NosCore.Core.Networking
             };
 
             var message = Policy
-                 .Handle<Exception>()
-                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
-                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                     (_, __, timeSpan) =>
-                         _logger.Error(string.Format(
-                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
-                             timeSpan.TotalSeconds))
-                 ).ExecuteAsync(() => client.PostAsync(WebApiRoutes[WebApiRoute.Channel], Content));
+                .Handle<Exception>()
+                .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(string.Format(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds))
+                ).ExecuteAsync(() => client.PostAsync(WebApiRoutes[WebApiRoute.Channel], Content));
 
-            var result = JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
+            var result =
+                JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
             Token = result.Token;
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
             MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
@@ -118,7 +121,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient
@@ -145,10 +148,10 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
-            var client = new HttpClient { BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString()) };
+            var client = new HttpClient {BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())};
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var response = client.GetAsync(WebApiRoutes[route] + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
@@ -167,7 +170,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient
@@ -193,7 +196,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient
@@ -211,7 +214,8 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public T Patch<T>(WebApiRoute route, object id, ServerConfiguration webApi) => Patch<T>(route, id, null, webApi);
+        public T Patch<T>(WebApiRoute route, object id, ServerConfiguration webApi) =>
+            Patch<T>(route, id, null, webApi);
 
         public T Patch<T>(WebApiRoute route, object id, object data) => Patch<T>(route, id, data, null);
 
@@ -219,7 +223,7 @@ namespace NosCore.Core.Networking
         {
             if (MockValues.ContainsKey(route))
             {
-                return (T)MockValues[route];
+                return (T) MockValues[route];
             }
 
             var client = new HttpClient
@@ -248,7 +252,8 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
+            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
                 Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
             }

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,21 +24,21 @@ namespace NosCore.Core.Networking
 {
     public sealed class SessionFactory
     {
+        private static SessionFactory _instance;
+        private int _sessionCounter;
+
         private SessionFactory()
         {
             Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
         }
 
         public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
+        public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
 
         public int GenerateSessionId()
         {
             _sessionCounter += 2;
             return _sessionCounter;
         }
-
-        private static SessionFactory _instance;
-        private int _sessionCounter;
-        public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
     }
 }

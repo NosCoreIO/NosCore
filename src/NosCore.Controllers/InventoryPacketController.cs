@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ namespace NosCore.Controllers
             var inv = Session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             Session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            Session.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            Session.SendPacket(((IItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
 
         [UsedImplicitly]
@@ -91,7 +91,7 @@ namespace NosCore.Controllers
 
 
         /// <summary>
-        /// remove packet
+        ///     remove packet
         /// </summary>
         /// <param name="removePacket"></param>
         public void Remove(RemovePacket removePacket)
@@ -102,24 +102,28 @@ namespace NosCore.Controllers
                 return;
             }
 
-            IItemInstance inventory = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>((short)removePacket.InventorySlot, PocketType.Wear);
+            IItemInstance inventory =
+                Session.Character.Inventory.LoadBySlotAndType<IItemInstance>((short) removePacket.InventorySlot,
+                    PocketType.Wear);
             if (inventory == null)
             {
                 return;
             }
 
-            IItemInstance inv = Session.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot, PocketType.Wear, PocketType.Equipment);
+            IItemInstance inv = Session.Character.Inventory.MoveInPocket((short) removePacket.InventorySlot,
+                PocketType.Wear, PocketType.Equipment);
 
             if (inv == null)
             {
                 Session.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                    Session.Account.Language),
+                        Session.Account.Language),
                     Type = 0
                 });
                 return;
             }
+
             Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
 
             Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq());
@@ -127,42 +131,51 @@ namespace NosCore.Controllers
 
             if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePairy((WearableInstance)null));
+                Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.GeneratePairy((WearableInstance) null));
             }
         }
 
         /// <summary>
-        /// wear packet
+        ///     wear packet
         /// </summary>
         /// <param name="wearPacket"></param>
         [UsedImplicitly]
         public void Wear(WearPacket wearPacket)
         {
-            UseItem(new UseItemPacket { Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent, OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type });
+            UseItem(new UseItemPacket
+            {
+                Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent,
+                OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type
+            });
         }
 
         /// <summary>
-        /// u_i packet
+        ///     u_i packet
         /// </summary>
         /// <param name="useItemPacket"></param>
         public void UseItem(UseItemPacket useItemPacket)
         {
-            IItemInstance inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
+            IItemInstance inv =
+                Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
             if (inv?.Requests == null)
             {
                 return;
             }
 
-            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(Session, new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
+            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(Session,
+                new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
         }
 
         /// <summary>
-        /// sl packet
+        ///     sl packet
         /// </summary>
         /// <param name="spTransformPacket"></param>
         public void SpTransform(SpTransformPacket spTransformPacket)
         {
-            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp, PocketType.Wear);
+            SpecialistInstance specialistInstance =
+                Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte) EquipmentType.Sp,
+                    PocketType.Wear);
 
             if (spTransformPacket.Type == 10)
             {
@@ -189,7 +202,8 @@ namespace NosCore.Controllers
                 {
                     Session.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, Session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
+                            Session.Account.Language)
                     });
                     return;
                 }
@@ -207,10 +221,12 @@ namespace NosCore.Controllers
                     {
                         Session.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, Session.Account.Language)
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
+                                Session.Account.Language)
                         });
                         return;
                     }
+
                     if (currentRunningSeconds >= Session.Character.SpCooldown)
                     {
                         if (spTransformPacket.Type == 1)
@@ -223,7 +239,7 @@ namespace NosCore.Controllers
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket { Type = 1 }
+                                Packet = new SpTransformPacket {Type = 1}
                             });
                             Session.Character.MapInstance.Sessions.SendPacket(new GuriPacket
                             {
@@ -238,7 +254,8 @@ namespace NosCore.Controllers
                         Session.SendPacket(new MsgPacket
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                Session.Account.Language), Session.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                                    Session.Account.Language),
+                                Session.Character.SpCooldown - (int) Math.Round(currentRunningSeconds))
                         });
                     }
                 }
@@ -277,12 +294,17 @@ namespace NosCore.Controllers
             }
 
             //TODO add group drops
-            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() && mapItem.OwnerId != Session.Character.CharacterId)
+            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() &&
+                mapItem.OwnerId != Session.Character.CharacterId)
             {
-                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language), SayColorType.Yellow));
+                Session.SendPacket(Session.Character.GenerateSay(
+                    Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, Session.Account.Language),
+                    SayColorType.Yellow));
                 return;
             }
-            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(Session, new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
+
+            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(Session,
+                new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
         }
 
         [UsedImplicitly]
@@ -310,7 +332,9 @@ namespace NosCore.Controllers
                                 });
                                 return;
                             }
-                            invitem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
+
+                            invitem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot,
+                                putPacket.PocketType);
                             Session.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                             Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                         }

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,7 +36,13 @@ namespace NosCore.Shared
 
         public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
 
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         public int RandomNumber() => RandomNumber(0, 100);
+
         public int RandomNumber(int min, int max)
         {
             return _random.Value.Next(min, max);
@@ -45,11 +51,6 @@ namespace NosCore.Shared
         protected virtual void Dispose(bool disposing)
         {
             _random?.Dispose();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }

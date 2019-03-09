@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -115,13 +115,15 @@ namespace NosCore.Controllers
                         });
                         break;
                     default:
-                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c=>c.Type == ServerType.WorldServer).ToList();
+                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                            ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount,
+                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(
+                                WebApiRoute.ConnectedAccount,
                                 server.WebApi);
                             connectedAccount.Add(i, channelList);
                             i++;
@@ -167,7 +169,7 @@ namespace NosCore.Controllers
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {

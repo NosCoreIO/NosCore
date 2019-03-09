@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ namespace NosCore.Parser.Parsers
 {
     internal class NpcMonsterParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string FileNpcId = "\\monster.dat";
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         internal void InsertNpcMonsters(string folder)
         {
@@ -137,7 +137,7 @@ namespace NosCore.Parser.Parsers
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int) i + 10;
                     continue;
                 }
 
@@ -440,6 +440,7 @@ namespace NosCore.Parser.Parsers
                         {
                             npc.MonsterType = MonsterType.Elite;
                         }
+
                         unknownData = Convert.ToInt64(currentLine[2]);
                         switch (unknownData)
                         {
@@ -505,8 +506,10 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (DaoFactory.GetGenericDao<SkillDto>().FirstOrDefault(s => s.SkillVNum.Equals(vnum)) == null
-                                || DaoFactory.GetGenericDao<NpcMonsterSkillDto>().Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                            if (DaoFactory.GetGenericDao<SkillDto>().FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
+                                null
+                                || DaoFactory.GetGenericDao<NpcMonsterSkillDto>()
+                                    .Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                                     .Count(s => s.SkillVNum == vnum) != 0)
                             {
                                 continue;
@@ -538,7 +541,7 @@ namespace NosCore.Parser.Parsers
                                 SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
                                     + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
+                                IsLevelDivided = (uint) (first > 0 ? first : -first) % 4 == 2,
                                 FirstData = (short) ((first > 0 ? first : -first) / 4),
                                 SecondData = (short) (int.Parse(currentLine[(5 * i) + 4]) / 4),
                                 ThirdData = (short) (int.Parse(currentLine[(5 * i) + 6]) / 4)
@@ -575,7 +578,8 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
                     {
-                        if (DaoFactory.GetGenericDao<NpcMonsterDto>().FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
+                        if (DaoFactory.GetGenericDao<NpcMonsterDto>()
+                                .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                             == null)
                         {
                             npcs.Add(npc);

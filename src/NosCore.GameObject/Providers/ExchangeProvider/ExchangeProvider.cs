@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,8 +38,11 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
 {
     public class ExchangeProvider : IExchangeProvider
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ConcurrentDictionary<long, ExchangeData> _exchangeDatas;
+
+        private readonly ConcurrentDictionary<long, long> _exchangeRequests;
         private readonly IItemProvider _itemBuilderService;
+        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly WorldConfiguration _worldConfiguration;
 
         public ExchangeProvider()
@@ -57,10 +60,6 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             _worldConfiguration = worldConfiguration;
         }
 
-        private readonly ConcurrentDictionary<long, ExchangeData> _exchangeDatas;
-
-        private readonly ConcurrentDictionary<long, long> _exchangeRequests;
-
         public void SetGold(long visualId, long gold, long bankGold)
         {
             _exchangeDatas[visualId].Gold = gold;
@@ -68,7 +67,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         }
 
         //TODO: Remove these clientsessions as parameter
-        public Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session, ICharacterEntity targetSession)
+        public Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session,
+            ICharacterEntity targetSession)
         {
             var exchangeInfo = GetData(session.Character.CharacterId);
             var targetInfo = GetData(targetSession.VisualId);
@@ -78,7 +78,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, targetSession.AccountLanguage)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                        targetSession.AccountLanguage)
                 });
             }
 
@@ -88,7 +89,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
             if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.MaxBankGoldAmount)
@@ -97,7 +99,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
             if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
@@ -106,19 +109,23 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
             if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE, session.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE,
+                        session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
-            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) || !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
+            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) ||
+                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
@@ -126,9 +133,11 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 });
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, targetSession.AccountLanguage)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                        targetSession.AccountLanguage)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure, dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
             return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Success, null);
@@ -172,7 +181,6 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             if (id.Equals(default))
             {
                 return null;
-
             }
 
             return id.Value == visualId ? id.Key : id.Value;
@@ -224,9 +232,10 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             return true;
         }
 
-        public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser, IInventoryService sessionInventory, IInventoryService targetInventory)
+        public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser,
+            IInventoryService sessionInventory, IInventoryService targetInventory)
         {
-            var usersArray = new[] { firstUser, secondUser };
+            var usersArray = new[] {firstUser, secondUser};
             var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
 
             foreach (var user in usersArray)
@@ -249,15 +258,17 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     }
 
                     var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,
-                        targetId, amount: item.Key.Amount, rare: (sbyte)item.Key.Rare, upgrade: item.Key.Upgrade, design: (byte)item.Key.Design)).FirstOrDefault();
+                        targetId, amount: item.Key.Amount, rare: (sbyte) item.Key.Rare, upgrade: item.Key.Upgrade,
+                        design: (byte) item.Key.Design)).FirstOrDefault();
 
-                    items.Add(new KeyValuePair<long, IvnPacket>(sessionId, newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));
-                    items.Add(new KeyValuePair<long, IvnPacket>(targetId, item.Key.GeneratePocketChange(inv.Type, inv.Slot)));
+                    items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
+                        newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));
+                    items.Add(new KeyValuePair<long, IvnPacket>(targetId,
+                        item.Key.GeneratePocketChange(inv.Type, inv.Slot)));
                 }
             }
 
             return items;
-
         }
     }
 }

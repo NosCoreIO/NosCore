@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -254,7 +254,8 @@ namespace NosCore.Controllers
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
-                    Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.Group.GeneratePidx(Session.Character));
+                    Session.Character.MapInstance?.Sessions.SendPacket(
+                        Session.Character.Group.GeneratePidx(Session.Character));
 
                     break;
                 case GroupRequestType.Declined:
@@ -263,7 +264,7 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    targetSession.GroupRequestCharacterIds.TryRemove(Session.Character.CharacterId,out _);
+                    targetSession.GroupRequestCharacterIds.TryRemove(Session.Character.CharacterId, out _);
                     targetSession.SendPacket(new InfoPacket
                     {
                         Message = targetSession.GetMessageFromKey(LanguageKey.GROUP_REFUSED)
@@ -356,8 +357,9 @@ namespace NosCore.Controllers
 
                 Session.SendPacket(Session.Character.Group.GeneratePinit());
                 Session.SendPacket(new MsgPacket
-                { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language) });
-                Session.Character.MapInstance.Sessions.SendPacket(Session.Character.Group.GeneratePidx(Session.Character));
+                    {Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language)});
+                Session.Character.MapInstance.Sessions.SendPacket(
+                    Session.Character.Group.GeneratePidx(Session.Character));
             }
             else
             {
@@ -399,7 +401,7 @@ namespace NosCore.Controllers
 
             Session.Character.Group.Sessions.SendPacket(
                 Session.Character.GenerateSpk(new SpeakPacket
-                { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
+                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
         }
     }
 }

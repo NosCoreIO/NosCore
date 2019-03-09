@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,16 +24,17 @@ using Serilog;
 
 namespace NosCore.Shared.I18N
 {
-
     public static class Logger
     {
         private const string ConfigurationPath = "../../../configuration";
+
         private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
             .AddJsonFile("logger.json")
             .Build();
 
-        private static readonly string[] AsciiTitle = {
+        private static readonly string[] AsciiTitle =
+        {
             @" __  _  __    __   ___ __  ___ ___ ",
             @"|  \| |/__\ /' _/ / _//__\| _ \ __|",
             @"| | ' | \/ |`._`.| \_| \/ | v / _| ",
@@ -54,12 +55,13 @@ namespace NosCore.Shared.I18N
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
                 .CreateLogger();
             var offset = ((Console.WindowWidth) / 2) + (text.Length / 2);
-            var separator = new string('=', Console.WindowWidth-1);
+            var separator = new string('=', Console.WindowWidth - 1);
             titleLogger.Information(separator);
             foreach (var s in AsciiTitle)
             {
                 titleLogger.Information(string.Format("{0," + (((Console.WindowWidth) / 2) + (s.Length / 2)) + "}", s));
             }
+
             titleLogger.Information(string.Format("{0," + offset + "}", text));
             titleLogger.Information(separator);
         }

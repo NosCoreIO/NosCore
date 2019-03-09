@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ namespace NosCore.Tests.HandlerTests
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> { new CharacterScreenPacketController() }, null, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null, null);
 
         private Character _chara;
         private CharacterScreenPacketController _handler;
@@ -68,9 +68,9 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var map = new MapDto { MapId = 1 };
+            var map = new MapDto {MapId = 1};
             DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
-            var _acc = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
+            var _acc = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref _acc);
             _chara = new Character(null, null, null)
             {
@@ -132,7 +132,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters,
+                    new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, null);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
@@ -158,7 +159,7 @@ namespace NosCore.Tests.HandlerTests
         {
             const string name = "TestCharacter";
             _handler.CreateCharacter(
-                (CharNewPacket)PacketFactory.Deserialize($"Char_NEW {name} 0 0 0 0", typeof(CharNewPacket)));
+                (CharNewPacket) PacketFactory.Deserialize($"Char_NEW {name} 0 0 0 0", typeof(CharNewPacket)));
             Assert.IsNotNull(DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s => s.Name == name));
         }
 
@@ -208,19 +209,21 @@ namespace NosCore.Tests.HandlerTests
         {
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(
-                (CharacterDeletePacket)PacketFactory.Deserialize("Char_DEL 1 test", typeof(CharacterDeletePacket)));
+                (CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 test", typeof(CharacterDeletePacket)));
             Assert.IsNull(
-                DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+                DaoFactory.GetGenericDao<CharacterDto>()
+                    .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
         }
 
         [TestMethod]
         public void DeleteCharacter_Invalid_Password()
         {
             const string name = "TestExistingCharacter";
-            _handler.DeleteCharacter((CharacterDeletePacket)PacketFactory.Deserialize("Char_DEL 1 testpassword",
+            _handler.DeleteCharacter((CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 testpassword",
                 typeof(CharacterDeletePacket)));
             Assert.IsNotNull(
-                DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+                DaoFactory.GetGenericDao<CharacterDto>()
+                    .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
         }
 
         [TestMethod]
@@ -228,7 +231,8 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters, new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters,
+                    new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, null);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
@@ -237,7 +241,8 @@ namespace NosCore.Tests.HandlerTests
                 Slot = 1
             });
             Assert.IsNotNull(
-                DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+                DaoFactory.GetGenericDao<CharacterDto>()
+                    .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
         }
 
         [TestMethod]
@@ -250,7 +255,8 @@ namespace NosCore.Tests.HandlerTests
                 Slot = 1
             });
             Assert.IsNull(
-                DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
+                DaoFactory.GetGenericDao<CharacterDto>()
+                    .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
         }
     }
 }
