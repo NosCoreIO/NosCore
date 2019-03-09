@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ namespace NosCore.WorldServer.Controllers
     public class PacketController : Controller
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         // POST api/packet
         [HttpPost]
         public IActionResult PostPacket([FromBody] PostedPacket postedPacket)
@@ -74,7 +75,7 @@ namespace NosCore.WorldServer.Controllers
                     receiverSession.SendPacket(message);
                     break;
                 default:
-                   _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
                     break;
             }
 

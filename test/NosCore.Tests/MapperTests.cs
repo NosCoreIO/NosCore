@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ namespace NosCore.Tests
             var dependancyResolverMock = new Mock<IDependencyResolver>();
             dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null));
             new Mapper(dependancyResolverMock.Object);
-
         }
 
         [TestMethod]
@@ -106,7 +105,8 @@ namespace NosCore.Tests
         public void WearableInstanceToItemInstanceGo()
         {
             var wearableInstanceGo = new WearableInstance(new Item());
-            var itemInstanceGo = _adapter.Adapt<GameObject.Providers.ItemProvider.Item.ItemInstance>(wearableInstanceGo);
+            var itemInstanceGo =
+                _adapter.Adapt<GameObject.Providers.ItemProvider.Item.ItemInstance>(wearableInstanceGo);
             Assert.IsNotNull(itemInstanceGo);
         }
 

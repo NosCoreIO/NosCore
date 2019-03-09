@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -48,7 +48,8 @@ namespace NosCore.Parser
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("parser.json", false);
             builder.Build().Bind(ParserConfiguration);
-            Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration), validateAllProperties: true);
+            Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration),
+                validateAllProperties: true);
             LogLanguage.Language = ParserConfiguration.Language;
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }
@@ -66,13 +67,14 @@ namespace NosCore.Parser
 
                 try
                 {
-                   _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
                     var folder = string.Empty;
                     var key = default(ConsoleKeyInfo);
                     if (args.Length == 0)
                     {
                         folder = Console.ReadLine();
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ALL)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ALL)} [Y/n]");
                         key = Console.ReadKey(true);
                     }
                     else
@@ -110,7 +112,8 @@ namespace NosCore.Parser
                     }
                     else
                     {
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -135,14 +138,16 @@ namespace NosCore.Parser
                             factory.ImportAccounts();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_PORTALS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_PORTALS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportPortals();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_I18N)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_I18N)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -157,7 +162,8 @@ namespace NosCore.Parser
                             //factory.ImportScriptedInstances();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ITEMS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_ITEMS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -188,21 +194,24 @@ namespace NosCore.Parser
                             //factory.ImportNpcMonsterData();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_CARDS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_CARDS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportCards();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SKILLS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SKILLS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             factory.ImportSkills();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPNPCS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_MAPNPCS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -217,7 +226,8 @@ namespace NosCore.Parser
                             factory.ImportMapMonsters();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SHOPS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SHOPS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
@@ -248,14 +258,16 @@ namespace NosCore.Parser
                             //factory.ImportShopSkills();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_RECIPES)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_RECIPES)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
                             //factory.ImportRecipe();
                         }
 
-                        _logger.Information($"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_QUESTS)} [Y/n]");
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_QUESTS)} [Y/n]");
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {

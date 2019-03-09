@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,9 +39,33 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
+        public PacketDefinition LastPacket { get; private set; }
 
         public long ClientId { get; set; }
-        public PacketDefinition LastPacket { get; private set; }
+
+        public void Disconnect()
+        {
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
+                ClientId);
+            Channel?.DisconnectAsync();
+        }
+
+        public void SendPacket(PacketDefinition packet)
+        {
+            SendPackets(new[] {packet});
+        }
+
+        public void SendPackets(IEnumerable<PacketDefinition> packets)
+        {
+            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
+            if (packetDefinitions.Length == 0)
+            {
+                return;
+            }
+
+            LastPacket = packetDefinitions.Last();
+            Channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+        }
 
         public void RegisterChannel(IChannel channel)
         {
@@ -76,30 +100,6 @@ namespace NosCore.Core.Networking
             }
 
             context.CloseAsync();
-        }
-
-        public void Disconnect()
-        {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
-                ClientId);
-            Channel?.DisconnectAsync();
-        }
-
-        public void SendPacket(PacketDefinition packet)
-        {
-            SendPackets(new[] {packet});
-        }
-
-        public void SendPackets(IEnumerable<PacketDefinition> packets)
-        {
-            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
-            if (packetDefinitions.Length == 0)
-            {
-                return;
-            }
-
-            LastPacket = packetDefinitions.Last();
-            Channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
         }
     }
 }

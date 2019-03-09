@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,8 +49,8 @@ namespace NosCore.Controllers
     public class NpcPacketController : PacketController
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly WorldConfiguration _worldConfiguration;
         private readonly INrunProvider _nRunProvider;
+        private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
         public NpcPacketController()
@@ -64,7 +64,7 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
-        /// npc_req packet
+        ///     npc_req packet
         /// </summary>
         /// <param name="requestNpcPacket"></param>
         public void ShowShop(RequestNpcPacket requestNpcPacket)
@@ -76,13 +76,16 @@ namespace NosCore.Controllers
                     requestableEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
                     break;
                 case VisualType.Npc:
-                    requestableEntity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
+                    requestableEntity =
+                        Session.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), requestNpcPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        requestNpcPacket.Type);
                     return;
             }
+
             if (requestableEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
@@ -93,7 +96,7 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
-        /// nRunPacket packet
+        ///     nRunPacket packet
         /// </summary>
         /// <param name="nRunPacket"></param>
         public void NRun(NrunPacket nRunPacket)
@@ -109,7 +112,8 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), nRunPacket.Type);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        nRunPacket.Type);
                     return;
             }
 
@@ -118,11 +122,12 @@ namespace NosCore.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
+
             _nRunProvider.NRunLaunch(Session, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
         }
 
         /// <summary>
-        /// shopping packet
+        ///     shopping packet
         /// </summary>
         /// <param name="shoppingPacket"></param>
         public void Shopping(ShoppingPacket shoppingPacket)
@@ -146,16 +151,18 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), shoppingPacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        shoppingPacket.VisualType);
                     return;
             }
+
             if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;
             }
 
-         
+
             Session.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
         }
 
@@ -166,6 +173,7 @@ namespace NosCore.Controllers
                 //todo log
                 return;
             }
+
             var portal = Session.Character.MapInstance.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
                     Math.Abs(Session.Character.PositionY - port.SourceY)) <= 6);
@@ -179,7 +187,7 @@ namespace NosCore.Controllers
                 });
                 return;
             }
-           
+
             if (Session.Character.Group != null && Session.Character.Group?.Type != GroupType.Group)
             {
                 Session.SendPacket(new MsgPacket
@@ -221,6 +229,7 @@ namespace NosCore.Controllers
                             //log
                             continue;
                         }
+
                         if (inv.Amount < item.Amount)
                         {
                             //todo log
@@ -229,9 +238,10 @@ namespace NosCore.Controllers
 
                         if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
                         {
-                            Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                            Session.SendPacket(new ShopEndPacket {Type = ShopEndType.Closed});
                             Session.SendPacket(Session.Character.GenerateSay(
-                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, Session.Account.Language),
+                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
+                                    Session.Account.Language),
                                 SayColorType.Yellow));
                             Session.Character.Shop = null;
                             return;
@@ -250,7 +260,7 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Shop.ShopItems.Count == 0)
                     {
-                        Session.SendPacket(new ShopEndPacket { Type = ShopEndType.Closed });
+                        Session.SendPacket(new ShopEndPacket {Type = ShopEndType.Closed});
                         Session.SendPacket(Session.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
                             SayColorType.Yellow));
@@ -275,7 +285,8 @@ namespace NosCore.Controllers
 
                     Session.Character.Requests.Subscribe(data =>
                         data.ClientSession.SendPacket(Session.Character.GenerateNpcReq(Session.Character.Shop.ShopId)));
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag(), new EveryoneBut(Session.Channel.Id));
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag(),
+                        new EveryoneBut(Session.Channel.Id));
                     Session.Character.IsSitting = true;
                     Session.Character.LoadSpeed();
                     Session.SendPacket(Session.Character.GenerateCond());
@@ -294,7 +305,7 @@ namespace NosCore.Controllers
         }
 
         /// <summary>
-        /// sell packet
+        ///     sell packet
         /// </summary>
         /// <param name="sellPacket"></param>
         public void SellShop(SellPacket sellPacket)
@@ -307,11 +318,11 @@ namespace NosCore.Controllers
 
             if (sellPacket.Amount.HasValue && sellPacket.Slot.HasValue)
             {
-                PocketType type = (PocketType)sellPacket.Data;
+                PocketType type = (PocketType) sellPacket.Data;
 
                 var inv = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(sellPacket.Slot.Value, type);
                 if (inv == null || sellPacket.Amount.Value > inv.Amount)
-                { 
+                {
                     //TODO log
                     return;
                 }
@@ -321,10 +332,12 @@ namespace NosCore.Controllers
                     Session.SendPacket(new SMemoPacket
                     {
                         Type = SMemoType.Error,
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, Session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
+                            Session.Account.Language)
                     });
                     return;
                 }
+
                 long price = inv.Item.ItemType == ItemType.Sell ? inv.Item.Price : inv.Item.Price / 20;
 
                 if (Session.Character.Gold + price * sellPacket.Amount.Value > _worldConfiguration.MaxGoldAmount)
@@ -337,29 +350,30 @@ namespace NosCore.Controllers
                     });
                     return;
                 }
+
                 Session.Character.Gold += price * sellPacket.Amount.Value;
                 Session.SendPacket(new SMemoPacket
                 {
                     Type = SMemoType.Success,
                     Message = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language), 
-                            inv.Item.Name, 
-                            sellPacket.Amount.Value
-                        )
+                        Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, Session.Account.Language),
+                        inv.Item.Name,
+                        sellPacket.Amount.Value
+                    )
                 });
-                
+
                 Session.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.Id);
                 Session.SendPacket(Session.Character.GenerateGold());
             }
             else
             {
-               //TODO sell skill
+                //TODO sell skill
             }
         }
 
 
         /// <summary>
-        /// buy packet
+        ///     buy packet
         /// </summary>
         /// <param name="buyPacket"></param>
         public void BuyShop(BuyPacket buyPacket)
@@ -387,9 +401,11 @@ namespace NosCore.Controllers
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN), buyPacket.VisualType);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        buyPacket.VisualType);
                     return;
             }
+
             if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));

@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,7 +62,8 @@ namespace NosCore.FriendServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("friend.json", false);
             builder.Build().Bind(friendConfiguration);
-            Validator.ValidateObject(friendConfiguration, new ValidationContext(friendConfiguration), validateAllProperties: true);
+            Validator.ValidateObject(friendConfiguration, new ValidationContext(friendConfiguration),
+                validateAllProperties: true);
             return friendConfiguration;
         }
 
@@ -84,10 +85,10 @@ namespace NosCore.FriendServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { configuration.WebApi.ToString() }
+                Addresses = {configuration.WebApi.ToString()}
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Friend API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Friend API", Version = "v1"}));
             var keyByteArray = Encoding.Default.GetBytes(configuration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
@@ -107,15 +108,15 @@ namespace NosCore.FriendServer
                 });
 
             services.AddMvc(o =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                o.Filters.Add(new AuthorizeFilter(policy));
-            })
-            .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
-            .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
-            .AddControllersAsServices();
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    o.Filters.Add(new AuthorizeFilter(policy));
+                })
+                .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
+                .AddControllersAsServices();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<FriendConfiguration>();
             containerBuilder.RegisterInstance(configuration.MasterCommunication).As<WebApiConfiguration>();

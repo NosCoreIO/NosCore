@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ namespace NosCore.Shared.I18N
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum LogLanguageKey
     {
+        UNKNOWN,
         DONE,
         PARSE_ALL,
         PARSE_MAPS,

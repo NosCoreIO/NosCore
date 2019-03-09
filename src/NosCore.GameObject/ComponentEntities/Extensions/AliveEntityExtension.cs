@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -100,8 +100,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
-                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
+                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -124,10 +124,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     short mapX = nonPlayableEntity.MapX;
                     short mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
                             Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
@@ -311,7 +311,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type.Equals(typeshop)).ToList();
             for (var i = 0; i < aliveEntity.Shop.Size; i++)
             {
-                var item = list.Find(s=>s.Slot == i);
+                var item = list.Find(s => s.Slot == i);
                 if (item == null)
                 {
                     shopItemList.Add(null);
@@ -322,11 +322,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Type = 0,
                         Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                        Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare : item.Amount,
-                        UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment ? (item.ItemInstance.Item.IsColored
-                            ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
+                        RareAmount = item.ItemInstance.Type == PocketType.Equipment ? item.ItemInstance.Rare
+                            : item.Amount,
+                        UpgradeDesign = item.ItemInstance.Type == PocketType.Equipment
+                            ? (item.ItemInstance.Item.IsColored
+                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
                         VNum = item.ItemInstance.Item.VNum
                     });
                 }

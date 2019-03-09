@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,9 +46,9 @@ namespace NosCore.Parser
         private readonly List<string[]> _packetList = new List<string[]>();
         private readonly PortalParser _portalParser = new PortalParser();
         private readonly RespawnMapTypeParser _respawnMapTypeParser = new RespawnMapTypeParser();
-        private readonly SkillParser _skillParser = new SkillParser();
-        private readonly ShopParser _shopParser = new ShopParser();
         private readonly ShopItemParser _shopItemParser = new ShopItemParser();
+        private readonly ShopParser _shopParser = new ShopParser();
+        private readonly SkillParser _skillParser = new SkillParser();
 
         public ImportFactory(string folder)
         {
@@ -96,6 +96,7 @@ namespace NosCore.Parser
         {
             _mapMonsterParser.InsertMapMonster(_packetList);
         }
+
         public void ImportShops()
         {
             _shopParser.InsertShops(_packetList);

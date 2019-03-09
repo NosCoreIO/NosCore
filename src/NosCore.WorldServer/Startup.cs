@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -87,7 +87,8 @@ namespace NosCore.WorldServer
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("world.json", false);
             builder.Build().Bind(_worldConfiguration);
-            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration), validateAllProperties: true);
+            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
+                validateAllProperties: true);
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_worldConfiguration.Database.ConnectionString);
@@ -98,24 +99,24 @@ namespace NosCore.WorldServer
 
         private static void RegisterDatabaseObject<TGameObject, TDto>(ref ContainerBuilder containerBuilder)
         {
-            var attrRequired = typeof(TDto).GetCustomAttribute<IsRequiredAttribute>();
-            var attrLoaded = typeof(TDto).GetCustomAttribute<IsLoadedAttribute>();
+            var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
 
             containerBuilder.Register(_ =>
             {
                 var items = DaoFactory.GetGenericDao<TDto>().LoadAll().Adapt<List<TGameObject>>().ToList();
-                if (items.Count != 0 || attrRequired == null)
+                if (items.Count != 0 || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
                 {
-                    if (attrLoaded != null)
+                    if (staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                     {
-                        _logger.Information(LogLanguage.Instance.GetMessageFromKey(attrLoaded.Message),
+                        _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
                             items.Count);
                     }
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(attrRequired.Message));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
                 }
+
                 return items;
             }).As<List<TGameObject>>().SingleInstance();
         }
@@ -178,8 +179,11 @@ namespace NosCore.WorldServer
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
-                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(
+                    typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
+                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
+                    .IsAssignableFrom(t))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
@@ -198,11 +202,11 @@ namespace NosCore.WorldServer
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore World API", Version = "v1"}));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { _worldConfiguration.WebApi.ToString() }
+                Addresses = {_worldConfiguration.WebApi.ToString()}
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -212,7 +216,8 @@ namespace NosCore.WorldServer
                     cfg.SaveToken = true;
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
                         ValidAudience = "Audience",
                         ValidIssuer = "Issuer",
                         ValidateIssuerSigningKey = true,

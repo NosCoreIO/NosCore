@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
-    [IsLoaded(Message = LogLanguageKey.SHOPS_LOADED)]
+    [StaticDto(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
     public class ShopDto : IDto
     {
         public int MapNpcId { get; set; }

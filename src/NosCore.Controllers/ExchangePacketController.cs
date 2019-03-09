@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,10 +43,10 @@ namespace NosCore.Controllers
 {
     public class ExchangePacketController : PacketController
     {
-        private readonly WorldConfiguration _worldConfiguration;
         private readonly IExchangeProvider _exchangeProvider;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        
+        private readonly WorldConfiguration _worldConfiguration;
+
         public ExchangePacketController(WorldConfiguration worldConfiguration, IExchangeProvider exchangeProvider)
         {
             _worldConfiguration = worldConfiguration;
@@ -56,7 +56,6 @@ namespace NosCore.Controllers
         [UsedImplicitly]
         public ExchangePacketController()
         {
-
         }
 
         [UsedImplicitly]
@@ -67,9 +66,11 @@ namespace NosCore.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
                 return;
             }
+
             var subPacketList = new List<ServerExcListSubPacket>();
-            
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == _exchangeProvider.GetTargetId(Session.Character.VisualId) &&
+
+            var target = Broadcaster.Instance.GetCharacter(s =>
+                s.VisualId == _exchangeProvider.GetTargetId(Session.Character.VisualId) &&
                 s.MapInstanceId == Session.Character.MapInstanceId) as Character;
 
             if (packet.SubPackets.Count > 0 && target != null)
@@ -77,11 +78,13 @@ namespace NosCore.Controllers
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
-                    var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot, value.PocketType);
+                    var item = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot,
+                        value.PocketType);
 
                     if (item == null || item.Amount < value.Amount)
                     {
-                        var closeExchange = _exchangeProvider.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
+                        var closeExchange =
+                            _exchangeProvider.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
                         Session.SendPacket(closeExchange);
                         target.SendPacket(closeExchange);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
@@ -90,9 +93,11 @@ namespace NosCore.Controllers
 
                     if (!item.Item.IsTradable)
                     {
-                        Session.SendPacket(_exchangeProvider.CloseExchange(Session.Character.CharacterId, ExchangeResultType.Failure));
+                        Session.SendPacket(_exchangeProvider.CloseExchange(Session.Character.CharacterId,
+                            ExchangeResultType.Failure));
                         target.SendPacket(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure));
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
                         return;
                     }
 
@@ -114,20 +119,23 @@ namespace NosCore.Controllers
             }
             else
             {
-                subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
+                subPacketList.Add(new ServerExcListSubPacket {ExchangeSlot = null});
             }
 
             _exchangeProvider.SetGold(Session.Character.CharacterId, packet.Gold, packet.BankGold);
-            target?.SendPacket(Session.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
+            target?.SendPacket(
+                Session.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
         }
 
         [UsedImplicitly]
         public void RequestExchange(ExchangeRequestPacket packet)
         {
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
+            var target = Broadcaster.Instance.GetCharacter(s =>
+                s.VisualId == packet.VisualId && s.MapInstanceId == Session.Character.MapInstanceId) as Character;
             ExcClosePacket closeExchange;
 
-            if (target != null && (packet.RequestType == RequestExchangeType.Confirmed || packet.RequestType == RequestExchangeType.Cancelled))
+            if (target != null && (packet.RequestType == RequestExchangeType.Confirmed ||
+                packet.RequestType == RequestExchangeType.Cancelled))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
                 return;
@@ -142,7 +150,8 @@ namespace NosCore.Controllers
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
-                    if (_exchangeProvider.CheckExchange(Session.Character.CharacterId) || _exchangeProvider.CheckExchange(target.VisualId))
+                    if (_exchangeProvider.CheckExchange(Session.Character.CharacterId) ||
+                        _exchangeProvider.CheckExchange(target.VisualId))
                     {
                         Session.SendPacket(new MsgPacket
                         {
@@ -176,7 +185,8 @@ namespace NosCore.Controllers
                         Session.SendPacket(new MsgPacket
                         {
                             Message =
-                                Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED, Session.Account.Language),
+                                Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
+                                    Session.Account.Language),
                             Type = MessageType.White
                         });
                         return;
@@ -192,10 +202,11 @@ namespace NosCore.Controllers
                     target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.List, VisualId = Session.Character.VisualId },
+                            {RequestType = RequestExchangeType.List, VisualId = Session.Character.VisualId},
                         NoPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.Declined, VisualId = Session.Character.VisualId },
-                        Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE, Session.Account.Language)
+                            {RequestType = RequestExchangeType.Declined, VisualId = Session.Character.VisualId},
+                        Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
+                            Session.Account.Language)
                     });
                     return;
 
@@ -210,8 +221,11 @@ namespace NosCore.Controllers
                     return;
 
                 case RequestExchangeType.Declined:
-                    Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED, Session.Account.Language), SayColorType.Yellow));
-                    target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED), SayColorType.Yellow));
+                    Session.SendPacket(Session.Character.GenerateSay(
+                        Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED, Session.Account.Language),
+                        SayColorType.Yellow));
+                    target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
+                        SayColorType.Yellow));
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -222,8 +236,9 @@ namespace NosCore.Controllers
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
                         return;
                     }
-                    
-                    var exchangeTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId.Value && s.MapInstance == Session.Character.MapInstance);
+
+                    var exchangeTarget = Broadcaster.Instance.GetCharacter(s =>
+                        s.VisualId == targetId.Value && s.MapInstance == Session.Character.MapInstance);
 
                     if (exchangeTarget == null)
                     {
@@ -233,9 +248,14 @@ namespace NosCore.Controllers
 
                     _exchangeProvider.ConfirmExchange(Session.Character.VisualId);
 
-                    if (!_exchangeProvider.IsExchangeConfirmed(Session.Character.VisualId) || !_exchangeProvider.IsExchangeConfirmed(exchangeTarget.VisualId))
+                    if (!_exchangeProvider.IsExchangeConfirmed(Session.Character.VisualId) ||
+                        !_exchangeProvider.IsExchangeConfirmed(exchangeTarget.VisualId))
                     {
-                        Session.SendPacket(new InfoPacket { Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR, Session.Account.Language) });
+                        Session.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
+                                Session.Account.Language)
+                        });
                         return;
                     }
 
@@ -261,7 +281,8 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        var itemList = _exchangeProvider.ProcessExchange(Session.Character.VisualId, exchangeTarget.VisualId, Session.Character.Inventory, exchangeTarget.Inventory);
+                        var itemList = _exchangeProvider.ProcessExchange(Session.Character.VisualId,
+                            exchangeTarget.VisualId, Session.Character.Inventory, exchangeTarget.Inventory);
 
                         foreach (var item in itemList)
                         {
@@ -305,7 +326,8 @@ namespace NosCore.Controllers
 
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
 
-                    closeExchange = _exchangeProvider.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
+                    closeExchange =
+                        _exchangeProvider.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure);
                     cancelTarget?.SendPacket(closeExchange);
                     Session.SendPacket(closeExchange);
                     return;

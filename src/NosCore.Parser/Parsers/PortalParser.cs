@@ -3,7 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
 // 
-// Copyright (C) 2018 - NosCore
+// Copyright (C) 2019 - NosCore
 // 
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ namespace NosCore.Parser.Parsers
     public class PortalParser
     {
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
-        private List<PortalDto> _listPortals1 = new List<PortalDto>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private List<PortalDto> _listPortals1 = new List<PortalDto>();
 
         public void InsertPortals(List<string[]> packetList)
         {
@@ -51,7 +51,8 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave4 = lodPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) == null)
+            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) ==
+                null)
             {
                 portalCounter++;
                 DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref lodPortal);
@@ -70,7 +71,8 @@ namespace NosCore.Parser.Parsers
             };
 
             var portalsave3 = minilandPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) == null)
+            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) ==
+                null)
             {
                 portalCounter++;
                 DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref minilandPortal);
@@ -88,7 +90,8 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave2 = weddingPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) == null)
+            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) ==
+                null)
             {
                 portalCounter++;
                 DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref weddingPortal);
@@ -106,7 +109,8 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave1 = glacerusCavernPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) == null)
+            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) ==
+                null)
             {
                 portalCounter++;
                 DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref glacerusCavernPortal);
