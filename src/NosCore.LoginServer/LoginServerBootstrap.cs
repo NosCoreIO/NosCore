@@ -31,6 +31,9 @@ using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
+using NosCore.Data;
+using NosCore.Database.Entities;
+using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
@@ -86,6 +89,7 @@ namespace NosCore.LoginServer
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();

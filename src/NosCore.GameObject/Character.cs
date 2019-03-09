@@ -64,8 +64,13 @@ namespace NosCore.GameObject
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private byte _speed;
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<AccountDto> _accountDao;
 
-        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider)
+        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
+            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -76,6 +81,11 @@ namespace NosCore.GameObject
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
             Requests = new Subject<RequestData>();
+            _characterRelationDao = characterRelationDao;
+            _characterDao = characterDao;
+            _itemInstanceDao = itemInstanceDao;
+            _accountDao = accountDao;
+
         }
 
         public AccountDto Account { get; set; }
@@ -297,10 +307,10 @@ namespace NosCore.GameObject
             CharacterRelations[relation.CharacterRelationId] = relation;
             CharacterRelationDto relationDto = relation;
 
-            if (DaoFactory.GetGenericDao<CharacterRelationDto>().FirstOrDefault(s =>
+            if (_characterRelationDao.FirstOrDefault(s =>
                 s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
             {
-                DaoFactory.GetGenericDao<CharacterRelationDto>().InsertOrUpdate(ref relationDto);
+                _characterRelationDao.InsertOrUpdate(ref relationDto);
             }
 
             if (relationType == CharacterRelationType.Blocked)
@@ -318,23 +328,21 @@ namespace NosCore.GameObject
             try
             {
                 var account = Session.Account;
-                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
+                _accountDao.InsertOrUpdate(ref account);
 
                 CharacterDto character = (Character) MemberwiseClone();
-                DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref character);
+               _characterDao.InsertOrUpdate(ref character);
 
-                var savedRelations = DaoFactory.GetGenericDao<CharacterRelationDto>()
-                    .Where(s => s.CharacterId == CharacterId);
-                DaoFactory.GetGenericDao<CharacterRelationDto>()
-                    .Delete(savedRelations.Except(CharacterRelations.Values));
-                DaoFactory.GetGenericDao<CharacterRelationDto>().InsertOrUpdate(CharacterRelations.Values);
+                var savedRelations = _characterRelationDao.Where(s => s.CharacterId == CharacterId);
+                _characterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
+                _characterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
-                var currentlySavedInventorys = DaoFactory.GetGenericDao<IItemInstanceDto>()
+                var currentlySavedInventorys = _itemInstanceDao
                     .Where(i => i.CharacterId == CharacterId);
-                DaoFactory.GetGenericDao<IItemInstanceDto>()
+                _itemInstanceDao
                     .Delete(currentlySavedInventorys.Except(Inventory.Values.ToArray()));
-                DaoFactory.GetGenericDao<IItemInstanceDto>().InsertOrUpdate(Inventory.Values.ToArray());
+                _itemInstanceDao.InsertOrUpdate(Inventory.Values.ToArray());
             }
             catch (Exception e)
             {
@@ -964,7 +972,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            DaoFactory.GetGenericDao<CharacterRelationDto>().Delete(targetCharacterRelation);
+            _characterRelationDao.Delete(targetCharacterRelation);
         }
 
         [Obsolete(
