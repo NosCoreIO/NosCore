@@ -69,17 +69,8 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
 using NosCore.Data.I18N;
-using NosCore.Database.Entities;
-using Character = NosCore.GameObject.Character;
-using CharacterRelation = NosCore.GameObject.CharacterRelation;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Map = NosCore.GameObject.Map.Map;
-using MapMonster = NosCore.GameObject.MapMonster;
-using MapNpc = NosCore.GameObject.MapNpc;
-using MapType = Mapster.MapType;
-using Portal = NosCore.GameObject.Portal;
-using Shop = NosCore.GameObject.Shop;
-using ShopItem = NosCore.GameObject.ShopItem;
 
 namespace NosCore.WorldServer
 {
