@@ -54,21 +54,20 @@ namespace NosCore.Database.DAL
         public void Initialize(DbContextOptions option)
         {
             _option = option;
-            using (var context = CreateContext())
+            var context = CreateContext();
+            try
             {
-                try
-                {
-                    context.Database.Migrate();
-                    context.Database.GetDbConnection().Open();
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Database Error", ex);
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
-                    throw;
-                }
+                context.Database.Migrate();
+                context.Database.GetDbConnection().Open();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
             }
+            catch (Exception ex)
+            {
+                _logger.Error("Database Error", ex);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
+                throw;
+            }
+
         }
     }
 }
