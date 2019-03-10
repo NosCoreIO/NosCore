@@ -23,11 +23,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Shared.I18N;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Database.DAL;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Core.Controllers
 {

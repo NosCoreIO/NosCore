@@ -25,10 +25,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Controllers;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
@@ -41,8 +44,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Tests.HandlerTests
 {

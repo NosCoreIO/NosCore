@@ -20,9 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

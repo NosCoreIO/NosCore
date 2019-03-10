@@ -22,14 +22,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
 {

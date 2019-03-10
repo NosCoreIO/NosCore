@@ -25,15 +25,13 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
-using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Controllers
 {

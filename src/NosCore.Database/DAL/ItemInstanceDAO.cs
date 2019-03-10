@@ -25,11 +25,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Mapster;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.Database

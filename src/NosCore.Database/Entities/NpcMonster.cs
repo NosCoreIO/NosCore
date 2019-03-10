@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Data.Enumerations.Map;
 
 namespace NosCore.Database.Entities
 {

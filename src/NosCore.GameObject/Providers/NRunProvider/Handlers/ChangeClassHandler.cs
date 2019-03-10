@@ -19,15 +19,16 @@
 
 using System;
 using System.Linq;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

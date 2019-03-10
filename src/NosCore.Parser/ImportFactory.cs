@@ -20,11 +20,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data;
+using NosCore.Data.Enumerations.Account;
 using NosCore.Database.DAL;
 using NosCore.Parser.Parsers;
-using NosCore.Shared.Enumerations.Account;
 
 namespace NosCore.Parser
 {

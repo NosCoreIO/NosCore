@@ -19,8 +19,8 @@
 
 using System.Collections.Generic;
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Packets.ServerPackets
 {

@@ -18,11 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

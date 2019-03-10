@@ -19,8 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Providers.InventoryService
 {

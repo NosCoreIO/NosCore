@@ -25,8 +25,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Mapster;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
 using Serilog;
 
 namespace NosCore.Database.DAL
@@ -285,17 +286,5 @@ namespace NosCore.Database.DAL
                 }
             }
         }
-    }
-
-    public interface IGenericDao<TDto>
-    {
-        SaveResult Delete(object dtokey);
-        TDto FirstOrDefault(Expression<Func<TDto, bool>> predicate);
-        SaveResult InsertOrUpdate(ref TDto dto);
-        SaveResult InsertOrUpdate(IEnumerable<TDto> dtos);
-
-        IEnumerable<TDto> LoadAll();
-
-        IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate);
     }
 }

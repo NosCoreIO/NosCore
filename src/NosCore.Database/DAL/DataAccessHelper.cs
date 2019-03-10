@@ -19,7 +19,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Database.DAL

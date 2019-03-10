@@ -20,10 +20,10 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.Tests
 {

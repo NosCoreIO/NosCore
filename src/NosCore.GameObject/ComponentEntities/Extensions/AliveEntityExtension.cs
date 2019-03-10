@@ -22,16 +22,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using NosCore.Core;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Items;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

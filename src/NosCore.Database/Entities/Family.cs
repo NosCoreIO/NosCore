@@ -19,8 +19,8 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Family;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Family;
 
 namespace NosCore.Database.Entities
 {

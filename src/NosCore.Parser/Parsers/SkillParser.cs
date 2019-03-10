@@ -22,9 +22,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

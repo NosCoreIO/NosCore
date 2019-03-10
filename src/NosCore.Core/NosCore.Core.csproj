@@ -21,10 +21,15 @@
     <PackageReference Include="DotNetty.Common" Version="0.6.0" />
     <PackageReference Include="DotNetty.Transport" Version="0.6.0" />
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
+    <PackageReference Include="Mapster" Version="3.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Polly" Version="7.0.3" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.4.0" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
@@ -32,9 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
-    <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
-    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
   </ItemGroup>
 	  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

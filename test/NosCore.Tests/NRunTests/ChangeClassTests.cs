@@ -26,10 +26,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Controllers;
+using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
@@ -44,16 +51,11 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Character;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.NRunTests
 {
