@@ -210,7 +210,7 @@ namespace NosCore.Controllers
             {
                 case CreateShopPacketType.Open:
                     Session.Character.Shop = new Shop();
-                    short shopSlot = -1;
+                    sbyte shopSlot = -1;
                     foreach (var item in mShopPacket.ItemList)
                     {
                         shopSlot++;
@@ -248,7 +248,7 @@ namespace NosCore.Controllers
                             {
                                 Amount = item.Amount,
                                 Price = item.Price,
-                                Slot = shopSlot,
+                                Slot = (byte)shopSlot,
                                 Type = 0,
                                 ItemInstance = inv
                             });

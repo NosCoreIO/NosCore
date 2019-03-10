@@ -27,7 +27,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
-using NosCore.Data;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item

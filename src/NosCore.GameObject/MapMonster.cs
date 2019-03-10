@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
@@ -72,14 +73,14 @@ namespace NosCore.GameObject
 
         public byte HeroLevel { get; set; }
 
-        internal void Initialize(NpcMonsterDto npcMonster)
+        public MapMonster(List<NpcMonsterDto> npcMonsters)
         {
-            NpcMonster = npcMonster;
-            Mp = NpcMonster.MaxMp;
-            Hp = NpcMonster.MaxHp;
+            NpcMonster = npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster?.MaxMp ?? 0;
+            Hp = NpcMonster?.MaxHp ?? 0;
+            Speed = NpcMonster?.Speed ?? 0;
             PositionX = MapX;
             PositionY = MapY;
-            Speed = NpcMonster.Speed;
             IsAlive = true;
         }
 
