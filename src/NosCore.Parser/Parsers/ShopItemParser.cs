@@ -19,9 +19,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -30,6 +32,8 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
+        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
         public void InsertShopItems(List<string[]> packetList)
         {
             List<ShopItemDto> shopitems = new List<ShopItemDto>();
@@ -40,7 +44,7 @@ namespace NosCore.Parser.Parsers
                 if (currentPacket[0].Equals("n_inv"))
                 {
                     short npcid = short.Parse(currentPacket[2]);
-                    if (DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid) == null)
+                    if (_shopDao.FirstOrDefault(s => s.MapNpcId == npcid) == null)
                     {
                         continue;
                     }
@@ -54,7 +58,7 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid)
+                                ShopId = _shopDao.FirstOrDefault(s => s.MapNpcId == npcid)
                                     .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
@@ -66,7 +70,7 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npcid)
+                                ShopId = _shopDao.FirstOrDefault(s => s.MapNpcId == npcid)
                                     .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
@@ -78,7 +82,7 @@ namespace NosCore.Parser.Parsers
 
                         if (sitem == null || shopitems.Any(s =>
                                 s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
-                            || DaoFactory.GetGenericDao<ShopItemDto>().Where(s => s.ShopId == sitem.ShopId)
+                            || _shopItemDao.Where(s => s.ShopId == sitem.ShopId)
                                 .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
                         {
                             continue;
@@ -99,7 +103,7 @@ namespace NosCore.Parser.Parsers
 
             IEnumerable<ShopItemDto> shopItemDtos = shopitems;
 
-            DaoFactory.GetGenericDao<ShopItemDto>().InsertOrUpdate(shopItemDtos);
+            _shopItemDao.InsertOrUpdate(shopItemDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }

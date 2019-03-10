@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
@@ -25,28 +24,27 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
-using NosCore.DAL;
+using NosCore.Database;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
-using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.GameObject.DependancyInjection;
-using NosCore.GameObject.Mapping;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Map;
+using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -111,7 +109,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _chara = new Character(new InventoryService(items, _session.WorldConfiguration),
-                new ExchangeProvider(null, null), null)
+                new ExchangeProvider(null, null), null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -150,7 +148,7 @@ namespace NosCore.Tests.HandlerTests
                 , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
                 _mapItemProvider,
                 new MapNpcProvider(_item, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(),
-                    new List<MapNpcDto>()),
+                    new List<MapNpcDto>(), null, null),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
                     new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _handler.RegisterSession(_session);

@@ -18,7 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Character;
+using NosCore.Data.Enumerations.Character;
+using CharacterClassType = NosCore.Data.Enumerations.Character.CharacterClassType;
+using CharacterState = NosCore.Data.Enumerations.Character.CharacterState;
+using GenderType = NosCore.Data.Enumerations.Character.GenderType;
+using HairColorType = NosCore.Data.Enumerations.Character.HairColorType;
+using HairStyleType = NosCore.Data.Enumerations.Character.HairStyleType;
+using MinilandState = NosCore.Data.Enumerations.Character.MinilandState;
 
 namespace NosCore.Data.AliveEntities
 {

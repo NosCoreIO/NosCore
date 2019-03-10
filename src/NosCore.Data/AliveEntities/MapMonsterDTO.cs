@@ -19,8 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.StaticEntities;
-using NosCore.Shared.I18N;
+using NosCore.Data.I18N;
+using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 
 namespace NosCore.Data.AliveEntities
 {

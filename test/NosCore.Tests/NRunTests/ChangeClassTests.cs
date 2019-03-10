@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DotNetty.Transport.Channels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,14 +28,18 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Networking;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
 using NosCore.Database;
-using NosCore.DAL;
+using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -48,25 +51,21 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Map;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.NRunTests
 {
     [TestClass]
     public class ChangeClassTests
     {
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
+        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -87,13 +86,13 @@ namespace NosCore.Tests.NRunTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
 
             var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
-            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
+            _accountDao.InsertOrUpdate(ref account);
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(null, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto> {new NpcMonsterDto()}, new List<MapNpcDto> {new MapNpcDto()}),
+                    new List<NpcMonsterDto> {new NpcMonsterDto()}, new List<MapNpcDto> {new MapNpcDto()}, _shopDao, _shopItemDao),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
 
             var items = new List<Item>
             {
@@ -122,7 +121,7 @@ namespace NosCore.Tests.NRunTests
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassHandler()}));
-            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null)
+            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",

@@ -19,9 +19,13 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.StaticEntities;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.I18N;
+using EquipmentType = NosCore.Data.Enumerations.Items.EquipmentType;
+using ItemEffectType = NosCore.Data.Enumerations.Items.ItemEffectType;
+using ItemType = NosCore.Data.Enumerations.Items.ItemType;
+using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
+using PocketType = NosCore.Data.Enumerations.Items.PocketType;
 
 namespace NosCore.Data
 {

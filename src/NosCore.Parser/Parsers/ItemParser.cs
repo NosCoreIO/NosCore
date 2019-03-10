@@ -22,11 +22,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -37,6 +39,8 @@ namespace NosCore.Parser.Parsers
         private readonly List<ItemDto> _items = new List<ItemDto>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<ItemDto> _itemDao = new GenericDao<Database.Entities.Item, ItemDto>();
+        private readonly IGenericDao<BCardDto> _bCardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
         private bool _itemAreaBegin;
         private int _itemCounter;
 
@@ -66,7 +70,7 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (DaoFactory.GetGenericDao<ItemDto>().FirstOrDefault(s => s.VNum == item.VNum) == null)
+                        if (_itemDao.FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
                             _items.Add(item);
                             _itemCounter++;
@@ -1145,8 +1149,8 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                DaoFactory.GetGenericDao<ItemDto>().InsertOrUpdate(_items);
-                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(_itemCards);
+                _itemDao.InsertOrUpdate(_items);
+                _bCardDao.InsertOrUpdate(_itemCards);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED),
                     _itemCounter);
             }

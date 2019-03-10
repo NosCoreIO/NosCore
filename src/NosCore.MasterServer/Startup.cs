@@ -32,20 +32,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Database;
-using NosCore.DAL;
-using NosCore.MasterServer.Controllers;
-using NosCore.Shared.I18N;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Controllers;
+using NosCore.Core.I18N;
 
 namespace NosCore.MasterServer
 {
@@ -121,9 +117,6 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(configuration.Database.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);

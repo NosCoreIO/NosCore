@@ -23,13 +23,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
-using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public MapInstanceProvider(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps,
             IMapItemProvider mapItemProvider, IMapNpcProvider mapNpcProvider,
-            IMapMonsterProvider mapMonsterProvider)
+            IMapMonsterProvider mapMonsterProvider, IGenericDao<PortalDto> portalDao)
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
             var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
             {
                 var partitioner = Partitioner.Create(
-                    DaoFactory.GetGenericDao<PortalDto>().Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
+                    portalDao.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
                     EnumerablePartitionerOptions.None);
                 var portalList = new ConcurrentDictionary<int, Portal>();
                 Parallel.ForEach(partitioner, portalDto =>

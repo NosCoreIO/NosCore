@@ -23,7 +23,8 @@ using System.Text;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Core.Encryption

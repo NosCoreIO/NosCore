@@ -21,9 +21,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -33,7 +35,7 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileMapIdDat = "\\MapIDData.dat";
         private readonly string _folderMap = "\\map";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
             var fileMapIdDat = folder + _fileMapIdDat;
@@ -106,7 +108,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (_mapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }
@@ -116,7 +118,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapDto> mapDtos = maps;
-            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(mapDtos);
+            _mapDao.InsertOrUpdate(mapDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), i);
         }
     }

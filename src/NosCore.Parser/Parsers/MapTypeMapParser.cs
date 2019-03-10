@@ -18,15 +18,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using NosCore.Core;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Database.DAL;
 
 namespace NosCore.Parser.Parsers
 
 {
     public class MapTypeMapParser
     {
+        private readonly IGenericDao<MapTypeMapDto> _mapTypeMapDao = new GenericDao<Database.Entities.MapTypeMap, MapTypeMapDto>();
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
         internal void InsertMapTypeMaps()
         {
             var maptypemaps = new List<MapTypeMapDto>();
@@ -175,9 +178,9 @@ namespace NosCore.Parser.Parsers
                 // add "act6.1a" and "act6.1d" when ids found
                 var i1 = (short) i;
                 var id = mapTypeId;
-                if (objectset && DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(s => s.MapId.Equals((short) i)) !=
+                if (objectset && _mapDao.FirstOrDefault(s => s.MapId.Equals((short) i)) !=
                     null
-                    && DaoFactory.GetGenericDao<MapTypeMapDto>()
+                    && _mapTypeMapDao
                         .FirstOrDefault(s => s.MapId.Equals(i1) && s.MapTypeId.Equals(id))
                     == null)
                 {
@@ -186,7 +189,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapTypeMapDto> mapDtos = maptypemaps;
-            DaoFactory.GetGenericDao<MapTypeMapDto>().InsertOrUpdate(mapDtos);
+            _mapTypeMapDao.InsertOrUpdate(mapDtos);
         }
     }
 }

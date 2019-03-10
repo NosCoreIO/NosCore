@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Account;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {

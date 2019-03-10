@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Configuration
 {

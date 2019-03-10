@@ -22,8 +22,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using DotNetty.Transport.Channels;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
-using NosCore.Shared.I18N;
+using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Core.Networking

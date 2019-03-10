@@ -19,7 +19,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Database.Entities
 {

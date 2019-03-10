@@ -22,12 +22,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Serializing;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

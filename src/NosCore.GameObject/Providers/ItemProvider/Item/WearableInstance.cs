@@ -19,13 +19,15 @@
 
 using System;
 using System.Reactive.Subjects;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
+using NosCore.Data;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item

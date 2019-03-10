@@ -26,7 +26,9 @@ using System.Threading.Tasks;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
@@ -37,9 +39,7 @@ using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Map;
-using NosCore.Shared.I18N;
+using NosCore.Data;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider

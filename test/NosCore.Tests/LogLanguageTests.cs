@@ -27,8 +27,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Tests
 {
@@ -45,27 +46,25 @@ namespace NosCore.Tests
                 SearchOption.AllDirectories);
             foreach (var file in list)
             {
-                foreach (var content in File.ReadAllLines(file))
+                var content = File.ReadAllText(file);
+                Regex regex = new Regex(
+                    @"string\.Format\(Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[0-9A-Za-z_]*)*\)",
+                    RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
+                var matches = regex.Matches(content);
+                foreach (Match match in matches)
                 {
-                    Regex regex = new Regex(
-                        @"string\.Format\(Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[0-9A-Za-z_]*)*\)",
-                        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
-                    Match match = regex.Match(content);
-                    if (match.Success)
+                    int param = match.Groups?.Where(s => s.Name == "parameter").Count() ?? 0;
+                    string key = match.Groups?.FirstOrDefault(s => s.Name == "key").Value;
+                    if (_dict.ContainsKey(key))
                     {
-                        int param = match.Groups?.Where(s => s.Name == "parameter").Count() ?? 0;
-                        string key = match.Groups?.FirstOrDefault(s => s.Name == "key").Value;
-                        if (_dict.ContainsKey(key))
+                        if (_dict[key] != param)
                         {
-                            if (_dict[key] != param)
-                            {
-                                Assert.Fail(uselessKeys.ToString());
-                            }
+                            Assert.Fail(uselessKeys.ToString());
                         }
-                        else
-                        {
-                            _dict.Add(key, param);
-                        }
+                    }
+                    else
+                    {
+                        _dict.Add(key, param);
                     }
                 }
             }
@@ -118,10 +117,11 @@ namespace NosCore.Tests
                 SearchOption.AllDirectories);
             foreach (var file in list)
             {
-                foreach (var content in File.ReadAllLines(file))
+                var content = File.ReadAllText(file);
+                Regex regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
+                var matches = regex.Matches(content);
+                foreach (Match match in matches)
                 {
-                    Regex regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
-                    Match match = regex.Match(content);
                     if (match.Success)
                     {
                         if (dict.ContainsKey(match.Value))
