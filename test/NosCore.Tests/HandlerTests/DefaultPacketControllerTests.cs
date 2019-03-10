@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Transport.Channels;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -35,30 +34,38 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Map;
+using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
-using NosCore.Shared;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class DefaultPacketControllerTests
     {
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
+        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -108,9 +115,9 @@ namespace NosCore.Tests.HandlerTests
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
-            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
+            _mapDao.InsertOrUpdate(ref map);
             var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
-            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
+            _accountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
                 new Dictionary<WebApiRoute, object>
@@ -119,7 +126,7 @@ namespace NosCore.Tests.HandlerTests
                     {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
                 };
 
-            var _chara = new Character(null, null, null)
+            var _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -134,9 +141,9 @@ namespace NosCore.Tests.HandlerTests
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
                 new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
@@ -174,9 +181,9 @@ namespace NosCore.Tests.HandlerTests
         private void InitializeTargetSession()
         {
             var targetAccount = new AccountDto {Name = "test2", Password = "test".ToSha512()};
-            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref targetAccount);
+            _accountDao.InsertOrUpdate(ref targetAccount);
 
-            _targetChar = new Character(null, null, null)
+            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 CharacterId = 1,
                 Name = "TestChar2",
@@ -187,13 +194,13 @@ namespace NosCore.Tests.HandlerTests
             };
 
             CharacterDto character = _targetChar;
-            DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref character);
+            _characterDao.InsertOrUpdate(ref character);
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
             _targetSession = new ClientSession(null,
                 new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
                 instanceAccessService, null) {SessionId = 2};

@@ -20,7 +20,7 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using NosCore.Shared.Enumerations.Account;
+using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Core
 {

@@ -28,13 +28,18 @@ using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Controllers;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
+using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities;
+using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.LoginServer
@@ -86,6 +91,7 @@ namespace NosCore.LoginServer
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();

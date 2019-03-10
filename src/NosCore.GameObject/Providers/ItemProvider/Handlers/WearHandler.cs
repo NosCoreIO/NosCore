@@ -19,14 +19,16 @@
 
 using System;
 using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
@@ -83,7 +85,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
-                        Shared.Enumerations.SayColorType.Yellow));
+                        SayColorType.Yellow));
                 return;
             }
 
@@ -125,7 +127,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED),
-                            Shared.Enumerations.SayColorType.Yellow));
+                            SayColorType.Yellow));
                     return;
                 }
 
@@ -145,7 +147,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
-                        Shared.Enumerations.SayColorType.Yellow));
+                        SayColorType.Yellow));
                 return;
             }
 

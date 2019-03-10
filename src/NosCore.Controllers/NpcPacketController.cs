@@ -18,11 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
-using NosCore.Database.Entities;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -34,13 +36,7 @@ using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 using Serilog;
-using MapNpc = NosCore.GameObject.MapNpc;
 using Shop = NosCore.GameObject.Shop;
 using ShopItem = NosCore.GameObject.ShopItem;
 

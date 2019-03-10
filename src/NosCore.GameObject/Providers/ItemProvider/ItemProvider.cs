@@ -23,10 +23,10 @@ using System.Linq;
 using System.Reactive.Subjects;
 using Mapster;
 using NosCore.Data;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.GameObject.Providers.ItemProvider
 {

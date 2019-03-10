@@ -22,9 +22,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -33,6 +35,9 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileSkillId = "\\Skill.dat";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<BCardDto> _bCardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
+        private readonly IGenericDao<ComboDto> _comboDao = new GenericDao<Database.Entities.Combo, ComboDto>();
+        private readonly IGenericDao<SkillDto> _skillDao = new GenericDao<Database.Entities.Skill, SkillDto>();
 
         internal void InsertSkills(string folder)
         {
@@ -84,7 +89,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            if (DaoFactory.GetGenericDao<ComboDto>().FirstOrDefault(s =>
+                            if (_comboDao.FirstOrDefault(s =>
                                 s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
                                 && s.Effect.Equals(comb.Effect)) == null)
                             {
@@ -276,7 +281,7 @@ namespace NosCore.Parser.Parsers
                     {
                         // investigate
                         var skill1 = skill;
-                        if (DaoFactory.GetGenericDao<SkillDto>()
+                        if (_skillDao
                             .FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
@@ -291,9 +296,9 @@ namespace NosCore.Parser.Parsers
                 IEnumerable<ComboDto> comboDtos = combo;
                 IEnumerable<BCardDto> bCardDtos = skillCards;
 
-                DaoFactory.GetGenericDao<SkillDto>().InsertOrUpdate(skillDtos);
-                DaoFactory.GetGenericDao<ComboDto>().InsertOrUpdate(comboDtos);
-                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(bCardDtos);
+                _skillDao.InsertOrUpdate(skillDtos);
+                _comboDao.InsertOrUpdate(comboDtos);
+                _bCardDao.InsertOrUpdate(bCardDtos);
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED),
                     counter);

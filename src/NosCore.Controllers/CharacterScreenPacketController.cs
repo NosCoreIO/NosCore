@@ -25,24 +25,22 @@ using JetBrains.Annotations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
-using NosCore.DAL;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 using Serilog;
-using NosCore.Shared.Enumerations;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Controllers
@@ -53,13 +51,22 @@ namespace NosCore.Controllers
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IGenericDao<MateDto> _mateDao;
 
         public CharacterScreenPacketController(
-            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter, IGenericDao<CharacterDto> characterDao,
+            IGenericDao<AccountDto> accountDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<MateDto> mateDao)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _itemProvider = itemProvider;
             _adapter = adapter;
+            _characterDao = characterDao;
+            _accountDao = accountDao;
+            _itemInstanceDao = itemInstanceDao;
+            _mateDao = mateDao;
         }
 
         [UsedImplicitly]
@@ -74,7 +81,7 @@ namespace NosCore.Controllers
         public void CreateMartialArtist(CharNewJobPacket martialArtistCreatePacket)
         {
             //TODO add a flag on Account
-            if (DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+            if (_characterDao.FirstOrDefault(s =>
                 s.Level >= 80 && s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active) == null)
             {
                 //Needs at least a level 80 to create a martial artist
@@ -82,7 +89,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            if (DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+            if (_characterDao.FirstOrDefault(s =>
                 s.AccountId == Session.Account.AccountId &&
                 s.Class == CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
             {
@@ -110,7 +117,7 @@ namespace NosCore.Controllers
             var accountId = Session.Account.AccountId;
             var slot = characterCreatePacket.Slot;
             var characterName = characterCreatePacket.Name;
-            if (DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+            if (_characterDao.FirstOrDefault(s =>
                 s.AccountId == accountId && s.Slot == slot && s.State == CharacterState.Active) != null)
             {
                 return;
@@ -121,7 +128,7 @@ namespace NosCore.Controllers
             if (rg.Matches(characterName).Count == 1)
             {
                 var character =
-                    DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+                    _characterDao.FirstOrDefault(s =>
                         s.Name == characterName && s.State == CharacterState.Active);
                 if (character == null)
                 {
@@ -148,7 +155,7 @@ namespace NosCore.Controllers
                         MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
-                    DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref chara);
+                    _characterDao.InsertOrUpdate(ref chara);
                     LoadCharacters(null);
                 }
                 else
@@ -179,7 +186,7 @@ namespace NosCore.Controllers
                 return;
             }
 
-            var account = DaoFactory.GetGenericDao<AccountDto>()
+            var account = _accountDao
                 .FirstOrDefault(s => s.AccountId.Equals(Session.Account.AccountId));
             if (account == null)
             {
@@ -188,7 +195,7 @@ namespace NosCore.Controllers
 
             if (account.Password.ToLower() == characterDeletePacket.Password.ToSha512())
             {
-                var character = DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+                var character = _characterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == characterDeletePacket.Slot
                     && s.State == CharacterState.Active);
                 if (character == null)
@@ -197,7 +204,7 @@ namespace NosCore.Controllers
                 }
 
                 character.State = CharacterState.Inactive;
-                DaoFactory.GetGenericDao<CharacterDto>().InsertOrUpdate(ref character);
+                _characterDao.InsertOrUpdate(ref character);
 
                 LoadCharacters(null);
             }
@@ -240,7 +247,7 @@ namespace NosCore.Controllers
                     return;
                 }
 
-                var account = DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == name);
+                var account = _accountDao.FirstOrDefault(s => s.Name == name);
 
                 if (account != null)
                 {
@@ -275,7 +282,7 @@ namespace NosCore.Controllers
                 }
             }
 
-            var characters = DaoFactory.GetGenericDao<CharacterDto>().Where(s =>
+            var characters = _characterDao.Where(s =>
                 s.AccountId == Session.Account.AccountId && s.State == CharacterState.Active);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                 Session.Account.Name);
@@ -285,7 +292,7 @@ namespace NosCore.Controllers
             foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
-                /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
+                /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
 
 
                  foreach (ItemInstanceDTO equipmentEntry in inventory)
@@ -297,7 +304,7 @@ namespace NosCore.Controllers
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = DaoFactory.GetGenericDao<MateDto>().Where(s => s.CharacterId == character.CharacterId)
+                var mates = _mateDao.Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 for (var i = 0; i < 26; i++)
                 {
@@ -322,7 +329,7 @@ namespace NosCore.Controllers
                     HairStyle = (byte) character.HairStyle,
                     HairColor = (byte) character.HairColor,
                     Unknown1 = 0,
-                    Class = (CharacterClassType) character.Class,
+                    Class = character.Class,
                     Level = character.Level,
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>
@@ -360,7 +367,7 @@ namespace NosCore.Controllers
                 }
 
                 var characterDto =
-                    DaoFactory.GetGenericDao<CharacterDto>().FirstOrDefault(s =>
+                    _characterDao.FirstOrDefault(s =>
                         s.AccountId == Session.Account.AccountId && s.Slot == selectPacket.Slot
                         && s.State == CharacterState.Active);
                 if (characterDto == null)
@@ -379,7 +386,7 @@ namespace NosCore.Controllers
                 character.Group.JoinGroup(character);
                 Session.SetCharacter(character);
 
-                var inventories = DaoFactory.GetGenericDao<IItemInstanceDto>()
+                var inventories = _itemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
@@ -398,13 +405,13 @@ namespace NosCore.Controllers
                 }
 
                 //var relations =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.CharacterId == Session.Character.CharacterId);
+                //    _characterRelationDao.Where(s => s.CharacterId == Session.Character.CharacterId);
                 //var relationsWithCharacter =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
+                //    _characterRelationDao.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
 
-                //var characters = DaoFactory.GetGenericDao<CharacterDto>()
+                //var characters = _characterDao
                 //    .Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-                //var relatedCharacters = DaoFactory.GetGenericDao<CharacterDto>().Where(s =>
+                //var relatedCharacters = _characterDao.Where(s =>
                 //    relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
                 //foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relations))

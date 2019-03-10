@@ -22,11 +22,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
-using NosCore.Database.Entities;
-using NosCore.DAL;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -45,6 +46,18 @@ namespace NosCore.Parser.Parsers
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<I18NActDescDto> _i18NActDescDao = new GenericDao<Database.Entities.I18NActDesc, I18NActDescDto>();
+        private readonly IGenericDao<I18NCardDto> _i18NCardDao = new GenericDao<Database.Entities.I18NCard, I18NCardDto>();
+        private readonly IGenericDao<I18NbCardDto> _i18NbCardDao = new GenericDao<Database.Entities.I18NBCard, I18NbCardDto>();
+        private readonly IGenericDao<I18NItemDto> _i18NItemDao = new GenericDao<Database.Entities.I18NItem, I18NItemDto>();
+        private readonly IGenericDao<I18NMapIdDataDto> _i18NMapIdDataDao = new GenericDao<Database.Entities.I18NMapIdData, I18NMapIdDataDto>();
+        private readonly IGenericDao<I18NMapPointDataDto> _i18NMapPointDataDao = new GenericDao<Database.Entities.I18NMapPointData, I18NMapPointDataDto>();
+        private readonly IGenericDao<I18NNpcMonsterDto> _i18NNpcMonsterDao = new GenericDao<Database.Entities.I18NNpcMonster, I18NNpcMonsterDto>();
+        private readonly IGenericDao<I18NNpcMonsterTalkDto> _i18NNpcMonsterTalkDao = new GenericDao<Database.Entities.I18NNpcMonsterTalk, I18NNpcMonsterTalkDto>();
+
+        private readonly IGenericDao<I18NQuestDto> _i18NQuestDao = new GenericDao<Database.Entities.I18NQuest, I18NQuestDto>();
+        private readonly IGenericDao<I18NSkillDto> _i18NSkillDao = new GenericDao<Database.Entities.I18NSkill, I18NSkillDto>();
+        
         private string _folder;
 
         private string I18NTextFileName(string textfilename, RegionType region)
@@ -58,7 +71,7 @@ namespace NosCore.Parser.Parsers
         {
             _folder = folder;
             string _line;
-            var actdesclist = DaoFactory.GetGenericDao<I18NActDescDto>().LoadAll().ToList();
+            var actdesclist = _i18NActDescDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var actdescdtos = new List<I18NActDescDto>();
@@ -82,7 +95,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NActDescDto>().InsertOrUpdate(actdescdtos);
+                        _i18NActDescDao.InsertOrUpdate(actdescdtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_ACTDESC_PARSED),
@@ -96,7 +109,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var cardlist = DaoFactory.GetGenericDao<I18NCardDto>().LoadAll().ToList();
+            var cardlist = _i18NCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var carddtos = new List<I18NCardDto>();
@@ -120,7 +133,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NCardDto>().InsertOrUpdate(carddtos);
+                        _i18NCardDao.InsertOrUpdate(carddtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_CARD_PARSED), carddtos.Count,
@@ -133,7 +146,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var bcardlist = DaoFactory.GetGenericDao<I18NbCardDto>().LoadAll().ToList();
+            var bcardlist = _i18NbCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var bcarddtos = new List<I18NbCardDto>();
@@ -157,7 +170,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NbCardDto>().InsertOrUpdate(bcarddtos);
+                        _i18NbCardDao.InsertOrUpdate(bcarddtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_BCARD_PARSED), bcarddtos.Count,
@@ -170,7 +183,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var itemlist = DaoFactory.GetGenericDao<I18NItemDto>().LoadAll().ToList();
+            var itemlist = _i18NItemDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var itemdtos = new List<I18NItemDto>();
@@ -194,7 +207,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NItemDto>().InsertOrUpdate(itemdtos);
+                        _i18NItemDao.InsertOrUpdate(itemdtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_ITEM_PARSED), itemdtos.Count,
@@ -207,7 +220,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var mapiddatalist = DaoFactory.GetGenericDao<I18NMapIdDataDto>().LoadAll().ToList();
+            var mapiddatalist = _i18NMapIdDataDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var mapiddatadtos = new List<I18NMapIdDataDto>();
@@ -232,7 +245,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NMapIdDataDto>().InsertOrUpdate(mapiddatadtos);
+                        _i18NMapIdDataDao.InsertOrUpdate(mapiddatadtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MAPIDDATA_PARSED),
@@ -245,7 +258,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var mappointdatalist = DaoFactory.GetGenericDao<I18NMapPointDataDto>().LoadAll().ToList();
+            var mappointdatalist = _i18NMapPointDataDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var mappointdatadtos = new List<I18NMapPointDataDto>();
@@ -271,7 +284,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NMapPointDataDto>().InsertOrUpdate(mappointdatadtos);
+                        _i18NMapPointDataDao.InsertOrUpdate(mappointdatadtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MAPPOINTDATA_PARSED),
@@ -284,7 +297,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var npcmonsterlist = DaoFactory.GetGenericDao<I18NNpcMonsterDto>().LoadAll().ToList();
+            var npcmonsterlist = _i18NNpcMonsterDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var npcmonsterdto = new List<I18NNpcMonsterDto>();
@@ -309,7 +322,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NNpcMonsterDto>().InsertOrUpdate(npcmonsterdto);
+                        _i18NNpcMonsterDao.InsertOrUpdate(npcmonsterdto);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_MPCMONSTER_PARSED),
@@ -322,7 +335,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var npcmonstertalklist = DaoFactory.GetGenericDao<I18NNpcMonsterTalkDto>().LoadAll().ToList();
+            var npcmonstertalklist = _i18NNpcMonsterTalkDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var npctalkdtos = new List<I18NNpcMonsterTalkDto>();
@@ -347,7 +360,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NNpcMonsterTalkDto>().InsertOrUpdate(npctalkdtos);
+                        _i18NNpcMonsterTalkDao.InsertOrUpdate(npctalkdtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_NPCMONSTERTALK_PARSED),
@@ -360,7 +373,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var questlist = DaoFactory.GetGenericDao<I18NQuestDto>().LoadAll().ToList();
+            var questlist = _i18NQuestDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var questdtos = new List<I18NQuestDto>();
@@ -384,7 +397,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NQuestDto>().InsertOrUpdate(questdtos);
+                        _i18NQuestDao.InsertOrUpdate(questdtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_QUEST_PARSED), questdtos.Count,
@@ -397,7 +410,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var skilllist = DaoFactory.GetGenericDao<I18NSkillDto>().LoadAll().ToList();
+            var skilllist = _i18NSkillDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
                 var skilldtos = new List<I18NSkillDto>();
@@ -421,7 +434,7 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        DaoFactory.GetGenericDao<I18NSkillDto>().InsertOrUpdate(skilldtos);
+                        _i18NSkillDao.InsertOrUpdate(skilldtos);
 
                         _logger.Information(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.I18N_SKILL_PARSED), skilldtos.Count,

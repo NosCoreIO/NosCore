@@ -17,12 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Items;
+using NosCore.Data.Enumerations.Items;
 
 namespace NosCore.Packets.ServerPackets
 {

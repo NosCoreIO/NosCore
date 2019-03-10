@@ -26,7 +26,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
-using NosCore.Shared.Enumerations;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Core.Encryption
 {

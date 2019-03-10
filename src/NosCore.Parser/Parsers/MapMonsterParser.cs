@@ -20,10 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -31,7 +32,7 @@ namespace NosCore.Parser.Parsers
     internal class MapMonsterParser
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
         public void InsertMapMonster(List<string[]> packetList)
         {
             var monsterCounter = 0;
@@ -72,10 +73,8 @@ namespace NosCore.Parser.Parsers
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (DaoFactory.GetGenericDao<NpcMonsterDto>()
-                        .FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
-                    || DaoFactory.GetGenericDao<MapMonsterDto>()
-                        .FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
+                if (_mapMonsterDao.FirstOrDefault(s => s.VNum.Equals(monster.VNum)) == null
+                    || _mapMonsterDao.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
                     || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
                 {
                     continue;
@@ -87,7 +86,7 @@ namespace NosCore.Parser.Parsers
 
 
             IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
-            DaoFactory.GetGenericDao<MapMonsterDto>().InsertOrUpdate(mapMonsterDtos);
+            _mapMonsterDao.InsertOrUpdate(mapMonsterDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MONSTERS_PARSED),
                 monsterCounter);
         }

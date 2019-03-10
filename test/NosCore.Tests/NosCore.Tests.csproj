@@ -24,7 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\..\src\NosCore.Shared\NosCore.Shared.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Database\NosCore.Database.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\..\src\NosCore.Controllers\NosCore.Controllers.csproj" />
   </ItemGroup>
 

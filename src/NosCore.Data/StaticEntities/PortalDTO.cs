@@ -18,7 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Data.Enumerations.Map;
+using PortalType = NosCore.Data.Enumerations.Map.PortalType;
 
 namespace NosCore.Data.StaticEntities
 {

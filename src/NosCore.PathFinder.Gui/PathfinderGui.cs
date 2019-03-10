@@ -23,13 +23,15 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject.Map;
-using NosCore.Shared.I18N;
 using OpenTK.Graphics;
 using Serilog;
 using NosCore.Data.StaticEntities;
+using NosCore.Database.DAL;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -40,7 +42,8 @@ namespace NosCore.PathFinder.Gui
         private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
-        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
 
         private static void InitializeConfiguration()
         {
@@ -53,7 +56,7 @@ namespace NosCore.PathFinder.Gui
         public static void Main()
         {
             Console.Title = Title;
-            Shared.I18N.Logger.PrintHeader(ConsoleText);
+            Core.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
@@ -72,7 +75,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) _mapDao.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

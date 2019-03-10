@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
+    <value>Au moins un fichier est manquant. Vérifiez que tout soit bien présent.</value>
+  </data>
+  <data name="CARDS_PARSED" xml:space="preserve">
+    <value>{0} Cartes analysées !</value>
+  </data>
+  <data name="DATABASE_INITIALIZED" xml:space="preserve">
+    <value>La base de données a été initialisée !</value>
+  </data>
+  <data name="DONE" xml:space="preserve">
+    <value>L'analyse des fichiers est terminée !</value>
+  </data>
+  <data name="ENTER_PATH" xml:space="preserve">
+    <value>Entre le répertoire des fichiers pour commencer l'importation</value>
+  </data>
+  <data name="ITEMS_PARSED" xml:space="preserve">
+    <value>{0} Objets ont été analysés avec succès !</value>
+  </data>
+  <data name="PARSE_ACCOUNTS" xml:space="preserve">
+    <value>Vous-vous analyser les comptes ?</value>
+  </data>
+  <data name="PARSE_ALL" xml:space="preserve">
+    <value>Voulez-vous tout analyser ?</value>
+  </data>
+  <data name="PARSE_CARDS" xml:space="preserve">
+    <value>Voulez-vous analysé les Bcard ?</value>
+  </data>
+  <data name="PARSE_ITEMS" xml:space="preserve">
+    <value>Voulez-vous analyser les objets ?</value>
+  </data>
+  <data name="PARSE_MAPNPCS" xml:space="preserve">
+    <value>Voulez-vous analyser les cartes-pnj ?</value>
+  </data>
+  <data name="PARSE_MAPS" xml:space="preserve">
+    <value>Voulez-vous analyser les cartes ?</value>
+  </data>
+  <data name="PARSE_MAPTYPES" xml:space="preserve">
+    <value>Voulez-vous anlysez les types de cartes ?</value>
+  </data>
+  <data name="PARSE_MONSTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les monstres ?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
+    <value>Voulez-vous analyser NpcMonsterData ?</value>
+  </data>
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les pnj ?</value>
+  </data>
+  <data name="PARSE_PORTALS" xml:space="preserve">
+    <value>Voulez-vous analyser les portails ?</value>
+  </data>
+  <data name="PARSE_QUESTS" xml:space="preserve">
+    <value>Voulez-vous analyser les quêtes ?</value>
+  </data>
+  <data name="PARSE_RECIPES" xml:space="preserve">
+    <value>Voulez-vous analyser les recettes ?</value>
+  </data>
+  <data name="PARSE_SHOPITEMS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins d'objets ?</value>
+  </data>
+  <data name="PARSE_SHOPS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins ?</value>
+  </data>
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
+    <value>Voulez-vous analyser les magasins de compétences ?</value>
+  </data>
+  <data name="PARSE_SKILLS" xml:space="preserve">
+    <value>Voulez-vous analyser les compétences ?</value>
+  </data>
+  <data name="PARSE_TELEPORTERS" xml:space="preserve">
+    <value>Voulez-vous analyser les téléporteurs ?</value>
+  </data>
+  <data name="PARSE_TIMESPACES" xml:space="preserve">
+    <value>Voulez-vous analyser les espaces temps ?</value>
+  </data>
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
+    <value>L'émulateur à bien été chargé.</value>
+  </data>
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
+    <value>Enregistrer sur master.</value>
+  </data>
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
+    <value>Authentification avec succès.</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
+    <value>La base de données n'est pas à jour.</value>
+  </data>
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>Client déconnecté.</value>
+  </data>
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
+    <value>Personnage non chargé.</value>
+  </data>
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
+    <value>Erreur lors d'un passage à une map.</value>
+  </data>
+  <data name="AUTH_INCORRECT" xml:space="preserve">
+    <value>Authentification incorrecte.</value>
+  </data>
+  <data name="AUTH_ERROR" xml:space="preserve">
+    <value>Erreur d'authentification.</value>
+  </data>
+  <data name="FORCED_DISCONNECTION" xml:space="preserve">
+    <value>Déconnexion forcée. ClientId = {0}</value>
+  </data>
+  <data name="CLIENT_CONNECTED" xml:space="preserve">
+    <value>Client connecté. ClientId = {0}</value>
+  </data>
+  <data name="CLIENT_ARRIVED" xml:space="preserve">
+    <value>Client arrivé.</value>
+  </data>
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
+    <value>Keepalive corrompu.</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Mot de passe invalide.</value>
+  </data>
+  <data name="INVALID_ACCOUNT" xml:space="preserve">
+    <value>Identifiant invalide.</value>
+  </data>
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
+    <value>Tentative de reconnexion au serveur master dans {0} secondes.</value>
+  </data>
+  <data name="LISTENING_PORT" xml:space="preserve">
+    <value>Écoute du port</value>
+  </data>
+  <data name="NO_MAP" xml:space="preserve">
+    <value>Aucune Map n'a été trouvé.</value>
+  </data>
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
+    <value>Les monstres ont été chargés avec succès !</value>
+  </data>
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
+    <value>Le compte {0} c'est connecté.</value>
+  </data>
+  <data name="HANDLER_ERROR" xml:space="preserve">
+    <value>Erreur du gestionnaire.</value>
+  </data>
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
+    <value>Gestionnaire introuvable.</value>
+  </data>
+  <data name="SELECT_MAPID" xml:space="preserve">
+    <value>Veuillez séléctionner un MapID.</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Mauvais MapID.</value>
+  </data>
+  <data name="MAPS_LOADED" xml:space="preserve">
+    <value>Les maps ont été chargées avec succès !</value>
+  </data>
+  <data name="CORRUPT_PACKET" xml:space="preserve">
+    <value>Paquet corrompu.</value>
+  </data>
+  <data name="ALREADY_TAKEN" xml:space="preserve">
+    <value>Ce pseudo est déjà utilisé.</value>
+  </data>
+  <data name="ADVENTURER" xml:space="preserve">
+    <value>Aventurier</value>
+  </data>
+  <data name="ARCHER" xml:space="preserve">
+    <value>Archer</value>
+  </data>
+  <data name="BAD_PASSWORD" xml:space="preserve">
+    <value>Mauvais mot de passe.</value>
+  </data>
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
+    <value>{0} i18n ActDesc parser. Region : {1}</value>
+  </data>
+  <data name="I18N_BCARD_PARSED" xml:space="preserve">
+    <value>{0} i18n BCards parser. Region : {1}</value>
+  </data>
+  <data name="I18N_CARD_PARSED" xml:space="preserve">
+    <value>{0} i18n cartes parser. Region : {1}</value>
+  </data>
+  <data name="I18N_ITEM_PARSED" xml:space="preserve">
+    <value>{0} i18n items parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
+    <value>{0} i18n MapIdData parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
+    <value>{0} i18n MapPointData parser. Region : {1}</value>
+  </data>
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
+    <value>{0} i18n NpcMonster parser. Region : {1}</value>
+  </data>
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
+    <value>{0} i18n NpcMonsterTalk parser. Region : {1}</value>
+  </data>
+  <data name="I18N_QUEST_PARSED" xml:space="preserve">
+    <value>{0} i18n quêtes parser. Region : {1}</value>
+  </data>
+  <data name="I18N_SKILL_PARSED" xml:space="preserve">
+    <value>{0} i18n skills parser. Region : {1}</value>
+  </data>
+  <data name="INVALID_CHARNAME" xml:space="preserve">
+    <value>Le nom du personnage est invalide.</value>
+  </data>
+  <data name="MAGICIAN" xml:space="preserve">
+    <value>Magicien</value>
+  </data>
+  <data name="MAPS_PARSED" xml:space="preserve">
+    <value>{0} Maps ont été analysées avec succès !</value>
+  </data>
+  <data name="PARSE_I18N" xml:space="preserve">
+    <value>Voulez-vous importer i18n ?</value>
+  </data>
+  <data name="PORTALS_PARSED" xml:space="preserve">
+    <value>{0} Portails ont été analysés avec succès !</value>
+  </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Escrimeur</value>
+  </data>
+  <data name="MAPTYPES_PARSED" xml:space="preserve">
+    <value>{0} MapsType ont été analysées avec succès !</value>
+  </data>
+  <data name="MONSTERS_PARSED" xml:space="preserve">
+    <value>{0} Monstres ont été analysés avec succès !</value>
+  </data>
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve">
+    <value>{0} MonsterPNJ ont été analysés avec succès !</value>
+  </data>
+  <data name="NPCS_PARSED" xml:space="preserve">
+    <value>{0} PNJ ont été analysés avec succès !</value>
+  </data>
+  <data name="PARSE_DROPS" xml:space="preserve">
+    <value>{0} Drops ont été analysés avec succès !</value>
+  </data>
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
+    <value>{0} RespawnType ont été analysés avec succès !</value>
+  </data>
+  <data name="SKILLS_PARSED" xml:space="preserve">
+    <value>{0} Sorts ont été analysés !</value>
+  </data>
+  <data name="ADMINISTRATOR" xml:space="preserve">
+    <value>Administrateur</value>
+  </data>
+  <data name="CHANNEL" xml:space="preserve">
+    <value>Canal</value>
+  </data>
+  <data name="CHARACTER_OFFLINE" xml:space="preserve">
+    <value>Personnage hors ligne</value>
+  </data>
+  <data name="MAPNPCS_LOADED" xml:space="preserve">
+    <value>Les PNJ ont été chargés avec succès !</value>
+  </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Vous êtes déjà amis.</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>Voulez-vous supprimer ?</value>
+  </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>Valeur d'objet incorrect.</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Ajouté à votre liste noire.</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>Impossible de bloquer vos amis.</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>Impossible de trouver ce personnage.</value>
+  </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>Impossible de jeter, il y a trop d'objet au sol.</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>Votre liste d'amis est complète.</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>Voulez-vous l'ajouter en ami ?</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Demande d'ami acceptée.</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Ami supprimé.</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Ami déconnecté.</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Demande d'ami rejetée.</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Demande d'amis bloqué.</value>
+  </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>Les objets ont été chargés avec succès !</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>L'objet a été acquis.</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>L'objet de la Terre des Mort a été acquis.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>Impossible de jeter l'objet.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>Impossible de jeter l'objet ici.</value>
+  </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>Vous avez atteint le nombre d'or maximum.</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>Vous n'avez pas assez de place.</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Pas présent dans votre liste noire.</value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>Aucun objet n'a été trouvé.</value>
+  </data>
+  <data name="SAVING_ALL" xml:space="preserve">
+    <value>Tout sauvegarder.</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Les points de spécialiste ont été ajoutés.</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ?</value>
+  </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Le joueur est déjà dans ta liste noire.</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>Déjà dans un groupe.</value>
+  </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Erreur d'encodage.</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Invitation d'amitié envoyée.</value>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Le groupe a été dissous.</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Le groupe est déjà plein.</value>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Invitation envoyée.</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
+  </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>La carte selectionnée n'existe pas.</value>
+  </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>Vous êtes le nouveau chef de groupe.</value>
+  </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} PNJ chargés.</value>
+  </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'inventaire non reconnu.</value>
+  </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Le joueur ne peut pas être invité en groupe.</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>La méthode de ramassage est inconnue.</value>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>L'utilisateur n'est pas dans ta liste d'ami.</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>Vous ne pouvez plus recevoir d'invitation dans un groupe.</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
+  </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>Vous ne pouvez pas récuperer cet objet. veuillez patienter un peu.</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Erreur de décodage.</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type de groupe</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'invitation inconnue.</value>
+  </data>
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type d'objet inconnu.</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Pack de langue manquant</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Pas de propriété speciale sur l'équipement.</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Type d'équipement inconnu.</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Reciever inconnu.</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Type Visuel inconnu.</value>
+  </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Votre niveau de métier a augementé.</value>
+  </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Votre niveau a augmenté.</value>
+  </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Artiste Martial</value>
+  </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>Fermeture du serveur dans {0} secondes.</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
+    <value>La connection au serveur à été perdue.</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Ton niveau héroïque a augementé.</value>
+  </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Ping vers le master server.</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>Ping échoué, aucune réponse du serveur master.</value>
+  </data>
+  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
+    <value>La quantité de sous-packets est invalide .</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Désirez vous lier cet item à votre personnage ? </value>
+  </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Vous ne pouvez pas équiper cet équipement.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>La fée est d'un élément différent de la SPque vous tentez d'équiper.</value>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>Vous avez acheté un objet.</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>Vous ne pouvez pas équiper une SP détruite. Seul une pierre de résurection d'âme peut rammener votre spécialiste à la vie.</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Votre classe a été changée avec succès.</value>
+  </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Veuillez retirer tout votre équipement avant de changer de classe.</value>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>Une exception à été générée.</value>
+  </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Cet objet ne peut pas etre vendu.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>Vous manquez de réputation pour équiper cette carte SP.</value>
+  </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Impossible d'équiper cet objet en tant qu'aventurier.</value>
+  </data>
+  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
+    <value>Erreur lors de la déserialisation d'une valeur ! Valeur : {0} | PacketPropertyType: {1} .</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>Vous n'avez pas assez d'argent.</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>Vous n'avez pas assez de réputation !</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>Vous n'avez aucune SPéquipée.</value>
+  </data>
+  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
+    <value>Le Packet n'as pas de Header ! SerializationType: {0}.</value>
+  </data>
+  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
+    <value>Le Packet à un format invalide.</value>
+  </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Veuillez quitter la locomotion pour équiper une carte SP.</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>Votre réputation a changée.</value>
+  </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>Votre réputation a diminuée.</value>
+  </data>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>Votre objet a été vendu.</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>{0} ShopItem chargés.</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>{0} ShopItems parsés.</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>{0} Shops chargés.</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>{0} Shops parsés.</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>Impossible d'ouvir le magasin car il est vide.</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Le magasin est trop pret du téléporteur.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>Impossible d'ouvrir un magasin ici.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>Impossible d'ouvrir un magasin en tant que membre du raid.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>Certains objets ne peuvent pas etre vendus. Vérifiez les objets avant d'ouvrir le magasin.</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Un magasin a été ouvert.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Ouvrir le magasin maintenant ?</value>
+  </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Impossible de changer de SPcar vous en utilisez déjà une. Veuillez retirer la SP que vous portez.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Transformation impossible. Délais avant réutilisation : {0} secondes.</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Effet restant avant de pouvoir se transformer à nouveau : {0} secondes.</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Vous devez etre niveau 15 de combat et 20 de métier pour changer de classe.</value>
+  </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>L'effet secondaire de la transformation a disparru. Vous pouvez équiper une SP  à nouveau.</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Une carte SP invalide a été détéctée.</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>la visualentity n'existe pas.</value>
+  </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>La compte en banque à atteint sa valeur max</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Un ou plusieurs objets ne sont pas échangeables.</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Le joueur est déjà en commerce. Ressayez plus tard.</value>
+  </data>
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
+    <value>Vous ne pouvez pas échanger des objets liés a votre compte.</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Impossible de mettre l'objet dans le magasin car il est non échangeable</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>L'objet ne peut pas etre mis en vente.</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Le joueur à bloqué les échanges.</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Le joueur ciblé à un magasin déjà ouvert.</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Liste d'échange invalide.</value>
+  </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Votre inventaire est plein.</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Votre niveau de métier est trop bas.</value>
+  </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>Pas assez d'or pour acheter cet objet.</value>
+  </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>Le joueur {0} est en mode magasin privé.</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>L'échange  {0} contenant {1} à échoué.</value>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>La quantité d'or en inventaire a été mise à jour.</value>
+  </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>{0} a annulé l'échange.</value>
+  </data>
+</root>

@@ -20,10 +20,10 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
 
 namespace NosCore.Tests
 {
@@ -45,7 +45,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(null, null, null)
+            var entity = new Character(null, null, null, null, null,null,null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -62,7 +62,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(null, null, null)
+            var entity = new Character(null, null, null, null, null, null, null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -95,7 +95,7 @@ namespace NosCore.Tests
         {
             for (var i = 0; i < (long) _group.Type; i++)
             {
-                var entity = new Character(null, null, null)
+                var entity = new Character(null, null, null, null, null, null, null)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

@@ -22,9 +22,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using NosCore.Core;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 
@@ -37,16 +37,20 @@ namespace NosCore.GameObject.Providers.MapNpcProvider
         private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly List<ShopItemDto> _shopItems;
         private readonly List<ShopDto> _shops;
+        private readonly IGenericDao<ShopDto> _shopDao;
+        private readonly IGenericDao<ShopItemDto> _shopItemDao;
 
         public MapNpcProvider(IItemProvider itemProvider, List<ShopDto> shops,
             List<ShopItemDto> shopItems,
-            List<NpcMonsterDto> npcMonsters, List<MapNpcDto> mapNpcs)
+            List<NpcMonsterDto> npcMonsters, List<MapNpcDto> mapNpcs, IGenericDao<ShopDto> shopDao, IGenericDao<ShopItemDto> shopItemDao)
         {
             _itemProvider = itemProvider;
             _npcMonsters = npcMonsters;
             _shops = shops;
             _shopItems = shopItems;
             _mapNpcs = mapNpcs;
+            _shopDao = shopDao;
+            _shopItemDao = shopItemDao;
         }
 
         public ConcurrentDictionary<long, MapNpc> Create(MapInstance mapInstance)
@@ -70,10 +74,10 @@ namespace NosCore.GameObject.Providers.MapNpcProvider
         private Shop LoadShop(int mapNpcId)
         {
             Shop shop = null;
-            var shopObj = DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == mapNpcId);
+            var shopObj = _shopDao.FirstOrDefault(s => s.MapNpcId == mapNpcId);
             if (shopObj != null)
             {
-                var shopItemsDto = DaoFactory.GetGenericDao<ShopItemDto>().Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsDto = _shopItemDao.Where(s => s.ShopId == shopObj.ShopId);
                 var shopItems = new ConcurrentDictionary<int, ShopItem>();
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {

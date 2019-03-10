@@ -20,14 +20,14 @@
 using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject

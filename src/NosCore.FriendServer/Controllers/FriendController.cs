@@ -19,8 +19,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Account;
 using Serilog;
 
 namespace NosCore.FriendServer.Controllers

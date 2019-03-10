@@ -22,9 +22,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.InventoryService

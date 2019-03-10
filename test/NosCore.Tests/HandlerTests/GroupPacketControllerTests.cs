@@ -21,13 +21,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
@@ -37,9 +38,6 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -62,7 +60,7 @@ namespace NosCore.Tests.HandlerTests
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto {Name = $"AccountTest{i}", Password = "test".ToSha512()};
-                var charaDto = new Character(null, null, null)
+                var charaDto = new Character(null, null, null, null, null, null, null)
                 {
                     CharacterId = i,
                     Name = $"TestExistingCharacter{i}",

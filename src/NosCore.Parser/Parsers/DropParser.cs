@@ -18,14 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using NosCore.Core;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
-using NosCore.Shared.Enumerations.Map;
+using NosCore.Database.DAL;
 
 namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
+        private readonly IGenericDao<DropDto> _dropDao = new GenericDao<Database.Entities.Drop, DropDto>();
         public void InsertDrop()
         {
             var drops = new List<DropDto>();
@@ -3779,7 +3781,7 @@ namespace NosCore.Parser.Parsers
 
 
             IEnumerable<DropDto> dropDtos = drops;
-            DaoFactory.GetGenericDao<DropDto>().InsertOrUpdate(dropDtos);
+            _dropDao.InsertOrUpdate(dropDtos);
         }
     }
 }

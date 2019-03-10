@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Character;
+using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Database.Entities
 {

@@ -20,9 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.PathFinder;
-using NosCore.Shared;
+using NosCore.Data;
 
 namespace NosCore.GameObject.Map
 {

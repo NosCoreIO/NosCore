@@ -17,9 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Autofac;
 using Mapster;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data;
@@ -41,7 +39,7 @@ namespace NosCore.Tests
         public void Setup()
         {
             var dependancyResolverMock = new Mock<IDependencyResolver>();
-            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null));
+            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null, null, null, null, null));
             new Mapper(dependancyResolverMock.Object);
         }
 

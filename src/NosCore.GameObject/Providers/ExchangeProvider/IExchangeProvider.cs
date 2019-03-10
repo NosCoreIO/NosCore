@@ -19,12 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {

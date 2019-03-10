@@ -19,7 +19,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core.Serializing;
-using NosCore.Shared.Enumerations.Group;
+using NosCore.Data.Enumerations.Group;
 
 namespace NosCore.Packets.ServerPackets
 {

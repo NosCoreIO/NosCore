@@ -19,7 +19,8 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations.Character;
+using NosCore.Data.Enumerations.Character;
+using CharacterRelationType = NosCore.Data.Enumerations.Character.CharacterRelationType;
 
 namespace NosCore.Data
 {
