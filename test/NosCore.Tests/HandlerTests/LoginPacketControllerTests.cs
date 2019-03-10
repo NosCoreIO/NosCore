@@ -44,6 +44,8 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class LoginPacketControllerTests
     {
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =
@@ -60,11 +62,11 @@ namespace NosCore.Tests.HandlerTests
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var map = new MapDto {MapId = 1};
-            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
+            _mapDao.InsertOrUpdate(ref map);
             var _acc = new AccountDto {Name = Name, Password = "test".ToSha512()};
-            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref _acc);
+            _accountDao.InsertOrUpdate(ref _acc);
             _session.InitializeAccount(_acc);
-            _handler = new LoginPacketController(new LoginConfiguration());
+            _handler = new LoginPacketController(new LoginConfiguration(), _accountDao);
             _handler.RegisterSession(_session);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues = new Dictionary<WebApiRoute, object>();
@@ -76,7 +78,7 @@ namespace NosCore.Tests.HandlerTests
             _handler = new LoginPacketController(new LoginConfiguration
             {
                 ClientData = "123456"
-            });
+            }, _accountDao);
             _handler.RegisterSession(_session);
             _handler.VerifyLogin(new NoS0575Packet
             {

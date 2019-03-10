@@ -41,7 +41,7 @@ namespace NosCore.Tests
         public void Setup()
         {
             var dependancyResolverMock = new Mock<IDependencyResolver>();
-            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null));
+            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null, null, null, null, null));
             new Mapper(dependancyResolverMock.Object);
         }
 

@@ -49,7 +49,7 @@ namespace NosCore.Parser
         private readonly ShopItemParser _shopItemParser = new ShopItemParser();
         private readonly ShopParser _shopParser = new ShopParser();
         private readonly SkillParser _skillParser = new SkillParser();
-
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
         public ImportFactory(string folder)
         {
             _folder = folder;
@@ -64,9 +64,9 @@ namespace NosCore.Parser
                 Password = "test".ToSha512()
             };
 
-            if (DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (_accountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc1);
+                _accountDao.InsertOrUpdate(ref acc1);
             }
 
             var acc2 = new AccountDto
@@ -76,9 +76,9 @@ namespace NosCore.Parser
                 Password = "test".ToSha512()
             };
 
-            if (DaoFactory.GetGenericDao<AccountDto>().FirstOrDefault(s => s.Name == acc1.Name) == null)
+            if (_accountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
             {
-                DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref acc2);
+                _accountDao.InsertOrUpdate(ref acc2);
             }
         }
 

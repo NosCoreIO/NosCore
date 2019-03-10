@@ -55,6 +55,9 @@ namespace NosCore.PathFinder.Gui
         private double _gridsizeX;
         private double _gridsizeY;
 
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>();
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
         {
@@ -64,16 +67,16 @@ namespace NosCore.PathFinder.Gui
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = DaoFactory.GetGenericDao<MapMonsterDto>().Where(s => s.MapId == map.MapId)
+            _monsters = _mapMonsterDao.Where(s => s.MapId == map.MapId)
                 .Adapt<List<MapMonster>>();
-            var npcMonsters = DaoFactory.GetGenericDao<NpcMonsterDto>().LoadAll().ToList();
+            var npcMonsters = _npcMonsterDao.LoadAll().ToList();
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     new MapNpcProvider(
                         new ItemProvider(new List<Item>(),
                             new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()),
-                        new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                        new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>(), null, null),
                     new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
                         new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
                 {
@@ -91,7 +94,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = DaoFactory.GetGenericDao<MapNpcDto>().Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;

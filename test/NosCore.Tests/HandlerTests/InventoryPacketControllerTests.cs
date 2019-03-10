@@ -111,7 +111,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _chara = new Character(new InventoryService(items, _session.WorldConfiguration),
-                new ExchangeProvider(null, null), null)
+                new ExchangeProvider(null, null), null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -150,7 +150,7 @@ namespace NosCore.Tests.HandlerTests
                 , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
                 _mapItemProvider,
                 new MapNpcProvider(_item, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(),
-                    new List<MapNpcDto>()),
+                    new List<MapNpcDto>(), null, null),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
                     new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
             _handler.RegisterSession(_session);

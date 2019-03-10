@@ -41,6 +41,7 @@ namespace NosCore.PathFinder.Gui
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
         private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
 
         private static void InitializeConfiguration()
         {
@@ -72,7 +73,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) DaoFactory.GetGenericDao<MapDto>().FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map) _mapDao.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

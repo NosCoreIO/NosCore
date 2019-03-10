@@ -33,10 +33,11 @@ namespace NosCore.Parser.Parsers
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private List<PortalDto> _listPortals1 = new List<PortalDto>();
-
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
         public void InsertPortals(List<string[]> packetList)
         {
-            var _maps = DaoFactory.GetGenericDao<MapDto>().LoadAll().ToList();
+            var _maps = _mapDao.LoadAll().ToList();
             short map = 0;
             var portalCounter = 0;
             var lodPortal = new PortalDto
@@ -51,11 +52,11 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave4 = lodPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) ==
+            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) ==
                 null)
             {
                 portalCounter++;
-                DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref lodPortal);
+                _portalDao.InsertOrUpdate(ref lodPortal);
             }
 
             var minilandPortal = new PortalDto
@@ -71,11 +72,11 @@ namespace NosCore.Parser.Parsers
             };
 
             var portalsave3 = minilandPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) ==
+            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) ==
                 null)
             {
                 portalCounter++;
-                DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref minilandPortal);
+                _portalDao.InsertOrUpdate(ref minilandPortal);
             }
 
             var weddingPortal = new PortalDto
@@ -90,11 +91,11 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave2 = weddingPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) ==
+            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) ==
                 null)
             {
                 portalCounter++;
-                DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref weddingPortal);
+                _portalDao.InsertOrUpdate(ref weddingPortal);
             }
 
             var glacerusCavernPortal = new PortalDto
@@ -109,11 +110,11 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave1 = glacerusCavernPortal;
-            if (DaoFactory.GetGenericDao<PortalDto>().FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) ==
+            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) ==
                 null)
             {
                 portalCounter++;
-                DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(ref glacerusCavernPortal);
+                _portalDao.InsertOrUpdate(ref glacerusCavernPortal);
             }
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
@@ -174,17 +175,17 @@ namespace NosCore.Parser.Parsers
             }
 
             // foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
-            portalCounter += _listPortals2.Count(portal => !DaoFactory.GetGenericDao<PortalDto>()
+            portalCounter += _listPortals2.Count(portal => !_portalDao
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));
 
             // so this dude doesnt exist yet in DAOFactory -> insert it
-            var portalsDtos = _listPortals2.Where(portal => !DaoFactory.GetGenericDao<PortalDto>()
+            var portalsDtos = _listPortals2.Where(portal => !_portalDao
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));
-            DaoFactory.GetGenericDao<PortalDto>().InsertOrUpdate(portalsDtos);
+            _portalDao.InsertOrUpdate(portalsDtos);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PORTALS_PARSED),
                 portalCounter);
