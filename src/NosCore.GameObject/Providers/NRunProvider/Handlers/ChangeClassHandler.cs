@@ -28,7 +28,6 @@ using NosCore.Shared.Enumerations.Character;
 using NosCore.Shared.Enumerations.Interaction;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
-using Serilog;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

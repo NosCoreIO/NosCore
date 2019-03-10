@@ -19,7 +19,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations.Items;
 using NosCore.Shared.I18N;
 

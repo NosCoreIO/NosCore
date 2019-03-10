@@ -33,7 +33,6 @@ using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Database.Entities;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;

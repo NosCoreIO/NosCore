@@ -26,7 +26,6 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets;

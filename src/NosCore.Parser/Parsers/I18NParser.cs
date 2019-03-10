@@ -23,8 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NosCore.Data.I18N;
-using NosCore.Database.Entities;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;

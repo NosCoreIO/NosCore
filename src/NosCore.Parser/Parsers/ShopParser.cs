@@ -22,7 +22,6 @@ using System.Linq;
 using System.Text;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Shared.I18N;
 using Serilog;

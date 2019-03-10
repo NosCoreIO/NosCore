@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NosCore.Data.StaticEntities;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Shared.Enumerations.Buff;
 using NosCore.Shared.I18N;
