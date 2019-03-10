@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Providers.MapNpcProvider
         private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly List<ShopItemDto> _shopItems;
         private readonly List<ShopDto> _shops;
-        private IGenericDao<ShopDto> _shopDao;
-        private IGenericDao<ShopItemDto> _shopItemDao;
+        private readonly IGenericDao<ShopDto> _shopDao;
+        private readonly IGenericDao<ShopItemDto> _shopItemDao;
 
         public MapNpcProvider(IItemProvider itemProvider, List<ShopDto> shops,
             List<ShopItemDto> shopItems,
