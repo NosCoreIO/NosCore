@@ -19,11 +19,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Database;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.DAL
+namespace NosCore.Database.DAL
 {
     public sealed class DataAccessHelper
     {

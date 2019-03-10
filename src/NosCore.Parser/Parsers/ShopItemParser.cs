@@ -20,7 +20,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
+using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.Shared.I18N;
 using Serilog;
 

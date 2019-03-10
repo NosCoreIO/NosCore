@@ -21,13 +21,13 @@ using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.DAL;
 using NosCore.Database;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Threading;
+using NosCore.Database.DAL;
 
 namespace NosCore.FriendServer
 {

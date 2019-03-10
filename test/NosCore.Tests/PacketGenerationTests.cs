@@ -19,8 +19,6 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Autofac;
-using Autofac.Builder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.Serializing;

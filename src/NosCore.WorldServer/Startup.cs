@@ -47,7 +47,6 @@ using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
@@ -69,6 +68,7 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
 using NosCore.Data.I18N;
+using NosCore.Database.DAL;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Map = NosCore.GameObject.Map.Map;
 

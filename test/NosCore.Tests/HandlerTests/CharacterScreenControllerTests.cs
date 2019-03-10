@@ -31,7 +31,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
-using NosCore.DAL;
+using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Map;
