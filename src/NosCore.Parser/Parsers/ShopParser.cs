@@ -32,6 +32,8 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
         public void InsertShops(List<string[]> packetList)
         {
             int shopCounter = 0;
@@ -40,7 +42,7 @@ namespace NosCore.Parser.Parsers
             )
             {
                 short npcid = short.Parse(currentPacket[2]);
-                var npc = DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId == npcid);
+                var npc = _mapNpcDao.FirstOrDefault(s => s.MapNpcId == npcid);
                 if (npc == null)
                 {
                     continue;
@@ -64,7 +66,7 @@ namespace NosCore.Parser.Parsers
                     ShopType = byte.Parse(currentPacket[5])
                 };
 
-                if (DaoFactory.GetGenericDao<ShopDto>().FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
+                if (_shopDao.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
                     shops.Any(s => s.MapNpcId == npc.MapNpcId))
                 {
                     continue;
@@ -75,7 +77,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<ShopDto> shopDtos = shops;
-            DaoFactory.GetGenericDao<ShopDto>().InsertOrUpdate(shopDtos);
+            _shopDao.InsertOrUpdate(shopDtos);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_PARSED),
                 shopCounter);

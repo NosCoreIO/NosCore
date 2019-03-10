@@ -294,7 +294,7 @@ namespace NosCore.Controllers
             foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
-                /* IEnumerable<ItemInstanceDTO> inventory = DAOFactory.IteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
+                /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
 
 
                  foreach (ItemInstanceDTO equipmentEntry in inventory)
@@ -407,13 +407,13 @@ namespace NosCore.Controllers
                 }
 
                 //var relations =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.CharacterId == Session.Character.CharacterId);
+                //    _characterRelationDao.Where(s => s.CharacterId == Session.Character.CharacterId);
                 //var relationsWithCharacter =
-                //    DaoFactory.GetGenericDao<CharacterRelationDto>().Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
+                //    _characterRelationDao.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
 
-                //var characters = DaoFactory.GetGenericDao<CharacterDto>()
+                //var characters = _characterDao
                 //    .Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-                //var relatedCharacters = DaoFactory.GetGenericDao<CharacterDto>().Where(s =>
+                //var relatedCharacters = _characterDao.Where(s =>
                 //    relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
 
                 //foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relations))

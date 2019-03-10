@@ -32,6 +32,7 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
         public void InsertMapNpcs(List<string[]> packetList)
         {
             var npcCounter = 0;
@@ -104,9 +105,8 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (DaoFactory.GetGenericDao<NpcMonsterDto>()
-                        .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || DaoFactory.GetGenericDao<MapNpcDto>().FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
+                if (_mapNpcDao.FirstOrDefault(s => s.VNum.Equals(npctest.VNum)) == null
+                    || _mapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
                     null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {
@@ -118,7 +118,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapNpcDto> npcDtos = npcs;
-            DaoFactory.GetGenericDao<MapNpcDto>().InsertOrUpdate(npcDtos);
+            _mapNpcDao.InsertOrUpdate(npcDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
         }
     }

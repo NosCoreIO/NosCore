@@ -30,6 +30,7 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
+        private readonly IGenericDao<RespawnMapTypeDto> _respawnMapTypeDao = new GenericDao<Database.Entities.RespawnMapType, RespawnMapTypeDto>();
         internal void InsertRespawnMapType()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
@@ -92,7 +93,7 @@ namespace NosCore.Parser.Parsers
                 }
             };
             IEnumerable<RespawnMapTypeDto> respawnMapTypeDtos = respawnmaptypemaps;
-            DaoFactory.GetGenericDao<RespawnMapTypeDto>().InsertOrUpdate(respawnMapTypeDtos);
+            _respawnMapTypeDao.InsertOrUpdate(respawnMapTypeDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED));
         }
     }

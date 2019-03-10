@@ -34,6 +34,8 @@ namespace NosCore.Parser.Parsers
     {
         private const string FileCardDat = "\\Card.dat";
 
+        private readonly IGenericDao<CardDto> _cardDao = new GenericDao<Database.Entities.Card, CardDto>();
+        private readonly IGenericDao<BCardDto> _bcardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly List<BCardDto> Bcards = new List<BCardDto>();
         private readonly List<CardDto> Cards = new List<CardDto>();
@@ -96,7 +98,7 @@ namespace NosCore.Parser.Parsers
             _card.TimeoutBuff = short.Parse(currentLine[2]);
             _card.TimeoutBuffChance = byte.Parse(currentLine[3]);
             // investigate
-            if (DaoFactory.GetGenericDao<CardDto>().FirstOrDefault(s => s.CardId == _card.CardId) == null)
+            if (_cardDao.FirstOrDefault(s => s.CardId == _card.CardId) == null)
             {
                 Cards.Add(_card);
                 _counter++;
@@ -162,8 +164,8 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                DaoFactory.GetGenericDao<CardDto>().InsertOrUpdate(Cards);
-                DaoFactory.GetGenericDao<BCardDto>().InsertOrUpdate(Bcards);
+                _cardDao.InsertOrUpdate(Cards);
+                _bcardDao.InsertOrUpdate(Bcards);
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED),
                     _counter);

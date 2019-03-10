@@ -67,6 +67,14 @@ namespace NosCore.Tests.HandlerTests
     [TestClass]
     public class NpcPacketControllerTests
     {
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
+        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -126,10 +134,10 @@ namespace NosCore.Tests.HandlerTests
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
-            var map = new MapDto {MapId = 1};
-            DaoFactory.GetGenericDao<MapDto>().InsertOrUpdate(ref map);
-            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
-            DaoFactory.GetGenericDao<AccountDto>().InsertOrUpdate(ref account);
+            var map = new MapDto { MapId = 1 };
+            _mapDao.InsertOrUpdate(ref map);
+            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
+            _accountDao.InsertOrUpdate(ref account);
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
                 new Dictionary<WebApiRoute, object>
@@ -138,8 +146,8 @@ namespace NosCore.Tests.HandlerTests
                     {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
                 };
 
-            var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
-            var _chara = new Character(new InventoryService(new List<Item>(), conf), null, null)
+            var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
+            var _chara = new Character(new InventoryService(new List<Item>(), conf), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -151,16 +159,16 @@ namespace NosCore.Tests.HandlerTests
 
             ItemProvider itemProvider = new ItemProvider(new List<Item>(),
                 new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _instanceProvider = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _mapShop},
+            _instanceProvider = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 new MapNpcProvider(itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>()),
+                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
                 new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
 
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
-                new List<PacketController> {new DefaultPacketController(null, _instanceProvider, null)},
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) },
                 _instanceProvider, null);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
@@ -198,7 +206,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCanNotCreateShopCloseToPortal()
         {
             _handler.CreateShop(shopPacket);
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -211,7 +219,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Team);
             _handler.CreateShop(shopPacket);
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -224,7 +232,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Group);
             _handler.CreateShop(shopPacket);
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message !=
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
         }
@@ -235,7 +243,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _handler.CreateShop(shopPacket);
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -274,7 +282,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _handler.CreateShop(shopPacket);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket) _session.LastPacket;
+            var packet = (SayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
         }
@@ -326,7 +334,7 @@ namespace NosCore.Tests.HandlerTests
                 Name = "TEST SHOP"
             });
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket) _session.LastPacket;
+            var packet = (SayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
         }
@@ -346,7 +354,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _handler.SellShop(new SellPacket {Slot = 0, Amount = 1, Data = (short) PocketType.Etc});
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
         }
@@ -365,8 +373,8 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _handler.SellShop(new SellPacket {Slot = 0, Amount = 1, Data = (short) PocketType.Etc});
-            var packet = (SMemoPacket) _session.LastPacket;
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
+            var packet = (SMemoPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
             Assert.IsTrue(_session.Character.Gold == 0);
@@ -387,7 +395,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3), PocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _handler.SellShop(new SellPacket {Slot = 0, Amount = 1, Data = (short) PocketType.Etc});
+            _handler.SellShop(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc });
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
         }
@@ -403,7 +411,7 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
@@ -423,7 +431,7 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
             var shop = new Shop
             {
                 ShopItems = list
@@ -443,14 +451,14 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket) _session.LastPacket;
+            var packet = (SMemoPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
@@ -466,14 +474,14 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket) _session.LastPacket;
+            var packet = (SMemoPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
         }
@@ -490,7 +498,7 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
@@ -500,7 +508,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 999), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 999);
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
@@ -517,7 +525,7 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
@@ -543,7 +551,7 @@ namespace NosCore.Tests.HandlerTests
             var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
@@ -559,13 +567,13 @@ namespace NosCore.Tests.HandlerTests
 
         private ClientSession PrepareSessionShop()
         {
-            var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
+            var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf,
-                new List<PacketController> {new DefaultPacketController(null, _instanceProvider, null)},
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) },
                 _instanceProvider, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
-            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
+            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
@@ -573,7 +581,7 @@ namespace NosCore.Tests.HandlerTests
                 new NrunProvider(
                     new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new Character(new InventoryService(new List<Item>(), conf), null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<Item>(), conf), null, null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -597,8 +605,8 @@ namespace NosCore.Tests.HandlerTests
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 1, 999);
             session2.Character.Inventory.AddItemToPocket(it, PocketType.Etc, 0);
-            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999});
-            list.TryAdd(1, new ShopItem {Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500});
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
+            list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
             session2.Character.Shop = new Shop
             {
                 Session = session2,
@@ -654,7 +662,7 @@ namespace NosCore.Tests.HandlerTests
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 999);
 
-            var packet = (SMemoPacket) _session.LastPacket;
+            var packet = (SMemoPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
         }

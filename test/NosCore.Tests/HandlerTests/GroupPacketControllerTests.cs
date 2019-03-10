@@ -62,7 +62,7 @@ namespace NosCore.Tests.HandlerTests
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto {Name = $"AccountTest{i}", Password = "test".ToSha512()};
-                var charaDto = new Character(null, null, null)
+                var charaDto = new Character(null, null, null, null, null, null, null)
                 {
                     CharacterId = i,
                     Name = $"TestExistingCharacter{i}",

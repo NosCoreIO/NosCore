@@ -179,7 +179,7 @@ namespace NosCore.Controllers
 
             //            Session.Character.LastPVPRevive = SystemTime.Now;
 
-            //            long? familyId = DAOFactory.FamilyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
+            //            long? familyId = _familyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
             //            if (familyId != null)
             //            {
             //                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
@@ -198,7 +198,7 @@ namespace NosCore.Controllers
             //                }
             //            }
 
-            //            IEnumerable<PenaltyLogDTO> warning = DAOFactory.PenaltyLogDAO.Where(s => s.AccountId == Session.Character.AccountId).Where(p => p.Penalty == PenaltyType.Warning);
+            //            IEnumerable<PenaltyLogDTO> warning = _penaltyDao.Where(s => s.AccountId == Session.Character.AccountId).Where(p => p.Penalty == PenaltyType.Warning);
             //            IEnumerable<PenaltyLogDTO> penaltyLogDtos = warning as IList<PenaltyLogDTO> ?? warning.ToList();
             //            if (penaltyLogDtos.Any())
             //            {
@@ -206,7 +206,7 @@ namespace NosCore.Controllers
             //            }
 
             //            // finfo - friends info
-            //            IEnumerable<MailDTO> mails = DAOFactory.MailDAO.Where(s => s.ReceiverId.Equals(Session.Character.CharacterId)).ToList();
+            //            IEnumerable<MailDTO> mails = _mailDao.Where(s => s.ReceiverId.Equals(Session.Character.CharacterId)).ToList();
 
             //            foreach (MailDTO mail in mails)
             //            {
@@ -224,7 +224,7 @@ namespace NosCore.Controllers
             //            }
             //            Session.Character.DeleteTimeout();
 
-            //            foreach (StaticBuffDTO sb in DAOFactory.StaticBuffDAO.Where(s => s.CharacterId == Session.Character.CharacterId))
+            //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))
             //            {
             //                Session.Character.AddStaticBuff(sb);
             //            }
