@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Database;
 using NosCore.Shared.I18N;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;

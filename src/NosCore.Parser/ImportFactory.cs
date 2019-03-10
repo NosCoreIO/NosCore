@@ -22,7 +22,6 @@ using System.IO;
 using System.Text;
 using NosCore.Core.Encryption;
 using NosCore.Data;
-using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Enumerations.Account;
