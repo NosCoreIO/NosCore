@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\NosCore.Shared\NosCore.Shared.csproj" />
+    <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
   </ItemGroup>
 
 </Project>

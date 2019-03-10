@@ -27,10 +27,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Data;
 using Polly;
 using Serilog;
 

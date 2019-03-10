@@ -27,7 +27,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using NosCore.Core.Extensions;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Core.Serializing

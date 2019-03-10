@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Shared.Enumerations.Account;
+using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Core.Serializing
 {

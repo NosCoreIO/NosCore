@@ -23,6 +23,9 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,8 +33,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Interaction;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider

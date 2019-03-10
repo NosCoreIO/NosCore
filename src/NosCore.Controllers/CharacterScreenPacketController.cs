@@ -25,23 +25,22 @@ using JetBrains.Annotations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
-using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.I18N;
 using Serilog;
-using NosCore.Shared.Enumerations;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Controllers

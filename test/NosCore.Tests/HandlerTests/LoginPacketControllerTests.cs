@@ -28,6 +28,8 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
@@ -36,8 +38,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations.Interaction;
 
 namespace NosCore.Tests.HandlerTests
 {

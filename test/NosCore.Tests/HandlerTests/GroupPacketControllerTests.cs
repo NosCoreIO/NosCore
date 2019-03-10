@@ -26,6 +26,9 @@ using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
@@ -35,9 +38,6 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Group;
-using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Tests.HandlerTests
 {

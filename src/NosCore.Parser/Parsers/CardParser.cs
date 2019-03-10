@@ -21,10 +21,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
-using NosCore.Shared.Enumerations.Buff;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

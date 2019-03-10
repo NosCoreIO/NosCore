@@ -20,8 +20,9 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Event

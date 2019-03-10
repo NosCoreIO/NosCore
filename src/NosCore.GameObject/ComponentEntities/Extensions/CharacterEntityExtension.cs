@@ -21,13 +21,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations.Character;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

@@ -25,7 +25,10 @@ using System.Threading;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Event;
@@ -35,8 +38,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.WorldServer

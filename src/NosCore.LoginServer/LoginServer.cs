@@ -24,10 +24,11 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Database;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
 
 namespace NosCore.LoginServer

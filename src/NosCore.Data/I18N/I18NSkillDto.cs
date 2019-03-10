@@ -18,7 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Enumerations;
+using NosCore.Data.Enumerations;
+using RegionType = NosCore.Data.Enumerations.RegionType;
 
 namespace NosCore.Data.I18N
 {

@@ -39,11 +39,11 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Character;
-using NosCore.Shared.Enumerations.Map;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -51,7 +51,6 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapMonsterProvider;
 using NosCore.GameObject.Providers.MapNpcProvider;
-using NosCore.Shared;
 
 namespace NosCore.Tests.HandlerTests
 {

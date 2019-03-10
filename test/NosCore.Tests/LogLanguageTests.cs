@@ -27,8 +27,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Tests
 {

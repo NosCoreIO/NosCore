@@ -19,14 +19,15 @@
 
 using System;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations.Items;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {

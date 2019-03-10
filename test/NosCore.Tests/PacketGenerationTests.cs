@@ -23,6 +23,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Providers.InventoryService;
@@ -31,9 +34,6 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.CommandPackets;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.Enumerations.Account;
-using NosCore.Shared.Enumerations.Items;
 
 namespace NosCore.Tests
 {

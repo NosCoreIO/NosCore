@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

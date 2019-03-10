@@ -23,7 +23,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
-using NosCore.Shared.I18N;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.FriendServer
