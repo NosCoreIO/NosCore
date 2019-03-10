@@ -23,12 +23,12 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading;
+using NosCore.Database.DAL;
 
 namespace NosCore.LoginServer
 {

@@ -29,7 +29,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.DAL
+namespace NosCore.Database.DAL
 {
     public class GenericDao<TEntity, TDto> : IGenericDao<TDto> where TEntity : class
     {

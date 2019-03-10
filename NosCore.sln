@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28527.54
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.LoginServer", "src\NosCore.LoginServer\NosCore.LoginServer.csproj", "{40663D90-0B3E-48A7-800E-CB5E1BED27B6}"
 EndProject
@@ -24,8 +24,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Configuration", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Tests", "test\NosCore.Tests\NosCore.Tests.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.DAL", "src\NosCore.DAL\NosCore.DAL.csproj", "{11290915-C5EE-4979-B113-23980B40AFB9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PathFinder", "src\NosCore.PathFinder\NosCore.PathFinder.csproj", "{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PathFinder.Gui", "src\NosCore.PathFinder.Gui\NosCore.PathFinder.Gui.csproj", "{3B1D3A44-2B3A-4C2F-8C30-B11889465EC0}"
@@ -34,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Packets", "src\NosC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Shared", "src\NosCore.Shared\NosCore.Shared.csproj", "{891441F7-38BF-4E33-8AA5-BC01D6E2BC69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.FriendServer", "src\NosCore.FriendServer\NosCore.FriendServer.csproj", "{B7C40B6D-6938-4A2C-A5C1-5CE1AA81A5E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.FriendServer", "src\NosCore.FriendServer\NosCore.FriendServer.csproj", "{B7C40B6D-6938-4A2C-A5C1-5CE1AA81A5E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,10 +84,6 @@ Global
 		{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}.Release|Any CPU.Build.0 = Release|Any CPU
-		{11290915-C5EE-4979-B113-23980B40AFB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11290915-C5EE-4979-B113-23980B40AFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11290915-C5EE-4979-B113-23980B40AFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11290915-C5EE-4979-B113-23980B40AFB9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EB34F8B-3AFF-4EE3-BCF9-AEEAB1EACEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU

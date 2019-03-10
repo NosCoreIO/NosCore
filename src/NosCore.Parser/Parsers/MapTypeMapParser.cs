@@ -19,7 +19,8 @@
 
 using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
-using NosCore.DAL;
+using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.Shared.Enumerations.Map;
 
 namespace NosCore.Parser.Parsers

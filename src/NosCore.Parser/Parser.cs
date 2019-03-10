@@ -25,10 +25,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Database.DAL;
 
 // ReSharper disable LocalizableElement
 

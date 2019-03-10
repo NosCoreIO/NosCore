@@ -26,12 +26,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Mapster;
 using NosCore.Data;
+using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 
-namespace NosCore.DAL
+namespace NosCore.Database
 {
     public class ItemInstanceDao : IGenericDao<IItemInstanceDto>
     {

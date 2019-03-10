@@ -24,12 +24,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Database;
-using NosCore.DAL;
 using NosCore.GameObject.Map;
 using NosCore.Shared.I18N;
 using OpenTK.Graphics;
 using Serilog;
 using NosCore.Data.StaticEntities;
+using NosCore.Database.DAL;
 
 namespace NosCore.PathFinder.Gui
 {
