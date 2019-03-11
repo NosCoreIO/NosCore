@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -31,10 +32,10 @@ namespace NosCore.GameObject.Providers.InventoryService
 {
     public class InventoryService : ConcurrentDictionary<Guid, IItemInstance>, IInventoryService
     {
-        private readonly List<Item> _items;
+        private readonly List<ItemDto> _items;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public InventoryService(List<Item> items, WorldConfiguration configuration)
+        public InventoryService(List<ItemDto> items, WorldConfiguration configuration)
         {
             _items = items;
             Configuration = configuration;

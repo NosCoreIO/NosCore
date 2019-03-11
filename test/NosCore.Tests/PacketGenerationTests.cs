@@ -20,12 +20,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
+using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Providers.InventoryService;
@@ -40,6 +46,11 @@ namespace NosCore.Tests
     [TestClass]
     public class PacketGenerationTests
     {
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+
         [TestInitialize]
         public void Setup()
         {
@@ -50,7 +61,7 @@ namespace NosCore.Tests
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
             var characterTest =
-                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, null, null, null, null)
+                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
                 {
                     Name = "characterTest",
                     Account = new AccountDto {Authority = AuthorityType.Administrator},
@@ -83,7 +94,7 @@ namespace NosCore.Tests
         public void Generate()
         {
             var characterTest =
-                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, null, null, null, null)
+                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
                 {
                     Name = "characterTest",
                     Account = new AccountDto {Authority = AuthorityType.Administrator},
@@ -148,7 +159,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForMonster()
         {
-            var mapMonsterTest = new MapMonster();
+            var mapMonsterTest = new MapMonster(new List<NpcMonsterDto>());
 
             var packet = PacketFactory.Serialize(new[] {mapMonsterTest.GenerateIn()});
             Assert.AreEqual("in 3 - 0 0 0 0 0 0 0 0 0 -1 1 0 -1 - 2 -1 0 0 0 0 0 0 0 0", packet);
@@ -183,7 +194,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForNpc()
         {
-            var mapNpcTest = new MapNpc();
+            var mapNpcTest = new MapNpc(null, new GenericDao<Database.Entities.Shop, ShopDto>(), new GenericDao<Database.Entities.ShopItem, ShopItemDto>(), new List<NpcMonsterDto>());
 
             var packet = PacketFactory.Serialize(new[] {mapNpcTest.GenerateIn()});
             Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 1 0 -1 - 2 -1 0 0 0 0 0 0 0 0", packet);
@@ -278,7 +289,7 @@ namespace NosCore.Tests
                 new ShopItem {Slot = 0, Type = 0, Amount = 1, ItemInstance = item, Price = 1});
             items.TryAdd(1,
                 new ShopItem {Slot = 2, Type = 0, Amount = 2, ItemInstance = item, Price = 1});
-            var chara = new Character(null, null, null, null, null, null, null)
+            var chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 Shop = new Shop
                 {

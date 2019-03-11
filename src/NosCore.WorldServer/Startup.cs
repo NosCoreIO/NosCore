@@ -55,8 +55,10 @@ using NosCore.Packets.ClientPackets;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
+using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
@@ -102,17 +104,20 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        private static void RegisterDatabaseObject<TGameObject, TDto>(ref ContainerBuilder containerBuilder)
+        private static void RegisterMapper<TGameObject, TDto>(IContainer container)
+        {
+            TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
+        }
+
+        private static void RegisterDatabaseObject<TDto>(ContainerBuilder containerBuilder)
         {
             var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
-
-            containerBuilder.RegisterType<TGameObject>().PropertiesAutowired();
             containerBuilder.Register(c =>
             {
                 var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
-                if (items.Count != 0 || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
+                if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
                 {
-                    if (staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                    if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                     {
                         _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
                             items.Count);
@@ -124,7 +129,10 @@ namespace NosCore.WorldServer
                 }
 
                 return items;
-            }).As<List<TDto>>().SingleInstance();
+            })
+            .As<List<TDto>>()
+            .SingleInstance()
+            .AutoActivate();
         }
 
         private static void InitializeContainer(ref ContainerBuilder containerBuilder)
@@ -162,14 +170,18 @@ namespace NosCore.WorldServer
                 .PropertiesAutowired();
             RegisterDao(ref containerBuilder);
 
-            RegisterDatabaseObject<Character, CharacterDto>(ref containerBuilder);
-            RegisterDatabaseObject<Item, ItemDto>(ref containerBuilder);
-            RegisterDatabaseObject<NpcMonsterDto, NpcMonsterDto>(ref containerBuilder);
-            RegisterDatabaseObject<Map, MapDto>(ref containerBuilder);
-            RegisterDatabaseObject<MapMonster, MapMonsterDto>(ref containerBuilder);
-            RegisterDatabaseObject<MapNpc, MapNpcDto>(ref containerBuilder);
-            RegisterDatabaseObject<Shop, ShopDto>(ref containerBuilder);
-            RegisterDatabaseObject<ShopItem, ShopItemDto>(ref containerBuilder);
+            RegisterDatabaseObject<ItemDto>(containerBuilder);
+            RegisterDatabaseObject<NpcMonsterDto>(containerBuilder);
+            RegisterDatabaseObject<MapDto>(containerBuilder);
+            RegisterDatabaseObject<MapMonsterDto>(containerBuilder);
+            RegisterDatabaseObject<MapNpcDto>(containerBuilder);
+            RegisterDatabaseObject<ShopDto>(containerBuilder);
+            RegisterDatabaseObject<ShopItemDto>(containerBuilder);
+
+            containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
+                .Where(t => typeof(IDto).IsAssignableFrom(t))
+                .AsSelf()
+                .PropertiesAutowired();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
@@ -290,22 +302,18 @@ namespace NosCore.WorldServer
             InitializeContainer(ref containerBuilder);
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
-            container.Resolve<List<ItemDto>>();
-            container.Resolve<List<NpcMonsterDto>>();
-            container.Resolve<List<ShopItemDto>>();
-            container.Resolve<List<ShopDto>>();
-            container.Resolve<List<MapDto>>();
-            container.Resolve<List<MapMonsterDto>>();
-            container.Resolve<List<MapNpcDto>>();
 
-            TypeAdapterConfig<ItemDto, Item>.NewConfig().ConstructUsing(src => container.Resolve<Item>());
-            TypeAdapterConfig<NpcMonsterDto, NpcMonsterDto>.NewConfig().ConstructUsing(src => container.Resolve<NpcMonsterDto>());
-            TypeAdapterConfig<ShopItemDto, ShopItem>.NewConfig().ConstructUsing(src => container.Resolve<ShopItem>());
-            TypeAdapterConfig<ShopDto, Shop>.NewConfig().ConstructUsing(src => container.Resolve<Shop>());
-            TypeAdapterConfig<MapDto, Map>.NewConfig().ConstructUsing(src => container.Resolve<Map>());
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => container.Resolve<MapMonster>());
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => container.Resolve<MapNpc>());
-            container.Resolve<IMapInstanceProvider>();
+            RegisterMapper<Character, CharacterDto>(container);
+            RegisterMapper<Item, ItemDto>(container);
+            RegisterMapper<Map, MapDto>(container);
+            RegisterMapper<MapMonster, MapMonsterDto>(container);
+            RegisterMapper<MapNpc, MapNpcDto>(container);
+            RegisterMapper<Shop, ShopDto>(container);
+            RegisterMapper<ShopItem, ShopItemDto>(container);
+
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+            var mapinstance = container.Resolve<IMapInstanceProvider>();
+            mapinstance.Initialize();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }
