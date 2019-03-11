@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Transport.Channels;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -49,8 +50,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -62,9 +61,9 @@ namespace NosCore.Tests.HandlerTests
         private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
         private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
-        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
-        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
 
         private readonly Map _map = new Map
         {
@@ -140,10 +139,8 @@ namespace NosCore.Tests.HandlerTests
                 new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
+                _mapNpcDao,
+                _mapMonsterDao, _portalDao, new Adapter());
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
                 new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
@@ -195,12 +192,10 @@ namespace NosCore.Tests.HandlerTests
 
             CharacterDto character = _targetChar;
             _characterDao.InsertOrUpdate(ref character);
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _map2},
+            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<MapDto> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(_itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
+                _mapNpcDao,
+                _mapMonsterDao, _portalDao, new Adapter());
             _targetSession = new ClientSession(null,
                 new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
                 instanceAccessService, null) {SessionId = 2};

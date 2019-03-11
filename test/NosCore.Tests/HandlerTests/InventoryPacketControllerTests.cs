@@ -53,14 +53,15 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class InventoryPacketControllerTests
     {
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+
         private readonly ClientSession _session = new ClientSession(
             new WorldConfiguration
                 {BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000},
@@ -147,10 +148,8 @@ namespace NosCore.Tests.HandlerTests
                 }
                 , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
                 _mapItemProvider,
-                new MapNpcProvider(_item, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(),
-                    new List<MapNpcDto>(), null, null),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                _mapNpcDao,
+                _mapMonsterDao);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             _session.Character.MapInstance = _map;

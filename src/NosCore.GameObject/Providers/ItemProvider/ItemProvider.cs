@@ -33,9 +33,9 @@ namespace NosCore.GameObject.Providers.ItemProvider
     public class ItemProvider : IItemProvider
     {
         private readonly List<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
-        private readonly List<Item.Item> _items;
+        private readonly List<ItemDto> _items;
 
-        public ItemProvider(List<Item.Item> items,
+        public ItemProvider(List<ItemDto> items,
             IEnumerable<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _items = items;
@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 k.Adapt<UsableInstance>() ??
                 (IItemInstance) k.Adapt<ItemInstance>();
 
-            item.Item = _items.Find(s => s.VNum == k.ItemVNum);
+            item.Item = _items.Find(s => s.VNum == k.ItemVNum).Adapt<Item.Item>();
             LoadHandlers(item);
             return item;
         }
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
         public IItemInstance Generate(short itemToCreateVNum, long characterId, short amount, sbyte rare,
             byte upgrade, byte design)
         {
-            Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum);
+            Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {
                 case PocketType.Miniland:

@@ -79,8 +79,6 @@ namespace NosCore.GameObject
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
-            PositionX = MapX;
-            PositionY = MapY;
             IsAlive = true;
         }
 

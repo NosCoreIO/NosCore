@@ -25,6 +25,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
+using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
@@ -35,11 +36,10 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using NosCore.Data;
+using NosCore.Data.AliveEntities;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
@@ -49,22 +49,16 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly IMapItemProvider _mapItemProvider;
-        private readonly IMapMonsterProvider _mapMonsterProvider;
-        private readonly IMapNpcProvider _mapNpcProvider;
-
-        private readonly List<NpcMonsterDto> _npcMonsters;
-
         private bool _isSleeping;
         private bool _isSleepingRequest;
-        private ConcurrentDictionary<long, MapMonster> _monsters;
+        private ConcurrentDictionary<int, MapMonster> _monsters;
 
-        private ConcurrentDictionary<long, MapNpc> _npcs;
+        private ConcurrentDictionary<int, MapNpc> _npcs;
+        private readonly IAdapter _adapter;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            List<NpcMonsterDto> npcMonsters, IMapItemProvider mapItemProvider,
-            IMapNpcProvider mapNpcProvider, IMapMonsterProvider mapMonsterProvider)
+           IMapItemProvider mapItemProvider, IAdapter adapter)
         {
-            _npcMonsters = npcMonsters;
             XpRate = 1;
             DropRate = 1;
             ShopAllowed = shopAllowed;
@@ -72,16 +66,15 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             Map = map;
             MapInstanceId = guid;
             Portals = new List<Portal>();
-            _monsters = new ConcurrentDictionary<long, MapMonster>();
-            _npcs = new ConcurrentDictionary<long, MapNpc>();
+            _monsters = new ConcurrentDictionary<int, MapMonster>();
+            _npcs = new ConcurrentDictionary<int, MapNpc>();
             MapItems = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
             LastUnregister = SystemTime.Now().AddMinutes(-1);
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
             _mapItemProvider = mapItemProvider;
-            _mapNpcProvider = mapNpcProvider;
-            _mapMonsterProvider = mapMonsterProvider;
+            _adapter = adapter;
         }
 
         public DateTime LastUnregister { get; set; }
@@ -200,14 +193,37 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             return droppedItem;
         }
 
-        public void LoadMonsters()
+        public void LoadMonsters(List<MapMonsterDto> monsters)
         {
-            _monsters = _mapMonsterProvider.Create(this);
+            Task.Factory.StartNew(() =>
+            {
+                _monsters = new ConcurrentDictionary<int, MapMonster>(monsters.Adapt<List<MapMonster>>().ToDictionary(x => x.MapMonsterId,
+                x =>
+                {
+                    x.MapInstanceId = MapInstanceId;
+                    x.MapInstance = this;
+                    x.PositionX = x.MapX;
+                    x.PositionY = x.MapY;
+                    return x;
+                }));
+            });
         }
 
-        public void LoadNpcs()
+        public void LoadNpcs(List<MapNpcDto> npcs)
         {
-            _npcs = _mapNpcProvider.Create(this);
+            Task.Factory.StartNew(() =>
+            {
+                return _npcs = new ConcurrentDictionary<int, MapNpc>(npcs.Adapt<List<MapNpc>>().ToDictionary(
+                    x => x.MapNpcId,
+                    x =>
+                    {
+                        x.MapInstanceId = MapInstanceId;
+                        x.MapInstance = this;
+                        x.PositionX = x.MapX;
+                        x.PositionY = x.MapY;
+                        return x;
+                    }));
+            });
         }
 
         public List<PacketDefinition> GetMapItems()

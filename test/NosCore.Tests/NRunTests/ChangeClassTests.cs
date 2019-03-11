@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetty.Transport.Channels;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -48,8 +49,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.InventoryService;
@@ -64,8 +63,13 @@ namespace NosCore.Tests.NRunTests
     {
         private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
         private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
         private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
         private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -79,21 +83,23 @@ namespace NosCore.Tests.NRunTests
         [TestInitialize]
         public void Setup()
         {
+            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, _shopDao, _shopItemDao, new List<NpcMonsterDto>()));
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
 
-            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
+            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             _accountDao.InsertOrUpdate(ref account);
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map},
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(null, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto> {new NpcMonsterDto()}, new List<MapNpcDto> {new MapNpcDto()}, _shopDao, _shopItemDao),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
 
+            var npc = new MapNpcDto();
+            _mapNpcDao.InsertOrUpdate(ref npc);
+
+            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<MapDto> { _map },
+                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                _mapNpcDao,
+                _mapMonsterDao, _portalDao, new Adapter());
             var items = new List<Item>
             {
                 new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
@@ -114,14 +120,14 @@ namespace NosCore.Tests.NRunTests
             };
 
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            var conf = new WorldConfiguration {MaxItemAmount = 999, BackpackSize = 99};
+            var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
             _session = new ClientSession(conf,
-                new List<PacketController> {new DefaultPacketController(conf, instanceAccessService, null)},
+                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null) },
                 instanceAccessService, null);
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassHandler()}));
-            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null, null, null, null, null)
+            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -158,10 +164,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             });
 
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -179,10 +185,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             });
 
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -200,10 +206,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) CharacterClassType.Swordman
+                Type = (byte)CharacterClassType.Swordman
             });
 
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }
@@ -221,7 +227,7 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             });
 
             Assert.IsTrue(_session.Character.Class == CharacterClassType.Adventurer && _session.Character.Level == 15 &&
@@ -242,7 +248,7 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             });
 
             Assert.IsTrue(_session.Character.Class == characterClass && _session.Character.Level == 15 &&
@@ -266,10 +272,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             });
 
-            var packet = (MsgPacket) _session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                 _session.Account.Language) && packet.Type == MessageType.White);
         }

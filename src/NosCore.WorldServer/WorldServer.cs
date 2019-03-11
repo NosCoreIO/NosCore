@@ -45,30 +45,16 @@ namespace NosCore.WorldServer
     public class WorldServer
     {
         private readonly List<IGlobalEvent> _events;
-        [UsedImplicitly] private readonly IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
-        [UsedImplicitly] private readonly List<Item> _items;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        [UsedImplicitly] private readonly IMapInstanceProvider _mapInstanceProvider;
-        [UsedImplicitly] private readonly Mapper _mapper;
-        [UsedImplicitly] private readonly List<Map> _maps;
         private readonly NetworkManager _networkManager;
-        [UsedImplicitly] private readonly List<NpcMonsterDto> _npcmonsters;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager, List<Item> items,
-            List<NpcMonsterDto> npcmonsters, List<Map> maps, IMapInstanceProvider mapInstanceProvider,
-            IEnumerable<IGlobalEvent> events, IEnumerable<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>> handlers,
-            Mapper mapper)
+        public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
+            IEnumerable<IGlobalEvent> events)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
-            _items = items;
-            _handlers = handlers;
-            _npcmonsters = npcmonsters;
-            _maps = maps;
-            _mapInstanceProvider = mapInstanceProvider;
             _events = events.ToList();
-            _mapper = mapper;
         }
 
         public void Run()
