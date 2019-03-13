@@ -17,13 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-
-namespace NosCore.GameObject.Providers.MapMonsterProvider
+namespace NosCore.Data
 {
-    public interface IMapMonsterProvider
+    internal interface IStaticDto : IDto
     {
-        ConcurrentDictionary<long, MapMonster> Create(MapInstance mapInstance);
     }
 }

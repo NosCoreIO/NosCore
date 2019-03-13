@@ -20,17 +20,20 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
@@ -38,50 +41,69 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
     public class MapInstanceProvider : IMapInstanceProvider
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        private readonly ConcurrentDictionary<Guid, MapInstance> MapInstances =
+        private readonly IMapItemProvider _mapItemProvider;
+        private readonly IGenericDao<MapMonsterDto> _mapMonsters;
+        private readonly IGenericDao<PortalDto> _portalDao;
+        private readonly IAdapter _adapter;
+        private readonly List<MapDto> _maps;
+        private readonly IGenericDao<MapNpcDto> _mapNpcs;
+        private ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
-        public MapInstanceProvider(List<NpcMonsterDto> npcMonsters, List<Map.Map> maps,
-            IMapItemProvider mapItemProvider, IMapNpcProvider mapNpcProvider,
-            IMapMonsterProvider mapMonsterProvider, IGenericDao<PortalDto> portalDao)
+        public MapInstanceProvider(List<MapDto> maps,
+            IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
+            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter)
+        {
+            _mapItemProvider = mapItemProvider;
+            _mapMonsters = mapMonsters;
+            _portalDao = portalDao;
+            _adapter = adapter;
+            _maps = maps;
+            _mapNpcs = mapNpcs;
+        }
+
+        public void Initialize()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
-            var mapPartitioner = Partitioner.Create(maps, EnumerablePartitionerOptions.NoBuffering);
-            var mapList = new ConcurrentDictionary<short, Map.Map>();
-            var npccount = 0;
-            var monstercount = 0;
-            Parallel.ForEach(mapPartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, map =>
-            {
-                var guid = Guid.NewGuid();
-                mapList[map.MapId] = map;
-                var newMap = new MapInstance(map, guid, map.ShopAllowed, MapInstanceType.BaseMapInstance, npcMonsters,
-                    mapItemProvider, mapNpcProvider, mapMonsterProvider);
-                MapInstances.TryAdd(guid, newMap);
-                newMap.LoadMonsters();
-                newMap.LoadNpcs();
-                newMap.StartLife();
-                monstercount += newMap.Monsters.Count;
-                npccount += newMap.Npcs.Count;
-            });
-            var mapInstancePartitioner =
-                Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
-            Parallel.ForEach(mapInstancePartitioner, new ParallelOptions {MaxDegreeOfParallelism = 8}, mapInstance =>
+
+            var monsters = _mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId).ToDictionary(group => group.Key, group => group.ToList());
+            var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId).ToDictionary(group => group.Key, group => group.ToList());
+            var portals = _portalDao.LoadAll().ToList();
+
+            var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
+            MapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
+                map => mapsdic[map.MapId],
+                map =>
+                {
+                    var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
+                        _mapItemProvider, _adapter);
+                    if (monsters.ContainsKey(map.MapId))
+                    {
+                        mapinstance.LoadMonsters(monsters[map.MapId]);
+                    }
+                    if (npcs.ContainsKey(map.MapId))
+                    {
+                        mapinstance.LoadNpcs(npcs[map.MapId]);
+                    }
+                    mapinstance.StartLife();
+                    return mapinstance;
+                }));
+
+            var mapInstancePartitioner = Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
+            Parallel.ForEach(mapInstancePartitioner, mapInstance =>
             {
                 var partitioner = Partitioner.Create(
-                    portalDao.Where(s => s.SourceMapId.Equals(mapInstance.Map.MapId)),
+                    portals.Where(s => s.SourceMapId == mapInstance.Map.MapId).Adapt<List<Portal>>(),
                     EnumerablePartitionerOptions.None);
                 var portalList = new ConcurrentDictionary<int, Portal>();
-                Parallel.ForEach(partitioner, portalDto =>
+                Parallel.ForEach(partitioner, portal =>
                 {
-                    Portal portal = portalDto.Adapt<Portal>();
                     portal.SourceMapInstanceId = mapInstance.MapInstanceId;
                     portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
                     portalList[portal.PortalId] = portal;
                 });
                 mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
             });
-            maps.AddRange(mapList.Select(s => s.Value));
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)

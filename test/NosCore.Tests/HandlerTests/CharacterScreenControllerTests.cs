@@ -23,7 +23,6 @@ using System.Linq;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -36,7 +35,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
@@ -68,9 +66,9 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            var dependancyResolverMock = new Mock<IDependencyResolver>();
-            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao));
-            new Mapper(dependancyResolverMock.Object);
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
+            new Mapper();
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
@@ -140,9 +138,9 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters,
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, null);
+                    null);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -239,9 +237,9 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance, _npcMonsters,
+                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, null);
+                    null);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

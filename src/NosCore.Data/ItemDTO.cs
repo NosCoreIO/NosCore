@@ -30,7 +30,7 @@ using PocketType = NosCore.Data.Enumerations.Items.PocketType;
 namespace NosCore.Data
 {
     [StaticDto(LoadedMessage = LogLanguageKey.ITEMS_LOADED)]
-    public class ItemDto : IDto
+    public class ItemDto : IStaticDto
     {
         public byte BasicUpgrade { get; set; }
         public bool Flag1 { get; set; }

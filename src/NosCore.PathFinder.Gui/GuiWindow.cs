@@ -34,8 +34,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.Packets.ClientPackets;
 using OpenTK;
 using OpenTK.Graphics;
@@ -72,14 +70,9 @@ namespace NosCore.PathFinder.Gui
                 .Adapt<List<MapMonster>>();
             var npcMonsters = _npcMonsterDao.LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters,
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    new MapNpcProvider(
-                        new ItemProvider(new List<Item>(),
-                            new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>()),
-                        new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(), new List<MapNpcDto>(), null, null),
-                    new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                        new List<NpcMonsterDto>(), new List<MapMonsterDto>()))
+                    null)
                 {
                     IsSleeping = false
                 };

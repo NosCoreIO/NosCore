@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
@@ -30,11 +31,25 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDto, INonPlayableEntity
+    public class MapMonster : MapMonsterDto, INonPlayableEntity, IInitializable
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private ILogger _logInit;
+        private ILogger _logger
+        {
+            get
+            {
+                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
+                return _logInit;
+            }
+        }
+
+        private readonly List<NpcMonsterDto> _npcMonsters;
+        public MapMonster(List<NpcMonsterDto> npcMonsters)
+        {
+            _npcMonsters = npcMonsters;
+        }
+
         public IDisposable Life { get; private set; }
-        public Group Group { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
@@ -60,26 +75,26 @@ namespace NosCore.GameObject
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
-
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
 
         public short Race => NpcMonster.Race;
-        public Shop Shop => null;
+        private Shop _shop;
+        public Shop Shop => _shop;
 
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
 
-        internal void Initialize(NpcMonsterDto npcMonster)
+        public void Initialize()
         {
-            NpcMonster = npcMonster;
-            Mp = NpcMonster.MaxMp;
-            Hp = NpcMonster.MaxHp;
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster?.MaxMp ?? 0;
+            Hp = NpcMonster?.MaxHp ?? 0;
+            Speed = NpcMonster?.Speed ?? 0;
             PositionX = MapX;
             PositionY = MapY;
-            Speed = NpcMonster.Speed;
             IsAlive = true;
         }
 

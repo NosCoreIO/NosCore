@@ -25,7 +25,7 @@ using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 namespace NosCore.Data.StaticEntities
 {
     [StaticDto(LoadedMessage = LogLanguageKey.SHOPITEMS_LOADED)]
-    public class ShopItemDto : IDto
+    public class ShopItemDto : IStaticDto
     {
         public byte Color { get; set; }
 
