@@ -19,7 +19,7 @@
 
 namespace NosCore.Data
 {
-    internal interface IStaticDto : IDto
+    public interface IStaticDto : IDto
     {
     }
 }
