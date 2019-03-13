@@ -50,7 +50,6 @@ namespace NosCore.GameObject
         }
 
         public IDisposable Life { get; private set; }
-        public Group Group { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
@@ -76,13 +75,13 @@ namespace NosCore.GameObject
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
-
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
 
         public short Race => NpcMonster.Race;
-        public Shop Shop => null;
+        private Shop _shop;
+        public Shop Shop => _shop;
 
         public byte Level { get; set; }
 
