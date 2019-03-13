@@ -107,6 +107,8 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
+            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null,null, null,null));
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
@@ -135,12 +137,13 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            _itemProvider = new ItemProvider(new List<Item>(),
+            _itemProvider = new ItemProvider(new List<ItemDto>(),
                 new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> {_map, _map2},
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter());
+            instanceAccessService.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
                 new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
@@ -192,7 +195,7 @@ namespace NosCore.Tests.HandlerTests
 
             CharacterDto character = _targetChar;
             _characterDao.InsertOrUpdate(ref character);
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<MapDto> {_map, _map2},
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter());

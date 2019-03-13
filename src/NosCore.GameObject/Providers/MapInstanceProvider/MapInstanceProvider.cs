@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,12 +46,11 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly IGenericDao<PortalDto> _portalDao;
         private readonly IAdapter _adapter;
         private readonly List<MapDto> _maps;
-        private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly IGenericDao<MapNpcDto> _mapNpcs;
         private ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
-        public MapInstanceProvider(List<NpcMonsterDto> npcMonsters, List<MapDto> maps,
+        public MapInstanceProvider(List<MapDto> maps,
             IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
             IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter)
         {
@@ -60,34 +60,30 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _adapter = adapter;
             _maps = maps;
             _mapNpcs = mapNpcs;
-            _npcMonsters = npcMonsters;
         }
-
-
 
         public void Initialize()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
-            var monsters = _mapMonsters.LoadAll().GroupBy(u => u.MapId).ToList();
-            var npcs = _mapNpcs.LoadAll().GroupBy(u => u.MapId).ToList();
-            var portals = _portalDao.LoadAll().ToList();
-            var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
 
+            var monsters = _mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId).ToDictionary(group => group.Key, group => group.ToList());
+            var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId).ToDictionary(group => group.Key, group => group.ToList());
+            var portals = _portalDao.LoadAll().ToList();
+
+            var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
             MapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],
                 map =>
                 {
                     var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
                         _mapItemProvider, _adapter);
-                    var monst = monsters.SingleOrDefault(s => s.Key == map.MapId)?.ToList();
-                    if (monst != null)
+                    if (monsters.ContainsKey(map.MapId))
                     {
-                        mapinstance.LoadMonsters(monst);
+                        mapinstance.LoadMonsters(monsters[map.MapId]);
                     }
-                    var npclist = npcs.SingleOrDefault(s => s.Key == map.MapId)?.ToList();
-                    if (npclist != null)
+                    if (npcs.ContainsKey(map.MapId))
                     {
-                        mapinstance.LoadNpcs(npclist);
+                        mapinstance.LoadNpcs(npcs[map.MapId]);
                     }
                     mapinstance.StartLife();
                     return mapinstance;

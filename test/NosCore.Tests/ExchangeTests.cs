@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
@@ -53,7 +54,7 @@ namespace NosCore.Tests
                 MaxBankGoldAmount = 100000000000
             };
 
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Main, VNum = 1012},
                 new Item {Type = PocketType.Main, VNum = 1013},
@@ -150,10 +151,10 @@ namespace NosCore.Tests
         public void Test_Process_Exchange()
         {
             IInventoryService inventory1 =
-                new InventoryService(new List<Item> {new Item {VNum = 1012, Type = PocketType.Main}},
+                new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = PocketType.Main}},
                     _worldConfiguration);
             IInventoryService inventory2 =
-                new InventoryService(new List<Item> {new Item {VNum = 1013, Type = PocketType.Main}},
+                new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = PocketType.Main}},
                     _worldConfiguration);
             var item1 = inventory1.AddItemToPocket(_itemProvider.Create(1012, 1)).First();
             var item2 = inventory2.AddItemToPocket(_itemProvider.Create(1013, 1)).First();

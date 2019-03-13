@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             {
                 for (short y = -1; y < 2; y++)
                 {
-                    possibilities.Add(new MapCell {X = x, Y = y});
+                    possibilities.Add(new MapCell { X = x, Y = y });
                 }
             }
 
@@ -159,8 +159,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
             for (var i = 0; i < orderedPossibilities.Count && !niceSpot; i++)
             {
-                mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
-                mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
+                mapX = (short)(session.Character.PositionX + orderedPossibilities[i].X);
+                mapY = (short)(session.Character.PositionY + orderedPossibilities[i].Y);
                 if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
                 {
                     continue;
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 return null;
             }
 
-            var newItemInstance = (IItemInstance) inv.Clone();
+            var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = _mapItemProvider.Create(this, newItemInstance, mapX, mapY);
@@ -193,37 +193,27 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             return droppedItem;
         }
 
-        public void LoadMonsters(List<MapMonsterDto> monsters)
+        public void LoadMonsters(List<MapMonster> monsters)
         {
-            Task.Factory.StartNew(() =>
+            _monsters = new ConcurrentDictionary<int, MapMonster>(monsters.ToDictionary(x => x.MapMonsterId,
+            x =>
             {
-                _monsters = new ConcurrentDictionary<int, MapMonster>(monsters.Adapt<List<MapMonster>>().ToDictionary(x => x.MapMonsterId,
+                x.MapInstanceId = MapInstanceId;
+                x.MapInstance = this;
+                return x;
+            }));
+        }
+
+        public void LoadNpcs(List<MapNpc> npcs)
+        {
+            _npcs = new ConcurrentDictionary<int, MapNpc>(npcs.ToDictionary(
+                x => x.MapNpcId,
                 x =>
                 {
                     x.MapInstanceId = MapInstanceId;
                     x.MapInstance = this;
-                    x.PositionX = x.MapX;
-                    x.PositionY = x.MapY;
                     return x;
                 }));
-            });
-        }
-
-        public void LoadNpcs(List<MapNpcDto> npcs)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                return _npcs = new ConcurrentDictionary<int, MapNpc>(npcs.Adapt<List<MapNpc>>().ToDictionary(
-                    x => x.MapNpcId,
-                    x =>
-                    {
-                        x.MapInstanceId = MapInstanceId;
-                        x.MapInstance = this;
-                        x.PositionX = x.MapX;
-                        x.PositionY = x.MapY;
-                        return x;
-                    }));
-            });
         }
 
         public List<PacketDefinition> GetMapItems()

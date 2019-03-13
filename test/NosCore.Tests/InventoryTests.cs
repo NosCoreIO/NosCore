@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.InventoryService;
@@ -41,7 +42,7 @@ namespace NosCore.Tests
         [TestInitialize]
         public void Setup()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Main, VNum = 1012},
                 new Item {Type = PocketType.Main, VNum = 1013},
