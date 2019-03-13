@@ -170,6 +170,7 @@ namespace NosCore.WorldServer
                 .PropertiesAutowired();
             RegisterDao(ref containerBuilder);
 
+            //todo remove copy here
             RegisterDatabaseObject<ItemDto>(containerBuilder);
             RegisterDatabaseObject<NpcMonsterDto>(containerBuilder);
             RegisterDatabaseObject<MapDto>(containerBuilder);
@@ -214,6 +215,7 @@ namespace NosCore.WorldServer
 
         private static void RegisterDao(ref ContainerBuilder containerBuilder)
         {
+            //todo remove copy here
             containerBuilder.RegisterType<GenericDao<Database.Entities.Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterType<GenericDao<Database.Entities.Character, CharacterDto>>().As<IGenericDao<CharacterDto>>().SingleInstance();
             containerBuilder.RegisterType<GenericDao<Database.Entities.Map, MapDto>>().As<IGenericDao<MapDto>>().SingleInstance();
@@ -303,6 +305,7 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
 
+            //todo remove copy here
             RegisterMapper<Character, CharacterDto>(container);
             RegisterMapper<Item, ItemDto>(container);
             RegisterMapper<Map, MapDto>(container);
@@ -311,9 +314,9 @@ namespace NosCore.WorldServer
             RegisterMapper<Shop, ShopDto>(container);
             RegisterMapper<ShopItem, ShopItemDto>(container);
 
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(()=> dest.Initialize()));
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
-            var mapinstance = container.Resolve<IMapInstanceProvider>();
-            mapinstance.Initialize();
+            container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }

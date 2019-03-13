@@ -53,13 +53,13 @@ namespace NosCore.Tests.HandlerTests
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
-            for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
+            for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> {handler}, null, null) {SessionId = i};
+                var session = new ClientSession(null, new List<PacketController> { handler }, null, null) { SessionId = i };
 
                 Broadcaster.Instance.RegisterSession(session);
-                var acc = new AccountDto {Name = $"AccountTest{i}", Password = "test".ToSha512()};
+                var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
                 var charaDto = new Character(null, null, null, null, null, null, null)
                 {
                     CharacterId = i,
@@ -81,8 +81,8 @@ namespace NosCore.Tests.HandlerTests
                 session.SetCharacter(chara);
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true,
                     MapInstanceType.BaseMapInstance,
-                    null, new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, null);
+                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    null);
             }
         }
 

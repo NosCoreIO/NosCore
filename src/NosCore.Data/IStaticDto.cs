@@ -17,25 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
-using NosCore.Data.DataAttributes;
-using NosCore.Data.I18N;
-using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
-
-namespace NosCore.Data.StaticEntities
+namespace NosCore.Data
 {
-    [StaticDto(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
-    public class ShopDto : IStaticDto
+    internal interface IStaticDto : IDto
     {
-        public int MapNpcId { get; set; }
-
-        public byte MenuType { get; set; }
-
-        public string Name { get; set; }
-
-        [Key]
-        public int ShopId { get; set; }
-
-        public byte ShopType { get; set; }
     }
 }

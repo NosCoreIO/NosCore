@@ -39,37 +39,59 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private ILogger _logInit;
+        private ILogger _logger
+        {
+            get
+            {
+                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
+                return _logInit;
+            }
+        }
+        private readonly List<NpcMonsterDto> _npcMonsters;
+        private readonly IGenericDao<ShopDto> _shops;
+        private readonly IGenericDao<ShopItemDto> _shopItems;
+        private readonly IItemProvider _itemProvider;
 
         public MapNpc(IItemProvider itemProvider, IGenericDao<ShopDto> shops,
             IGenericDao<ShopItemDto> shopItems,
             List<NpcMonsterDto> npcMonsters)
         {
-            NpcMonster = npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            _npcMonsters = npcMonsters;
+            _shops = shops;
+            _shopItems = shopItems;
+            _itemProvider = itemProvider;
+        }
+
+        public void Initialize()
+        {
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
+            PositionX = MapX;
+            PositionY = MapY;
             IsAlive = true;
             Requests = new Subject<RequestData>();
             Requests.Subscribe(ShowDialog);
-            var shopObj = shops.FirstOrDefault(s => s.MapNpcId == MapNpcId);
+            var shopObj = _shops.FirstOrDefault(s => s.MapNpcId == MapNpcId);
             if (shopObj != null)
             {
-                var shopItemsDto = shopItems.Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsDto = _shopItems.Where(s => s.ShopId == shopObj.ShopId);
                 var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {
                     var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                    shopItem.ItemInstance = itemProvider.Create(shopItemGrouping.ItemVNum, -1);
+                    shopItem.ItemInstance = _itemProvider.Create(shopItemGrouping.ItemVNum, -1);
                     shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
                 });
                 Shop = shopObj.Adapt<Shop>();
                 Shop.ShopItems = shopItemsList;
             }
-
         }
+
         public IDisposable Life { get; private set; }
         public Group Group { get; set; }
         public byte Speed { get; set; }

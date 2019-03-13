@@ -31,9 +31,24 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDto, INonPlayableEntity
+    public class MapMonster : MapMonsterDto, INonPlayableEntity, IInitializable
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private ILogger _logInit;
+        private ILogger _logger
+        {
+            get
+            {
+                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
+                return _logInit;
+            }
+        }
+
+        private readonly List<NpcMonsterDto> _npcMonsters;
+        public MapMonster(List<NpcMonsterDto> npcMonsters)
+        {
+            _npcMonsters = npcMonsters;
+        }
+
         public IDisposable Life { get; private set; }
         public Group Group { get; set; }
         public bool IsSitting { get; set; }
@@ -73,12 +88,14 @@ namespace NosCore.GameObject
 
         public byte HeroLevel { get; set; }
 
-        public MapMonster(List<NpcMonsterDto> npcMonsters)
+        public void Initialize()
         {
-            NpcMonster = npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
+            PositionX = MapX;
+            PositionY = MapY;
             IsAlive = true;
         }
 

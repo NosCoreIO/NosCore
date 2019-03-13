@@ -55,6 +55,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.Packets.ServerPackets;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -83,6 +84,7 @@ namespace NosCore.Tests.NRunTests
         [TestInitialize]
         public void Setup()
         {
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, _shopDao, _shopItemDao, new List<NpcMonsterDto>()));
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
@@ -96,11 +98,12 @@ namespace NosCore.Tests.NRunTests
             var npc = new MapNpcDto();
             _mapNpcDao.InsertOrUpdate(ref npc);
 
-            var instanceAccessService = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<MapDto> { _map },
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter());
-            var items = new List<Item>
+            instanceAccessService.Initialize();
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
                 new Item {Type = PocketType.Main, VNum = 1013},

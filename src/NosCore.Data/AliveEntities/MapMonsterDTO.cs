@@ -25,7 +25,7 @@ using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 namespace NosCore.Data.AliveEntities
 {
     [StaticDto(LoadedMessage = LogLanguageKey.MAPMONSTERS_LOADED)]
-    public class MapMonsterDto : IDto
+    public class MapMonsterDto : IStaticDto
     {
         public bool IsDisabled { get; set; }
 

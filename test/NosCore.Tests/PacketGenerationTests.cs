@@ -61,7 +61,7 @@ namespace NosCore.Tests
         public void GenerateInPacketIsNotCorruptedForCharacter()
         {
             var characterTest =
-                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+                new Character(new InventoryService(new List<ItemDto>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
                 {
                     Name = "characterTest",
                     Account = new AccountDto {Authority = AuthorityType.Administrator},
@@ -94,7 +94,7 @@ namespace NosCore.Tests
         public void Generate()
         {
             var characterTest =
-                new Character(new InventoryService(new List<Item>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+                new Character(new InventoryService(new List<ItemDto>(), new WorldConfiguration()), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
                 {
                     Name = "characterTest",
                     Account = new AccountDto {Authority = AuthorityType.Administrator},

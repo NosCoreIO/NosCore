@@ -29,7 +29,7 @@ using MonsterType = NosCore.Data.Enumerations.Map.MonsterType;
 namespace NosCore.Data.StaticEntities
 {
     [StaticDto(LoadedMessage = LogLanguageKey.NPCMONSTERS_LOADED)]
-    public class NpcMonsterDto : IDto
+    public class NpcMonsterDto : IStaticDto
     {
         public byte AmountRequired { get; set; }
 
