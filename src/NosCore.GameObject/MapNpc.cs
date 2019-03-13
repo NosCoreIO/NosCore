@@ -87,13 +87,12 @@ namespace NosCore.GameObject
                     shopItem.ItemInstance = _itemProvider.Create(shopItemGrouping.ItemVNum, -1);
                     shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
                 });
-                Shop = shopObj.Adapt<Shop>();
-                Shop.ShopItems = shopItemsList;
+                _shop = shopObj.Adapt<Shop>();
+                _shop.ShopItems = shopItemsList;
             }
         }
 
         public IDisposable Life { get; private set; }
-        public Group Group { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
@@ -124,7 +123,8 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Shop Shop { get; set; }
+        private Shop _shop;
+        public Shop Shop => _shop;
         public Subject<RequestData> Requests { get; set; }
 
         private void ShowDialog(RequestData requestData)
