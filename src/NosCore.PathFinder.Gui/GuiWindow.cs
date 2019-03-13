@@ -70,10 +70,9 @@ namespace NosCore.PathFinder.Gui
                 .Adapt<List<MapMonster>>();
             var npcMonsters = _npcMonsterDao.LoadAll().ToList();
             var mapInstance =
-                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance, npcMonsters,
+                new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    _mapNpcDao,
-                    _mapMonsterDao)
+                    null)
                 {
                     IsSleeping = false
                 };
