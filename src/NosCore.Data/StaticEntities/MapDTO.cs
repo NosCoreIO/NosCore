@@ -25,7 +25,7 @@ using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 namespace NosCore.Data.StaticEntities
 {
     [StaticDto(LoadedMessage = LogLanguageKey.MAPS_LOADED, EmptyMessage = LogLanguageKey.NO_MAP)]
-    public class MapDto : IDto
+    public class MapDto : IStaticDto
     {
         [Key]
         public short MapId { get; set; }

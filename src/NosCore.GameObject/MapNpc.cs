@@ -18,8 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
+using Mapster;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
@@ -27,22 +33,66 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        public MapNpc()
+        private ILogger _logInit;
+        private ILogger _logger
         {
+            get
+            {
+                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
+                return _logInit;
+            }
+        }
+        private readonly List<NpcMonsterDto> _npcMonsters;
+        private readonly IGenericDao<ShopDto> _shops;
+        private readonly IGenericDao<ShopItemDto> _shopItems;
+        private readonly IItemProvider _itemProvider;
+
+        public MapNpc(IItemProvider itemProvider, IGenericDao<ShopDto> shops,
+            IGenericDao<ShopItemDto> shopItems,
+            List<NpcMonsterDto> npcMonsters)
+        {
+            _npcMonsters = npcMonsters;
+            _shops = shops;
+            _shopItems = shopItems;
+            _itemProvider = itemProvider;
+        }
+
+        public void Initialize()
+        {
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster?.MaxMp ?? 0;
+            Hp = NpcMonster?.MaxHp ?? 0;
+            Speed = NpcMonster?.Speed ?? 0;
+            PositionX = MapX;
+            PositionY = MapY;
+            IsAlive = true;
             Requests = new Subject<RequestData>();
+            Requests.Subscribe(ShowDialog);
+            var shopObj = _shops.FirstOrDefault(s => s.MapNpcId == MapNpcId);
+            if (shopObj != null)
+            {
+                var shopItemsDto = _shopItems.Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
+                Parallel.ForEach(shopItemsDto, shopItemGrouping =>
+                {
+                    var shopItem = shopItemGrouping.Adapt<ShopItem>();
+                    shopItem.ItemInstance = _itemProvider.Create(shopItemGrouping.ItemVNum, -1);
+                    shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
+                });
+                _shop = shopObj.Adapt<Shop>();
+                _shop.ShopItems = shopItemsList;
+            }
         }
 
         public IDisposable Life { get; private set; }
-        public Group Group { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
@@ -73,20 +123,9 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Shop Shop { get; set; }
+        private Shop _shop;
+        public Shop Shop => _shop;
         public Subject<RequestData> Requests { get; set; }
-
-        internal void Initialize(NpcMonsterDto npcMonster)
-        {
-            NpcMonster = npcMonster;
-            Mp = NpcMonster.MaxMp;
-            Hp = NpcMonster.MaxHp;
-            PositionX = MapX;
-            PositionY = MapY;
-            Speed = NpcMonster.Speed;
-            IsAlive = true;
-            Requests.Subscribe(ShowDialog);
-        }
 
         private void ShowDialog(RequestData requestData)
         {

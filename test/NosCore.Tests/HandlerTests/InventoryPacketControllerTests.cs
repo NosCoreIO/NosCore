@@ -53,14 +53,15 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class InventoryPacketControllerTests
     {
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+
         private readonly ClientSession _session = new ClientSession(
             new WorldConfiguration
                 {BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000},
@@ -89,7 +90,7 @@ namespace NosCore.Tests.HandlerTests
             DataAccessHelper.Instance.InitializeForTest(contextBuilder.Options);
             var _acc = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
 
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
                 new Item {Type = PocketType.Main, VNum = 1013},
@@ -130,9 +131,9 @@ namespace NosCore.Tests.HandlerTests
             _mapItemProvider = new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>
                 {new DropHandler(), new SpChargerHandler(), new GoldDropHandler()});
             _map = new MapInstance(new Map
-                {
-                    Name = "testMap",
-                    Data = new byte[]
+            {
+                Name = "testMap",
+                Data = new byte[]
                     {
                         8, 0, 8, 0,
                         0, 0, 0, 0, 0, 0, 0, 0,
@@ -144,13 +145,10 @@ namespace NosCore.Tests.HandlerTests
                         0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0
                     }
-                }
-                , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance, new List<NpcMonsterDto>(),
+            }
+                , Guid.NewGuid(), false, MapInstanceType.BaseMapInstance,
                 _mapItemProvider,
-                new MapNpcProvider(_item, new List<ShopDto>(), new List<ShopItemDto>(), new List<NpcMonsterDto>(),
-                    new List<MapNpcDto>(), null, null),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()));
+                null);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             _session.Character.MapInstance = _map;
@@ -390,7 +388,7 @@ namespace NosCore.Tests.HandlerTests
         [DataRow(EquipmentType.WeaponSkin)]
         public void Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -416,7 +414,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
         {
             _session.Character.Class = classToTest;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -453,7 +451,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_Put_Item_BadGender(GenderType genderToTest)
         {
             _session.Character.Gender = genderToTest;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -487,7 +485,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_BadJobLevel()
         {
             _session.Character.JobLevel = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -510,7 +508,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_GoodJobLevel()
         {
             _session.Character.JobLevel = 3;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -530,7 +528,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_BadLevel()
         {
             _session.Character.Level = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -553,7 +551,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_GoodLevel()
         {
             _session.Character.Level = 3;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -573,7 +571,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_BadHeroLevel()
         {
             _session.Character.HeroLevel = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -597,7 +595,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_GoodHeroLevel()
         {
             _session.Character.HeroLevel = 3;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -618,7 +616,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_DestroyedSp()
         {
             _session.Character.HeroLevel = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -641,7 +639,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_SpInUse()
         {
             _session.Character.HeroLevel = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -672,7 +670,7 @@ namespace NosCore.Tests.HandlerTests
         public void Test_Wear_SpInLoading()
         {
             _session.Character.HeroLevel = 1;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item
                 {
@@ -718,7 +716,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_WearFairy_SpUseBadElement()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 3},
                 new Item
@@ -745,7 +743,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_WearFairy_SpUseGoodElement()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 1},
                 new Item
@@ -769,7 +767,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Wear_WearFairy_SpUseGoodSecondElement()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 2},
                 new Item
@@ -793,7 +791,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Binding_Required()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
             };
@@ -815,7 +813,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void Test_Binding()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
             };

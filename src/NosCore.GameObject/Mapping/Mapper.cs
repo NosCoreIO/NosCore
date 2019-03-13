@@ -20,7 +20,6 @@
 using Mapster;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Mapping
@@ -28,12 +27,9 @@ namespace NosCore.GameObject.Mapping
     public class Mapper
     {
         //TODO cleanup
-        public Mapper(IDependencyResolver dependencyResolver)
+        public Mapper()
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig()
-                .ConstructUsing(src => dependencyResolver.Resolve<Character>());
 
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()

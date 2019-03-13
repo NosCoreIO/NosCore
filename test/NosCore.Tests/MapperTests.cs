@@ -17,13 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.StaticEntities;
+using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.GameObject;
-using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
@@ -33,20 +36,24 @@ namespace NosCore.Tests
     [TestClass]
     public class MapperTests
     {
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
         private readonly Adapter _adapter = new Adapter();
 
         [TestInitialize]
         public void Setup()
         {
-            var dependancyResolverMock = new Mock<IDependencyResolver>();
-            dependancyResolverMock.Setup(s => s.Resolve<Character>()).Returns(new Character(null, null, null, null, null, null, null));
-            new Mapper(dependancyResolverMock.Object);
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
+            new Mapper();
         }
 
         [TestMethod]
         public void GoToDtoMappingWorks()
         {
-            var monsterGo = new MapMonster();
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>());
             var monsterDto = _adapter.Adapt<MapMonsterDto>(monsterGo);
             Assert.IsNotNull(monsterDto);
         }
@@ -60,17 +67,9 @@ namespace NosCore.Tests
         }
 
         [TestMethod]
-        public void EntityToGoMappingWorks()
-        {
-            var monsterEntity = new Database.Entities.MapMonster();
-            var monsterGo = _adapter.Adapt<MapMonster>(monsterEntity);
-            Assert.IsNotNull(monsterGo);
-        }
-
-        [TestMethod]
         public void GoToEntityMappingWorks()
         {
-            var monsterGo = new MapMonster();
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>());
             var monsterEntity = _adapter.Adapt<Database.Entities.MapMonster>(monsterGo);
             Assert.IsNotNull(monsterEntity);
         }
@@ -87,8 +86,8 @@ namespace NosCore.Tests
         public void EntityToDtoMappingWorks()
         {
             var monsterEntity = new Database.Entities.MapMonster();
-            var monsterGo = _adapter.Adapt<MapMonster>(monsterEntity);
-            Assert.IsNotNull(monsterGo);
+            var monsterDto = _adapter.Adapt<MapMonsterDto>(monsterEntity);
+            Assert.IsNotNull(monsterDto);
         }
 
         [TestMethod]

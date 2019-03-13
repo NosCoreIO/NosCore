@@ -55,8 +55,10 @@ using NosCore.Packets.ClientPackets;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
+using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
@@ -71,6 +73,7 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Database.DAL;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Map = NosCore.GameObject.Map.Map;
 
@@ -101,16 +104,20 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        private static void RegisterDatabaseObject<TGameObject, TDto>(ref ContainerBuilder containerBuilder)
+        private static void RegisterMapper<TGameObject, TDto>(IContainer container)
+        {
+            TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
+        }
+
+        private static void RegisterDatabaseObject<TDto>(ContainerBuilder containerBuilder)
         {
             var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
-
             containerBuilder.Register(c =>
             {
-                var items = c.Resolve<IGenericDao<TDto>>().LoadAll().Adapt<List<TGameObject>>().ToList();
-                if (items.Count != 0 || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
+                var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
+                if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
                 {
-                    if (staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                    if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                     {
                         _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
                             items.Count);
@@ -122,7 +129,10 @@ namespace NosCore.WorldServer
                 }
 
                 return items;
-            }).As<List<TGameObject>>().SingleInstance();
+            })
+            .As<List<TDto>>()
+            .SingleInstance()
+            .AutoActivate();
         }
 
         private static void InitializeContainer(ref ContainerBuilder containerBuilder)
@@ -145,7 +155,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
-            containerBuilder.RegisterType<GameObject.Character>().PropertiesAutowired();
             containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
@@ -160,27 +169,34 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .PropertiesAutowired();
             RegisterDao(ref containerBuilder);
-            RegisterDatabaseObject<Item, ItemDto>(ref containerBuilder);
-            RegisterDatabaseObject<NpcMonsterDto, NpcMonsterDto>(ref containerBuilder);
-            RegisterDatabaseObject<ShopItemDto, ShopItemDto>(ref containerBuilder);
-            RegisterDatabaseObject<ShopDto, ShopDto>(ref containerBuilder);
-            RegisterDatabaseObject<Map, MapDto>(ref containerBuilder);
-            RegisterDatabaseObject<MapMonsterDto, MapMonsterDto>(ref containerBuilder);
-            RegisterDatabaseObject<MapNpcDto, MapNpcDto>(ref containerBuilder);
+
+            //todo remove copy here
+            RegisterDatabaseObject<ItemDto>(containerBuilder);
+            RegisterDatabaseObject<NpcMonsterDto>(containerBuilder);
+            RegisterDatabaseObject<MapDto>(containerBuilder);
+            RegisterDatabaseObject<MapMonsterDto>(containerBuilder);
+            RegisterDatabaseObject<MapNpcDto>(containerBuilder);
+            RegisterDatabaseObject<ShopDto>(containerBuilder);
+            RegisterDatabaseObject<ShopItemDto>(containerBuilder);
+
+            containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
+                .Where(t => typeof(IDto).IsAssignableFrom(t))
+                .AsSelf()
+                .PropertiesAutowired();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
-                .InstancePerLifetimeScope()
+                .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
                 .Where(t => typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
-                .InstancePerLifetimeScope()
+                .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
                 .Where(t => typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
-                .InstancePerLifetimeScope()
+                .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder
@@ -188,17 +204,18 @@ namespace NosCore.WorldServer
                     typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
                 .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
                     .IsAssignableFrom(t))
-                .InstancePerLifetimeScope()
+                .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
-                .InstancePerLifetimeScope()
+                .SingleInstance()
                 .AsImplementedInterfaces();
         }
 
         private static void RegisterDao(ref ContainerBuilder containerBuilder)
         {
+            //todo remove copy here
             containerBuilder.RegisterType<GenericDao<Database.Entities.Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterType<GenericDao<Database.Entities.Character, CharacterDto>>().As<IGenericDao<CharacterDto>>().SingleInstance();
             containerBuilder.RegisterType<GenericDao<Database.Entities.Map, MapDto>>().As<IGenericDao<MapDto>>().SingleInstance();
@@ -288,6 +305,18 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
 
+            //todo remove copy here
+            RegisterMapper<Character, CharacterDto>(container);
+            RegisterMapper<Item, ItemDto>(container);
+            RegisterMapper<Map, MapDto>(container);
+            RegisterMapper<MapMonster, MapMonsterDto>(container);
+            RegisterMapper<MapNpc, MapNpcDto>(container);
+            RegisterMapper<Shop, ShopDto>(container);
+            RegisterMapper<ShopItem, ShopItemDto>(container);
+
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(()=> dest.Initialize()));
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+            container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
         }

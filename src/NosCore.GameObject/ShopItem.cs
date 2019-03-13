@@ -17,17 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject
 {
-    public class ShopItem
+    public class ShopItem : ShopItemDto
     {
         public IItemInstance ItemInstance { get; set; }
-
-        public short Type { get; set; }
-
-        public short Slot { get; set; }
 
         public long? Price { get; set; }
 

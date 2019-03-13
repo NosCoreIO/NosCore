@@ -26,5 +26,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         Guid GetBaseMapInstanceIdByMapId(short mapId);
         MapInstance GetMapInstance(Guid id);
         MapInstance GetBaseMapById(short mapId);
+
+        void Initialize();
     }
 }

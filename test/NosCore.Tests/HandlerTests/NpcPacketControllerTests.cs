@@ -21,7 +21,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -56,8 +58,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapMonsterProvider;
-using NosCore.GameObject.Providers.MapNpcProvider;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.Packets.ServerPackets;
 
@@ -71,8 +71,8 @@ namespace NosCore.Tests.HandlerTests
         private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
         private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
-        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
-        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
         private readonly Map _map = new Map
         {
@@ -127,6 +127,7 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
@@ -146,7 +147,7 @@ namespace NosCore.Tests.HandlerTests
                 };
 
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var _chara = new Character(new InventoryService(new List<Item>(), conf), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -156,15 +157,13 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            ItemProvider itemProvider = new ItemProvider(new List<Item>(),
+            ItemProvider itemProvider = new ItemProvider(new List<ItemDto>(),
                 new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _instanceProvider = new MapInstanceProvider(new List<NpcMonsterDto>(), new List<Map> { _map, _mapShop },
+            _instanceProvider = new MapInstanceProvider(new List<MapDto>{ _map, _mapShop },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                new MapNpcProvider(itemProvider, new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapNpcDto>(), _shopDao, _shopItemDao),
-                new MapMonsterProvider(new List<Item>(), new List<ShopDto>(), new List<ShopItemDto>(),
-                    new List<NpcMonsterDto>(), new List<MapMonsterDto>()), _portalDao);
-
+                _mapNpcDao,
+                _mapMonsterDao, _portalDao, new Adapter());
+            _instanceProvider.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
                 new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) },
@@ -179,7 +178,6 @@ namespace NosCore.Tests.HandlerTests
             _session.SetCharacter(_chara);
             var mapinstance = _instanceProvider.GetBaseMapById(0);
             _session.Character.Account = account;
-            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             _session.Character.MapInstance = mapinstance;
             _session.Character.MapInstance.Portals = new List<Portal>
             {
@@ -188,7 +186,7 @@ namespace NosCore.Tests.HandlerTests
                     DestinationMapId = _map.MapId,
                     Type = PortalType.Open,
                     SourceMapInstanceId = mapinstance.MapInstanceId,
-                    DestinationMapInstanceId = _instanceProvider.GetBaseMapById(0).MapInstanceId,
+                    DestinationMapInstanceId = mapinstance.MapInstanceId,
                     DestinationX = 5,
                     DestinationY = 5,
                     PortalId = 1,
@@ -252,7 +250,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotCreateShopWithMissingItem()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
@@ -268,7 +266,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotCreateShopWithMissingAmountItem()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
@@ -289,7 +287,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanCreateShop()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
@@ -307,7 +305,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCanNotCreateShopInExchange()
         {
             _session.Character.InExchangeOrTrade = true;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
@@ -342,7 +340,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCanNotSellInExchange()
         {
             _session.Character.InExchangeOrTrade = true;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
@@ -361,7 +359,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanNotSellNotSoldable()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = false},
             };
@@ -383,7 +381,7 @@ namespace NosCore.Tests.HandlerTests
         [TestMethod]
         public void UserCanSell()
         {
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
@@ -403,7 +401,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCanNotShopNonExistingSlot()
         {
             _session.Character.Gold = 9999999999;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
@@ -423,7 +421,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCantShopMoreThanQuantityNonExistingSlot()
         {
             _session.Character.Gold = 9999999999;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
@@ -443,7 +441,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCantShopWithoutMoney()
         {
             _session.Character.Gold = 500000;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
@@ -466,7 +464,7 @@ namespace NosCore.Tests.HandlerTests
         public void UserCantShopWithoutReput()
         {
             _session.Character.Reput = 500000;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
@@ -490,7 +488,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.Gold = 500000;
 
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
@@ -517,7 +515,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.Gold = 500000;
 
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
@@ -543,7 +541,7 @@ namespace NosCore.Tests.HandlerTests
         {
             _session.Character.Reput = 500000;
 
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
@@ -580,7 +578,7 @@ namespace NosCore.Tests.HandlerTests
                 new NrunProvider(
                     new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new Character(new InventoryService(new List<Item>(), conf), null, null, null, null, null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf), null, null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -595,7 +593,7 @@ namespace NosCore.Tests.HandlerTests
             session2.Character.MapInstance = mapinstance;
 
             _session.Character.Gold = 500000;
-            var items = new List<Item>
+            var items = new List<ItemDto>
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
