@@ -27,7 +27,6 @@ using NosCore.Core.Serializing;
 using NosCore.Database;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;

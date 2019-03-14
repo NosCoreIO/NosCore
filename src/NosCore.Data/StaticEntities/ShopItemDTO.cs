@@ -19,7 +19,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.I18N;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 
 namespace NosCore.Data.StaticEntities

@@ -25,7 +25,6 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using Serilog;
 
 namespace NosCore.MasterServer

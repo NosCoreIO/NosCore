@@ -30,7 +30,6 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -38,8 +37,6 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
