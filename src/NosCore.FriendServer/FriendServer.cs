@@ -34,12 +34,13 @@ namespace NosCore.FriendServer
 {
     public class FriendServer
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly FriendConfiguration _friendServerConfiguration;
 
-        public FriendServer(FriendConfiguration friendServerConfiguration)
+        public FriendServer(FriendConfiguration friendServerConfiguration, ILogger logger)
         {
             _friendServerConfiguration = friendServerConfiguration;
+            _logger = logger;
         }
 
         private void ConnectMaster()

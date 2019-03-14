@@ -36,12 +36,13 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class StatController : Controller
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public StatController(WorldConfiguration worldConfiguration)
+        public StatController(WorldConfiguration worldConfiguration, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
+            _logger = logger;
         }
 
         // POST api/stat

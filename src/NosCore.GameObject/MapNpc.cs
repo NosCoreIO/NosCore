@@ -40,15 +40,7 @@ namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
     {
-        private ILogger _logInit;
-        private ILogger _logger
-        {
-            get
-            {
-                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
-                return _logInit;
-            }
-        }
+        private readonly ILogger _logger;
         private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly IGenericDao<ShopDto> _shops;
         private readonly IGenericDao<ShopItemDto> _shopItems;
@@ -56,12 +48,13 @@ namespace NosCore.GameObject
 
         public MapNpc(IItemProvider itemProvider, IGenericDao<ShopDto> shops,
             IGenericDao<ShopItemDto> shopItems,
-            List<NpcMonsterDto> npcMonsters)
+            List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;
             _shops = shops;
             _shopItems = shopItems;
             _itemProvider = itemProvider;
+            _logger = logger;
         }
 
         public void Initialize()

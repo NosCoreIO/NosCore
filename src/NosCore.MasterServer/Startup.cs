@@ -40,6 +40,7 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using AutofacSerilogIntegration;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
 
@@ -68,6 +69,7 @@ namespace NosCore.MasterServer
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterLogger();
             containerBuilder.Populate(services);
             return containerBuilder;
         }

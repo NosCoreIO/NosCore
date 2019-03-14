@@ -51,7 +51,7 @@ namespace NosCore.Controllers
     public class DefaultPacketController : PacketController
     {
         private readonly IGuriProvider _guriProvider;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -62,11 +62,12 @@ namespace NosCore.Controllers
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
             IMapInstanceProvider mapInstanceProvider,
-            IGuriProvider guriProvider)
+            IGuriProvider guriProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceProvider = mapInstanceProvider;
             _guriProvider = guriProvider;
+            _logger = logger;
         }
 
         public void GameStart(GameStartPacket _)

@@ -41,16 +41,18 @@ namespace NosCore.Controllers
 {
     public class InventoryPacketController : PacketController
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+
         private readonly WorldConfiguration _worldConfiguration;
 
         [UsedImplicitly]
         public InventoryPacketController()
         {
         }
-
-        public InventoryPacketController(WorldConfiguration worldConfiguration)
+       
+        public InventoryPacketController(WorldConfiguration worldConfiguration, ILogger logger)
         {
+            _logger = logger;
             _worldConfiguration = worldConfiguration;
         }
 

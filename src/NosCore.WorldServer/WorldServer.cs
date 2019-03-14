@@ -37,16 +37,17 @@ namespace NosCore.WorldServer
     public class WorldServer
     {
         private readonly List<IGlobalEvent> _events;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events)
+            IEnumerable<IGlobalEvent> events, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _events = events.ToList();
+            _logger = logger;
         }
 
         public void Run()

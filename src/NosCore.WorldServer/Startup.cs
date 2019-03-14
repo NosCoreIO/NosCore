@@ -71,6 +71,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
+using AutofacSerilogIntegration;
 
 namespace NosCore.WorldServer
 {
@@ -79,7 +80,7 @@ namespace NosCore.WorldServer
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private static WorldConfiguration _worldConfiguration;
 
         private static void InitializeConfiguration()
@@ -114,13 +115,13 @@ namespace NosCore.WorldServer
                         {
                             if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                             {
-                                _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                                c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
                                     items.Count);
                             }
                         }
                         else
                         {
-                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                            c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
                         }
 
                         return items;
@@ -171,6 +172,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
 
             //NosCore.Configuration
+            containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
 
