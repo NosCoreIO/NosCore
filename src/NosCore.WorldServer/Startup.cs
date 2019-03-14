@@ -105,44 +105,58 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        private static void RegisterMapper<TGameObject, TDto>(IContainer container)
-        {
-            TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
-        }
+        public static void RegisterMapper<TGameObject, TDto>(IContainer container) => TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
 
-        public static void RegisterDao<TDto, TDb>(TDto _, TDb __, ContainerBuilder containerBuilder) where TDb : class
+        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder, bool isStatic) where TDb : class
         {
             containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            if (isStatic)
+            {
+                StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
+                containerBuilder.Register(c =>
+                    {
+                        var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
+                        if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
+                        {
+                            if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                            {
+                                _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                                    items.Count);
+                            }
+                        }
+                        else
+                        {
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                        }
+
+                        return items;
+                    })
+                    .As<List<TDto>>()
+                    .SingleInstance()
+                    .AutoActivate();
+            }
         }
 
-        public static void RegisterDatabaseObject<TDto>(TDto _, ContainerBuilder containerBuilder)
+        private static void RegisterGo(IContainer container)
         {
-            StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
-            containerBuilder.Register(c =>
-                {
-                    var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
-                    if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
-                    {
-                        if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
-                        {
-                            _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
-                                items.Count);
-                        }
-                    }
-                    else
-                    {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
-                    }
+            var registerMapper = typeof(Startup).GetMethod(nameof(RegisterMapper));
+            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+            var assemblyGo = typeof(Character).Assembly.GetTypes();
 
-                    return items;
-                })
-                .As<List<TDto>>()
-                .SingleInstance()
-                .AutoActivate();
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    assemblyGo.Where(p => (t.IsAssignableFrom(p))).ToList().ForEach(tgo =>
+                    {
+                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] { container });
+                    });
+                });
         }
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
+            var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Database.Entities.Account).Assembly.GetTypes();
 
@@ -152,16 +166,7 @@ namespace NosCore.WorldServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var registerDao = typeof(Startup).GetMethod(nameof(RegisterDao));
-                    var genericregisterDao = registerDao.MakeGenericMethod(t, type);
-                    genericregisterDao.Invoke(null, new[] { null, null, containerBuilder });
-
-                    if (typeof(IStaticDto).IsAssignableFrom(t))
-                    {
-                        MethodInfo method = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
-                        MethodInfo generic = method.MakeGenericMethod(t);
-                        generic.Invoke(null, new[] { null, containerBuilder });
-                    }
+                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -286,17 +291,10 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
 
-            //todo remove copy here
-            RegisterMapper<Character, CharacterDto>(container);
-            RegisterMapper<Item, ItemDto>(container);
-            RegisterMapper<Map, MapDto>(container);
-            RegisterMapper<MapMonster, MapMonsterDto>(container);
-            RegisterMapper<MapNpc, MapNpcDto>(container);
-            RegisterMapper<Shop, ShopDto>(container);
-            RegisterMapper<ShopItem, ShopItemDto>(container);
-
+            RegisterGo(container);
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+
             container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);
