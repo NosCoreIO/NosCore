@@ -21,8 +21,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.Enumerations.Map;
-using NosCore.Data.I18N;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 using MonsterType = NosCore.Data.Enumerations.Map.MonsterType;
 

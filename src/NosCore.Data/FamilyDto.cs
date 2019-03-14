@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Family;
 using System.ComponentModel.DataAnnotations;
 using FamilyAuthorityType = NosCore.Data.Enumerations.Family.FamilyAuthorityType;
 using GenderType = NosCore.Data.Enumerations.Character.GenderType;

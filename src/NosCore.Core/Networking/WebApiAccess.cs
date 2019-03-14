@@ -31,7 +31,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.Data;
 using Polly;
 using Serilog;
 

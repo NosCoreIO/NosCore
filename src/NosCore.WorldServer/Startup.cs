@@ -45,7 +45,6 @@ using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
-using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
@@ -55,13 +54,10 @@ using NosCore.Packets.ClientPackets;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
-using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
@@ -72,11 +68,9 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
-using Map = NosCore.GameObject.Map.Map;
 
 namespace NosCore.WorldServer
 {

@@ -25,7 +25,6 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using Serilog;
 
 namespace NosCore.MasterServer
