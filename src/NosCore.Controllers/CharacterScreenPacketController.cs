@@ -49,7 +49,7 @@ namespace NosCore.Controllers
     {
         private readonly IAdapter _adapter;
         private readonly IItemProvider _itemProvider;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
@@ -58,7 +58,7 @@ namespace NosCore.Controllers
 
         public CharacterScreenPacketController(
             IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IAdapter adapter, IGenericDao<CharacterDto> characterDao,
-            IGenericDao<AccountDto> accountDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<MateDto> mateDao)
+            IGenericDao<AccountDto> accountDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<MateDto> mateDao, ILogger logger)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _itemProvider = itemProvider;
@@ -67,6 +67,7 @@ namespace NosCore.Controllers
             _accountDao = accountDao;
             _itemInstanceDao = itemInstanceDao;
             _mateDao = mateDao;
+            _logger = logger;
         }
 
         [UsedImplicitly]

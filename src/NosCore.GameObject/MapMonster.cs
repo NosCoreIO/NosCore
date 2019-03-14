@@ -33,20 +33,13 @@ namespace NosCore.GameObject
 {
     public class MapMonster : MapMonsterDto, INonPlayableEntity, IInitializable
     {
-        private ILogger _logInit;
-        private ILogger _logger
-        {
-            get
-            {
-                _logInit = _logInit ?? Logger.GetLoggerConfiguration().CreateLogger();
-                return _logInit;
-            }
-        }
+        private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-        public MapMonster(List<NpcMonsterDto> npcMonsters)
+        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;
+            _logger = logger;
         }
 
         public IDisposable Life { get; private set; }
