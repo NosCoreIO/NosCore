@@ -31,7 +31,11 @@ namespace NosCore.Core.Encryption
 {
     public class LoginDecoder : MessageToMessageDecoder<IByteBuffer>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        public LoginDecoder(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {

@@ -43,22 +43,16 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
 
         private readonly ConcurrentDictionary<long, long> _exchangeRequests;
         private readonly IItemProvider _itemBuilderService;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public ExchangeProvider()
-        {
-            _exchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
-            _exchangeRequests = new ConcurrentDictionary<long, long>();
-        }
-
-        [UsedImplicitly]
-        public ExchangeProvider(IItemProvider itemBuilderService, WorldConfiguration worldConfiguration)
+        public ExchangeProvider(IItemProvider itemBuilderService, WorldConfiguration worldConfiguration, ILogger logger)
         {
             _exchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             _exchangeRequests = new ConcurrentDictionary<long, long>();
             _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
+            _logger = logger;
         }
 
         public void SetGold(long visualId, long gold, long bankGold)

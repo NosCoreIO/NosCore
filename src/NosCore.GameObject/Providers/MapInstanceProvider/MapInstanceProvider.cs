@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstanceProvider : IMapInstanceProvider
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IMapItemProvider _mapItemProvider;
         private readonly IGenericDao<MapMonsterDto> _mapMonsters;
         private readonly IGenericDao<PortalDto> _portalDao;
@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public MapInstanceProvider(List<MapDto> maps,
             IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
-            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter)
+            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter, ILogger logger)
         {
             _mapItemProvider = mapItemProvider;
             _mapMonsters = mapMonsters;
@@ -56,6 +56,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _adapter = adapter;
             _maps = maps;
             _mapNpcs = mapNpcs;
+            _logger = logger;
         }
 
         public void Initialize()
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 map =>
                 {
                     var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
-                        _mapItemProvider, _adapter);
+                        _mapItemProvider, _adapter, _logger);
                     if (monsters.ContainsKey(map.MapId))
                     {
                         mapinstance.LoadMonsters(monsters[map.MapId]);

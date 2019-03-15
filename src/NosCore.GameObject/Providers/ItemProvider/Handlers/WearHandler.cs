@@ -35,8 +35,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
+        private readonly ILogger _logger;
+        public WearHandler(ILogger logger)
+        {
+            _logger = logger;
+        }
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
             || item.ItemType == ItemType.Jewelery
             || item.ItemType == ItemType.Armor

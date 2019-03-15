@@ -31,12 +31,13 @@ namespace NosCore.MasterServer
 {
     public class MasterServer
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
 
-        public MasterServer(MasterConfiguration masterConfiguration)
+        public MasterServer(MasterConfiguration masterConfiguration, ILogger logger)
         {
             _masterConfiguration = masterConfiguration;
+            _logger = logger;
         }
 
         public void Run()

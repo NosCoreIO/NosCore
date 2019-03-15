@@ -61,7 +61,7 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private byte _speed;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -69,7 +69,7 @@ namespace NosCore.GameObject
         private readonly IGenericDao<AccountDto> _accountDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
-            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao)
+            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -84,7 +84,7 @@ namespace NosCore.GameObject
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
-
+            _logger = logger;
         }
 
         public AccountDto Account { get; set; }
