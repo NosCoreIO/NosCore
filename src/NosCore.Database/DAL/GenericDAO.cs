@@ -37,9 +37,9 @@ namespace NosCore.Database.DAL
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
 
-        public GenericDao()
+        public GenericDao(ILogger logger)
         {
-            _logger = Logger.GetLoggerConfiguration().CreateLogger();
+            _logger = logger;
             try
             {
                 var pis = typeof(TDto).GetProperties();

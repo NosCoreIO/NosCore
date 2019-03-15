@@ -33,7 +33,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class VehicleHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        public VehicleHandler(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public bool Condition(Item.Item item) =>
             item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
