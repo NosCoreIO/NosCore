@@ -24,6 +24,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Character;
@@ -38,12 +39,14 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using Serilog;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class GroupPacketControllerTests
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private readonly List<GroupPacketController> _handlers = new List<GroupPacketController>();
 
@@ -56,11 +59,11 @@ namespace NosCore.Tests.HandlerTests
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> { handler }, null, null) { SessionId = i };
+                var session = new ClientSession(null, new List<PacketController> { handler }, null, null, _logger) { SessionId = i };
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
-                var charaDto = new Character(null, null, null, null, null, null, null)
+                var charaDto = new Character(null, null, null, null, null, null, null, _logger)
                 {
                     CharacterId = i,
                     Name = $"TestExistingCharacter{i}",
@@ -82,7 +85,7 @@ namespace NosCore.Tests.HandlerTests
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true,
                     MapInstanceType.BaseMapInstance,
                      new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null);
+                    null, _logger);
             }
         }
 

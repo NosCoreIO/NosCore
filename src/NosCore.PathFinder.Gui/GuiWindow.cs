@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -37,11 +38,13 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using Serilog;
 
 namespace NosCore.PathFinder.Gui
 {
     public class GuiWindow : GameWindow
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly byte _gridsize;
         private readonly Map _map;
         private readonly List<MapMonster> _monsters;
@@ -52,9 +55,9 @@ namespace NosCore.PathFinder.Gui
         private double _gridsizeX;
         private double _gridsizeY;
 
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>();
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>(_logger);
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
         {
@@ -70,7 +73,7 @@ namespace NosCore.PathFinder.Gui
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null)
+                    null, _logger)
                 {
                     IsSleeping = false
                 };

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
@@ -29,6 +30,7 @@ using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using Serilog;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.Tests
@@ -36,24 +38,25 @@ namespace NosCore.Tests
     [TestClass]
     public class MapperTests
     {
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
         private readonly Adapter _adapter = new Adapter();
 
         [TestInitialize]
         public void Setup()
         {
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao));
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
         }
 
         [TestMethod]
         public void GoToDtoMappingWorks()
         {
-            var monsterGo = new MapMonster(new List<NpcMonsterDto>());
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
             var monsterDto = _adapter.Adapt<MapMonsterDto>(monsterGo);
             Assert.IsNotNull(monsterDto);
         }
@@ -69,7 +72,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GoToEntityMappingWorks()
         {
-            var monsterGo = new MapMonster(new List<NpcMonsterDto>());
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
             var monsterEntity = _adapter.Adapt<Database.Entities.MapMonster>(monsterGo);
             Assert.IsNotNull(monsterEntity);
         }

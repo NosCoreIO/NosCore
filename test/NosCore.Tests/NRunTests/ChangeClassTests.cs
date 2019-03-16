@@ -56,21 +56,23 @@ using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.Packets.ServerPackets;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace NosCore.Tests.NRunTests
 {
     [TestClass]
     public class ChangeClassTests
     {
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
-        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
-        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>(_logger);
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>(_logger);
+        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -85,7 +87,7 @@ namespace NosCore.Tests.NRunTests
         public void Setup()
         {
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, _shopDao, _shopItemDao, new List<NpcMonsterDto>()));
+            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, _shopDao, _shopItemDao, new List<NpcMonsterDto>(), _logger));
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
@@ -101,7 +103,7 @@ namespace NosCore.Tests.NRunTests
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter());
+                _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
             var items = new List<ItemDto>
             {
@@ -125,12 +127,12 @@ namespace NosCore.Tests.NRunTests
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
             _session = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null) },
-                instanceAccessService, null);
+                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger) },
+                instanceAccessService, null, _logger);
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-                    {new ChangeClassHandler()}));
-            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+                    {new ChangeClassHandler()}), _logger);
+            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",

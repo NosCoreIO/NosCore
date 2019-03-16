@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
@@ -31,12 +32,14 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
+using Serilog;
 
 namespace NosCore.Tests
 {
     [TestClass]
     public class ExchangeTests
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private ExchangeProvider _exchangeProvider;
 
         private ItemProvider _itemProvider;
@@ -61,7 +64,7 @@ namespace NosCore.Tests
             };
 
             _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration);
+            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, _logger);
         }
 
         [TestMethod]
@@ -152,10 +155,10 @@ namespace NosCore.Tests
         {
             IInventoryService inventory1 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = PocketType.Main}},
-                    _worldConfiguration);
+                    _worldConfiguration, _logger);
             IInventoryService inventory2 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = PocketType.Main}},
-                    _worldConfiguration);
+                    _worldConfiguration, _logger);
             var item1 = inventory1.AddItemToPocket(_itemProvider.Create(1012, 1)).First();
             var item2 = inventory2.AddItemToPocket(_itemProvider.Create(1013, 1)).First();
 
