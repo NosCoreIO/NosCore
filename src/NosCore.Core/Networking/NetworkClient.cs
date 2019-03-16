@@ -31,7 +31,11 @@ namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        public NetworkClient(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public IChannel Channel { get; private set; }
 

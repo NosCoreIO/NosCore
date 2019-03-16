@@ -45,7 +45,6 @@ using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.Serializing;
-using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
@@ -58,9 +57,7 @@ using System.ComponentModel.DataAnnotations;
 using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
-using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
@@ -71,11 +68,10 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
-using Map = NosCore.GameObject.Map.Map;
+using AutofacSerilogIntegration;
 
 namespace NosCore.WorldServer
 {
@@ -84,7 +80,7 @@ namespace NosCore.WorldServer
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+
         private static WorldConfiguration _worldConfiguration;
 
         private static void InitializeConfiguration()
@@ -104,42 +100,79 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        private static void RegisterMapper<TGameObject, TDto>(IContainer container)
-        {
-            TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
-        }
+        public static void RegisterMapper<TGameObject, TDto>(IContainer container) => TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
 
-        private static void RegisterDatabaseObject<TDto>(ContainerBuilder containerBuilder)
+        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder, bool isStatic) where TDb : class
         {
-            var staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
-            containerBuilder.Register(c =>
+            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            if (isStatic)
             {
-                var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
-                if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
-                {
-                    if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
+                containerBuilder.Register(c =>
                     {
-                        _logger.Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
-                            items.Count);
-                    }
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
-                }
+                        var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
+                        if (items.Count != 0 || (staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
+                        {
+                            if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                            {
+                                c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                                    items.Count);
+                            }
+                        }
+                        else
+                        {
+                            c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                        }
 
-                return items;
-            })
-            .As<List<TDto>>()
-            .SingleInstance()
-            .AutoActivate();
+                        return items;
+                    })
+                    .As<List<TDto>>()
+                    .SingleInstance()
+                    .AutoActivate();
+            }
         }
 
-        private static void InitializeContainer(ref ContainerBuilder containerBuilder)
+        private static void RegisterGo(IContainer container)
+        {
+            var registerMapper = typeof(Startup).GetMethod(nameof(RegisterMapper));
+            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+            var assemblyGo = typeof(Character).Assembly.GetTypes();
+
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    assemblyGo.Where(p => (t.IsAssignableFrom(p))).ToList().ForEach(tgo =>
+                    {
+                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] { container });
+                    });
+                });
+        }
+
+        private static void RegisterDto(ContainerBuilder containerBuilder)
+        {
+            var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
+            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+            var assemblyDb = typeof(Database.Entities.Account).Assembly.GetTypes();
+
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && !p.Name.Contains("InstanceDto") && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    var type = assemblyDb.First(tgo =>
+                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+                });
+
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+        }
+
+        private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
 
             //NosCore.Configuration
+            containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
 
@@ -168,16 +201,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .SingleInstance()
                 .PropertiesAutowired();
-            RegisterDao(ref containerBuilder);
-
-            //todo remove copy here
-            RegisterDatabaseObject<ItemDto>(containerBuilder);
-            RegisterDatabaseObject<NpcMonsterDto>(containerBuilder);
-            RegisterDatabaseObject<MapDto>(containerBuilder);
-            RegisterDatabaseObject<MapMonsterDto>(containerBuilder);
-            RegisterDatabaseObject<MapNpcDto>(containerBuilder);
-            RegisterDatabaseObject<ShopDto>(containerBuilder);
-            RegisterDatabaseObject<ShopItemDto>(containerBuilder);
+            RegisterDto(containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
@@ -213,48 +237,6 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
         }
 
-        private static void RegisterDao(ref ContainerBuilder containerBuilder)
-        {
-            //todo remove copy here
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Character, CharacterDto>>().As<IGenericDao<CharacterDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Map, MapDto>>().As<IGenericDao<MapDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.MapNpc, MapNpcDto>>().As<IGenericDao<MapNpcDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>>().As<IGenericDao<NpcMonsterDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Card, CardDto>>().As<IGenericDao<CardDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Drop, DropDto>>().As<IGenericDao<DropDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.BCard, BCardDto>>().As<IGenericDao<BCardDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Item, ItemDto>>().As<IGenericDao<ItemDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Quest, QuestDto>>().As<IGenericDao<QuestDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.QuestReward, QuestRewardDto>>().As<IGenericDao<QuestRewardDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.QuestObjective, QuestObjectiveDto>>().As<IGenericDao<QuestObjectiveDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Mate, MateDto>>().As<IGenericDao<MateDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.MapType, MapTypeDto>>().As<IGenericDao<MapTypeDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Portal, PortalDto>>().As<IGenericDao<PortalDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Combo, ComboDto>>().As<IGenericDao<ComboDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.RespawnMapType, RespawnMapTypeDto>>().As<IGenericDao<RespawnMapTypeDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.MapTypeMap, MapTypeMapDto>>().As<IGenericDao<MapTypeMapDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NActDesc, I18NActDescDto>>().As<IGenericDao<I18NActDescDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NCard, I18NCardDto>>().As<IGenericDao<I18NCardDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NBCard, I18NbCardDto>>().As<IGenericDao<I18NbCardDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NItem, I18NItemDto>>().As<IGenericDao<I18NItemDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NMapIdData, I18NMapIdDataDto>>().As<IGenericDao<I18NMapIdDataDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NMapPointData, I18NMapPointDataDto>>().As<IGenericDao<I18NMapPointDataDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NNpcMonster, I18NNpcMonsterDto>>().As<IGenericDao<I18NNpcMonsterDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NNpcMonsterTalk, I18NNpcMonsterTalkDto>>().As<IGenericDao<I18NNpcMonsterTalkDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NQuest, I18NQuestDto>>().As<IGenericDao<I18NQuestDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.I18NSkill, I18NSkillDto>>().As<IGenericDao<I18NSkillDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Skill, SkillDto>>().As<IGenericDao<SkillDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.NpcMonsterSkill, NpcMonsterSkillDto>>().As<IGenericDao<NpcMonsterSkillDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.MapMonster, MapMonsterDto>>().As<IGenericDao<MapMonsterDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>>().As<IGenericDao<CharacterRelationDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Family, FamilyDto>>().As<IGenericDao<FamilyDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.FamilyCharacter, FamilyCharacterDto>>().As<IGenericDao<FamilyCharacterDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.FamilyLog, FamilyLogDto>>().As<IGenericDao<FamilyLogDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.Shop, ShopDto>>().As<IGenericDao<ShopDto>>().SingleInstance();
-            containerBuilder.RegisterType<GenericDao<Database.Entities.ShopItem, ShopItemDto>>().As<IGenericDao<ShopItemDto>>().SingleInstance();
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
-        }
 
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -301,21 +283,14 @@ namespace NosCore.WorldServer
 
 
             var containerBuilder = new ContainerBuilder();
-            InitializeContainer(ref containerBuilder);
+            InitializeContainer(containerBuilder);
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
 
-            //todo remove copy here
-            RegisterMapper<Character, CharacterDto>(container);
-            RegisterMapper<Item, ItemDto>(container);
-            RegisterMapper<Map, MapDto>(container);
-            RegisterMapper<MapMonster, MapMonsterDto>(container);
-            RegisterMapper<MapNpc, MapNpcDto>(container);
-            RegisterMapper<Shop, ShopDto>(container);
-            RegisterMapper<ShopItem, ShopItemDto>(container);
-
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(()=> dest.Initialize()));
+            RegisterGo(container);
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+
             container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(() => container.Resolve<WorldServer>().Run());
             return new AutofacServiceProvider(container);

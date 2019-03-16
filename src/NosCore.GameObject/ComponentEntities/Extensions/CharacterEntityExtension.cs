@@ -27,7 +27,6 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets;
-using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

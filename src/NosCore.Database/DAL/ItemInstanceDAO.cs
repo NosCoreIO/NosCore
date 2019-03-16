@@ -39,10 +39,9 @@ namespace NosCore.Database
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
-
-        public ItemInstanceDao()
+        public ItemInstanceDao(ILogger logger)
         {
-            _logger = Logger.GetLoggerConfiguration().CreateLogger();
+            _logger = logger;
             try
             {
                 var pis = typeof(IItemInstanceDto).GetProperties();

@@ -30,12 +30,18 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class ShopParser
+    public class ShopParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<ShopDto> _shopDao;
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao;
+        public ShopParser(IGenericDao<ShopDto> shopDao, IGenericDao<MapNpcDto> mapNpcDao, ILogger logger)
+        {
+            _shopDao = shopDao;
+            _mapNpcDao = mapNpcDao;
+            _logger = logger;
+        }
 
-        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
         public void InsertShops(List<string[]> packetList)
         {
             int shopCounter = 0;

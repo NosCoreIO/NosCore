@@ -42,6 +42,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Map;
@@ -50,20 +51,22 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
+using Serilog;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class DefaultPacketControllerTests
     {
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
-        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(_logger);
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
 
         private readonly Map _map = new Map
         {
@@ -107,8 +110,8 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null,null, null,null));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
+            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null,null, null,null, _logger));
             PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
@@ -127,7 +130,7 @@ namespace NosCore.Tests.HandlerTests
                     {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
                 };
 
-            var _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+            var _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -142,16 +145,16 @@ namespace NosCore.Tests.HandlerTests
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter());
+                _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
-                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
-                instanceAccessService, null);
+                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null, _logger) },
+                instanceAccessService, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null);
+            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null, _logger);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             var mapinstance = instanceAccessService.GetBaseMapById(0);
@@ -183,7 +186,7 @@ namespace NosCore.Tests.HandlerTests
             var targetAccount = new AccountDto {Name = "test2", Password = "test".ToSha512()};
             _accountDao.InsertOrUpdate(ref targetAccount);
 
-            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 CharacterId = 1,
                 Name = "TestChar2",
@@ -198,11 +201,11 @@ namespace NosCore.Tests.HandlerTests
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter());
+                _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _targetSession = new ClientSession(null,
-                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null)},
-                instanceAccessService, null) {SessionId = 2};
-            var handler2 = new DefaultPacketController(null, instanceAccessService, null);
+                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null, _logger) },
+                instanceAccessService, null, _logger) {SessionId = 2};
+            var handler2 = new DefaultPacketController(null, instanceAccessService, null, _logger);
             handler2.RegisterSession(_targetSession);
 
             _targetSession.InitializeAccount(targetAccount);

@@ -42,6 +42,7 @@ using NosCore.Core.Encryption;
 using NosCore.Database;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using AutofacSerilogIntegration;
 using NosCore.FriendServer.Controllers;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
@@ -73,6 +74,7 @@ namespace NosCore.FriendServer
             containerBuilder.RegisterType<FriendServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.Populate(services);
+            containerBuilder.RegisterLogger();
             return containerBuilder;
         }
 

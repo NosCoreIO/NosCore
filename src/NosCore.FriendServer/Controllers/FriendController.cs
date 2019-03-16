@@ -29,6 +29,10 @@ namespace NosCore.FriendServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class FriendController : Controller
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        public FriendController(ILogger logger)
+        {
+            _logger = logger;
+        }
     }
 }

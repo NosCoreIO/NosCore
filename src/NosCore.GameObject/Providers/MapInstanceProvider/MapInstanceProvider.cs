@@ -20,11 +20,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -32,7 +29,6 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
 using Serilog;
 
@@ -40,7 +36,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstanceProvider : IMapInstanceProvider
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IMapItemProvider _mapItemProvider;
         private readonly IGenericDao<MapMonsterDto> _mapMonsters;
         private readonly IGenericDao<PortalDto> _portalDao;
@@ -52,7 +48,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public MapInstanceProvider(List<MapDto> maps,
             IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
-            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter)
+            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter, ILogger logger)
         {
             _mapItemProvider = mapItemProvider;
             _mapMonsters = mapMonsters;
@@ -60,6 +56,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _adapter = adapter;
             _maps = maps;
             _mapNpcs = mapNpcs;
+            _logger = logger;
         }
 
         public void Initialize()
@@ -76,7 +73,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 map =>
                 {
                     var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
-                        _mapItemProvider, _adapter);
+                        _mapItemProvider, _adapter, _logger);
                     if (monsters.ContainsKey(map.MapId))
                     {
                         mapinstance.LoadMonsters(monsters[map.MapId]);

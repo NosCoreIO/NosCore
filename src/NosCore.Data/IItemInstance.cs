@@ -19,7 +19,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Items;
 using PocketType = NosCore.Data.Enumerations.Items.PocketType;
 
 namespace NosCore.Data

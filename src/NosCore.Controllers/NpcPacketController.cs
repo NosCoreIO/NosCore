@@ -44,7 +44,7 @@ namespace NosCore.Controllers
 {
     public class NpcPacketController : PacketController
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly INrunProvider _nRunProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -53,10 +53,11 @@ namespace NosCore.Controllers
         {
         }
 
-        public NpcPacketController(WorldConfiguration worldConfiguration, INrunProvider nRunProvider)
+        public NpcPacketController(WorldConfiguration worldConfiguration, INrunProvider nRunProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _nRunProvider = nRunProvider;
+            _logger = logger;
         }
 
         /// <summary>

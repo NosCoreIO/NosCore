@@ -60,20 +60,22 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.Packets.ServerPackets;
+using Serilog;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class NpcPacketControllerTests
     {
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
-        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(_logger);
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>(_logger);
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
         private readonly Map _map = new Map
         {
             MapId = 0,
@@ -147,7 +149,7 @@ namespace NosCore.Tests.HandlerTests
                 };
 
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -162,18 +164,18 @@ namespace NosCore.Tests.HandlerTests
             _instanceProvider = new MapInstanceProvider(new List<MapDto>{ _map, _mapShop },
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter());
+                _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _instanceProvider.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) },
-                _instanceProvider, null);
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                _instanceProvider, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
             _handler = new NpcPacketController(conf,
                 new NrunProvider(
-                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
+                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             var mapinstance = _instanceProvider.GetBaseMapById(0);
@@ -566,8 +568,8 @@ namespace NosCore.Tests.HandlerTests
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null) },
-                _instanceProvider, null);
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                _instanceProvider, null, _logger);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
@@ -576,9 +578,9 @@ namespace NosCore.Tests.HandlerTests
 
             _handler = new NpcPacketController(conf,
                 new NrunProvider(
-                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()));
+                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf), null, null, null, null, null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger)
             {
                 CharacterId = 1,
                 Name = "chara2",

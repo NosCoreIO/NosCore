@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
 
         private readonly bool _isWorldClient;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
 
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
@@ -65,15 +65,12 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider) : this(configuration,
-            packetControllers)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger) : base(logger)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _exchangeProvider = exchangeProvider;
-        }
+            _logger = logger;
 
-        public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers)
-        {
             if (configuration is WorldConfiguration worldConfiguration)
             {
                 WorldConfiguration = worldConfiguration;

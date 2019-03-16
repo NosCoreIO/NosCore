@@ -31,7 +31,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.Data;
 using Polly;
 using Serilog;
 
@@ -39,7 +38,7 @@ namespace NosCore.Core.Networking
 {
     public class WebApiAccess
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger _logger =  Logger.GetLoggerConfiguration().CreateLogger();
         private static WebApiAccess _instance;
 
         private WebApiAccess()

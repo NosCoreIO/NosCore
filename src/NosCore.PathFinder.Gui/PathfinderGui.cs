@@ -43,7 +43,7 @@ namespace NosCore.PathFinder.Gui
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(Logger);
 
         private static void InitializeConfiguration()
         {

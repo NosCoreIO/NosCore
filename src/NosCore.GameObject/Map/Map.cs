@@ -23,7 +23,6 @@ using System.Linq;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.PathFinder;
-using NosCore.Data;
 
 namespace NosCore.GameObject.Map
 {

@@ -35,14 +35,15 @@ namespace NosCore.LoginServer
 {
     public class LoginServer
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
 
-        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager)
+        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
+            _logger = logger;
         }
 
         public void Run()

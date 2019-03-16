@@ -31,14 +31,15 @@ namespace NosCore.GameObject.Networking
     public class NetworkManager
     {
         private readonly ServerConfiguration _configuration;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
 
         public NetworkManager(ServerConfiguration configuration,
-            Func<ISocketChannel, PipelineFactory> pipelineFactory)
+            Func<ISocketChannel, PipelineFactory> pipelineFactory, ILogger logger)
         {
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
+            _logger = logger;
         }
 
         public async Task RunServerAsync()
