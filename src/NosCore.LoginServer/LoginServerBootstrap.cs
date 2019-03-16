@@ -21,6 +21,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Autofac;
+using AutofacSerilogIntegration;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -91,6 +92,7 @@ namespace NosCore.LoginServer
         private static IContainer InitializeContainer()
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();
