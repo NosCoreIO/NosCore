@@ -132,7 +132,8 @@ namespace NosCore.Tests.NRunTests
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassHandler()}), _logger);
-            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), 
+                null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
