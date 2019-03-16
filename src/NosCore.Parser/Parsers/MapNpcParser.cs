@@ -24,6 +24,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
 using Serilog;
 
@@ -33,11 +34,12 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
-
-        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, ILogger logger)
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
+        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
         {
             _mapNpcDao = mapNpcDao;
             _logger = logger;
+            _npcMonsterDao = npcMonsterDao;
         }
         public void InsertMapNpcs(List<string[]> packetList)
         {
@@ -111,7 +113,7 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (_mapNpcDao.FirstOrDefault(s => s.VNum.Equals(npctest.VNum)) == null
+                if (_npcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
                     || _mapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
                     null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
