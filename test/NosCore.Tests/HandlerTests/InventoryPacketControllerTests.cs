@@ -60,8 +60,6 @@ namespace NosCore.Tests.HandlerTests
     public class InventoryPacketControllerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
 
         private readonly ClientSession _session = new ClientSession(
             new WorldConfiguration
