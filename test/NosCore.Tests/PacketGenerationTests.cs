@@ -196,7 +196,8 @@ namespace NosCore.Tests
         [TestMethod]
         public void GenerateInPacketIsNotCorruptedForNpc()
         {
-            var mapNpcTest = new MapNpc(null, new GenericDao<Database.Entities.Shop, ShopDto>(_logger), new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger), new List<NpcMonsterDto>(), _logger);
+            var mapNpcTest = new MapNpc(null, new GenericDao<Database.Entities.Shop, ShopDto>(_logger), 
+                new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger), new List<NpcMonsterDto>(), _logger);
 
             var packet = PacketFactory.Serialize(new[] {mapNpcTest.GenerateIn()});
             Assert.AreEqual("in 2 - 0 0 0 0 0 0 0 0 0 -1 1 0 -1 - 2 -1 0 0 0 0 0 0 0 0", packet);

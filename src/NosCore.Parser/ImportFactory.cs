@@ -51,7 +51,8 @@ namespace NosCore.Parser
         private readonly SkillParser _skillParser;
         private readonly IGenericDao<AccountDto> _accountDao;
         public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser, MapMonsterParser mapMonsterParser, 
-            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser, PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
+            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser, 
+            PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
             ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, IGenericDao<AccountDto> accountDao)
         {
             _cardParser = cardParser;
