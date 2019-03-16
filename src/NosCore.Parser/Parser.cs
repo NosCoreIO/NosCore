@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -27,9 +28,17 @@ using NosCore.Configuration;
 using NosCore.Database;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using Autofac;
+using AutofacSerilogIntegration;
+using Mapster;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
+using NosCore.Parser.Parsers;
 
 // ReSharper disable LocalizableElement
 
@@ -53,6 +62,19 @@ namespace NosCore.Parser
                 validateAllProperties: true);
             LogLanguage.Language = ParserConfiguration.Language;
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+        }
+
+        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder, bool isStatic) where TDb : class
+        {
+            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            if (isStatic)
+            {
+                StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
+                containerBuilder.Register(c => c.Resolve<IGenericDao<TDto>>().LoadAll().ToList())
+                    .As<List<TDto>>()
+                    .SingleInstance()
+                    .AutoActivate();
+            }
         }
 
         public static void Main(string[] args)
@@ -82,8 +104,30 @@ namespace NosCore.Parser
                     {
                         folder = args.Aggregate(folder, (current, str) => current + str + " ");
                     }
+                    var containerBuilder = new ContainerBuilder();
+                    containerBuilder.RegisterLogger();
+                    containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
+                        .Where(t => t.Name.EndsWith("Parser"))
+                        .AsImplementedInterfaces()
+                        .PropertiesAutowired();
+                    containerBuilder.RegisterType<ImportFactory>();
+                    var registerDatabaseObject = typeof(Parser).GetMethod(nameof(RegisterDatabaseObject));
+                    var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+                    var assemblyDb = typeof(Database.Entities.Account).Assembly.GetTypes();
 
-                    var factory = new ImportFactory(folder);
+                    assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && !p.Name.Contains("InstanceDto") && p.IsClass)
+                        .ToList()
+                        .ForEach(t =>
+                        {
+                            var type = assemblyDb.First(tgo =>
+                                string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                            registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+                        });
+
+                    containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+                    var container = containerBuilder.Build();
+                    var factory = container.Resolve<ImportFactory>();
+                    factory.SetFolder(folder);
                     factory.ImportPackets();
 
                     if (key.KeyChar != 'n')

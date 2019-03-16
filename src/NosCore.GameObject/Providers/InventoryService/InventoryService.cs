@@ -33,15 +33,16 @@ namespace NosCore.GameObject.Providers.InventoryService
     public class InventoryService : ConcurrentDictionary<Guid, IItemInstance>, IInventoryService
     {
         private readonly List<ItemDto> _items;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        private readonly WorldConfiguration _configuration;
 
-        public InventoryService(List<ItemDto> items, WorldConfiguration configuration)
+        public InventoryService(List<ItemDto> items, WorldConfiguration configuration, ILogger logger)
         {
             _items = items;
-            Configuration = configuration;
+            _configuration = configuration;
+            _logger = logger;
         }
 
-        private WorldConfiguration Configuration { get; }
 
         public bool IsExpanded { get; set; }
 
@@ -116,17 +117,17 @@ namespace NosCore.GameObject.Providers.InventoryService
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
                     i.Type != PocketType.Bazaar && i.Type != PocketType.PetWarehouse
                     && i.Type != PocketType.Warehouse && i.Type != PocketType.FamilyWareHouse
-                    && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < Configuration.MaxItemAmount);
-                var freeslot = Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12)
+                    && i.ItemVNum.Equals(newItem.ItemVNum) && i.Amount < _configuration.MaxItemAmount);
+                var freeslot = _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12)
                     - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<IItemInstance> itemInstances = slotNotFull as IList<IItemInstance> ?? slotNotFull.ToList();
-                if (newItem.Amount <= (freeslot * Configuration.MaxItemAmount)
-                    + itemInstances.Sum(s => Configuration.MaxItemAmount - s.Amount))
+                if (newItem.Amount <= (freeslot * _configuration.MaxItemAmount)
+                    + itemInstances.Sum(s => _configuration.MaxItemAmount - s.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
                         var max = slotToAdd.Amount + newItem.Amount;
-                        max = max > Configuration.MaxItemAmount ? Configuration.MaxItemAmount : max;
+                        max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
                         newItem.Amount = (short) (slotToAdd.Amount + newItem.Amount - max);
                         slotToAdd.Amount = (short) max;
                         invlist.Add(slotToAdd);
@@ -160,7 +161,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             }
 
             if (this.Any(s => s.Value.Slot == newItem.Slot && s.Value.Type == newItem.Type)
-                || newItem.Slot >= Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
+                || newItem.Slot >= _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
             {
                 return null;
             }
@@ -331,7 +332,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             destinationPocket = LoadBySlotAndType<IItemInstance>(destinationSlot, sourcetype);
 
             if (sourceSlot == destinationSlot || amount == 0
-                || destinationSlot > Configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
+                || destinationSlot > _configuration.BackpackSize + ((IsExpanded ? 1 : 0) * 12))
             {
                 return false;
             }
@@ -354,12 +355,12 @@ namespace NosCore.GameObject.Providers.InventoryService
                         if (destinationPocket.ItemVNum == sourcePocket.ItemVNum
                             && (sourcePocket.Item.Type == PocketType.Main || sourcePocket.Item.Type == PocketType.Etc))
                         {
-                            if (destinationPocket.Amount + amount > Configuration.MaxItemAmount)
+                            if (destinationPocket.Amount + amount > _configuration.MaxItemAmount)
                             {
                                 var saveItemCount = destinationPocket.Amount;
-                                destinationPocket.Amount = Configuration.MaxItemAmount;
+                                destinationPocket.Amount = _configuration.MaxItemAmount;
                                 sourcePocket.Amount =
-                                    (short) (saveItemCount + sourcePocket.Amount - Configuration.MaxItemAmount);
+                                    (short) (saveItemCount + sourcePocket.Amount - _configuration.MaxItemAmount);
                             }
                             else
                             {
@@ -414,15 +415,15 @@ namespace NosCore.GameObject.Providers.InventoryService
                 if (!place.ContainsKey(type))
                 {
                     place.Add(type,
-                        (type != PocketType.Miniland ? Configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12
+                        (type != PocketType.Miniland ? _configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12
                             : 50) - itemList.Count);
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);
-                var rest = amount % (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount);
+                var rest = amount % (type == PocketType.Equipment ? 1 : _configuration.MaxItemAmount);
                 var newSlotNeeded = itemList.Where(s => s.ItemVNum == itemGroup.Key)
-                    .Sum(s => Configuration.MaxItemAmount - s.Amount) <= rest;
-                place[type] -= (amount / (type == PocketType.Equipment ? 1 : Configuration.MaxItemAmount)) +
+                    .Sum(s => _configuration.MaxItemAmount - s.Amount) <= rest;
+                place[type] -= (amount / (type == PocketType.Equipment ? 1 : _configuration.MaxItemAmount)) +
                     (newSlotNeeded ? 1 : 0);
 
                 if (place[type] < 0)
@@ -462,11 +463,11 @@ namespace NosCore.GameObject.Providers.InventoryService
                 itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
             var nextFreeSlot = instanceSlotsByType.Any()
                 ? Enumerable
-                    .Range(0, (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50) + 1)
+                    .Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1)
                     .Except(instanceSlotsByType).FirstOrDefault()
                 : 0;
             return (short?) nextFreeSlot
-                < (type != PocketType.Miniland ? Configuration.BackpackSize + (backPack * 12) : 50)
+                < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50)
                     ? (short?) nextFreeSlot : null;
         }
 

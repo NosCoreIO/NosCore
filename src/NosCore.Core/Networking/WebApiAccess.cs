@@ -38,7 +38,7 @@ namespace NosCore.Core.Networking
 {
     public class WebApiAccess
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger _logger =  Logger.GetLoggerConfiguration().CreateLogger();
         private static WebApiAccess _instance;
 
         private WebApiAccess()

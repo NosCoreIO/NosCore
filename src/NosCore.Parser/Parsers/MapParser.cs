@@ -34,8 +34,15 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileMapIdDat = "\\MapIDData.dat";
         private readonly string _folderMap = "\\map";
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<MapDto> _mapDao;
+
+        public MapParser(IGenericDao<MapDto> mapDao, ILogger logger)
+        {
+            _logger = logger;
+            _mapDao = mapDao;
+        }
+
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
             var fileMapIdDat = folder + _fileMapIdDat;

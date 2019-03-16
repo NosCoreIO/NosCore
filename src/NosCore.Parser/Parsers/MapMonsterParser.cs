@@ -29,10 +29,17 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class MapMonsterParser
+    public class MapMonsterParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
+
+        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, ILogger logger)
+        {
+            _mapMonsterDao = mapMonsterDao;
+            _logger = logger;
+        }
+
         public void InsertMapMonster(List<string[]> packetList)
         {
             var monsterCounter = 0;

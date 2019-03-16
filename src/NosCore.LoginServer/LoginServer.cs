@@ -43,7 +43,7 @@ namespace NosCore.LoginServer
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
-            _logger = Logger;
+            _logger = logger;
         }
 
         public void Run()

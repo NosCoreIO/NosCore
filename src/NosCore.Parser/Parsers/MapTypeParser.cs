@@ -31,8 +31,15 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<MapTypeDto> _dropDao = new GenericDao<Database.Entities.MapType, MapTypeDto>();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<MapTypeDto> _dropDao;
+
+        public MapTypeParser(IGenericDao<MapTypeDto> dropDao, ILogger logger)
+        {
+            _dropDao = dropDao;
+            _logger = logger;
+        }
+
         internal void InsertMapTypes()
         {
             var list = _dropDao.LoadAll().ToList();

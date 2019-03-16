@@ -31,9 +31,14 @@ namespace NosCore.Parser.Parsers
 {
     public class MapNpcParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao;
 
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>();
+        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, ILogger logger)
+        {
+            _mapNpcDao = mapNpcDao;
+            _logger = logger;
+        }
         public void InsertMapNpcs(List<string[]> packetList)
         {
             var npcCounter = 0;

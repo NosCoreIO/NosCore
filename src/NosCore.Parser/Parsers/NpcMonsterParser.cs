@@ -32,17 +32,25 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class NpcMonsterParser
+    public class NpcMonsterParser
     {
         private const string FileNpcId = "\\monster.dat";
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<SkillDto> _skillDao;
+        private readonly IGenericDao<BCardDto> _bCardDao;
+        private readonly IGenericDao<DropDto> _dropDao;
+        private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao;
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
 
-        private readonly IGenericDao<SkillDto> _skillDao = new GenericDao<Database.Entities.Skill, SkillDto>();
-        private readonly IGenericDao<BCardDto> _bCardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
-        private readonly IGenericDao<DropDto> _dropDao = new GenericDao<Database.Entities.Drop, DropDto>();
-        private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao = new GenericDao<Database.Entities.NpcMonsterSkill, NpcMonsterSkillDto>();
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>();
-
+        public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao, IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
+        {
+            _skillDao = skillDao;
+            _bCardDao = bCardDao;
+            _dropDao = dropDao;
+            _npcMonsterSkillDao = npcMonsterSkillDao;
+            _npcMonsterDao = npcMonsterDao;
+            _logger = logger;
+        }
         internal void InsertNpcMonsters(string folder)
         {
             var basicHp = new int[100];
