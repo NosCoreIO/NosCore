@@ -26,6 +26,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
@@ -42,32 +43,34 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ClientPackets;
+using Serilog;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class CharacterScreenControllerTests
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly List<NpcMonsterDto> _npcMonsters = new List<NpcMonsterDto>();
 
         private readonly ClientSession _session = new ClientSession(null,
-            new List<PacketController> {new CharacterScreenPacketController()}, null, null);
+            new List<PacketController> {new CharacterScreenPacketController()}, null, null, _logger);
 
         private Character _chara;
         private CharacterScreenPacketController _handler;
 
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>();
-        private readonly IGenericDao<MateDto> _mateDao = new GenericDao<Database.Entities.Mate, MateDto>();
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(_logger);
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+        private readonly IGenericDao<MateDto> _mateDao = new GenericDao<Database.Entities.Mate, MateDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
 
         [TestInitialize]
         public void Setup()
         {
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null));
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>()));
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null, _logger));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
             PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
@@ -78,7 +81,7 @@ namespace NosCore.Tests.HandlerTests
             _mapDao.InsertOrUpdate(ref map);
             var _acc = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             _accountDao.InsertOrUpdate(ref _acc);
-            _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao)
+            _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -89,7 +92,7 @@ namespace NosCore.Tests.HandlerTests
             CharacterDto character = _chara;
             _characterDao.InsertOrUpdate(ref character);
             _session.InitializeAccount(_acc);
-            _handler = new CharacterScreenPacketController(null, null, new Adapter(), _characterDao, _accountDao, _itemInstanceDao, _mateDao);
+            _handler = new CharacterScreenPacketController(null, null, new Adapter(), _characterDao, _accountDao, _itemInstanceDao, _mateDao, _logger);
             _handler.RegisterSession(_session);
         }
 
@@ -140,7 +143,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null);
+                    null, _logger);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
             {
@@ -239,7 +242,7 @@ namespace NosCore.Tests.HandlerTests
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null);
+                    null, _logger);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket
             {

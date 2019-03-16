@@ -25,6 +25,7 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
 using NosCore.Data;
@@ -38,18 +39,20 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
+using Serilog;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
     public class LoginPacketControllerTests
     {
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(_logger);
         private const string Name = "TestExistingCharacter";
 
         private readonly ClientSession _session =
-            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null, null);
+            new ClientSession(null, new List<PacketController> {new LoginPacketController()}, null, null, _logger);
 
         private LoginPacketController _handler;
 

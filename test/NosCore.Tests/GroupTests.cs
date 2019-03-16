@@ -20,16 +20,19 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.Group;
+using Serilog;
 
 namespace NosCore.Tests
 {
     [TestClass]
     public class GroupTests
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private Group _group;
 
         [TestInitialize]
@@ -45,7 +48,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(null, null, null, null, null,null,null)
+            var entity = new Character(null, null, null, null, null,null,null, _logger)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -62,7 +65,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(null, null, null, null, null, null, null)
+            var entity = new Character(null, null, null, null, null, null, null, _logger)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -95,7 +98,7 @@ namespace NosCore.Tests
         {
             for (var i = 0; i < (long) _group.Type; i++)
             {
-                var entity = new Character(null, null, null, null, null, null, null)
+                var entity = new Character(null, null, null, null, null, null, null, _logger)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",
