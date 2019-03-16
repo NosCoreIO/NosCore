@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
@@ -29,12 +30,14 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
+using Serilog;
 
 namespace NosCore.Tests
 {
     [TestClass]
     public class InventoryTests
     {
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private ItemProvider _itemProvider;
 
         private IInventoryService Inventory { get; set; }
@@ -52,7 +55,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
-            Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999});
+            Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999}, _logger);
         }
 
         [TestMethod]

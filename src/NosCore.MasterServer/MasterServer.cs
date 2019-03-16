@@ -25,19 +25,19 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using Serilog;
 
 namespace NosCore.MasterServer
 {
     public class MasterServer
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
 
-        public MasterServer(MasterConfiguration masterConfiguration)
+        public MasterServer(MasterConfiguration masterConfiguration, ILogger logger)
         {
             _masterConfiguration = masterConfiguration;
+            _logger = logger;
         }
 
         public void Run()

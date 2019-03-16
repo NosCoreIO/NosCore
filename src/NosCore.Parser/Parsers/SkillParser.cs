@@ -31,14 +31,21 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class SkillParser
+    public class SkillParser
     {
         private readonly string _fileSkillId = "\\Skill.dat";
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<BCardDto> _bCardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
-        private readonly IGenericDao<ComboDto> _comboDao = new GenericDao<Database.Entities.Combo, ComboDto>();
-        private readonly IGenericDao<SkillDto> _skillDao = new GenericDao<Database.Entities.Skill, SkillDto>();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<BCardDto> _bCardDao;
+        private readonly IGenericDao<ComboDto> _comboDao;
+        private readonly IGenericDao<SkillDto> _skillDao;
 
+        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao, IGenericDao<SkillDto> skillDao, ILogger logger)
+        {
+            _bCardDao = bCardDao;
+            _comboDao = comboDao;
+            _skillDao = skillDao;
+            _logger = logger;
+        }
         internal void InsertSkills(string folder)
         {
             var skills = new List<SkillDto>();

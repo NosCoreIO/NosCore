@@ -41,12 +41,13 @@ namespace NosCore.Core.Controllers
     public class ChannelController : Controller
     {
         private readonly WebApiConfiguration _apiConfiguration;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
 
         private int _id;
 
-        public ChannelController(WebApiConfiguration apiConfiguration)
+        public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
         {
+            _logger = logger;
             _apiConfiguration = apiConfiguration;
         }
 

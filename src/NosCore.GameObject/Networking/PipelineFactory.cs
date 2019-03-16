@@ -23,7 +23,6 @@ using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Data;
 
 namespace NosCore.GameObject.Networking
 {

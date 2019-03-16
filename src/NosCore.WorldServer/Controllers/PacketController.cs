@@ -36,7 +36,12 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+
+        public PacketController(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         // POST api/packet
         [HttpPost]

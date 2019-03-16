@@ -37,12 +37,18 @@ namespace NosCore.Parser.Parsers
     {
         private readonly List<BCardDto> _itemCards = new List<BCardDto>();
         private readonly List<ItemDto> _items = new List<ItemDto>();
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        private readonly IGenericDao<ItemDto> _itemDao = new GenericDao<Database.Entities.Item, ItemDto>();
-        private readonly IGenericDao<BCardDto> _bCardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<ItemDto> _itemDao;
+        private readonly IGenericDao<BCardDto> _bCardDao;
         private bool _itemAreaBegin;
         private int _itemCounter;
+
+        public ItemParser(IGenericDao<ItemDto> itemDao, IGenericDao<BCardDto> bCardDao, ILogger logger)
+        {
+            _itemDao = itemDao;
+            _bCardDao = bCardDao;
+            _logger = logger;
+        }
 
         public void Parse(string folder)
         {

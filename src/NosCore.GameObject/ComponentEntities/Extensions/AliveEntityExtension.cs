@@ -31,7 +31,6 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

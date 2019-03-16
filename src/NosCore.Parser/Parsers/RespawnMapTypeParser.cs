@@ -28,11 +28,17 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class RespawnMapTypeParser
+    public class RespawnMapTypeParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
 
-        private readonly IGenericDao<RespawnMapTypeDto> _respawnMapTypeDao = new GenericDao<Database.Entities.RespawnMapType, RespawnMapTypeDto>();
+        private readonly IGenericDao<RespawnMapTypeDto> _respawnMapTypeDao;
+
+        public RespawnMapTypeParser(IGenericDao<RespawnMapTypeDto> respawnMapTypeDao, ILogger logger)
+        {
+            _respawnMapTypeDao = respawnMapTypeDao;
+            _logger = logger;
+        }
         internal void InsertRespawnMapType()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>

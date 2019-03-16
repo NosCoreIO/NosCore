@@ -19,7 +19,6 @@
 
 using Mapster;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Mapping

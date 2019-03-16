@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.Family;
 using System.ComponentModel.DataAnnotations;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using FamilyMemberRank = NosCore.Data.Enumerations.Family.FamilyMemberRank;

@@ -30,7 +30,6 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -38,16 +37,12 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstance : IBroadcastable
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         private readonly IMapItemProvider _mapItemProvider;
         private bool _isSleeping;
         private bool _isSleepingRequest;
@@ -55,9 +50,10 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         private ConcurrentDictionary<int, MapNpc> _npcs;
         private readonly IAdapter _adapter;
+        private readonly ILogger _logger;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-           IMapItemProvider mapItemProvider, IAdapter adapter)
+           IMapItemProvider mapItemProvider, IAdapter adapter, ILogger logger)
         {
             XpRate = 1;
             DropRate = 1;
@@ -75,6 +71,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             Sessions = new DefaultChannelGroup(executor);
             _mapItemProvider = mapItemProvider;
             _adapter = adapter;
+            _logger = logger;
         }
 
         public DateTime LastUnregister { get; set; }

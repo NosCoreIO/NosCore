@@ -32,12 +32,13 @@ namespace NosCore.Core.Encryption
 {
     public class LoginEncoder : MessageToMessageEncoder<string>
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly LoginConfiguration _loginServerConfiguration;
 
-        public LoginEncoder(LoginConfiguration loginServerConfiguration)
+        public LoginEncoder(LoginConfiguration loginServerConfiguration, ILogger logger)
         {
             _loginServerConfiguration = loginServerConfiguration;
+            _logger = logger;
         }
 
         protected override void Encode(IChannelHandlerContext context, string message, List<object> output)

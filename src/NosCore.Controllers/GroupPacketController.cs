@@ -37,7 +37,14 @@ namespace NosCore.Controllers
 {
     public class GroupPacketController : PacketController
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+
+        public GroupPacketController() { }
+
+        public GroupPacketController(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         /// <summary>
         ///     pjoin packet

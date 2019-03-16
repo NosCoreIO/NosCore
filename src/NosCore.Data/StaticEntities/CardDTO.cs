@@ -19,7 +19,6 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Buff;
 using BCardType = NosCore.Data.Enumerations.Buff.BCardType;
 
 namespace NosCore.Data.StaticEntities

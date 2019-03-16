@@ -51,17 +51,18 @@ namespace NosCore.Controllers
     {
         private readonly IItemProvider _itemProvider;
         private readonly List<Item> _items;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
-            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemProvider = itemProvider;
             _mapInstanceProvider = mapInstanceProvider;
+            _logger = logger;
         }
 
         [UsedImplicitly]

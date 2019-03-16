@@ -41,13 +41,14 @@ namespace NosCore.Controllers
     public class ExchangePacketController : PacketController
     {
         private readonly IExchangeProvider _exchangeProvider;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public ExchangePacketController(WorldConfiguration worldConfiguration, IExchangeProvider exchangeProvider)
+        public ExchangePacketController(WorldConfiguration worldConfiguration, IExchangeProvider exchangeProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _exchangeProvider = exchangeProvider;
+            _logger = logger;
         }
 
         [UsedImplicitly]

@@ -31,29 +31,46 @@ namespace NosCore.Parser
 {
     public class ImportFactory
     {
-        private readonly CardParser _cardParser = new CardParser();
-        private readonly DropParser _dropParser = new DropParser();
-
-        private readonly string _folder;
-        private readonly I18NParser _i18NParser = new I18NParser();
-        private readonly ItemParser _itemParser = new ItemParser();
-        private readonly MapMonsterParser _mapMonsterParser = new MapMonsterParser();
-        private readonly MapNpcParser _mapNpcParser = new MapNpcParser();
-
-        private readonly MapParser _mapParser = new MapParser();
-        private readonly MapTypeMapParser _mapTypeMapParser = new MapTypeMapParser();
-        private readonly MapTypeParser _mapTypeParser = new MapTypeParser();
-        private readonly NpcMonsterParser _npcMonsterParser = new NpcMonsterParser();
         private readonly List<string[]> _packetList = new List<string[]>();
-        private readonly PortalParser _portalParser = new PortalParser();
-        private readonly RespawnMapTypeParser _respawnMapTypeParser = new RespawnMapTypeParser();
-        private readonly ShopItemParser _shopItemParser = new ShopItemParser();
-        private readonly ShopParser _shopParser = new ShopParser();
-        private readonly SkillParser _skillParser = new SkillParser();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>();
-        public ImportFactory(string folder)
+        private string _folder;
+
+        private readonly CardParser _cardParser;
+        private readonly DropParser _dropParser;
+        private readonly I18NParser _i18NParser;
+        private readonly ItemParser _itemParser;
+        private readonly MapMonsterParser _mapMonsterParser;
+        private readonly MapNpcParser _mapNpcParser;
+        private readonly MapParser _mapParser;
+        private readonly MapTypeMapParser _mapTypeMapParser;
+        private readonly MapTypeParser _mapTypeParser;
+        private readonly NpcMonsterParser _npcMonsterParser;
+        private readonly PortalParser _portalParser;
+        private readonly RespawnMapTypeParser _respawnMapTypeParser;
+        private readonly ShopItemParser _shopItemParser;
+        private readonly ShopParser _shopParser;
+        private readonly SkillParser _skillParser;
+        private readonly IGenericDao<AccountDto> _accountDao;
+        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser, MapMonsterParser mapMonsterParser, 
+            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser, 
+            PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
+            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, IGenericDao<AccountDto> accountDao)
         {
-            _folder = folder;
+            _cardParser = cardParser;
+            _dropParser = dropParser;
+            _i18NParser = i18NParser;
+            _itemParser = itemParser;
+            _mapMonsterParser = mapMonsterParser;
+            _mapNpcParser = mapNpcParser;
+            _mapParser = mapParser;
+            _mapTypeMapParser = mapTypeMapParser;
+            _mapTypeParser = mapTypeParser;
+            _npcMonsterParser = npcMonsterParser;
+            _portalParser = portalParser;
+            _respawnMapTypeParser = respawnMapTypeParser;
+            _shopItemParser = shopItemParser;
+            _shopParser = shopParser;
+            _skillParser = skillParser;
+            _accountDao = accountDao;
         }
 
         public void ImportAccounts()
@@ -171,6 +188,11 @@ namespace NosCore.Parser
         internal void ImportItems()
         {
             _itemParser.Parse(_folder);
+        }
+
+        public void SetFolder(string folder)
+        {
+            _folder = folder;
         }
     }
 }
