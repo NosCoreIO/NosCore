@@ -69,7 +69,6 @@ namespace NosCore.Parser
             containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
             if (isStatic)
             {
-                StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
                 containerBuilder.Register(c => c.Resolve<IGenericDao<TDto>>().LoadAll().ToList())
                     .As<List<TDto>>()
                     .SingleInstance()
