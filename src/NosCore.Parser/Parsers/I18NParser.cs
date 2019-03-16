@@ -44,20 +44,37 @@ namespace NosCore.Parser.Parsers
         private const string NpcTalkTxt = "\\_code_{0}_npctalk.txt";
         private const string QuestTxt = "\\_code_{0}_quest.txt";
         private const string SkillTxt = "\\_code_{0}_Skill.txt";
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
 
-        private readonly IGenericDao<I18NActDescDto> _i18NActDescDao = new GenericDao<Database.Entities.I18NActDesc, I18NActDescDto>();
-        private readonly IGenericDao<I18NCardDto> _i18NCardDao = new GenericDao<Database.Entities.I18NCard, I18NCardDto>();
-        private readonly IGenericDao<I18NbCardDto> _i18NbCardDao = new GenericDao<Database.Entities.I18NBCard, I18NbCardDto>();
-        private readonly IGenericDao<I18NItemDto> _i18NItemDao = new GenericDao<Database.Entities.I18NItem, I18NItemDto>();
-        private readonly IGenericDao<I18NMapIdDataDto> _i18NMapIdDataDao = new GenericDao<Database.Entities.I18NMapIdData, I18NMapIdDataDto>();
-        private readonly IGenericDao<I18NMapPointDataDto> _i18NMapPointDataDao = new GenericDao<Database.Entities.I18NMapPointData, I18NMapPointDataDto>();
-        private readonly IGenericDao<I18NNpcMonsterDto> _i18NNpcMonsterDao = new GenericDao<Database.Entities.I18NNpcMonster, I18NNpcMonsterDto>();
-        private readonly IGenericDao<I18NNpcMonsterTalkDto> _i18NNpcMonsterTalkDao = new GenericDao<Database.Entities.I18NNpcMonsterTalk, I18NNpcMonsterTalkDto>();
+        private readonly IGenericDao<I18NActDescDto> _i18NActDescDao;
+        private readonly IGenericDao<I18NCardDto> _i18NCardDao;
+        private readonly IGenericDao<I18NbCardDto> _i18NbCardDao;
+        private readonly IGenericDao<I18NItemDto> _i18NItemDao;
+        private readonly IGenericDao<I18NMapIdDataDto> _i18NMapIdDataDao;
+        private readonly IGenericDao<I18NMapPointDataDto> _i18NMapPointDataDao;
+        private readonly IGenericDao<I18NNpcMonsterDto> _i18NNpcMonsterDao;
+        private readonly IGenericDao<I18NNpcMonsterTalkDto> _i18NNpcMonsterTalkDao;
 
-        private readonly IGenericDao<I18NQuestDto> _i18NQuestDao = new GenericDao<Database.Entities.I18NQuest, I18NQuestDto>();
-        private readonly IGenericDao<I18NSkillDto> _i18NSkillDao = new GenericDao<Database.Entities.I18NSkill, I18NSkillDto>();
-        
+        private readonly IGenericDao<I18NQuestDto> _i18NQuestDao;
+        private readonly IGenericDao<I18NSkillDto> _i18NSkillDao;
+
+        public I18NParser(IGenericDao<I18NQuestDto> i18NQuestDao, IGenericDao<I18NSkillDto> i18NSkillDao, IGenericDao<I18NNpcMonsterTalkDto> i18NNpcMonsterTalkDao,
+            IGenericDao<I18NNpcMonsterDto> i18NNpcMonsterDao, IGenericDao<I18NMapPointDataDto> i18NMapPointDataDao, IGenericDao<I18NMapIdDataDto> i18NMapIdDataDao,
+            IGenericDao<I18NItemDto> i18NItemDao, IGenericDao<I18NbCardDto> i18NbCardDao, IGenericDao<I18NCardDto> i18NCardDao, IGenericDao<I18NActDescDto> i18NActDescDao, ILogger logger)
+        {
+            _i18NQuestDao = i18NQuestDao;
+            _i18NSkillDao = i18NSkillDao;
+            _i18NNpcMonsterTalkDao = i18NNpcMonsterTalkDao;
+            _i18NNpcMonsterDao = i18NNpcMonsterDao;
+            _i18NMapPointDataDao = i18NMapPointDataDao;
+            _i18NMapIdDataDao = i18NMapIdDataDao;
+            _i18NItemDao = i18NItemDao;
+            _i18NbCardDao = i18NbCardDao;
+            _i18NCardDao = i18NCardDao;
+            _i18NActDescDao = i18NActDescDao;
+            _logger = logger;
+        }
+
         private string _folder;
 
         private string I18NTextFileName(string textfilename, RegionType region)

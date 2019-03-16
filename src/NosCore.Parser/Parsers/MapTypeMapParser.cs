@@ -28,8 +28,15 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeMapParser
     {
-        private readonly IGenericDao<MapTypeMapDto> _mapTypeMapDao = new GenericDao<Database.Entities.MapTypeMap, MapTypeMapDto>();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
+        private readonly IGenericDao<MapTypeMapDto> _mapTypeMapDao;
+        private readonly IGenericDao<MapDto> _mapDao;
+
+        public MapTypeMapParser(IGenericDao<MapTypeMapDto> mapTypeMapDao, IGenericDao<MapDto> mapDao)
+        {
+            _mapTypeMapDao = mapTypeMapDao;
+            _mapDao = mapDao;
+        }
+
         internal void InsertMapTypeMaps()
         {
             var maptypemaps = new List<MapTypeMapDto>();

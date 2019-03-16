@@ -36,15 +36,21 @@ namespace NosCore.Parser.Parsers
     {
         private const string FileCardDat = "\\Card.dat";
 
-        private readonly IGenericDao<CardDto> _cardDao = new GenericDao<Database.Entities.Card, CardDto>();
-        private readonly IGenericDao<BCardDto> _bcardDao = new GenericDao<Database.Entities.BCard, BCardDto>();
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<CardDto> _cardDao;
+        private readonly IGenericDao<BCardDto> _bcardDao;
+        private readonly ILogger _logger;
         private readonly List<BCardDto> Bcards = new List<BCardDto>();
         private readonly List<CardDto> Cards = new List<CardDto>();
         private CardDto _card = new CardDto();
         private int _counter;
         private bool _itemAreaBegin;
 
+        public CardParser(IGenericDao<CardDto> cardDao, IGenericDao<BCardDto> bcardDao, ILogger logger)
+        {
+            _cardDao = cardDao;
+            _bcardDao = bcardDao;
+            _logger = logger;
+        }
         public void AddFirstData(string[] currentLine)
         {
             for (var i = 0; i < 3; i++)

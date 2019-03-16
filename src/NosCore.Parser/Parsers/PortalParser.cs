@@ -33,10 +33,18 @@ namespace NosCore.Parser.Parsers
     public class PortalParser
     {
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private List<PortalDto> _listPortals1 = new List<PortalDto>();
-        private readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>();
-        private readonly IGenericDao<PortalDto> _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>();
+        private readonly IGenericDao<MapDto> _mapDao;
+        private readonly IGenericDao<PortalDto> _portalDao;
+
+        public PortalParser(ILogger logger, IGenericDao<MapDto> mapDao, IGenericDao<PortalDto> portalDao)
+        {
+            _logger = logger;
+            _mapDao = mapDao;
+            _portalDao = portalDao;
+        }
+
         public void InsertPortals(List<string[]> packetList)
         {
             var _maps = _mapDao.LoadAll().ToList();

@@ -28,12 +28,19 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    internal class ShopItemParser
+    public class ShopItemParser
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+        private readonly IGenericDao<ShopDto> _shopDao;
+        private readonly IGenericDao<ShopItemDto> _shopItemDao;
 
-        private readonly IGenericDao<ShopDto> _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>();
-        private readonly IGenericDao<ShopItemDto> _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>();
+        public ShopItemParser(IGenericDao<ShopItemDto> shopItemDao, IGenericDao<ShopDto> shopDao, ILogger logger)
+        {
+            _shopItemDao = shopItemDao;
+            _shopDao = shopDao;
+            _logger = logger;
+        }
+
         public void InsertShopItems(List<string[]> packetList)
         {
             List<ShopItemDto> shopitems = new List<ShopItemDto>();
