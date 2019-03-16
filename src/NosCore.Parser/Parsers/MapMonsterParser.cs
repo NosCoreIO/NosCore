@@ -24,6 +24,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
 using Serilog;
 
@@ -33,11 +34,13 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger;
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
 
-        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, ILogger logger)
+        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
         {
             _mapMonsterDao = mapMonsterDao;
             _logger = logger;
+            _npcMonsterDao = npcMonsterDao;
         }
 
         public void InsertMapMonster(List<string[]> packetList)
@@ -80,7 +83,7 @@ namespace NosCore.Parser.Parsers
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (_mapMonsterDao.FirstOrDefault(s => s.VNum.Equals(monster.VNum)) == null
+                if (_npcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
                     || _mapMonsterDao.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
                     || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
                 {
