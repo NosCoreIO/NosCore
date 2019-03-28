@@ -130,7 +130,7 @@
     <value>Already in blacklist!</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>You are already Friends!</value>
+    <value>You are already friends!</value>
   </data>
   <data name="ALREADY_IN_GROUP" xml:space="preserve">
     <value>You are already in group!</value>
@@ -151,7 +151,7 @@
     <value>Do you want to delete?</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>At least on of required files is missing</value>
+    <value>At least one of the required files are missing, try again when you have all the required files.</value>
   </data>
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
     <value>Authenticated Error.</value>
@@ -226,7 +226,7 @@
     <value>New client connected. ClientId = {0}</value>
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
-    <value>Connection closed.</value>
+    <value>Client disconnected. ClientId = {0}</value>
   </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
     <value>Connection lost.</value>
@@ -269,7 +269,7 @@
     <value>An exception has been thrown : {0}</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Forced Disconnecting of client {0}, too much connections.</value>
+    <value>Forced disconnection of the client {0}.</value>
   </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Your Friendlist is full!</value>
@@ -278,7 +278,7 @@
     <value>Friend request accepted!</value>
   </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Friend Deleted!</value>
+    <value>Friend deleted!</value>
   </data>
   <data name="FRIEND_OFFLINE" xml:space="preserve">
     <value>Your friend is offline!</value>
@@ -290,23 +290,23 @@
     <value>Friend request blocked!</value>
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Friend request sent</value>
+    <value>Friend request sent!</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Group request type</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>You're group admin!</value>
+    <value>You are the group admin!</value>
   </data>
   <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>User blocked group invites</value>
+    <value>This user has blocked the group invitations!</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Group disbanded</value>
   </data>
   <data name="GROUP_FULL" xml:space="preserve">
-    <value>Group is full</value>
+    <value>The group is full!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>You left the party</value>
@@ -703,5 +703,42 @@
   </data>
   <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
     <value>You have reached the maximum quantity of Additional SPs!</value>
+  </data>
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
+    <value>You can not trade not tradable items!</value>
+    <comment>Check</comment>
+  </data>
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve">
+    <value>Loading MapInstances...</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>SP points increased by {0}!</value>
+    <comment>Check</comment>
+  </data>
+  <data name="SUPPORT" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>[{0}] wants to be your friend! Do you accept the request?</value>
+    <comment>Check</comment>
+  </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Invitation sent!</value>
+    <comment>Check</comment>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Your invitation has been declined!</value>
+    <comment>Check</comment>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>[{0}] has invited you to a group! Do you accept?</value>
+    <comment>Check</comment>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>[{0}] left the party!</value>
+    <comment>Check</comment>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>Your gold has been updated successfully!</value>
   </data>
 </root>
