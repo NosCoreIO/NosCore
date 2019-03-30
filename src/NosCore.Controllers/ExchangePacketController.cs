@@ -259,7 +259,7 @@ namespace NosCore.Controllers
 
                     var success = _exchangeProvider.ValidateExchange(Session, exchangeTarget);
 
-                    if (success.Item1 == ExchangeResultType.Success)
+                    if (success.Item1 == ExchangeResultType.Failure)
                     {
                         foreach (var infoPacket in success.Item2)
                         {
