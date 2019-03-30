@@ -27,6 +27,7 @@ using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Core.Serializing;
+using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -50,12 +51,12 @@ namespace NosCore.Controllers
     public class CommandPacketController : PacketController
     {
         private readonly IItemProvider _itemProvider;
-        private readonly List<Item> _items;
+        private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public CommandPacketController(WorldConfiguration worldConfiguration, List<Item> items,
+        public CommandPacketController(WorldConfiguration worldConfiguration, List<ItemDto> items,
             IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
