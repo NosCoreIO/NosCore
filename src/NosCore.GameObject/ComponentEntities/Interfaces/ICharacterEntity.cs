@@ -81,8 +81,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void LeaveGroup();
 
-        string GetMessageFromKey(LanguageKey groupClosed);
-
         CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
 
         void JoinGroup(Group group);

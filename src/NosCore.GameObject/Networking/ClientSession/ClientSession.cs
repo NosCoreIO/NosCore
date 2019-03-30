@@ -286,7 +286,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Parallel.ForEach(mapSessions, s =>
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{s.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty));
+                        ? $"[{Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]" : string.Empty));
                     if (s.Shop != null)
                     {
                         SendPacket(s.GeneratePFlag());
