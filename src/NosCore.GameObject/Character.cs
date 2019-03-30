@@ -278,7 +278,7 @@ namespace NosCore.GameObject
                     groupMember?.SendPacket(Group.GeneratePidx(groupMember));
                     groupMember?.SendPacket(new MsgPacket
                     {
-                        Message = groupMember.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, groupMember.AccountLanguage),
                         Type = MessageType.White
                     });
                 }

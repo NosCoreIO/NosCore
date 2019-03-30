@@ -123,7 +123,7 @@ namespace NosCore.Controllers
                         });
                         targetSession.SendPacket(new DlgPacket
                         {
-                            Question = string.Format(targetSession.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP), Session.Character.Name),
+                            Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP, targetSession.AccountLanguage), Session.Character.Name),
                             YesPacket = new PjoinPacket
                             {
                                 CharacterId = Session.Character.CharacterId,
@@ -205,7 +205,7 @@ namespace NosCore.Controllers
 
                         targetSession.SendPacket(new InfoPacket
                         {
-                            Message = targetSession.GetMessageFromKey(LanguageKey.GROUP_FULL)
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL, targetSession.AccountLanguage)
                         });
                         return;
                     }
@@ -215,7 +215,7 @@ namespace NosCore.Controllers
                         targetSession.JoinGroup(Session.Character.Group);
                         targetSession.SendPacket(new InfoPacket
                         {
-                            Message = targetSession.GetMessageFromKey(LanguageKey.JOINED_GROUP)
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP, targetSession.AccountLanguage)
                         });
                     }
                     else if (targetSession.Group.Count > 1)
@@ -237,7 +237,7 @@ namespace NosCore.Controllers
 
                         targetSession.SendPacket(new InfoPacket
                         {
-                            Message = targetSession.GetMessageFromKey(LanguageKey.GROUP_ADMIN)
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN, targetSession.AccountLanguage)
                         });
 
                         targetSession.Group = Session.Character.Group;
@@ -275,7 +275,7 @@ namespace NosCore.Controllers
                     targetSession.GroupRequestCharacterIds.TryRemove(Session.Character.CharacterId, out _);
                     targetSession.SendPacket(new InfoPacket
                     {
-                        Message = targetSession.GetMessageFromKey(LanguageKey.GROUP_REFUSED)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED, targetSession.AccountLanguage)
                     });
                     break;
                 case GroupRequestType.AcceptedShare:
@@ -308,7 +308,7 @@ namespace NosCore.Controllers
                     targetSession.GroupRequestCharacterIds.TryRemove(Session.Character.CharacterId, out _);
                     targetSession.SendPacket(new InfoPacket
                     {
-                        Message = targetSession.GetMessageFromKey(LanguageKey.SHARED_REFUSED)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED, targetSession.AccountLanguage)
                     });
                     break;
                 default:
@@ -387,7 +387,7 @@ namespace NosCore.Controllers
 
                     session.SendPacket(new MsgPacket
                     {
-                        Message = session.GetMessageFromKey(LanguageKey.GROUP_CLOSED),
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, session.AccountLanguage),
                         Type = MessageType.White
                     });
 

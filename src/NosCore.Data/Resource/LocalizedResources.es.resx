@@ -590,7 +590,7 @@
     <value>Por favor, seleccione una MapId:</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>¡Tu objeto ha sido vendido!</value>
+    <value>¡Tu objeto ha sido vendido! {0}</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
@@ -653,7 +653,7 @@
     <value>Espadachín</value>
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Los efectos secundarios de la transformación han terminado.</value>
+    <value>Los efectos secundarios de la transformación han terminado. {0}</value>
   </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Necesitas como minimo "Nivel 15" y "Nivel de Profesión 20" para cambiar de clase.</value>
