@@ -297,7 +297,7 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>You are the group admin!</value>
+    <value>You are the party master!</value>
   </data>
   <data name="GROUP_BLOCKED" xml:space="preserve">
     <value>This user has blocked the group invitations!</value>
@@ -740,5 +740,9 @@
   </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Your gold has been updated successfully!</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>The portal is in cooldown, try again shortly.</value>
+    <comment>Check</comment>
   </data>
 </root>

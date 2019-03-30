@@ -59,31 +59,39 @@ namespace NosCore.GameObject
 
         public PinitPacket GeneratePinit()
         {
-            var i = 0;
+            var i = 1;
+
+            if (IsEmpty) return new PinitPacket { GroupSize = 0 };
 
             return new PinitPacket
             {
                 GroupSize = Count == 1 ? 0 : Count,
-                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList()
+                PinitSubPackets = Values.OrderBy(s => s.Item1).Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList()
             };
         }
 
-        public List<PstPacket> GeneratePst()
+        public List<PstPacket> GeneratePst(long visualId)
         {
-            var i = 0;
+            var i = 1;
 
-            return Values.Select(s => s.Item2).Select(member => new PstPacket
+            INamedEntity avoid(INamedEntity namedEntity)
             {
-                Type = member.VisualType,
-                VisualId = member.VisualId,
-                GroupOrder = ++i,
-                HpLeft = (int) (member.Hp / (float) member.MaxHp * 100),
-                MpLeft = (int) (member.Mp / (float) member.MaxMp * 100),
-                HpLoad = member.MaxHp,
-                MpLoad = member.MaxMp,
-                Race = member.Race,
+                ++i;
+                return namedEntity;
+            }
+
+            return Values.OrderBy(s => s.Item1).Where(s => avoid(s.Item2).VisualId != visualId).Select(member => new PstPacket
+            {
+                Type = member.Item2.VisualType,
+                VisualId = member.Item2.VisualId,
+                GroupOrder = i,
+                HpLeft = (int) (member.Item2.Hp / (float) member.Item2.MaxHp * 100),
+                MpLeft = (int) (member.Item2.Mp / (float) member.Item2.MaxMp * 100),
+                HpLoad = member.Item2.MaxHp,
+                MpLoad = member.Item2.MaxMp,
+                Race = member.Item2.Race,
                 Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
-                Morph = member.Morph,
+                Morph = member.Item2.Morph,
                 BuffIds = null
             }).ToList();
         }

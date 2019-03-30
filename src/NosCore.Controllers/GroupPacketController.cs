@@ -227,8 +227,8 @@ namespace NosCore.Controllers
                     }
                     else
                     {
-                        Session.Character.Group.GroupId = GroupAccess.Instance.GetNextGroupId();
-                        targetSession.JoinGroup(Session.Character.Group);
+                        targetSession.Group.GroupId = GroupAccess.Instance.GetNextGroupId();
+                        Session.Character.JoinGroup(targetSession.Group);
                         Session.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
@@ -240,9 +240,8 @@ namespace NosCore.Controllers
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN, targetSession.AccountLanguage)
                         });
 
-                        targetSession.Group = Session.Character.Group;
+                        Session.Character.Group = targetSession.Group;
                         Session.Character.GroupRequestCharacterIds.Clear();
-                        targetSession.GroupRequestCharacterIds.Clear();
                     }
 
                     if (Session.Character.Group.Type != GroupType.Group)
@@ -258,7 +257,7 @@ namespace NosCore.Controllers
                             Broadcaster.Instance.GetCharacter(s =>
                                 s.VisualId == member.Item2.VisualId);
                         session?.SendPacket(currentGroup.GeneratePinit());
-                        session?.SendPackets(currentGroup.GeneratePst());
+                        session?.SendPackets(currentGroup.GeneratePst(session.VisualId));
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
@@ -328,22 +327,27 @@ namespace NosCore.Controllers
 
             if (group.Count > 2)
             {
-                Session.Character.LeaveGroup();
-
                 if (group.IsGroupLeader(Session.Character.CharacterId))
                 {
+                    Session.Character.LeaveGroup();
+
                     var session = Broadcaster.Instance.GetCharacter(s =>
-                        s.VisualId == group.Values.First().Item2.VisualId);
+                        s.VisualId == group.Values.OrderBy(t => t.Item1).FirstOrDefault(u =>
+                        u.Item2.VisualType == VisualType.Player).Item2.VisualId);
 
                     if (session == null)
                     {
                         return;
                     }
 
-                    Broadcaster.Instance.Sessions.SendPacket(new InfoPacket
+                    session.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language)
-                    }, new EveryoneBut(session.Channel.Id));
+                    });
+                }
+                else
+                {
+                    Session.Character.LeaveGroup();
                 }
 
                 if (group.Type != GroupType.Group)

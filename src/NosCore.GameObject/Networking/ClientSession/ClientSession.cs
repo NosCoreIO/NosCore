@@ -272,7 +272,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (!Character.Group.IsEmpty)
                 {
-                    SendPackets(Character.Group.GeneratePst());
+                    SendPackets(Character.Group.GeneratePst(Character.VisualId));
                 }
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
