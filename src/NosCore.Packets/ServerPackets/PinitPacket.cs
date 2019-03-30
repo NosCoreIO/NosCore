@@ -28,7 +28,7 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(0)]
         public int GroupSize { get; set; }
 
-        [PacketIndex(1, SpecialSeparator = "|")]
+        [PacketIndex(1, IsOptional = true, SpecialSeparator = "|")]
         public List<PinitSubPacket> PinitSubPackets { get; set; }
     }
 }

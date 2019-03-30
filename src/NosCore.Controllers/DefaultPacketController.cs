@@ -244,12 +244,13 @@ namespace NosCore.Controllers
             if ((SystemTime.Now() - Session.Character.LastPortal).TotalSeconds < 4 ||
                 Session.Character.LastPortal > Session.Character.LastMove)
             {
+                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, Session.Account.Language), SayColorType.Yellow));
                 return;
             }
 
             var portal = Session.Character.MapInstance.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(Session.Character.PositionX - port.SourceX),
-                    Math.Abs(Session.Character.PositionY - port.SourceY)) <= 1);
+                    Math.Abs(Session.Character.PositionY - port.SourceY)) <= 2);
             if (portal == null)
             {
                 return;
