@@ -35,7 +35,7 @@ namespace NosCore.Packets.CommandPackets
 
         public string Help()
         {
-            return "$Gold value";
+            return "$Gold QUANTITY NICKNAME";
         }
     }
 }

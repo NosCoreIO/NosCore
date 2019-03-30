@@ -286,7 +286,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Parallel.ForEach(mapSessions, s =>
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? s.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+                        ? $"[{s.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty));
                     if (s.Shop != null)
                     {
                         SendPacket(s.GeneratePFlag());
@@ -296,7 +296,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (!Character.Invisible)
                     {
                         s.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
-                            ? Character.Session.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+                            ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty));
                     }
                 });
 

@@ -123,7 +123,7 @@ namespace NosCore.Controllers
                         });
                         targetSession.SendPacket(new DlgPacket
                         {
-                            Question = targetSession.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP),
+                            Question = string.Format(targetSession.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP), Session.Character.Name),
                             YesPacket = new PjoinPacket
                             {
                                 CharacterId = Session.Character.CharacterId,
