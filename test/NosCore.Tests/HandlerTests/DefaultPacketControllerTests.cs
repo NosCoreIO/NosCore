@@ -110,6 +110,7 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
+            var conf = new WorldConfiguration();
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null,null, null,null, _logger));
             PacketFactory.Initialize<NoS0575Packet>();
@@ -148,13 +149,13 @@ namespace NosCore.Tests.HandlerTests
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
             var channelMock = new Mock<IChannel>();
-            _session = new ClientSession(null,
-                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null, _logger) },
+            _session = new ClientSession(conf,
+                new List<PacketController> {new DefaultPacketController(conf, instanceAccessService, null, _logger) },
                 instanceAccessService, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(new WorldConfiguration(), instanceAccessService, null, _logger);
+            _handler = new DefaultPacketController(conf, instanceAccessService, null, _logger);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             var mapinstance = instanceAccessService.GetBaseMapById(0);

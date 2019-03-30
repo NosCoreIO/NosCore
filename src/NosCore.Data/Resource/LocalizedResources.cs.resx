@@ -238,7 +238,7 @@
     <value>Seznam Přátel je plný</value>
   </data>
   <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Chceš si jej přidat jako kamaráda?</value>
+    <value>Chceš si jej přidat jako kamaráda?  {0}</value>
   </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
     <value>Kamarád byl přidán</value>
@@ -340,7 +340,7 @@
     <value>Získal si předmět!</value>
   </data>
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>Obdržel si předmět v Země Mrtvích!</value>
+    <value>Obdržel si předmět v Země Mrtvích! {0}</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Předmět nelze vyhodit!</value>
@@ -509,7 +509,7 @@
     <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Body SP Byly přidány!</value>
+    <value>Body SP Byly přidány! {0}</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
