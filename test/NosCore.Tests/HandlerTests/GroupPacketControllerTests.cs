@@ -79,6 +79,7 @@ namespace NosCore.Tests.HandlerTests
 
                 var chara = charaDto;
                 chara.Session = session;
+                chara.Account = acc;
                 _characters.Add(i, chara);
                 chara.Group.JoinGroup(chara);
                 session.SetCharacter(chara);
