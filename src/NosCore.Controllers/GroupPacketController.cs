@@ -258,7 +258,7 @@ namespace NosCore.Controllers
                             Broadcaster.Instance.GetCharacter(s =>
                                 s.VisualId == member.Item2.VisualId);
                         session?.SendPacket(currentGroup.GeneratePinit());
-                        session?.SendPackets(currentGroup.GeneratePst());
+                        session?.SendPackets(currentGroup.GeneratePst().Where(p=>p.VisualId != session.VisualId));
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
@@ -328,9 +328,10 @@ namespace NosCore.Controllers
 
             if (group.Count > 2)
             {
+                var isLeader = group.IsGroupLeader(Session.Character.CharacterId);
                 Session.Character.LeaveGroup();
 
-                if (group.IsGroupLeader(Session.Character.CharacterId))
+                if (isLeader)
                 {
                     var session = Broadcaster.Instance.GetCharacter(s =>
                         s.VisualId == group.Values.First().Item2.VisualId);
@@ -340,10 +341,10 @@ namespace NosCore.Controllers
                         return;
                     }
 
-                    Broadcaster.Instance.Sessions.SendPacket(new InfoPacket
+                    session.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, Session.Account.Language)
-                    }, new EveryoneBut(session.Channel.Id));
+                    });
                 }
 
                 if (group.Type != GroupType.Group)
