@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         public long? GetTargetId(long visualId)
         {
             var id = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
-            if (id.Equals(default))
+            if (id.Equals(default(KeyValuePair<long, long>)))
             {
                 return null;
             }
