@@ -72,7 +72,7 @@ namespace NosCore.GameObject
         {
             var i = 0;
 
-            return Values.Select(s => s.Item2).Select(member => new PstPacket
+            return Values.OrderBy(s => s.Item1).Select(s => s.Item2).Select(member => new PstPacket
             {
                 Type = member.VisualType,
                 VisualId = member.VisualId,

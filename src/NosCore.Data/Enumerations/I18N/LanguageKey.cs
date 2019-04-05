@@ -256,5 +256,6 @@ namespace NosCore.Data.Enumerations.I18N
         TOO_RICH_SELLER,
         UPDATE_GOLD,
         SP_ADDPOINTS_FULL,
+        PORTAL_DELAY
     }
 }
