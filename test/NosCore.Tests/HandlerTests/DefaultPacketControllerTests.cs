@@ -29,7 +29,7 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
+
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
@@ -39,7 +39,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -52,6 +52,7 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Tests.HandlerTests
 {

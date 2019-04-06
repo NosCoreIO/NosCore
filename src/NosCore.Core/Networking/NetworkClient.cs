@@ -21,9 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
@@ -32,9 +32,11 @@ namespace NosCore.Core.Networking
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
         private readonly ILogger _logger;
-        public NetworkClient(ILogger logger)
+        private readonly ISerializer _packetSerializer;
+        public NetworkClient(ILogger logger, ISerializer packetSerializer)
         {
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public IChannel Channel { get; private set; }
@@ -44,7 +46,7 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public PacketDefinition LastPacket { get; private set; }
+        public IPacket LastPacket { get; private set; }
 
         public long ClientId { get; set; }
 
@@ -55,21 +57,21 @@ namespace NosCore.Core.Networking
             Channel?.DisconnectAsync();
         }
 
-        public void SendPacket(PacketDefinition packet)
+        public void SendPacket(IPacket packet)
         {
             SendPackets(new[] {packet});
         }
 
-        public void SendPackets(IEnumerable<PacketDefinition> packets)
+        public void SendPackets(IEnumerable<IPacket> packets)
         {
-            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
+            var packetDefinitions = packets as IPacket[] ?? packets.ToArray();
             if (packetDefinitions.Length == 0)
             {
                 return;
             }
 
             LastPacket = packetDefinitions.Last();
-            Channel?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+            Channel?.WriteAndFlushAsync(_packetSerializer.Serialize(packetDefinitions));
         }
 
         public void RegisterChannel(IChannel channel)

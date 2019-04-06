@@ -24,13 +24,20 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class GoldDropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
+        private readonly ISerializer _serializer;
+        public GoldDropHandler(ISerializer serializer)
+        {
+            _serializer = serializer;
+        }
         public bool Condition(MapItem item) => item.VNum == 1046;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
@@ -39,7 +46,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             var maxGold = requestData.ClientSession.WorldConfiguration.MaxGoldAmount;
             if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
             {
-                if (requestData.Data.Item2.PickerType == PickerType.Mate)
+                if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));
@@ -65,7 +72,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId), _serializer);
         }
     }
 }

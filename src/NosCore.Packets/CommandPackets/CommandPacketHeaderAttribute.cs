@@ -17,30 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
+using NosCore.Data.Enumerations.Account;
+using System;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("EntryPoint", 3, AnonymousAccess = true)]
-    public class EntryPointPacket : PacketDefinition
+    public class CommandPacketHeaderAttribute : PacketHeaderAttribute
     {
-        [PacketIndex(0)]
-        [UsedImplicitly]
-        public string Title { get; set; }
+        public CommandPacketHeaderAttribute(string identification, AuthorityType authority) : base(identification)
+        {
+            Authority = authority;
+        }
 
-        [PacketIndex(1)]
-        [UsedImplicitly]
-        public string Packet1Id { get; set; }
-
-        [PacketIndex(2)]
-        public string Name { get; set; }
-
-        [PacketIndex(3)]
-        [UsedImplicitly]
-        public string Packet2Id { get; set; }
-
-        [PacketIndex(4)]
-        public string Password { get; set; }
+        public AuthorityType Authority { get; }
     }
 }

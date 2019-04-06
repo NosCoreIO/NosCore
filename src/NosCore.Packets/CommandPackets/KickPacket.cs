@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Kick", Authority = AuthorityType.Moderator)]
-    public class KickPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$Kick", AuthorityType.Moderator)]
+    public class KickPacket : ICommandPacket
     {
         [PacketIndex(0)]
         public string Name { get; set; }

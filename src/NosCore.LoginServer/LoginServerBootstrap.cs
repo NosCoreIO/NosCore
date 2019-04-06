@@ -33,14 +33,13 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
 using Serilog;
 
 namespace NosCore.LoginServer

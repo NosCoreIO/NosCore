@@ -20,27 +20,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using ChickenAPI.Packets.Attributes;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Handling;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.ServerPackets;
+using NosCore.Packets.CommandPackets;
 using Serilog;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
@@ -58,6 +61,8 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
+        private readonly ISerializer _serializer;
+        private readonly IDeserializer _packetDeserializer;
 
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
@@ -65,12 +70,14 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            ILogger logger) : this(configuration, packetControllers, null, null, logger) { }
+            ILogger logger, ISerializer serializer, IDeserializer packetDeserializer) : this(configuration, packetControllers, null, null, logger, serializer, packetDeserializer) { }
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger) : base(logger)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, ISerializer serializer, IDeserializer packetDeserializer) : base(logger, serializer)
         {
             _logger = logger;
+            _serializer = serializer;
+            _packetDeserializer = packetDeserializer;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -84,7 +91,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 controller.RegisterSession(this);
                 foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>
-                    typeof(PacketDefinition).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
+                    typeof(IPacket).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
                     var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
@@ -172,7 +179,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.LeaveGroup();
-                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut(), _serializer);
 
                 Character.Save();
             }
@@ -277,7 +284,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
-                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
+                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character), _serializer);
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
@@ -319,7 +326,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             session.SendPacket(new MapOutPacket());
             session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateOut(),
-                new EveryoneBut(session.Channel.Id));
+                new EveryoneBut(session.Channel.Id), _serializer);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -346,13 +353,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 //check for the correct authority
-                if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
+                if (IsAuthenticated && methodReference.Key is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
                 {
                     return;
                 }
 
-                var deserializedPacket = PacketFactory.Deserialize(packet, _headerMethod[methodReference.Key].Item2,
-                    IsAuthenticated);
+                var deserializedPacket = _packetDeserializer.Deserialize(packet);
                 if (deserializedPacket != null)
                 {
                     HandlePacket(deserializedPacket, methodReference);
@@ -370,17 +376,19 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public void ReceivePacket(PacketDefinition deserializedPacket)
+        public void ReceivePacket(IPacket deserializedPacket)
         {
+            var header = deserializedPacket.GetType().GetCustomAttribute<PacketHeaderAttribute>()?.Identification;
+
             var methodReference =
-                _controllerMethods.FirstOrDefault(t => t.Key.Identification == deserializedPacket.OriginalHeader);
+                _controllerMethods.FirstOrDefault(t => t.Key.Identification == header);
             if (methodReference.Value != null && deserializedPacket != null)
             {
                 HandlePacket(deserializedPacket, methodReference);
             }
         }
 
-        private void HandlePacket(PacketDefinition deserializedPacket,
+        private void HandlePacket(IPacket deserializedPacket,
             KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
         {
             try

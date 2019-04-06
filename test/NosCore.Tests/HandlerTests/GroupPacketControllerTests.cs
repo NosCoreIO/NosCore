@@ -25,7 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
+
 using NosCore.Data;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
@@ -37,9 +37,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Tests.HandlerTests
 {

@@ -19,7 +19,7 @@
 
 using JetBrains.Annotations;
 using NosCore.GameObject.Networking;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
 
 namespace NosCore.Controllers
 {

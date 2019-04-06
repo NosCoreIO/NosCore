@@ -20,7 +20,7 @@
 using System;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {

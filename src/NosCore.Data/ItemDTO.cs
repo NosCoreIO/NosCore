@@ -18,12 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.DataAttributes;
-using EquipmentType = NosCore.Data.Enumerations.Items.EquipmentType;
 using ItemEffectType = NosCore.Data.Enumerations.Items.ItemEffectType;
 using ItemType = NosCore.Data.Enumerations.Items.ItemType;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
-using PocketType = NosCore.Data.Enumerations.Items.PocketType;
 
 namespace NosCore.Data
 {

@@ -20,12 +20,19 @@
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
     public class EmoticonHandler : IHandler<GuriPacket, GuriPacket>
     {
+        private readonly ISerializer _serializer;
+        public EmoticonHandler(ISerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
         public bool Condition(GuriPacket packet) => packet.Type == 10 && packet.Data >= 973 && packet.Data <= 999;
 
         public void Execute(RequestData<GuriPacket> requestData)
@@ -39,7 +46,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(requestData.Data.Data +
-                        4099)); //TODO , ReceiverType.AllNoEmoBlocked
+                        4099), _serializer); //TODO , ReceiverType.AllNoEmoBlocked
             }
         }
     }

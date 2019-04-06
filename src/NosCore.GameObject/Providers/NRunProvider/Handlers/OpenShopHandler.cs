@@ -21,7 +21,8 @@ using System;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
@@ -33,7 +34,6 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
         {
             requestData.ClientSession.ReceivePacket(new ShoppingPacket
             {
-                OriginalHeader = "shopping",
                 VisualType = requestData.Data.Item2.VisualType,
                 VisualId = requestData.Data.Item2.VisualId,
                 ShopType = requestData.Data.Item2.Type,
