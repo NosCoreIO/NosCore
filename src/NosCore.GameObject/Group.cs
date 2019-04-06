@@ -21,6 +21,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Data.Enumerations;
@@ -29,7 +31,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.Packets.ServerPackets;
 
 namespace NosCore.GameObject
 {

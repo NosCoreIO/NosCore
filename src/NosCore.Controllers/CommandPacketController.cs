@@ -26,7 +26,6 @@ using NosCore.Core;
 using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -41,9 +40,12 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.CommandPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Attributes;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.Controllers
 {
@@ -53,17 +55,19 @@ namespace NosCore.Controllers
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<ItemDto> items,
-            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemProvider = itemProvider;
             _mapInstanceProvider = mapInstanceProvider;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         [UsedImplicitly]
@@ -198,7 +202,7 @@ namespace NosCore.Controllers
         {
             Session.Character.Camouflage = !Session.Character.Camouflage;
             Session.Character.Invisible = !Session.Character.Invisible;
-            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible(), _packetSerializer);
             //Session.SendPacket(Session.Character.GenerateEq());
         }
 
@@ -224,7 +228,7 @@ namespace NosCore.Controllers
             }
 
             entity.Size = sizePacket.Size;
-            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc());
+            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc(), _packetSerializer);
         }
 
         [UsedImplicitly]
@@ -240,7 +244,7 @@ namespace NosCore.Controllers
         public void Effect(EffectCommandPacket effectCommandpacket)
         {
             Session.Character.MapInstance.Sessions.SendPacket(
-                Session.Character.GenerateEff(effectCommandpacket.EffectId));
+                Session.Character.GenerateEff(effectCommandpacket.EffectId), _packetSerializer);
         }
 
         [UsedImplicitly]
@@ -334,7 +338,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {sayPacket}),
+                Packet = _packetSerializer.Serialize(new[] {sayPacket}),
                 SenderCharacter = new Character
                 {
                     Name = Session.Character.Name,
@@ -345,7 +349,7 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {msgPacket}),
+                Packet = _packetSerializer.Serialize(new[] {msgPacket}),
                 ReceiverType = ReceiverType.All
             };
 
@@ -637,7 +641,7 @@ namespace NosCore.Controllers
                 SayColorType.Purple));
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
-                    && t.GetCustomAttribute<PacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
+                    && t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
                 .OrderBy(x => x.Name).ToList();
             foreach (var type in classes)
             {

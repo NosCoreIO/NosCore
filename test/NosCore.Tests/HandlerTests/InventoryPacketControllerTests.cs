@@ -23,7 +23,7 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Serializing;
+
 using NosCore.Database;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
@@ -31,8 +31,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +53,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -267,7 +268,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
@@ -283,7 +284,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.First().Value.Rare == 6);
         }
@@ -303,7 +304,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             var packet = (SayPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
@@ -327,7 +328,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
@@ -343,7 +344,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count == 0);
         }
@@ -360,7 +361,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
@@ -707,7 +708,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.First().Value.Amount == 2);
         }

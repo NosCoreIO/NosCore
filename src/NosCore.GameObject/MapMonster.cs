@@ -20,6 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
@@ -34,12 +36,14 @@ namespace NosCore.GameObject
     public class MapMonster : MapMonsterDto, INonPlayableEntity, IInitializable
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
+        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, ISerializer packetSerializer)
         {
             _npcMonsters = npcMonsters;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public IDisposable Life { get; private set; }
@@ -116,7 +120,7 @@ namespace NosCore.GameObject
 
         private void MonsterLife()
         {
-            this.Move();
+            this.Move(_packetSerializer);
         }
     }
 }

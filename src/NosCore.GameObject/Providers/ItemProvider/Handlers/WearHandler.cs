@@ -27,18 +27,22 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        public WearHandler(ILogger logger)
+        private readonly ISerializer _packetSerializer;
+        public WearHandler(ILogger logger, ISerializer packetSerializer)
         {
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
             || item.ItemType == ItemType.Jewelery
@@ -163,7 +167,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
-                .GenerateEq());
+                .GenerateEq(), _packetSerializer);
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
@@ -174,7 +178,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance));
+                    requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance), _packetSerializer);
             }
 
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Amulet)

@@ -25,18 +25,21 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class VehicleHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        public VehicleHandler(ILogger logger)
+        private readonly ISerializer _packetSerializer;
+        public VehicleHandler(ILogger logger, ISerializer packetSerializer)
         {
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public bool Condition(Item.Item item) =>
@@ -73,9 +76,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.Morph =
                     (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.Item.Morph);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff(196));
+                    requestData.ClientSession.Character.GenerateEff(196), _packetSerializer);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
-                    .GenerateCMode());
+                    .GenerateCMode(), _packetSerializer);
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
                 return;
             }

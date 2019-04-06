@@ -27,17 +27,16 @@ using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using Mapster;
 using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -213,9 +212,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 }));
         }
 
-        public List<PacketDefinition> GetMapItems()
+        public List<IPacket> GetMapItems()
         {
-            var packets = new List<PacketDefinition>();
+            var packets = new List<IPacket>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
             Monsters.ForEach(s =>

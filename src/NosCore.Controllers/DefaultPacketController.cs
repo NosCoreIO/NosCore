@@ -26,10 +26,8 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
@@ -41,10 +39,12 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.GuriProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.Controllers
 {
@@ -52,6 +52,7 @@ namespace NosCore.Controllers
     {
         private readonly IGuriProvider _guriProvider;
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -62,12 +63,13 @@ namespace NosCore.Controllers
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
             IMapInstanceProvider mapInstanceProvider,
-            IGuriProvider guriProvider, ILogger logger)
+            IGuriProvider guriProvider, ILogger logger, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceProvider = mapInstanceProvider;
             _guriProvider = guriProvider;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public void GameStart(GameStartPacket _)
@@ -330,7 +332,7 @@ namespace NosCore.Controllers
             Session.Character.PositionY = walkPacket.YCoordinate;
 
             Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(),
-                new EveryoneBut(Session.Channel.Id));
+                new EveryoneBut(Session.Channel.Id), _packetSerializer);
             Session.Character.LastMove = SystemTime.Now();
         }
 
@@ -364,7 +366,7 @@ namespace NosCore.Controllers
             {
                 Message = clientSayPacket.Message,
                 Type = type
-            }), new EveryoneBut(Session.Channel.Id)); //TODO  ReceiverType.AllExceptMeAndBlacklisted
+            }), new EveryoneBut(Session.Channel.Id), _packetSerializer); //TODO  ReceiverType.AllExceptMeAndBlacklisted
         }
 
         /// <summary>
@@ -463,7 +465,7 @@ namespace NosCore.Controllers
 
                 WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
-                    Packet = PacketFactory.Serialize(new[] {speakPacket}),
+                    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
                     ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
                     SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
@@ -537,7 +539,7 @@ namespace NosCore.Controllers
 
             WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {Session.Character.GenerateTalk(message)}),
+                Packet = _packetSerializer.Serialize(new[] {Session.Character.GenerateTalk(message)}),
                 ReceiverCharacter = new Data.WebApi.Character
                     {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
                 SenderCharacter = new Data.WebApi.Character
@@ -826,7 +828,7 @@ namespace NosCore.Controllers
                         return;
                 }
 
-                entity.Rest();
+                entity.Rest(_packetSerializer);
             });
         }
 
@@ -848,7 +850,7 @@ namespace NosCore.Controllers
                     return;
             }
 
-            entity.ChangeDir(dirpacket.Direction);
+            entity.ChangeDir(dirpacket.Direction, _packetSerializer);
         }
     }
 }

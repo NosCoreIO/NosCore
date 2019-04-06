@@ -17,12 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Enumerations;
 using System.ComponentModel.DataAnnotations;
-using CharacterClassType = NosCore.Data.Enumerations.Character.CharacterClassType;
 using CharacterState = NosCore.Data.Enumerations.Character.CharacterState;
-using GenderType = NosCore.Data.Enumerations.Character.GenderType;
-using HairColorType = NosCore.Data.Enumerations.Character.HairColorType;
-using HairStyleType = NosCore.Data.Enumerations.Character.HairStyleType;
 using MinilandState = NosCore.Data.Enumerations.Character.MinilandState;
 
 namespace NosCore.Data.AliveEntities

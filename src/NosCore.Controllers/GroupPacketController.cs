@@ -21,29 +21,31 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.Controllers
 {
     public class GroupPacketController : PacketController
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
 
         public GroupPacketController() { }
 
-        public GroupPacketController(ILogger logger)
+        public GroupPacketController(ILogger logger, ISerializer packetSerializer)
         {
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         /// <summary>
@@ -263,7 +265,7 @@ namespace NosCore.Controllers
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
                     Session.Character.MapInstance?.Sessions.SendPacket(
-                        Session.Character.Group.GeneratePidx(Session.Character));
+                        Session.Character.Group.GeneratePidx(Session.Character), _packetSerializer);
 
                     break;
                 case GroupRequestType.Declined:
@@ -368,7 +370,7 @@ namespace NosCore.Controllers
                 Session.SendPacket(new MsgPacket
                     {Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, Session.Account.Language)});
                 Session.Character.MapInstance.Sessions.SendPacket(
-                    Session.Character.Group.GeneratePidx(Session.Character));
+                    Session.Character.Group.GeneratePidx(Session.Character), _packetSerializer);
             }
             else
             {
@@ -394,7 +396,7 @@ namespace NosCore.Controllers
 
                     session.LeaveGroup();
                     session.SendPacket(session.Group.GeneratePinit());
-                    Broadcaster.Instance.Sessions.SendPacket(session.Group.GeneratePidx(session));
+                    Broadcaster.Instance.Sessions.SendPacket(session.Group.GeneratePidx(session), _packetSerializer);
                 }
 
                 GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);
@@ -410,7 +412,7 @@ namespace NosCore.Controllers
 
             Session.Character.Group.Sessions.SendPacket(
                 Session.Character.GenerateSpk(new SpeakPacket
-                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
+                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}), _packetSerializer);
         }
     }
 }

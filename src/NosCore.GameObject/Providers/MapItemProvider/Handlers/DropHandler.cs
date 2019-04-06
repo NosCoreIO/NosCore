@@ -27,13 +27,22 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class DropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
+        private readonly ISerializer _serializer;
+        public DropHandler(ISerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
         public bool Condition(MapItem item) => item.ItemInstance.Item.ItemType != ItemType.Map && item.VNum != 1046;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
@@ -48,8 +57,8 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out var value);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
-                if (requestData.Data.Item2.PickerType == PickerType.Mate)
+                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId), _serializer);
+                if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateIcon(1, inv.ItemVNum));
@@ -66,7 +75,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
-                            SayColorType.Yellow));
+                            SayColorType.Yellow), _serializer);
                 }
             }
             else

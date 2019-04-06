@@ -22,26 +22,27 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.Controllers
 {
     public class InventoryPacketController : PacketController
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
 
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -49,11 +50,12 @@ namespace NosCore.Controllers
         public InventoryPacketController()
         {
         }
-       
-        public InventoryPacketController(WorldConfiguration worldConfiguration, ILogger logger)
+
+        public InventoryPacketController(WorldConfiguration worldConfiguration, ILogger logger, ISerializer packetSerializer)
         {
             _logger = logger;
             _worldConfiguration = worldConfiguration;
+            _packetSerializer = packetSerializer;
         }
 
         [UsedImplicitly]
@@ -125,13 +127,13 @@ namespace NosCore.Controllers
 
             Session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
 
-            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq());
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateEq(), _packetSerializer);
             Session.SendPacket(Session.Character.GenerateEquipment());
 
             if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 Session.Character.MapInstance.Sessions.SendPacket(
-                    Session.Character.GeneratePairy((WearableInstance) null));
+                    Session.Character.GeneratePairy((WearableInstance) null), _packetSerializer);
             }
         }
 
@@ -144,8 +146,7 @@ namespace NosCore.Controllers
         {
             UseItem(new UseItemPacket
             {
-                Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent,
-                OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type
+                Slot = wearPacket.InventorySlot, Type = wearPacket.Type
             });
         }
 
@@ -245,7 +246,7 @@ namespace NosCore.Controllers
                                 Type = 2,
                                 Argument = 1,
                                 VisualEntityId = Session.Character.CharacterId
-                            });
+                            }, _packetSerializer);
                         }
                     }
                     else
@@ -273,12 +274,12 @@ namespace NosCore.Controllers
             var canpick = false;
             switch (getPacket.PickerType)
             {
-                case PickerType.Character:
+                case VisualType.Player:
                     canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
                         Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
                     break;
 
-                case PickerType.Mate:
+                case VisualType.Npc:
                     return;
 
                 default:
@@ -334,7 +335,7 @@ namespace NosCore.Controllers
                             invitem = Session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot,
                                 putPacket.PocketType);
                             Session.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                            Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
+                            Session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop(), _packetSerializer);
                         }
                         else
                         {

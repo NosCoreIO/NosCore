@@ -30,8 +30,9 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Controllers
 {

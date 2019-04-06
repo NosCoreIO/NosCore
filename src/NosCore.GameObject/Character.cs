@@ -20,7 +20,6 @@
 using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
@@ -31,8 +30,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -56,12 +55,15 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
         private byte _speed;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -69,7 +71,7 @@ namespace NosCore.GameObject
         private readonly IGenericDao<AccountDto> _accountDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
-            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger)
+            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -85,6 +87,7 @@ namespace NosCore.GameObject
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public AccountDto Account { get; set; }
@@ -151,9 +154,9 @@ namespace NosCore.GameObject
 
         public IChannel Channel => Session?.Channel;
 
-        public void SendPacket(PacketDefinition packetDefinition) => Session.SendPacket(packetDefinition);
+        public void SendPacket(IPacket packetDefinition) => Session.SendPacket(packetDefinition);
 
-        public void SendPackets(IEnumerable<PacketDefinition> packetDefinitions) =>
+        public void SendPackets(IEnumerable<IPacket> packetDefinitions) =>
             Session.SendPackets(packetDefinitions);
 
         public MapInstance MapInstance { get; set; }
@@ -420,8 +423,8 @@ namespace NosCore.GameObject
             Mp = MaxMp;
             SendPacket(GenerateTit());
             SendPacket(GenerateStat());
-            MapInstance.Sessions.SendPacket(GenerateEq());
-            MapInstance.Sessions.SendPacket(this.GenerateEff(8));
+            MapInstance.Sessions.SendPacket(GenerateEq(), _packetSerializer);
+            MapInstance.Sessions.SendPacket(this.GenerateEff(8), _packetSerializer);
             //TODO: Faction
             SendPacket(this.GenerateCond());
             SendPacket(GenerateLev());
@@ -431,11 +434,11 @@ namespace NosCore.GameObject
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
                 Type = MessageType.White
             });
-            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
+            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id), _packetSerializer);
 
-            MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
-            MapInstance.Sessions.SendPacket(this.GenerateEff(6));
-            MapInstance.Sessions.SendPacket(this.GenerateEff(198));
+            MapInstance.Sessions.SendPacket(Group.GeneratePidx(this), _packetSerializer);
+            MapInstance.Sessions.SendPacket(this.GenerateEff(6), _packetSerializer);
+            MapInstance.Sessions.SendPacket(this.GenerateEff(198), _packetSerializer);
         }
 
         public void AddGold(long gold)
@@ -482,13 +485,13 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            MapInstance.Sessions.SendPacket(this.GenerateShop());
-            MapInstance.Sessions.SendPacket(this.GeneratePFlag());
+            MapInstance.Sessions.SendPacket(this.GenerateShop(), _packetSerializer);
+            MapInstance.Sessions.SendPacket(this.GeneratePFlag(), _packetSerializer);
 
             IsSitting = false;
             LoadSpeed();
             SendPacket(this.GenerateCond());
-            MapInstance.Sessions.SendPacket(this.GenerateRest());
+            MapInstance.Sessions.SendPacket(this.GenerateRest(), _packetSerializer);
         }
 
         public RsfiPacket GenerateRsfi()
@@ -826,7 +829,7 @@ namespace NosCore.GameObject
             return 0;
         }
 
-        public PacketDefinition GenerateSpPoint()
+        public SpPacket GenerateSpPoint()
         {
             return new SpPacket
             {
@@ -862,7 +865,7 @@ namespace NosCore.GameObject
                 {
                     WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new[]
+                        Packet = _packetSerializer.Serialize(new[]
                         {
                             new FinfoPacket
                             {
@@ -976,7 +979,7 @@ namespace NosCore.GameObject
 
         [Obsolete(
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
-        public IEnumerable<PacketDefinition> GenerateInv()
+        public IEnumerable<IPacket> GenerateInv()
         {
             var inv0 = new InvPacket {Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>()};
             var inv1 = new InvPacket {Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>()};
@@ -1081,7 +1084,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            return new List<PacketDefinition> {inv0, inv1, inv2, inv3, inv6, inv7};
+            return new List<IPacket> {inv0, inv1, inv2, inv3, inv6, inv7};
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
@@ -1426,13 +1429,13 @@ namespace NosCore.GameObject
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
             SendPacket(new SdPacket {Cooldown = SpCooldown});
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.Sessions.SendPacket(this.GenerateCMode(), _packetSerializer);
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
                 Type = 6,
                 Argument = 1,
                 VisualEntityId = CharacterId
-            });
+            }, _packetSerializer);
             SendPacket(GenerateStat());
 
             Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
@@ -1478,15 +1481,15 @@ namespace NosCore.GameObject
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.Sessions.SendPacket(this.GenerateCMode(), _packetSerializer);
             SendPacket(GenerateLev());
-            MapInstance.Sessions.SendPacket(this.GenerateEff(196));
+            MapInstance.Sessions.SendPacket(this.GenerateEff(196), _packetSerializer);
             MapInstance.Sessions.SendPacket(new GuriPacket
             {
                 Type = 6,
                 Argument = 1,
                 VisualEntityId = CharacterId
-            });
+            }, _packetSerializer);
             SendPacket(GenerateSpPoint());
             LoadSpeed();
             SendPacket(this.GenerateCond());
@@ -1518,7 +1521,7 @@ namespace NosCore.GameObject
             IsVehicled = false;
             VehicleSpeed = 0;
             SendPacket(this.GenerateCond());
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.Sessions.SendPacket(this.GenerateCMode(), _packetSerializer);
         }
     }
 }

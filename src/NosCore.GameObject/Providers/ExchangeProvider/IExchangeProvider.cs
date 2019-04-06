@@ -24,7 +24,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {
