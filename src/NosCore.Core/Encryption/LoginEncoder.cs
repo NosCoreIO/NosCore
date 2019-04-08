@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -30,34 +32,40 @@ using Serilog;
 
 namespace NosCore.Core.Encryption
 {
-    public class LoginEncoder : MessageToMessageEncoder<string>
+    public class LoginEncoder : MessageToMessageEncoder<IEnumerable<IPacket>>
     {
         private readonly ILogger _logger;
         private readonly LoginConfiguration _loginServerConfiguration;
-
-        public LoginEncoder(LoginConfiguration loginServerConfiguration, ILogger logger)
+        private readonly ISerializer _serializer;
+        public LoginEncoder(LoginConfiguration loginServerConfiguration, ILogger logger, ISerializer serializer)
         {
             _loginServerConfiguration = loginServerConfiguration;
             _logger = logger;
+            _serializer = serializer;
         }
-
-        protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
+      
+        protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message, List<object> output)
         {
             try
             {
-                var tmp = _loginServerConfiguration.UserLanguage.GetEncoding().GetBytes($"{message} ");
-                for (var i = 0; i < message.Length; i++)
+                output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
                 {
-                    tmp[i] = Convert.ToByte(tmp[i] + 15);
-                }
+                    var packetString = _serializer.Serialize(packet);
+                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding().GetBytes($"{packetString} ");
+                    for (var i = 0; i < packetString.Length; i++)
+                    {
+                        tmp[i] = Convert.ToByte(tmp[i] + 15);
+                    }
 
-                tmp[tmp.Length - 1] = 25;
-                if (tmp.Length == 0)
-                {
-                    return;
-                }
+                    tmp[tmp.Length - 1] = 25;
+                    if (tmp.Length == 0)
+                    {
+                        return new byte[] { 0xFF };
+                    }
 
-                output.Add(Unpooled.WrappedBuffer(tmp));
+                    return tmp;
+                }).ToArray()));
+
             }
             catch (Exception ex)
             {

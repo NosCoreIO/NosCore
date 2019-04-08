@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -32,9 +33,11 @@ namespace NosCore.Core.Encryption
     public class LoginDecoder : MessageToMessageDecoder<IByteBuffer>
     {
         private readonly ILogger _logger;
-        public LoginDecoder(ILogger logger)
+        private readonly IDeserializer _deserializer;
+        public LoginDecoder(ILogger logger, IDeserializer deserializer)
         {
             _logger = logger;
+            _deserializer = deserializer;
         }
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
@@ -50,7 +53,7 @@ namespace NosCore.Core.Encryption
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
 
-                output.Add(decryptedPacket.ToString());
+                output.Add(new[] { _deserializer.Deserialize(decryptedPacket.ToString(), true) });
             }
             catch
             {
