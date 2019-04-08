@@ -33,6 +33,8 @@ using NosCore.GameObject.Networking;
 using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Login;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Controllers
 {

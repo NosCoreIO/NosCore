@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reactive.Subjects;
 using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider
 {

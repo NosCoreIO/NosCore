@@ -28,16 +28,13 @@ using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class GoldDropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        private readonly ISerializer _serializer;
-        public GoldDropHandler(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
         public bool Condition(MapItem item) => item.VNum == 1046;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
@@ -72,7 +69,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId), _serializer);
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
         }
     }
 }

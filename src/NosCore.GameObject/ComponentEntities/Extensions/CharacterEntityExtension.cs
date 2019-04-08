@@ -28,6 +28,12 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.Relations;
+using ChickenAPI.Packets.ServerPackets.Entities;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

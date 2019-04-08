@@ -41,13 +41,16 @@ using Shop = NosCore.GameObject.Shop;
 using ShopItem = NosCore.GameObject.ShopItem;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Shop;
 
 namespace NosCore.Controllers
 {
     public class NpcPacketController : PacketController
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private readonly INrunProvider _nRunProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -56,12 +59,11 @@ namespace NosCore.Controllers
         {
         }
 
-        public NpcPacketController(WorldConfiguration worldConfiguration, INrunProvider nRunProvider, ILogger logger, ISerializer packetSerializer)
+        public NpcPacketController(WorldConfiguration worldConfiguration, INrunProvider nRunProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _nRunProvider = nRunProvider;
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         /// <summary>
@@ -277,7 +279,7 @@ namespace NosCore.Controllers
                         Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, Session.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateShop(), _packetSerializer);
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateShop());
                     Session.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
@@ -287,11 +289,11 @@ namespace NosCore.Controllers
                     Session.Character.Requests.Subscribe(data =>
                         data.ClientSession.SendPacket(Session.Character.GenerateNpcReq(Session.Character.Shop.ShopId)));
                     Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GeneratePFlag(),
-                        new EveryoneBut(Session.Channel.Id), _packetSerializer);
+                        new EveryoneBut(Session.Channel.Id));
                     Session.Character.IsSitting = true;
                     Session.Character.LoadSpeed();
                     Session.SendPacket(Session.Character.GenerateCond());
-                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateRest(), _packetSerializer);
+                    Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateRest());
                     break;
                 case CreateShopPacketType.Close:
                     Session.Character.CloseShop();

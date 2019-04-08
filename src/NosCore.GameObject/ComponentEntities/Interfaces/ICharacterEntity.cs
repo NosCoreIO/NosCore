@@ -27,6 +27,8 @@ using NosCore.GameObject.Providers.InventoryService;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

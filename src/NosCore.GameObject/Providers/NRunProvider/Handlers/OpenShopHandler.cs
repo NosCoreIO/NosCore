@@ -23,6 +23,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Shops;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {

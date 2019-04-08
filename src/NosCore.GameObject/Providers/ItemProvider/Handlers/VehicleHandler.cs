@@ -29,17 +29,17 @@ using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class VehicleHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
-        public VehicleHandler(ILogger logger, ISerializer packetSerializer)
+        public VehicleHandler(ILogger logger)
         {
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         public bool Condition(Item.Item item) =>
@@ -76,9 +76,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.Morph =
                     (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.Item.Morph);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff(196), _packetSerializer);
+                    requestData.ClientSession.Character.GenerateEff(196));
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
-                    .GenerateCMode(), _packetSerializer);
+                    .GenerateCMode());
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
                 return;
             }

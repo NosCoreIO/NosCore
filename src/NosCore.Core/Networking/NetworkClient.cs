@@ -32,11 +32,9 @@ namespace NosCore.Core.Networking
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
-        public NetworkClient(ILogger logger, ISerializer packetSerializer)
+        public NetworkClient(ILogger logger)
         {
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         public IChannel Channel { get; private set; }
@@ -71,7 +69,7 @@ namespace NosCore.Core.Networking
             }
 
             LastPacket = packetDefinitions.Last();
-            Channel?.WriteAndFlushAsync(_packetSerializer.Serialize(packetDefinitions));
+            Channel?.WriteAndFlushAsync(packetDefinitions);
         }
 
         public void RegisterChannel(IChannel channel)

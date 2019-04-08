@@ -35,6 +35,9 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {

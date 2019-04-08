@@ -32,17 +32,13 @@ using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class DropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        private readonly ISerializer _serializer;
-        public DropHandler(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
-
         public bool Condition(MapItem item) => item.ItemInstance.Item.ItemType != ItemType.Map && item.VNum != 1046;
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
@@ -57,7 +53,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out var value);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId), _serializer);
+                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
@@ -75,7 +71,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
-                            SayColorType.Yellow), _serializer);
+                            SayColorType.Yellow));
                 }
             }
             else
