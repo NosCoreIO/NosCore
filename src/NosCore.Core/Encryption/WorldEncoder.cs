@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -28,14 +29,19 @@ using NosCore.Core.Networking;
 
 namespace NosCore.Core.Encryption
 {
-    public class WorldEncoder : MessageToMessageEncoder<string>
+    public class WorldEncoder : MessageToMessageEncoder<IEnumerable<IPacket>>
     {
-        protected override void Encode(IChannelHandlerContext context, string message, List<object> output)
+        private readonly ISerializer _serializer;
+        public WorldEncoder(ISerializer serializer)
         {
-            output.Add(Unpooled.WrappedBuffer(message.Split('\uffff').SelectMany(packet =>
+            _serializer = serializer;
+        }
+        protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message, List<object> output)
+        {
+            output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
             {
                 var region = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding();
-                var strBytes = region.GetBytes(packet).AsSpan();
+                var strBytes = region.GetBytes(_serializer.Serialize(packet)).AsSpan();
                 var bytesLength = strBytes.Length;
 
                 var encryptedData = new byte[bytesLength + (int) Math.Ceiling((decimal) bytesLength / 0x7E) + 1];

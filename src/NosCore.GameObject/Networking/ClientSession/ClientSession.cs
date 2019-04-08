@@ -26,6 +26,7 @@ using ChickenAPI.Packets.Attributes;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets;
+using ChickenAPI.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -61,8 +62,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-        private readonly ISerializer _serializer;
-        private readonly IDeserializer _packetDeserializer;
 
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
@@ -70,14 +69,12 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            ILogger logger, ISerializer serializer, IDeserializer packetDeserializer) : this(configuration, packetControllers, null, null, logger, serializer, packetDeserializer) { }
+            ILogger logger) : this(configuration, packetControllers, null, null, logger) { }
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, ISerializer serializer, IDeserializer packetDeserializer) : base(logger, serializer)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger) : base(logger)
         {
             _logger = logger;
-            _serializer = serializer;
-            _packetDeserializer = packetDeserializer;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -150,7 +147,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {
-            if (!(message is string buff))
+            if (!(message is IEnumerable<IPacket> buff))
             {
                 return;
             }
@@ -179,7 +176,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.LeaveGroup();
-                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut(), _serializer);
+                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
 
                 Character.Save();
             }
@@ -284,7 +281,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
                 {
-                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character), _serializer);
+                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
@@ -326,7 +323,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             session.SendPacket(new MapOutPacket());
             session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateOut(),
-                new EveryoneBut(session.Channel.Id), _serializer);
+                new EveryoneBut(session.Channel.Id));
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -334,7 +331,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        private void TriggerHandler(string packetHeader, string packet, bool force)
+        private void TriggerHandler(string packetHeader, IPacket packet, bool force)
         {
             var methodReference = _controllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
             if (methodReference.Value != null)
@@ -404,7 +401,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        private void HandlePackets(string packetConcatenated, IChannelHandlerContext contex)
+        private void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex)
         {
             //determine first packet
             if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId == 0)

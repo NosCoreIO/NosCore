@@ -17,12 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Networking
 {
@@ -32,10 +34,10 @@ namespace NosCore.GameObject.Networking
         private readonly ClientSession.ClientSession _clientSession;
         private readonly ServerConfiguration _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
-        private readonly MessageToMessageEncoder<string> _encoder;
+        private readonly MessageToMessageEncoder<IEnumerable<IPacket>> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<string> encoder, ClientSession.ClientSession clientSession,
+            MessageToMessageEncoder<IEnumerable<IPacket>> encoder, ClientSession.ClientSession clientSession,
             ServerConfiguration configuration)
         {
             _channel = channel;
