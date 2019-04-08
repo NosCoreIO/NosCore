@@ -46,6 +46,8 @@ using Character = NosCore.Data.WebApi.Character;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Attributes;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Chats;
 
 namespace NosCore.Controllers
 {
@@ -55,19 +57,17 @@ namespace NosCore.Controllers
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<ItemDto> items,
-            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger, ISerializer packetSerializer)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemProvider = itemProvider;
             _mapInstanceProvider = mapInstanceProvider;
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         [UsedImplicitly]
@@ -202,7 +202,7 @@ namespace NosCore.Controllers
         {
             Session.Character.Camouflage = !Session.Character.Camouflage;
             Session.Character.Invisible = !Session.Character.Invisible;
-            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible(), _packetSerializer);
+            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }
 
@@ -228,7 +228,7 @@ namespace NosCore.Controllers
             }
 
             entity.Size = sizePacket.Size;
-            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc(), _packetSerializer);
+            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc());
         }
 
         [UsedImplicitly]
@@ -244,7 +244,7 @@ namespace NosCore.Controllers
         public void Effect(EffectCommandPacket effectCommandpacket)
         {
             Session.Character.MapInstance.Sessions.SendPacket(
-                Session.Character.GenerateEff(effectCommandpacket.EffectId), _packetSerializer);
+                Session.Character.GenerateEff(effectCommandpacket.EffectId));
         }
 
         [UsedImplicitly]
@@ -320,40 +320,40 @@ namespace NosCore.Controllers
 
         public void Shout(ShoutPacket shoutPacket)
         {
-            var message =
-                $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
-            var sayPacket = new SayPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = 0,
-                Type = SayColorType.Yellow,
-                Message = message
-            };
+            //var message =
+            //    $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
+            //var sayPacket = new SayPacket
+            //{
+            //    VisualType = VisualType.Player,
+            //    VisualId = 0,
+            //    Type = SayColorType.Yellow,
+            //    Message = message
+            //};
 
-            var msgPacket = new MsgPacket
-            {
-                Type = MessageType.Shout,
-                Message = message
-            };
+            //var msgPacket = new MsgPacket
+            //{
+            //    Type = MessageType.Shout,
+            //    Message = message
+            //};
 
-            var sayPostedPacket = new PostedPacket
-            {
-                Packet = _packetSerializer.Serialize(new[] {sayPacket}),
-                SenderCharacter = new Character
-                {
-                    Name = Session.Character.Name,
-                    Id = Session.Character.CharacterId
-                },
-                ReceiverType = ReceiverType.All
-            };
+            //var sayPostedPacket = new PostedPacket
+            //{
+            //    Packet = _packetSerializer.Serialize(new[] {sayPacket}),
+            //    SenderCharacter = new Character
+            //    {
+            //        Name = Session.Character.Name,
+            //        Id = Session.Character.CharacterId
+            //    },
+            //    ReceiverType = ReceiverType.All
+            //};
 
-            var msgPostedPacket = new PostedPacket
-            {
-                Packet = _packetSerializer.Serialize(new[] {msgPacket}),
-                ReceiverType = ReceiverType.All
-            };
+            //var msgPostedPacket = new PostedPacket
+            //{
+            //    Packet = _packetSerializer.Serialize(new[] {msgPacket}),
+            //    ReceiverType = ReceiverType.All
+            //};
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            //WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
         }
 
         [UsedImplicitly]

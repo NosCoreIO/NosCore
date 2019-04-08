@@ -25,6 +25,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets.Drops;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {

@@ -42,6 +42,10 @@ using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Controllers
 {

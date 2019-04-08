@@ -30,6 +30,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

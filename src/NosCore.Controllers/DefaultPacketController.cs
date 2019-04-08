@@ -45,6 +45,15 @@ using NosCore.PathFinder;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Movement;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ClientPackets.Chat;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Relations;
+using ChickenAPI.Packets.ClientPackets.Battle;
 
 namespace NosCore.Controllers
 {
@@ -52,7 +61,6 @@ namespace NosCore.Controllers
     {
         private readonly IGuriProvider _guriProvider;
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -63,13 +71,12 @@ namespace NosCore.Controllers
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
             IMapInstanceProvider mapInstanceProvider,
-            IGuriProvider guriProvider, ILogger logger, ISerializer packetSerializer)
+            IGuriProvider guriProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceProvider = mapInstanceProvider;
             _guriProvider = guriProvider;
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         public void GameStart(GameStartPacket _)
@@ -332,7 +339,7 @@ namespace NosCore.Controllers
             Session.Character.PositionY = walkPacket.YCoordinate;
 
             Session.Character.MapInstance?.Sessions.SendPacket(Session.Character.GenerateMove(),
-                new EveryoneBut(Session.Channel.Id), _packetSerializer);
+                new EveryoneBut(Session.Channel.Id));
             Session.Character.LastMove = SystemTime.Now();
         }
 
@@ -366,7 +373,7 @@ namespace NosCore.Controllers
             {
                 Message = clientSayPacket.Message,
                 Type = type
-            }), new EveryoneBut(Session.Channel.Id), _packetSerializer); //TODO  ReceiverType.AllExceptMeAndBlacklisted
+            }), new EveryoneBut(Session.Channel.Id)); //TODO  ReceiverType.AllExceptMeAndBlacklisted
         }
 
         /// <summary>
@@ -463,14 +470,15 @@ namespace NosCore.Controllers
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-                {
-                    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
-                    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
-                    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
-                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                    ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.ChannelId);
+                //TODO Fix
+                //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                //{
+                //    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
+                //    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
+                //    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
+                //    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                //    ReceiverType = ReceiverType.OnlySomeone
+                //}, receiver.ChannelId);
 
                 Session.SendPacket(Session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
@@ -537,16 +545,17 @@ namespace NosCore.Controllers
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-            {
-                Packet = _packetSerializer.Serialize(new[] {Session.Character.GenerateTalk(message)}),
-                ReceiverCharacter = new Data.WebApi.Character
-                    {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
-                SenderCharacter = new Data.WebApi.Character
-                    {Name = Session.Character.Name, Id = Session.Character.CharacterId},
-                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.ChannelId);
+            //TODO fix
+            //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            //{
+            //    Packet = _packetSerializer.Serialize(new[] {Session.Character.GenerateTalk(message)}),
+            //    ReceiverCharacter = new Data.WebApi.Character
+            //        {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
+            //    SenderCharacter = new Data.WebApi.Character
+            //        {Name = Session.Character.Name, Id = Session.Character.CharacterId},
+            //    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+            //    ReceiverType = ReceiverType.OnlySomeone
+            //}, receiver.ChannelId);
         }
 
         /// <summary>
@@ -828,7 +837,7 @@ namespace NosCore.Controllers
                         return;
                 }
 
-                entity.Rest(_packetSerializer);
+                entity.Rest();
             });
         }
 
@@ -850,7 +859,7 @@ namespace NosCore.Controllers
                     return;
             }
 
-            entity.ChangeDir(dirpacket.Direction, _packetSerializer);
+            entity.ChangeDir(dirpacket.Direction);
         }
     }
 }

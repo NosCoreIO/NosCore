@@ -28,6 +28,8 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.Entities;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {

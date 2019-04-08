@@ -37,6 +37,7 @@ using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {

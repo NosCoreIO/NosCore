@@ -26,15 +26,15 @@ namespace NosCore.GameObject.Networking.Group
 {
     public static class IChannelGroupExtension
     {
-        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, ISerializer packetSerializer)
-            => channelGroup.SendPackets(new[] {packet}, packetSerializer);
+        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet)
+            => channelGroup.SendPackets(new[] {packet});
 
-        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, IChannelMatcher matcher, ISerializer packetSerializer)
-            => channelGroup.SendPackets(new[] {packet}, matcher, packetSerializer);
+        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, IChannelMatcher matcher)
+            => channelGroup.SendPackets(new[] {packet}, matcher);
 
 
         public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets,
-            IChannelMatcher matcher, ISerializer packetSerializer)
+            IChannelMatcher matcher)
         {
             var packetDefinitions = packets as IPacket[] ?? packets.ToArray();
             if (packetDefinitions.Length == 0)
@@ -44,16 +44,16 @@ namespace NosCore.GameObject.Networking.Group
 
             if (matcher == null)
             {
-                channelGroup?.WriteAndFlushAsync(packetSerializer.Serialize(packetDefinitions));
+                channelGroup?.WriteAndFlushAsync(packetDefinitions);
             }
             else
             {
-                channelGroup?.WriteAndFlushAsync(packetSerializer.Serialize(packetDefinitions), matcher);
+                channelGroup?.WriteAndFlushAsync(packetDefinitions, matcher);
             }
         }
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets, ISerializer packetSerializer) =>
-            channelGroup.SendPackets(packets, null, packetSerializer);
+        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets) =>
+            channelGroup.SendPackets(packets, null);
     }
 }

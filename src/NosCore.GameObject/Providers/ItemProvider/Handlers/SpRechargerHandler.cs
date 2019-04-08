@@ -29,6 +29,8 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {

@@ -39,7 +39,6 @@ using NosCore.Database.Entities;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.ClientPackets;
 using Serilog;
 
 namespace NosCore.LoginServer

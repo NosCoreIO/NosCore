@@ -33,16 +33,24 @@ using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Movement;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Shop;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Entities;
+using ChickenAPI.Packets.ServerPackets.Groups;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction, ISerializer packetSerializer)
+        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
             aliveEntity.MapInstance.Sessions.SendPacket(
-                aliveEntity.GenerateChangeDir(), packetSerializer);
+                aliveEntity.GenerateChangeDir());
         }
 
         public static DirPacket GenerateChangeDir(this IAliveEntity namedEntity)
@@ -141,17 +149,17 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
                         nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
                         nonPlayableEntity.MapInstance.Sessions.SendPacket(
-                            nonPlayableEntity.GenerateMove(mapX, mapY), packetSerializer);
+                            nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }
         }
 
-        public static void Rest(this IAliveEntity aliveEntity, ISerializer packetSerializer)
+        public static void Rest(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
             aliveEntity.MapInstance.Sessions.SendPacket(
-                aliveEntity.GenerateRest(), packetSerializer);
+                aliveEntity.GenerateRest());
         }
 
         public static CondPacket GenerateCond(this IAliveEntity aliveEntity)

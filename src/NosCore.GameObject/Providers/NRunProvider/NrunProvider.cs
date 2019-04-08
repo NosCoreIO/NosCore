@@ -24,6 +24,7 @@ using System.Reactive.Subjects;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets.Npcs;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {

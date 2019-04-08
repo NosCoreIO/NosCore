@@ -21,6 +21,8 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

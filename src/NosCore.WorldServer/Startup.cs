@@ -71,6 +71,10 @@ using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using AutofacSerilogIntegration;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.WorldServer
 {

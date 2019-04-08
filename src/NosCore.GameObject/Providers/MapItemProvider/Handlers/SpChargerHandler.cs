@@ -24,19 +24,13 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
-using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        private readonly ISerializer _serializer;
-        public SpChargerHandler(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
 
         public bool Condition(MapItem item) =>
             item.ItemInstance.Item.ItemType == ItemType.Map &&
@@ -58,7 +52,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId), _serializer);
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
         }
     }
 }

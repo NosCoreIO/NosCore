@@ -32,17 +32,17 @@ using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
-        public WearHandler(ILogger logger, ISerializer packetSerializer)
+        public WearHandler(ILogger logger)
         {
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Weapon
             || item.ItemType == ItemType.Jewelery
@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
             requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
-                .GenerateEq(), _packetSerializer);
+                .GenerateEq());
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance), _packetSerializer);
+                    requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance));
             }
 
             if (itemInstance.Item.EquipmentSlot == EquipmentType.Amulet)

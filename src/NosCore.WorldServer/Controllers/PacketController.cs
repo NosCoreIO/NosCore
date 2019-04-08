@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -36,10 +37,12 @@ namespace NosCore.WorldServer.Controllers
     public class PacketController : Controller
     {
         private readonly ILogger _logger;
+        private readonly IDeserializer _deserializer;
 
-        public PacketController(ILogger logger)
+        public PacketController(ILogger logger, IDeserializer deserializer)
         {
             _logger = logger;
+            _deserializer = deserializer;
         }
 
         // POST api/packet
@@ -51,7 +54,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var message = PacketFactory.Deserialize(postedPacket.Packet);
+            var message = _deserializer.Deserialize(postedPacket.Packet, false);
 
             switch (postedPacket.ReceiverType)
             {

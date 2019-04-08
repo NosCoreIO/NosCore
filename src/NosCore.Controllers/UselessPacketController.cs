@@ -20,6 +20,9 @@
 using JetBrains.Annotations;
 using NosCore.GameObject.Networking;
 using ChickenAPI.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets.Player;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.ClientPackets.Families;
 
 namespace NosCore.Controllers
 {
