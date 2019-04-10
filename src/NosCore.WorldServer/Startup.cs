@@ -75,6 +75,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.WorldServer
 {
