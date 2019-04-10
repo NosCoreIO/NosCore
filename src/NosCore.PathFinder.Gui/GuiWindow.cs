@@ -39,6 +39,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Serilog;
+using ChickenAPI.Packets.ClientPackets.Drops;
 
 namespace NosCore.PathFinder.Gui
 {
