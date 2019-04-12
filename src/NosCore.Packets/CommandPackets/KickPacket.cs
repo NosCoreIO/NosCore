@@ -23,12 +23,12 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Kick", AuthorityType.Moderator)]
-    public class KickPacket : ICommandPacket
+    public class KickPacket : CommandPacket
     {
         [PacketIndex(0)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Kick VALUE";
         }

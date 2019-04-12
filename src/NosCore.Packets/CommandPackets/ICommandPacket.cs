@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets;
 using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
 
@@ -26,5 +27,10 @@ namespace NosCore.Packets.CommandPackets
     {
         [UsedImplicitly]
         string Help();
+    }
+
+    public abstract class CommandPacket : PacketBase, ICommandPacket
+    {
+        public abstract string Help();
     }
 }

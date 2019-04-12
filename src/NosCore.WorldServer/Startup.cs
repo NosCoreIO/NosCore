@@ -49,7 +49,6 @@ using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.ClientPackets;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
@@ -75,7 +74,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
-using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.WorldServer
 {
@@ -185,7 +184,7 @@ namespace NosCore.WorldServer
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
+            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
 
             //NosCore.WorldServer
@@ -247,7 +246,7 @@ namespace NosCore.WorldServer
         {
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
-            PacketFactory.Initialize<NoS0575Packet>();
+            //PacketFactory.Initialize<NoS0575Packet>();
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));

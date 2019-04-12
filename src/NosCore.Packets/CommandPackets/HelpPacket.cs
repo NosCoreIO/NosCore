@@ -17,15 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Help", AuthorityType.GameMaster)]
-    public class HelpPacket : ICommandPacket
+    public class HelpPacket : CommandPacket
     {
-        public string Help()
+        public override string Help()
         {
             return "$Help";
         }

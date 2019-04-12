@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.Database.DAL;
 
 namespace NosCore.Parser.Parsers
 {

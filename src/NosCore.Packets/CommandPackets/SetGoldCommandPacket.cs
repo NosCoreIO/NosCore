@@ -24,7 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Gold", AuthorityType.GameMaster)]
-    public class SetGoldCommandPacket : ICommandPacket
+    public class SetGoldCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         [Range(1, 1000000000)]
@@ -33,7 +33,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(1)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Gold QUANTITY NICKNAME";
         }

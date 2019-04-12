@@ -23,12 +23,12 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Effect", AuthorityType.GameMaster)]
-    public class EffectCommandPacket : ICommandPacket
+    public class EffectCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         public int EffectId { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Effect EFFECTID";
         }

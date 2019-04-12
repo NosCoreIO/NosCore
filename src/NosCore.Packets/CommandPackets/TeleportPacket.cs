@@ -23,7 +23,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Teleport", AuthorityType.GameMaster)]
-    public class TeleportPacket : ICommandPacket
+    public class TeleportPacket : CommandPacket
     {
         [PacketIndex(0)]
         public string TeleportArgument { get; set; }
@@ -34,7 +34,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(2)]
         public short? MapY { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Teleport CHARACTERNAME/MAP X(?) Y(?)";
         }

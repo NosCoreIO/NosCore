@@ -21,7 +21,6 @@ using System;
 using System.Reactive.Subjects;
 using NosCore.Data;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item

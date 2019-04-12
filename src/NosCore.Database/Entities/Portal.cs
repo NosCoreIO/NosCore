@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations.Map;
 
 namespace NosCore.Database.Entities
 {

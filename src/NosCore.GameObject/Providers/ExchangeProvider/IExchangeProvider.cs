@@ -19,12 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.UI;

@@ -23,9 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 

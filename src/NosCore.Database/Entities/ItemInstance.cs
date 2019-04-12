@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities

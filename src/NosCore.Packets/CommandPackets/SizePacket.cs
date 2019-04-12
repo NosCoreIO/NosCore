@@ -19,13 +19,12 @@
 
 using ChickenAPI.Packets.Attributes;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Size", AuthorityType.GameMaster)]
-    public class SizePacket : ICommandPacket
+    public class SizePacket : CommandPacket
     {
         [PacketIndex(0)]
         public VisualType VisualType { get; set; }
@@ -36,7 +35,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(2)]
         public byte Size { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Size VISUALTYPE VISUALID VALUE";
         }

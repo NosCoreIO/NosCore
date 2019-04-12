@@ -20,12 +20,11 @@
 using ChickenAPI.Packets.Attributes;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$ChangeClass", AuthorityType.GameMaster)]
-    public class ChangeClassPacket : ICommandPacket
+    public class ChangeClassPacket : CommandPacket
     {
         [PacketIndex(0)]
         public CharacterClassType ClassType { get; set; }
@@ -33,7 +32,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(1, IsOptional = true)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$ChangeClass VALUE NAME";
         }

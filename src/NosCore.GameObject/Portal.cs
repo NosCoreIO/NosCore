@@ -19,7 +19,6 @@
 
 using System;
 using NosCore.Data.StaticEntities;
-using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.ServerPackets.Portals;
 
 namespace NosCore.GameObject

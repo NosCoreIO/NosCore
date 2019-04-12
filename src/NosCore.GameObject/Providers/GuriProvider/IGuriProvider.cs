@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider

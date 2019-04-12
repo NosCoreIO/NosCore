@@ -27,7 +27,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
-using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

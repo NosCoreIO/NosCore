@@ -24,12 +24,9 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
 using Mapster;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -43,7 +40,6 @@ namespace NosCore.GameObject
     public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly IGenericDao<ShopDto> _shops;
         private readonly IGenericDao<ShopItemDto> _shopItems;
@@ -51,14 +47,13 @@ namespace NosCore.GameObject
 
         public MapNpc(IItemProvider itemProvider, IGenericDao<ShopDto> shops,
             IGenericDao<ShopItemDto> shopItems,
-            List<NpcMonsterDto> npcMonsters, ILogger logger, ISerializer packetSerializer)
+            List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;
             _shops = shops;
             _shopItems = shopItems;
             _itemProvider = itemProvider;
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
         public void Initialize()
@@ -154,7 +149,7 @@ namespace NosCore.GameObject
 
         private void MonsterLife()
         {
-            this.Move(_packetSerializer);
+            this.Move();
         }
     }
 }

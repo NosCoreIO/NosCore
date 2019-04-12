@@ -37,8 +37,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 using ChickenAPI.Packets.Enumerations;
