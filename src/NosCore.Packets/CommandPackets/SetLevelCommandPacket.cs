@@ -24,7 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$SetLevel", AuthorityType.GameMaster)]
-    public class SetLevelCommandPacket : ICommandPacket
+    public class SetLevelCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         [Range(1, byte.MaxValue)]
@@ -33,7 +33,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(1)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$SetLevel Value [Name]";
         }

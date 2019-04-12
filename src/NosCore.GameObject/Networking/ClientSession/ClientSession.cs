@@ -22,10 +22,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ChickenAPI.Packets;
 using ChickenAPI.Packets.Attributes;
+using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
@@ -37,7 +38,6 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
@@ -91,8 +91,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     typeof(IPacket).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
-                        ca => ca.GetType() == typeof(PacketHeaderAttribute));
+                    var packetheader = type.GetCustomAttribute<PacketHeaderAttribute>();
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
                         DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo));
@@ -106,7 +105,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public int LastKeepAliveIdentity { get; set; }
 
-        public IList<IPacket> WaitForPacketList { get; } = new List<IPacket>();
+        public IList<UnresolvedPacket> WaitForPacketList { get; } = new List<UnresolvedPacket>();
 
         public int LastPulse { get; set; }
 
@@ -345,7 +344,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     // we need to wait for more
                     _waitForPacketsAmount = methodReference.Key.Amount;
-                    WaitForPacketList.Add(packet is UnresolvePacket ? packet : new UnresolvePacket { Message = $"1 {packetHeader} " });
+                    WaitForPacketList.Add(packet is UnresolvedPacket unresolvedPacket ? unresolvedPacket : new UnresolvedPacket { Body = $"1 {packetHeader} " });
                     return;
                 }
 
@@ -402,97 +401,84 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex)
         {
-            //determine first packet
-            //if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId == 0)
-            //{
-            //    if (!int.TryParse(sessionParts[0], out var lastka))
-            //    {
-            //        Disconnect();
-            //    }
-
-            //    LastKeepAliveIdentity = lastka;
-
-            //    // set the SessionId if Session Packet arrives
-            //    if (sessionParts.Length < 2)
-            //    {
-            //        return;
-            //    }
-
-            //    if (!int.TryParse(sessionParts[1].Split('\\').FirstOrDefault(), out var sessid))
-            //    {
-            //        return;
-            //    }
-
-            //    SessionId = sessid;
-            //    SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
-
-            //    _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
-
-            //    if (!_waitForPacketsAmount.HasValue)
-            //    {
-            //        TriggerHandler("EntryPoint", string.Empty, false);
-            //    }
-
-            //    return;
-            //}
-
             foreach (var packet in packetConcatenated)
             {
+                if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId == 0)
+                {
+                    if (packet.KeepAliveId == null)
+                    {
+                        Disconnect();
+                    }
+
+                    LastKeepAliveIdentity = (int)packet.KeepAliveId;
+
+                    // set the SessionId if Session Packet arrives
+                    //if (sessionParts.Length < 2)
+                    //{
+                    //    return;
+                    //}
+
+                    //if (!int.TryParse(sessionParts[1].Split('\\').FirstOrDefault(), out var sessid))
+                    //{
+                    //    return;
+                    //}
+
+                    //SessionId = sessid;
+                    SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
+
+                    _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
+
+                    if (!_waitForPacketsAmount.HasValue)
+                    {
+                        TriggerHandler("EntryPoint", new UnresolvedPacket(), false);
+                    }
+
+                    return;
+                }
+
                 if (_isWorldClient)
                 {
-                    // keep alive
-                    //var nextKeepAliveRaw = packetsplit[0];
-                    //if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
-                    //    && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
-                    //{
-                    //    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
-                    //        ClientId);
-                    //    Disconnect();
-                    //    return;
-                    //}
+                    if (packet.KeepAliveId != LastKeepAliveIdentity + 1)
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
+                            ClientId);
+                        Disconnect();
+                        return;
+                    }
 
-                    //if (nextKeepaliveIdentity == 0)
-                    //{
-                    //    if (LastKeepAliveIdentity == ushort.MaxValue)
-                    //    {
-                    //        LastKeepAliveIdentity = nextKeepaliveIdentity;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    LastKeepAliveIdentity = nextKeepaliveIdentity;
-                    //}
+                    LastKeepAliveIdentity = (int)packet.KeepAliveId;
 
-                    //if (_waitForPacketsAmount.HasValue)
-                    //{
-                    //    WaitForPacketList.Add(packetstring);
-                    //    var packetssplit = packetstring.Split(' ');
-                    //    // TODO NEED TO BE REWRITED
-                    //    if (packetssplit.Length > 3 && packetsplit[1] == "DAC")
-                    //    {
-                    //        WaitForPacketList.Add("0 CrossServerAuthenticate");
-                    //    }
+                    if (_waitForPacketsAmount.HasValue && packet is UnresolvedPacket unresolvedPacket)
+                    {
+                        WaitForPacketList.Add(unresolvedPacket);
 
-                    //    if (WaitForPacketList.Count != _waitForPacketsAmount)
-                    //    {
-                    //        continue;
-                    //    }
+                        if (WaitForPacketList.Count != _waitForPacketsAmount)
+                        {
+                            continue;
+                        }
 
-                    //    _waitForPacketsAmount = null;
-                    //    var queuedPackets = string.Join(" ", WaitForPacketList.ToArray());
-                    //    var header = queuedPackets.Split(' ', '^')[1];
-                    //    TriggerHandler(header, queuedPackets, true);
-                    //    WaitForPacketList.Clear();
-                    //    return;
-                    //}
+                        _waitForPacketsAmount = null;
+                        var entryPointPacket = new EntryPointPacket
+                        {
+                            Header = "EntryPoint",
+                            Title = "",
+                            Packet1Id = "",
+                            Name = "",
+                            Packet2Id = "",
+                            Password = ""
+                        };
+                        TriggerHandler(entryPointPacket.Header, entryPointPacket, true);
+                        WaitForPacketList.Clear();
+                        return;
+                    }
 
-                    //if (packetsplit.Length <= 1)
-                    //{
-                    //    continue;
-                    //}
+                    if (packet.Header.Length <= 1)
+                    {
+                        continue;
+                    }
 
-                    //if (packetsplit[1].Length >= 1
-                    //    && (packetsplit[1][0] == '/' || packetsplit[1][0] == ':' || packetsplit[1][0] == ';'))
+                    //if (packet.Header.Length >= 1
+                    //    && (packet.Header[0] == '/' || packet.Header[0] == ':' || packet.Header[0] == ';'))
                     //{
                     //    packetsplit[1] = packetsplit[1][0].ToString();
                     //    packetstring = packetstring.Insert(packetstring.IndexOf(' ') + 2, " ");

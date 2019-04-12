@@ -29,7 +29,6 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,14 +39,10 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.CommandPackets;
-using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Attributes;
-using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Chats;
 
 namespace NosCore.Controllers
 {

@@ -20,18 +20,13 @@
 using System;
 using System.Linq;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ServerPackets.UI;
 

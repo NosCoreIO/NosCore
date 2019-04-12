@@ -29,15 +29,12 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
 

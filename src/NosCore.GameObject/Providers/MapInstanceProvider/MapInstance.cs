@@ -33,7 +33,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
 using ChickenAPI.Packets.Interfaces;

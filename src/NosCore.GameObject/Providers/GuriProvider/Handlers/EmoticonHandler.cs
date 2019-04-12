@@ -20,8 +20,6 @@
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers

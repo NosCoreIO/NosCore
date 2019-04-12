@@ -19,7 +19,6 @@
 
 using System;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Database.Entities
 {

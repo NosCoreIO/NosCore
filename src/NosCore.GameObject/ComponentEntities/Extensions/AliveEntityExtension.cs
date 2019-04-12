@@ -22,17 +22,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using NosCore.Core;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
 using NosCore.PathFinder;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Movement;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.Player;
@@ -117,7 +111,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static void Move(this INonPlayableEntity nonPlayableEntity, ISerializer packetSerializer)
+        public static void Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)
             {

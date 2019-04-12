@@ -19,7 +19,6 @@
 
 using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
-using System;
 
 namespace NosCore.Packets.CommandPackets
 {

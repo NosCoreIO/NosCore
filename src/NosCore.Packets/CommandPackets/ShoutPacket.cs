@@ -23,12 +23,12 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Shout", AuthorityType.Moderator)]
-    public class ShoutPacket : ICommandPacket
+    public class ShoutPacket : CommandPacket
     {
         [PacketIndex(0)]
         public string Message { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Shout MESSAGE";
         }

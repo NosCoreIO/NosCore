@@ -20,18 +20,14 @@
 using System;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ServerPackets;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
 

@@ -24,7 +24,6 @@ using DotNetty.Transport.Channels;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.GameObject.Providers.InventoryService;
-using ChickenAPI.Packets.ServerPackets;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Visibility;

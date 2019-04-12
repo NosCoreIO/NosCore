@@ -42,7 +42,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using ChickenAPI.Packets.ClientPackets;
 using Serilog;
 
 namespace NosCore.Tests.HandlerTests

@@ -33,7 +33,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using ChickenAPI.Packets.ClientPackets;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;

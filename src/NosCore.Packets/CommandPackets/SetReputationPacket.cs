@@ -24,7 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$SetReputation", AuthorityType.GameMaster)]
-    public class SetReputationPacket : ICommandPacket
+    public class SetReputationPacket : CommandPacket
     {
         [PacketIndex(0)]
         [Range(0, long.MaxValue)]
@@ -33,7 +33,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(1, IsOptional = true)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$SetReputation NAME VALUE";
         }

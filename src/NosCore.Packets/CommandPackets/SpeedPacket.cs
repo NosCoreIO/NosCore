@@ -23,12 +23,12 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Packets.CommandPackets
 {
     [CommandPacketHeader("$Speed", AuthorityType.GameMaster)]
-    public class SpeedPacket : ICommandPacket
+    public class SpeedPacket : CommandPacket
     {
         [PacketIndex(0)]
         public byte Speed { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Speed value";
         }
