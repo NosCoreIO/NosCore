@@ -101,7 +101,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p =>p.GetInterfaces().Contains(typeof(IPacket))).ToList();
+                .Where(p =>p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c =>
             {
                 return new Deserializer(listofpacket);
