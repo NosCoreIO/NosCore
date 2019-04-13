@@ -249,26 +249,14 @@ namespace NosCore.Core.Encryption
                     break;
             }
 
-            var temp = encryptedString.Split((char)0xFF);
-            var save = new StringBuilder();
-
-            for (var i = 0; i < temp.Length; i++)
-            {
-                save.Append(DecryptPrivate(temp[i]));
-                if (i < temp.Length - 2)
-                {
-                    save.Append((char)0xFF);
-                }
-            }
-
-            var des = save.ToString().Split("\\").Select(p=>_deserializer.Deserialize(p)).ToList();
-            if (des != null)
-            {
-                output.Add( des );
-            }
-            else
+            var temp = encryptedString.Split((char)0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p => _deserializer.Deserialize(DecryptPrivate(p))).ToList();
+            foreach(var entries in temp.Where(t=>t == null))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
+            }
+            if (temp != null && temp.Count > 0)
+            {
+                output.Add(temp);
             }
         }
     }

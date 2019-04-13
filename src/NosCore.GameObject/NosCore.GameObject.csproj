@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NosCore.Configuration\NosCore.Configuration.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
     <ProjectReference Include="..\NosCore.Packets\NosCore.Packets.csproj" />
