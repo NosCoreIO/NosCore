@@ -37,6 +37,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Login;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Tests.HandlerTests
 {

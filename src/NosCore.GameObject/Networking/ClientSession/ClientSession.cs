@@ -410,20 +410,19 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Disconnect();
                     }
 
-                    LastKeepAliveIdentity = (int)packet.KeepAliveId;
+                    LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
 
                     // set the SessionId if Session Packet arrives
-                    //if (sessionParts.Length < 2)
-                    //{
-                    //    return;
-                    //}
+                    if (!(packet is UnresolvedPacket unresolvedPacket))
+                    {
+                        return;
+                    }
 
-                    //if (!int.TryParse(sessionParts[1].Split('\\').FirstOrDefault(), out var sessid))
-                    //{
-                    //    return;
-                    //}
-
-                    //SessionId = sessid;
+                    if (!int.TryParse(unresolvedPacket.Body, out var sessid))
+                    {
+                        return;
+                    }
+                    SessionId = sessid;
                     SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
 
                     _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
@@ -446,7 +445,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    LastKeepAliveIdentity = (int)packet.KeepAliveId;
+                    LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
 
                     if (_waitForPacketsAmount.HasValue && packet is UnresolvedPacket unresolvedPacket)
                     {
@@ -461,11 +460,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                         var entryPointPacket = new EntryPointPacket
                         {
                             Header = "EntryPoint",
-                            Title = "",
-                            Packet1Id = "",
-                            Name = "",
-                            Packet2Id = "",
-                            Password = ""
+                            Title = "EntryPoint",
+                            Packet1Id = WaitForPacketList[1].KeepAliveId.ToString(),
+                            Name = WaitForPacketList[1].Header,
+                            Packet2Id = WaitForPacketList[2].KeepAliveId.ToString(),
+                            Password = WaitForPacketList[2].Header
                         };
                         TriggerHandler(entryPointPacket.Header, entryPointPacket, true);
                         WaitForPacketList.Clear();
@@ -498,7 +497,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    TriggerHandler(packetHeader.Replace("#", ""), packet, false);
+                    TriggerHandler(packetHeader, packet, false);
                 }
             }
         }

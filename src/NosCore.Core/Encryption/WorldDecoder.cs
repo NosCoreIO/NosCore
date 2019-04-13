@@ -21,13 +21,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ChickenAPI.Packets;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Extensions;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
+using Serilog;
 
 namespace NosCore.Core.Encryption
 {
@@ -36,9 +40,11 @@ namespace NosCore.Core.Encryption
         private RegionType _region;
         private int _sessionId;
         private readonly IDeserializer _deserializer;
-        public WorldDecoder(IDeserializer deserializer)
+        private readonly ILogger _logger;
+        public WorldDecoder(IDeserializer deserializer, ILogger logger)
         {
             _deserializer = deserializer;
+            _logger = logger;
         }
         private string DecryptPrivate(string str)
         {
@@ -194,7 +200,8 @@ namespace NosCore.Core.Encryption
             var str = ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
             if (_sessionId == 0)
             {
-                output.Add(DecryptCustomParameter(str));
+                var packet = DecryptCustomParameter(str).Split(" ");
+                output.Add(new[] { new UnresolvedPacket() { Body = packet[1], KeepAliveId = ushort.Parse(packet[0]) } });
                 return;
             }
 
@@ -254,7 +261,15 @@ namespace NosCore.Core.Encryption
                 }
             }
 
-            output.Add(_deserializer.Deserialize(save.ToString(), true));
+            var des = save.ToString().Split("\\").Select(p=>_deserializer.Deserialize(p)).ToList();
+            if (des != null)
+            {
+                output.Add( des );
+            }
+            else
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
+            }
         }
     }
 }

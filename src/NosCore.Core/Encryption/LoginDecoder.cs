@@ -51,7 +51,7 @@ namespace NosCore.Core.Encryption
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
-                var des = _deserializer.Deserialize(decryptedPacket.ToString(), true);
+                var des = _deserializer.Deserialize(decryptedPacket.ToString());
                 if (des != null)
                 {
                     output.Add(new[] { des });
