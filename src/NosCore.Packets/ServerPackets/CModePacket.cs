@@ -45,5 +45,8 @@ namespace NosCore.Packets.ServerPackets
 
         [PacketIndex(6, IsOptional = true)]
         public byte? Size { get; set; }
+
+        [PacketIndex(7, IsOptional = true)]
+        public int Unknown { get; set; }
     }
 }
