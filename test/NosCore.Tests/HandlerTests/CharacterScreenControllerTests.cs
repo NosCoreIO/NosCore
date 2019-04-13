@@ -20,8 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -66,14 +69,14 @@ namespace NosCore.Tests.HandlerTests
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
         private readonly IGenericDao<MateDto> _mateDao = new GenericDao<Database.Entities.Mate, MateDto>(_logger);
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
-
+        private readonly IDeserializer Deserializer = new Deserializer(typeof(IPacket).Assembly.GetTypes()
+              .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract));
         [TestInitialize]
         public void Setup()
         {
             TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null, _logger));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
-            PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
@@ -169,7 +172,7 @@ namespace NosCore.Tests.HandlerTests
         {
             const string name = "TestCharacter";
             _handler.CreateCharacter(
-                (CharNewPacket) PacketFactory.Deserialize($"Char_NEW {name} 0 0 0 0", typeof(CharNewPacket)));
+                (CharNewPacket)Deserializer.Deserialize($"Char_NEW {name} 0 0 0 0"));
             Assert.IsNotNull(_characterDao.FirstOrDefault(s => s.Name == name));
         }
 
@@ -188,7 +191,7 @@ namespace NosCore.Tests.HandlerTests
         public void InvalidSlot_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            Assert.IsNull(PacketFactory.Deserialize($"Char_NEW {name} 4 0 0 0", typeof(CharNewPacket)));
+            Assert.IsNull(Deserializer.Deserialize($"Char_NEW {name} 4 0 0 0"));
         }
 
         [TestMethod]
@@ -219,7 +222,7 @@ namespace NosCore.Tests.HandlerTests
         {
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(
-                (CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 test", typeof(CharacterDeletePacket)));
+                (CharacterDeletePacket)Deserializer.Deserialize("Char_DEL 1 test"));
             Assert.IsNull(
                 _characterDao
                     .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));
@@ -229,8 +232,7 @@ namespace NosCore.Tests.HandlerTests
         public void DeleteCharacter_Invalid_Password()
         {
             const string name = "TestExistingCharacter";
-            _handler.DeleteCharacter((CharacterDeletePacket) PacketFactory.Deserialize("Char_DEL 1 testpassword",
-                typeof(CharacterDeletePacket)));
+            _handler.DeleteCharacter((CharacterDeletePacket)Deserializer.Deserialize("Char_DEL 1 testpassword"));
             Assert.IsNotNull(
                 _characterDao
                     .FirstOrDefault(s => s.Name == name && s.State == CharacterState.Active));

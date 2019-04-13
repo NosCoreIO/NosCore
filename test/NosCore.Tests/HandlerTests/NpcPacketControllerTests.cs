@@ -135,7 +135,6 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
-            PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(

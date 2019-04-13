@@ -104,8 +104,6 @@ namespace NosCore.Tests.HandlerTests
         };
 
         private DefaultPacketController _handler;
-
-        private ItemProvider _itemProvider;
         private ClientSession _session;
         private Character _targetChar;
         private ClientSession _targetSession;
@@ -116,7 +114,6 @@ namespace NosCore.Tests.HandlerTests
             var conf = new WorldConfiguration();
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null,null, null,null, _logger));
-            PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
@@ -144,8 +141,6 @@ namespace NosCore.Tests.HandlerTests
                 State = CharacterState.Active
             };
 
-            _itemProvider = new ItemProvider(new List<ItemDto>(),
-                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> {_map, _map2},
                 new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,

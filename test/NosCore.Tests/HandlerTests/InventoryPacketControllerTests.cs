@@ -84,7 +84,6 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             SystemTime.Freeze();
-            PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());

@@ -39,6 +39,7 @@ using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -58,7 +59,6 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());

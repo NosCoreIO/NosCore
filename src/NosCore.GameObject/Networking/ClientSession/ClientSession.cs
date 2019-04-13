@@ -471,22 +471,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    if (packet.Header.Length <= 1)
+                    if (packet.Header != "0")
                     {
-                        continue;
+                        TriggerHandler(packet.Header.Replace("#", ""), packet, false);
                     }
-
-                    //if (packet.Header.Length >= 1
-                    //    && (packet.Header[0] == '/' || packet.Header[0] == ':' || packet.Header[0] == ';'))
-                    //{
-                    //    packetsplit[1] = packetsplit[1][0].ToString();
-                    //    packetstring = packetstring.Insert(packetstring.IndexOf(' ') + 2, " ");
-                    //}
-
-                    //if (packetsplit[1] != "0")
-                    //{
-                    //    TriggerHandler(packetsplit[1].Replace("#", ""), packetstring, false);
-                    //}
                 }
                 else
                 {
