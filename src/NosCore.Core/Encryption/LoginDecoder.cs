@@ -46,14 +46,20 @@ namespace NosCore.Core.Encryption
             {
                 var decryptedPacket = new StringBuilder();
 
-                foreach (var character in ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes)
-                )
+                foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes))
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
-
-                output.Add(new[] { _deserializer.Deserialize(decryptedPacket.ToString(), true) });
+                var des = _deserializer.Deserialize(decryptedPacket.ToString(), true);
+                if (des != null)
+                {
+                    output.Add(new[] { des });
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
             }
             catch
             {

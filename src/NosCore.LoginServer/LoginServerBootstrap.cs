@@ -102,16 +102,12 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<PipelineFactory>();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p =>p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
-            containerBuilder.Register(c =>
-            {
-                return new Deserializer(listofpacket);
-            })
-            .AsImplementedInterfaces();
-            containerBuilder.Register(c =>
-            {
-                return new Serializer(listofpacket);
-            })
-            .AsImplementedInterfaces();
+            containerBuilder.Register(c => new Deserializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
+            containerBuilder.Register(c => new Serializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
             return containerBuilder.Build();
         }
     }
