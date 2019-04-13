@@ -1516,9 +1516,9 @@ namespace NosCore.GameObject
             }
 
             IsVehicled = false;
-            VehicleSpeed = 0;
-            SendPacket(this.GenerateCond());
+            VehicleSpeed = null;
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            SendPacket(this.GenerateCond());
         }
     }
 }

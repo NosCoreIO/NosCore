@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (packet.Mode == 1 && !requestData.ClientSession.Character.IsVehicled)
+            if (packet.Mode == 0 && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.SendPacket(new DelayPacket
                 {

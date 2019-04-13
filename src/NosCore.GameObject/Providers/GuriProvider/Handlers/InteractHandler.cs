@@ -17,28 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
-using NosCore.Core.Serializing;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets;
 
-namespace NosCore.Packets.ClientPackets
+namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
-    [PacketHeader("guri")]
-    public class GuriPacket : PacketDefinition
+    public class InteractHandler : IHandler<GuriPacket, GuriPacket>
     {
-        [PacketIndex(0)]
-        public int Type { get; set; }
+        public bool Condition(GuriPacket packet) => packet.Type == 2;
 
-        [PacketIndex(1, IsOptional = true)]
-        [UsedImplicitly]
-        public int Argument { get; set; }
-
-        [PacketIndex(2, IsOptional = true)]
-        public long? VisualEntityId { get; set; }
-
-        [PacketIndex(3, IsOptional = true)]
-        public int Data { get; set; }
-
-        [PacketIndex(4, true, false, false, IsOptional = true, SerializeToEnd = true)]
-        public string Value { get; set; }
+        public void Execute(RequestData<GuriPacket> requestData)
+        {
+            requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                new GuriPacket
+                {
+                    Type = 2,
+                    Argument = 1,
+                    VisualEntityId = (int)requestData.ClientSession.Character.VisualId
+                });
+        }
     }
 }
