@@ -49,6 +49,12 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ClientPackets.Specialists;
 
 namespace NosCore.Tests.HandlerTests
 {

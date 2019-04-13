@@ -54,7 +54,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var message = _deserializer.Deserialize(postedPacket.Packet, false);
+            var message = _deserializer.Deserialize(postedPacket.Packet);
 
             switch (postedPacket.ReceiverType)
             {

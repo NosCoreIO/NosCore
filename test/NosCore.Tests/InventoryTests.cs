@@ -31,6 +31,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 
 namespace NosCore.Tests
 {

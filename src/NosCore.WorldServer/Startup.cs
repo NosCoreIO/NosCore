@@ -75,6 +75,7 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets;
 
 namespace NosCore.WorldServer
 {
@@ -173,7 +174,14 @@ namespace NosCore.WorldServer
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
-
+            var listofpacket = typeof(IPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+            containerBuilder.Register(c => new Deserializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
+            containerBuilder.Register(c => new Serializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
