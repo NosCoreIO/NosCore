@@ -864,6 +864,20 @@ namespace NosCore.Parser.Parsers
                                                 .MarriageSeparation; // imagined number as for I = √(-1), complex z = a + bi
                                         break;
 
+                                    case 5714: //Magic Sleigh with Red-nosed Reindeer
+                                    case 9140:
+                                        item.Effect = ItemEffectType.Vehicle;
+                                        item.Morph = 2442;
+                                        item.Speed = 22;
+                                        break;
+
+                                    case 5712: //Magic Sleigh
+                                    case 9138:
+                                        item.Effect = ItemEffectType.Vehicle;
+                                        item.Morph = 2440;
+                                        item.Speed = 20;
+                                        break;
+
                                     case 1894:
                                     case 1895:
                                     case 1896:

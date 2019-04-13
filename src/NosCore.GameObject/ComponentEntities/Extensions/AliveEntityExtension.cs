@@ -226,7 +226,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MorphUpgrade = aliveEntity.MorphUpgrade,
                 MorphDesign = aliveEntity.MorphDesign,
                 MorphBonus = aliveEntity.MorphBonus,
-                Size = (aliveEntity as ICharacterEntity)?.Size
+                Size = (aliveEntity as ICharacterEntity).Size
             };
         }
 

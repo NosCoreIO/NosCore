@@ -30,13 +30,13 @@ namespace NosCore.Packets.ClientPackets
 
         [PacketIndex(1, IsOptional = true)]
         [UsedImplicitly]
-        public int Argument { get; set; }
+        public int? Argument { get; set; }
 
         [PacketIndex(2, IsOptional = true)]
         public long? VisualEntityId { get; set; }
 
         [PacketIndex(3, IsOptional = true)]
-        public int Data { get; set; }
+        public int? Data { get; set; }
 
         [PacketIndex(4, true, false, false, IsOptional = true, SerializeToEnd = true)]
         public string Value { get; set; }

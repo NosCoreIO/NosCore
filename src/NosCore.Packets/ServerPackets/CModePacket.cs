@@ -43,10 +43,10 @@ namespace NosCore.Packets.ServerPackets
         [PacketIndex(5, IsOptional = true)]
         public byte MorphBonus { get; set; }
 
-        [PacketIndex(6, IsOptional = true)]
-        public byte? Size { get; set; }
+        [PacketIndex(6)]
+        public byte Size { get; set; }
 
         [PacketIndex(7, IsOptional = true)]
-        public int Unknown { get; set; }
+        public byte Unknown { get; set; }
     }
 }
