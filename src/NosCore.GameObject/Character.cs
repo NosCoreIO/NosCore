@@ -64,12 +64,14 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.Relations;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
         private byte _speed;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -77,7 +79,7 @@ namespace NosCore.GameObject
         private readonly IGenericDao<AccountDto> _accountDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
-            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger)
+            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -93,6 +95,7 @@ namespace NosCore.GameObject
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public AccountDto Account { get; set; }
@@ -868,30 +871,30 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-                    //{
-                    //    Packet = _packetSerializer.Serialize(new[]
-                    //    {
-                    //        new FinfoPacket
-                    //        {
-                    //            FriendList = new List<FinfoSubPackets>
-                    //            {
-                    //                new FinfoSubPackets
-                    //                {
-                    //                    CharacterId = CharacterId,
-                    //                    IsConnected = status
-                    //                }
-                    //            }
-                    //        }
-                    //    }),
-                    //    ReceiverType = ReceiverType.OnlySomeone,
-                    //    SenderCharacter = new Data.WebApi.Character {Id = CharacterId, Name = Name},
-                    //    ReceiverCharacter = new Data.WebApi.Character
-                    //    {
-                    //        Id = characterRelation.Value.RelatedCharacterId,
-                    //        Name = characterRelation.Value.CharacterName
-                    //    }
-                    //});
+                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                    {
+                        Packet = _packetSerializer.Serialize(new[]
+                        {
+                            new FinfoPacket
+                            {
+                                FriendList = new List<FinfoSubPackets>
+                                {
+                                    new FinfoSubPackets
+                                    {
+                                        CharacterId = CharacterId,
+                                        IsConnected = status
+                                    }
+                                }
+                            }
+                        }),
+                        ReceiverType = ReceiverType.OnlySomeone,
+                        SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
+                        ReceiverCharacter = new Data.WebApi.Character
+                        {
+                            Id = characterRelation.Value.RelatedCharacterId,
+                            Name = characterRelation.Value.CharacterName
+                        }
+                    });
                 }
             }
         }

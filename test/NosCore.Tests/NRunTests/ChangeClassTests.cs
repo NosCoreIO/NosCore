@@ -128,13 +128,13 @@ namespace NosCore.Tests.NRunTests
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
             _session = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger, null) },
                 instanceAccessService, null, _logger);
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassHandler()}), _logger);
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), 
-                null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+                null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",

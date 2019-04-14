@@ -50,6 +50,8 @@ using ChickenAPI.Packets.ClientPackets.Chat;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ClientPackets.Battle;
+using ChickenAPI.Packets.Interfaces;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Controllers
 {
@@ -59,6 +61,7 @@ namespace NosCore.Controllers
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ISerializer _packetSerializer;
 
         [UsedImplicitly]
         public DefaultPacketController()
@@ -67,12 +70,13 @@ namespace NosCore.Controllers
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
             IMapInstanceProvider mapInstanceProvider,
-            IGuriProvider guriProvider, ILogger logger)
+            IGuriProvider guriProvider, ILogger logger, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceProvider = mapInstanceProvider;
             _guriProvider = guriProvider;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public void GameStart(GameStartPacket _)
@@ -466,15 +470,14 @@ namespace NosCore.Controllers
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                //TODO Fix
-                //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-                //{
-                //    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
-                //    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
-                //    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
-                //    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-                //    ReceiverType = ReceiverType.OnlySomeone
-                //}, receiver.ChannelId);
+                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                {
+                    Packet = _packetSerializer.Serialize(new[] { speakPacket }),
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
+                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                    ReceiverType = ReceiverType.OnlySomeone
+                }, receiver.ChannelId);
 
                 Session.SendPacket(Session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
@@ -541,17 +544,16 @@ namespace NosCore.Controllers
                 return;
             }
 
-            //TODO fix
-            //WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-            //{
-            //    Packet = _packetSerializer.Serialize(new[] {Session.Character.GenerateTalk(message)}),
-            //    ReceiverCharacter = new Data.WebApi.Character
-            //        {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
-            //    SenderCharacter = new Data.WebApi.Character
-            //        {Name = Session.Character.Name, Id = Session.Character.CharacterId},
-            //    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
-            //    ReceiverType = ReceiverType.OnlySomeone
-            //}, receiver.ChannelId);
+            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            {
+                Packet = _packetSerializer.Serialize(new[] { Session.Character.GenerateTalk(message) }),
+                ReceiverCharacter = new Data.WebApi.Character
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
+                SenderCharacter = new Data.WebApi.Character
+                { Name = Session.Character.Name, Id = Session.Character.CharacterId },
+                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                ReceiverType = ReceiverType.OnlySomeone
+            }, receiver.ChannelId);
         }
 
         /// <summary>
