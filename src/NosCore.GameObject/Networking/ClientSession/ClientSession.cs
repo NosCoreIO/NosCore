@@ -445,7 +445,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                         WaitForPacketList.Clear();
                     }
 
-                    TriggerHandler(packet.Header.Replace("#", ""), packet);
+                    if (packet.Header != "0")
+                    {
+                        TriggerHandler(packet.Header.Replace("#", ""), packet);
+                    }
                 }
                 else
                 {
