@@ -58,12 +58,12 @@ namespace NosCore.Core.Encryption
                 }
                 else
                 {
-                    throw new InvalidOperationException();
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING, decryptedPacket.ToString()));
                 }
             }
             catch
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), "");
             }
         }
     }
