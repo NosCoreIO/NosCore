@@ -131,7 +131,7 @@ namespace NosCore.Core.Encryption
                 {
                     if (Convert.ToChar(str[i]) == 0xE)
                     {
-                        endOfPacket = str.Skip(i+1).ToArray();
+                        endOfPacket = str.Skip(i + 1).ToArray();
                         return encryptedStringBuilder.ToString();
                     }
 
@@ -268,13 +268,16 @@ namespace NosCore.Core.Encryption
                 }
                 temp.AddRange(encryptedString.Split((char)0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p =>
                 {
-                    var packet = DecryptPrivate(p);
-                    var deserialized = _deserializer.Deserialize(packet);
-                    if (deserialized == null)
+                    try
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), packet);
+                        return _deserializer.Deserialize(DecryptPrivate(p));
                     }
-                    return deserialized;
+                    catch (Exception ex)
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), ex.Data["Packet"]);
+                        return new UnresolvedPacket { KeepAliveId = ushort.Parse((ex.Data["Packet"].ToString().Split(" ")[0])), Header = "0" };
+                    }
+                 
                 }));
             }
             if (temp.Count > 0)
