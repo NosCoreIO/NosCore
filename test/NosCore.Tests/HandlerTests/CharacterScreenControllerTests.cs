@@ -188,7 +188,7 @@ namespace NosCore.Tests.HandlerTests
         }
 
         [TestMethod]
-        public void InvalidSlot_Does_Not_Create_Character()
+        public void InvalidSlotAfterValidation_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
             Assert.IsNull(Deserializer.Deserialize($"Char_NEW {name} 4 0 0 0"));
