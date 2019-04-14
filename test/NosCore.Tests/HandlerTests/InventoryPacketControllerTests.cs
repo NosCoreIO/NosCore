@@ -110,7 +110,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _chara = new Character(new InventoryService(items, _session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, null, _logger), null, null, null, null, null, _logger)
+                new ExchangeProvider(null, null, _logger), null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",

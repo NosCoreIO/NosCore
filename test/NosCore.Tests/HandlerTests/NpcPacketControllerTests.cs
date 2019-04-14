@@ -153,7 +153,7 @@ namespace NosCore.Tests.HandlerTests
                 };
 
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -172,7 +172,7 @@ namespace NosCore.Tests.HandlerTests
             _instanceProvider.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger, null) },
                 _instanceProvider, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
@@ -572,7 +572,7 @@ namespace NosCore.Tests.HandlerTests
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger, null) },
                 _instanceProvider, null, _logger);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
@@ -584,7 +584,7 @@ namespace NosCore.Tests.HandlerTests
                 new NrunProvider(
                     new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "chara2",

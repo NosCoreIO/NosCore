@@ -74,7 +74,7 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null, _logger));
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, null, null, null, null, _logger, null));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
             var contextBuilder =
@@ -85,7 +85,7 @@ namespace NosCore.Tests.HandlerTests
             _mapDao.InsertOrUpdate(ref map);
             var _acc = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             _accountDao.InsertOrUpdate(ref _acc);
-            _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,

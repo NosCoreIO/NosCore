@@ -131,7 +131,7 @@ namespace NosCore.Tests.HandlerTests
                     {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
                 };
 
-            var _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            var _chara = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -148,12 +148,12 @@ namespace NosCore.Tests.HandlerTests
             instanceAccessService.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(conf,
-                new List<PacketController> {new DefaultPacketController(conf, instanceAccessService, null, _logger) },
+                new List<PacketController> {new DefaultPacketController(conf, instanceAccessService, null, _logger, null) },
                 instanceAccessService, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
             _session.SessionId = 1;
-            _handler = new DefaultPacketController(conf, instanceAccessService, null, _logger);
+            _handler = new DefaultPacketController(conf, instanceAccessService, null, _logger, null);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             var mapinstance = instanceAccessService.GetBaseMapById(0);
@@ -185,7 +185,7 @@ namespace NosCore.Tests.HandlerTests
             var targetAccount = new AccountDto {Name = "test2", Password = "test".ToSha512()};
             _accountDao.InsertOrUpdate(ref targetAccount);
 
-            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestChar2",
@@ -202,9 +202,9 @@ namespace NosCore.Tests.HandlerTests
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _targetSession = new ClientSession(null,
-                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null, _logger) },
+                new List<PacketController> {new DefaultPacketController(null, instanceAccessService, null, _logger, null) },
                 instanceAccessService, null, _logger) {SessionId = 2};
-            var handler2 = new DefaultPacketController(null, instanceAccessService, null, _logger);
+            var handler2 = new DefaultPacketController(null, instanceAccessService, null, _logger, null);
             handler2.RegisterSession(_targetSession);
 
             _targetSession.InitializeAccount(targetAccount);
