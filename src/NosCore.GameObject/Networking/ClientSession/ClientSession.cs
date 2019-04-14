@@ -420,28 +420,30 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Disconnect();
                     }
 
-                    WaitForPacketList.Add(pack);
-
-                    if (WaitForPacketList.Count != _waitForPacketsAmount)
+                    if (_waitForPacketsAmount.HasValue)
                     {
-                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
-                        continue;
+                        WaitForPacketList.Add(pack);
+
+                        if (WaitForPacketList.Count != _waitForPacketsAmount)
+                        {
+                            LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                            continue;
+                        }
+
+                        packet = new EntryPointPacket
+                        {
+                            Header = "EntryPoint",
+                            Title = "EntryPoint",
+                            KeepAliveId = packet.KeepAliveId,
+                            Packet1Id = WaitForPacketList[0].KeepAliveId.ToString(),
+                            Name = WaitForPacketList[0].Header,
+                            Packet2Id = packet.KeepAliveId.ToString(),
+                            Password = packet.Header
+                        };
+
+                        _waitForPacketsAmount = null;
+                        WaitForPacketList.Clear();
                     }
-
-                    packet = new EntryPointPacket
-                    {
-                        Header = "EntryPoint",
-                        Title = "EntryPoint",
-                        KeepAliveId = packet.KeepAliveId,
-                        Packet1Id = WaitForPacketList[0].KeepAliveId.ToString(),
-                        Name = WaitForPacketList[0].Header,
-                        Packet2Id = packet.KeepAliveId.ToString(),
-                        Password = packet.Header
-                    };
-
-                    _waitForPacketsAmount = null;
-                    WaitForPacketList.Clear();
-
 
                     TriggerHandler(packet.Header.Replace("#", ""), packet);
                 }
