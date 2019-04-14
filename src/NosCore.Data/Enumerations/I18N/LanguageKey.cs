@@ -140,7 +140,8 @@ namespace NosCore.Data.Enumerations.I18N
         VISUALENTITY_DOES_NOT_EXIST,
         ALREADY_EXCHANGE,
         CANT_FIND_CHARACTER,
-        LOADING_MAPINSTANCES
+        LOADING_MAPINSTANCES,
+        ERROR_SESSIONID
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

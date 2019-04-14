@@ -121,8 +121,9 @@ namespace NosCore.Core.Encryption
             return _region.GetEncoding().GetString(receiveData.ToArray());
         }
 
-        public string DecryptCustomParameter(byte[] str)
+        public string DecryptCustomParameter(byte[] str, out byte[] endOfPacket)
         {
+            endOfPacket = new byte[0];
             try
             {
                 var encryptedStringBuilder = new StringBuilder();
@@ -130,6 +131,7 @@ namespace NosCore.Core.Encryption
                 {
                     if (Convert.ToChar(str[i]) == 0xE)
                     {
+                        endOfPacket = str.Skip(i+1).ToArray();
                         return encryptedStringBuilder.ToString();
                     }
 
@@ -193,6 +195,8 @@ namespace NosCore.Core.Encryption
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
+            var continueToDecode = true;
+            var temp = new List<IPacket>();
             var encryptedString = "";
             var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
             _region = mapper.RegionType;
@@ -200,61 +204,80 @@ namespace NosCore.Core.Encryption
             var str = ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
             if (_sessionId == 0)
             {
-                var packet = DecryptCustomParameter(str).Split(" ");
-                output.Add(new[] { new UnresolvedPacket() { Body = packet[1], KeepAliveId = ushort.Parse(packet[0]) } });
-                return;
+                var pack = _deserializer.Deserialize(DecryptCustomParameter(str, out var endofPacket)) as UnresolvedPacket;
+
+                if (!int.TryParse(pack.Header, out _sessionId))
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_SESSIONID));
+                    return;
+                }
+                SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = _sessionId;
+                temp.Add(pack);
+                if (endofPacket.Length == 0)
+                {
+                    continueToDecode = false;
+                }
+
+                str = endofPacket;
             }
 
-            var sessionKey = _sessionId & 0xFF;
-            var sessionNumber = unchecked((byte)(_sessionId >> 6));
-            sessionNumber &= 0xFF;
-            sessionNumber &= unchecked((byte)0x80000003);
-
-            switch (sessionNumber)
+            if (continueToDecode)
             {
-                case 0:
-                    encryptedString =
-                        (from character in str
-                         let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                         select unchecked((byte)(character - firstbyte))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
+                var sessionKey = _sessionId & 0xFF;
+                var sessionNumber = unchecked((byte)(_sessionId >> 6));
+                sessionNumber &= 0xFF;
+                sessionNumber &= unchecked((byte)0x80000003);
 
-                case 1:
-                    encryptedString =
-                        (from character in str
-                         let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                         select unchecked((byte)(character + firstbyte))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
+                switch (sessionNumber)
+                {
+                    case 0:
+                        encryptedString =
+                            (from character in str
+                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
+                             select unchecked((byte)(character - firstbyte))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char)highbyte);
+                        break;
 
-                case 2:
-                    encryptedString =
-                        (from character in str
-                         let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                         select unchecked((byte)((character - firstbyte) ^ 0xC3))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
+                    case 1:
+                        encryptedString =
+                            (from character in str
+                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
+                             select unchecked((byte)(character + firstbyte))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char)highbyte);
+                        break;
 
-                case 3:
-                    encryptedString =
-                        (from character in str
-                         let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                         select unchecked((byte)((character + firstbyte) ^ 0xC3))).Aggregate(encryptedString,
-                            (current, highbyte) => current + (char)highbyte);
-                    break;
+                    case 2:
+                        encryptedString =
+                            (from character in str
+                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
+                             select unchecked((byte)((character - firstbyte) ^ 0xC3))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char)highbyte);
+                        break;
 
-                default:
-                    encryptedString += (char)0xF;
-                    break;
+                    case 3:
+                        encryptedString =
+                            (from character in str
+                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
+                             select unchecked((byte)((character + firstbyte) ^ 0xC3))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char)highbyte);
+                        break;
+
+                    default:
+                        encryptedString += (char)0xF;
+                        break;
+                }
+                temp.AddRange(encryptedString.Split((char)0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p =>
+                {
+                    var packet = DecryptPrivate(p);
+                    var deserialized = _deserializer.Deserialize(packet);
+                    if (deserialized == null)
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), packet);
+                    }
+                    return deserialized;
+                }));
             }
-
-            var temp = encryptedString.Split((char)0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p => _deserializer.Deserialize(DecryptPrivate(p))).ToList();
-            foreach(var entries in temp.Where(t=>t == null))
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
-            }
-            if (temp != null && temp.Count > 0)
+            if (temp.Count > 0)
             {
                 output.Add(temp);
             }
