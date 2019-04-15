@@ -21,8 +21,8 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using System;
-using NosCore.Data.Enumerations;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.GameObject
 {

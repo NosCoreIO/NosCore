@@ -22,20 +22,21 @@ using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Specialists;
+using ChickenAPI.Packets.ClientPackets.Drops;
 
 namespace NosCore.Controllers
 {
@@ -49,7 +50,7 @@ namespace NosCore.Controllers
         public InventoryPacketController()
         {
         }
-       
+
         public InventoryPacketController(WorldConfiguration worldConfiguration, ILogger logger)
         {
             _logger = logger;
@@ -144,8 +145,7 @@ namespace NosCore.Controllers
         {
             UseItem(new UseItemPacket
             {
-                Slot = wearPacket.InventorySlot, OriginalContent = wearPacket.OriginalContent,
-                OriginalHeader = wearPacket.OriginalHeader, Type = wearPacket.Type
+                Slot = wearPacket.InventorySlot, Type = wearPacket.Type
             });
         }
 
@@ -273,12 +273,12 @@ namespace NosCore.Controllers
             var canpick = false;
             switch (getPacket.PickerType)
             {
-                case PickerType.Character:
+                case VisualType.Player:
                     canpick = Heuristic.Octile(Math.Abs(Session.Character.PositionX - mapItem.PositionX),
                         Math.Abs(Session.Character.PositionY - mapItem.PositionY)) < 8;
                     break;
 
-                case PickerType.Mate:
+                case VisualType.Npc:
                     return;
 
                 default:

@@ -17,13 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Help", Authority = AuthorityType.GameMaster)]
-    public class HelpPacket : PacketDefinition
+    [CommandPacketHeader("$Help", AuthorityType.GameMaster)]
+    public class HelpPacket : CommandPacket
     {
+        public override string Help()
+        {
+            return "$Help";
+        }
     }
 }

@@ -21,7 +21,6 @@ using System;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -33,12 +32,15 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.NRunProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
 using Shop = NosCore.GameObject.Shop;
 using ShopItem = NosCore.GameObject.ShopItem;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Shop;
 
 namespace NosCore.Controllers
 {
@@ -235,7 +237,7 @@ namespace NosCore.Controllers
 
                         if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
                         {
-                            Session.SendPacket(new ShopEndPacket {Type = ShopEndType.Closed});
+                            Session.SendPacket(new ShopEndPacket {Type = VisualType.Map});
                             Session.SendPacket(Session.Character.GenerateSay(
                                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     Session.Account.Language),
@@ -257,7 +259,7 @@ namespace NosCore.Controllers
 
                     if (Session.Character.Shop.ShopItems.Count == 0)
                     {
-                        Session.SendPacket(new ShopEndPacket {Type = ShopEndType.Closed});
+                        Session.SendPacket(new ShopEndPacket {Type = VisualType.Map });
                         Session.SendPacket(Session.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, Session.Account.Language),
                             SayColorType.Yellow));

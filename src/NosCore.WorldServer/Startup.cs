@@ -44,13 +44,11 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
-using NosCore.Core.Serializing;
 using NosCore.Database;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
@@ -72,6 +70,13 @@ using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using AutofacSerilogIntegration;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets;
+using NosCore.Data.CommandPackets;
 
 namespace NosCore.WorldServer
 {
@@ -170,7 +175,16 @@ namespace NosCore.WorldServer
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
-
+            var listofpacket = typeof(IPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+            listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
+            containerBuilder.Register(c => new Deserializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
+            containerBuilder.Register(c => new Serializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
@@ -181,7 +195,7 @@ namespace NosCore.WorldServer
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<string>>();
+            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
 
             //NosCore.WorldServer
@@ -243,7 +257,7 @@ namespace NosCore.WorldServer
         {
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
-            PacketFactory.Initialize<NoS0575Packet>();
+            //PacketFactory.Initialize<NoS0575Packet>();
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));

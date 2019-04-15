@@ -19,7 +19,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Account;
 using Serilog;
 

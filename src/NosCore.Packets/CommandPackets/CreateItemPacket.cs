@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$CreateItem", Authority = AuthorityType.GameMaster)]
-    public class CreateItemPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$CreateItem", AuthorityType.GameMaster)]
+    public class CreateItemPacket : CommandPacket
     {
         [PacketIndex(0)]
         public short VNum { get; set; }
@@ -34,7 +34,7 @@ namespace NosCore.Packets.CommandPackets
         [PacketIndex(2)]
         public byte? Upgrade { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$CreateItem ITEMVNUM DESIGN/RARE/AMOUNT/WINGS UPDATE";
         }

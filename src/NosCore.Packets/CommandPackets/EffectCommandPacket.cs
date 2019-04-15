@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Effect", Authority = AuthorityType.GameMaster)]
-    public class EffectCommandPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$Effect", AuthorityType.GameMaster)]
+    public class EffectCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         public int EffectId { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Effect EFFECTID";
         }

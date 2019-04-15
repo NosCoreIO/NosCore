@@ -22,15 +22,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using NosCore.Core;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Movement;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Shop;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Entities;
+using ChickenAPI.Packets.ServerPackets.Groups;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

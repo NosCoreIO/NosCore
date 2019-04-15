@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ServerPackets.Shop;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

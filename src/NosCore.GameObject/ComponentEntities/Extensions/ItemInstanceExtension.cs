@@ -19,9 +19,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

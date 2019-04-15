@@ -19,13 +19,13 @@
 
 using System;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             var maxGold = requestData.ClientSession.WorldConfiguration.MaxGoldAmount;
             if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
             {
-                if (requestData.Data.Item2.PickerType == PickerType.Mate)
+                if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));

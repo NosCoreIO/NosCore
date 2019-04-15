@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Data.Enumerations.Character;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.GameObject.Helper
 {

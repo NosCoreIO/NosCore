@@ -23,24 +23,19 @@ using NosCore.Configuration;
 using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Serializing;
+
 using NosCore.Database;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Database.DAL;
@@ -53,6 +48,13 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ClientPackets.Specialists;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -82,7 +84,6 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             SystemTime.Freeze();
-            PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
@@ -109,7 +110,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             _chara = new Character(new InventoryService(items, _session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, null, _logger), null, null, null, null, null, _logger)
+                new ExchangeProvider(null, null, _logger), null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -267,7 +268,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
@@ -283,7 +284,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.First().Value.Rare == 6);
         }
@@ -303,7 +304,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             var packet = (SayPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
@@ -327,7 +328,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
@@ -343,7 +344,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.Count == 0);
         }
@@ -360,7 +361,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             var packet = (MsgPacket) _session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
@@ -707,7 +708,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 PickerId = _chara.CharacterId,
                 VisualId = 100001,
-                PickerType = PickerType.Character
+                PickerType = VisualType.Player
             });
             Assert.IsTrue(_session.Character.Inventory.First().Value.Amount == 2);
         }

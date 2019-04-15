@@ -18,22 +18,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Gold", Authority = AuthorityType.GameMaster)]
-    public class SetGoldCommandPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$Gold", AuthorityType.GameMaster)]
+    public class SetGoldCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         [Range(1, 1000000000)]
         public long Gold { get; set; }
 
-        [PacketIndex(1, SerializeToEnd = true)]
+        [PacketIndex(1)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Gold QUANTITY NICKNAME";
         }

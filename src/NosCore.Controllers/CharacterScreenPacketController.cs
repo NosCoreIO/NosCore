@@ -32,16 +32,18 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.GameObject.Character;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Controllers
 {

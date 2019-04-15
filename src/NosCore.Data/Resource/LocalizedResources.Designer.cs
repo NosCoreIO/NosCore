@@ -493,7 +493,7 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Decoding error.
+        ///   Recherche une chaîne localisée semblable à Decoding error {0}.
         /// </summary>
         public static string ERROR_DECODING {
             get {

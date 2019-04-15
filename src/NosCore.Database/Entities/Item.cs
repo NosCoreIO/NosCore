@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.Items;
 
 namespace NosCore.Database.Entities

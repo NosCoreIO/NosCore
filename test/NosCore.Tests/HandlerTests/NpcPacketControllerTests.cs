@@ -31,7 +31,7 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
+
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
@@ -41,7 +41,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
 using Character = NosCore.GameObject.Character;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -49,8 +48,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
-using NosCore.Data.Enumerations.Map;
 using NosCore.Database.DAL;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.InventoryService;
@@ -59,8 +56,16 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.NRunProvider;
-using NosCore.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.ServerPackets.Shop;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -130,7 +135,6 @@ namespace NosCore.Tests.HandlerTests
         public void Setup()
         {
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
-            PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
@@ -149,7 +153,7 @@ namespace NosCore.Tests.HandlerTests
                 };
 
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+            var _chara = new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",
@@ -168,7 +172,7 @@ namespace NosCore.Tests.HandlerTests
             _instanceProvider.Initialize();
             var channelMock = new Mock<IChannel>();
             _session = new ClientSession(null,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger, null) },
                 _instanceProvider, null, _logger);
             _session.RegisterChannel(channelMock.Object);
             _session.InitializeAccount(account);
@@ -568,7 +572,7 @@ namespace NosCore.Tests.HandlerTests
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
             var session2 = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(null, _instanceProvider, null, _logger, null) },
                 _instanceProvider, null, _logger);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
@@ -580,7 +584,7 @@ namespace NosCore.Tests.HandlerTests
                 new NrunProvider(
                     new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(session2);
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "chara2",

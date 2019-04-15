@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Character;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.Family;
 
 namespace NosCore.Database.Entities

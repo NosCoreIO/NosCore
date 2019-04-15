@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Speed", Authority = AuthorityType.GameMaster)]
-    public class SpeedPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$Speed", AuthorityType.GameMaster)]
+    public class SpeedPacket : CommandPacket
     {
         [PacketIndex(0)]
         public byte Speed { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Speed value";
         }

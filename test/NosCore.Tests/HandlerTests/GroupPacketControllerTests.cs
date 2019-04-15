@@ -25,7 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
+
 using NosCore.Data;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
@@ -37,9 +37,11 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Groups;
+using ChickenAPI.Packets.ClientPackets.Groups;
+using ChickenAPI.Packets.ClientPackets.Drops;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -53,7 +55,6 @@ namespace NosCore.Tests.HandlerTests
         [TestInitialize]
         public void Setup()
         {
-            PacketFactory.Initialize<NoS0575Packet>();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
@@ -63,7 +64,7 @@ namespace NosCore.Tests.HandlerTests
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
-                var charaDto = new Character(null, null, null, null, null, null, null, _logger)
+                var charaDto = new Character(null, null, null, null, null, null, null, _logger, null)
                 {
                     CharacterId = i,
                     Name = $"TestExistingCharacter{i}",

@@ -22,19 +22,17 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.Controllers
 {

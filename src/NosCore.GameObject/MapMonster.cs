@@ -20,9 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using NosCore.Core.I18N;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;

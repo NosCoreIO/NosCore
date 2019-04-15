@@ -24,7 +24,6 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Database.DAL;
 using NosCore.Parser.Parsers;
 
 namespace NosCore.Parser

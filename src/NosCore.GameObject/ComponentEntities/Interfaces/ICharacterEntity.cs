@@ -21,13 +21,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DotNetty.Transport.Channels;
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -75,9 +75,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         RegionType AccountLanguage { get; }
 
-        void SendPacket(PacketDefinition packetDefinition);
+        void SendPacket(IPacket packetDefinition);
 
-        void SendPackets(IEnumerable<PacketDefinition> packetDefinitions);
+        void SendPackets(IEnumerable<IPacket> packetDefinitions);
 
         void LeaveGroup();
 

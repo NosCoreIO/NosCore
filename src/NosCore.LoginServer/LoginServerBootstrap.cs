@@ -33,15 +33,17 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets;
 using Serilog;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace NosCore.LoginServer
 {
@@ -66,16 +68,10 @@ namespace NosCore.LoginServer
             return loginConfiguration;
         }
 
-        private static void InitializePackets()
-        {
-            PacketFactory.Initialize<NoS0575Packet>();
-        }
-
         public static void Main()
         {
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
-            InitializePackets();
             var container = InitializeContainer();
             var loginServer = container.Resolve<LoginServer>();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
@@ -93,17 +89,25 @@ namespace NosCore.LoginServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterLogger();
+            containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<string>>();
+            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-
+            var listofpacket = typeof(IPacket).Assembly.GetTypes()
+                .Where(p =>p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+            containerBuilder.Register(c => new Deserializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
+            containerBuilder.Register(c => new Serializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
             return containerBuilder.Build();
         }
     }

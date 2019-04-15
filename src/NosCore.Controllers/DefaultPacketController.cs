@@ -26,12 +26,9 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -41,10 +38,20 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.GuriProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using NosCore.PathFinder;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Movement;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ClientPackets.Chat;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Relations;
+using ChickenAPI.Packets.ClientPackets.Battle;
+using ChickenAPI.Packets.Interfaces;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Controllers
 {
@@ -54,6 +61,7 @@ namespace NosCore.Controllers
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly ISerializer _packetSerializer;
 
         [UsedImplicitly]
         public DefaultPacketController()
@@ -62,12 +70,13 @@ namespace NosCore.Controllers
 
         public DefaultPacketController(WorldConfiguration worldConfiguration,
             IMapInstanceProvider mapInstanceProvider,
-            IGuriProvider guriProvider, ILogger logger)
+            IGuriProvider guriProvider, ILogger logger, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _mapInstanceProvider = mapInstanceProvider;
             _guriProvider = guriProvider;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public void GameStart(GameStartPacket _)
@@ -463,9 +472,9 @@ namespace NosCore.Controllers
 
                 WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                 {
-                    Packet = PacketFactory.Serialize(new[] {speakPacket}),
-                    ReceiverCharacter = new Data.WebApi.Character {Name = receiverName},
-                    SenderCharacter = new Data.WebApi.Character {Name = Session.Character.Name},
+                    Packet = _packetSerializer.Serialize(new[] { speakPacket }),
+                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new Data.WebApi.Character { Name = Session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.ChannelId);
@@ -537,11 +546,11 @@ namespace NosCore.Controllers
 
             WebApiAccess.Instance.BroadcastPacket(new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {Session.Character.GenerateTalk(message)}),
+                Packet = _packetSerializer.Serialize(new[] { Session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character
-                    {Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name},
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
                 SenderCharacter = new Data.WebApi.Character
-                    {Name = Session.Character.Name, Id = Session.Character.CharacterId},
+                { Name = Session.Character.Name, Id = Session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.ChannelId);
