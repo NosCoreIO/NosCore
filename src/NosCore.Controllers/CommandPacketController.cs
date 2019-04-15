@@ -38,13 +38,13 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.CommandPackets;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Controllers

@@ -1308,10 +1308,10 @@ namespace NosCore.GameObject
             {
                 Name = Account.Authority == AuthorityType.Moderator
                     ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
-                Unknown1 = string.Empty,
+                Unknown1 = null,
                 Unknown2 = -1,
                 FamilyId = -1,
-                FamilyName = string.Empty,
+                FamilyName = null,
                 CharacterId = CharacterId,
                 Authority = (byte) Account.Authority,
                 Gender = Gender,
