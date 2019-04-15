@@ -35,6 +35,7 @@ using NosCore.Core.Handling;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
@@ -44,7 +45,6 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.CommandPackets;
 using Serilog;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
