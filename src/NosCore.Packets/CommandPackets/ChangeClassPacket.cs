@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$ChangeClass", Authority = AuthorityType.GameMaster)]
-    public class ChangeClassPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$ChangeClass", AuthorityType.GameMaster)]
+    public class ChangeClassPacket : CommandPacket
     {
         [PacketIndex(0)]
         public CharacterClassType ClassType { get; set; }
 
-        [PacketIndex(1, SerializeToEnd = true, IsOptional = true)]
+        [PacketIndex(1, IsOptional = true)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$ChangeClass VALUE NAME";
         }

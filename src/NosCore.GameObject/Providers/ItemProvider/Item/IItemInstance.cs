@@ -20,7 +20,7 @@
 using System;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Packets.ClientPackets;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {

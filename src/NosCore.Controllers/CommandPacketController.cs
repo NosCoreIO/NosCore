@@ -26,11 +26,9 @@ using NosCore.Core;
 using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,10 +38,14 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.CommandPackets;
-using NosCore.Packets.ServerPackets;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Controllers
 {
@@ -51,19 +53,21 @@ namespace NosCore.Controllers
     public class CommandPacketController : PacketController
     {
         private readonly IItemProvider _itemProvider;
+        private readonly ISerializer _packetSerializer;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly WorldConfiguration _worldConfiguration;
 
         public CommandPacketController(WorldConfiguration worldConfiguration, List<ItemDto> items,
-            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger)
+            IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, ILogger logger, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _items = items;
             _itemProvider = itemProvider;
             _mapInstanceProvider = mapInstanceProvider;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         [UsedImplicitly]
@@ -334,7 +338,7 @@ namespace NosCore.Controllers
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {sayPacket}),
+                Packet = _packetSerializer.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Character
                 {
                     Name = Session.Character.Name,
@@ -345,11 +349,11 @@ namespace NosCore.Controllers
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = PacketFactory.Serialize(new[] {msgPacket}),
+                Packet = _packetSerializer.Serialize(new[] { msgPacket }),
                 ReceiverType = ReceiverType.All
             };
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]
@@ -637,7 +641,7 @@ namespace NosCore.Controllers
                 SayColorType.Purple));
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
-                    && t.GetCustomAttribute<PacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
+                    && t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= Session.Account.Authority)
                 .OrderBy(x => x.Name).ToList();
             foreach (var type in classes)
             {

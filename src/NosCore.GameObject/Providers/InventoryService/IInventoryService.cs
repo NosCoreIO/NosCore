@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using NosCore.Data.Enumerations.Items;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.InventoryService

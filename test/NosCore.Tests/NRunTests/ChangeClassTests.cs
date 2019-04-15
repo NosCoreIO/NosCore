@@ -30,13 +30,11 @@ using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
-using NosCore.Core.Serializing;
+
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
@@ -49,14 +47,18 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.Packets.ClientPackets;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.NRunProvider;
 using NosCore.GameObject.Providers.NRunProvider.Handlers;
-using NosCore.Packets.ServerPackets;
 using System.Threading.Tasks;
 using Serilog;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -88,7 +90,6 @@ namespace NosCore.Tests.NRunTests
         {
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, _shopDao, _shopItemDao, new List<NpcMonsterDto>(), _logger));
-            PacketFactory.Initialize<NoS0575Packet>();
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
@@ -127,13 +128,13 @@ namespace NosCore.Tests.NRunTests
             _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
             _session = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger) },
+                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger, null) },
                 instanceAccessService, null, _logger);
             _handler = new NpcPacketController(new WorldConfiguration(),
                 new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassHandler()}), _logger);
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), 
-                null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger)
+                null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
                 CharacterId = 1,
                 Name = "TestExistingCharacter",

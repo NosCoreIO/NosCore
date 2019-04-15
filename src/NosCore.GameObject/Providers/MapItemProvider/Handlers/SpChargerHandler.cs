@@ -24,13 +24,14 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
+
         public bool Condition(MapItem item) =>
             item.ItemInstance.Item.ItemType == ItemType.Map &&
             item.ItemInstance.Item.Effect == ItemEffectType.SpCharger;

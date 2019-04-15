@@ -27,11 +27,11 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Login;
+using ChickenAPI.Packets.ClientPackets.Login;
 
 namespace NosCore.Controllers
 {

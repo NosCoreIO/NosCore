@@ -20,27 +20,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using ChickenAPI.Packets;
+using ChickenAPI.Packets.Attributes;
+using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Handling;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.Packets.ServerPackets;
 using Serilog;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
@@ -84,11 +88,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 controller.RegisterSession(this);
                 foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>
-                    typeof(PacketDefinition).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
+                    typeof(IPacket).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
                 {
                     var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = (PacketHeaderAttribute)Array.Find(type?.GetCustomAttributes(true),
-                        ca => ca.GetType() == typeof(PacketHeaderAttribute));
+                    var packetheader = type.GetCustomAttribute<PacketHeaderAttribute>();
                     _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
                     _controllerMethods.Add(packetheader,
                         DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo));
@@ -102,7 +105,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public int LastKeepAliveIdentity { get; set; }
 
-        public IList<string> WaitForPacketList { get; } = new List<string>();
+        public IList<IPacket> WaitForPacketList { get; } = new List<IPacket>();
 
         public int LastPulse { get; set; }
 
@@ -143,7 +146,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {
-            if (!(message is string buff))
+            if (!(message is IEnumerable<IPacket> buff))
             {
                 return;
             }
@@ -327,7 +330,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        private void TriggerHandler(string packetHeader, string packet, bool force)
+        private void TriggerHandler(string packetHeader, IPacket packet)
         {
             var methodReference = _controllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
             if (methodReference.Value != null)
@@ -337,30 +340,19 @@ namespace NosCore.GameObject.Networking.ClientSession
                     return;
                 }
 
-                if (!force && methodReference.Key.Amount > 1 && !_waitForPacketsAmount.HasValue)
-                {
-                    // we need to wait for more
-                    _waitForPacketsAmount = methodReference.Key.Amount;
-                    WaitForPacketList.Add(packet != string.Empty ? packet : $"1 {packetHeader} ");
-                    return;
-                }
-
                 //check for the correct authority
-                if (IsAuthenticated && (byte)methodReference.Key.Authority > (byte)Account.Authority)
+                if (IsAuthenticated && methodReference.Key is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
                 {
                     return;
                 }
 
-                var deserializedPacket = PacketFactory.Deserialize(packet, _headerMethod[methodReference.Key].Item2,
-                    IsAuthenticated);
-                if (deserializedPacket != null)
+                if (packet != null)
                 {
-                    HandlePacket(deserializedPacket, methodReference);
+                    HandlePacket(packet, methodReference);
                 }
                 else
                 {
-                    _logger.Warning(string.Format(
-                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packetHeader, packet));
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
                 }
             }
             else
@@ -370,17 +362,19 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public void ReceivePacket(PacketDefinition deserializedPacket)
+        public void ReceivePacket(IPacket deserializedPacket)
         {
+            var header = deserializedPacket.GetType().GetCustomAttribute<PacketHeaderAttribute>()?.Identification;
+
             var methodReference =
-                _controllerMethods.FirstOrDefault(t => t.Key.Identification == deserializedPacket.OriginalHeader);
+                _controllerMethods.FirstOrDefault(t => t.Key.Identification == header);
             if (methodReference.Value != null && deserializedPacket != null)
             {
                 HandlePacket(deserializedPacket, methodReference);
             }
         }
 
-        private void HandlePacket(PacketDefinition deserializedPacket,
+        private void HandlePacket(IPacket deserializedPacket,
             KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
         {
             try
@@ -396,59 +390,15 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        private void HandlePackets(string packetConcatenated, IChannelHandlerContext contex)
+        private void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex)
         {
-            //determine first packet
-            if (_isWorldClient && SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId == 0)
+            foreach (var pack in packetConcatenated)
             {
-                var sessionParts = packetConcatenated.Split(' ');
-                if (sessionParts.Length == 0)
-                {
-                    return;
-                }
-
-                if (!int.TryParse(sessionParts[0], out var lastka))
-                {
-                    Disconnect();
-                }
-
-                LastKeepAliveIdentity = lastka;
-
-                // set the SessionId if Session Packet arrives
-                if (sessionParts.Length < 2)
-                {
-                    return;
-                }
-
-                if (!int.TryParse(sessionParts[1].Split('\\').FirstOrDefault(), out var sessid))
-                {
-                    return;
-                }
-
-                SessionId = sessid;
-                SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId = SessionId;
-
-                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
-
-                if (!_waitForPacketsAmount.HasValue)
-                {
-                    TriggerHandler("EntryPoint", string.Empty, false);
-                }
-
-                return;
-            }
-
-            foreach (var packet in packetConcatenated.Split(new[] { (char)0xFF }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var packetstring = packet.Replace('^', ' ');
-                var packetsplit = packetstring.Split(' ');
-
+                var packet = pack;
                 if (_isWorldClient)
                 {
-                    // keep alive
-                    var nextKeepAliveRaw = packetsplit[0];
-                    if (!int.TryParse(nextKeepAliveRaw, out var nextKeepaliveIdentity)
-                        && nextKeepaliveIdentity != LastKeepAliveIdentity + 1)
+
+                    if (LastKeepAliveIdentity != 0 && packet.KeepAliveId != LastKeepAliveIdentity + 1)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
                             ClientId);
@@ -456,68 +406,60 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    if (nextKeepaliveIdentity == 0)
+                    if (!_waitForPacketsAmount.HasValue && LastKeepAliveIdentity == 0)
                     {
-                        if (LastKeepAliveIdentity == ushort.MaxValue)
-                        {
-                            LastKeepAliveIdentity = nextKeepaliveIdentity;
-                        }
+                        SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
+                        _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
+                        _waitForPacketsAmount = 2;
+                        continue;
                     }
-                    else
+
+                    LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                    if (packet.KeepAliveId == null)
                     {
-                        LastKeepAliveIdentity = nextKeepaliveIdentity;
+                        Disconnect();
                     }
 
                     if (_waitForPacketsAmount.HasValue)
                     {
-                        WaitForPacketList.Add(packetstring);
-                        var packetssplit = packetstring.Split(' ');
-                        // TODO NEED TO BE REWRITED
-                        if (packetssplit.Length > 3 && packetsplit[1] == "DAC")
-                        {
-                            WaitForPacketList.Add("0 CrossServerAuthenticate");
-                        }
+                        WaitForPacketList.Add(pack);
 
                         if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
+                            LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
                             continue;
                         }
 
+                        packet = new EntryPointPacket
+                        {
+                            Header = "EntryPoint",
+                            Title = "EntryPoint",
+                            KeepAliveId = packet.KeepAliveId,
+                            Packet1Id = WaitForPacketList[0].KeepAliveId.ToString(),
+                            Name = WaitForPacketList[0].Header,
+                            Packet2Id = packet.KeepAliveId.ToString(),
+                            Password = packet.Header
+                        };
+
                         _waitForPacketsAmount = null;
-                        var queuedPackets = string.Join(" ", WaitForPacketList.ToArray());
-                        var header = queuedPackets.Split(' ', '^')[1];
-                        TriggerHandler(header, queuedPackets, true);
                         WaitForPacketList.Clear();
-                        return;
                     }
 
-                    if (packetsplit.Length <= 1)
+                    if (packet.Header != "0")
                     {
-                        continue;
-                    }
-
-                    if (packetsplit[1].Length >= 1
-                        && (packetsplit[1][0] == '/' || packetsplit[1][0] == ':' || packetsplit[1][0] == ';'))
-                    {
-                        packetsplit[1] = packetsplit[1][0].ToString();
-                        packetstring = packetstring.Insert(packetstring.IndexOf(' ') + 2, " ");
-                    }
-
-                    if (packetsplit[1] != "0")
-                    {
-                        TriggerHandler(packetsplit[1].Replace("#", ""), packetstring, false);
+                        TriggerHandler(packet.Header.Replace("#", ""), packet);
                     }
                 }
                 else
                 {
-                    var packetHeader = packetstring.Split(' ')[0];
+                    var packetHeader = packet.Header;
                     if (string.IsNullOrWhiteSpace(packetHeader))
                     {
                         Disconnect();
                         return;
                     }
 
-                    TriggerHandler(packetHeader.Replace("#", ""), packetstring, false);
+                    TriggerHandler(packetHeader, packet);
                 }
             }
         }

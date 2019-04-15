@@ -19,7 +19,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Character;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Database.Entities
 {

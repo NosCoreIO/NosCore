@@ -20,7 +20,6 @@
 using DotNetty.Transport.Channels;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Core.Serializing;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
@@ -31,8 +30,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Packets.ClientPackets;
-using NosCore.Packets.ServerPackets;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -44,11 +41,8 @@ using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -56,12 +50,28 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Specialists;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Shop;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.ClientPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Relations;
+using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
         private readonly ILogger _logger;
+        private readonly ISerializer _packetSerializer;
         private byte _speed;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -69,7 +79,7 @@ namespace NosCore.GameObject
         private readonly IGenericDao<AccountDto> _accountDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
-            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger)
+            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -85,6 +95,7 @@ namespace NosCore.GameObject
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
             _logger = logger;
+            _packetSerializer = packetSerializer;
         }
 
         public AccountDto Account { get; set; }
@@ -151,9 +162,9 @@ namespace NosCore.GameObject
 
         public IChannel Channel => Session?.Channel;
 
-        public void SendPacket(PacketDefinition packetDefinition) => Session.SendPacket(packetDefinition);
+        public void SendPacket(IPacket packetDefinition) => Session.SendPacket(packetDefinition);
 
-        public void SendPackets(IEnumerable<PacketDefinition> packetDefinitions) =>
+        public void SendPackets(IEnumerable<IPacket> packetDefinitions) =>
             Session.SendPackets(packetDefinitions);
 
         public MapInstance MapInstance { get; set; }
@@ -826,7 +837,7 @@ namespace NosCore.GameObject
             return 0;
         }
 
-        public PacketDefinition GenerateSpPoint()
+        public SpPacket GenerateSpPoint()
         {
             return new SpPacket
             {
@@ -862,7 +873,7 @@ namespace NosCore.GameObject
                 {
                     WebApiAccess.Instance.BroadcastPacket(new PostedPacket
                     {
-                        Packet = PacketFactory.Serialize(new[]
+                        Packet = _packetSerializer.Serialize(new[]
                         {
                             new FinfoPacket
                             {
@@ -877,7 +888,7 @@ namespace NosCore.GameObject
                             }
                         }),
                         ReceiverType = ReceiverType.OnlySomeone,
-                        SenderCharacter = new Data.WebApi.Character {Id = CharacterId, Name = Name},
+                        SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
                         ReceiverCharacter = new Data.WebApi.Character
                         {
                             Id = characterRelation.Value.RelatedCharacterId,
@@ -976,7 +987,7 @@ namespace NosCore.GameObject
 
         [Obsolete(
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
-        public IEnumerable<PacketDefinition> GenerateInv()
+        public IEnumerable<IPacket> GenerateInv()
         {
             var inv0 = new InvPacket {Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>()};
             var inv1 = new InvPacket {Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>()};
@@ -1081,7 +1092,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            return new List<PacketDefinition> {inv0, inv1, inv2, inv3, inv6, inv7};
+            return new List<IPacket> {inv0, inv1, inv2, inv3, inv6, inv7};
         }
 
         public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
@@ -1297,10 +1308,10 @@ namespace NosCore.GameObject
             {
                 Name = Account.Authority == AuthorityType.Moderator
                     ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
-                Unknown1 = string.Empty,
+                Unknown1 = null,
                 Unknown2 = -1,
                 FamilyId = -1,
-                FamilyName = string.Empty,
+                FamilyName = null,
                 CharacterId = CharacterId,
                 Authority = (byte) Account.Authority,
                 Gender = Gender,

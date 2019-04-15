@@ -23,7 +23,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
-using NosCore.Database.DAL;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

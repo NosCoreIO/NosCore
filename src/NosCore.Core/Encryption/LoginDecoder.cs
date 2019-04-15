@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -32,9 +33,11 @@ namespace NosCore.Core.Encryption
     public class LoginDecoder : MessageToMessageDecoder<IByteBuffer>
     {
         private readonly ILogger _logger;
-        public LoginDecoder(ILogger logger)
+        private readonly IDeserializer _deserializer;
+        public LoginDecoder(ILogger logger, IDeserializer deserializer)
         {
             _logger = logger;
+            _deserializer = deserializer;
         }
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
@@ -43,18 +46,24 @@ namespace NosCore.Core.Encryption
             {
                 var decryptedPacket = new StringBuilder();
 
-                foreach (var character in ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes)
-                )
+                foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes))
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
-
-                output.Add(decryptedPacket.ToString());
+                var des = _deserializer.Deserialize(decryptedPacket.ToString());
+                if (des != null)
+                {
+                    output.Add(new[] { des });
+                }
+                else
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING, decryptedPacket.ToString()));
+                }
             }
             catch
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), "");
             }
         }
     }

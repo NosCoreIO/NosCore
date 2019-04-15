@@ -259,7 +259,7 @@
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Decoding error</value>
+    <value>Decoding error {0}</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="EQ_NOT_EMPTY" xml:space="preserve">

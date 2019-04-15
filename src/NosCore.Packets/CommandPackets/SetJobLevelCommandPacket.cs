@@ -17,23 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$SetJobLevel", Authority = AuthorityType.GameMaster)]
-    public class SetJobLevelCommandPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$SetJobLevel", AuthorityType.GameMaster)]
+    public class SetJobLevelCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         [Range(1, byte.MaxValue)]
         public byte Level { get; set; }
 
-        [PacketIndex(1, SerializeToEnd = true)]
+        [PacketIndex(1)]
         public string Name { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$SetJobLevel Value [Name]";
         }

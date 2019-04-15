@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Packets.CommandPackets
 {
-    [PacketHeader("$Shout", Authority = AuthorityType.Moderator)]
-    public class ShoutPacket : PacketDefinition, ICommandPacket
+    [CommandPacketHeader("$Shout", AuthorityType.Moderator)]
+    public class ShoutPacket : CommandPacket
     {
-        [PacketIndex(0, SerializeToEnd = true)]
+        [PacketIndex(0)]
         public string Message { get; set; }
 
-        public string Help()
+        public override string Help()
         {
             return "$Shout MESSAGE";
         }

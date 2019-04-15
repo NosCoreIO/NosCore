@@ -17,9 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Packets.ServerPackets;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Visibility;
+using ChickenAPI.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

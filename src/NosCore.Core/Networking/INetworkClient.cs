@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using NosCore.Core.Serializing;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.Core.Networking
 {
@@ -28,8 +28,8 @@ namespace NosCore.Core.Networking
 
         void Disconnect();
 
-        void SendPacket(PacketDefinition packet);
+        void SendPacket(IPacket packet);
 
-        void SendPackets(IEnumerable<PacketDefinition> packets);
+        void SendPackets(IEnumerable<IPacket> packets);
     }
 }

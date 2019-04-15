@@ -19,24 +19,24 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core.Serializing;
 
 namespace NosCore.GameObject.Networking.Group
 {
     public static class IChannelGroupExtension
     {
-        public static void SendPacket(this IChannelGroup channelGroup, PacketDefinition packet)
+        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet)
             => channelGroup.SendPackets(new[] {packet});
 
-        public static void SendPacket(this IChannelGroup channelGroup, PacketDefinition packet, IChannelMatcher matcher)
+        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, IChannelMatcher matcher)
             => channelGroup.SendPackets(new[] {packet}, matcher);
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<PacketDefinition> packets,
+        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets,
             IChannelMatcher matcher)
         {
-            var packetDefinitions = packets as PacketDefinition[] ?? packets.ToArray();
+            var packetDefinitions = packets as IPacket[] ?? packets.ToArray();
             if (packetDefinitions.Length == 0)
             {
                 return;
@@ -44,16 +44,16 @@ namespace NosCore.GameObject.Networking.Group
 
             if (matcher == null)
             {
-                channelGroup?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions));
+                channelGroup?.WriteAndFlushAsync(packetDefinitions);
             }
             else
             {
-                channelGroup?.WriteAndFlushAsync(PacketFactory.Serialize(packetDefinitions), matcher);
+                channelGroup?.WriteAndFlushAsync(packetDefinitions, matcher);
             }
         }
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<PacketDefinition> packets) =>
+        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets) =>
             channelGroup.SendPackets(packets, null);
     }
 }
