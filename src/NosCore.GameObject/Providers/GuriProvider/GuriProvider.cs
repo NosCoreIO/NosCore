@@ -28,9 +28,9 @@ namespace NosCore.GameObject.Providers.GuriProvider
 {
     public class GuriProvider : IGuriProvider
     {
-        private readonly List<IHandler<GuriPacket, GuriPacket>> _handlers;
+        private readonly List<IEventHandler<GuriPacket, GuriPacket>> _handlers;
 
-        public GuriProvider(IEnumerable<IHandler<GuriPacket, GuriPacket>> handlers)
+        public GuriProvider(IEnumerable<IEventHandler<GuriPacket, GuriPacket>> handlers)
         {
             _handlers = handlers.ToList();
         }

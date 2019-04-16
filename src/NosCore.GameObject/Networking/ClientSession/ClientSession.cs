@@ -62,6 +62,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
+        private readonly IEnumerable<IPacketHandler> _packetsHandlers;
 
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
@@ -69,12 +70,13 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            ILogger logger) : this(configuration, packetControllers, null, null, logger) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : this(configuration, packetControllers, null, null, logger, packetsHandlers) { }
 
         public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger) : base(logger)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : base(logger)
         {
             _logger = logger;
+            _packetsHandlers = packetsHandlers;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -459,7 +461,16 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    TriggerHandler(packetHeader, packet);
+                    var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                    if (handler != null)
+                    {
+                        handler.Execute(packet, this);
+                    }
+                    else
+                    {
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                            packetHeader);
+                    }
                 }
             }
         }

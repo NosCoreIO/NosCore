@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -28,88 +27,85 @@ using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Networking;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.Interfaces;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.Controllers
 {
-    public class LoginPacketController : PacketController
+    public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
 
-        [UsedImplicitly]
-        public LoginPacketController()
-        {
-        }
-
-        public LoginPacketController(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao)
+        public NoS0575PacketHandler(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
         }
 
-        public void VerifyLogin(NoS0575Packet loginPacket)
+        public override void Execute(NoS0575Packet packet, ClientSession session)
         {
             try
             {
                 if (false) //TODO Maintenance
                 {
-                    Session.SendPacket(new FailcPacket
+                    session.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.Maintenance
                     });
-                    Session.Disconnect();
+                    session.Disconnect();
                     return;
                 }
 
-                if (_loginConfiguration.ClientData != null && loginPacket.ClientData != _loginConfiguration.ClientData)
+                if (_loginConfiguration.ClientData != null && packet.ClientData != _loginConfiguration.ClientData)
                 {
-                    Session.SendPacket(new FailcPacket
+                    session.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.OldClient
                     });
-                    Session.Disconnect();
+                    session.Disconnect();
                     return;
                 }
 
                 var acc = _accountDao.FirstOrDefault(s =>
-                    string.Equals(s.Name, loginPacket.Name, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(s.Name, packet.Name, StringComparison.OrdinalIgnoreCase));
 
-                if (acc != null && acc.Name != loginPacket.Name)
+                if (acc != null && acc.Name != packet.Name)
                 {
-                    Session.SendPacket(new FailcPacket
+                    session.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.WrongCaps
                     });
-                    Session.Disconnect();
+                    session.Disconnect();
                     return;
                 }
 
                 if (acc == null
-                    || !string.Equals(acc.Password, loginPacket.Password, StringComparison.OrdinalIgnoreCase))
+                    || !string.Equals(acc.Password, packet.Password, StringComparison.OrdinalIgnoreCase))
                 {
-                    Session.SendPacket(new FailcPacket
+                    session.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
                     });
-                    Session.Disconnect();
+                    session.Disconnect();
                     return;
                 }
 
                 switch (acc.Authority)
                 {
                     case AuthorityType.Banned:
-                        Session.SendPacket(new FailcPacket
+                        session.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.Banned
                         });
                         break;
                     case AuthorityType.Closed:
                     case AuthorityType.Unconfirmed:
-                        Session.SendPacket(new FailcPacket
+                        session.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.CantConnect
                         });
@@ -135,11 +131,11 @@ namespace NosCore.Controllers
 
                         if (alreadyConnnected)
                         {
-                            Session.SendPacket(new FailcPacket
+                            session.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.AlreadyConnected
                             });
-                            Session.Disconnect();
+                            session.Disconnect();
                             return;
                         }
 
@@ -147,11 +143,11 @@ namespace NosCore.Controllers
                         _accountDao.InsertOrUpdate(ref acc);
                         if (servers.Count <= 0)
                         {
-                            Session.SendPacket(new FailcPacket
+                            session.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.CantConnect
                             });
-                            Session.Disconnect();
+                            session.Disconnect();
                             return;
                         }
 
@@ -169,7 +165,7 @@ namespace NosCore.Controllers
                             }
 
                             var channelcolor =
-                                (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {
@@ -193,24 +189,24 @@ namespace NosCore.Controllers
                             WorldId = 10000,
                             Name = "1"
                         }); //useless server to end the client reception
-                        Session.SendPacket(new NsTestPacket
+                        session.SendPacket(new NsTestPacket
                         {
-                            AccountName = loginPacket.Name,
+                            AccountName = packet.Name,
                             SubPacket = subpacket,
                             SessionId = newSessionId
                         });
                         return;
                 }
 
-                Session.Disconnect();
+                session.Disconnect();
             }
             catch
             {
-                Session.SendPacket(new FailcPacket
+                session.SendPacket(new FailcPacket
                 {
                     Type = LoginFailType.UnhandledError
                 });
-                Session.Disconnect();
+                session.Disconnect();
             }
         }
     }

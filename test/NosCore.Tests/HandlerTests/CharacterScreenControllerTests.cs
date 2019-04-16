@@ -146,7 +146,7 @@ namespace NosCore.Tests.HandlerTests
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, _logger);
             const string name = "TestCharacter";
             _handler.CreateCharacter(new CharNewPacket
@@ -244,7 +244,7 @@ namespace NosCore.Tests.HandlerTests
             _session.SetCharacter(_chara);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                    new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, _logger);
             const string name = "TestExistingCharacter";
             _handler.DeleteCharacter(new CharacterDeletePacket

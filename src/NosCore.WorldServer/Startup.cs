@@ -192,6 +192,15 @@ namespace NosCore.WorldServer
 
             //NosCore.Controllers
             containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
+            foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
+            {
+                if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type))
+                {
+                    containerBuilder.RegisterType(type)
+                        .AsImplementedInterfaces()
+                        .PropertiesAutowired();
+                }
+            }
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
@@ -222,31 +231,32 @@ namespace NosCore.WorldServer
                 .AsSelf()
                 .PropertiesAutowired();
 
+
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
-                .Where(t => typeof(IHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
+            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
+                .Where(t => typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
-                .Where(t => typeof(IHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder
                 .RegisterAssemblyTypes(
-                    typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
-                .Where(t => typeof(IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
+                    typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
+                .Where(t => typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
                     .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IHandler<GuriPacket, GuriPacket>).Assembly)
-                .Where(t => typeof(IHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }

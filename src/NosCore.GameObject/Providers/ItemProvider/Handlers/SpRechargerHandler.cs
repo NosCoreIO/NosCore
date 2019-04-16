@@ -31,11 +31,11 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class SpRechargerHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class SpRechargerEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly WorldConfiguration _worldConfiguration;
 
-        public SpRechargerHandler(WorldConfiguration worldConfiguration)
+        public SpRechargerEventHandler(WorldConfiguration worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
