@@ -62,7 +62,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Main, VNum = 1013},
             };
 
-            _itemProvider = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, _logger);
         }
 

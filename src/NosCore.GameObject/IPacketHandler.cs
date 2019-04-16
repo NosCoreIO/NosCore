@@ -17,28 +17,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using ChickenAPI.Packets.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ClientPackets.Shops;
 
-namespace NosCore.GameObject.Providers.NRunProvider.Handlers
+namespace NosCore.GameObject
 {
-    public class OpenShopEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public interface IPacketHandler
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop;
+        void Execute(IPacket packet, ClientSession session);
+    }
 
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+    public interface ILoginPacketHandler
+    {
+    }
+    public interface IWorldPacketHandler
+    {
+    }
+
+    public interface IPacketHandler<Packet> : IPacketHandler where Packet : IPacket
+    {
+        void Execute(Packet packet, ClientSession session);
+    }
+    public abstract class PacketHandler<Packet> : IPacketHandler<Packet> where Packet : IPacket
+    {
+        public abstract void Execute(Packet packet, ClientSession session);
+
+        public void Execute(IPacket packet, ClientSession session)
         {
-            requestData.ClientSession.ReceivePacket(new ShoppingPacket
-            {
-                VisualType = requestData.Data.Item2.VisualType,
-                VisualId = requestData.Data.Item2.VisualId,
-                ShopType = requestData.Data.Item2.Type,
-                Unknown = 0
-            });
+            Execute((Packet)packet, session);
         }
     }
 }

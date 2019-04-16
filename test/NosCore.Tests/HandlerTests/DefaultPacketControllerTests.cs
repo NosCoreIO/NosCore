@@ -142,7 +142,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> {_map, _map2},
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
@@ -198,7 +198,7 @@ namespace NosCore.Tests.HandlerTests
             CharacterDto character = _targetChar;
             _characterDao.InsertOrUpdate(ref character);
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map, _map2},
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _targetSession = new ClientSession(null,

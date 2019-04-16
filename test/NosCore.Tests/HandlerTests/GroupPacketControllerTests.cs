@@ -86,7 +86,7 @@ namespace NosCore.Tests.HandlerTests
                 session.SetCharacter(chara);
                 session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true,
                     MapInstanceType.BaseMapInstance,
-                     new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, _logger);
             }
         }

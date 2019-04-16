@@ -29,7 +29,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
-    public class ChangeClassHandler : IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public class ChangeClassEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) =>
             item.Item2.Runner == NrunRunnerType.ChangeClass &&

@@ -33,10 +33,10 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class WearHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class WearEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        public WearHandler(ILogger logger)
+        public WearEventHandler(ILogger logger)
         {
             _logger = logger;
         }
