@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -24,9 +25,8 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using ChickenAPI.Packets.ClientPackets.Inventory;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.Inventory
 {
     public class MvePacketHandler : PacketHandler<MvePacket>, IWorldPacketHandler
     {

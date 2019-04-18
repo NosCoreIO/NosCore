@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;

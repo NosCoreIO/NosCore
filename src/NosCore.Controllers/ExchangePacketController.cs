@@ -19,6 +19,10 @@
 
 using System;
 using System.Collections.Generic;
+using ChickenAPI.Packets.ClientPackets.Exchanges;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.UI;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -29,12 +33,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.UI;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers
 {
     public class ExchangePacketController : PacketController
     {

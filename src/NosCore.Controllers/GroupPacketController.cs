@@ -19,6 +19,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Chat;
+using ChickenAPI.Packets.ClientPackets.Groups;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Groups;
+using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
@@ -27,14 +33,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Groups;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ClientPackets.Groups;
-using ChickenAPI.Packets.ClientPackets.Chat;
-using ChickenAPI.Packets.ServerPackets.Chats;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers
 {
     public class GroupPacketController : PacketController
     {

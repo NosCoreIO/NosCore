@@ -20,27 +20,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
-using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {

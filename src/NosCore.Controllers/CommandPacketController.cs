@@ -20,6 +20,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.UI;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -27,8 +31,10 @@ using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,14 +46,8 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Data.CommandPackets;
-using NosCore.Data.Enumerations.Interaction;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers
 {
     [UsedImplicitly]
     public class CommandPacketController : PacketController

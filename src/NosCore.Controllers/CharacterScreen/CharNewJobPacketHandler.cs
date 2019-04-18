@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Core;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
