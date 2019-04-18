@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharacterDeletePacketHandler : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
     {

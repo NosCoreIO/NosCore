@@ -20,6 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Login;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Login;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -27,13 +30,10 @@ using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
-using ChickenAPI.Packets.ClientPackets.Login;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.Login
 {
     public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {

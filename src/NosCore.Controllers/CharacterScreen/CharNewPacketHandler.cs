@@ -18,17 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Text.RegularExpressions;
-using NosCore.Core;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewPacketHandler : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {

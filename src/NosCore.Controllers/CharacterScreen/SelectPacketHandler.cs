@@ -32,7 +32,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
     {

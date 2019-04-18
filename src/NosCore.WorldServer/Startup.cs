@@ -41,7 +41,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
 using NosCore.Database;
@@ -77,6 +76,8 @@ using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
 using NosCore.Data.CommandPackets;
+using NosCore.PacketHandlers;
+using NosCore.PacketHandlers.Login;
 
 namespace NosCore.WorldServer
 {

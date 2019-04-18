@@ -20,7 +20,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 
@@ -55,6 +54,7 @@ using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ClientPackets.Specialists;
+using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.HandlerTests
 {

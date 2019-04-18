@@ -25,7 +25,6 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
@@ -55,6 +54,7 @@ using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.HandlerTests
 {

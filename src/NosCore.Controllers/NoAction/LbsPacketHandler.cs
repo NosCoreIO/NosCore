@@ -21,7 +21,7 @@ using ChickenAPI.Packets.ClientPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.NoAction
 {
     public class LbsPacketHandler : PacketHandler<LbsPacket>, IWorldPacketHandler
     {

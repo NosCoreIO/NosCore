@@ -28,7 +28,6 @@ using FastExpressionCompiler;
 using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Handling;
@@ -46,6 +45,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Input;
 using NosCore.GameObject;
+using NosCore.PacketHandlers;
+using NosCore.PacketHandlers.Login;
 
 namespace NosCore.LoginServer
 {

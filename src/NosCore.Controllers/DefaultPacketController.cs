@@ -21,6 +21,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ChickenAPI.Packets.ClientPackets.Battle;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ClientPackets.Chat;
+using ChickenAPI.Packets.ClientPackets.Movement;
+using ChickenAPI.Packets.ClientPackets.Relations;
+using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.UI;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -29,6 +40,7 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,20 +52,8 @@ using NosCore.GameObject.Providers.GuriProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.PathFinder;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ClientPackets.Movement;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ClientPackets.Chat;
-using ChickenAPI.Packets.ClientPackets.UI;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.ClientPackets.Battle;
-using ChickenAPI.Packets.Interfaces;
-using NosCore.Data.Enumerations.Interaction;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers
 {
     public class DefaultPacketController : PacketController
     {

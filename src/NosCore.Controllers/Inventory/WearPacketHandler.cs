@@ -17,16 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Player;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.PacketHandlers.NoAction
+namespace NosCore.PacketHandlers.Inventory
 {
-    public class SnapPacketHandler : PacketHandler<SnapPacket>, IWorldPacketHandler
+    public class WearPacketHandler : PacketHandler<WearPacket>, IWorldPacketHandler
     {
-        public override void Execute(SnapPacket packet, ClientSession session)
+        public override void Execute(WearPacket wearPacket, ClientSession session)
         {
+            UseItem(new UseItemPacket
+            {
+                Slot = wearPacket.InventorySlot,
+                Type = wearPacket.Type
+            });
         }
     }
 }

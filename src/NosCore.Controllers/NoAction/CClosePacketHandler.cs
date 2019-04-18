@@ -21,7 +21,7 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers.NoAction
 {
     public class CClosePackettHandler : PacketHandler<CClosePacket>, IWorldPacketHandler
     {

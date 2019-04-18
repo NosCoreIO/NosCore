@@ -18,6 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Shop;
+using ChickenAPI.Packets.ServerPackets.UI;
 using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -36,13 +41,8 @@ using NosCore.PathFinder;
 using Serilog;
 using Shop = NosCore.GameObject.Shop;
 using ShopItem = NosCore.GameObject.ShopItem;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Shop;
 
-namespace NosCore.Controllers
+namespace NosCore.PacketHandlers
 {
     public class NpcPacketController : PacketController
     {
