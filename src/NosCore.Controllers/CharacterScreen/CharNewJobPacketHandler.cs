@@ -17,37 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Data.WebApi;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
-using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
-using Mapster;
-using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.Clientsession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using Serilog;
-using Character = NosCore.GameObject.Character;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.Controllers

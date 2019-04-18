@@ -20,17 +20,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
 using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core.Encryption;
@@ -40,9 +36,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 

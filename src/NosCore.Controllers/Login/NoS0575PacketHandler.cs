@@ -30,7 +30,6 @@ using NosCore.Data.WebApi;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Interfaces;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 

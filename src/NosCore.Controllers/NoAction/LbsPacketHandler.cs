@@ -17,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
-using NosCore.GameObject.Networking;
 using ChickenAPI.Packets.ClientPackets;
-using ChickenAPI.Packets.ClientPackets.Player;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.ClientPackets.Families;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
