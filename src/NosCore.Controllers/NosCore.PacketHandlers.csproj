@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -23,6 +23,10 @@
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
     <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Command\" />
   </ItemGroup>
 
 </Project>

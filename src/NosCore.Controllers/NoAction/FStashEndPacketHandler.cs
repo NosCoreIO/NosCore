@@ -23,29 +23,16 @@ using ChickenAPI.Packets.ClientPackets;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Families;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.Controllers
 {
-    public class UselessPacketController : PacketController
+    public class FStashEndPackettHandler : PacketHandler<FStashEndPacket>, IWorldPacketHandler
     {
-        public void CClose([UsedImplicitly] CClosePacket cClosePacket)
+        public override void Execute(FStashEndPacket packet, ClientSession session)
         {
-            // idk
-        }
-
-        public void FStashEnd([UsedImplicitly] FStashEndPacket fStashEndPacket)
-        {
-            // idk
-        }
-
-        public void Lbs(LbsPacket lbsPacket)
-        {
-            // idk
-        }
-
-        public void Snap(SnapPacket snapPacket)
-        {
-            // pictures
         }
     }
+
 }
