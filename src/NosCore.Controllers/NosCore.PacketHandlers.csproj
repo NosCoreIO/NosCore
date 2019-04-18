@@ -25,9 +25,4 @@
     <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Command\" />
-    <Folder Include="Shops\" />
-  </ItemGroup>
-
 </Project>

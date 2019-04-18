@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class LbsPacketHandler : PacketHandler<LbsPacket>, IWorldPacketHandler
     {
-        public override void Execute(LbsPacket packet, ClientSession session)
+        public override void Execute(LbsPacket packet, ClientSession clientSession)
         {
         }
     }

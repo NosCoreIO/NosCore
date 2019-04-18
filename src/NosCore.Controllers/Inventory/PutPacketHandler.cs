@@ -23,60 +23,60 @@ namespace NosCore.PacketHandlers.Inventory
             _worldConfiguration = worldConfiguration;
         }
 
-        public override void Execute(PutPacket putPacket, ClientSession session)
+        public override void Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
-                    session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
-            if ((invitem?.Item.IsDroppable ?? false) && !session.Character.InExchangeOrShop)
+                    clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
+            if ((invitem?.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
             {
                 if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                 {
-                    if (session.Character.MapInstance.MapItems.Count < 200)
+                    if (clientSession.Character.MapInstance.MapItems.Count < 200)
                     {
                         var droppedItem =
-                            session.Character.MapInstance.PutItem(putPacket.Amount, invitem, session);
+                            clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem, clientSession);
                         if (droppedItem == null)
                         {
-                            session.SendPacket(new MsgPacket
+                            clientSession.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                                    session.Account.Language),
+                                    clientSession.Account.Language),
                                 Type = 0
                             });
                             return;
                         }
 
-                        invitem = session.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot,
+                        invitem = clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot,
                             putPacket.PocketType);
-                        session.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                        session.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
+                        clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
+                        clientSession.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                     }
                     else
                     {
-                        session.SendPacket(new MsgPacket
+                        clientSession.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
-                                session.Account.Language),
+                                clientSession.Account.Language),
                             Type = 0
                         });
                     }
                 }
                 else
                 {
-                    session.SendPacket(new MsgPacket
+                    clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
-                            session.Account.Language),
+                            clientSession.Account.Language),
                         Type = 0
                     });
                 }
             }
             else
             {
-                session.SendPacket(new MsgPacket
+                clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
-                        session.Account.Language),
+                        clientSession.Account.Language),
                     Type = 0
                 });
             }

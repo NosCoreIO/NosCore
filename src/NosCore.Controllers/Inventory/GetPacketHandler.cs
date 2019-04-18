@@ -41,21 +41,21 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(GetPacket getPacket, ClientSession session)
+        public override void Execute(GetPacket getPacket, ClientSession clientSession)
         {
-            if (!session.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
+            if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
                 return;
             }
 
-            var mapItem = session.Character.MapInstance.MapItems[getPacket.VisualId];
+            var mapItem = clientSession.Character.MapInstance.MapItems[getPacket.VisualId];
 
             var canpick = false;
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = Heuristic.Octile(Math.Abs(session.Character.PositionX - mapItem.PositionX),
-                        Math.Abs(session.Character.PositionY - mapItem.PositionY)) < 8;
+                    canpick = Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - mapItem.PositionX),
+                        Math.Abs(clientSession.Character.PositionY - mapItem.PositionY)) < 8;
                     break;
 
                 case VisualType.Npc:
@@ -73,15 +73,15 @@ namespace NosCore.PacketHandlers.Inventory
 
             //TODO add group drops
             if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() &&
-                mapItem.OwnerId != session.Character.CharacterId)
+                mapItem.OwnerId != clientSession.Character.CharacterId)
             {
-                session.SendPacket(session.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, session.Account.Language),
+                clientSession.SendPacket(clientSession.Character.GenerateSay(
+                    Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
                     SayColorType.Yellow));
                 return;
             }
 
-            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(session,
+            mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
         }
     }

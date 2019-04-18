@@ -35,11 +35,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _characterDao = characterDao;
         }
 
-        public override void Execute(CharNewJobPacket packet, ClientSession session)
+        public override void Execute(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
             if (_characterDao.FirstOrDefault(s =>
-                s.Level >= 80 && s.AccountId == session.Account.AccountId && s.State == CharacterState.Active) == null)
+                s.Level >= 80 && s.AccountId == clientSession.Account.AccountId && s.State == CharacterState.Active) == null)
             {
                 //Needs at least a level 80 to create a martial artist
                 //TODO log
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             if (_characterDao.FirstOrDefault(s =>
-                s.AccountId == session.Account.AccountId &&
+                s.AccountId == clientSession.Account.AccountId &&
                 s.Class == CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
             {
                 //If already a martial artist, can't create another

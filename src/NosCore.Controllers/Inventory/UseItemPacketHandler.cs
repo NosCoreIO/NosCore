@@ -27,16 +27,16 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class UseItemPacketHandler : PacketHandler<UseItemPacket>, IWorldPacketHandler
     {
-        public override void Execute(UseItemPacket useItemPacket, ClientSession session)
+        public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             IItemInstance inv =
-                session.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
+                clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
             if (inv?.Requests == null)
             {
                 return;
             }
 
-            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(session,
+            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(clientSession,
                 new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
         }
     }

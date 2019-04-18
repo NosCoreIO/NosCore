@@ -40,45 +40,45 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(RemovePacket removePacket, ClientSession session)
+        public override void Execute(RemovePacket removePacket, ClientSession clientSession)
         {
-            if (session.Character.InExchangeOrShop)
+            if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
             IItemInstance inventory =
-                session.Character.Inventory.LoadBySlotAndType<IItemInstance>((short)removePacket.InventorySlot,
+                clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>((short)removePacket.InventorySlot,
                     PocketType.Wear);
             if (inventory == null)
             {
                 return;
             }
 
-            IItemInstance inv = session.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot,
+            IItemInstance inv = clientSession.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot,
                 PocketType.Wear, PocketType.Equipment);
 
             if (inv == null)
             {
-                session.SendPacket(new MsgPacket
+                clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                        session.Account.Language),
+                        clientSession.Account.Language),
                     Type = 0
                 });
                 return;
             }
 
-            session.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+            clientSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
 
-            session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateEq());
-            session.SendPacket(session.Character.GenerateEquipment());
+            clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateEq());
+            clientSession.SendPacket(clientSession.Character.GenerateEquipment());
 
             if (inv.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                session.Character.MapInstance.Sessions.SendPacket(
-                    session.Character.GeneratePairy((WearableInstance)null));
+                clientSession.Character.MapInstance.Sessions.SendPacket(
+                    clientSession.Character.GeneratePairy((WearableInstance)null));
             }
         }
     }

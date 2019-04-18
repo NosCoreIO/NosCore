@@ -24,7 +24,7 @@ namespace NosCore.GameObject
 {
     public interface IPacketHandler
     {
-        void Execute(IPacket packet, ClientSession session);
+        void Execute(IPacket packet, ClientSession clientSession);
     }
 
     public interface ILoginPacketHandler
@@ -36,15 +36,15 @@ namespace NosCore.GameObject
 
     public interface IPacketHandler<Packet> : IPacketHandler where Packet : IPacket
     {
-        void Execute(Packet packet, ClientSession session);
+        void Execute(Packet packet, ClientSession clientSession);
     }
     public abstract class PacketHandler<Packet> : IPacketHandler<Packet> where Packet : IPacket
     {
-        public abstract void Execute(Packet packet, ClientSession session);
+        public abstract void Execute(Packet packet, ClientSession clientSession);
 
-        public void Execute(IPacket packet, ClientSession session)
+        public void Execute(IPacket packet, ClientSession clientSession)
         {
-            Execute((Packet)packet, session);
+            Execute((Packet)packet, clientSession);
         }
     }
 }

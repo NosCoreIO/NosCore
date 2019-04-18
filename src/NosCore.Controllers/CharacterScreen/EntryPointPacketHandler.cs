@@ -59,9 +59,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _logger = logger;
         }
 
-        public override void Execute(EntryPointPacket packet, ClientSession session)
+        public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
-            if (session.Account == null)
+            if (clientSession.Account == null)
             {
                 var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.Where(c => c.Type == ServerType.WorldServer).ToList();
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (alreadyConnnected)
                 {
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
 
@@ -99,33 +99,33 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             Authority = account.Authority,
                             Language = account.Language
                         };
-                        SessionFactory.Instance.Sessions.FirstOrDefault(s => s.Value.SessionId == session.SessionId)
+                        SessionFactory.Instance.Sessions.FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
                             .Value.RegionType = account.Language;
-                        session.InitializeAccount(accountobject);
+                        clientSession.InitializeAccount(accountobject);
                         //Send Account Connected
                     }
                     else
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
-                        session.Disconnect();
+                        clientSession.Disconnect();
                         return;
                     }
                 }
                 else
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
             }
 
             var characters = _characterDao.Where(s =>
-                s.AccountId == session.Account.AccountId && s.State == CharacterState.Active);
+                s.AccountId == clientSession.Account.AccountId && s.State == CharacterState.Active);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                session.Account.Name);
+                clientSession.Account.Name);
 
             // load characterlist packet for each character in Character
-            session.SendPacket(new ClistStartPacket { Type = 0 });
+            clientSession.SendPacket(new ClistStartPacket { Type = 0 });
             foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
@@ -157,7 +157,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 // 1 1 before long string of -1.-1 = act completion
-                session.SendPacket(new ClistPacket
+                clientSession.SendPacket(new ClistPacket
                 {
                     Slot = character.Slot,
                     Name = character.Name,
@@ -191,7 +191,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 });
             }
 
-            session.SendPacket(new ClistEndPacket());
+            clientSession.SendPacket(new ClistEndPacket());
         }
     }
 }

@@ -53,18 +53,18 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _itemInstanceDao = itemInstanceDao;
         }
      
-        public override void Execute(SelectPacket packet, ClientSession Session)
+        public override void Execute(SelectPacket packet, ClientSession clientSession)
         {
             try
             {
-                if (Session?.Account == null || Session.HasSelectedCharacter)
+                if (clientSession?.Account == null || clientSession.HasSelectedCharacter)
                 {
                     return;
                 }
 
                 var characterDto =
                     _characterDao.FirstOrDefault(s =>
-                        s.AccountId == Session.Account.AccountId && s.Slot == packet.Slot
+                        s.AccountId == clientSession.Account.AccountId && s.Slot == packet.Slot
                         && s.State == CharacterState.Active);
                 if (characterDto == null)
                 {
@@ -78,26 +78,26 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Account = Session.Account;
+                character.Account = clientSession.Account;
                 character.Group.JoinGroup(character);
-                Session.SetCharacter(character);
+                clientSession.SetCharacter(character);
 
                 var inventories = _itemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
 #pragma warning disable CS0618
-                Session.SendPackets(Session.Character.GenerateInv());
+                clientSession.SendPackets(clientSession.Character.GenerateInv());
 #pragma warning restore CS0618
 
-                if (Session.Character.Hp > Session.Character.HpLoad())
+                if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
-                    Session.Character.Hp = (int)Session.Character.HpLoad();
+                    clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
                 }
 
-                if (Session.Character.Mp > Session.Character.MpLoad())
+                if (clientSession.Character.Mp > clientSession.Character.MpLoad())
                 {
-                    Session.Character.Mp = (int)Session.Character.MpLoad();
+                    clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
                 //var relations =
@@ -123,7 +123,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 //    Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;
                 //}
 
-                Session.SendPacket(new OkPacket());
+                clientSession.SendPacket(new OkPacket());
             }
             catch (Exception ex)
             {

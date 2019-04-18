@@ -37,18 +37,18 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
      
-        public override void Execute(MvePacket mvePacket, ClientSession session)
+        public override void Execute(MvePacket mvePacket, ClientSession clientSession)
         {
-            if (session.Character.InExchangeOrShop)
+            if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
-            var inv = session.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
+            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            session.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            session.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
+            clientSession.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
     }
 }
