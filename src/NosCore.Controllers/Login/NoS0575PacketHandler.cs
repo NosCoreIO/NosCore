@@ -46,27 +46,27 @@ namespace NosCore.PacketHandlers.Login
             _accountDao = accountDao;
         }
 
-        public override void Execute(NoS0575Packet packet, ClientSession session)
+        public override void Execute(NoS0575Packet packet, ClientSession clientSession)
         {
             try
             {
                 if (false) //TODO Maintenance
                 {
-                    session.SendPacket(new FailcPacket
+                    clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.Maintenance
                     });
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
 
                 if (_loginConfiguration.ClientData != null && packet.ClientData != _loginConfiguration.ClientData)
                 {
-                    session.SendPacket(new FailcPacket
+                    clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.OldClient
                     });
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
 
@@ -75,36 +75,36 @@ namespace NosCore.PacketHandlers.Login
 
                 if (acc != null && acc.Name != packet.Name)
                 {
-                    session.SendPacket(new FailcPacket
+                    clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.WrongCaps
                     });
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
 
                 if (acc == null
                     || !string.Equals(acc.Password, packet.Password, StringComparison.OrdinalIgnoreCase))
                 {
-                    session.SendPacket(new FailcPacket
+                    clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
                     });
-                    session.Disconnect();
+                    clientSession.Disconnect();
                     return;
                 }
 
                 switch (acc.Authority)
                 {
                     case AuthorityType.Banned:
-                        session.SendPacket(new FailcPacket
+                        clientSession.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.Banned
                         });
                         break;
                     case AuthorityType.Closed:
                     case AuthorityType.Unconfirmed:
-                        session.SendPacket(new FailcPacket
+                        clientSession.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.CantConnect
                         });
@@ -130,11 +130,11 @@ namespace NosCore.PacketHandlers.Login
 
                         if (alreadyConnnected)
                         {
-                            session.SendPacket(new FailcPacket
+                            clientSession.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.AlreadyConnected
                             });
-                            session.Disconnect();
+                            clientSession.Disconnect();
                             return;
                         }
 
@@ -142,11 +142,11 @@ namespace NosCore.PacketHandlers.Login
                         _accountDao.InsertOrUpdate(ref acc);
                         if (servers.Count <= 0)
                         {
-                            session.SendPacket(new FailcPacket
+                            clientSession.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.CantConnect
                             });
-                            session.Disconnect();
+                            clientSession.Disconnect();
                             return;
                         }
 
@@ -188,7 +188,7 @@ namespace NosCore.PacketHandlers.Login
                             WorldId = 10000,
                             Name = "1"
                         }); //useless server to end the client reception
-                        session.SendPacket(new NsTestPacket
+                        clientSession.SendPacket(new NsTestPacket
                         {
                             AccountName = packet.Name,
                             SubPacket = subpacket,
@@ -197,15 +197,15 @@ namespace NosCore.PacketHandlers.Login
                         return;
                 }
 
-                session.Disconnect();
+                clientSession.Disconnect();
             }
             catch
             {
-                session.SendPacket(new FailcPacket
+                clientSession.SendPacket(new FailcPacket
                 {
                     Type = LoginFailType.UnhandledError
                 });
-                session.Disconnect();
+                clientSession.Disconnect();
             }
         }
     }

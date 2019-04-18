@@ -41,15 +41,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _accountDao = accountDao;
         }
 
-        public override void Execute(CharacterDeletePacket packet, ClientSession session)
+        public override void Execute(CharacterDeletePacket packet, ClientSession clientSession)
         {
-            if (session.HasCurrentMapInstance)
+            if (clientSession.HasCurrentMapInstance)
             {
                 return;
             }
 
             var account = _accountDao
-                .FirstOrDefault(s => s.AccountId.Equals(session.Account.AccountId));
+                .FirstOrDefault(s => s.AccountId.Equals(clientSession.Account.AccountId));
             if (account == null)
             {
                 return;
@@ -72,9 +72,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             else
             {
-                session.SendPacket(new InfoPacket
+                clientSession.SendPacket(new InfoPacket
                 {
-                    Message = session.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
+                    Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
                 });
             }
         }

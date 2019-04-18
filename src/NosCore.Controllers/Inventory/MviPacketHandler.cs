@@ -36,20 +36,20 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
      
-        public override void Execute(MviPacket mviPacket, ClientSession session)
+        public override void Execute(MviPacket mviPacket, ClientSession clientSession)
         {
             // check if the character is allowed to move the item
-            if (session.Character.InExchangeOrShop)
+            if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
             }
 
             // actually move the item from source to destination
-            session.Character.Inventory.TryMoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
+            clientSession.Character.Inventory.TryMoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
-            session.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
-            session.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
+            clientSession.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
+            clientSession.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
     }
 }

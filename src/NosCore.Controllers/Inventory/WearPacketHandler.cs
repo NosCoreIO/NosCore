@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class WearPacketHandler : PacketHandler<WearPacket>, IWorldPacketHandler
     {
-        public override void Execute(WearPacket wearPacket, ClientSession session)
+        public override void Execute(WearPacket wearPacket, ClientSession clientSession)
         {
             UseItem(new UseItemPacket
             {

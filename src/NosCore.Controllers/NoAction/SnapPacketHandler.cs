@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class SnapPacketHandler : PacketHandler<SnapPacket>, IWorldPacketHandler
     {
-        public override void Execute(SnapPacket packet, ClientSession session)
+        public override void Execute(SnapPacket packet, ClientSession clientSession)
         {
         }
     }

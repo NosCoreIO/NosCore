@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class CClosePackettHandler : PacketHandler<CClosePacket>, IWorldPacketHandler
     {
-        public override void Execute(CClosePacket packet, ClientSession session)
+        public override void Execute(CClosePacket packet, ClientSession clientSession)
         {
         }
     }

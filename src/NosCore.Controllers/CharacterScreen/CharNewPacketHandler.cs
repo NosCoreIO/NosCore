@@ -38,15 +38,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _characterDao = characterDao;
         }
 
-        public override void Execute(CharNewPacket packet, ClientSession session)
+        public override void Execute(CharNewPacket packet, ClientSession clientSession)
         {
-            if (session.HasCurrentMapInstance)
+            if (clientSession.HasCurrentMapInstance)
             {
                 return;
             }
 
             // TODO: Hold Account Information in Authorized object
-            var accountId = session.Account.AccountId;
+            var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;
             if (_characterDao.FirstOrDefault(s =>
@@ -92,17 +92,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
                 else
                 {
-                    session.SendPacket(new InfoPacket
+                    clientSession.SendPacket(new InfoPacket
                     {
-                        Message = session.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
+                        Message = clientSession.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
                     });
                 }
             }
             else
             {
-                session.SendPacket(new InfoPacket
+                clientSession.SendPacket(new InfoPacket
                 {
-                    Message = session.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
+                    Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
                 });
             }
         }

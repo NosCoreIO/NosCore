@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class FStashEndPackettHandler : PacketHandler<FStashEndPacket>, IWorldPacketHandler
     {
-        public override void Execute(FStashEndPacket packet, ClientSession session)
+        public override void Execute(FStashEndPacket packet, ClientSession clientSession)
         {
         }
     }

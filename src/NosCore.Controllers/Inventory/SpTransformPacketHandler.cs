@@ -35,10 +35,10 @@ namespace NosCore.PacketHandlers.Inventory
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
      
-        public override void Execute(SpTransformPacket spTransformPacket, ClientSession session)
+        public override void Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             SpecialistInstance specialistInstance =
-              session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp,
+              clientSession.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp,
                   PocketType.Wear);
 
             if (spTransformPacket.Type == 10)
@@ -47,78 +47,78 @@ namespace NosCore.PacketHandlers.Inventory
             }
             else
             {
-                if (session.Character.IsSitting)
+                if (clientSession.Character.IsSitting)
                 {
                     return;
                 }
 
                 if (specialistInstance == null)
                 {
-                    session.SendPacket(new MsgPacket
+                    clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, session.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
                     });
 
                     return;
                 }
 
-                if (session.Character.IsVehicled)
+                if (clientSession.Character.IsVehicled)
                 {
-                    session.SendPacket(new MsgPacket
+                    clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
-                            session.Account.Language)
+                            clientSession.Account.Language)
                     });
                     return;
                 }
 
-                double currentRunningSeconds = (SystemTime.Now() - session.Character.LastSp).TotalSeconds;
+                double currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
 
-                if (session.Character.UseSp)
+                if (clientSession.Character.UseSp)
                 {
-                    session.Character.LastSp = SystemTime.Now();
-                    session.Character.RemoveSp();
+                    clientSession.Character.LastSp = SystemTime.Now();
+                    clientSession.Character.RemoveSp();
                 }
                 else
                 {
-                    if (session.Character.SpPoint == 0 && session.Character.SpAdditionPoint == 0)
+                    if (clientSession.Character.SpPoint == 0 && clientSession.Character.SpAdditionPoint == 0)
                     {
-                        session.SendPacket(new MsgPacket
+                        clientSession.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
-                                session.Account.Language)
+                                clientSession.Account.Language)
                         });
                         return;
                     }
 
-                    if (currentRunningSeconds >= session.Character.SpCooldown)
+                    if (currentRunningSeconds >= clientSession.Character.SpCooldown)
                     {
                         if (spTransformPacket.Type == 1)
                         {
-                            session.Character.ChangeSp();
+                            clientSession.Character.ChangeSp();
                         }
                         else
                         {
-                            session.SendPacket(new DelayPacket
+                            clientSession.SendPacket(new DelayPacket
                             {
                                 Type = 3,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = 1 }
                             });
-                            session.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+                            clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
                             {
                                 Type = 2,
                                 Argument = 1,
-                                VisualEntityId = session.Character.CharacterId
+                                VisualEntityId = clientSession.Character.CharacterId
                             });
                         }
                     }
                     else
                     {
-                        session.SendPacket(new MsgPacket
+                        clientSession.SendPacket(new MsgPacket
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                session.Account.Language), session.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                                clientSession.Account.Language), clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         });
                     }
                 }

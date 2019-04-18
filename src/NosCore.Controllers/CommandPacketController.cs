@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
@@ -45,6 +42,9 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers
@@ -53,7 +53,6 @@ namespace NosCore.PacketHandlers
     public class CommandPacketController : PacketController
     {
         private readonly IItemProvider _itemProvider;
-        private readonly ISerializer _packetSerializer;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
@@ -67,103 +66,8 @@ namespace NosCore.PacketHandlers
             _itemProvider = itemProvider;
             _mapInstanceProvider = mapInstanceProvider;
             _logger = logger;
-            _packetSerializer = packetSerializer;
         }
 
-        [UsedImplicitly]
-        public CommandPacketController()
-        {
-        }
-
-        [UsedImplicitly]
-        public void ChangeClass(ChangeClassPacket changeClassPacket)
-        {
-            if (changeClassPacket.Name == Session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
-            {
-                Session.Character.ChangeClass(changeClassPacket.ClassType);
-                return;
-            }
-
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character {Name = changeClassPacket.Name},
-                Data = (byte) changeClassPacket.ClassType,
-            };
-
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
-
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
-
-            if (account == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        Session.Account.Language)
-                });
-                return;
-            }
-
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
-        }
-
-        [UsedImplicitly]
-        public void SetReputation(SetReputationPacket setReputationPacket)
-        {
-            if (setReputationPacket.Name == Session.Character.Name || string.IsNullOrEmpty(setReputationPacket.Name))
-            {
-                Session.Character.SetReputation(setReputationPacket.Reputation);
-                return;
-            }
-
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateReputation,
-                Character = new Character {Name = setReputationPacket.Name},
-                Data = setReputationPacket.Reputation
-            };
-
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
-
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
-
-            if (account == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        Session.Account.Language)
-                });
-                return;
-            }
-
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
-        }
 
         [UsedImplicitly]
         public void Kick(KickPacket kickPacket)
@@ -197,39 +101,6 @@ namespace NosCore.PacketHandlers
             WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
         }
 
-        [UsedImplicitly]
-        public void Invisible(InvisibleCommandPacket invisiblePacket)
-        {
-            Session.Character.Camouflage = !Session.Character.Camouflage;
-            Session.Character.Invisible = !Session.Character.Invisible;
-            Session.Character.MapInstance.Sessions.SendPacket(Session.Character.GenerateInvisible());
-            //Session.SendPacket(Session.Character.GenerateEq());
-        }
-
-        [UsedImplicitly]
-        public void Size(SizePacket sizePacket)
-        {
-            IAliveEntity entity;
-            switch (sizePacket.VisualType)
-            {
-                case VisualType.Player:
-                    entity = Session.Character;
-                    break;
-                case VisualType.Monster:
-                    entity = Session.Character.MapInstance.Monsters.Find(s => s.VisualId == sizePacket.VisualId);
-                    break;
-                case VisualType.Npc:
-                    entity = Session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId);
-                    break;
-                default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
-                        sizePacket.VisualType);
-                    return;
-            }
-
-            entity.Size = sizePacket.Size;
-            Session.Character.MapInstance.Sessions.SendPacket(entity.GenerateCharSc());
-        }
 
         [UsedImplicitly]
         public void Position(PositionPacket positionPacket)
@@ -277,83 +148,6 @@ namespace NosCore.PacketHandlers
             }
 
             Session.ChangeMap(mapId, teleportPacket.MapX, teleportPacket.MapY);
-        }
-
-        [UsedImplicitly]
-        public void SetGold(SetGoldCommandPacket goldPacket)
-        {
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character {Name = goldPacket.Name},
-                Data = goldPacket.Gold
-            };
-
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
-
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
-
-            if (account == null) //TODO: Handle 404 in WebApi
-            {
-                Session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        Session.Account.Language)
-                });
-                return;
-            }
-
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
-        }
-
-        public void Shout(ShoutPacket shoutPacket)
-        {
-            var message =
-                $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, Session.Account.Language)}) {shoutPacket.Message}";
-            var sayPacket = new SayPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = 0,
-                Type = SayColorType.Yellow,
-                Message = message
-            };
-
-            var msgPacket = new MsgPacket
-            {
-                Type = MessageType.Shout,
-                Message = message
-            };
-
-            var sayPostedPacket = new PostedPacket
-            {
-                Packet = _packetSerializer.Serialize(new[] { sayPacket }),
-                SenderCharacter = new Character
-                {
-                    Name = Session.Character.Name,
-                    Id = Session.Character.CharacterId
-                },
-                ReceiverType = ReceiverType.All
-            };
-
-            var msgPostedPacket = new PostedPacket
-            {
-                Packet = _packetSerializer.Serialize(new[] { msgPacket }),
-                ReceiverType = ReceiverType.All
-            };
-
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
 
         [UsedImplicitly]

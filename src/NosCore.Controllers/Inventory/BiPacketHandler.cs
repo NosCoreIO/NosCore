@@ -22,12 +22,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(BiPacket bIPacket, ClientSession session)
+        public override void Execute(BiPacket bIPacket, ClientSession clientSession)
         {
             switch (bIPacket.Option)
             {
                 case null:
-                    session.SendPacket(
+                    clientSession.SendPacket(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -43,12 +43,12 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
-                                session.Account.Language)
+                                clientSession.Account.Language)
                         });
                     break;
 
                 case RequestDeletionType.Requested:
-                    session.SendPacket(
+                    clientSession.SendPacket(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -64,19 +64,19 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Language.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
-                                session.Account.Language)
+                                clientSession.Account.Language)
                         });
                     break;
 
                 case RequestDeletionType.Confirmed:
-                    if (session.Character.InExchangeOrShop)
+                    if (clientSession.Character.InExchangeOrShop)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                         return;
                     }
 
-                    var item = session.Character.Inventory.DeleteFromTypeAndSlot(bIPacket.PocketType, bIPacket.Slot);
-                    session.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
+                    var item = clientSession.Character.Inventory.DeleteFromTypeAndSlot(bIPacket.PocketType, bIPacket.Slot);
+                    clientSession.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:
                     return;
