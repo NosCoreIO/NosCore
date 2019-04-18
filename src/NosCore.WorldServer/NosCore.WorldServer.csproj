@@ -33,10 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NosCore.Controllers\NosCore.PacketHandlers.csproj" />
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
-    <ProjectReference Include="..\NosCore.Controllers\NosCore.Controllers.csproj" />
   </ItemGroup>
 
 </Project>
