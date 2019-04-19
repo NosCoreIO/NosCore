@@ -17,28 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Data.CommandPackets;
+using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ClientPackets.Shops;
+using NosCore.GameObject.Networking.Group;
 
-namespace NosCore.GameObject.Providers.NRunProvider.Handlers
+namespace NosCore.PacketHandlers.Command
 {
-    public class OpenShopEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public class EffectCommandPackettHandler : PacketHandler<EffectCommandPacket>, IWorldPacketHandler
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop;
-
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public override void Execute(EffectCommandPacket effectCommandpacket, ClientSession session)
         {
-            requestData.ClientSession.HandlePackets(new [] {new ShoppingPacket
-            {
-                VisualType = requestData.Data.Item2.VisualType,
-                VisualId = requestData.Data.Item2.VisualId,
-                ShopType = requestData.Data.Item2.Type,
-                Unknown = 0
-            }});
+            session.Character.MapInstance.Sessions.SendPacket(
+                session.Character.GenerateEff(effectCommandpacket.EffectId));
         }
     }
 }

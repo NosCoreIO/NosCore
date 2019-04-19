@@ -17,12 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Networking;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Data.CommandPackets;
+using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.Core.Handling
+namespace NosCore.PacketHandlers.Command
 {
-    public interface IPacketController
+    public class PositionPacketHandler : PacketHandler<PositionPacket>, IWorldPacketHandler
     {
-        void RegisterSession(NetworkClient clientSession);
+        public override void Execute(PositionPacket _, ClientSession session)
+        {
+            session.SendPacket(session.Character.GenerateSay(
+                $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
+                $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
+                SayColorType.Green));
+        }
     }
 }

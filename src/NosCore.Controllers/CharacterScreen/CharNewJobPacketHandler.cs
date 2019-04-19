@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             //todo add cooldown for recreate 30days
 
-            CreateCharacter(packet);
+            clientSession.HandlePackets(new[] { packet });
         }
     }
 }

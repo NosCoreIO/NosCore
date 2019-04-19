@@ -42,7 +42,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.Handling;
 using NosCore.Database;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Mapping;
@@ -76,7 +75,6 @@ using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
 using NosCore.Data.CommandPackets;
-using NosCore.PacketHandlers;
 using NosCore.PacketHandlers.Login;
 
 namespace NosCore.WorldServer
@@ -192,7 +190,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
 
             //NosCore.Controllers
-            containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
                 if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type))

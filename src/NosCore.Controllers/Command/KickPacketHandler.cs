@@ -30,27 +30,13 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
+    public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
-        public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
+        public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            if (changeClassPacket.Name == session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
-            {
-                session.Character.ChangeClass(changeClassPacket.ClassType);
-                return;
-            }
-
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character { Name = changeClassPacket.Name },
-                Data = (byte)changeClassPacket.ClassType,
-            };
-
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
@@ -60,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 config = server.WebApi;
                 account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
+                    .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
                 if (account != null)
                 {
                     break;
@@ -77,8 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
         }
     }
-
 }
