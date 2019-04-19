@@ -141,7 +141,8 @@ namespace NosCore.Data.Enumerations.I18N
         ALREADY_EXCHANGE,
         CANT_FIND_CHARACTER,
         LOADING_MAPINSTANCES,
-        ERROR_SESSIONID
+        ERROR_SESSIONID,
+        PACKET_USED_WITHOUT_CHARACTER
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

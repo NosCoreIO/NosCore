@@ -741,4 +741,7 @@
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Your gold has been updated successfully!</value>
   </data>
+  <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
+    <value>Packet received without character being set {0}</value>
+  </data>
 </root>
