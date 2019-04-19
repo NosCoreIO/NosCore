@@ -29,7 +29,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
-    public class SpChargerHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
+    public class SpChargerEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
 
         public bool Condition(MapItem item) =>

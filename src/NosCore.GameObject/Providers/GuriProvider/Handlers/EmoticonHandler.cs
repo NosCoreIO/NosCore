@@ -24,7 +24,7 @@ using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
-    public class EmoticonHandler : IHandler<GuriPacket, GuriPacket>
+    public class EmoticonEventHandler : IEventHandler<GuriPacket, GuriPacket>
     {
         public bool Condition(GuriPacket packet) => packet.Type == 10 && packet.Data >= 973 && packet.Data <= 999;
 

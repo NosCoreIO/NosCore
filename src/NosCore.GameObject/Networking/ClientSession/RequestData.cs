@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         public T Data { get; }
     }
 
-    public class RequestData
+    public class RequestData : IRequestData
     {
         public RequestData(ClientSession clientSession)
         {
@@ -38,4 +38,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession ClientSession { get; }
     }
+
+    public interface IRequestData { }
 }

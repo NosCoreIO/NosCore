@@ -33,11 +33,11 @@ namespace NosCore.GameObject.Providers.ItemProvider
 {
     public class ItemProvider : IItemProvider
     {
-        private readonly List<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
+        private readonly List<IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
         private readonly List<ItemDto> _items;
 
         public ItemProvider(List<ItemDto> items,
-            IEnumerable<IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
+            IEnumerable<IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
         {
             _items = items;
             _handlers = handlers.ToList();

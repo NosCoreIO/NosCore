@@ -29,7 +29,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
-    public class GoldDropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
+    public class GoldDropEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
         public bool Condition(MapItem item) => item.VNum == 1046;
 

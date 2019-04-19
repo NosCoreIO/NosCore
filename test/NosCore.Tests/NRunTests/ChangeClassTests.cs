@@ -26,7 +26,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
@@ -59,6 +58,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Login;
+using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -102,7 +102,7 @@ namespace NosCore.Tests.NRunTests
             _mapNpcDao.InsertOrUpdate(ref npc);
 
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map },
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
@@ -125,14 +125,14 @@ namespace NosCore.Tests.NRunTests
                 }
             };
 
-            _item = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _item = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
             _session = new ClientSession(conf,
                 new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger, null) },
                 instanceAccessService, null, _logger);
             _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-                    {new ChangeClassHandler()}), _logger);
+                new NrunProvider(new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
+                    {new ChangeClassEventHandler()}), _logger);
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), 
                 null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {

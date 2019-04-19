@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Providers.MapItemProvider
 {
     public class MapItemProvider : IMapItemProvider
     {
-        private readonly List<IHandler<MapItem, Tuple<MapItem, GetPacket>>> _handlers;
+        private readonly List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>> _handlers;
 
-        public MapItemProvider(IEnumerable<IHandler<MapItem, Tuple<MapItem, GetPacket>>> handlers)
+        public MapItemProvider(IEnumerable<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>> handlers)
         {
             _handlers = handlers.ToList();
         }

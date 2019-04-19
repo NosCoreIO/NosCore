@@ -31,10 +31,10 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class VehicleHandler : IHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class VehicleEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-        public VehicleHandler(ILogger logger)
+        public VehicleEventHandler(ILogger logger)
         {
             _logger = logger;
         }
