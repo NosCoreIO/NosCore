@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.NoAction
     {
         public override void Execute(FStashEndPacket packet, ClientSession clientSession)
         {
+            //noaction
         }
     }
 

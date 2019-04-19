@@ -34,7 +34,7 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class classSetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
+    public class SetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
         public override void Execute(SetReputationPacket setReputationPacket, ClientSession session)
         {
