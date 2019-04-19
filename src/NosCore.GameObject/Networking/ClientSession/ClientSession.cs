@@ -343,9 +343,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                             _waitForPacketsAmount = 2;
                             continue;
                         }
-
                         LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
-
+                    
                         if (packet.KeepAliveId == null)
                         {
                             Disconnect();
@@ -393,13 +392,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                             var attr = _attributeDic[packet.GetType()];
                             if (!HasSelectedCharacter && !attr.AnonymousAccess)
                             {
-                                return;
+                                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    packet.Header);
+                                continue;
                             }
 
                             //check for the correct authority
                             if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
                             {
-                                return;
+                                continue;
                             }
 
                             handler.Execute(packet, this);

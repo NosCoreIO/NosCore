@@ -1258,6 +1258,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Packet received without character being set {0}.
+        /// </summary>
+        public static string PACKET_USED_WITHOUT_CHARACTER {
+            get {
+                return ResourceManager.GetString("PACKET_USED_WITHOUT_CHARACTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à This packet format is wrong! Packet: {0}.
         /// </summary>
         public static string PACKET_WRONG_FORMAT {
