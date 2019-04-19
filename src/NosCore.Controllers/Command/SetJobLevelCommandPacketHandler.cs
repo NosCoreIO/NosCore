@@ -34,40 +34,44 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
+    public class SetJobLevelCommandPacketHandler : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
     {
-        public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
+        public override void Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (changeClassPacket.Name == session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
+            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == session.Character.Name)
             {
-                session.Character.ChangeClass(changeClassPacket.ClassType);
+                session.Character.SetJobLevel(levelPacket.Level);
                 return;
             }
 
             var data = new StatData
             {
-                ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character { Name = changeClassPacket.Name },
-                Data = (byte)changeClassPacket.ClassType,
+                ActionType = UpdateStatActionType.UpdateJobLevel,
+                Character = new Character { Name = levelPacket.Name },
+                Data = levelPacket.Level
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.Where(c => c.Type == ServerType.WorldServer);
 
-            foreach (var server in servers)
+            ConnectedAccount receiver = null;
+            ServerConfiguration config = null;
+
+            foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
-                if (account != null)
+                var accounts =
+                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+
+                if (target != null)
                 {
-                    break;
+                    receiver = target;
+                    config = channel.WebApi;
                 }
             }
 
-            if (account == null) //TODO: Handle 404 in WebApi
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -80,5 +84,4 @@ namespace NosCore.PacketHandlers.Command
             WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
         }
     }
-
 }

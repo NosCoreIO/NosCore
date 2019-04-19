@@ -17,22 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.Handling;
-using NosCore.Core.Networking;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Data.CommandPackets;
+using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.PacketHandlers.Command
 {
-    public class PacketController : IPacketController
+    public class SpeedPacketHandler : PacketHandler<SpeedPacket>, IWorldPacketHandler
     {
-        protected PacketController()
+        public override void Execute(SpeedPacket speedPacket, ClientSession session)
         {
-        }
-
-        protected ClientSession.ClientSession Session { get; set; }
-
-        public void RegisterSession(NetworkClient clientSession)
-        {
-            Session = (ClientSession.ClientSession) clientSession;
+            if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
+            {
+                session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
+                session.SendPacket(session.Character.GenerateCond());
+            }
+            else
+            {
+                session.SendPacket(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
+            }
         }
     }
 }

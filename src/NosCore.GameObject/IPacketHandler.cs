@@ -34,17 +34,17 @@ namespace NosCore.GameObject
     {
     }
 
-    public interface IPacketHandler<Packet> : IPacketHandler where Packet : IPacket
+    public interface IPacketHandler<in TPacket> : IPacketHandler where TPacket : IPacket
     {
-        void Execute(Packet packet, ClientSession clientSession);
+        void Execute(TPacket packet, ClientSession clientSession);
     }
-    public abstract class PacketHandler<Packet> : IPacketHandler<Packet> where Packet : IPacket
+    public abstract class PacketHandler<TPacket> : IPacketHandler<TPacket> where TPacket : IPacket
     {
-        public abstract void Execute(Packet packet, ClientSession clientSession);
+        public abstract void Execute(TPacket packet, ClientSession clientSession);
 
         public void Execute(IPacket packet, ClientSession clientSession)
         {
-            Execute((Packet)packet, clientSession);
+            Execute((TPacket)packet, clientSession);
         }
     }
 }

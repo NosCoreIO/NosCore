@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Exchange
         public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
         {
             var target = Broadcaster.Instance.GetCharacter(s =>
-              s.VisualId == packet.VisualId && s.MapInstanceId == clientSession.Character.MapInstanceId) as Character;
+                s.VisualId == packet.VisualId && s.MapInstanceId == clientSession.Character.MapInstanceId) as Character;
             ExcClosePacket closeExchange;
 
             if (target != null && (packet.RequestType == RequestExchangeType.Confirmed ||
@@ -81,7 +81,8 @@ namespace NosCore.PacketHandlers.Exchange
                     if (target.ExchangeBlocked)
                     {
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED, clientSession.Account.Language),
+                            Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
+                                clientSession.Account.Language),
                             SayColorType.Purple));
                         return;
                     }
@@ -118,9 +119,9 @@ namespace NosCore.PacketHandlers.Exchange
                     target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
+                            {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
                         NoPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
+                            {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
                         Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language)
                     });
@@ -138,7 +139,8 @@ namespace NosCore.PacketHandlers.Exchange
 
                 case RequestExchangeType.Declined:
                     clientSession.SendPacket(clientSession.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED, clientSession.Account.Language),
+                        Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
+                            clientSession.Account.Language),
                         SayColorType.Yellow));
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
                         SayColorType.Yellow));
@@ -252,5 +254,5 @@ namespace NosCore.PacketHandlers.Exchange
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+    }
 }

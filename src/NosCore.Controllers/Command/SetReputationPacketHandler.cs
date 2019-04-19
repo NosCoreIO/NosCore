@@ -17,32 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.UI;
-using Mapster;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Command
 {
     public class classSetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
