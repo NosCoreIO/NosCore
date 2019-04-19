@@ -8,19 +8,11 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public WalkPacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public override void Execute(WalkPacket walkPacket, ClientSession session)
         {
             var distance = (int)Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),

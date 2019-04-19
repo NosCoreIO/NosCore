@@ -43,7 +43,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IItemProvider _itemProvider;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
-        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
+            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
