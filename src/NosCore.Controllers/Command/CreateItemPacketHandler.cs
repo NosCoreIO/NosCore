@@ -1,0 +1,169 @@
+﻿//  __  _  __    __   ___ __  ___ ___  
+// |  \| |/__\ /' _/ / _//__\| _ \ __| 
+// | | ' | \/ |`._`.| \_| \/ | v / _|  
+// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+// 
+// Copyright (C) 2019 - NosCore
+// 
+// NosCore is a free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System.Collections.Generic;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Configuration;
+using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using Serilog;
+
+namespace NosCore.PacketHandlers.Command
+{
+    public class CreateItemPackettHandler : PacketHandler<CreateItemPacket>, IWorldPacketHandler
+    {
+        private readonly ILogger _logger;
+        private readonly IItemProvider _itemProvider;
+        private readonly List<ItemDto> _items;
+        private readonly WorldConfiguration _worldConfiguration;
+
+        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, WorldConfiguration worldConfiguration, IItemProvider itemProvider)
+        {
+            _logger = logger;
+            _items = items;
+            _itemProvider = itemProvider;
+            _worldConfiguration = worldConfiguration;
+        }
+
+        public override void Execute(CreateItemPacket createItemPacket, ClientSession session)
+        {
+            var vnum = createItemPacket.VNum;
+            sbyte rare = 0;
+            byte upgrade = 0;
+            byte design = 0;
+            short amount = 1;
+            if (vnum == 1046)
+            {
+                return; // cannot create gold as item, use $Gold instead
+            }
+
+            var iteminfo = _items.Find(item => item.VNum == vnum);
+            if (iteminfo == null)
+            {
+                session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+
+            if (iteminfo.IsColored || iteminfo.Effect == ItemEffectType.BoxEffect)
+            {
+                if (createItemPacket.DesignOrAmount.HasValue)
+                {
+                    design = (byte)createItemPacket.DesignOrAmount.Value;
+                }
+
+                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == ItemEffectType.BoxEffect
+                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
+            }
+            else if (iteminfo.Type == PocketType.Equipment)
+            {
+                if (createItemPacket.Upgrade.HasValue)
+                {
+                    if (iteminfo.EquipmentSlot != EquipmentType.Sp)
+                    {
+                        upgrade = createItemPacket.Upgrade.Value;
+                    }
+                    else
+                    {
+                        design = createItemPacket.Upgrade.Value;
+                    }
+
+                    if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0
+                        && iteminfo.BasicUpgrade != 0)
+                    {
+                        upgrade = iteminfo.BasicUpgrade;
+                    }
+                }
+
+                if (createItemPacket.DesignOrAmount.HasValue)
+                {
+                    if (iteminfo.EquipmentSlot == EquipmentType.Sp)
+                    {
+                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                    }
+                    else
+                    {
+                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                    }
+                }
+            }
+
+            if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
+            {
+                amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount
+                    ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
+            }
+
+            var inv = session.Character.Inventory.AddItemToPocket(_itemProvider.Create(vnum,
+                session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+
+            if (inv.Count <= 0)
+            {
+                session.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        session.Account.Language),
+                    Type = 0
+                });
+                return;
+            }
+
+            session.SendPacket(inv.GeneratePocketChange());
+            var firstItem = inv[0];
+            var wearable =
+                session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
+                    firstItem.Type);
+
+            if (wearable?.Item.EquipmentSlot is EquipmentType.Armor ||
+                wearable?.Item.EquipmentSlot is EquipmentType.MainWeapon ||
+                wearable?.Item.EquipmentSlot is EquipmentType.SecondaryWeapon)
+            {
+                wearable.SetRarityPoint();
+            }
+            else if (wearable?.Item.EquipmentSlot is EquipmentType.Boots ||
+                wearable?.Item.EquipmentSlot is EquipmentType.Gloves)
+            {
+                wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
+                wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
+                wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
+                wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+            }
+            else
+            {
+                _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+            }
+
+            session.SendPacket(session.Character.GenerateSay(
+                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name} x {amount}",
+                SayColorType.Green));
+        }
+    }
+}

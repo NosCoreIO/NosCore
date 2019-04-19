@@ -31,7 +31,6 @@ using ChickenAPI.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.Handling;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -52,29 +51,25 @@ namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession : NetworkClient, IClientSession
     {
-        private readonly Dictionary<PacketHeaderAttribute, Action<object, object>> _controllerMethods =
-            new Dictionary<PacketHeaderAttribute, Action<object, object>>();
-
         private readonly IExchangeProvider _exchangeProvider;
-
-        private readonly Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>> _headerMethod =
-            new Dictionary<PacketHeaderAttribute, Tuple<IPacketController, Type>>();
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-
+        private readonly IEnumerable<IPacketHandler> _packetsHandlers;
+        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
 
         private Character _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            ILogger logger) : this(configuration, packetControllers, null, null, logger) { }
+        public ClientSession(ServerConfiguration configuration,
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : this(configuration, null, null, logger, packetsHandlers) { }
 
-        public ClientSession(ServerConfiguration configuration, IEnumerable<IPacketController> packetControllers,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger) : base(logger)
+        public ClientSession(ServerConfiguration configuration,
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : base(logger)
         {
             _logger = logger;
+            _packetsHandlers = packetsHandlers;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -82,19 +77,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                 _mapInstanceProvider = mapInstanceProvider;
                 _exchangeProvider = exchangeProvider;
                 _isWorldClient = true;
-            }
-
-            foreach (var controller in packetControllers)
-            {
-                controller.RegisterSession(this);
-                foreach (var methodInfo in controller.GetType().GetMethods().Where(x =>
-                    typeof(IPacket).IsAssignableFrom(x.GetParameters().FirstOrDefault()?.ParameterType)))
+                foreach (var handler in packetsHandlers)
                 {
-                    var type = methodInfo.GetParameters().FirstOrDefault()?.ParameterType;
-                    var packetheader = type.GetCustomAttribute<PacketHeaderAttribute>();
-                    _headerMethod.Add(packetheader, new Tuple<IPacketController, Type>(controller, type));
-                    _controllerMethods.Add(packetheader,
-                        DelegateBuilder.BuildDelegate<Action<object, object>>(methodInfo));
+                    var type = handler.GetType().BaseType.GenericTypeArguments[0];
+                    if (!_attributeDic.ContainsKey(type))
+                    {
+                        _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true));
+                    }
                 }
             }
         }
@@ -330,94 +319,36 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        private void TriggerHandler(string packetHeader, IPacket packet)
-        {
-            var methodReference = _controllerMethods.FirstOrDefault(t => t.Key.Identification == packetHeader);
-            if (methodReference.Value != null)
-            {
-                if (!HasSelectedCharacter && !methodReference.Key.AnonymousAccess)
-                {
-                    return;
-                }
-
-                //check for the correct authority
-                if (IsAuthenticated && methodReference.Key is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
-                {
-                    return;
-                }
-
-                if (packet != null)
-                {
-                    HandlePacket(packet, methodReference);
-                }
-                else
-                {
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
-                }
-            }
-            else
-            {
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
-                    packetHeader);
-            }
-        }
-
-        public void ReceivePacket(IPacket deserializedPacket)
-        {
-            var header = deserializedPacket.GetType().GetCustomAttribute<PacketHeaderAttribute>()?.Identification;
-
-            var methodReference =
-                _controllerMethods.FirstOrDefault(t => t.Key.Identification == header);
-            if (methodReference.Value != null && deserializedPacket != null)
-            {
-                HandlePacket(deserializedPacket, methodReference);
-            }
-        }
-
-        private void HandlePacket(IPacket deserializedPacket,
-            KeyValuePair<PacketHeaderAttribute, Action<object, object>> methodReference)
-        {
-            try
-            {
-                methodReference.Value.Invoke(_headerMethod[methodReference.Key].Item1, deserializedPacket);
-            }
-            catch (Exception ex)
-            {
-                // disconnect if something unexpected happens
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_ERROR),
-                    ex);
-                Disconnect();
-            }
-        }
-
-        private void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex)
+        public void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
         {
             foreach (var pack in packetConcatenated)
             {
                 var packet = pack;
                 if (_isWorldClient)
                 {
-
-                    if (LastKeepAliveIdentity != 0 && packet.KeepAliveId != LastKeepAliveIdentity + 1)
+                    if (contex != null)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
-                            ClientId);
-                        Disconnect();
-                        return;
-                    }
+                        if (LastKeepAliveIdentity != 0 && packet.KeepAliveId != LastKeepAliveIdentity + 1)
+                        {
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
+                                ClientId);
+                            Disconnect();
+                            return;
+                        }
 
-                    if (!_waitForPacketsAmount.HasValue && LastKeepAliveIdentity == 0)
-                    {
-                        SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
-                        _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
-                        _waitForPacketsAmount = 2;
-                        continue;
-                    }
-
-                    LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
-                    if (packet.KeepAliveId == null)
-                    {
-                        Disconnect();
+                        if (!_waitForPacketsAmount.HasValue && LastKeepAliveIdentity == 0)
+                        {
+                            SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
+                            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
+                            _waitForPacketsAmount = 2;
+                            continue;
+                        }
+                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                    
+                        if (packet.KeepAliveId == null)
+                        {
+                            Disconnect();
+                        }
                     }
 
                     if (_waitForPacketsAmount.HasValue)
@@ -447,7 +378,39 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     if (packet.Header != "0")
                     {
-                        TriggerHandler(packet.Header.Replace("#", ""), packet);
+                        var packetHeader = packet.Header;
+                        if (string.IsNullOrWhiteSpace(packetHeader))
+                        {
+                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
+                            Disconnect();
+                            return;
+                        }
+
+                        var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                        if (handler != null)
+                        {
+                            var attr = _attributeDic[packet.GetType()];
+                            if (!HasSelectedCharacter && !attr.AnonymousAccess)
+                            {
+                                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    packet.Header);
+                                continue;
+                            }
+
+                            //check for the correct authority
+                            if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
+                            {
+                                continue;
+                            }
+
+                            handler.Execute(packet, this);
+
+                        }
+                        else
+                        {
+                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                                packet.Header);
+                        }
                     }
                 }
                 else
@@ -459,7 +422,16 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    TriggerHandler(packetHeader, packet);
+                    var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                    if (handler != null)
+                    {
+                        handler.Execute(packet, this);
+                    }
+                    else
+                    {
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                            packetHeader);
+                    }
                 }
             }
         }

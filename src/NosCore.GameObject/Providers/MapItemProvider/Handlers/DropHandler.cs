@@ -32,7 +32,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
-    public class DropHandler : IHandler<MapItem, Tuple<MapItem, GetPacket>>
+    public class DropEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
         public bool Condition(MapItem item) => item.ItemInstance.Item.ItemType != ItemType.Map && item.VNum != 1046;
 

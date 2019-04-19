@@ -26,19 +26,19 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
-    public class OpenShopHandler : IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public class OpenShopEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop;
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            requestData.ClientSession.ReceivePacket(new ShoppingPacket
+            requestData.ClientSession.HandlePackets(new [] {new ShoppingPacket
             {
                 VisualType = requestData.Data.Item2.VisualType,
                 VisualId = requestData.Data.Item2.VisualId,
                 ShopType = requestData.Data.Item2.Type,
                 Unknown = 0
-            });
+            }});
         }
     }
 }

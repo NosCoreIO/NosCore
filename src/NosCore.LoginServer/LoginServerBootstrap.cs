@@ -28,10 +28,8 @@ using FastExpressionCompiler;
 using Mapster;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.Handling;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
@@ -44,6 +42,10 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
 using System.Linq;
 using System.Collections.Generic;
+using System.Windows.Input;
+using NosCore.GameObject;
+using NosCore.PacketHandlers;
+using NosCore.PacketHandlers.Login;
 
 namespace NosCore.LoginServer
 {
@@ -93,13 +95,23 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();
-            containerBuilder.RegisterAssemblyTypes(typeof(DefaultPacketController).Assembly).As<IPacketController>();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
+
+            foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
+            {
+                if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type))
+                {
+                    containerBuilder.RegisterType(type)
+                        .AsImplementedInterfaces()
+                        .PropertiesAutowired();
+                }
+            }
+
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p =>p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))

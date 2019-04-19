@@ -27,7 +27,6 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
@@ -66,6 +65,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.ServerPackets.Shop;
+using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -164,9 +164,9 @@ namespace NosCore.Tests.HandlerTests
             };
 
             ItemProvider itemProvider = new ItemProvider(new List<ItemDto>(),
-                new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _instanceProvider = new MapInstanceProvider(new List<MapDto>{ _map, _mapShop },
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _instanceProvider.Initialize();
@@ -179,7 +179,7 @@ namespace NosCore.Tests.HandlerTests
             _session.SessionId = 1;
             _handler = new NpcPacketController(conf,
                 new NrunProvider(
-                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
+                    new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(_session);
             _session.SetCharacter(_chara);
             var mapinstance = _instanceProvider.GetBaseMapById(0);
@@ -260,7 +260,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1));
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
@@ -276,7 +276,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 1);
@@ -297,7 +297,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -315,7 +315,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -350,7 +350,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -369,7 +369,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = false},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -391,7 +391,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -411,7 +411,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -431,7 +431,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
@@ -451,7 +451,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -474,7 +474,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -498,7 +498,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -525,7 +525,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -551,7 +551,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -582,7 +582,7 @@ namespace NosCore.Tests.HandlerTests
 
             _handler = new NpcPacketController(conf,
                 new NrunProvider(
-                    new List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
+                    new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>()), _logger);
             _handler.RegisterSession(session2);
             session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null)
             {
@@ -603,7 +603,7 @@ namespace NosCore.Tests.HandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 1, 999);

@@ -29,10 +29,10 @@ namespace NosCore.GameObject.Providers.NRunProvider
 {
     public class NrunProvider : INrunProvider
     {
-        private readonly List<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
+        private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
 
         public NrunProvider(
-            IEnumerable<IHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
+            IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
         {
             _handlers = handlers.ToList();
         }

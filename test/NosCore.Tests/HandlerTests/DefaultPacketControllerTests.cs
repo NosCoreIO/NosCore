@@ -25,7 +25,6 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Controllers;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
@@ -55,6 +54,7 @@ using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.HandlerTests
 {
@@ -142,7 +142,7 @@ namespace NosCore.Tests.HandlerTests
             };
 
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> {_map, _map2},
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
@@ -198,7 +198,7 @@ namespace NosCore.Tests.HandlerTests
             CharacterDto character = _targetChar;
             _characterDao.InsertOrUpdate(ref character);
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map, _map2},
-                new MapItemProvider(new List<IHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
+                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             _targetSession = new ClientSession(null,
