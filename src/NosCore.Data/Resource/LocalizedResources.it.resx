@@ -275,9 +275,6 @@
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Hai inviato una richiesta per condividere il punto di ritorno con i membri del tuo gruppo</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Handler Error</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
   </data>

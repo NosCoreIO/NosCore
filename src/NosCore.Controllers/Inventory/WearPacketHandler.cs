@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.HandlePackets(new[] {new UseItemPacket
             {
                 Slot = wearPacket.InventorySlot,
-                Type = wearPacket.Type
+                Type = wearPacket.Type,
             }});
         }
     }

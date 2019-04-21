@@ -255,9 +255,6 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Le compte {0} c'est connecté.</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Erreur du gestionnaire.</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Gestionnaire introuvable.</value>
   </data>
@@ -555,9 +552,6 @@
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
     <value>Ping échoué, aucune réponse du serveur master.</value>
   </data>
-  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
-    <value>La quantité de sous-packets est invalide .</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Désirez vous lier cet item à votre personnage ? </value>
   </data>
@@ -594,9 +588,6 @@
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Impossible d'équiper cet objet en tant qu'aventurier.</value>
   </data>
-  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
-    <value>Erreur lors de la déserialisation d'une valeur ! Valeur : {0} | PacketPropertyType: {1} .</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Vous n'avez pas assez d'argent.</value>
   </data>
@@ -605,12 +596,6 @@
   </data>
   <data name="NO_SP" xml:space="preserve">
     <value>Vous n'avez aucune SPéquipée.</value>
-  </data>
-  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
-    <value>Le Packet n'as pas de Header ! SerializationType: {0}.</value>
-  </data>
-  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
-    <value>Le Packet à un format invalide.</value>
   </data>
   <data name="REMOVE_VEHICLE" xml:space="preserve">
     <value>Veuillez quitter la locomotion pour équiper une carte SP.</value>
