@@ -279,9 +279,6 @@
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Sdílel si místo návratu s členy skupiny</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Chyba Obsluhy</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
   </data>

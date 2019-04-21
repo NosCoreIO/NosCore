@@ -198,9 +198,6 @@
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Zorunlu Client Kapatma {0}, çok fazla bağlantıdan dolayı.</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Handler Hatası</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value> Handler uygulaması bulunamadı. Paket Başlığı {0}</value>
   </data>

@@ -138,9 +138,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>This name is already taken!</value>
   </data>
-  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
-    <value>The amount of subpackets is incorrect!</value>
-  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Archer</value>
   </data>
@@ -314,9 +311,6 @@
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>You sent a request to share the point of return with the members of your group</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Handler Error</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
   </data>
@@ -458,9 +452,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>You are the new party leader!</value>
   </data>
-  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
-    <value>Exception while deserializing a value! Value: {0}  PacketPropertyType: {1}</value>
-  </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>You are not an adventurer.</value>
   </data>
@@ -499,12 +490,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs Parsed!</value>
-  </data>
-  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
-    <value>This packet format is wrong! Packet: {0}</value>
-  </data>
-  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
-    <value>This packet doesn't have a header! SerializationType: {0}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Do you want to parse Accounts?</value>
