@@ -57,7 +57,6 @@ using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Specialists;
 using ChickenAPI.Packets.ClientPackets.UI;
-using ChickenAPI.Packets.ServerPackets.MiniMap;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ClientPackets.Shops;
@@ -65,6 +64,7 @@ using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using NosCore.Data.Enumerations.Interaction;
+using ChickenAPI.Packets.ServerPackets.Minimap;
 
 namespace NosCore.GameObject
 {

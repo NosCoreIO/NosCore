@@ -124,15 +124,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à The amount of subpackets is incorrect!.
-        /// </summary>
-        public static string AMOUNT_SPLITTED_SUBPACKET_INCORRECT {
-            get {
-                return ResourceManager.GetString("AMOUNT_SPLITTED_SUBPACKET_INCORRECT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Archer.
         /// </summary>
         public static string ARCHER {
@@ -673,15 +664,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Handler Error.
-        /// </summary>
-        public static string HANDLER_ERROR {
-            get {
-                return ResourceManager.GetString("HANDLER_ERROR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Could not found Handler implementation for Packet with Header {0}.
         /// </summary>
         public static string HANDLER_NOT_FOUND {
@@ -1168,15 +1150,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Exception while deserializing a value! Value: {0}  PacketPropertyType: {1}.
-        /// </summary>
-        public static string NOT_CONVERT_VALUE {
-            get {
-                return ResourceManager.GetString("NOT_CONVERT_VALUE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You do not have enough money to purchase that item!.
         /// </summary>
         public static string NOT_ENOUGH_MONEY {
@@ -1249,29 +1222,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à This packet doesn&apos;t have a header! SerializationType: {0}.
-        /// </summary>
-        public static string PACKET_HEADER_CANNOT_EMPTY {
-            get {
-                return ResourceManager.GetString("PACKET_HEADER_CANNOT_EMPTY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Packet received without character being set {0}.
         /// </summary>
         public static string PACKET_USED_WITHOUT_CHARACTER {
             get {
                 return ResourceManager.GetString("PACKET_USED_WITHOUT_CHARACTER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à This packet format is wrong! Packet: {0}.
-        /// </summary>
-        public static string PACKET_WRONG_FORMAT {
-            get {
-                return ResourceManager.GetString("PACKET_WRONG_FORMAT", resourceCulture);
             }
         }
         

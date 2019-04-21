@@ -379,7 +379,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (packet.Header != "0")
                     {
                         var packetHeader = packet.Header;
-                        if (string.IsNullOrWhiteSpace(packetHeader))
+                        if (string.IsNullOrWhiteSpace(packetHeader) && contex != null)
                         {
                             _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
                             Disconnect();

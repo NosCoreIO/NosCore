@@ -36,7 +36,7 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
 using Serilog;
 using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.MiniMap;
+using ChickenAPI.Packets.ServerPackets.Minimap;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -48,7 +48,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private ConcurrentDictionary<int, MapMonster> _monsters;
 
         private ConcurrentDictionary<int, MapNpc> _npcs;
-        private readonly IAdapter _adapter;
         private readonly ILogger _logger;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
@@ -69,7 +68,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
             _mapItemProvider = mapItemProvider;
-            _adapter = adapter;
             _logger = logger;
         }
 

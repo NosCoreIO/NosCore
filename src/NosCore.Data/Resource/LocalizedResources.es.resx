@@ -138,9 +138,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>¡Este nombre ya lo tiene otro usuario!</value>
   </data>
-  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
-    <value>¡La cantidad de subpaquetes es incorrecta!</value>
-  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arquero</value>
   </data>
@@ -312,9 +309,6 @@
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Has enviado una petición para compartir el punto de regreso con tus miembros del grupo.</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Error del "controlador" (Handler).</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>No se pudo encontrar la implementación del "controlador" (Handler) para el paquete con cabezera: {0}</value>
   </data>
@@ -453,9 +447,6 @@
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Para cambiar de clase debes ser un Aventurero.</value>
   </data>
-  <data name="NOT_CONVERT_VALUE" xml:space="preserve">
-    <value>¡Ha aparecido una Excepción mientras se deserializaba un valor! Value: {0}  PacketPropertyType: {1}</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>¡No tienes suficiente oro para comprar ese objeto!</value>
   </data>
@@ -491,12 +482,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>¡{0} MapNpcs (NPCs de los Mapas) Analizados!</value>
-  </data>
-  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
-    <value>¡El formato de este paquete es incorrecto! Paquete: {0}</value>
-  </data>
-  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
-    <value>¡Este paquete no tiene un encabezado! SerializationType: {0}</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>¿Quieres analizar las Cuentas?</value>
