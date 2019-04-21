@@ -42,15 +42,17 @@ using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using NosCore.PacketHandlers;
+using NosCore.PacketHandlers.Group;
 
 namespace NosCore.Tests.HandlerTests
 {
     [TestClass]
-    public class GroupPacketControllerTests
+    public class PleavePacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
-        private readonly List<GroupPacketController> _handlers = new List<GroupPacketController>();
+        private PleavePacketHandler _pLeavePacketHandler;
+        private PjoinPacketHandler _pJoinPacketHandler;
 
         [TestInitialize]
         public void Setup()
@@ -59,8 +61,7 @@ namespace NosCore.Tests.HandlerTests
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var handler = new GroupPacketController();
-                var session = new ClientSession(null, new List<PacketController> { handler }, null, null, _logger) { SessionId = i };
+                var session = new ClientSession(null, _logger, null) { SessionId = i };
 
                 Broadcaster.Instance.RegisterSession(session);
                 var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
@@ -75,8 +76,6 @@ namespace NosCore.Tests.HandlerTests
                 };
 
                 session.InitializeAccount(acc);
-                _handlers.Add(handler);
-                handler.RegisterSession(session);
 
                 var chara = charaDto;
                 chara.Session = session;
@@ -88,96 +87,15 @@ namespace NosCore.Tests.HandlerTests
                     MapInstanceType.BaseMapInstance,
                      new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     null, _logger);
+                _pLeavePacketHandler = new PleavePacketHandler();
+                _pJoinPacketHandler = new PjoinPacketHandler(_logger);
             }
-        }
-
-        [TestMethod]
-        public void Test_Accept_Group_Join_Requested()
-        {
-            _characters[1].GroupRequestCharacterIds
-                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
-
-            var pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _characters[1].CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_characters[0].Group.Count > 1
-                && _characters[1].Group.Count > 1
-                && _characters[0].Group.GroupId
-                == _characters[1].Group.GroupId);
-        }
-
-        [TestMethod]
-        public void Test_Join_Full_Group()
-        {
-            PjoinPacket pjoinPacket;
-
-            for (var i = 1; i < 3; i++)
-            {
-                _characters[i].GroupRequestCharacterIds
-                    .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
-
-                pjoinPacket = new PjoinPacket
-                {
-                    RequestType = GroupRequestType.Accepted,
-                    CharacterId = _characters[i].CharacterId
-                };
-
-                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            }
-
-            Assert.IsTrue(_characters[0].Group.IsGroupFull
-                && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull);
-
-            _characters[3].GroupRequestCharacterIds
-                .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _characters[3].CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_characters[3].Group.Count == 1);
-        }
-
-        [TestMethod]
-        public void Test_Accept_Not_Requested_Group()
-        {
-            var pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _characters[1].CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_characters[0].Group.Count == 1
-                && _characters[1].Group.Count == 1);
-        }
-
-        [TestMethod]
-        public void Test_Decline_Not_Requested_Group()
-        {
-            var pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Declined,
-                CharacterId = _characters[1].CharacterId
-            };
-
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
-            Assert.IsTrue(_characters[0].Group.Count == 1
-                && _characters[1].Group.Count == 1);
         }
 
         [TestMethod]
         public void Test_Leave_Group_When_Not_Grouped()
         {
-            _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[0].Session);
 
             Assert.IsTrue(_characters[0].Group != null && _characters[0].Group.Count == 1);
         }
@@ -196,14 +114,14 @@ namespace NosCore.Tests.HandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             }
 
             Assert.IsTrue(_characters[0].Group.IsGroupFull
                 && _characters[1].Group.IsGroupFull
                 && _characters[2].Group.IsGroupFull);
 
-            _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[1].Session);
 
             Assert.IsTrue(_characters[1].Group.Count == 1);
         }
@@ -222,7 +140,7 @@ namespace NosCore.Tests.HandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             }
 
             Assert.IsTrue(_characters[0].Group.IsGroupFull
@@ -230,7 +148,7 @@ namespace NosCore.Tests.HandlerTests
                 && _characters[2].Group.IsGroupFull && _characters[0].Group
                     .IsGroupLeader(_characters[0].CharacterId));
 
-            _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[0].Session);
 
             Assert.IsTrue(_characters[1].Group
                 .IsGroupLeader(_characters[1].CharacterId));
@@ -250,7 +168,7 @@ namespace NosCore.Tests.HandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             }
 
             Assert.IsTrue(_characters[0].Group.IsGroupFull
@@ -258,7 +176,7 @@ namespace NosCore.Tests.HandlerTests
                 && _characters[2].Group.IsGroupFull && _characters[0].Group
                     .IsGroupLeader(_characters[0].CharacterId));
 
-            _handlers.ElementAt(1).LeaveGroup(new PleavePacket());
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[1].Session);
 
             Assert.IsTrue(_characters[0].Group
                 .IsGroupLeader(_characters[0].CharacterId));
@@ -276,7 +194,7 @@ namespace NosCore.Tests.HandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[0].Session);
             Assert.IsTrue(_characters[0].Group.Count == 1
                 && _characters[1].Group.Count == 1);
         }
@@ -293,13 +211,13 @@ namespace NosCore.Tests.HandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            _handlers.ElementAt(0).ManageGroup(pjoinPacket);
+            _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             Assert.IsTrue(_characters[0].Group.Count > 1
                 && _characters[1].Group.Count > 1
                 && _characters[0].Group.GroupId
                 == _characters[1].Group.GroupId);
 
-            _handlers.ElementAt(0).LeaveGroup(new PleavePacket());
+            _pLeavePacketHandler.Execute(new PleavePacket(), _characters[0].Session);
 
             Assert.IsTrue(_characters[0].Group.Count == 1
                 && _characters[1].Group.Count == 1);

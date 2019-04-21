@@ -19,6 +19,7 @@
 
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
+using Mapster;
 using NosCore.Core;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             //todo add cooldown for recreate 30days
 
-            clientSession.HandlePackets(new[] { packet });
+            clientSession.HandlePackets(new[] { packet.Adapt<CharNewPacket>() });
         }
     }
 }

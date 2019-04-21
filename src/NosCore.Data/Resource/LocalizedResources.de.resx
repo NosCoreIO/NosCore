@@ -144,9 +144,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Dieser Name ist bereits belegt.</value>
   </data>
-  <data name="AMOUNT_SPLITTED_SUBPACKET_INCORRECT" xml:space="preserve">
-    <value>Die Summe des Subpackets ist falsch!</value>
-  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Bogenschütze</value>
   </data>
@@ -346,9 +343,6 @@
     <value>Du hast eine Anfrage an deine Gruppe gesendet, um euren Rückkehrpunkt zu teilen</value>
     <comment>You sent a request to share the point of return with the members of your group</comment>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Handler fehler</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
   </data>
@@ -537,12 +531,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs geladen!</value>
-  </data>
-  <data name="PACKET_HEADER_CANNOT_EMPTY" xml:space="preserve">
-    <value>Packet Header kann nicht leer sein!</value>
-  </data>
-  <data name="PACKET_WRONG_FORMAT" xml:space="preserve">
-    <value>Falsches Packet format!</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Möchtest du die Accounts laden?</value>

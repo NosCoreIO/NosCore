@@ -174,9 +174,6 @@
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Rozłaczanie użytkownika {0}, zbyt dużo połączeń.</value>
   </data>
-  <data name="HANDLER_ERROR" xml:space="preserve">
-    <value>Hanlder implementation error</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation</value>
   </data>

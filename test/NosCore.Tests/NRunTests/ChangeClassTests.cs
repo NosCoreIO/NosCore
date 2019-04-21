@@ -57,8 +57,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ClientPackets.Login;
-using NosCore.PacketHandlers;
+using NosCore.PacketHandlers.Shops;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -81,9 +80,9 @@ namespace NosCore.Tests.NRunTests
             Name = "Map"
         };
 
-        private NpcPacketController _handler;
         private ItemProvider _item;
         private ClientSession _session;
+        private NrunPacketHandler _nRunHandler;
 
         [TestInitialize]
         public void Setup()
@@ -127,12 +126,7 @@ namespace NosCore.Tests.NRunTests
 
             _item = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
             var conf = new WorldConfiguration { MaxItemAmount = 999, BackpackSize = 99 };
-            _session = new ClientSession(conf,
-                new List<PacketController> { new DefaultPacketController(conf, instanceAccessService, null, _logger, null) },
-                instanceAccessService, null, _logger);
-            _handler = new NpcPacketController(new WorldConfiguration(),
-                new NrunProvider(new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-                    {new ChangeClassEventHandler()}), _logger);
+            _session = new ClientSession(conf, instanceAccessService, null, _logger, new List<IPacketHandler>());
             var _chara = new GameObject.Character(new InventoryService(items, _session.WorldConfiguration, _logger), 
                 null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
             {
@@ -156,6 +150,10 @@ namespace NosCore.Tests.NRunTests
             _session.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
             _session.Character.MapInstance = mapinstance;
             Broadcaster.Instance.RegisterSession(_session);
+
+            _nRunHandler = new NrunPacketHandler(_logger, new NrunProvider(
+                new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
+                    {new ChangeClassEventHandler()}));
         }
 
         [DataTestMethod]
@@ -165,14 +163,13 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
         {
             _session.Character.Level = 15;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)characterClass
-            });
+            }, _session);
 
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
@@ -186,14 +183,13 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowJobLevel(CharacterClassType characterClass)
         {
             _session.Character.JobLevel = 20;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)characterClass
-            });
+            }, _session);
 
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
@@ -207,14 +203,13 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeBadClass(CharacterClassType characterClass)
         {
             _session.Character.Class = characterClass;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)CharacterClassType.Swordman
-            });
+            }, _session);
 
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
@@ -228,14 +223,13 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)characterClass
-            });
+            }, _session);
 
             Assert.IsTrue(_session.Character.Class == CharacterClassType.Adventurer && _session.Character.Level == 15 &&
                 _session.Character.JobLevel == 20);
@@ -249,14 +243,13 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)characterClass
-            });
+            }, _session);
 
             Assert.IsTrue(_session.Character.Class == characterClass && _session.Character.Level == 15 &&
                 _session.Character.JobLevel == 1);
@@ -273,14 +266,13 @@ namespace NosCore.Tests.NRunTests
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
-            _handler.RegisterSession(_session);
-            _handler.NRun(new NrunPacket
+            _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)characterClass
-            });
+            }, _session);
 
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
