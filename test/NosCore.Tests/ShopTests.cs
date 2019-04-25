@@ -45,27 +45,19 @@ using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.NRunProvider;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.ServerPackets.Shop;
-using NosCore.PacketHandlers;
 
 namespace NosCore.Tests.HandlerTests
 {

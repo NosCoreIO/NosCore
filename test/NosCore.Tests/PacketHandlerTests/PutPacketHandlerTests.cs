@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,14 +11,11 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
@@ -37,7 +30,6 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.PacketHandlers.Inventory;
-using NosCore.PacketHandlers.Login;
 using Serilog;
 
 namespace NosCore.Tests.PacketHandlerTests
