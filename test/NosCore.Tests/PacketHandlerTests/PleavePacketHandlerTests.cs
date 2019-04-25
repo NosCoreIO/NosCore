@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
@@ -41,7 +40,6 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.ClientPackets.Drops;
-using NosCore.PacketHandlers;
 using NosCore.PacketHandlers.Group;
 
 namespace NosCore.Tests.HandlerTests
