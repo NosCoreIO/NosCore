@@ -22,6 +22,8 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public void Setup()
         {
+
+            TestHelpers.Reset();
             Broadcaster.Reset();
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
