@@ -31,13 +31,15 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
+using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.PacketHandlers.Friend;
 using Serilog;
 
 namespace NosCore.Tests.Helpers
 {
     public class TestHelpers
     {
-        private int _lastId;
+        private int _lastId = 100;
         private static Lazy<TestHelpers> lazy =
             new Lazy<TestHelpers>(() => new TestHelpers());
         public static TestHelpers Instance => lazy.Value;
@@ -49,7 +51,10 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<ShopDto> _shopDao;
         private readonly IGenericDao<ShopItemDto> _shopItemDao;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        private readonly ItemInstanceDao _itemInstanceDao;
         public IGenericDao<CharacterDto> CharacterDao { get; }
+        public MapItemProvider MapItemProvider { get; set; }
+
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
@@ -61,12 +66,13 @@ namespace NosCore.Tests.Helpers
             _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger);
             _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
             CharacterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+            _itemInstanceDao = new ItemInstanceDao(_logger);
             InitDatabase();
             MapInstanceProvider = GenerateMapInstanceProvider();
         }
         private MapInstanceProvider GenerateMapInstanceProvider()
         {
-            var mapItemProvider = new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
+            MapItemProvider = new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
                 {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler()});
             var map = new Map
             {
@@ -105,7 +111,7 @@ namespace NosCore.Tests.Helpers
             _mapNpcDao.InsertOrUpdate(ref npc);
 
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop },
-                mapItemProvider,
+                MapItemProvider,
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, new Adapter(), _logger);
             instanceAccessService.Initialize();
@@ -165,7 +171,7 @@ namespace NosCore.Tests.Helpers
             _lastId++;
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
-            var session = new ClientSession(WorldConfiguration, _logger, new List<IPacketHandler>());
+            var session = new ClientSession(WorldConfiguration, _logger, new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
             session.SessionId = _lastId;
             var chara = new Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)
