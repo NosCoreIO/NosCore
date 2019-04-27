@@ -127,7 +127,10 @@ namespace NosCore.Tests.Helpers
             return instanceAccessService;
         }
 
-        public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000, MaxGoldAmount = 999_999_999 };
+        public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration
+        {
+            BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000, MaxGoldAmount = 999_999_999
+        };
         public List<ItemDto> ItemList { get; } = new List<ItemDto>
         {
             new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
@@ -181,7 +184,10 @@ namespace NosCore.Tests.Helpers
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
-                new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new FinsPacketHandler(WorldConfiguration, _logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
+                new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
+                    new BlInsPackettHandler(_logger),
+                    new FinsPacketHandler(WorldConfiguration, _logger),
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
             session.SessionId = _lastId;
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)
