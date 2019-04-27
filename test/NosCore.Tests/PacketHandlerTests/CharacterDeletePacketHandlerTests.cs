@@ -1,30 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using Mapster;
-using Microsoft.EntityFrameworkCore;
+﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core;
-using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
-using NosCore.Database;
-using NosCore.Database.DAL;
-using NosCore.GameObject;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
-using Serilog;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
