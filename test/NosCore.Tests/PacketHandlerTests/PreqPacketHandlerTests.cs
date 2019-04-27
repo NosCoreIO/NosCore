@@ -26,7 +26,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _preqPacketHandler = new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider);
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(0);
 
-            _session.Character.MapInstance.Portals = new List<Portal> { new Portal { DestinationMapId = 1, DestinationMapInstanceId = TestHelpers.Instance.MapInstanceProvider.GetBaseMapInstanceIdByMapId(1),
+            _session.Character.MapInstance.Portals = new List<Portal> { new Portal { DestinationMapId = 1,
+                DestinationMapInstanceId = TestHelpers.Instance.MapInstanceProvider.GetBaseMapInstanceIdByMapId(1),
                 DestinationX = 5, DestinationY = 5, SourceMapId = 0, SourceMapInstanceId = TestHelpers.Instance.MapInstanceProvider.GetBaseMapInstanceIdByMapId(0), SourceX = 0, SourceY = 0 } };
         }
 

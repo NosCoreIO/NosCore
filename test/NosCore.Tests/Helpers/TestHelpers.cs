@@ -19,8 +19,8 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
+using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -34,6 +34,15 @@ using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using Serilog;
+using Character = NosCore.Database.Entities.Character;
+using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
+using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
+using Map = NosCore.GameObject.Map.Map;
+using MapMonster = NosCore.Database.Entities.MapMonster;
+using MapNpc = NosCore.Database.Entities.MapNpc;
+using Portal = NosCore.Database.Entities.Portal;
+using Shop = NosCore.Database.Entities.Shop;
+using ShopItem = NosCore.Database.Entities.ShopItem;
 
 namespace NosCore.Tests.Helpers
 {
@@ -58,14 +67,14 @@ namespace NosCore.Tests.Helpers
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
-            AccountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
-            _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>(_logger);
-            _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
-            _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
-            _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>(_logger);
-            _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger);
-            _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
-            CharacterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
+            AccountDao = new GenericDao<Account, AccountDto>(_logger);
+            _portalDao = new GenericDao<Portal, PortalDto>(_logger);
+            _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
+            _mapNpcDao = new GenericDao<MapNpc, MapNpcDto>(_logger);
+            _shopDao = new GenericDao<Shop, ShopDto>(_logger);
+            _shopItemDao = new GenericDao<ShopItem, ShopItemDto>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
+            CharacterDao = new GenericDao<Character, CharacterDto>(_logger);
             _itemInstanceDao = new ItemInstanceDao(_logger);
             InitDatabase();
             MapInstanceProvider = GenerateMapInstanceProvider();
@@ -118,8 +127,8 @@ namespace NosCore.Tests.Helpers
             return instanceAccessService;
         }
 
-        public WorldConfiguration WorldConfiguration = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
-        public List<ItemDto> ItemList = new List<ItemDto>
+        public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration { BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000 };
+        public List<ItemDto> ItemList { get; }= new List<ItemDto>
         {
             new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
             new Item {Type = PocketType.Main, VNum = 1013},
@@ -138,7 +147,7 @@ namespace NosCore.Tests.Helpers
             }
         };
 
-        public MapInstanceProvider MapInstanceProvider;
+        public MapInstanceProvider MapInstanceProvider { get; }
 
         public IItemProvider GenerateItemProvider()
         {
@@ -171,9 +180,10 @@ namespace NosCore.Tests.Helpers
             _lastId++;
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
-            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null,  _logger, new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
+            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger, 
+                new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
             session.SessionId = _lastId;
-            var chara = new Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
+            var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)
             {
                 CharacterId = _lastId,
