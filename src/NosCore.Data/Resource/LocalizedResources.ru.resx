@@ -141,19 +141,11 @@
   <data name="ARCHER" xml:space="preserve">
     <value>Лучник</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Do you wish to bind with this item?</value>
-    <comment>Need to check context for translate</comment>
-  </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>Удалить?</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Как минимум один обязательный файл отсутствует. Попробуйте ещё раз, когда у вас будут все необходимые файлы.</value>
-  </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Authenticated Error.</value>
-    <comment>Need to check context for translate</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Пользователь {1} успешно авторизован!</value>
@@ -522,10 +514,6 @@
   </data>
   <data name="NO_SP" xml:space="preserve">
     <value>Не экипирована Карта специалиста.</value>
-  </data>
-  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
-    <value>No special properties wearable</value>
-    <comment>????</comment>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} NpcMonsters!</value>
