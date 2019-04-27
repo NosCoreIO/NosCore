@@ -171,7 +171,7 @@ namespace NosCore.Tests.Helpers
             _lastId++;
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
-            var session = new ClientSession(WorldConfiguration, _logger, new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
+            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null,  _logger, new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao), new BlInsPackettHandler(_logger), new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
             session.SessionId = _lastId;
             var chara = new Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)

@@ -17,32 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-
-using NosCore.Data;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.Group;
-using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
-using NosCore.GameObject.Map;
-using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapItemProvider;
-using Serilog;
+using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
-using ChickenAPI.Packets.ClientPackets.Groups;
-using ChickenAPI.Packets.ClientPackets.Drops;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Group;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
+using NosCore.Tests.Helpers;
+using Serilog;
 
-namespace NosCore.Tests.HandlerTests
+namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class PleavePacketHandlerTests
@@ -59,35 +49,14 @@ namespace NosCore.Tests.HandlerTests
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = new ClientSession(null, _logger, null) { SessionId = i };
-
-                Broadcaster.Instance.RegisterSession(session);
-                var acc = new AccountDto { Name = $"AccountTest{i}", Password = "test".ToSha512() };
-                var charaDto = new Character(null, null, null, null, null, null, null, _logger, null)
-                {
-                    CharacterId = i,
-                    Name = $"TestExistingCharacter{i}",
-                    Slot = 1,
-                    AccountId = acc.AccountId,
-                    MapId = 1,
-                    State = CharacterState.Active
-                };
-
-                session.InitializeAccount(acc);
-
-                var chara = charaDto;
-                chara.Session = session;
-                chara.Account = acc;
-                _characters.Add(i, chara);
-                chara.Group.JoinGroup(chara);
-                session.SetCharacter(chara);
-                session.Character.MapInstance = new MapInstance(new Map(), Guid.NewGuid(), true,
-                    MapInstanceType.BaseMapInstance,
-                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, _logger);
-                _pLeavePacketHandler = new PleavePacketHandler();
-                _pJoinPacketHandler = new PjoinPacketHandler(_logger);
+                var session = TestHelpers.Instance.GenerateSession();
+                session.RegisterChannel(null);
+                _characters.Add(i, session.Character);
+                session.Character.Group.JoinGroup(session.Character);
             }
+
+            _pLeavePacketHandler = new PleavePacketHandler();
+            _pJoinPacketHandler = new PjoinPacketHandler(_logger);
         }
 
         [TestMethod]
