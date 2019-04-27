@@ -45,6 +45,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public void Setup()
         {
+            TestHelpers.Reset();
             Broadcaster.Reset();
             WebApiAccess.RegisterBaseAdress();
             WebApiAccess.Instance.MockValues =
@@ -55,6 +56,22 @@ namespace NosCore.Tests.PacketHandlerTests
                 };
 
             _session = TestHelpers.Instance.GenerateSession();
+            _session.Character.MapInstance.Portals = new List<Portal>
+            {
+                new Portal
+                {
+                    DestinationMapId = _session.Character.MapInstance.Map.MapId,
+                    Type = PortalType.Open,
+                    SourceMapInstanceId = _session.Character.MapInstance.MapInstanceId,
+                    DestinationMapInstanceId = _session.Character.MapInstance.MapInstanceId,
+                    DestinationX = 5,
+                    DestinationY = 5,
+                    PortalId = 1,
+                    SourceMapId = _session.Character.MapInstance.Map.MapId,
+                    SourceX = 0,
+                    SourceY = 0,
+                }
+            };
             _mShopPacketHandler = new MShopPacketHandler();
         }
 
@@ -183,7 +200,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void UserCanNotCreateEmptyShop()
         {
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
- 
+
             _mShopPacketHandler.Execute(new MShopPacket
             {
                 Type = CreateShopPacketType.Open,
