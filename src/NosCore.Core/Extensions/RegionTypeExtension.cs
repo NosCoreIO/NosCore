@@ -39,6 +39,8 @@ namespace NosCore.Core.Extensions
                     return CodePagesEncodingProvider.Instance.GetEncoding(1250);
                 case RegionType.TR:
                     return CodePagesEncodingProvider.Instance.GetEncoding(1254);
+                case RegionType.RU:
+                    return CodePagesEncodingProvider.Instance.GetEncoding(1251);
                 default:
                     return Encoding.Default;
             }
