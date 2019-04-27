@@ -138,7 +138,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = visualEntity.VisualType,
                 Name = prefix + visualEntity.Name,
-                VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
+                VNum = visualEntity.VNum == 0 ? null : visualEntity.VNum.ToString(),
                 VisualId = visualEntity.VisualId,
                 PositionX = visualEntity.PositionX,
                 PositionY = visualEntity.PositionY,
@@ -167,7 +167,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     WeaponUpgradeRareSubPacket = visualEntity.WeaponUpgradeRareSubPacket,
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
-                    FamilyName = string.Empty,
+                    FamilyName = null,
                     ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
@@ -176,6 +176,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     MorphUpgrade2 = 0,
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
+                    FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
                     Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = visualEntity.Size,
