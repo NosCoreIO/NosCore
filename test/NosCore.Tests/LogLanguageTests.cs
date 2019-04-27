@@ -80,6 +80,7 @@ namespace NosCore.Tests
         [DataRow(RegionType.IT)]
         [DataRow(RegionType.PL)]
         [DataRow(RegionType.TR)]
+        [DataRow(RegionType.RU)]
         public void CheckEveryLanguageValueSet(RegionType type)
         {
             var unfound = new StringBuilder();
@@ -179,6 +180,7 @@ namespace NosCore.Tests
         [DataRow(RegionType.IT)]
         [DataRow(RegionType.PL)]
         [DataRow(RegionType.TR)]
+        [DataRow(RegionType.RU)]
         public void CheckParametersLanguages(RegionType type)
         {
             var unfound = new StringBuilder();
@@ -211,6 +213,7 @@ namespace NosCore.Tests
         [DataRow(RegionType.IT)]
         [DataRow(RegionType.PL)]
         [DataRow(RegionType.TR)]
+        [DataRow(RegionType.RU)]
         public void CheckEveryLanguageAreUsefull(RegionType type)
         {
             var unfound = new StringBuilder();
