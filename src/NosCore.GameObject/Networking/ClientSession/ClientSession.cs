@@ -129,8 +129,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         public void SetCharacter(Character character)
         {
             Character = character;
-            HasSelectedCharacter = true;
-            Character.Session = this;
+            HasSelectedCharacter = character != null;
+            if (character != null)
+            {
+                Character.Session = this;
+            }
         }
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
@@ -344,7 +347,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             continue;
                         }
                         LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
-                    
+
                         if (packet.KeepAliveId == null)
                         {
                             Disconnect();
