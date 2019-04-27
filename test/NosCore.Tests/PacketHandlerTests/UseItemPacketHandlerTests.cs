@@ -43,11 +43,6 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Binding()
         {
-            var items = new List<ItemDto>
-            {
-                new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
-            };
-
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 }, _session);
 
