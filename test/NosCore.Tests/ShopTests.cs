@@ -82,6 +82,7 @@ namespace NosCore.Tests
                 };
 
             TestHelpers.Reset();
+            TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
             _session = TestHelpers.Instance.GenerateSession();
         }
