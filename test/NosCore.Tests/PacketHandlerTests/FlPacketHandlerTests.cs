@@ -31,6 +31,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 
@@ -153,54 +154,21 @@ namespace NosCore.Tests.PacketHandlerTests
             Broadcaster.Instance.RegisterSession(_session);
             _flPacketHandler = new FlPacketHandler();
         }
-        private void InitializeTargetSession()
-        {
-            var targetAccount = new AccountDto { Name = "test2", Password = "test".ToSha512() };
-            _accountDao.InsertOrUpdate(ref targetAccount);
-
-            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
-            {
-                CharacterId = 1,
-                Name = "TestChar2",
-                Slot = 1,
-                AccountId = targetAccount.AccountId,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-
-            CharacterDto character = _targetChar;
-            _characterDao.InsertOrUpdate(ref character);
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map },
-                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter(), _logger);
-            _targetSession = new ClientSession(new WorldConfiguration(), 
-                    instanceAccessService, null, _logger, new List<IPacketHandler> {new FinsPacketHandler(new WorldConfiguration(), _logger)})
-                { SessionId = 2 };
-
-            _targetSession.InitializeAccount(targetAccount);
-
-            _targetSession.SetCharacter(_targetChar);
-            _targetSession.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
-            _targetSession.Character.CharacterId = 2;
-            Broadcaster.Instance.RegisterSession(_targetSession);
-        }
-
 
         [TestMethod]
         public void Test_Add_Distant_Friend()
         {
-            InitializeTargetSession();
-            _targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
+            var targetSession = TestHelpers.Instance.GenerateSession();
+            targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
             var flPacket = new FlPacket
             {
-                CharacterName = _targetSession.Character.Name
+                CharacterName = targetSession.Character.Name
             };
 
             _flPacketHandler.Execute(flPacket, _session);
             Assert.IsTrue(_session.Character.CharacterRelations.Any(s =>
-                    s.Value.RelatedCharacterId == _targetSession.Character.CharacterId)
-                && _targetSession.Character.CharacterRelations.Any(s =>
+                    s.Value.RelatedCharacterId == targetSession.Character.CharacterId)
+                && targetSession.Character.CharacterRelations.Any(s =>
                     s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
 

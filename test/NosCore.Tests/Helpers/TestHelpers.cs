@@ -21,7 +21,6 @@ using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -38,21 +37,30 @@ namespace NosCore.Tests.Helpers
 {
     public class TestHelpers
     {
-        private static readonly Lazy<TestHelpers> lazy =
+        private int _lastId;
+        private static Lazy<TestHelpers> lazy =
             new Lazy<TestHelpers>(() => new TestHelpers());
         public static TestHelpers Instance => lazy.Value;
 
-        private readonly IGenericDao<AccountDto> _accountDao;
+        public IGenericDao<AccountDto> AccountDao { get; }
         private readonly IGenericDao<PortalDto> _portalDao;
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
+        private readonly IGenericDao<ShopDto> _shopDao;
+        private readonly IGenericDao<ShopItemDto> _shopItemDao;
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        public IGenericDao<CharacterDto> CharacterDao { get; }
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
-            _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
+            AccountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
             _portalDao = new GenericDao<Database.Entities.Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
             _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
+            _shopDao = new GenericDao<Database.Entities.Shop, ShopDto>(_logger);
+            _shopItemDao = new GenericDao<Database.Entities.ShopItem, ShopItemDto>(_logger);
+            _characterRelationDao = new GenericDao<Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+            CharacterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
             InitDatabase();
             MapInstanceProvider = GenerateMapInstanceProvider();
         }
@@ -140,11 +148,11 @@ namespace NosCore.Tests.Helpers
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
-  
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(GenerateItemProvider(), null, null, new List<NpcMonsterDto>(), _logger));
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
-                .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
+
+            TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
+                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao, new List<NpcMonsterDto>(), _logger));
+            TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
+                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger));
             var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     databaseName: Guid.NewGuid().ToString());
@@ -154,19 +162,23 @@ namespace NosCore.Tests.Helpers
 
         public ClientSession GenerateSession()
         {
-            var acc = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
-            _accountDao.InsertOrUpdate(ref acc);
+            _lastId++;
+            var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
+            AccountDao.InsertOrUpdate(ref acc);
             var session = new ClientSession(WorldConfiguration, _logger, new List<IPacketHandler>());
+            session.SessionId = _lastId;
             var chara = new Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, WorldConfiguration, _logger), null, null, null, null, null, _logger, null)
+                new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)
             {
-                CharacterId = 1,
-                Name = "TestExistingCharacter",
+                CharacterId = _lastId,
+                Name = "TestExistingCharacter" + _lastId,
                 Slot = 1,
                 AccountId = acc.AccountId,
                 MapId = 1,
                 State = CharacterState.Active
             };
+            var charaDto = chara.Adapt<CharacterDto>();
+            CharacterDao.InsertOrUpdate(ref charaDto);
             session.InitializeAccount(acc);
             session.SetCharacter(chara);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
@@ -174,6 +186,11 @@ namespace NosCore.Tests.Helpers
             session.RegisterChannel(new Mock<IChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
             return session;
+        }
+
+        public static void Reset()
+        {
+            lazy = new Lazy<TestHelpers>(() => new TestHelpers());
         }
     }
 }

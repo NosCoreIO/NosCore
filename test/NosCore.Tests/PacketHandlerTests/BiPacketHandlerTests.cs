@@ -6,7 +6,6 @@ using ChickenAPI.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;

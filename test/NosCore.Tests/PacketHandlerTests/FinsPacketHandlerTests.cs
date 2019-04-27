@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 
@@ -82,7 +83,6 @@ namespace NosCore.Tests.PacketHandlerTests
 
         private ClientSession _session;
         private Character _targetChar;
-        private ClientSession _targetSession;
 
         [TestInitialize]
         public void Setup()
@@ -152,55 +152,21 @@ namespace NosCore.Tests.PacketHandlerTests
             Broadcaster.Instance.RegisterSession(_session);
             _finsPacketHandler = new FinsPacketHandler(conf,_logger);
         }
-        private void InitializeTargetSession()
-        {
-            var targetAccount = new AccountDto { Name = "test2", Password = "test".ToSha512() };
-            _accountDao.InsertOrUpdate(ref targetAccount);
-
-            _targetChar = new Character(null, null, null, _characterRelationDao, _characterDao, _itemInstanceDao, _accountDao, _logger, null)
-            {
-                CharacterId = 1,
-                Name = "TestChar2",
-                Slot = 1,
-                AccountId = targetAccount.AccountId,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-
-            CharacterDto character = _targetChar;
-            _characterDao.InsertOrUpdate(ref character);
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { _map, _map2 },
-                new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter(), _logger);
-            _targetSession = new ClientSession(null,
-                    instanceAccessService, null, _logger, null)
-                { SessionId = 2 };
-
-            _targetSession.InitializeAccount(targetAccount);
-
-            _targetSession.SetCharacter(_targetChar);
-            _targetSession.Character.MapInstance = instanceAccessService.GetBaseMapById(0);
-            _targetSession.Character.CharacterId = 2;
-            Broadcaster.Instance.RegisterSession(_targetSession);
-        }
-
-
 
         [TestMethod]
         public void Test_Add_Friend()
         {
-            InitializeTargetSession();
-            _targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
+            var targetSession = TestHelpers.Instance.GenerateSession();
+            targetSession.Character.FriendRequestCharacters.TryAdd(0, _session.Character.CharacterId);
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession.Character.CharacterId,
+                CharacterId = targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsTrue(_session.Character.CharacterRelations.Any(s =>
-                    s.Value.RelatedCharacterId == _targetSession.Character.CharacterId)
-                && _targetSession.Character.CharacterRelations.Any(s =>
+                    s.Value.RelatedCharacterId == targetSession.Character.CharacterId)
+                && targetSession.Character.CharacterRelations.Any(s =>
                     s.Value.RelatedCharacterId == _session.Character.CharacterId));
         }
 
@@ -220,7 +186,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Add_Not_Requested_Friend()
         {
-            InitializeTargetSession();
+            var targetSession = TestHelpers.Instance.GenerateSession();
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetChar.CharacterId,
@@ -228,7 +194,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsTrue(_session.Character.CharacterRelations.IsEmpty &&
-                _targetSession.Character.CharacterRelations.IsEmpty);
+                targetSession.Character.CharacterRelations.IsEmpty);
         }
 
     }
