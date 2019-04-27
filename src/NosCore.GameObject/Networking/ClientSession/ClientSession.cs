@@ -129,8 +129,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         public void SetCharacter(Character character)
         {
             Character = character;
-            HasSelectedCharacter = true;
-            Character.Session = this;
+            HasSelectedCharacter = character != null;
+            if (character != null)
+            {
+                Character.Session = this;
+            }
         }
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
@@ -218,7 +221,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstance.LastUnregister = SystemTime.Now();
-                LeaveMap(this);
+                LeaveMap();
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -307,11 +310,11 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public void LeaveMap(ClientSession session)
+        private void LeaveMap()
         {
-            session.SendPacket(new MapOutPacket());
-            session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateOut(),
-                new EveryoneBut(session.Channel.Id));
+            SendPacket(new MapOutPacket());
+            Character.MapInstance.Sessions.SendPacket(Character.GenerateOut(),
+                new EveryoneBut(Channel.Id));
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -344,7 +347,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             continue;
                         }
                         LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
-                    
+
                         if (packet.KeepAliveId == null)
                         {
                             Disconnect();
