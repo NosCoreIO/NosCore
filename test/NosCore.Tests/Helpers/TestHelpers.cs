@@ -33,6 +33,7 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
+using NosCore.PacketHandlers.Inventory;
 using Serilog;
 using Character = NosCore.Database.Entities.Character;
 using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
@@ -186,6 +187,7 @@ namespace NosCore.Tests.Helpers
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
                 new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
                     new BlInsPackettHandler(_logger),
+                    new UseItemPacketHandler(),
                     new FinsPacketHandler(WorldConfiguration, _logger),
                     new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
             session.SessionId = _lastId;
