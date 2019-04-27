@@ -234,7 +234,7 @@
     <value>Поврежденный пакет Keepalive на клиенте {0}</value>
   </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
-    <value>Пакет с заголовком {0} поврежден либо PacketDefinition неверен. Content: {1}</value>
+    <value>Пакет с заголовком {0} поврежден либо PacketDefinition неверен. Контент: {1}</value>
   </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
     <value>База данных инициализирована.</value>
