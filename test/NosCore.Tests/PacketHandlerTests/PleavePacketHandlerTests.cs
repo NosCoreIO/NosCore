@@ -161,6 +161,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
+            _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             _pLeavePacketHandler.Execute(new PleavePacket(), _characters[0].Session);
             Assert.IsTrue(_characters[0].Group.Count == 1
                 && _characters[1].Group.Count == 1);

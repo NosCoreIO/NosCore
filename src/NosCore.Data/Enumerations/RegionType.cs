@@ -31,6 +31,7 @@ namespace NosCore.Data.Enumerations
         PL,
         ES,
         CS,
-        TR
+        TR,
+        RU
     }
 }
