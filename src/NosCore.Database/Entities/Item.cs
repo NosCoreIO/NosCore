@@ -164,6 +164,8 @@ namespace NosCore.Database.Entities
 
         public short Morph { get; set; }
 
+        public short SecondMorph { get; set; }
+
         public short Mp { get; set; }
 
         public short MpRegeneration { get; set; }
