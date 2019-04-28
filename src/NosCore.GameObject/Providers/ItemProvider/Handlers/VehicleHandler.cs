@@ -27,6 +27,7 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
@@ -70,8 +71,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.VehicleSpeed = itemInstance.Item.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;
-                requestData.ClientSession.Character.Morph =
-                    (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.Item.Morph);
+                requestData.ClientSession.Character.Morph = 
+                    itemInstance.Item.SecondMorph == 0 ?
+                    (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.Item.Morph) :
+                    requestData.ClientSession.Character.Gender == GenderType.Male 
+                        ? itemInstance.Item.Morph
+                        : itemInstance.Item.SecondMorph;
+
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196));
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
