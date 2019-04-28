@@ -375,6 +375,8 @@ namespace NosCore.GameObject
             SecondaryWeapon = Inventory
                 .LoadBySlotAndType<IItemInstance>((short) EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemVNum,
             WeaponSkin = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.WeaponSkin, PocketType.Wear)
+                ?.ItemVNum,
+            WingSkin = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.WingSkin, PocketType.Wear)
                 ?.ItemVNum
         };
 
@@ -1404,6 +1406,7 @@ namespace NosCore.GameObject
                 Necklace = generateEquipmentSubPacket(EquipmentType.Necklace),
                 Ring = generateEquipmentSubPacket(EquipmentType.Ring),
                 Bracelet = generateEquipmentSubPacket(EquipmentType.Bracelet),
+                WingSkin = generateEquipmentSubPacket(EquipmentType.WingSkin)
             };
         }
 

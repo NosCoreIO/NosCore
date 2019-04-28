@@ -63,6 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [DataRow(EquipmentType.CostumeSuit)]
         [DataRow(EquipmentType.CostumeHat)]
         [DataRow(EquipmentType.WeaponSkin)]
+        [DataRow(EquipmentType.WingSkin)]
         public void Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
         {
             var items = new List<ItemDto>
