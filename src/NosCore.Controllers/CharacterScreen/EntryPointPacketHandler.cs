@@ -171,15 +171,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     HeroLevel = character.HeroLevel,
                     Equipments = new List<short?>
                     {
-                        equipment[(byte) EquipmentType.Hat]?.ItemVNum ?? -1,
-                        equipment[(byte) EquipmentType.Armor]?.ItemVNum ?? -1,
+                        equipment[(byte) EquipmentType.Hat]?.ItemVNum,
+                        equipment[(byte) EquipmentType.Armor]?.ItemVNum,
                         equipment[(byte) EquipmentType.WeaponSkin]?.ItemVNum ??
-                        (equipment[(byte) EquipmentType.MainWeapon]?.ItemVNum ?? -1),
-                        equipment[(byte) EquipmentType.SecondaryWeapon]?.ItemVNum ?? -1,
-                        equipment[(byte) EquipmentType.Mask]?.ItemVNum ?? -1,
-                        equipment[(byte) EquipmentType.Fairy]?.ItemVNum ?? -1,
-                        equipment[(byte) EquipmentType.CostumeSuit]?.ItemVNum ?? -1,
-                        equipment[(byte) EquipmentType.CostumeHat]?.ItemVNum ?? -1
+                        equipment[(byte) EquipmentType.MainWeapon]?.ItemVNum,
+                        equipment[(byte) EquipmentType.SecondaryWeapon]?.ItemVNum,
+                        equipment[(byte) EquipmentType.Mask]?.ItemVNum,
+                        equipment[(byte) EquipmentType.Fairy]?.ItemVNum,
+                        equipment[(byte) EquipmentType.CostumeSuit]?.ItemVNum,
+                        equipment[(byte) EquipmentType.CostumeHat]?.ItemVNum
                     },
                     JobLevel = character.JobLevel,
                     QuestCompletion = 1,
