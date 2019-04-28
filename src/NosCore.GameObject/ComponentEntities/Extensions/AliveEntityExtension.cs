@@ -32,6 +32,7 @@ using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.Groups;
@@ -57,13 +58,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static NpcReqPacket GenerateNpcReq(this IAliveEntity namedEntity, long dialog)
+        public static RequestNpcPacket GenerateNpcReq(this IAliveEntity namedEntity, long dialog)
         {
-            return new NpcReqPacket
+            return new RequestNpcPacket
             {
-                VisualType = namedEntity.VisualType,
-                VisualId = namedEntity.VisualId,
-                Dialog = dialog,
+                Type = namedEntity.VisualType,
+                TargetId = namedEntity.VisualId,
+                Data = dialog,
             };
         }
 
