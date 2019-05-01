@@ -31,49 +31,42 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class TeleporterHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == (NrunRunnerType)16;
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == (NrunRunnerType)16
+            && item.Item1.MapInstance.Npcs.Find(
+                s => s.VisualId == item.Item2.VisualId
+                && s.VisualType == item.Item2.VisualType
+                && s.Dialog >= 439 && s.Dialog <= 441)
+            != null;
+
+        private void CheckOut(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData, short mapId, long GoldToPay, short x1, short x2, short y1, short y2)
+        {
+            if (requestData.ClientSession.Character.Gold >= GoldToPay)
+            {
+                requestData.ClientSession.Character.RemoveGold(GoldToPay);
+                requestData.ClientSession.ChangeMap(
+                        mapId, (short)RandomFactory.Instance.RandomNumber(x1, x2), (short)RandomFactory.Instance.RandomNumber(y1, y2));
+                return;
+            }
+            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
+                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, requestData.ClientSession.Account.Language), SayColorType.Yellow
+                    ));
+
+        }
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            var tp = requestData.ClientSession.Character.MapInstance.Npcs.Find(
-                s => s.VisualId == requestData.Data.Item2.VisualId
-                && s.VisualType == requestData.Data.Item2.VisualType
-                && s.Dialog >= 439 && s.Dialog <= 441);
 
-            if (tp != null)
+            switch (requestData.Data.Item2.Type)
             {
-                bool CheckOut(long GoldToPay)
-                {
-                    if (requestData.ClientSession.Character.Gold >= GoldToPay)
-                    {
-                        requestData.ClientSession.Character.RemoveGold(GoldToPay);
-                        return true;
-                    }
-                    requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, requestData.ClientSession.Account.Language), SayColorType.Yellow
-                            ));
-                    return false;
-                }
-
-                if (requestData.Data.Item2.Type == 0)
-                {
-                    requestData.ClientSession.ChangeMap(
-                        1, (short)RandomFactory.Instance.RandomNumber(78, 81), (short)RandomFactory.Instance.RandomNumber(114, 118));
-                } else if (requestData.Data.Item2.Type == 1)
-                {
-                    if (CheckOut(1_000))
-                    {
-                        requestData.ClientSession.ChangeMap(
-                            20, (short)RandomFactory.Instance.RandomNumber(7, 11), (short)RandomFactory.Instance.RandomNumber(90, 94));
-                    }
-                } else
-                {
-                    if (CheckOut(2_000))
-                    {
-                        requestData.ClientSession.ChangeMap(
-                            145, (short)RandomFactory.Instance.RandomNumber(11, 15), (short)RandomFactory.Instance.RandomNumber(108, 112));
-                    }
-                }
+                case 0:
+                    CheckOut(requestData, 1, 0, 77, 82, 113, 119);
+                    break;
+                case 1:
+                    CheckOut(requestData, 20, 1000, 7, 11, 90, 94);
+                    break;
+                case 2:
+                    CheckOut(requestData, 145, 2000, 11, 15, 108, 112);
+                    break;
             }
         }
     }
