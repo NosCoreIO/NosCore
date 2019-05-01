@@ -50,22 +50,20 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, requestData.ClientSession.Account.Language), SayColorType.Yellow
                     ));
-
         }
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-
             switch (requestData.Data.Item2.Type)
             {
-                case 0:
-                    CheckOut(requestData, 1, 0, 77, 82, 113, 119);
-                    break;
                 case 1:
                     CheckOut(requestData, 20, 1000, 7, 11, 90, 94);
                     break;
                 case 2:
                     CheckOut(requestData, 145, 2000, 11, 15, 108, 112);
+                    break;
+                default:
+                    CheckOut(requestData, 1, 0, 77, 82, 113, 119);
                     break;
             }
         }
