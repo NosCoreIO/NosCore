@@ -32,23 +32,19 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
     public class TeleporterHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == (NrunRunnerType)16
-            && item.Item1.MapInstance.Npcs.Find(
-                s => s.VisualId == item.Item2.VisualId
-                && s.VisualType == item.Item2.VisualType
-                && s.Dialog >= 439 && s.Dialog <= 441)
-            != null;
+            && item.Item1.MapInstance.Npcs.Find(s => s.Dialog >= 439 && s.Dialog <= 441) != null;
 
-        private void CheckOut(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData, short mapId, long GoldToPay, short x1, short x2, short y1, short y2)
+        private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2, short y1, short y2)
         {
-            if (requestData.ClientSession.Character.Gold >= GoldToPay)
+            if (clientSession.Character.Gold >= GoldToPay)
             {
-                requestData.ClientSession.Character.RemoveGold(GoldToPay);
-                requestData.ClientSession.ChangeMap(
+                clientSession.Character.RemoveGold(GoldToPay);
+                clientSession.ChangeMap(
                         mapId, (short)RandomFactory.Instance.RandomNumber(x1, x2), (short)RandomFactory.Instance.RandomNumber(y1, y2));
                 return;
             }
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, requestData.ClientSession.Account.Language), SayColorType.Yellow
+            clientSession.SendPacket(clientSession.Character.GenerateSay(
+                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language), SayColorType.Yellow
                     ));
         }
 
@@ -57,13 +53,13 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             switch (requestData.Data.Item2.Type)
             {
                 case 1:
-                    CheckOut(requestData, 20, 1000, 7, 11, 90, 94);
+                    RemoveGoldAndTeleport(requestData.ClientSession, 20, 1000, 7, 11, 90, 94);
                     break;
                 case 2:
-                    CheckOut(requestData, 145, 2000, 11, 15, 108, 112);
+                    RemoveGoldAndTeleport(requestData.ClientSession, 145, 2000, 11, 15, 108, 112);
                     break;
                 default:
-                    CheckOut(requestData, 1, 0, 77, 82, 113, 119);
+                    RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119);
                     break;
             }
         }
