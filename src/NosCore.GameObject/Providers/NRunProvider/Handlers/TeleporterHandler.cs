@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
     public class TeleporterHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == (NrunRunnerType)16
-            && item.Item1.MapInstance.Npcs.Find(s => s.Dialog >= 439 && s.Dialog <= 441) != null;
+            && item.Item1 is MapNpc mapNpc
+            && ((mapNpc.Dialog >= 439 && mapNpc.Dialog <= 441) || mapNpc.Dialog == 11 || mapNpc.Dialog == 16 || mapNpc.Dialog == 9768);
 
         private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2, short y1, short y2)
         {
