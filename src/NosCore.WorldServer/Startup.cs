@@ -48,8 +48,8 @@ using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.WorldServer.Controllers;
-using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
@@ -74,8 +74,14 @@ using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
+using HotChocolate;
+using HotChocolate.AspNetCore;
+using HotChocolate.Execution.Configuration;
 using NosCore.Data.CommandPackets;
 using NosCore.PacketHandlers.Login;
+using NosCore.WorldServer.GraphQl;
+using NosCore.Data.WebApi;
+using Character = NosCore.GameObject.Character;
 
 namespace NosCore.WorldServer
 {
@@ -269,7 +275,6 @@ namespace NosCore.WorldServer
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
@@ -303,6 +308,21 @@ namespace NosCore.WorldServer
                 .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 
+            services.AddSingleton<Query>();
+            services.AddGraphQL(sp => Schema.Create(c =>
+                {
+                    c.RegisterServiceProvider(sp);
+                    c.RegisterAuthorizeDirectiveType();
+
+                    c.RegisterQueryType<QueryType>();
+
+                    c.RegisterType<ConnectedAccount>();
+                    c.RegisterType<Data.WebApi.Character>();
+                }),
+                new QueryExecutionOptions
+                {
+                    TracingPreference = TracingPreference.Always
+                });
 
             var containerBuilder = new ContainerBuilder();
             InitializeContainer(containerBuilder);
@@ -326,6 +346,15 @@ namespace NosCore.WorldServer
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseMvc();
+            app.UseWebSockets()
+                .UseGraphQL(new QueryMiddlewareOptions
+                {
+                    Path = "/graphql",
+                    OnCreateRequest = (ctx, builder, ct) =>
+                    {
+                        return Task.CompletedTask;
+                    }
+                });
         }
     }
 }

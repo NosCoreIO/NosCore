@@ -17,24 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
-using NosCore.Data.Enumerations.Account;
+using System;
+using System.Reactive;
+using HotChocolate.Types;
+using NosCore.Data.Enumerations;
+using NosCore.Data.GraphQL;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Networking;
+using NosCore.WorldServer.GraphQl;
 
-namespace NosCore.WorldServer.Controllers
+namespace NosCore.WorldServer
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class ConnectedAccountController : Controller
+    public class QueryType
+        : ObjectType<Query>
     {
-        // GET api/connectedAccount
-        [HttpGet]
-        public List<ConnectedAccount> GetconnectedAccount()
+        protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
         {
-            return Broadcaster.Instance.ConnectedAccounts();
+            descriptor.Field(t => t.GetConnectedAccounts(default))
+                .Type<ConnectedAccountType>()
+                .Argument("name", a => a.DefaultValue(""));
         }
     }
 }

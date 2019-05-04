@@ -65,6 +65,9 @@ using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using NosCore.Data.Enumerations.Interaction;
 using ChickenAPI.Packets.ServerPackets.Minimap;
+using GraphQL.Client.Http;
+using GraphQL.Common.Request;
+using NosCore.Data.GraphQL;
 
 namespace NosCore.GameObject
 {
@@ -970,17 +973,21 @@ namespace NosCore.GameObject
 
             var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer);
+            var connectedAccountRequest = new GraphQLRequest
+            {
+                Query =
+                    $"{{ connectedAccounts(name:\"{targetSession.Name}\") {{ name }} }}"
+            };
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
-                var account = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-                    .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
-
-                if (account != null)
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
+                var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                if (connected.Count > 0)
                 {
                     WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
                         targetCharacterRelation.CharacterRelationId);
-                    return;
+                    break;
                 }
             }
 

@@ -23,6 +23,8 @@ using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using GraphQL.Client.Http;
+using GraphQL.Common.Request;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -33,7 +35,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
+using NosCore.Data.GraphQL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -67,11 +69,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
+                var connectedAccountRequest = new GraphQLRequest
+                {
+                    Query =
+                        $"{{ connectedAccounts(name:\"{name}\") {{ name }} }}"
+                };
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    if (WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-                        .Any(a => a.Name == name))
+                    var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                    var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
+                    var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                    if (connected.Count > 0)
                     {
                         alreadyConnnected = true;
                         break;

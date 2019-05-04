@@ -29,9 +29,11 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.WebApi;
+using NosCore.Data.GraphQL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using GraphQL.Client.Http;
+using GraphQL.Common.Request;
 
 namespace NosCore.PacketHandlers.Login
 {
@@ -113,18 +115,24 @@ namespace NosCore.PacketHandlers.Login
                         var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
-                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
+                        var connectedAccountCount = new Dictionary<int, int>();
                         var i = 1;
+                        var connectedAccountRequest = new GraphQLRequest
+                        {
+                            Query =
+                                $"{{ connectedAccounts(name:\"{packet.Name}\") {{ name }} }}"
+                        };
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(
-                                WebApiRoute.ConnectedAccount,
-                                server.WebApi);
-                            connectedAccount.Add(i, channelList);
+                            var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                            var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
+                            var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
+                            connectedAccountCount.Add(i, connected.Count);
                             i++;
-                            if (channelList.Any(a => a.Name == acc.Name))
+                            if (connected.Count > 0)
                             {
                                 alreadyConnnected = true;
+                                break;
                             }
                         }
 
@@ -164,7 +172,7 @@ namespace NosCore.PacketHandlers.Login
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccountCount[i] / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {

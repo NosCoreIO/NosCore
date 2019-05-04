@@ -17,14 +17,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations
+using HotChocolate.Types;
+using NosCore.Data.Enumerations;
+
+namespace NosCore.Data.GraphQL
 {
-    public enum WebApiRoute
+    public class ConnectedAccountType
+        : InterfaceType
     {
-        Channel,
-        Session,
-        Relation,
-        Packet,
-        Stat,
+        protected override void Configure(IInterfaceTypeDescriptor descriptor)
+        {
+            descriptor.Name("ConnectedAccount");
+
+            descriptor.Field("name")
+                .Type<NonNullType<StringType>>();
+
+            descriptor.Field("channelId")
+                .Type<IntType>();
+
+            descriptor.Field("language")
+                .Type<EnumType<RegionType>>();
+
+            descriptor.Field("character")
+                .Type<CharacterType>();
+        }
     }
 }

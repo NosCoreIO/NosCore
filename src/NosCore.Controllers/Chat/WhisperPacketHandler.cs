@@ -90,14 +90,15 @@ namespace NosCore.PacketHandlers.Chat
                     ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    var accounts = WebApiAccess.Instance
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
+                    //TODO fix
+                    //var accounts = WebApiAccess.Instance
+                    //    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
 
-                    if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
-                    {
-                        receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
-                        break;
-                    }
+                    //if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
+                    //{
+                    //    receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
+                    //    break;
+                    //}
                 }
 
                 if (receiver == null)
