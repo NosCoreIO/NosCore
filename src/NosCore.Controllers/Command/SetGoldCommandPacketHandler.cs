@@ -51,14 +51,14 @@ namespace NosCore.PacketHandlers.Command
             ConnectedAccount account = null;
 
             foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
+            {   //TODO fix
+                //config = server.WebApi;
+                //account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                //    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
+                //if (account != null)
+                //{
+                //    break;
+                //}
             }
 
             if (account == null) //TODO: Handle 404 in WebApi

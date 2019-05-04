@@ -59,16 +59,17 @@ namespace NosCore.PacketHandlers.Command
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts =
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                //TODO fix
+                //var accounts =
+                //    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+                //var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
-                if (target != null)
-                {
-                    receiver = target;
-                    config = channel.WebApi;
-                }
+                //if (target != null)
+                //{
+                //    receiver = target;
+                //    config = channel.WebApi;
+                //}
             }
 
             if (receiver == null) //TODO: Handle 404 in WebApi

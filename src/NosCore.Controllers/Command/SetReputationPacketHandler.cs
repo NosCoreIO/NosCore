@@ -58,13 +58,14 @@ namespace NosCore.PacketHandlers.Command
 
             foreach (var server in servers)
             {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
+                //TODO fix
+                //config = server.WebApi;
+                //account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                //    .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
+                //if (account != null)
+                //{
+                //    break;
+                //}
             }
 
             if (account == null) //TODO: Handle 404 in WebApi

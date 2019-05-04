@@ -5,7 +5,6 @@
 		"Port": 5000,
 		"Routes": {
 			"Channel" : "api/channel",
-			"ConnectedAccount" : "api/connectedAccount"
 		}
   },
   "Host": "127.0.0.1",

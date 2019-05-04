@@ -1,18 +1,18 @@
 ﻿using HotChocolate.Types;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Data.GraphQL
 {
-    public class CharacterType
-        : InterfaceType
+    public class CharacterType : ObjectType<Character>
     {
-        protected override void Configure(IInterfaceTypeDescriptor descriptor)
+        protected override void Configure(IObjectTypeDescriptor<Character> descriptor)
         {
             descriptor.Name("Character");
 
-            descriptor.Field("id")
-                .Type<NonNullType<IntType>>();
+            descriptor.Field(t => t.Id)
+                .Type<NonNullType<LongType>>();
 
-            descriptor.Field("name")
+            descriptor.Field(t => t.Name)
                 .Type<StringType>();
         }
     }

@@ -313,6 +313,7 @@ namespace NosCore.WorldServer
                 {
                     c.RegisterServiceProvider(sp);
                     c.RegisterAuthorizeDirectiveType();
+                    c.RegisterExtendedScalarTypes();
 
                     c.RegisterQueryType<QueryType>();
 

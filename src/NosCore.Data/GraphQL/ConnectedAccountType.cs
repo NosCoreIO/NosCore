@@ -19,26 +19,27 @@
 
 using HotChocolate.Types;
 using NosCore.Data.Enumerations;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Data.GraphQL
 {
     public class ConnectedAccountType
-        : InterfaceType
+        : ObjectType<ConnectedAccount>
     {
-        protected override void Configure(IInterfaceTypeDescriptor descriptor)
+        protected override void Configure(IObjectTypeDescriptor<ConnectedAccount> descriptor)
         {
             descriptor.Name("ConnectedAccount");
 
-            descriptor.Field("name")
+            descriptor.Field(t=>t.Name)
                 .Type<NonNullType<StringType>>();
 
-            descriptor.Field("channelId")
+            descriptor.Field(t => t.ChannelId)
                 .Type<IntType>();
 
-            descriptor.Field("language")
+            descriptor.Field(t=>t.Language)
                 .Type<EnumType<RegionType>>();
 
-            descriptor.Field("character")
+            descriptor.Field(t=>t.ConnectedCharacter)
                 .Type<CharacterType>();
         }
     }
