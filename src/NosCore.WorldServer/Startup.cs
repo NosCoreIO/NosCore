@@ -78,6 +78,7 @@ using HotChocolate;
 using HotChocolate.AspNetCore;
 using HotChocolate.Execution.Configuration;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.GraphQL;
 using NosCore.PacketHandlers.Login;
 using NosCore.WorldServer.GraphQl;
 using NosCore.Data.WebApi;
@@ -317,8 +318,8 @@ namespace NosCore.WorldServer
 
                     c.RegisterQueryType<QueryType>();
 
-                    c.RegisterType<ConnectedAccount>();
-                    c.RegisterType<Data.WebApi.Character>();
+                    c.RegisterType<ConnectedAccountType>();
+                    c.RegisterType<CharacterType>();
                 }),
                 new QueryExecutionOptions
                 {
@@ -343,19 +344,14 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
-            app.UseAuthentication();
-            app.UseMvc();
             app.UseWebSockets()
                 .UseGraphQL(new QueryMiddlewareOptions
                 {
                     Path = "/graphql",
-                    OnCreateRequest = (ctx, builder, ct) =>
-                    {
-                        return Task.CompletedTask;
-                    }
+                    OnCreateRequest = (ctx, builder, ct) => Task.CompletedTask
                 });
+
+            app.UseMvc();
         }
     }
 }

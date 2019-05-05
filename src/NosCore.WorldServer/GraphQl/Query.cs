@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Account;
@@ -13,6 +14,10 @@ namespace NosCore.WorldServer.GraphQl
     {
         public IEnumerable<ConnectedAccount> GetConnectedAccounts(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Broadcaster.Instance.ConnectedAccounts().Where(s=>s.Name == name);
+            }
             return Broadcaster.Instance.ConnectedAccounts();
         }
     }

@@ -17,15 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Reactive;
 using HotChocolate.Types;
-using NosCore.Data.Enumerations;
 using NosCore.Data.GraphQL;
-using NosCore.Data.WebApi;
-using NosCore.WorldServer.GraphQl;
 
-namespace NosCore.WorldServer
+namespace NosCore.WorldServer.GraphQl
 {
     public class QueryType
         : ObjectType<Query>
@@ -33,7 +28,7 @@ namespace NosCore.WorldServer
         protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
         {
             descriptor.Field(t => t.GetConnectedAccounts(default))
-                .Type<ConnectedAccountType>()
+                .Type<ListType<ConnectedAccountType>>()
                 .Argument("name", a => a.DefaultValue(""));
         }
     }

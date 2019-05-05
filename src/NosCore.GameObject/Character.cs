@@ -980,7 +980,7 @@ namespace NosCore.GameObject
             };
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
-                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/api/graphql");
+                var graphQlClient = new GraphQLHttpClient($"{server.WebApi}/graphql");
                 var graphQlResponse = graphQlClient.SendQueryAsync(connectedAccountRequest).Result; //TODO move to async
                 var connected = graphQlResponse.GetDataFieldAs<List<ConnectedAccountType>>("connectedAccounts");
                 if (connected.Count > 0)
