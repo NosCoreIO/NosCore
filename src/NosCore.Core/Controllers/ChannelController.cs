@@ -114,18 +114,6 @@ namespace NosCore.Core.Controllers
             return Ok(new ConnectionInfo {Token = handler.WriteToken(securityToken), ChannelInfo = data});
         }
 
-        // GET api/channel
-        [HttpGet]
-        public List<ChannelInfo> GetChannels(long? id)
-        {
-            if (id != null)
-            {
-                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
-            }
-
-            return MasterClientListSingleton.Instance.Channels;
-        }
-
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
         {

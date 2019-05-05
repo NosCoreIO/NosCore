@@ -21,7 +21,6 @@ namespace NosCore.Data.Enumerations
 {
     public enum WebApiRoute
     {
-        Channel,
         Session,
         Relation,
         Packet,

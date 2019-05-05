@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using HotChocolate.Types;
+using NosCore.Core;
 using NosCore.Data.GraphQL;
 
 namespace NosCore.WorldServer.GraphQl
@@ -30,6 +31,10 @@ namespace NosCore.WorldServer.GraphQl
             descriptor.Field(t => t.GetConnectedAccounts(default))
                 .Type<ListType<ConnectedAccountType>>()
                 .Argument("name", a => a.DefaultValue(""));
+
+            descriptor.Field(t => t.GetChannels(default))
+                .Type<ListType<ChannelInfoType>>()
+                .Argument("id", a => a.DefaultValue(null));
         }
     }
 }

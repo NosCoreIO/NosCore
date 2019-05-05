@@ -4,7 +4,6 @@
 		"Host": "http://localhost",
 		"Port": 5000,
 		"Routes": {
-			"Channel" : "api/channel",
 			"Session" : "api/session",
 			"Relation" : "api/relation",
 			"Packet" : "api/packet",
