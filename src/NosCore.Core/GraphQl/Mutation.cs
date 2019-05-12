@@ -1,58 +1,29 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Configuration;
-using NosCore.Core.Encryption;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
-namespace NosCore.Core.Controllers
+namespace NosCore.MasterServer.GraphQl
 {
-    [Route("api/[controller]")]
-    public class ChannelController : Controller
+    public class Mutation
     {
-        private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
 
-        private int _id;
-
-        public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
+        public Mutation(ILogger logger)
         {
             _logger = logger;
-            _apiConfiguration = apiConfiguration;
         }
 
-        [AllowAnonymous]
-        [HttpPost]
         public IActionResult Connect([FromBody] Channel data)
         {
             if (!ModelState.IsValid)
@@ -111,11 +82,10 @@ namespace NosCore.Core.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo {Token = handler.WriteToken(securityToken), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
         }
 
-        [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
+        public HttpStatusCode Ping(int id, DateTime data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann != null)

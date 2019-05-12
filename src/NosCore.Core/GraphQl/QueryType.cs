@@ -19,19 +19,17 @@
 
 using HotChocolate.Types;
 using NosCore.Core;
-using NosCore.Data.GraphQL;
 
-namespace NosCore.WorldServer.GraphQl
+namespace NosCore.MasterServer.GraphQl
 {
     public class QueryType
         : ObjectType<Query>
     {
         protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
         {
-            descriptor.Field(t => t.GetConnectedAccounts(default))
-                .Type<ListType<ConnectedAccountType>>()
-                .Argument("name", a => a.DefaultValue(""));
-
+            descriptor.Field(t => t.GetChannels(default))
+                .Type<ListType<ChannelInfoType>>()
+                .Argument("id", a => a.DefaultValue(null));
         }
     }
 }
