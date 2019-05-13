@@ -113,7 +113,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p =>p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
