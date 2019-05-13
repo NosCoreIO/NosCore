@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Interfaces;
 using Mapster;
 using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.Mapping
         public Mapper()
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()
                 .MapWith(src => null);
