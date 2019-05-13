@@ -52,9 +52,13 @@ namespace NosCore.Core.Encryption
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
                 var des = _deserializer.Deserialize(decryptedPacket.ToString());
-                if (des != null)
+                if (des != null && des.IsValid)
                 {
                     output.Add(new[] { des });
+                }
+                else if (!des.IsValid)
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), des);
                 }
                 else
                 {

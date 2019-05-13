@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item) =>
             item.Item2.Runner == NrunRunnerType.ChangeClass &&
-            item.Item2.Type > 0 && item.Item2.Type < 4;
+            item.Item2.Type > 0 && item.Item2.Type < 4 && item.Item1 != null;
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {

@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class TeleporterHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == (NrunRunnerType)16
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.Teleport
             && item.Item1 is MapNpc mapNpc
             && ((mapNpc.Dialog >= 439 && mapNpc.Dialog <= 441) || mapNpc.Dialog == 11 || mapNpc.Dialog == 16 || mapNpc.Dialog == 9768);
 
