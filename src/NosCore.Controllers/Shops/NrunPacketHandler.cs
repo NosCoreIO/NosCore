@@ -44,6 +44,7 @@ namespace NosCore.PacketHandlers.Shops
 
         public override void Execute(NrunPacket nRunPacket, ClientSession clientSession)
         {
+            bool forceNull = false;
             IAliveEntity aliveEntity;
             switch (nRunPacket.VisualType)
             {
@@ -53,6 +54,10 @@ namespace NosCore.PacketHandlers.Shops
                 case VisualType.Npc:
                     aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
                     break;
+                case null:
+                    aliveEntity = null;
+                    forceNull = true;
+                    break;
 
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
@@ -60,7 +65,7 @@ namespace NosCore.PacketHandlers.Shops
                     return;
             }
 
-            if (aliveEntity == null)
+            if (aliveEntity == null && !forceNull)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
                 return;

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -167,7 +168,7 @@ namespace NosCore.Tests.Helpers
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
-
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao, new List<NpcMonsterDto>(), _logger));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
