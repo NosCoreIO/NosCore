@@ -270,7 +270,12 @@ namespace NosCore.Core.Encryption
                 {
                     try
                     {
-                        return _deserializer.Deserialize(DecryptPrivate(p));
+                        var packet = _deserializer.Deserialize(DecryptPrivate(p));
+                        if (!packet.IsValid)
+                        {
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
+                        }
+                        return packet;
                     }
                     catch (Exception ex)
                     {
