@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class OpenShopEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop;
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenShop && item.Item1 != null;
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
