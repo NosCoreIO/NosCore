@@ -175,7 +175,8 @@ namespace NosCore.WorldServer
         {
             containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.Namespace != "ChickenAPI.Packets.ServerPackets.Login" && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login" && p.Name != "NoS0575Packet")
+                    && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
             containerBuilder.Register(c => new Deserializer(listofpacket))
