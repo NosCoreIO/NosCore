@@ -389,7 +389,7 @@ namespace NosCore.GameObject
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = weapon?.Upgrade ?? 0,
-                    Rare = (byte) (weapon?.Rare ?? 0)
+                    Rare = (sbyte) (weapon?.Rare ?? 0)
                 };
             }
         }
@@ -402,7 +402,7 @@ namespace NosCore.GameObject
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = armor?.Upgrade ?? 0,
-                    Rare = (byte) (armor?.Rare ?? 0)
+                    Rare = (sbyte) (armor?.Rare ?? 0)
                 };
             }
         }
