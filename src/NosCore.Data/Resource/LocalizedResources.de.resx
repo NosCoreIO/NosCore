@@ -632,7 +632,7 @@
     <value>{0} Portale geladen!</value>
   </data>
   <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Bitte warte {0}s bevor du dich teleportieren kannst!</value>
+    <value>Bitte warte bevor du dich teleportieren willst!</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
