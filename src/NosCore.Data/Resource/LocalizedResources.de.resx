@@ -191,6 +191,9 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Dieser Spieler hat dich blockiert.</value>
   </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Du hast ein Item von {0} gekauft!</value>
+  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Du hast ein Item gekauft!</value>
   </data>
@@ -281,8 +284,15 @@
     <value>Entschlüsselungs fehler</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="ERROR_SESSIONID" xml:space="preserve">
+    <value>SessionId fehler</value>
+    <comment>insert missing type data</comment>
+  </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Eine Ausnahme wurde ausgelöst!</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Deine Tauschanfrage wurde blockiert!</value>
   </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Deine Tauschanfrage wurde abgelehnt!</value>
@@ -345,6 +355,9 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Du hast deinen Shop eröffnet!</value>
   </data>
   <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
     <value>Dein Helden Level hat sich geändert!</value>
@@ -423,6 +436,12 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
   </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Das Item kann nicht verkauft werden!</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Du kannst das Item nicht tauschen!</value>
+  </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Dein Job Level hat sich geändert!</value>
   </data>
@@ -441,6 +460,9 @@
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
+  </data>
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve">
+    <value>Lade MapInstanzen</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
@@ -532,6 +554,10 @@
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs geladen!</value>
   </data>
+  <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
+    <value>Packet erhalten ohne dass ein Charakter gesetzt ist {0}</value>
+    <comment>Packet received without character being set {0}</comment>
+  </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Möchtest du die Accounts laden?</value>
   </data>
@@ -605,6 +631,9 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portale geladen!</value>
   </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Bitte warte {0}s bevor du dich teleportieren kannst!</value>
+  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
     <comment>check</comment>
@@ -666,11 +695,30 @@
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Du hast deinen Shop eröffnet!</value>
   </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Willst du den Shop öffnen solange du ihn einrichtest?</value>
+    <comment>Proceed to open the shop as you set it up?</comment>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>Du hast bereits die maximale Anzahl an Bonus SPs erreicht!</value>
+  </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Du benutzt schon eine SP! Bitte verwandle dich zuerst um.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Deine SP ist zur Zeit am abklingen! Bitte warte {0}s</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Du hast nicht genügend SP Punkte um dich zu verwandeln!</value>
+  </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
     <value>Du hast SP Points erhalten! {0}</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Verbleibende Zeit: {0} sekunden</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
@@ -690,8 +738,16 @@
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Der Verkäufer besitzt zu viel Gold!</value>
   </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>Die Sekundären Effekte sind abgeklungen. {0}</value>
+    <comment>The secondary effects have finished. {0}</comment>
+  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Die Gruppe kann nicht erriecht werden</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Unbekannt</value>
+    <comment>check</comment>
   </data>
   <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
     <value>Unbekannter Ausrüstungs typ: {0}</value>
@@ -703,16 +759,31 @@
     <value>Unbekannter Empfänger typ</value>
     <comment>insert missing type data</comment>
   </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>Dein GOld wurde erfolgreich geändert!</value>
+  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Benutzer ist kein Freund!</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Benutzer ist nicht verbunden!</value>
   </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>Benutzer ist nicht am tauschen!</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Ungültige SP Karte entdeckt!</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>VisualEntity existiert nicht: {0}</value>
+  </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter VisualType: {0}</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Falsche MapId!</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Du hast eine Tauschanfrage gesendet!</value>
   </data>
 </root>
