@@ -68,17 +68,18 @@ namespace NosCore.PacketHandlers.Chat
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
                 if (receiverSession != null)
                 {
-                    if (receiverSession.CharacterRelations.Values.Any(s =>
-                        s.RelatedCharacterId == session.Character.CharacterId
-                        && s.RelationType == CharacterRelationType.Blocked))
-                    {
-                        session.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                session.Account.Language)
-                        });
-                        return;
-                    }
+                    //TODO FIx
+                    //if (receiverSession.CharacterRelations.Values.Any(s =>
+                    //    s.RelatedCharacterId == session.Character.CharacterId
+                    //    && s.RelationType == CharacterRelationType.Blocked))
+                    //{
+                    //    session.SendPacket(new InfoPacket
+                    //    {
+                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                    //            session.Account.Language)
+                    //    });
+                    //    return;
+                    //}
 
                     receiverSession.SendPacket(speakPacket);
                     return;
@@ -108,17 +109,18 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                if (session.Character.RelationWithCharacter.Values.Any(s =>
-                    s.RelationType == CharacterRelationType.Blocked && s.CharacterId == receiver.ConnectedCharacter.Id))
-                {
-                    session.SendPacket(new SayPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                            session.Account.Language),
-                        Type = SayColorType.Yellow
-                    });
-                    return;
-                }
+                //TODO FIx
+                //if (session.Character.RelationWithCharacter.Values.Any(s =>
+                //    s.RelationType == CharacterRelationType.Blocked && s.CharacterId == receiver.ConnectedCharacter.Id))
+                //{
+                //    session.SendPacket(new SayPacket
+                //    {
+                //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                //            session.Account.Language),
+                //        Type = SayColorType.Yellow
+                //    });
+                //    return;
+                //}
 
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";

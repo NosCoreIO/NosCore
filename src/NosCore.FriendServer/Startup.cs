@@ -71,6 +71,7 @@ namespace NosCore.FriendServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<FriendServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.Populate(services);

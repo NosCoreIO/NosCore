@@ -154,8 +154,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
-
-                Character.SendRelationStatus(false);
+                //TODO Fix
+                //Character.SendRelationStatus(false);
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)
                 {

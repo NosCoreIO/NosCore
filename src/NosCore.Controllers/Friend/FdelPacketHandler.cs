@@ -11,11 +11,12 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override void Execute(FdelPacket fdelPacket, ClientSession session)
         {
-            session.Character.DeleteRelation(fdelPacket.CharacterId);
-            session.SendPacket(new InfoPacket
-            {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
-            });
+            //TODO FIx
+            //session.Character.DeleteRelation(fdelPacket.CharacterId);
+            //session.SendPacket(new InfoPacket
+            //{
+            //    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
+            //});
         }
     }
 }

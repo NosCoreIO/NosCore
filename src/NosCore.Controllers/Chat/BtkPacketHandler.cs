@@ -30,13 +30,14 @@ namespace NosCore.PacketHandlers.Chat
 
         public override void Execute(BtkPacket btkPacket, ClientSession session)
         {
-            if (!session.Character.CharacterRelations.Values.Any(s =>
-                     s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
-            {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
-                    session.Account.Language));
-                return;
-            }
+            //TODO Fix
+            //if (!session.Character.CharacterRelations.Values.Any(s =>
+            //         s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            //{
+            //    _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+            //        session.Account.Language));
+            //    return;
+            //}
 
             var message = btkPacket.Message;
             if (message.Length > 60)

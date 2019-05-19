@@ -65,6 +65,28 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
+        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity)
+        {
+            var subpackets = new List<BlinitSubPacket>();
+            //TODO Fix
+            //foreach (var relation in CharacterRelations.Values.Where(s =>
+            //    s.RelationType == CharacterRelationType.Blocked))
+            //{
+            //    if (relation.RelatedCharacterId == visualEntity.VisualId)
+            //    {
+            //        continue;
+            //    }
+
+            //    subpackets.Add(new BlinitSubPacket
+            //    {
+            //        RelatedCharacterId = relation.RelatedCharacterId,
+            //        CharacterName = relation.CharacterName
+            //    });
+            //}
+
+            return new BlinitPacket { SubPackets = subpackets };
+        }
+
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
         {
             //same canal
@@ -78,19 +100,20 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
-                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
-            {
-                var account = accounts.Find(s =>
-                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
-                subpackets.Add(new FinitSubPacket
-                {
-                    CharacterId = relation.RelatedCharacterId,
-                    RelationType = relation.RelationType,
-                    IsOnline = account != null,
-                    CharacterName = relation.CharacterName
-                });
-            }
+            //TODO Fix
+            //foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
+            //    s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            //{
+            //    var account = accounts.Find(s =>
+            //        s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+            //    subpackets.Add(new FinitSubPacket
+            //    {
+            //        CharacterId = relation.RelatedCharacterId,
+            //        RelationType = relation.RelationType,
+            //        IsOnline = account != null,
+            //        CharacterName = relation.CharacterName
+            //    });
+            //}
 
             return new FinitPacket {SubPackets = subpackets};
         }

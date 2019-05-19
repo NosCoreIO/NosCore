@@ -13,18 +13,19 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override void Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            if (!session.Character.CharacterRelations.Values.Any(s =>
-                s.RelatedCharacterId == bldelPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
-            {
-                session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
-                        session.Account.Language)
-                });
-                return;
-            }
+            //TODO Fix
+            //if (!session.Character.CharacterRelations.Values.Any(s =>
+            //    s.RelatedCharacterId == bldelPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+            //{
+            //    session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
+            //            session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            session.Character.DeleteBlackList(bldelPacket.CharacterId);
+            //session.Character.DeleteBlackList(bldelPacket.CharacterId);
         }
     }
 }

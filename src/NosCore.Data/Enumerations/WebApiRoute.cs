@@ -27,5 +27,6 @@ namespace NosCore.Data.Enumerations
         Packet,
         Stat,
         ConnectedAccount,
+        Friend,
     }
 }

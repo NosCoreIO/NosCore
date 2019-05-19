@@ -28,33 +28,34 @@ namespace NosCore.PacketHandlers.Friend
                 return;
             }
 
-            if (session.Character.CharacterRelations.Values.Any(s =>
-                s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
-            {
-                session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
-                        session.Account.Language)
-                });
-                return;
-            }
+            //TODO Fix
+            //if (session.Character.CharacterRelations.Values.Any(s =>
+            //    s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            //{
+            //    session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
+            //            session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            if (session.Character.CharacterRelations.Values.Any(s =>
-                s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
-            {
-                session.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
-                        session.Account.Language)
-                });
-                return;
-            }
+            //if (session.Character.CharacterRelations.Values.Any(s =>
+            //    s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
+            //{
+            //    session.SendPacket(new InfoPacket
+            //    {
+            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
+            //            session.Account.Language)
+            //    });
+            //    return;
+            //}
 
-            session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
-            session.SendPacket(new InfoPacket
-            {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED, session.Account.Language)
-            });
+            //session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
+            //session.SendPacket(new InfoPacket
+            //{
+            //    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED, session.Account.Language)
+            //});
         }
     }
 }
