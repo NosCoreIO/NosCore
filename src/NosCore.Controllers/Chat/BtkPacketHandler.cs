@@ -33,6 +33,7 @@ namespace NosCore.PacketHandlers.Chat
             var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             var friendlist = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
+            //TODO add spouse
             //var spouseList = WebApiAccess.Instance.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             if (!friendlist.Any(s => s.RelatedCharacterId == btkPacket.CharacterId))
             {
