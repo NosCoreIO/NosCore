@@ -19,14 +19,6 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
-
-        public FinsPacketHandler(WorldConfiguration worldConfiguration, ILogger logger)
-        {
-            _worldConfiguration = worldConfiguration;
-            _logger = logger;
-        }
         public override void Execute(FinsPacket finsPacket, ClientSession session)
         {
             var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)

@@ -103,8 +103,7 @@ namespace NosCore.FriendServer.Controllers
                 }
 
                 var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-                    (s.Value.Item1 == character.VisualId && s.Value.Item2 == targetCharacter.VisualId)
-                    || (s.Value.Item1 == targetCharacter.VisualId && s.Value.Item2 == character.VisualId)).ToList();
+                    s.Value.Item1 == character.VisualId && s.Value.Item2 == targetCharacter.VisualId).ToList();
                 if (!friendRequest.Any())
                 {
                     character.SendPacket(new InfoPacket
