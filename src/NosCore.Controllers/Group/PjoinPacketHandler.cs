@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -65,16 +69,18 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    //TODO Fix
-                    //if (clientSession.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
-                    //{
-                    //    clientSession.SendPacket(new InfoPacket
-                    //    {
-                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                    //            clientSession.Account.Language)
-                    //    });
-                    //    return;
-                    //}
+                    var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                        ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                    var blacklisteds = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    if (blacklisteds.Any(s => s.RelatedCharacterId == pjoinPacket.CharacterId))
+                    {
+                        clientSession.SendPacket(new InfoPacket
+                        {
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                                clientSession.Account.Language)
+                        });
+                        return;
+                    }
 
                     if (targetSession.GroupRequestBlocked)
                     {
