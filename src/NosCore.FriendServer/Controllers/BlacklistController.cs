@@ -18,10 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -29,6 +31,7 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -90,6 +93,18 @@ namespace NosCore.FriendServer.Controllers
                 });
             }
             return NotFound();
+        }
+
+        [HttpGet]
+        public List<CharacterRelation> GetBlacklisted(long characterId)
+        {
+            var list = _characterRelationDao
+                .Where(s => s.CharacterId == characterId && s.RelationType == CharacterRelationType.Blocked).Adapt<List<CharacterRelation>>();
+            foreach (var rel in list)
+            {
+                rel.CharacterName = "TODO";
+            }
+            return list;
         }
     }
 }

@@ -32,6 +32,7 @@ using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -68,21 +69,22 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity)
         {
             var subpackets = new List<BlinitSubPacket>();
-            //TODO Fix
-            //foreach (var relation in CharacterRelations.Values.Where(s =>
-            //    s.RelationType == CharacterRelationType.Blocked))
-            //{
-            //    if (relation.RelatedCharacterId == visualEntity.VisualId)
-            //    {
-            //        continue;
-            //    }
+            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+            var blackList = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            foreach (var relation in blackList)
+            {
+                if (relation.RelatedCharacterId == visualEntity.VisualId)
+                {
+                    continue;
+                }
 
-            //    subpackets.Add(new BlinitSubPacket
-            //    {
-            //        RelatedCharacterId = relation.RelatedCharacterId,
-            //        CharacterName = relation.CharacterName
-            //    });
-            //}
+                subpackets.Add(new BlinitSubPacket
+                {
+                    RelatedCharacterId = relation.RelatedCharacterId,
+                    CharacterName = relation.CharacterName
+                });
+            }
 
             return new BlinitPacket { SubPackets = subpackets };
         }
@@ -100,20 +102,23 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            //TODO Fix
-            //foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
-            //    s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
-            //{
-            //    var account = accounts.Find(s =>
-            //        s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
-            //    subpackets.Add(new FinitSubPacket
-            //    {
-            //        CharacterId = relation.RelatedCharacterId,
-            //        RelationType = relation.RelationType,
-            //        IsOnline = account != null,
-            //        CharacterName = relation.CharacterName
-            //    });
-            //}
+            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+            var friendlist = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            //TODO add spouselist
+            //var spouseList = WebApiAccess.Instance.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+            foreach (var relation in friendlist)
+            {
+                var account = accounts.Find(s =>
+                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+                subpackets.Add(new FinitSubPacket
+                {
+                    CharacterId = relation.RelatedCharacterId,
+                    RelationType = relation.RelationType,
+                    IsOnline = account != null,
+                    CharacterName = relation.CharacterName
+                });
+            }
 
             return new FinitPacket {SubPackets = subpackets};
         }
