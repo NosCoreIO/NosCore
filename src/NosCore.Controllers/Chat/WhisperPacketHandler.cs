@@ -90,6 +90,11 @@ namespace NosCore.PacketHandlers.Chat
 
                 var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                if (friendServer == null)
+                {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
+                    return;
+                }
                 var blacklisteds = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
                 if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.ConnectedCharacter.Id))
                 {

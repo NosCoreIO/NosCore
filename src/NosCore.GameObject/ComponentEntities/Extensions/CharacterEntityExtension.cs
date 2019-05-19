@@ -32,7 +32,9 @@ using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
