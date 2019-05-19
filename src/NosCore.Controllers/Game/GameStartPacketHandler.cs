@@ -1,8 +1,14 @@
-﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -120,8 +126,12 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            //TODO Fix
-            //session.Character.SendRelationStatus(true);
+            var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+            if (server != null)
+            {
+                WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.Status, new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
+            }
             session.SendPacket(session.Character.GenerateFinit());
             session.SendPacket(session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);

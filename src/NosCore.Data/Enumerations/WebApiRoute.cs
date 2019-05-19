@@ -28,5 +28,6 @@ namespace NosCore.Data.Enumerations
         Stat,
         ConnectedAccount,
         Friend,
+        Status,
     }
 }
