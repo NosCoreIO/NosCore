@@ -120,7 +120,8 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            session.Character.SendRelationStatus(true);
+            //TODO Fix
+            //session.Character.SendRelationStatus(true);
             session.SendPacket(session.Character.GenerateFinit());
             session.SendPacket(session.Character.GenerateBlinit());
             //            Session.SendPacket(clinit);

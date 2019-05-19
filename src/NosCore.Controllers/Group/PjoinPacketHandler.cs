@@ -65,15 +65,16 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (clientSession.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
-                    {
-                        clientSession.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                clientSession.Account.Language)
-                        });
-                        return;
-                    }
+                    //TODO Fix
+                    //if (clientSession.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
+                    //{
+                    //    clientSession.SendPacket(new InfoPacket
+                    //    {
+                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                    //            clientSession.Account.Language)
+                    //    });
+                    //    return;
+                    //}
 
                     if (targetSession.GroupRequestBlocked)
                     {

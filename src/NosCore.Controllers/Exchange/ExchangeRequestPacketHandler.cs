@@ -87,15 +87,16 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (clientSession.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
-                    {
-                        clientSession.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                clientSession.Account.Language)
-                        });
-                        return;
-                    }
+                    //TODO fix
+                    //if (clientSession.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
+                    //{
+                    //    clientSession.SendPacket(new InfoPacket
+                    //    {
+                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                    //            clientSession.Account.Language)
+                    //    });
+                    //    return;
+                    //}
 
                     if (clientSession.Character.InShop || target.InShop)
                     {

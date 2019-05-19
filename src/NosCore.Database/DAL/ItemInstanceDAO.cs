@@ -299,7 +299,7 @@ namespace NosCore.Database
             var entities = Enumerable.Empty<ItemInstance>();
             try
             {
-                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>()).ToList();
+                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
             }
             catch (Exception e)
             {

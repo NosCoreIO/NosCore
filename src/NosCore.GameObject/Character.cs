@@ -73,24 +73,19 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
         private byte _speed;
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<AccountDto> _accountDao;
 
-        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider, IGenericDao<CharacterRelationDto> characterRelationDao
+        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
             ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
             ItemProvider = itemProvider;
-            FriendRequestCharacters = new ConcurrentDictionary<long, long>();
-            CharacterRelations = new ConcurrentDictionary<Guid, CharacterRelation>();
-            RelationWithCharacter = new ConcurrentDictionary<Guid, CharacterRelation>();
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
             Requests = new Subject<RequestData>();
-            _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
@@ -101,12 +96,6 @@ namespace NosCore.GameObject
         public AccountDto Account { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
-
-        public bool IsFriendListFull
-        {
-            get => CharacterRelations.Where(s => s.Value.RelationType == CharacterRelationType.Friend).ToList().Count
-                >= 80;
-        }
 
         public DateTime LastPortal { get; set; }
 
@@ -138,12 +127,7 @@ namespace NosCore.GameObject
         public RegionType AccountLanguage => Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
-
-        public ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; set; }
-
-        public ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; set; }
         public Subject<RequestData> Requests { get; set; }
-        public ConcurrentDictionary<long, long> FriendRequestCharacters { get; set; }
 
         public short Race => (byte) Class;
         public Shop Shop { get; set; }
@@ -303,36 +287,6 @@ namespace NosCore.GameObject
 
         public string GetMessageFromKey(LanguageKey languageKey) => Session.GetMessageFromKey(languageKey);
 
-        public CharacterRelation AddRelation(long characterId, CharacterRelationType relationType)
-        {
-            var relation = new CharacterRelation
-            {
-                CharacterId = CharacterId,
-                RelatedCharacterId = characterId,
-                RelationType = relationType,
-                CharacterName = Broadcaster.Instance.GetCharacter(s => s.VisualId == characterId)?.Name,
-                CharacterRelationId = Guid.NewGuid()
-            };
-
-            CharacterRelations[relation.CharacterRelationId] = relation;
-            CharacterRelationDto relationDto = relation;
-
-            if (_characterRelationDao.FirstOrDefault(s =>
-                s.CharacterId == CharacterId && s.RelatedCharacterId == characterId) == null)
-            {
-                _characterRelationDao.InsertOrUpdate(ref relationDto);
-            }
-
-            if (relationType == CharacterRelationType.Blocked)
-            {
-                SendPacket(GenerateBlinit());
-                return relation;
-            }
-
-            SendPacket(this.GenerateFinit());
-            return relation;
-        }
-
         public void Save()
         {
             try
@@ -342,10 +296,6 @@ namespace NosCore.GameObject
 
                 CharacterDto character = (Character) MemberwiseClone();
                _characterDao.InsertOrUpdate(ref character);
-
-                var savedRelations = _characterRelationDao.Where(s => s.CharacterId == CharacterId);
-                _characterRelationDao.Delete(savedRelations.Except(CharacterRelations.Values));
-                _characterRelationDao.InsertOrUpdate(CharacterRelations.Values);
 
                 // load and concat inventory with equipment
                 var currentlySavedInventorys = _itemInstanceDao
@@ -850,142 +800,124 @@ namespace NosCore.GameObject
             };
         }
 
-        public void SendRelationStatus(bool status)
-        {
-            foreach (var characterRelation in CharacterRelations)
-            {
-                var targetSession =
-                    Broadcaster.Instance.GetCharacter(s => s.VisualId == characterRelation.Value.RelatedCharacterId);
 
-                if (targetSession != null)
-                {
-                    targetSession.SendPacket(new FinfoPacket
-                    {
-                        FriendList = new List<FinfoSubPackets>
-                        {
-                            new FinfoSubPackets
-                            {
-                                CharacterId = CharacterId,
-                                IsConnected = status
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
-                    {
-                        Packet = _packetSerializer.Serialize(new[]
-                        {
-                            new FinfoPacket
-                            {
-                                FriendList = new List<FinfoSubPackets>
-                                {
-                                    new FinfoSubPackets
-                                    {
-                                        CharacterId = CharacterId,
-                                        IsConnected = status
-                                    }
-                                }
-                            }
-                        }),
-                        ReceiverType = ReceiverType.OnlySomeone,
-                        SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
-                        ReceiverCharacter = new Data.WebApi.Character
-                        {
-                            Id = characterRelation.Value.RelatedCharacterId,
-                            Name = characterRelation.Value.CharacterName
-                        }
-                    });
-                }
-            }
-        }
+        //TODO fix
+        //public void SendRelationStatus(bool status)
+        //{
+        //    foreach (var characterRelation in CharacterRelations)
+        //    {
+        //        var targetSession =
+        //            Broadcaster.Instance.GetCharacter(s => s.VisualId == characterRelation.Value.RelatedCharacterId);
 
-        public BlinitPacket GenerateBlinit()
-        {
-            var subpackets = new List<BlinitSubPacket>();
-            foreach (var relation in CharacterRelations.Values.Where(s =>
-                s.RelationType == CharacterRelationType.Blocked))
-            {
-                if (relation.RelatedCharacterId == CharacterId)
-                {
-                    continue;
-                }
+        //        if (targetSession != null)
+        //        {
+        //            targetSession.SendPacket(new FinfoPacket
+        //            {
+        //                FriendList = new List<FinfoSubPackets>
+        //                {
+        //                    new FinfoSubPackets
+        //                    {
+        //                        CharacterId = CharacterId,
+        //                        IsConnected = status
+        //                    }
+        //                }
+        //            });
+        //        }
+        //        else
+        //        {
+        //            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+        //            {
+        //                Packet = _packetSerializer.Serialize(new[]
+        //                {
+        //                    new FinfoPacket
+        //                    {
+        //                        FriendList = new List<FinfoSubPackets>
+        //                        {
+        //                            new FinfoSubPackets
+        //                            {
+        //                                CharacterId = CharacterId,
+        //                                IsConnected = status
+        //                            }
+        //                        }
+        //                    }
+        //                }),
+        //                ReceiverType = ReceiverType.OnlySomeone,
+        //                SenderCharacter = new Data.WebApi.Character { Id = CharacterId, Name = Name },
+        //                ReceiverCharacter = new Data.WebApi.Character
+        //                {
+        //                    Id = characterRelation.Value.RelatedCharacterId,
+        //                    Name = characterRelation.Value.CharacterName
+        //                }
+        //            });
+        //        }
+        //    }
+        //}
 
-                subpackets.Add(new BlinitSubPacket
-                {
-                    RelatedCharacterId = relation.RelatedCharacterId,
-                    CharacterName = relation.CharacterName
-                });
-            }
 
-            return new BlinitPacket {SubPackets = subpackets};
-        }
+        //public void DeleteBlackList(long characterId)
+        //{
+        //    var relation = CharacterRelations.Values.FirstOrDefault(s =>
+        //        s.RelatedCharacterId == characterId && s.RelationType == CharacterRelationType.Blocked);
 
-        public void DeleteBlackList(long characterId)
-        {
-            var relation = CharacterRelations.Values.FirstOrDefault(s =>
-                s.RelatedCharacterId == characterId && s.RelationType == CharacterRelationType.Blocked);
+        //    if (relation == null)
+        //    {
+        //        SendPacket(new InfoPacket
+        //        {
+        //            Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+        //                Session.Account.Language)
+        //        });
+        //        return;
+        //    }
 
-            if (relation == null)
-            {
-                SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        Session.Account.Language)
-                });
-                return;
-            }
+        //    CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
+        //    SendPacket(GenerateBlinit());
+        //}
 
-            CharacterRelations.TryRemove(relation.CharacterRelationId, out _);
-            SendPacket(GenerateBlinit());
-        }
+        //public void DeleteRelation(long relatedCharacterId)
+        //{
+        //    var characterRelation =
+        //        CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
+        //    var targetCharacterRelation =
+        //        RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
 
-        public void DeleteRelation(long relatedCharacterId)
-        {
-            var characterRelation =
-                CharacterRelations.Values.FirstOrDefault(s => s.RelatedCharacterId == relatedCharacterId);
-            var targetCharacterRelation =
-                RelationWithCharacter.Values.FirstOrDefault(s => s.RelatedCharacterId == CharacterId);
+        //    if (characterRelation == null || targetCharacterRelation == null)
+        //    {
+        //        return;
+        //    }
 
-            if (characterRelation == null || targetCharacterRelation == null)
-            {
-                return;
-            }
+        //    CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
+        //    RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
+        //    SendPacket(this.GenerateFinit());
 
-            CharacterRelations.TryRemove(characterRelation.CharacterRelationId, out _);
-            RelationWithCharacter.TryRemove(targetCharacterRelation.CharacterRelationId, out _);
-            SendPacket(this.GenerateFinit());
+        //    var targetSession = Broadcaster.Instance.GetCharacter(s =>
+        //        s.VisualId == targetCharacterRelation.CharacterId);
+        //    if (targetSession != null)
+        //    {
+        //        targetSession.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
+        //            out _);
+        //        targetSession.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
+        //        targetSession.SendPacket(targetSession.GenerateFinit());
+        //        return;
+        //    }
 
-            var targetSession = Broadcaster.Instance.GetCharacter(s =>
-                s.VisualId == targetCharacterRelation.CharacterId);
-            if (targetSession != null)
-            {
-                targetSession.CharacterRelations.TryRemove(targetCharacterRelation.CharacterRelationId,
-                    out _);
-                targetSession.RelationWithCharacter.TryRemove(characterRelation.CharacterRelationId, out _);
-                targetSession.SendPacket(targetSession.GenerateFinit());
-                return;
-            }
+        //    var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+        //        ?.Where(c => c.Type == ServerType.WorldServer);
+        //    foreach (var server in servers ?? new List<ChannelInfo>())
+        //    {
+        //        var account = WebApiAccess.Instance
+        //            .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
+        //            .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.Where(c => c.Type == ServerType.WorldServer);
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                var account = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-                    .Find(s => s.ConnectedCharacter.Id == targetCharacterRelation.CharacterId);
+        //        if (account != null)
+        //        {
+        //            WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
+        //                targetCharacterRelation.CharacterRelationId);
+        //            return;
+        //        }
+        //    }
 
-                if (account != null)
-                {
-                    WebApiAccess.Instance.Delete<CharacterRelation>(WebApiRoute.Relation, server.WebApi,
-                        targetCharacterRelation.CharacterRelationId);
-                    return;
-                }
-            }
-
-            _characterRelationDao.Delete(targetCharacterRelation);
-        }
+        //    _characterRelationDao.Delete(targetCharacterRelation);
+        //}
 
         [Obsolete(
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
@@ -1095,13 +1027,6 @@ namespace NosCore.GameObject
             }
 
             return new List<IPacket> {inv0, inv1, inv2, inv3, inv6, inv7};
-        }
-
-        public bool IsRelatedToCharacter(long characterId, CharacterRelationType relationType)
-        {
-            return CharacterRelations.Values.Any(s =>
-                s.RelationType == relationType && s.RelatedCharacterId.Equals(characterId)
-                && s.CharacterId.Equals(CharacterId));
         }
 
         public int GetReputIco()
