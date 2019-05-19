@@ -45,23 +45,23 @@ namespace NosCore.FriendServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class StatusController : Controller
     {
-        private readonly FriendRequestHolder _friendRequestHolder;
+        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ISerializer _packetSerializer;
-        public StatusController(FriendRequestHolder friendRequestHolder, ISerializer packetSerializer)
+        public StatusController(IGenericDao<CharacterRelationDto> characterRelationDao, ISerializer packetSerializer)
         {
-            _friendRequestHolder = friendRequestHolder;
+            _characterRelationDao = characterRelationDao;
             _packetSerializer = packetSerializer;
         }
 
         [HttpPost]
         public IActionResult SendStatus([FromBody] StatusRequest statusRequest)
         {
-            var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-                s.Value.Item1 == statusRequest.CharacterId || s.Value.Item2 == statusRequest.CharacterId).ToList();
+            var friendRequest = _characterRelationDao.Where(s =>
+                s.CharacterId == statusRequest.CharacterId || s.RelatedCharacterId == statusRequest.CharacterId).ToList();
             foreach (var characterRelation in friendRequest)
             {
-                long id = characterRelation.Value.Item1 == statusRequest.CharacterId ? characterRelation.Value.Item2
-                    : characterRelation.Value.Item1;
+                long id = characterRelation.CharacterId == statusRequest.CharacterId ? characterRelation.RelatedCharacterId
+                    : characterRelation.CharacterId;
                 ICharacterEntity targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
                 if (targetCharacter != null)
                 {

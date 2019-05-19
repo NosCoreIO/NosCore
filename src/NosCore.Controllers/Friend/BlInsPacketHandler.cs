@@ -1,9 +1,15 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -13,49 +19,15 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        public BlInsPackettHandler( ILogger logger)
-        {
-            _logger = logger;
-        }
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            if (Broadcaster.Instance.GetCharacter(s => s.VisualId == blinsPacket.CharacterId) == null)
+            var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+            if (server != null)
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
-                    session.Account.Language));
-                return;
+                WebApiAccess.Instance.Post<BlacklistRequest>(WebApiRoute.Friend, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }, server.WebApi);
             }
-
-            //TODO Fix
-            //if (session.Character.CharacterRelations.Values.Any(s =>
-            //    s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
-            //{
-            //    session.SendPacket(new InfoPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
-            //            session.Account.Language)
-            //    });
-            //    return;
-            //}
-
-            //if (session.Character.CharacterRelations.Values.Any(s =>
-            //    s.RelatedCharacterId == blinsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
-            //{
-            //    session.SendPacket(new InfoPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
-            //            session.Account.Language)
-            //    });
-            //    return;
-            //}
-
-            //session.Character.AddRelation(blinsPacket.CharacterId, CharacterRelationType.Blocked);
-            //session.SendPacket(new InfoPacket
-            //{
-            //    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED, session.Account.Language)
-            //});
         }
     }
 }
