@@ -64,27 +64,6 @@ namespace NosCore.PacketHandlers.Chat
                     Message = message.ToString()
                 });
 
-                var receiverSession =
-                    Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
-                if (receiverSession != null)
-                {
-                    //TODO FIx
-                    //if (receiverSession.CharacterRelations.Values.Any(s =>
-                    //    s.RelatedCharacterId == session.Character.CharacterId
-                    //    && s.RelationType == CharacterRelationType.Blocked))
-                    //{
-                    //    session.SendPacket(new InfoPacket
-                    //    {
-                    //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                    //            session.Account.Language)
-                    //    });
-                    //    return;
-                    //}
-
-                    receiverSession.SendPacket(speakPacket);
-                    return;
-                }
-
                 ConnectedAccount receiver = null;
 
                 var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
@@ -109,18 +88,19 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                //TODO FIx
-                //if (session.Character.RelationWithCharacter.Values.Any(s =>
-                //    s.RelationType == CharacterRelationType.Blocked && s.CharacterId == receiver.ConnectedCharacter.Id))
-                //{
-                //    session.SendPacket(new SayPacket
-                //    {
-                //        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                //            session.Account.Language),
-                //        Type = SayColorType.Yellow
-                //    });
-                //    return;
-                //}
+                var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                var blacklisteds = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
+                if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.ConnectedCharacter.Id))
+                {
+                    session.SendPacket(new SayPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                                session.Account.Language),
+                        Type = SayColorType.Yellow
+                    });
+                    return;
+                }
 
                 speakPacket.Message =
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
