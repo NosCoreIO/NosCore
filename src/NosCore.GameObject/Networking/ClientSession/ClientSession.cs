@@ -35,10 +35,12 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
@@ -154,8 +156,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
-                //TODO Fix
-                //Character.SendRelationStatus(false);
+                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
+                if (server != null)
+                {
+                    WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.Status, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
+                }
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)
                 {
