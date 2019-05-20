@@ -62,8 +62,6 @@ namespace NosCore.FriendServer.Controllers
         [HttpPost]
         public IActionResult AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            ICharacterEntity character = Broadcaster.Instance.GetCharacter(s => s.VisualId == friendPacket.FinsPacket.CharacterId);
-            ICharacterEntity targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == friendPacket.CharacterId);
             if (character != null && targetCharacter != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId).ToList();
