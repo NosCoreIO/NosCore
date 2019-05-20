@@ -47,13 +47,6 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             TestHelpers.Reset();
             Broadcaster.Reset();
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues =
-                new Dictionary<WebApiRoute, object>
-                {
-                    {WebApiRoute.Channel, new List<ChannelInfo> {new ChannelInfo()}},
-                    {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
-                };
 
             _session = TestHelpers.Instance.GenerateSession();
             _session.Character.MapInstance.Portals = new List<Portal>

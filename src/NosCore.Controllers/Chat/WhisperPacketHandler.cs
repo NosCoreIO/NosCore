@@ -27,10 +27,12 @@ namespace NosCore.PacketHandlers.Chat
     {
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer)
+        private readonly IWebApiAccess _webApiAccess;
+        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(WhisperPacket whisperPacket, ClientSession session)
@@ -64,13 +66,16 @@ namespace NosCore.PacketHandlers.Chat
                     Message = message.ToString()
                 });
 
+                var receiverSession =
+                    Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
+
                 ConnectedAccount receiver = null;
 
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    var accounts = WebApiAccess.Instance
+                    var accounts = _webApiAccess
                         .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
 
                     if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
@@ -88,14 +93,14 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 if (friendServer == null)
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
                     return;
                 }
-                var blacklisteds = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
+                var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
                 if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket
@@ -107,10 +112,10 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                speakPacket.Message =
+                speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                _webApiAccess.BroadcastPacket(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },

@@ -19,14 +19,19 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public BlInsPackettHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (server != null)
             {
-                WebApiAccess.Instance.Post<BlacklistRequest>(WebApiRoute.Friend, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }, server.WebApi);
+                _webApiAccess.Post<BlacklistRequest>(WebApiRoute.Friend, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }, server.WebApi);
             }
         }
     }

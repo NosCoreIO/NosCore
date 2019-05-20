@@ -47,10 +47,12 @@ namespace NosCore.FriendServer.Controllers
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ISerializer _packetSerializer;
-        public FriendStatusController(IGenericDao<CharacterRelationDto> characterRelationDao, ISerializer packetSerializer)
+        private readonly IWebApiAccess _webApiAccess;
+        public FriendStatusController(IGenericDao<CharacterRelationDto> characterRelationDao, ISerializer packetSerializer, IWebApiAccess webApiAccess)
         {
             _characterRelationDao = characterRelationDao;
             _packetSerializer = packetSerializer;
+            _webApiAccess = webApiAccess;
         }
 
         [HttpPost]
@@ -65,7 +67,7 @@ namespace NosCore.FriendServer.Controllers
                 ICharacterEntity targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
                 if (targetCharacter != null)
                 {
-                    WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+                    _webApiAccess.BroadcastPacket(new PostedPacket
                     {
                         Packet = _packetSerializer.Serialize(new[]
                         {

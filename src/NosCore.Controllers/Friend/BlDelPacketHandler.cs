@@ -18,26 +18,29 @@ namespace NosCore.PacketHandlers.Friend
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        public BlDelPacketHandler(ILogger logger)
+        private readonly IWebApiAccess _webApiAccess;
+     
+        public BlDelPacketHandler(ILogger logger, IWebApiAccess webApiAccess)
         {
+            _webApiAccess = webApiAccess;
             _logger = logger;
         }
 
         public override void Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (friendServer == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
                 return;
             }
-            var list = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi,
+            var list = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi,
                 session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.RelatedCharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                WebApiAccess.Instance.Delete<Guid>(WebApiRoute.Blacklist, friendServer.WebApi, idtorem.CharacterRelationId);
+                _webApiAccess.Delete<Guid>(WebApiRoute.Blacklist, friendServer.WebApi, idtorem.CharacterRelationId);
             }
             else
             {

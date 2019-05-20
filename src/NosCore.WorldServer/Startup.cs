@@ -74,6 +74,7 @@ using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
+using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.PacketHandlers.Login;
 
@@ -187,6 +188,7 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
+            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
 

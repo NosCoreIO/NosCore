@@ -36,6 +36,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public SetReputationPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(SetReputationPacket setReputationPacket, ClientSession session)
         {
             if (setReputationPacket.Name == session.Character.Name || string.IsNullOrEmpty(setReputationPacket.Name))
@@ -51,7 +57,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = setReputationPacket.Reputation
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
@@ -59,7 +65,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var server in servers)
             {
                 config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                account = _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
                     .Find(s => s.ConnectedCharacter.Name == setReputationPacket.Name);
                 if (account != null)
                 {
@@ -77,7 +83,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, config);
         }
     }
 

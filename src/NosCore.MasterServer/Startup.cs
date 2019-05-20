@@ -43,6 +43,7 @@ using System.ComponentModel.DataAnnotations;
 using AutofacSerilogIntegration;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 
 namespace NosCore.MasterServer
 {
@@ -70,6 +71,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
+            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.Populate(services);
             return containerBuilder;
         }

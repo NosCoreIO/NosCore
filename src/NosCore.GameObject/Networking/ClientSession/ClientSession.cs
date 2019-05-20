@@ -60,18 +60,19 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
-
+        private readonly IWebApiAccess _webApiAccess;
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : this(configuration, null, null, logger, packetsHandlers) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess) : this(configuration, null, null, logger, packetsHandlers, webApiAccess) { }
 
         public ClientSession(ServerConfiguration configuration,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers) : base(logger)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers;
+            _webApiAccess = webApiAccess;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -156,11 +157,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
-                var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 if (server != null)
                 {
-                    WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
+                    _webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
                 }
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)

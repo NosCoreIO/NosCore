@@ -65,7 +65,7 @@ namespace NosCore.Tests
     public class ShopTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
+        private readonly IWebApiAccess _webApiAccess;
         MapInstanceProvider _instanceProvider;
         private ClientSession _session;
 
@@ -73,14 +73,6 @@ namespace NosCore.Tests
         public void Setup()
         {
             Broadcaster.Reset();
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues =
-                new Dictionary<WebApiRoute, object>
-                {
-                    {WebApiRoute.Channel, new List<ChannelInfo> {new ChannelInfo()}},
-                    {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
-                };
-
             TestHelpers.Reset();
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
@@ -256,14 +248,14 @@ namespace NosCore.Tests
         private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>());
+            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _webApiAccess);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "chara2",

@@ -36,6 +36,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public SetGoldCommandPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
@@ -45,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
@@ -53,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var server in servers)
             {
                 config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                account = _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
                     .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
                 if (account != null)
                 {
@@ -71,7 +77,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, config);
         }
     }
 }

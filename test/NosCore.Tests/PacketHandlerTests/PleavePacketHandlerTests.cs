@@ -23,7 +23,9 @@ using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
@@ -56,7 +58,9 @@ namespace NosCore.Tests.PacketHandlerTests
             }
 
             _pLeavePacketHandler = new PleavePacketHandler();
-            _pJoinPacketHandler = new PjoinPacketHandler(_logger);
+
+            var mock = new Mock<IWebApiAccess>();
+            _pJoinPacketHandler = new PjoinPacketHandler(_logger, mock.Object);
         }
 
         [TestMethod]

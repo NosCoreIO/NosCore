@@ -19,13 +19,19 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public FinsPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(FinsPacket finsPacket, ClientSession session)
         {
-            var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (server != null)
             {
-                WebApiAccess.Instance.Post<FriendShipRequest>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }, server.WebApi);
+                _webApiAccess.Post<FriendShipRequest>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }, server.WebApi);
             }
         }
     }
