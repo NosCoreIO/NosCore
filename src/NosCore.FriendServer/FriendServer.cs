@@ -36,16 +36,18 @@ namespace NosCore.FriendServer
     {
         private readonly ILogger _logger;
         private readonly FriendConfiguration _friendServerConfiguration;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public FriendServer(FriendConfiguration friendServerConfiguration, ILogger logger)
+        public FriendServer(FriendConfiguration friendServerConfiguration, ILogger logger, IWebApiAccess webApiAccess)
         {
             _friendServerConfiguration = friendServerConfiguration;
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
 
         private void ConnectMaster()
         {
-            WebApiAccess.RegisterBaseAdress(new Channel
+            _webApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _friendServerConfiguration.MasterCommunication,
                 ClientType = ServerType.FriendServer,

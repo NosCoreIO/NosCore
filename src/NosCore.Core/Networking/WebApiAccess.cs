@@ -36,34 +36,26 @@ using Serilog;
 
 namespace NosCore.Core.Networking
 {
-    public class WebApiAccess
+    public class WebApiAccess : IWebApiAccess
     {
-        private static readonly ILogger _logger =  Logger.GetLoggerConfiguration().CreateLogger();
-        private static WebApiAccess _instance;
+        private readonly ILogger _logger;
 
-        private WebApiAccess()
+        public WebApiAccess(ILogger logger)
         {
-            if (BaseAddress == null)
-            {
-                throw new ArgumentNullException(nameof(BaseAddress));
-            }
+            _logger = logger;
         }
 
-        public static Dictionary<WebApiRoute, string> WebApiRoutes { get; set; }
+        public Dictionary<WebApiRoute, string> WebApiRoutes { get; set; }
 
-        private static Uri BaseAddress { get; set; }
+        private Uri BaseAddress { get; set; }
 
-        private static string Token { get; set; }
+        private string Token { get; set; }
 
-        public Dictionary<WebApiRoute, object> MockValues { get; set; } = new Dictionary<WebApiRoute, object>();
+        public StringContent Content { get; private set; }
 
-        public static WebApiAccess Instance => _instance ?? (_instance = new WebApiAccess());
+        public void RegisterBaseAdress() => RegisterBaseAdress(null);
 
-        public static StringContent Content { get; private set; }
-
-        public static void RegisterBaseAdress() => RegisterBaseAdress(null);
-
-        public static void RegisterBaseAdress(Channel channel)
+        public void RegisterBaseAdress(Channel channel)
         {
             if (string.IsNullOrEmpty(channel?.MasterCommunication?.ToString()))
             {
@@ -103,7 +95,7 @@ namespace NosCore.Core.Networking
                         (_, __, timeSpan) =>
                             _logger.Verbose(
                                 LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
-                    ).Execute(() => Instance.Patch<HttpStatusCode>(WebApiRoute.Channel,
+                    ).Execute(() => Patch<HttpStatusCode>(WebApiRoute.Channel,
                         result.ChannelInfo.ChannelId, SystemTime.Now()));
                 _logger.Error(
                     LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));
@@ -119,11 +111,6 @@ namespace NosCore.Core.Networking
 
         public T Delete<T>(WebApiRoute route, ServerConfiguration webApi, object id)
         {
-            if (MockValues.ContainsKey(route))
-            {
-                return (T) MockValues[route];
-            }
-
             var client = new HttpClient
             {
                 BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
@@ -146,12 +133,7 @@ namespace NosCore.Core.Networking
 
         public T Get<T>(WebApiRoute route, ServerConfiguration webApi, object id)
         {
-            if (MockValues.ContainsKey(route))
-            {
-                return (T) MockValues[route];
-            }
-
-            var client = new HttpClient {BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())};
+            var client = new HttpClient { BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString()) };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var response = client.GetAsync(WebApiRoutes[route] + "?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
@@ -168,11 +150,6 @@ namespace NosCore.Core.Networking
 
         public T Post<T>(WebApiRoute route, object data, ServerConfiguration webApi)
         {
-            if (MockValues.ContainsKey(route))
-            {
-                return (T) MockValues[route];
-            }
-
             var client = new HttpClient
             {
                 BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
@@ -194,11 +171,6 @@ namespace NosCore.Core.Networking
 
         public T Put<T>(WebApiRoute route, object data, ServerConfiguration webApi)
         {
-            if (MockValues.ContainsKey(route))
-            {
-                return (T) MockValues[route];
-            }
-
             var client = new HttpClient
             {
                 BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
@@ -221,11 +193,6 @@ namespace NosCore.Core.Networking
 
         public T Patch<T>(WebApiRoute route, object id, object data, ServerConfiguration webApi)
         {
-            if (MockValues.ContainsKey(route))
-            {
-                return (T) MockValues[route];
-            }
-
             var client = new HttpClient
             {
                 BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
@@ -243,19 +210,19 @@ namespace NosCore.Core.Networking
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel, channelId).FirstOrDefault();
+            var channel = Get<List<ChannelInfo>>(WebApiRoute.Channel, channelId).FirstOrDefault();
             if (channel != null)
             {
-                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
+                Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
             }
         }
 
         public void BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            foreach (var channel in Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
-                Instance.Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
+                Post<PostedPacket>(WebApiRoute.Packet, packet, channel.WebApi);
             }
         }
 

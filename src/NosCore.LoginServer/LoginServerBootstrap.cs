@@ -43,6 +43,7 @@ using ChickenAPI.Packets;
 using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Input;
+using NosCore.Core.Networking;
 using NosCore.GameObject;
 using NosCore.PacketHandlers;
 using NosCore.PacketHandlers.Login;
@@ -91,7 +92,7 @@ namespace NosCore.LoginServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterLogger();
+            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
             containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
                 .As<ServerConfiguration>();

@@ -27,6 +27,7 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
@@ -47,13 +48,15 @@ namespace NosCore.FriendServer.Controllers
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly ILogger _logger;
+        private readonly IWebApiAccess _webApiAccess;
         private readonly FriendRequestHolder _friendRequestHolder;
-        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder)
+        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
+            _webApiAccess = webApiAccess;
         }
 
         [HttpPost]
@@ -146,8 +149,8 @@ namespace NosCore.FriendServer.Controllers
                                 character.AccountLanguage)
                         });
 
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit());
-                        character.SendPacket(character.GenerateFinit());
+                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
+                        character.SendPacket(character.GenerateFinit(_webApiAccess));
                         var data = new CharacterRelationDto
                         {
                             CharacterId = character.VisualId,

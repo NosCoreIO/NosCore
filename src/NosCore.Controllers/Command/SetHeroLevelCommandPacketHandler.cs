@@ -36,6 +36,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetHeroLevelCommandPacketHandler : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public SetHeroLevelCommandPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == session.Character.Name)
@@ -51,7 +57,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var channels = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
@@ -60,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts =
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                    _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -81,7 +87,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, config);
         }
     }
 }

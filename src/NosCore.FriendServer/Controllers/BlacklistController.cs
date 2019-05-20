@@ -27,6 +27,7 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
@@ -46,10 +47,10 @@ namespace NosCore.FriendServer.Controllers
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly ILogger _logger;
-        public BlacklistController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
+        private readonly IWebApiAccess _webApiAccess;
+        public BlacklistController(IWebApiAccess webApiAccess, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
         {
-            _logger = logger;
+            _webApiAccess = webApiAccess;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
         }
@@ -80,7 +81,7 @@ namespace NosCore.FriendServer.Controllers
                     });
                     return Ok();
                 }
-                character.SendPacket(character.GenerateBlinit());
+                character.SendPacket(character.GenerateBlinit(_webApiAccess));
                 var data = new CharacterRelationDto
                 {
                     CharacterId = character.VisualId,

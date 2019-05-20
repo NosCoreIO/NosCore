@@ -3,6 +3,7 @@ using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -21,15 +22,15 @@ namespace NosCore.Tests.PacketHandlerTests
         private LoginConfiguration _loginConfiguration;
         private ClientSession _session;
         private NoS0575PacketHandler _noS0575PacketHandler;
+        private Mock<IWebApiAccess> _webApiAccess;
         [TestInitialize]
         public void Setup()
         {
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _loginConfiguration = new LoginConfiguration();
-            _noS0575PacketHandler = new NoS0575PacketHandler(_loginConfiguration, TestHelpers.Instance.AccountDao);
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues = new Dictionary<WebApiRoute, object>();
+            _webApiAccess = new Mock<IWebApiAccess>();
+            _noS0575PacketHandler = new NoS0575PacketHandler(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object);
         }
 
         [TestMethod]
@@ -41,7 +42,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "test".ToSha512(),
                 Name = _session.Account.Name.ToUpperInvariant()
             }, _session);
-       
+
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.OldClient);
         }
@@ -73,10 +74,10 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-         public void Login()
+        public void Login()
         {
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() });
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount, new List<ConnectedAccount>());
+            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>());
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
@@ -89,9 +90,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo> { new ChannelInfo() });
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount,
-                new List<ConnectedAccount> { new ConnectedAccount { Name = _session.Account.Name } });
+            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>
+                {new ConnectedAccount {Name = _session.Account.Name}});
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
@@ -100,12 +101,12 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AlreadyConnected);
         }
-
+         
         [TestMethod]
         public void LoginNoServer()
         {
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.Channel, new List<ChannelInfo>());
-            WebApiAccess.Instance.MockValues.Add(WebApiRoute.ConnectedAccount, new List<ConnectedAccount>());
+            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo>());
+            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount)).Returns(new List<ConnectedAccount>());
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),

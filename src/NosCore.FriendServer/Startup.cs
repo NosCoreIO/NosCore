@@ -50,6 +50,7 @@ using NosCore.Core;
 using NosCore.FriendServer.Controllers;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.CommandPackets;
@@ -79,6 +80,7 @@ namespace NosCore.FriendServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<FriendServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();

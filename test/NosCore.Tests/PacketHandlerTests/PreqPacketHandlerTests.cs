@@ -21,8 +21,6 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues = new Dictionary<WebApiRoute, object>();
             _preqPacketHandler = new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider);
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(0);
 

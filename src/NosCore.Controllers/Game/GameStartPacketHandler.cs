@@ -18,10 +18,12 @@ namespace NosCore.PacketHandlers.Game
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess)
         {
             _worldConfiguration = worldConfiguration;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -126,14 +128,14 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            var server = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (server != null)
             {
-                WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
+                _webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
             }
-            session.SendPacket(session.Character.GenerateFinit());
-            session.SendPacket(session.Character.GenerateBlinit());
+            session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
+            session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);

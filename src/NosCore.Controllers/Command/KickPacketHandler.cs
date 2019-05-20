@@ -35,9 +35,15 @@ namespace NosCore.PacketHandlers.Command
 {
     public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public KickPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 .Where(s => s.Type == ServerType.WorldServer);
             ServerConfiguration config = null;
             ConnectedAccount account = null;
@@ -45,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var server in servers)
             {
                 config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
+                account = _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
                     .Find(s => s.ConnectedCharacter.Name == kickPacket.Name);
                 if (account != null)
                 {
@@ -63,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
+            _webApiAccess.Delete<ConnectedAccount>(WebApiRoute.Session, config, account.ConnectedCharacter.Id);
         }
     }
 }

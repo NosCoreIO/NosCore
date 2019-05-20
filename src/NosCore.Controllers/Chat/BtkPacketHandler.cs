@@ -22,24 +22,26 @@ namespace NosCore.PacketHandlers.Chat
     {
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer)
+        private readonly IWebApiAccess _webApiAccess;
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(BtkPacket btkPacket, ClientSession session)
         {
-            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (friendServer == null)
             {
                  _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
                  return;
             }
-            var friendlist = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
+            var friendlist = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
             //TODO add spouse
-            //var spouseList = WebApiAccess.Instance.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+            //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             if (!friendlist.Any(s => s.RelatedCharacterId == btkPacket.CharacterId))
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
@@ -66,11 +68,11 @@ namespace NosCore.PacketHandlers.Chat
 
             ConnectedAccount receiver = null;
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
-                var accounts = WebApiAccess.Instance
+                var accounts = _webApiAccess
                     .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
 
                 if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
@@ -88,7 +90,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            _webApiAccess.BroadcastPacket(new PostedPacket
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character

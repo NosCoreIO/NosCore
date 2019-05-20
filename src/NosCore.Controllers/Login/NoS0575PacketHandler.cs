@@ -39,11 +39,13 @@ namespace NosCore.PacketHandlers.Login
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public NoS0575PacketHandler(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao)
+        public NoS0575PacketHandler(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IWebApiAccess webApiAccess)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(NoS0575Packet packet, ClientSession clientSession)
@@ -110,14 +112,14 @@ namespace NosCore.PacketHandlers.Login
                         });
                         break;
                     default:
-                        var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                        var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = WebApiAccess.Instance.Get<List<ConnectedAccount>>(
+                            var channelList = _webApiAccess.Get<List<ConnectedAccount>>(
                                 WebApiRoute.ConnectedAccount,
                                 server.WebApi);
                             connectedAccount.Add(i, channelList);

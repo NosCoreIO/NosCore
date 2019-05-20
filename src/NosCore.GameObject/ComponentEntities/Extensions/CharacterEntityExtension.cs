@@ -68,12 +68,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity)
+        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var friendServer = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            var blackList = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
             foreach (var relation in blackList)
             {
                 if (relation.RelatedCharacterId == visualEntity.VisualId)
@@ -91,24 +91,24 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
+                    webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var friendServer = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            var friendlist = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
             //TODO add spouselist
-            //var spouseList = WebApiAccess.Instance.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+            //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
             {
                 var account = accounts.Find(s =>

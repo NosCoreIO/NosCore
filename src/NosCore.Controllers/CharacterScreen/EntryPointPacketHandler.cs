@@ -49,27 +49,29 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<MateDto> _mateDao;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,  IGenericDao<MateDto> mateDao, ILogger logger)
+        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,  IGenericDao<MateDto> mateDao, ILogger logger, IWebApiAccess webApiAccess)
         {
             _adapter = adapter;
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession.Account == null)
             {
-                var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                     ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
                 var alreadyConnnected = false;
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    if (WebApiAccess.Instance
+                    if (_webApiAccess
                         .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
                         .Any(a => a.Name == name))
                     {

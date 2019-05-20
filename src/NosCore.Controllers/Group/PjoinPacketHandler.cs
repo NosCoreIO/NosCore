@@ -22,9 +22,11 @@ namespace NosCore.PacketHandlers.Group
     public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        public PjoinPacketHandler(ILogger logger)
+        private readonly IWebApiAccess _webApiAccess;
+        public PjoinPacketHandler(ILogger logger, IWebApiAccess webApiAccess)
         {
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
         public override void Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
@@ -69,14 +71,14 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var friendServer = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                    var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                         ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                     if (friendServer == null)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
                         return;
                     }
-                    var blacklisteds = WebApiAccess.Instance.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
                     if (blacklisteds.Any(s => s.RelatedCharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket
