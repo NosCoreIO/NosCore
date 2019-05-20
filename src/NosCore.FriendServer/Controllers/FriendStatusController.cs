@@ -64,7 +64,7 @@ namespace NosCore.FriendServer.Controllers
             {
                 long id = characterRelation.CharacterId == statusRequest.CharacterId ? characterRelation.RelatedCharacterId
                     : characterRelation.CharacterId;
-                ICharacterEntity targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+
                 if (targetCharacter != null)
                 {
                     _webApiAccess.BroadcastPacket(new PostedPacket
