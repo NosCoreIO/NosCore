@@ -43,11 +43,11 @@ namespace NosCore.FriendServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class StatusController : Controller
+    public class FriendStatusController : Controller
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ISerializer _packetSerializer;
-        public StatusController(IGenericDao<CharacterRelationDto> characterRelationDao, ISerializer packetSerializer)
+        public FriendStatusController(IGenericDao<CharacterRelationDto> characterRelationDao, ISerializer packetSerializer)
         {
             _characterRelationDao = characterRelationDao;
             _packetSerializer = packetSerializer;

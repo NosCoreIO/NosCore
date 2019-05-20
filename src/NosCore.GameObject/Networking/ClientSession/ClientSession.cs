@@ -160,7 +160,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
                 if (server != null)
                 {
-                    WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.Status, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
+                    WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
                 }
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)

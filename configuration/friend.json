@@ -4,11 +4,12 @@
 		"Host": "http://localhost",
 		"Port": 5000,
 		"Routes": {
-			"Channel" : "api/channel"
+			"Channel" : "api/channel",
+			"Packet" : "api/packet"
 		}
   },
   "WebApi": {
-		"Host": "http://+",
+		"Host": "http://localhost",
 		"Port": 5003,
 		"Password": "NosCorePassword"
   },

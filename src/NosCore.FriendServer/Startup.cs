@@ -42,11 +42,19 @@ using NosCore.Core.Encryption;
 using NosCore.Database;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using AutofacSerilogIntegration;
+using ChickenAPI.Packets;
+using ChickenAPI.Packets.Interfaces;
+using NosCore.Core;
 using NosCore.FriendServer.Controllers;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.AliveEntities;
+using NosCore.Data.CommandPackets;
 using NosCore.Database.DAL;
+using NosCore.Database.Entities;
 
 namespace NosCore.FriendServer
 {
@@ -74,6 +82,18 @@ namespace NosCore.FriendServer
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<FriendServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<GenericDao<CharacterRelation, CharacterRelationDto>>().As<IGenericDao<CharacterRelationDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Character, CharacterDto>>().As<IGenericDao<CharacterDto>>().SingleInstance();
+
+            var listofpacket = typeof(IPacket).Assembly.GetTypes()
+                .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login" && p.Name != "NoS0575Packet")
+                    && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+            listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
+            containerBuilder.Register(c => new Serializer(listofpacket))
+                .AsImplementedInterfaces()
+                .SingleInstance();
             containerBuilder.Populate(services);
             containerBuilder.RegisterLogger();
             return containerBuilder;
