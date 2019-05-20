@@ -71,6 +71,8 @@ namespace NosCore.Tests.Helpers
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
+
+            _webApiAccess = new Mock<IWebApiAccess>().Object;
             AccountDao = new GenericDao<Account, AccountDto>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);

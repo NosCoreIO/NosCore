@@ -65,7 +65,7 @@ namespace NosCore.Tests
     public class ShopTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IWebApiAccess _webApiAccess;
+        private IWebApiAccess _webApiAccess;
         MapInstanceProvider _instanceProvider;
         private ClientSession _session;
 
@@ -74,6 +74,7 @@ namespace NosCore.Tests
         {
             Broadcaster.Reset();
             TestHelpers.Reset();
+            _webApiAccess = new Mock<IWebApiAccess>().Object;
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
             _session = TestHelpers.Instance.GenerateSession();

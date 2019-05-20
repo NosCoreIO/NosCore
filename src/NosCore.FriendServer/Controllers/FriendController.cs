@@ -50,7 +50,8 @@ namespace NosCore.FriendServer.Controllers
         private readonly ILogger _logger;
         private readonly IWebApiAccess _webApiAccess;
         private readonly FriendRequestHolder _friendRequestHolder;
-        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IWebApiAccess webApiAccess)
+        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, 
+            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;

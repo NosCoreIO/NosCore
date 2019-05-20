@@ -51,7 +51,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<MateDto> _mateDao;
         private readonly IWebApiAccess _webApiAccess;
 
-        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,  IGenericDao<MateDto> mateDao, ILogger logger, IWebApiAccess webApiAccess)
+        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao, 
+            IGenericDao<MateDto> mateDao, ILogger logger, IWebApiAccess webApiAccess)
         {
             _adapter = adapter;
             _characterDao = characterDao;
