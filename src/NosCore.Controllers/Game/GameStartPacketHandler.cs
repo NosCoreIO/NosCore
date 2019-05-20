@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Game
                 ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             if (server != null)
             {
-                WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.Status, new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
+                WebApiAccess.Instance.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
             }
             session.SendPacket(session.Character.GenerateFinit());
             session.SendPacket(session.Character.GenerateBlinit());

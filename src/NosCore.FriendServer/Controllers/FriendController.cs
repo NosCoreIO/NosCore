@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -44,12 +45,14 @@ namespace NosCore.FriendServer.Controllers
     public class FriendController : Controller
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly ILogger _logger;
         private readonly FriendRequestHolder _friendRequestHolder;
-        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, FriendRequestHolder friendRequestHolder)
+        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
+            _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
         }
 
@@ -181,9 +184,16 @@ namespace NosCore.FriendServer.Controllers
                 .Where(s => s.CharacterId == characterId && s.RelationType == CharacterRelationType.Friend).Adapt<List<CharacterRelation>>();
             foreach (var rel in list)
             {
-                rel.CharacterName = "TODO";
+                rel.CharacterName = _characterDao.FirstOrDefault(s=>s.CharacterId == rel.RelatedCharacterId).Name;
             }
             return list;
+        }
+
+        [HttpDelete]
+        public void Delete(Guid relationId)
+        {
+            var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == relationId && s.RelationType == CharacterRelationType.Friend);
+            _characterRelationDao.Delete(rel);
         }
     }
 }

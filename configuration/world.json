@@ -9,7 +9,10 @@
 			"Session" : "api/session",
 			"Relation" : "api/relation",
 			"Packet" : "api/packet",
-			"Stat": "api/stat"
+			"Stat": "api/stat",
+			"FriendStatus" : "api/friendstatus",
+			"Friend" : "api/friend",
+			"Blacklist" : "api/blacklist"
 		}
   },
   "ServerName": "S1-NosCore",
@@ -21,7 +24,7 @@
   "WebApi": {
 		"Host": "http://localhost",
 		"Port": 5001,
-		"Password": "NosCorePassword2"
+		"Password": "NosCorePassword"
   },
   "Language" : "en",
   "Database": {
