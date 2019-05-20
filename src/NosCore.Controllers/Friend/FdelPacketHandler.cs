@@ -39,6 +39,10 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 _webApiAccess.Delete<Guid>(WebApiRoute.Friend, friendServer.WebApi, idtorem.CharacterRelationId);
+                session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
+                });
             }
             else
             {
