@@ -51,23 +51,9 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            var receiver = _webApiAccess.GetCharacter(null, goldPacket.Name);
 
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == goldPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
-
-            if (account == null) //TODO: Handle 404 in WebApi
+            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -77,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, receiver.Item1);
         }
     }
 }

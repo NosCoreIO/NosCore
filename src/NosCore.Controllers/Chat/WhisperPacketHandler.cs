@@ -69,23 +69,9 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                ConnectedAccount receiver = null;
+                var receiver = _webApiAccess.GetCharacter(null, receiverName);
 
-                var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                    ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-                foreach (var server in servers ?? new List<ChannelInfo>())
-                {
-                    var accounts = _webApiAccess
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
-
-                    if (accounts.Any(a => a.ConnectedCharacter?.Name == receiverName))
-                    {
-                        receiver = accounts.First(a => a.ConnectedCharacter?.Name == receiverName);
-                        break;
-                    }
-                }
-
-                if (receiver == null)
+                if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
                     session.SendPacket(session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
@@ -101,7 +87,7 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
                 var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
-                if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.ConnectedCharacter.Id))
+                if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket
                     {
@@ -113,7 +99,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
+                    $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
                 _webApiAccess.BroadcastPacket(new PostedPacket
                 {
@@ -122,7 +108,7 @@ namespace NosCore.PacketHandlers.Chat
                     SenderCharacter = new Data.WebApi.Character { Name = session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.ChannelId);
+                }, receiver.Item2.ChannelId);
 
                 session.SendPacket(session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,

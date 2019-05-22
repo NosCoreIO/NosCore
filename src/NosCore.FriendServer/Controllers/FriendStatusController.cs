@@ -58,14 +58,11 @@ namespace NosCore.FriendServer.Controllers
         [HttpPost]
         public IActionResult SendStatus([FromBody] StatusRequest statusRequest)
         {
-            var friendRequest = _characterRelationDao.Where(s =>
-                s.CharacterId == statusRequest.CharacterId || s.RelatedCharacterId == statusRequest.CharacterId).ToList();
+            var friendRequest = _characterRelationDao.Where(s => s.CharacterId == statusRequest.CharacterId).ToList();
             foreach (var characterRelation in friendRequest)
             {
-                long id = characterRelation.CharacterId == statusRequest.CharacterId ? characterRelation.RelatedCharacterId
-                    : characterRelation.CharacterId;
-
-                if (targetCharacter != null)
+                var target = _webApiAccess.GetCharacter(statusRequest.CharacterId, null);
+                if (target.Item2 != null)
                 {
                     _webApiAccess.BroadcastPacket(new PostedPacket
                     {
@@ -86,11 +83,7 @@ namespace NosCore.FriendServer.Controllers
                         ReceiverType = ReceiverType.OnlySomeone,
                         SenderCharacter = new Data.WebApi.Character
                         { Id = statusRequest.CharacterId, Name = statusRequest.Name },
-                        ReceiverCharacter = new Data.WebApi.Character
-                        {
-                            Id = targetCharacter.VisualId,
-                            Name = targetCharacter.Name
-                        }
+                        ReceiverCharacter = target.Item2.ConnectedCharacter
                     });
                 }
             }

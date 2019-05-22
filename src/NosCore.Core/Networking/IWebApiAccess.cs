@@ -48,5 +48,6 @@ namespace NosCore.Core.Networking
         void BroadcastPackets(List<PostedPacket> packets);
         void BroadcastPackets(List<PostedPacket> packets, int channelId);
         void RegisterBaseAdress(Channel channel);
+        (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName);
     }
 }
