@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +34,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -50,7 +53,8 @@ namespace NosCore.FriendServer.Controllers
         private readonly ILogger _logger;
         private readonly IWebApiAccess _webApiAccess;
         private readonly FriendRequestHolder _friendRequestHolder;
-        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao, 
+
+        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao,
             IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IWebApiAccess webApiAccess)
         {
             _logger = logger;
@@ -60,10 +64,13 @@ namespace NosCore.FriendServer.Controllers
             _webApiAccess = webApiAccess;
         }
 
+
         [HttpPost]
         public IActionResult AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            if (character != null && targetCharacter != null)
+            var character = _webApiAccess.GetCharacter(friendPacket.CharacterId, null);
+            var targetCharacter = _webApiAccess.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId).ToList();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
@@ -71,7 +78,7 @@ namespace NosCore.FriendServer.Controllers
                     character.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
-                            character.AccountLanguage)
+                            character.Item2.Language)
                     });
                     return Ok();
                 }
@@ -83,7 +90,7 @@ namespace NosCore.FriendServer.Controllers
                     character.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                            character.AccountLanguage)
+                            character.Item2.Language)
                     });
                     return Ok();
                 }
@@ -95,42 +102,42 @@ namespace NosCore.FriendServer.Controllers
                     character.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
-                            character.AccountLanguage)
+                            character.Item2.Language)
                     });
                     return Ok();
                 }
 
-                if (character.FriendRequestBlocked || targetCharacter.FriendRequestBlocked)
+                if (character.Item2.ConnectedCharacter.FriendRequestBlocked || targetCharacter.Item2.ConnectedCharacter.FriendRequestBlocked)
                 {
                     character.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
-                            character.AccountLanguage)
+                            character.Item2.Language)
                     });
                     return Ok();
                 }
 
                 var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-                    s.Value.Item1 == character.VisualId && s.Value.Item2 == targetCharacter.VisualId).ToList();
+                    s.Value.Item1 == character.Item2.ConnectedCharacter.Id && s.Value.Item2 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
                 if (!friendRequest.Any())
                 {
                     character.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
-                            character.AccountLanguage)
+                            character.Item2.Language)
                     });
 
                     targetCharacter.SendPacket(new DlgPacket
                     {
                         Question = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, character.AccountLanguage),
-                            character.Name),
+                            Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, character.Item2.Language),
+                            character.Item2.ConnectedCharacter.Name),
                         YesPacket = new FinsPacket
-                        { Type = FinsPacketType.Accepted, CharacterId = character.VisualId },
+                        { Type = FinsPacketType.Accepted, CharacterId = character.Item2.ConnectedCharacter.Id },
                         NoPacket = new FinsPacket
-                        { Type = FinsPacketType.Rejected, CharacterId = character.VisualId }
+                        { Type = FinsPacketType.Rejected, CharacterId = character.Item2.ConnectedCharacter.Id }
                     });
-                    _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] = new Tuple<long,long>(character.VisualId, targetCharacter.VisualId);
+                    _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] = new Tuple<long, long>(character.Item2.ConnectedCharacter.Id, targetCharacter.Item2.ConnectedCharacter.Id);
                     return Ok();
                 }
 
@@ -140,20 +147,20 @@ namespace NosCore.FriendServer.Controllers
                         character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                character.AccountLanguage)
+                                character.Item2.Language)
                         });
                         targetCharacter.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                character.AccountLanguage)
+                                character.Item2.Language)
                         });
 
                         targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
                         character.SendPacket(character.GenerateFinit(_webApiAccess));
                         var data = new CharacterRelationDto
                         {
-                            CharacterId = character.VisualId,
-                            RelatedCharacterId = targetCharacter.VisualId,
+                            CharacterId = character.Item2.ConnectedCharacter.Id,
+                            RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
                             RelationType = CharacterRelationType.Friend,
                         };
 
@@ -163,7 +170,7 @@ namespace NosCore.FriendServer.Controllers
                         targetCharacter.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED,
-                                character.AccountLanguage)
+                                character.Item2.Language)
                         });
 
                         break;
@@ -186,7 +193,7 @@ namespace NosCore.FriendServer.Controllers
                 .Where(s => s.CharacterId == characterId && s.RelationType == CharacterRelationType.Friend).Adapt<List<CharacterRelation>>();
             foreach (var rel in list)
             {
-                rel.CharacterName = _characterDao.FirstOrDefault(s=>s.CharacterId == rel.RelatedCharacterId).Name;
+                rel.CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name;
             }
             return list;
         }

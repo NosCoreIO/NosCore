@@ -66,22 +66,9 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            ConnectedAccount receiver = null;
+            var receiver = _webApiAccess.GetCharacter(btkPacket.CharacterId, null);
 
-            var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                var accounts = _webApiAccess
-                    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
-
-                if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
-                {
-                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
-                }
-            }
-
-            if (receiver == null)
+            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -94,12 +81,12 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character
-                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
+                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
                 SenderCharacter = new Data.WebApi.Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.ChannelId);
+            }, receiver.Item2.ChannelId);
 
         }
     }

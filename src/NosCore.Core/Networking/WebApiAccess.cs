@@ -241,5 +241,23 @@ namespace NosCore.Core.Networking
                 BroadcastPacket(packet, channelId);
             }
         }
+
+        public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
+        {
+            var channels = Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer);
+            foreach (var channel in channels ?? new List<ChannelInfo>())
+            {
+                var accounts = Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == characterName || s.ConnectedCharacter.Id == characterId);
+
+                if (target != null)
+                {
+                    return (channel.WebApi, target);
+                }
+            }
+
+            return (null, null);
+        }
     }
 }

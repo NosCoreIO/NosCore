@@ -66,20 +66,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             if (clientSession.Account == null)
             {
-                var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                    ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                 var name = packet.Name;
-                var alreadyConnnected = false;
-                foreach (var server in servers ?? new List<ChannelInfo>())
-                {
-                    if (_webApiAccess
-                        .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi)
-                        .Any(a => a.Name == name))
-                    {
-                        alreadyConnnected = true;
-                        break;
-                    }
-                }
+                var alreadyConnnected = _webApiAccess.GetCharacter(null, packet.Name).Item2 != null;
 
                 if (alreadyConnnected)
                 {

@@ -187,7 +187,7 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
             //            }
             //            Session.Character.DeleteTimeout();
-
+ 
             //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))
             //            {
             //                Session.Character.AddStaticBuff(sb);
