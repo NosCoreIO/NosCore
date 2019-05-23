@@ -66,97 +66,53 @@ namespace NosCore.FriendServer.Controllers
 
 
         [HttpPost]
-        public IActionResult AddFriend([FromBody] FriendShipRequest friendPacket)
+        public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
         {
             var character = _webApiAccess.GetCharacter(friendPacket.CharacterId, null);
             var targetCharacter = _webApiAccess.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             if (character.Item2 != null && targetCharacter.Item2 != null)
             {
+                if (character.Item2.ChannelId != targetCharacter.Item2.ChannelId)
+                {
+                    throw new ArgumentException();
+                }
+
                 var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId).ToList();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
-                            character.Item2.Language)
-                    });
-                    return Ok();
+                    return LanguageKey.FRIENDLIST_FULL;
                 }
 
                 if (relations.Any(s =>
                     s.RelationType == CharacterRelationType.Blocked &&
                     s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId))
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                            character.Item2.Language)
-                    });
-                    return Ok();
+                    return LanguageKey.BLACKLIST_BLOCKED;
                 }
 
                 if (relations.Any(s =>
                     s.RelationType == CharacterRelationType.Friend &&
                     s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId))
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
-                            character.Item2.Language)
-                    });
-                    return Ok();
+                    return LanguageKey.ALREADY_FRIEND;
                 }
 
                 if (character.Item2.ConnectedCharacter.FriendRequestBlocked || targetCharacter.Item2.ConnectedCharacter.FriendRequestBlocked)
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
-                            character.Item2.Language)
-                    });
-                    return Ok();
+                    return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
 
                 var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
                     s.Value.Item1 == character.Item2.ConnectedCharacter.Id && s.Value.Item2 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
                 if (!friendRequest.Any())
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
-                            character.Item2.Language)
-                    });
-
-                    targetCharacter.SendPacket(new DlgPacket
-                    {
-                        Question = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, character.Item2.Language),
-                            character.Item2.ConnectedCharacter.Name),
-                        YesPacket = new FinsPacket
-                        { Type = FinsPacketType.Accepted, CharacterId = character.Item2.ConnectedCharacter.Id },
-                        NoPacket = new FinsPacket
-                        { Type = FinsPacketType.Rejected, CharacterId = character.Item2.ConnectedCharacter.Id }
-                    });
                     _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] = new Tuple<long, long>(character.Item2.ConnectedCharacter.Id, targetCharacter.Item2.ConnectedCharacter.Id);
-                    return Ok();
+                    return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
                 switch (friendPacket.FinsPacket.Type)
                 {
                     case FinsPacketType.Accepted:
-                        character.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                character.Item2.Language)
-                        });
-                        targetCharacter.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                character.Item2.Language)
-                        });
-
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
-                        character.SendPacket(character.GenerateFinit(_webApiAccess));
                         var data = new CharacterRelationDto
                         {
                             CharacterId = character.Item2.ConnectedCharacter.Id,
@@ -165,32 +121,26 @@ namespace NosCore.FriendServer.Controllers
                         };
 
                         _characterRelationDao.InsertOrUpdate(ref data);
-                        break;
+                        _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
-                        targetCharacter.SendPacket(new InfoPacket
-                        {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED,
-                                character.Item2.Language)
-                        });
-
-                        break;
+                        _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        return LanguageKey.FRIEND_REJECTED;
                     default:
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVITETYPE_UNKNOWN));
-                        return NotFound();
+                        throw new ArgumentException();
 
                 }
 
-                _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
-
             }
-            return NotFound();
+            throw new ArgumentException();
         }
 
         [HttpGet]
         public List<CharacterRelation> GetFriends(long characterId)
         {
             var list = _characterRelationDao
-                .Where(s => s.CharacterId == characterId && s.RelationType == CharacterRelationType.Friend).Adapt<List<CharacterRelation>>();
+                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType == CharacterRelationType.Friend).Adapt<List<CharacterRelation>>();
             foreach (var rel in list)
             {
                 rel.CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name;
