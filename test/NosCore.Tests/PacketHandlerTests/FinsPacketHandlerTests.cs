@@ -13,6 +13,7 @@ using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.FriendServer;
@@ -34,8 +35,10 @@ namespace NosCore.Tests.PacketHandlerTests
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private ClientSession _session;
-        private GenericDao<CharacterRelation, CharacterRelationDto> _characterRelationDao;
+        private ClientSession _targetSession;
+        private IGenericDao<CharacterRelationDto> _characterRelationDao;
         private FriendRequestHolder _friendRequestHolder;
+        private Mock<IWebApiAccess> _webApiAccess;
 
         [TestInitialize]
         public void Setup()
@@ -43,28 +46,35 @@ namespace NosCore.Tests.PacketHandlerTests
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, null, null, null, _logger));
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
-            var webApiAccess = new Mock<IWebApiAccess>();
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
-            var CharacterDao = new GenericDao<Character, CharacterDto>(_logger);
+            _targetSession = TestHelpers.Instance.GenerateSession();
+            _webApiAccess = new Mock<IWebApiAccess>();
+            _characterRelationDao = new GenericDao<NosCore.Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
-            var friend = new FriendController(_logger, _characterRelationDao, CharacterDao, _friendRequestHolder, webApiAccess.Object);
-            webApiAccess.Setup(s => s.Post<FriendShipRequest>(WebApiRoute.Friend, It.IsAny<ServerConfiguration>()));
-            _finsPacketHandler = new FinsPacketHandler(webApiAccess.Object);
+            _webApiAccess.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
+                .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
+            _webApiAccess.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
+                .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel))
+                .Returns(new List<ChannelInfo> { new ChannelInfo() { Type = ServerType.FriendServer } });
+            _finsPacketHandler = new FinsPacketHandler(_webApiAccess.Object);
         }
 
         [TestMethod]
         public void Test_Add_Friend()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
             _friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(targetSession.Character.CharacterId, _session.Character.CharacterId));
+                new Tuple<long, long>(_session.Character.CharacterId, _targetSession.Character.CharacterId));
             var finsPacket = new FinsPacket
             {
-                CharacterId = targetSession.Character.CharacterId,
+                CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
+
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>()))
+                .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
+            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 1);
         }
 
         [TestMethod]
@@ -72,9 +82,11 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = 2,
+                CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
 
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
@@ -83,12 +95,14 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Add_Not_Requested_Friend()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
             var finsPacket = new FinsPacket
             {
-                CharacterId = targetSession.Character.CharacterId,
+                CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
         }
