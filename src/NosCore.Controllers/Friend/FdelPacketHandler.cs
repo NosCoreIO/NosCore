@@ -26,19 +26,12 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(FdelPacket fdelPacket, ClientSession session)
         {
-            var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            if (friendServer == null)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
-                return;
-            }
-            var list = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi,
+            var list = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, 
                 session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.RelatedCharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                _webApiAccess.Delete<Guid>(WebApiRoute.Friend, friendServer.WebApi, idtorem.CharacterRelationId);
+                _webApiAccess.Delete<Guid>(WebApiRoute.Friend, idtorem.CharacterRelationId);
                 session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)

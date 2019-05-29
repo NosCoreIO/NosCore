@@ -79,14 +79,7 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var friendServer = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                    ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-                if (friendServer == null)
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_SERVER_OFFLINE));
-                    return;
-                }
-                var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, friendServer.WebApi, session.Character.VisualId) ?? new List<CharacterRelation>();
+                var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, session.Character.VisualId) ?? new List<CharacterRelation>();
                 if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket

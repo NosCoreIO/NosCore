@@ -27,12 +27,7 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            if (server != null)
-            {
-                _webApiAccess.Post<BlacklistRequest>(WebApiRoute.Friend, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }, server.WebApi);
-            }
+            _webApiAccess.Post<BlacklistRequest>(WebApiRoute.Friend, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
         }
     }
 }

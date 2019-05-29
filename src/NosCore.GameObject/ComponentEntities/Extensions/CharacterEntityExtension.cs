@@ -71,9 +71,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var friendServer = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
             foreach (var relation in blackList)
             {
                 if (relation.RelatedCharacterId == visualEntity.VisualId)
@@ -104,9 +102,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendServer = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
