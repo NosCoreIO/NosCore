@@ -13,6 +13,7 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
@@ -63,12 +64,15 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<ShopItemDto> _shopItemDao;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IWebApiAccess _webApiAccess;
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
+
+            _webApiAccess = new Mock<IWebApiAccess>().Object;
             AccountDao = new GenericDao<Account, AccountDto>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
@@ -187,13 +191,13 @@ namespace NosCore.Tests.Helpers
             AccountDao.InsertOrUpdate(ref acc);
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
                 new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
-                    new BlInsPackettHandler(_logger),
+                    new BlInsPackettHandler(_webApiAccess),
                     new UseItemPacketHandler(),
-                    new FinsPacketHandler(WorldConfiguration, _logger),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) });
+                    new FinsPacketHandler(_webApiAccess),
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) }, _webApiAccess);
             session.SessionId = _lastId;
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, WorldConfiguration, _logger), null, _characterRelationDao, CharacterDao, null, AccountDao, _logger, null)
+                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao,null, AccountDao, _logger, null)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

@@ -33,6 +33,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface ICharacterEntity : INamedEntity, IRequestableEntity
     {
+        bool FriendRequestBlocked { get; set; }
         AuthorityType Authority { get; }
 
         GenderType Gender { get; }
@@ -57,12 +58,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool GroupRequestBlocked { get; }
 
-        ConcurrentDictionary<long, long> FriendRequestCharacters { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> CharacterRelations { get; }
-
-        ConcurrentDictionary<Guid, CharacterRelation> RelationWithCharacter { get; }
-
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
@@ -80,8 +75,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void SendPackets(IEnumerable<IPacket> packetDefinitions);
 
         void LeaveGroup();
-
-        CharacterRelation AddRelation(long characterId, CharacterRelationType friend);
 
         void JoinGroup(Group group);
 

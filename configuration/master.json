@@ -1,6 +1,6 @@
 {
   "WebApi": {
-		"Host": "http://+",
+		"Host": "http://localhost",
 		"Port": 5000,
 		"Password": "NosCorePassword"
   },

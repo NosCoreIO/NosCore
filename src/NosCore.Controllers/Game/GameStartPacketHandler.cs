@@ -1,8 +1,14 @@
-﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
+using NosCore.Core;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -12,10 +18,12 @@ namespace NosCore.PacketHandlers.Game
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess)
         {
             _worldConfiguration = worldConfiguration;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -120,9 +128,12 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            session.Character.SendRelationStatus(true);
-            session.SendPacket(session.Character.GenerateFinit());
-            session.SendPacket(session.Character.GenerateBlinit());
+            //todo fix
+            //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus,
+            //    new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name });
+
+            session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
+            session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);

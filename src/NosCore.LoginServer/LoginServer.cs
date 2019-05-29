@@ -38,12 +38,14 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
+        private readonly IWebApiAccess _webApiAccess;
 
-        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger)
+        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger, IWebApiAccess webApiAccess)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
 
         public void Run()
@@ -72,7 +74,7 @@ namespace NosCore.LoginServer
 
         private void ConnectMaster()
         {
-            WebApiAccess.RegisterBaseAdress(new Channel
+            _webApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _loginConfiguration.MasterCommunication,
                 ClientType = ServerType.LoginServer,

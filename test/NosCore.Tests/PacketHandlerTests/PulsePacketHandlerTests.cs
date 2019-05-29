@@ -24,14 +24,6 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Setup()
         {
             _pulsePacketHandler = new PulsePacketHandler();
-            WebApiAccess.RegisterBaseAdress();
-            WebApiAccess.Instance.MockValues =
-                new Dictionary<WebApiRoute, object>
-                {
-                    {WebApiRoute.Channel, new List<ChannelInfo> {new ChannelInfo()}},
-                    {WebApiRoute.ConnectedAccount, new List<ConnectedAccount>()}
-                };
-
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

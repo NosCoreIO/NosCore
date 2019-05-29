@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -18,9 +22,11 @@ namespace NosCore.PacketHandlers.Group
     public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        public PjoinPacketHandler(ILogger logger)
+        private readonly IWebApiAccess _webApiAccess;
+        public PjoinPacketHandler(ILogger logger, IWebApiAccess webApiAccess)
         {
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
         public override void Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
@@ -65,7 +71,8 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (clientSession.Character.IsRelatedToCharacter(pjoinPacket.CharacterId, CharacterRelationType.Blocked))
+                    var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    if (blacklisteds.Any(s => s.RelatedCharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket
                         {

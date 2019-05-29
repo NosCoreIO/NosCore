@@ -37,10 +37,11 @@ namespace NosCore.PacketHandlers.Command
     public class ShoutPacketHandler : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
         private readonly ISerializer _packetSerializer;
-
-        public ShoutPacketHandler(ISerializer packetSerializer)
+        private readonly IWebApiAccess _webApiAccess;
+        public ShoutPacketHandler(ISerializer packetSerializer, IWebApiAccess webApiAccess)
         {
             _packetSerializer = packetSerializer;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(ShoutPacket shoutPacket, ClientSession session)
@@ -78,7 +79,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            WebApiAccess.Instance.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            _webApiAccess.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
     }
 }

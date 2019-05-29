@@ -36,6 +36,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public ChangeClassPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
         {
             if (changeClassPacket.Name == session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
@@ -51,23 +57,9 @@ namespace NosCore.PacketHandlers.Command
                 Data = (byte)changeClassPacket.ClassType,
             };
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                .Where(s => s.Type == ServerType.WorldServer);
-            ServerConfiguration config = null;
-            ConnectedAccount account = null;
+            var receiver = _webApiAccess.GetCharacter(null, changeClassPacket.Name);
 
-            foreach (var server in servers)
-            {
-                config = server.WebApi;
-                account = WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, config)
-                    .Find(s => s.ConnectedCharacter.Name == changeClassPacket.Name);
-                if (account != null)
-                {
-                    break;
-                }
-            }
-
-            if (account == null) //TODO: Handle 404 in WebApi
+            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -77,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, receiver.Item1);
         }
     }
 
