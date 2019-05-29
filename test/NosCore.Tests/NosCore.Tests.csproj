@@ -27,6 +27,7 @@
     <ProjectReference Include="..\..\src\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\..\src\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\..\src\NosCore.Data\NosCore.Data.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
   </ItemGroup>
 
 </Project>

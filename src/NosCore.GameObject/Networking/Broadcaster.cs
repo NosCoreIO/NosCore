@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Networking
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
                     ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
-                        {Name = s.Character.Name, Id = s.Character.CharacterId}
+                    { Name = s.Character.Name, Id = s.Character.CharacterId, FriendRequestBlocked = s.Character.FriendRequestBlocked }
                 }).ToList();
         }
     }

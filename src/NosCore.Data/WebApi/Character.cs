@@ -24,5 +24,6 @@ namespace NosCore.Data.WebApi
         public string Name { get; set; }
 
         public long Id { get; set; }
+        public bool FriendRequestBlocked { get; set; }
     }
 }

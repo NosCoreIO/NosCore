@@ -272,7 +272,7 @@ namespace NosCore.Database.DAL
             var entities = Enumerable.Empty<TEntity>();
             try
             {
-                entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>()).ToList();
+                entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>());
             }
             catch (Exception e)
             {

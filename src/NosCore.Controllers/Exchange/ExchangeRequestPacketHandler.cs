@@ -18,11 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Exchanges;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -36,12 +41,14 @@ namespace NosCore.PacketHandlers.Exchange
     public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         private readonly IExchangeProvider _exchangeProvider;
+        private readonly IWebApiAccess _webApiAccess;
         private readonly ILogger _logger;
 
-        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger)
+        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger, IWebApiAccess webApiAccess)
         {
             _exchangeProvider = exchangeProvider;
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -87,12 +94,13 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (clientSession.Character.IsRelatedToCharacter(target.VisualId, CharacterRelationType.Blocked))
+                    var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    if (blacklisteds.Any(s => s.RelatedCharacterId == target.VisualId))
                     {
                         clientSession.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                clientSession.Account.Language)
+                                    clientSession.Account.Language)
                         });
                         return;
                     }

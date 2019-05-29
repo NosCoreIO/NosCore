@@ -36,6 +36,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetJobLevelCommandPacketHandler : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+        public SetJobLevelCommandPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == session.Character.Name)
@@ -51,27 +57,9 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.Where(c => c.Type == ServerType.WorldServer);
+            var receiver = _webApiAccess.GetCharacter(null, levelPacket.Name);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
-
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts =
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
-
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
-
-                if (target != null)
-                {
-                    receiver = target;
-                    config = channel.WebApi;
-                }
-            }
-
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -81,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            WebApiAccess.Instance.Post<StatData>(WebApiRoute.Stat, data, config);
+            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, receiver.Item1);
         }
     }
 }

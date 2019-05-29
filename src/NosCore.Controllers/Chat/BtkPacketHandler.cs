@@ -22,16 +22,20 @@ namespace NosCore.PacketHandlers.Chat
     {
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer)
+        private readonly IWebApiAccess _webApiAccess;
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
+            _webApiAccess = webApiAccess;
         }
 
         public override void Execute(BtkPacket btkPacket, ClientSession session)
         {
-            if (!session.Character.CharacterRelations.Values.Any(s =>
-                     s.RelatedCharacterId == btkPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
+            var friendlist = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, session.Character.VisualId) ?? new List<CharacterRelation>();
+            //TODO add spouse
+            //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+            if (!friendlist.Any(s => s.RelatedCharacterId == btkPacket.CharacterId))
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language));
@@ -55,22 +59,9 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            ConnectedAccount receiver = null;
+            var receiver = _webApiAccess.GetCharacter(btkPacket.CharacterId, null);
 
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                var accounts = WebApiAccess.Instance
-                    .Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi);
-
-                if (accounts.Any(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId))
-                {
-                    receiver = accounts.First(a => a.ConnectedCharacter?.Id == btkPacket.CharacterId);
-                }
-            }
-
-            if (receiver == null)
+            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 session.SendPacket(new InfoPacket
                 {
@@ -79,16 +70,16 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            WebApiAccess.Instance.BroadcastPacket(new PostedPacket
+            _webApiAccess.BroadcastPacket(new PostedPacket
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character
-                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name },
+                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
                 SenderCharacter = new Data.WebApi.Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.ChannelId);
+            }, receiver.Item2.ChannelId);
 
         }
     }

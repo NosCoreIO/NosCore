@@ -40,9 +40,17 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using AutofacSerilogIntegration;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Database.Entities;
+using NosCore.Core;
+using NosCore.Database.DAL;
+using NosCore.Database;
+using NosCore.Data;
+using NosCore.MasterServer.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -64,13 +72,40 @@ namespace NosCore.MasterServer
             return masterConfiguration;
         }
 
+        private static void RegisterDto(ContainerBuilder containerBuilder)
+        {
+            var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
+            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+            var assemblyDb = typeof(Account).Assembly.GetTypes();
+
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && !p.Name.Contains("InstanceDto") && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    var type = assemblyDb.First(tgo =>
+                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] { containerBuilder });
+                });
+
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+        }
+
+        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder) where TDb : class
+        {
+            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+        }
+
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
+            containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
+            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.Populate(services);
+            RegisterDto(containerBuilder);
             return containerBuilder;
         }
 
@@ -113,8 +148,10 @@ namespace NosCore.MasterServer
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
                 .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
+
+            services.AddSignalR();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();

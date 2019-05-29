@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
+using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
@@ -35,7 +38,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            _pJoinPacketHandler = new PjoinPacketHandler(_logger);
+            var mock = new Mock<IWebApiAccess>();
+            _pJoinPacketHandler = new PjoinPacketHandler(_logger, mock.Object);
         }
 
         [TestMethod]

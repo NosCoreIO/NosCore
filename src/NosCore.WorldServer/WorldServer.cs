@@ -40,14 +40,16 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly IWebApiAccess _webApiAccess;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events, ILogger logger)
+            IEnumerable<IGlobalEvent> events, ILogger logger, IWebApiAccess webApiAccess)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _events = events.ToList();
             _logger = logger;
+            _webApiAccess = webApiAccess;
         }
 
         public void Run()
@@ -83,7 +85,7 @@ namespace NosCore.WorldServer
 
         private void ConnectMaster()
         {
-            WebApiAccess.RegisterBaseAdress(new Channel
+            _webApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _worldConfiguration.MasterCommunication,
                 ClientName = _worldConfiguration.ServerName,

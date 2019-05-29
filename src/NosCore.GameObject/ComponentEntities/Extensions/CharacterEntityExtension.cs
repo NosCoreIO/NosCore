@@ -32,6 +32,9 @@ using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -65,21 +68,44 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity)
+        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
+        {
+            var subpackets = new List<BlinitSubPacket>();
+            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            foreach (var relation in blackList)
+            {
+                if (relation.RelatedCharacterId == visualEntity.VisualId)
+                {
+                    continue;
+                }
+
+                subpackets.Add(new BlinitSubPacket
+                {
+                    RelatedCharacterId = relation.RelatedCharacterId,
+                    CharacterName = relation.CharacterName
+                });
+            }
+
+            return new BlinitPacket { SubPackets = subpackets };
+        }
+
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             //same canal
-            var servers = WebApiAccess.Instance.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    WebApiAccess.Instance.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
+                    webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
             }
 
             var subpackets = new List<FinitSubPacket>();
-            foreach (var relation in visualEntity.CharacterRelations.Values.Where(s =>
-                s.RelationType == CharacterRelationType.Friend || s.RelationType == CharacterRelationType.Spouse))
+            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            //TODO add spouselist
+            //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+            foreach (var relation in friendlist)
             {
                 var account = accounts.Find(s =>
                     s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
