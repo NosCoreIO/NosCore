@@ -20,11 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -34,15 +30,10 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using Serilog;
 
-namespace NosCore.FriendServer.Controllers
+namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
@@ -137,15 +128,21 @@ namespace NosCore.FriendServer.Controllers
         }
 
         [HttpGet]
-        public List<CharacterRelation> GetFriends(long characterId)
+        public List<CharacterRelationStatus> GetFriends(long characterId)
         {
+            var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
-                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType == CharacterRelationType.Friend).Adapt<List<CharacterRelation>>();
+                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType != CharacterRelationType.Blocked);
             foreach (var rel in list)
             {
-                rel.CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name;
+                charList.Add(new CharacterRelationStatus
+                {
+                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
+                    CharacterId = rel.RelatedCharacterId,
+                    IsConnected = false
+                });
             }
-            return list;
+            return charList;
         }
 
         [HttpDelete]

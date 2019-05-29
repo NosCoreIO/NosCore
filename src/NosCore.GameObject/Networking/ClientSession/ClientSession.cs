@@ -157,12 +157,9 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
-                var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                    ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-                if (server != null)
-                {
-                    _webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name }, server.WebApi);
-                }
+
+                //TODO fix
+                //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name });
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)
                 {

@@ -128,13 +128,10 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
-            if (server != null)
-            {
-                _webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus,
-                    new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name }, server.WebApi);
-            }
+            //todo fix
+            //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus,
+            //    new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name });
+
             session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
             session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
             //            Session.SendPacket(clinit);
@@ -187,7 +184,7 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
             //            }
             //            Session.Character.DeleteTimeout();
- 
+
             //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))
             //            {
             //                Session.Character.AddStaticBuff(sb);

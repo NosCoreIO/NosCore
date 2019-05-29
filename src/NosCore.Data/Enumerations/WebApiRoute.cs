@@ -28,7 +28,6 @@ namespace NosCore.Data.Enumerations
         Stat,
         ConnectedAccount,
         Friend,
-        FriendStatus,
         Blacklist,
     }
 }

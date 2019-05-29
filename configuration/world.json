@@ -10,7 +10,6 @@
 			"Relation" : "api/relation",
 			"Packet" : "api/packet",
 			"Stat": "api/stat",
-			"FriendStatus" : "api/friendstatus",
 			"Friend" : "api/friend",
 			"Blacklist" : "api/blacklist"
 		}

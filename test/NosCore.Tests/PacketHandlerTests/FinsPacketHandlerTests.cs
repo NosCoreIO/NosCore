@@ -16,11 +16,11 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
-using NosCore.FriendServer;
-using NosCore.FriendServer.Controllers;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.MasterServer;
+using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
@@ -54,8 +54,6 @@ namespace NosCore.Tests.PacketHandlerTests
                 .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
             _webApiAccess.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
                 .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
-            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel))
-                .Returns(new List<ChannelInfo> { new ChannelInfo() { Type = ServerType.FriendServer } });
             _finsPacketHandler = new FinsPacketHandler(_webApiAccess.Object);
         }
 

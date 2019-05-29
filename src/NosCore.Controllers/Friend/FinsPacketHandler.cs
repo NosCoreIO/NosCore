@@ -28,14 +28,12 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(FinsPacket finsPacket, ClientSession session)
         {
-            var server = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
-                ?.FirstOrDefault(c => c.Type == ServerType.FriendServer);
             var character = Broadcaster.Instance.GetCharacter(s => s.VisualId == session.Character.CharacterId);
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
-            if (server != null && character != null && targetCharacter != null)
+            if (character != null && targetCharacter != null)
             {
-                var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }, server.WebApi);
-            
+                var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
+
                 switch (result)
                 {
                     case LanguageKey.FRIENDLIST_FULL:
