@@ -50,6 +50,7 @@ using NosCore.Core;
 using NosCore.Database.DAL;
 using NosCore.Database;
 using NosCore.Data;
+using NosCore.MasterServer.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -99,6 +100,7 @@ namespace NosCore.MasterServer
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
@@ -146,8 +148,9 @@ namespace NosCore.MasterServer
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
                 .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(ChannelController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
+
             services.AddSignalR();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
