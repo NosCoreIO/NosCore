@@ -9,6 +9,7 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -28,9 +29,9 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist,
+            var list = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Blacklist,
                 session.Character.VisualId);
-            var idtorem = list.FirstOrDefault(s => s.RelatedCharacterId == bldelPacket.CharacterId);
+            var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
                 _webApiAccess.Delete<Guid>(WebApiRoute.Blacklist, idtorem.CharacterRelationId);
