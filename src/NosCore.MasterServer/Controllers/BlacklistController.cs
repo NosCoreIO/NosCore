@@ -50,47 +50,33 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
+        public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            ICharacterEntity character = Broadcaster.Instance.GetCharacter(s => s.VisualId == blacklistRequest.CharacterId);
-            if (character != null)
+            var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
+            if (character.Item1 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
-                            character.AccountLanguage)
-                    });
-                    return Ok();
+                    return LanguageKey.CANT_BLOCK_FRIEND;
                 }
 
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                 {
-                    character.SendPacket(new InfoPacket
-                    {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
-                            character.AccountLanguage)
-                    });
-                    return Ok();
+                    return LanguageKey.ALREADY_BLACKLISTED;
                 }
-                character.SendPacket(character.GenerateBlinit(_webApiAccess));
+                //character.SendPacket(character.GenerateBlinit(_webApiAccess));
                 var data = new CharacterRelationDto
                 {
-                    CharacterId = character.VisualId,
-                    RelatedCharacterId = character.VisualId,
+                    CharacterId = character.Item2.ConnectedCharacter.Id,
+                    RelatedCharacterId = character.Item2.ConnectedCharacter.Id,
                     RelationType = CharacterRelationType.Blocked,
                 };
 
                 _characterRelationDao.InsertOrUpdate(ref data);
-                character.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
-                        character.AccountLanguage)
-                });
+                return LanguageKey.BLACKLIST_ADDED;
             }
-            return NotFound();
+            throw new ArgumentException();
         }
 
         [HttpGet]
@@ -98,14 +84,14 @@ namespace NosCore.MasterServer.Controllers
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
-                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType == CharacterRelationType.Blocked); 
+                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType == CharacterRelationType.Blocked);
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = false
+                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null
                 });
             }
             return charList;
