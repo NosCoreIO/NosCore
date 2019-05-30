@@ -45,12 +45,14 @@ namespace NosCore.Parser.Parsers
             List<ShopItemDto> shopitems = new List<ShopItemDto>();
             int itemCounter = 0;
             byte type = 0;
+            var shopItemdb = _shopItemDao.LoadAll().ToList();
+            var shopdb = _shopDao.LoadAll().ToList();
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("n_inv") || o[0].Equals("shopping")))
             {
                 if (currentPacket[0].Equals("n_inv"))
                 {
                     short npcid = short.Parse(currentPacket[2]);
-                    if (_shopDao.FirstOrDefault(s => s.MapNpcId == npcid) == null)
+                    if (shopdb.FirstOrDefault(s => s.MapNpcId == npcid) == null)
                     {
                         continue;
                     }
@@ -64,7 +66,7 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = _shopDao.FirstOrDefault(s => s.MapNpcId == npcid)
+                                ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
                                     .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
@@ -76,7 +78,7 @@ namespace NosCore.Parser.Parsers
                         {
                             sitem = new ShopItemDto
                             {
-                                ShopId = _shopDao.FirstOrDefault(s => s.MapNpcId == npcid)
+                                ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
                                     .ShopId,
                                 Type = type,
                                 Slot = byte.Parse(item[1]),
@@ -88,7 +90,7 @@ namespace NosCore.Parser.Parsers
 
                         if (sitem == null || shopitems.Any(s =>
                                 s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
-                            || _shopItemDao.Where(s => s.ShopId == sitem.ShopId)
+                            || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
                                 .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
                         {
                             continue;

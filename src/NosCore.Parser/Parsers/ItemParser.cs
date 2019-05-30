@@ -52,8 +52,8 @@ namespace NosCore.Parser.Parsers
 
         public void Parse(string folder)
         {
+            var itemdb = _itemDao.LoadAll().ToList();
             var fileId = $"{folder}\\Item.dat";
-
             using (var npcIdStream = new StreamReader(fileId, Encoding.Default))
             {
                 var item = new ItemDto();
@@ -76,7 +76,7 @@ namespace NosCore.Parser.Parsers
                             return;
                         }
 
-                        if (_itemDao.FirstOrDefault(s => s.VNum == item.VNum) == null)
+                        if (itemdb.FirstOrDefault(s => s.VNum == item.VNum) == null)
                         {
                             _items.Add(item);
                             _itemCounter++;
