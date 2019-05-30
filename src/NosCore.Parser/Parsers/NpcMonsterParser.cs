@@ -52,6 +52,8 @@ namespace NosCore.Parser.Parsers
         }
         internal void InsertNpcMonsters(string folder)
         {
+            var skilldb = _skillDao.LoadAll().ToList();
+            var npcmonsterdb = _npcMonsterDao.LoadAll().ToList();
             var basicHp = new int[100];
             var basicPrimaryMp = new int[100];
             var basicSecondaryMp = new int[100];
@@ -521,7 +523,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (_skillDao.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
+                            if (skilldb.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
                                 null
                                 || _npcMonsterSkillDao
                                     .Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
@@ -593,7 +595,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
                     {
-                        if (_npcMonsterDao
+                        if (npcmonsterdb
                                 .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                             == null)
                         {

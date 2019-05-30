@@ -128,11 +128,11 @@ namespace NosCore.Parser
 
                     if (key.KeyChar != 'n')
                     {
+                        factory.ImportAccounts();
                         factory.ImportMaps();
                         factory.ImportRespawnMapType();
                         factory.ImportMapType();
                         factory.ImportMapTypeMap();
-                        factory.ImportAccounts();
                         factory.ImportPortals();
                         factory.ImportI18N();
                         //factory.ImportScriptedInstances();
