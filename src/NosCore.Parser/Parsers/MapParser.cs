@@ -91,6 +91,7 @@ namespace NosCore.Parser.Parsers
                 dictionaryMusic.Add(int.Parse(linesave[2]), int.Parse(linesave[7]));
             }
 
+            var mapInDb = _mapDao.LoadAll().ToList();
             foreach (var file in new DirectoryInfo(folderMap).GetFiles())
             {
                 var name = string.Empty;
@@ -114,7 +115,7 @@ namespace NosCore.Parser.Parsers
                     Data = File.ReadAllBytes(file.FullName),
                     ShopAllowed = short.Parse(file.Name) == 147
                 };
-                if (_mapDao.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
+                if (mapInDb.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
                 {
                     continue; // Map already exists in list
                 }

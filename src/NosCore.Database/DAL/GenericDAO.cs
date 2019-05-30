@@ -218,13 +218,13 @@ namespace NosCore.Database.DAL
                     list.Add(new Tuple<TEntity, object>(dto.Adapt<TEntity>(), _primaryKey.GetValue(dto, null)));
                 }
                 var ids = list.Select(s => s.Item2).ToArray();
-                var entityfounds = dbset.FindAllAsync(typeof(TEntity).GetProperty(_primaryKey.Name), ids).ToList();
+                var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
+                var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
 
-                var entities = list.Select(s => s.Item1).ToList();
-                foreach (var dto in dtos)
+                foreach (var dto in list)
                 {
-                    var entity = dto.Adapt<TEntity>();
-                    var entityfound = entityfounds.FirstOrDefault(s => _primaryKey.GetValue(s, null) == _primaryKey.GetValue(dto, null));
+                    var entity = dto.Item1.Adapt<TEntity>();
+                    var entityfound = entityfounds.FirstOrDefault(s => dbkey.GetValue(s, null) == dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
