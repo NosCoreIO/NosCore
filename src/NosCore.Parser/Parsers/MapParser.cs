@@ -57,7 +57,7 @@ namespace NosCore.Parser.Parsers
                 while ((line = mapIdStream.ReadLine()) != null)
                 {
                     var linesave = line.Split(' ');
-                    if (linesave.Length <= 1)
+                    if (linesave.Length <= 4)
                     {
                         continue;
                     }
