@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -100,12 +101,12 @@ namespace NosCore.Parser.Parsers
             }
         }
 
-        public void AddThirdData(string[] currentLine)
+        public void AddThirdData(string[] currentLine, List<CardDto> cardb)
         {
             _card.TimeoutBuff = short.Parse(currentLine[2]);
             _card.TimeoutBuffChance = byte.Parse(currentLine[3]);
             // investigate
-            if (_cardDao.FirstOrDefault(s => s.CardId == _card.CardId) == null)
+            if (cardb.FirstOrDefault(s => s.CardId == _card.CardId) == null)
             {
                 Cards.Add(_card);
                 _counter++;
@@ -116,6 +117,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertCards(string folder)
         {
+            var cardb = _cardDao.LoadAll().ToList();
             var _line = string.Empty;
             using (var npcIdStream =
                 new StreamReader(folder + FileCardDat, Encoding.Default))
@@ -166,7 +168,7 @@ namespace NosCore.Parser.Parsers
                         }
                         else if (currentLine.Length > 3 && currentLine[1] == "LAST")
                         {
-                            AddThirdData(currentLine);
+                            AddThirdData(currentLine, cardb);
                         }
                     }
                 }
