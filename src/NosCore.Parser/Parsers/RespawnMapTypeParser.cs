@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -101,7 +102,7 @@ namespace NosCore.Parser.Parsers
             };
             IEnumerable<RespawnMapTypeDto> respawnMapTypeDtos = respawnmaptypemaps;
             _respawnMapTypeDao.InsertOrUpdate(respawnMapTypeDtos);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED), respawnMapTypeDtos.Count());
         }
     }
 }

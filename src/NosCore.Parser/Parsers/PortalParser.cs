@@ -46,6 +46,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertPortals(List<string[]> packetList)
         {
+            var portalsdb = _portalDao.LoadAll().ToList();
             var _maps = _mapDao.LoadAll().ToList();
             short map = 0;
             var portalCounter = 0;
@@ -61,7 +62,7 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave4 = lodPortal;
-            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) ==
+            if (portalsdb.FirstOrDefault(s => s.SourceMapId == portalsave4.SourceMapId) ==
                 null)
             {
                 portalCounter++;
@@ -81,7 +82,7 @@ namespace NosCore.Parser.Parsers
             };
 
             var portalsave3 = minilandPortal;
-            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) ==
+            if (portalsdb.FirstOrDefault(s => s.SourceMapId == portalsave3.SourceMapId) ==
                 null)
             {
                 portalCounter++;
@@ -100,7 +101,7 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave2 = weddingPortal;
-            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) ==
+            if (portalsdb.FirstOrDefault(s => s.SourceMapId == portalsave2.SourceMapId) ==
                 null)
             {
                 portalCounter++;
@@ -119,7 +120,7 @@ namespace NosCore.Parser.Parsers
                 IsDisabled = false
             };
             var portalsave1 = glacerusCavernPortal;
-            if (_portalDao.FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) ==
+            if (portalsdb.FirstOrDefault(s => s.SourceMapId == portalsave1.SourceMapId) ==
                 null)
             {
                 portalCounter++;
@@ -184,13 +185,13 @@ namespace NosCore.Parser.Parsers
             }
 
             // foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
-            portalCounter += _listPortals2.Count(portal => !_portalDao
+            portalCounter += _listPortals2.Count(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));
 
             // so this dude doesnt exist yet in DAOFactory -> insert it
-            var portalsDtos = _listPortals2.Where(portal => !_portalDao
+            var portalsDtos = _listPortals2.Where(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
                         && s.SourceY == portal.SourceY));

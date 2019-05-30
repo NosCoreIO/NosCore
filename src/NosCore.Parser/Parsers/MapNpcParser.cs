@@ -42,6 +42,8 @@ namespace NosCore.Parser.Parsers
         }
         public void InsertMapNpcs(List<string[]> packetList)
         {
+            var npcmonsterdb = _npcMonsterDao.LoadAll().ToList();
+            var mapnpcdb = _mapNpcDao.LoadAll().ToList();
             var npcCounter = 0;
             short map = 0;
             var npcs = new List<MapNpcDto>();
@@ -112,8 +114,8 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (_npcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || _mapNpcDao.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
+                if (npcmonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
+                    || mapnpcdb.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
                     null
                     || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
                 {

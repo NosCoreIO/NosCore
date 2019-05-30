@@ -48,7 +48,8 @@ namespace NosCore.Parser.Parsers
             short map = 0;
             var mobMvPacketsList = new List<int>();
             var monsters = new List<MapMonsterDto>();
-
+            var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
+            var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3")))
             {
                 if (!mobMvPacketsList.Contains(Convert.ToInt32(currentPacket[2])))
@@ -82,8 +83,8 @@ namespace NosCore.Parser.Parsers
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (_npcMonsterDao.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
-                    || _mapMonsterDao.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
+                if (npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
+                    || mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
                     || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
                 {
                     continue;
