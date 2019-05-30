@@ -222,52 +222,42 @@ namespace NosCore.Database
             try
             {
                 var context = DataAccessHelper.Instance.CreateContext();
+
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                 var dbset = context.Set<ItemInstance>();
                 var entitytoadd = new List<ItemInstance>();
+                var list = new List<Tuple<ItemInstance, object>>();
+
                 foreach (var dto in dtos)
                 {
-                    var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                    list.Add(new Tuple<ItemInstance, object>(dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
                         : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
                         : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
                         : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                        : dto.Adapt<ItemInstance>();
+                        : dto.Adapt<ItemInstance>(), _primaryKey.GetValue(dto, null)));
+                }
+                var ids = list.Select(s => s.Item2).ToArray();
+                var dbkey = typeof(ItemInstance).GetProperty(_primaryKey.Name);
+                var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
 
-                    var value = _primaryKey.GetValue(dto, null);
-
-                    ItemInstance entityfound = null;
-                    if (value is object[] objects)
-                    {
-                        entityfound = dbset.Find(objects);
-                    }
-                    else
-                    {
-                        entityfound = dbset.Find(value);
-                    }
-
-                    entity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
-                        entity is SpecialistInstance
-                            ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() :
-                            entity is WearableInstance
-                                ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
-                                entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
-                                    :
-                                    entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
-
+                foreach (var dto in list)
+                {
+                    var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() : dto.Item1 is SpecialistInstance
+                            ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() : dto.Item1 is WearableInstance
+                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() : dto.Item1 is UsableInstance 
+                                    ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+                    var entityfound = entityfounds.FirstOrDefault(s => dbkey.GetValue(s, null) == dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                     }
 
-                    if (value == null || entityfound == null)
-                    {
-                        //add in a temp list in order to avoid find(default(PK)) to find this element before savechanges
-                        entitytoadd.Add(entity);
-                    }
+                    entitytoadd.Add(entity);
                 }
 
                 dbset.AddRange(entitytoadd);
+
                 context.ChangeTracker.AutoDetectChangesEnabled = true;
                 context.SaveChanges();
                 return SaveResult.Saved;

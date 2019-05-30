@@ -45,11 +45,13 @@ namespace NosCore.Parser.Parsers
         {
             int shopCounter = 0;
             var shops = new List<ShopDto>();
+            var mapnpcdb = _mapNpcDao.LoadAll().ToList();
+            var shopdb = _shopDao.LoadAll().ToList();
             foreach (var currentPacket in packetList.Where(o => o.Length > 6 && o[0].Equals("shop") && o[1].Equals("2"))
             )
             {
                 short npcid = short.Parse(currentPacket[2]);
-                var npc = _mapNpcDao.FirstOrDefault(s => s.MapNpcId == npcid);
+                var npc = mapnpcdb.FirstOrDefault(s => s.MapNpcId == npcid);
                 if (npc == null)
                 {
                     continue;
@@ -73,7 +75,7 @@ namespace NosCore.Parser.Parsers
                     ShopType = byte.Parse(currentPacket[5])
                 };
 
-                if (_shopDao.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
+                if (shopdb.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
                     shops.Any(s => s.MapNpcId == npc.MapNpcId))
                 {
                     continue;

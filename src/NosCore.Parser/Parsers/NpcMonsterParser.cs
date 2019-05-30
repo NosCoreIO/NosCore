@@ -52,6 +52,10 @@ namespace NosCore.Parser.Parsers
         }
         internal void InsertNpcMonsters(string folder)
         {
+            var dropdb = _dropDao.LoadAll().ToList();
+            var skilldb = _skillDao.LoadAll().ToList();
+            var npcmonsterdb = _npcMonsterDao.LoadAll().ToList();
+            var npcmonsterskilldb = _npcMonsterSkillDao.LoadAll().ToList();
             var basicHp = new int[100];
             var basicPrimaryMp = new int[100];
             var basicSecondaryMp = new int[100];
@@ -521,9 +525,9 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (_skillDao.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
+                            if (skilldb.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
                                 null
-                                || _npcMonsterSkillDao
+                                || npcmonsterskilldb
                                     .Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                                     .Count(s => s.SkillVNum == vnum) != 0)
                             {
@@ -593,7 +597,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
                     {
-                        if (_npcMonsterDao
+                        if (npcmonsterdb
                                 .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
                             == null)
                         {
@@ -609,7 +613,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                             }
 
-                            if (_dropDao.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
+                            if (dropdb.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
                                 .Count(s => s.VNum == vnum) != 0)
                             {
                                 continue;

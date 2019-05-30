@@ -211,36 +211,30 @@ namespace NosCore.Database.DAL
 
                 var dbset = context.Set<TEntity>();
                 var entitytoadd = new List<TEntity>();
+                var list = new List<Tuple<TEntity, object>>();
+
                 foreach (var dto in dtos)
                 {
-                    var entity = dto.Adapt<TEntity>();
-                    var value = _primaryKey.GetValue(dto, null);
+                    list.Add(new Tuple<TEntity, object>(dto.Adapt<TEntity>(), _primaryKey.GetValue(dto, null)));
+                }
+                var ids = list.Select(s => s.Item2).ToArray();
+                var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
+                var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
 
-                    TEntity entityfound = null;
-                    if (value is object[] objects)
-                    {
-                        entityfound = dbset.Find(objects);
-                    }
-                    else
-                    {
-                        entityfound = dbset.Find(value);
-                    }
-
-                    entity = entity.Adapt<TDto>().Adapt<TEntity>();
+                foreach (var dto in list)
+                {
+                    var entity = dto.Item1.Adapt<TEntity>();
+                    var entityfound = entityfounds.FirstOrDefault(s => dbkey.GetValue(s, null) == dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
                     }
 
-                    if (value == null || entityfound == null)
-                    {
-                        //add in a temp list in order to avoid find(default(PK)) to find this element before savechanges
-                        entitytoadd.Add(entity);
-                    }
-
-
-                    dbset.AddRange(entitytoadd);
+                    context.Entry(entity).CurrentValues.SetValues(entity);
+                    entitytoadd.Add(entity);
                 }
+
+                dbset.AddRange(entitytoadd);
 
                 context.ChangeTracker.AutoDetectChangesEnabled = true;
                 context.SaveChanges();

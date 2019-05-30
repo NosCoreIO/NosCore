@@ -47,6 +47,8 @@ namespace NosCore.Parser.Parsers
         }
         internal void InsertSkills(string folder)
         {
+            var skilldb = _skillDao.LoadAll().ToList();
+            var combodb = _comboDao.LoadAll().ToList();
             var skills = new List<SkillDto>();
             var skill = new SkillDto();
             var combo = new List<ComboDto>();
@@ -95,7 +97,7 @@ namespace NosCore.Parser.Parsers
                                 continue;
                             }
 
-                            if (_comboDao.FirstOrDefault(s =>
+                            if (combodb.FirstOrDefault(s =>
                                 s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
                                 && s.Effect.Equals(comb.Effect)) == null)
                             {
@@ -287,7 +289,7 @@ namespace NosCore.Parser.Parsers
                     {
                         // investigate
                         var skill1 = skill;
-                        if (_skillDao
+                        if (skilldb
                             .FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
                         {
                             continue;
