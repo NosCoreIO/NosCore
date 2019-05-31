@@ -53,7 +53,8 @@ namespace NosCore.MasterServer.Controllers
         public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
             var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
-            if (character.Item1 != null)
+            var targetCharacter = _webApiAccess.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+            if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
@@ -69,7 +70,7 @@ namespace NosCore.MasterServer.Controllers
                 var data = new CharacterRelationDto
                 {
                     CharacterId = character.Item2.ConnectedCharacter.Id,
-                    RelatedCharacterId = character.Item2.ConnectedCharacter.Id,
+                    RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
                     RelationType = CharacterRelationType.Blocked,
                 };
 

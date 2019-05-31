@@ -249,7 +249,7 @@ namespace NosCore.Tests
         private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _webApiAccess);
+            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _webApiAccess, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
