@@ -143,11 +143,11 @@ namespace NosCore.Tests.Helpers
             new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
             new Item {Type = PocketType.Main, VNum = 1013},
             new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
-            new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = 2},
+            new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Water},
             new Item
             {
                 Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2,
-                Element = 1
+                Element = ElementType.Fire
             },
             new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
             new Item

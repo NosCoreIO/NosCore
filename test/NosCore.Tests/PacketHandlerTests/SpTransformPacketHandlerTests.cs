@@ -78,7 +78,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.UseSp = true;
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             Assert.IsFalse(_session.Character.UseSp);
         }
 
@@ -91,7 +91,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             Assert.IsTrue(_session.Character.UseSp);
         }
 
@@ -107,7 +107,7 @@ namespace NosCore.Tests.PacketHandlerTests
             item.Slot = (byte)EquipmentType.Sp;
             fairy.Type = PocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
@@ -121,7 +121,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
@@ -138,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
@@ -153,7 +153,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = 1 }, _session);
+            _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));

@@ -19,7 +19,6 @@
 
 using ChickenAPI.Packets.Enumerations;
 using System.ComponentModel.DataAnnotations;
-using FamilyAuthorityType = NosCore.Data.Enumerations.Family.FamilyAuthorityType;
 
 namespace NosCore.Data
 {

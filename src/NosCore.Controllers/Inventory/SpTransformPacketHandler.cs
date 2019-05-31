@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Inventory
               clientSession.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp,
                   PocketType.Wear);
 
-            if (spTransformPacket.Type == 10)
+            if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
                 //TODO set points
             }
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     if (currentRunningSeconds >= clientSession.Character.SpCooldown)
                     {
-                        if (spTransformPacket.Type == 1)
+                        if (spTransformPacket.Type == SlPacketType.WearSp)
                         {
                             clientSession.Character.ChangeSp();
                         }
@@ -103,13 +103,13 @@ namespace NosCore.PacketHandlers.Inventory
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket { Type = 1 }
+                                Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
                             });
-                            clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+                            clientSession.Character.MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
                             {
-                                Type = 2,
-                                Argument = 1,
-                                VisualEntityId = clientSession.Character.CharacterId
+                                Type = GuriPacketType.Unknow,
+                                Value = 1,
+                                EntityId = clientSession.Character.CharacterId
                             });
                         }
                     }

@@ -42,7 +42,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
     {
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
-            return new GoldPacket {Gold = characterEntity.Gold};
+            return new GoldPacket { Gold = characterEntity.Gold };
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
@@ -118,7 +118,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new FinitPacket {SubPackets = subpackets};
+            return new FinitPacket { SubPackets = subpackets };
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
@@ -173,14 +173,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Authority = (byte)visualEntity.Authority,//todo change chickenapi to short
                     Gender = visualEntity.Gender,
-                    HairStyle = (byte) visualEntity.HairStyle,
-                    HairColor = (byte) visualEntity.HairColor,
+                    HairStyle = visualEntity.HairStyle,
+                    HairColor = visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.Group.GroupId,
@@ -194,7 +194,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = null,
-                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -204,7 +204,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FamilyLevel = 0,
                     FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
-                    Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }
