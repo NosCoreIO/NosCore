@@ -19,14 +19,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading;
+using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Networking;
@@ -85,6 +91,21 @@ namespace NosCore.WorldServer
 
         private void ConnectMaster()
         {
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "Server"),
+                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+            });
+            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512());
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Issuer = "Issuer",
+                Audience = "Audience",
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+            });
             _webApiAccess.RegisterBaseAdress(new Channel
             {
                 MasterCommunication = _worldConfiguration.MasterCommunication,
@@ -94,7 +115,8 @@ namespace NosCore.WorldServer
                 Port = _worldConfiguration.Port,
                 ServerGroup = _worldConfiguration.ServerGroup,
                 Host = _worldConfiguration.Host,
-                WebApi = _worldConfiguration.WebApi
+                WebApi = _worldConfiguration.WebApi,
+                Token = handler.WriteToken(securityToken)
             });
         }
     }

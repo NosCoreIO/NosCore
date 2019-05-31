@@ -50,7 +50,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
+        public IActionResult AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
             var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
             var targetCharacter = _webApiAccess.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
@@ -59,13 +59,14 @@ namespace NosCore.MasterServer.Controllers
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
                 {
-                    return LanguageKey.CANT_BLOCK_FRIEND;
+                    return Ok(LanguageKey.CANT_BLOCK_FRIEND);
                 }
 
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                 {
-                    return LanguageKey.ALREADY_BLACKLISTED;
+                    return Ok(LanguageKey.ALREADY_BLACKLISTED);
                 }
+                //todo fix
                 //character.SendPacket(character.GenerateBlinit(_webApiAccess));
                 var data = new CharacterRelationDto
                 {
@@ -75,13 +76,13 @@ namespace NosCore.MasterServer.Controllers
                 };
 
                 _characterRelationDao.InsertOrUpdate(ref data);
-                return LanguageKey.BLACKLIST_ADDED;
+                return Ok(LanguageKey.BLACKLIST_ADDED);
             }
             throw new ArgumentException();
         }
 
         [HttpGet]
-        public List<CharacterRelationStatus> GetBlacklisted(long characterId)
+        public IActionResult GetBlacklisted(long characterId)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
@@ -95,14 +96,15 @@ namespace NosCore.MasterServer.Controllers
                     IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null
                 });
             }
-            return charList;
+            return Ok(charList);
         }
 
         [HttpDelete]
-        public void Delete(Guid relationId)
+        public IActionResult Delete(Guid relationId)
         {
             var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == relationId && s.RelationType == CharacterRelationType.Blocked);
             _characterRelationDao.Delete(rel);
+            return Ok();
         }
     }
 }
