@@ -27,8 +27,5 @@ namespace NosCore.Configuration
     {
         [Required]
         public string Password { get; set; }
-
-        [Required]
-        public Dictionary<WebApiRoute, string> Routes { get; set; }
     }
 }

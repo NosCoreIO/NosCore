@@ -45,11 +45,9 @@ namespace NosCore.Core.Networking
             _logger = logger;
         }
 
-        public Dictionary<WebApiRoute, string> WebApiRoutes { get; set; }
-
         private Uri BaseAddress { get; set; }
 
-        private string Token { get; set; }
+        public string Token { get; set; }
 
         public StringContent Content { get; private set; }
 
@@ -63,7 +61,6 @@ namespace NosCore.Core.Networking
                 return;
             }
 
-            WebApiRoutes = channel.MasterCommunication.Routes;
             BaseAddress = new Uri(channel.MasterCommunication.ToString());
             Content = new StringContent(JsonConvert.SerializeObject(channel),
                 Encoding.Default, "application/json");
@@ -71,7 +68,7 @@ namespace NosCore.Core.Networking
             {
                 BaseAddress = BaseAddress
             };
-
+            var name = WebApiRoute.Channel.ToString();
             var message = Policy
                 .Handle<Exception>()
                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
@@ -80,7 +77,7 @@ namespace NosCore.Core.Networking
                         _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => client.PostAsync(WebApiRoutes[WebApiRoute.Channel], Content));
+                ).ExecuteAsync(() => client.PostAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}", Content));
 
             var result =
                 JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
@@ -116,7 +113,8 @@ namespace NosCore.Core.Networking
                 BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString())
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
-            var response = client.DeleteAsync(WebApiRoutes[route] + "?id=" + id ?? "").Result;
+            var name = route.ToString();
+            var response = client.DeleteAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -135,7 +133,8 @@ namespace NosCore.Core.Networking
         {
             var client = new HttpClient { BaseAddress = webApi == null ? BaseAddress : new Uri(webApi.ToString()) };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
-            var response = client.GetAsync(WebApiRoutes[route] + "?id=" + id ?? "").Result;
+            var name = route.ToString();
+            var response = client.GetAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}?id=" + id ?? "").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -156,7 +155,8 @@ namespace NosCore.Core.Networking
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
-            var postResponse = client.PostAsync(WebApiRoutes[route], content).Result;
+            var name = route.ToString();
+            var postResponse = client.PostAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}", content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
@@ -177,7 +177,8 @@ namespace NosCore.Core.Networking
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
-            var postResponse = client.PutAsync(WebApiRoutes[route], content).Result;
+            var name = route.ToString();
+            var postResponse = client.PutAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}", content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
@@ -199,7 +200,8 @@ namespace NosCore.Core.Networking
             };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.Default, "application/json");
-            var postResponse = client.PatchAsync(WebApiRoutes[route] + "?id=" + id ?? "", content).Result;
+            var name = route.ToString();
+            var postResponse = client.PatchAsync($"api/{char.ToLowerInvariant(name[0]) + name.Substring(1)}?id=" + id ?? "", content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(postResponse.Content.ReadAsStringAsync().Result);
@@ -244,8 +246,8 @@ namespace NosCore.Core.Networking
 
         public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
         {
-            var channels = MasterClientListSingleton.Instance.Channels ?? Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer);
-            foreach (var channel in channels ?? new List<ChannelInfo>())
+            var channels = MasterClientListSingleton.Instance.Channels ?? Get<List<ChannelInfo>>(WebApiRoute.Channel);
+            foreach (var channel in (channels ?? new List<ChannelInfo>()).Where(c => c.Type == ServerType.WorldServer))
             {
                 var accounts = Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
 
