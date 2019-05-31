@@ -17,21 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Concurrent;
 
 namespace NosCore.Core.Networking
 {
     public sealed class SessionFactory
     {
-        private static SessionFactory _instance;
-        private int _sessionCounter;
+        private static readonly Lazy<SessionFactory> lazy = new Lazy<SessionFactory>(() => new SessionFactory());
 
+        public static SessionFactory Instance { get { return lazy.Value; } }
+        private int _sessionCounter;
         private SessionFactory()
         {
             Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
         }
-
-        public static SessionFactory Instance => _instance ?? (_instance = new SessionFactory());
         public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
 
         public int GenerateSessionId()

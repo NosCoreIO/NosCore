@@ -244,7 +244,7 @@ namespace NosCore.Core.Networking
 
         public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
         {
-            var channels = Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer);
+            var channels = MasterClientListSingleton.Instance.Channels ?? Get<List<ChannelInfo>>(WebApiRoute.Channel)?.Where(c => c.Type == ServerType.WorldServer);
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts = Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
