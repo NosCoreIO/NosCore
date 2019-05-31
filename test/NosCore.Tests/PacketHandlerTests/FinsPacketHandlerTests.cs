@@ -45,9 +45,10 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig().ConstructUsing(src => new MapNpc(null, null, null, null, _logger));
             Broadcaster.Reset();
+            TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _targetSession = TestHelpers.Instance.GenerateSession();
-            _webApiAccess = new Mock<IWebApiAccess>();
+            _webApiAccess = TestHelpers.Instance.WebApiMock;
             _characterRelationDao = new GenericDao<NosCore.Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
             _webApiAccess.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))

@@ -2,12 +2,15 @@
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -19,11 +22,13 @@ namespace NosCore.PacketHandlers.Game
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly IWebApiAccess _webApiAccess;
+        private readonly ISerializer _packetSerializer;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _webApiAccess = webApiAccess;
+            _packetSerializer = packetSerializer;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -128,9 +133,34 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            //todo fix
-            //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus,
-            //    new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name });
+            var friendlist = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, session.Character.CharacterId) ?? new List<CharacterRelationStatus>();
+            foreach(var friend in friendlist)
+            {
+                _webApiAccess.BroadcastPacket(new PostedPacket
+                {
+                    Packet = _packetSerializer.Serialize(new[]
+                   {
+                            new FinfoPacket
+                            {
+                                FriendList = new List<FinfoSubPackets>
+                                {
+                                    new FinfoSubPackets
+                                    {
+                                        CharacterId = friend.CharacterId,
+                                        IsConnected = true
+                                    }
+                                }
+                            }
+                        }),
+                    ReceiverType = ReceiverType.OnlySomeone,
+                    SenderCharacter = new Data.WebApi.Character { Id = session.Character.CharacterId, Name = session.Character.Name },
+                    ReceiverCharacter = new Data.WebApi.Character
+                    {
+                        Id = friend.CharacterId,
+                        Name = friend.CharacterName
+                    }
+                });
+            }
 
             session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
             session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
