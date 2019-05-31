@@ -594,7 +594,7 @@ namespace NosCore.Parser.Parsers
                                                 || item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
                                         break;
                                     case EquipmentType.Fairy:
-                                        item.Element = Convert.ToByte(currentLine[2]);
+                                        item.Element = (ElementType)Enum.Parse(typeof(ElementType), currentLine[2]);
                                         item.ElementRate = Convert.ToInt16(currentLine[3]);
                                         if (item.VNum <= 256)
                                         {
@@ -990,51 +990,51 @@ namespace NosCore.Parser.Parsers
                                 item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
                                 item.ReputationMinimum = Convert.ToByte(currentLine[21]);
 
-                                var elementdic = new Dictionary<int, int> {{0, 0}};
+                                var elementdic = new Dictionary<ElementType, int> {{0, 0 } };
                                 if (item.FireResistance != 0)
                                 {
-                                    elementdic.Add(1, item.FireResistance);
+                                    elementdic.Add(ElementType.Fire, item.FireResistance);
                                 }
 
                                 if (item.WaterResistance != 0)
                                 {
-                                    elementdic.Add(2, item.WaterResistance);
+                                    elementdic.Add(ElementType.Water, item.WaterResistance);
                                 }
 
                                 if (item.LightResistance != 0)
                                 {
-                                    elementdic.Add(3, item.LightResistance);
+                                    elementdic.Add(ElementType.Light, item.LightResistance);
                                 }
 
                                 if (item.DarkResistance != 0)
                                 {
-                                    elementdic.Add(4, item.DarkResistance);
+                                    elementdic.Add(ElementType.Dark, item.DarkResistance);
                                 }
 
 
                                 // needs to be hardcoded
                                 if (item.VNum == 901)
                                 {
-                                    item.Element = 1;
+                                    item.Element = ElementType.Fire;
                                 }
                                 else if (item.VNum == 903)
                                 {
-                                    item.Element = 2;
+                                    item.Element = ElementType.Water;
                                 }
                                 else if (item.VNum == 906 || item.VNum == 909)
                                 {
-                                    item.Element = 3;
+                                    item.Element = ElementType.Light;
                                 }
                                 else
                                 {
-                                    item.Element = (byte) elementdic.OrderByDescending(s => s.Value).First().Key;
+                                    item.Element = elementdic.OrderByDescending(s => s.Value).First().Key;
                                 }
 
                                 if (elementdic.Count > 1 && elementdic.OrderByDescending(s => s.Value).First().Value
                                     == elementdic.OrderByDescending(s => s.Value).ElementAt(1).Value)
                                 {
                                     item.SecondaryElement =
-                                        (byte) elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
+                                        elementdic.OrderByDescending(s => s.Value).ElementAt(1).Key;
                                 }
 
                                 break;

@@ -214,7 +214,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
-                Unknown = fairy == null ? 0 : 4,
+                FairyMoveType = fairy == null ? 0 : 4,
                 Element = fairy?.Item.Element ?? 0,
                 ElementRate = fairy?.ElementRate + fairy?.Item.ElementRate ?? 0,
                 Morph = fairy?.Item.Morph ?? 0 + (isBuffed ? 5 : 0)

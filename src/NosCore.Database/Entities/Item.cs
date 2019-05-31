@@ -86,7 +86,7 @@ namespace NosCore.Database.Entities
 
         public int EffectValue { get; set; }
 
-        public byte Element { get; set; }
+        public ElementType Element { get; set; }
 
         public short ElementRate { get; set; }
 
@@ -189,7 +189,7 @@ namespace NosCore.Database.Entities
 
         public long ReputPrice { get; set; }
 
-        public byte SecondaryElement { get; set; }
+        public ElementType SecondaryElement { get; set; }
 
         public byte Sex { get; set; }
 
