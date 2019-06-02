@@ -50,58 +50,63 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
+        public IActionResult AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
             var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
-            if (character.Item1 != null)
+            var targetCharacter = _webApiAccess.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+            if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType != CharacterRelationType.Blocked))
                 {
-                    return LanguageKey.CANT_BLOCK_FRIEND;
+                    return Ok(LanguageKey.CANT_BLOCK_FRIEND);
                 }
 
                 if (relations.Any(s => s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId && s.RelationType == CharacterRelationType.Blocked))
                 {
-                    return LanguageKey.ALREADY_BLACKLISTED;
+                    return Ok(LanguageKey.ALREADY_BLACKLISTED);
                 }
+                //todo fix
                 //character.SendPacket(character.GenerateBlinit(_webApiAccess));
                 var data = new CharacterRelationDto
                 {
                     CharacterId = character.Item2.ConnectedCharacter.Id,
-                    RelatedCharacterId = character.Item2.ConnectedCharacter.Id,
+                    RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
                     RelationType = CharacterRelationType.Blocked,
                 };
 
                 _characterRelationDao.InsertOrUpdate(ref data);
-                return LanguageKey.BLACKLIST_ADDED;
+                return Ok(LanguageKey.BLACKLIST_ADDED);
             }
             throw new ArgumentException();
         }
 
         [HttpGet]
-        public List<CharacterRelationStatus> GetBlacklisted(long characterId)
+        public List<CharacterRelationStatus> GetBlacklisted(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
-                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType == CharacterRelationType.Blocked);
+                .Where(s => s.CharacterId == id && s.RelationType == CharacterRelationType.Blocked);
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null
+                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    RelationType = rel.RelationType,
+                    CharacterRelationId = rel.CharacterRelationId,
                 });
             }
             return charList;
         }
 
         [HttpDelete]
-        public void Delete(Guid relationId)
+        public IActionResult Delete(Guid id)
         {
-            var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == relationId && s.RelationType == CharacterRelationType.Blocked);
+            var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == id && s.RelationType == CharacterRelationType.Blocked);
             _characterRelationDao.Delete(rel);
+            return Ok();
         }
     }
 }

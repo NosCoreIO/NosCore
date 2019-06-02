@@ -2,12 +2,15 @@
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -19,11 +22,13 @@ namespace NosCore.PacketHandlers.Game
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly IWebApiAccess _webApiAccess;
+        private readonly ISerializer _packetSerializer;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _webApiAccess = webApiAccess;
+            _packetSerializer = packetSerializer;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -128,9 +133,7 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            //todo fix
-            //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus,
-            //    new StatusRequest { Status = true, CharacterId = session.Character.CharacterId, Name = session.Character.Name });
+            session.Character.SendFinfo(_webApiAccess, _packetSerializer, true);
 
             session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
             session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));

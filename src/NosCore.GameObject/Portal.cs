@@ -37,7 +37,7 @@ namespace NosCore.GameObject
                 MapId = DestinationMapId,
                 PortalType = Type,
                 PortalId = PortalId,
-                IsDisabled = IsDisabled ? 1 : 0
+                IsDisabled = IsDisabled
             };
         }
     }

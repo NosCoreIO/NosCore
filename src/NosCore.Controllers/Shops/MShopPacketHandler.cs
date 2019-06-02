@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Shops
 
                         if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
                         {
-                            clientSession.SendPacket(new ShopEndPacket { Type = VisualType.Map });
+                            clientSession.SendPacket(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                             clientSession.SendPacket(clientSession.Character.GenerateSay(
                                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     clientSession.Account.Language),
@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (clientSession.Character.Shop.ShopItems.Count == 0)
                     {
-                        clientSession.SendPacket(new ShopEndPacket { Type = VisualType.Map });
+                        clientSession.SendPacket(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
                             SayColorType.Yellow));
