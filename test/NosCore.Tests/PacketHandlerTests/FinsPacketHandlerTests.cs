@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Test_Add_Friend()
         {
             _friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(_session.Character.CharacterId, _targetSession.Character.CharacterId));
+                new Tuple<long, long>( _targetSession.Character.CharacterId, _session.Character.CharacterId));
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId,

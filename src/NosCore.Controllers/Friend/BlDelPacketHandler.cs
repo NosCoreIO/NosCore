@@ -4,6 +4,7 @@ using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -34,7 +35,8 @@ namespace NosCore.PacketHandlers.Friend
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                _webApiAccess.Delete<Guid>(WebApiRoute.Blacklist, idtorem.CharacterRelationId);
+                _webApiAccess.Delete<IActionResult>(WebApiRoute.Blacklist, idtorem.CharacterRelationId);
+                session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
             }
             else
             {
