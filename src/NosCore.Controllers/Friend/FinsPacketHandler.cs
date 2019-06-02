@@ -28,85 +28,84 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(FinsPacket finsPacket, ClientSession session)
         {
-            var character = Broadcaster.Instance.GetCharacter(s => s.VisualId == session.Character.CharacterId);
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
-            if (character != null && targetCharacter != null)
+            if (targetCharacter != null)
             {
                 var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
 
                 switch (result)
                 {
                     case LanguageKey.FRIENDLIST_FULL:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
-                                character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         break;
 
                     case LanguageKey.BLACKLIST_BLOCKED:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         break;
 
                     case LanguageKey.ALREADY_FRIEND:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
-                                    character.AccountLanguage)
+                                    session.Character.AccountLanguage)
                         });
                         break;
 
                     case LanguageKey.FRIEND_REQUEST_BLOCKED:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
-                                    character.AccountLanguage)
+                                    session.Character.AccountLanguage)
                         });
                         break;
 
                     case LanguageKey.FRIEND_REQUEST_SENT:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
-                                    character.AccountLanguage)
+                                    session.Character.AccountLanguage)
                         });
                         targetCharacter.SendPacket(new DlgPacket
                         {
                             Question = string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, character.AccountLanguage),
-                                character.Name),
+                                Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, session.Character.AccountLanguage),
+                                session.Character.Name),
                             YesPacket = new FinsPacket
-                            { Type = FinsPacketType.Accepted, CharacterId = character.VisualId },
+                            { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
                             NoPacket = new FinsPacket
-                            { Type = FinsPacketType.Rejected, CharacterId = character.VisualId }
+                            { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
                         });
                         break;
 
                     case LanguageKey.FRIEND_ADDED:
-                        character.SendPacket(new InfoPacket
+                        session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                    character.AccountLanguage)
+                                    session.Character.AccountLanguage)
                         });
                         targetCharacter.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
 
                         targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
-                        character.SendPacket(character.GenerateFinit(_webApiAccess));
+                        session.Character.SendPacket(session.Character.GenerateFinit(_webApiAccess));
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:
                         targetCharacter.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED,
-                                character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         break;
                 }

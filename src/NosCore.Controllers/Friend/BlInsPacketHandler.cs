@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -27,7 +28,33 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            _webApiAccess.Post<BlacklistRequest>(WebApiRoute.Blacklist, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
+            var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Blacklist, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
+            if (result == LanguageKey.CANT_BLOCK_FRIEND)
+            {
+                session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
+                     session.Account.Language)
+                });
+            }
+            else if (result == LanguageKey.ALREADY_BLACKLISTED)
+            {
+                session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
+                     session.Account.Language)
+                });
+            }
+            else if (result == LanguageKey.BLACKLIST_ADDED)
+            {
+                session.SendPacket(new InfoPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
+                     session.Account.Language)
+                });
+                session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
+            }
+
         }
     }
 }

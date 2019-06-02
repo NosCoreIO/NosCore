@@ -57,12 +57,12 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpPost]
-        public IActionResult AddFriend([FromBody] FriendShipRequest friendPacket)
+        public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
         {
             var character = _webApiAccess.GetCharacter(friendPacket.CharacterId, null);
             var targetCharacter = _webApiAccess.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-              s.Value.Item1 == character.Item2.ConnectedCharacter.Id && s.Value.Item2 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
+              s.Value.Item2 == character.Item2.ConnectedCharacter.Id && s.Value.Item1 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
             if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 if (character.Item2.ChannelId != targetCharacter.Item2.ChannelId)
@@ -73,32 +73,32 @@ namespace NosCore.MasterServer.Controllers
                 var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId).ToList();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
                 {
-                    return Ok(LanguageKey.FRIENDLIST_FULL);
+                    return LanguageKey.FRIENDLIST_FULL;
                 }
 
                 if (relations.Any(s =>
                     s.RelationType == CharacterRelationType.Blocked &&
                     s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId))
                 {
-                    return Ok(LanguageKey.BLACKLIST_BLOCKED);
+                    return LanguageKey.BLACKLIST_BLOCKED;
                 }
 
                 if (relations.Any(s =>
                     s.RelationType == CharacterRelationType.Friend &&
                     s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId))
                 {
-                    return Ok(LanguageKey.ALREADY_FRIEND);
+                    return LanguageKey.ALREADY_FRIEND;
                 }
 
                 if (character.Item2.ConnectedCharacter.FriendRequestBlocked || targetCharacter.Item2.ConnectedCharacter.FriendRequestBlocked)
                 {
-                    return Ok(LanguageKey.FRIEND_REQUEST_BLOCKED);
+                    return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
           
                 if (!friendRequest.Any())
                 {
                     _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] = new Tuple<long, long>(character.Item2.ConnectedCharacter.Id, targetCharacter.Item2.ConnectedCharacter.Id);
-                    return Ok(LanguageKey.FRIEND_REQUEST_SENT);
+                    return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
                 switch (friendPacket.FinsPacket.Type)
@@ -121,10 +121,10 @@ namespace NosCore.MasterServer.Controllers
 
                         _characterRelationDao.InsertOrUpdate(ref data2);
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
-                        return Ok(LanguageKey.FRIEND_ADDED);
+                        return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
-                        return Ok(LanguageKey.FRIEND_REJECTED);
+                        return LanguageKey.FRIEND_REJECTED;
                     default:
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVITETYPE_UNKNOWN));
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
@@ -162,7 +162,9 @@ namespace NosCore.MasterServer.Controllers
         public IActionResult Delete(Guid id)
         {
             var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == id && s.RelationType == CharacterRelationType.Friend);
+            var rel2 = _characterRelationDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId && s.RelatedCharacterId == rel.CharacterId && s.RelationType == CharacterRelationType.Friend);
             _characterRelationDao.Delete(rel);
+            _characterRelationDao.Delete(rel2);
             return Ok();
         }
     }

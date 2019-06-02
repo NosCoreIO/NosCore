@@ -137,8 +137,7 @@ namespace NosCore.Data.Enumerations.I18N
         CANT_FIND_CHARACTER,
         LOADING_MAPINSTANCES,
         ERROR_SESSIONID,
-        PACKET_USED_WITHOUT_CHARACTER,
-        FRIEND_SERVER_OFFLINE
+        PACKET_USED_WITHOUT_CHARACTER
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
