@@ -138,7 +138,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 {
                                     new FinfoSubPackets
                                     {
-                                        CharacterId = friend.CharacterId,
+                                        CharacterId = visualEntity.VisualId,
                                         IsConnected = isConnected
                                     }
                                 }
