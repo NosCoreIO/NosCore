@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     if (currentRunningSeconds >= clientSession.Character.SpCooldown)
                     {
-                        if (spTransformPacket.Type == SlPacketType.WearSp)
+                        if (spTransformPacket.Type == (SlPacketType)1)
                         {
                             clientSession.Character.ChangeSp();
                         }

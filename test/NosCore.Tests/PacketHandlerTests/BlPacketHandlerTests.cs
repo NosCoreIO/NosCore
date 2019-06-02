@@ -19,6 +19,7 @@ using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
+using Microsoft.AspNetCore.Mvc;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

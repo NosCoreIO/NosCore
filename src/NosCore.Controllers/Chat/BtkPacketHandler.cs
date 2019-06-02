@@ -33,8 +33,7 @@ namespace NosCore.PacketHandlers.Chat
         public override void Execute(BtkPacket btkPacket, ClientSession session)
         {
             var friendlist = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, session.Character.VisualId) ?? new List<CharacterRelationStatus>();
-            //TODO add spouse
-            //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
+
             if (!friendlist.Any(s => s.CharacterId == btkPacket.CharacterId))
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,

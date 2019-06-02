@@ -24,6 +24,7 @@ using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
+using Microsoft.AspNetCore.Mvc;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests
@@ -73,7 +74,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>()))
                 .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 1);
+            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
         }
 
         [TestMethod]
