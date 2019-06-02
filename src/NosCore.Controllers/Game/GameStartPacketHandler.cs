@@ -133,34 +133,7 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            var friendlist = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, session.Character.CharacterId) ?? new List<CharacterRelationStatus>();
-            foreach(var friend in friendlist)
-            {
-                _webApiAccess.BroadcastPacket(new PostedPacket
-                {
-                    Packet = _packetSerializer.Serialize(new[]
-                   {
-                            new FinfoPacket
-                            {
-                                FriendList = new List<FinfoSubPackets>
-                                {
-                                    new FinfoSubPackets
-                                    {
-                                        CharacterId = friend.CharacterId,
-                                        IsConnected = true
-                                    }
-                                }
-                            }
-                        }),
-                    ReceiverType = ReceiverType.OnlySomeone,
-                    SenderCharacter = new Data.WebApi.Character { Id = session.Character.CharacterId, Name = session.Character.Name },
-                    ReceiverCharacter = new Data.WebApi.Character
-                    {
-                        Id = friend.CharacterId,
-                        Name = friend.CharacterName
-                    }
-                });
-            }
+            session.Character.SendFinfo(_webApiAccess, _packetSerializer, true);
 
             session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
             session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));

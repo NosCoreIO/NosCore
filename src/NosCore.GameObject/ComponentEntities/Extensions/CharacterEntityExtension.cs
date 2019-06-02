@@ -35,6 +35,8 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -71,17 +73,17 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
             foreach (var relation in blackList)
             {
-                if (relation.RelatedCharacterId == visualEntity.VisualId)
+                if (relation.CharacterId == visualEntity.VisualId)
                 {
                     continue;
                 }
 
                 subpackets.Add(new BlinitSubPacket
                 {
-                    RelatedCharacterId = relation.RelatedCharacterId,
+                    RelatedCharacterId = relation.CharacterId,
                     CharacterName = relation.CharacterName
                 });
             }
@@ -102,16 +104,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
             {
                 var account = accounts.Find(s =>
-                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.CharacterId);
                 subpackets.Add(new FinitSubPacket
                 {
-                    CharacterId = relation.RelatedCharacterId,
+                    CharacterId = relation.CharacterId,
                     RelationType = relation.RelationType,
                     IsOnline = account != null,
                     CharacterName = relation.CharacterName
@@ -119,6 +121,38 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             return new FinitPacket { SubPackets = subpackets };
+        }
+
+        public static void SendFinfo(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess, ISerializer packetSerializer, bool isConnected)
+        {
+            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            foreach (var friend in friendlist)
+            {
+                webApiAccess.BroadcastPacket(new PostedPacket
+                {
+                    Packet = packetSerializer.Serialize(new[]
+                   {
+                            new FinfoPacket
+                            {
+                                FriendList = new List<FinfoSubPackets>
+                                {
+                                    new FinfoSubPackets
+                                    {
+                                        CharacterId = friend.CharacterId,
+                                        IsConnected = isConnected
+                                    }
+                                }
+                            }
+                        }),
+                    ReceiverType = ReceiverType.OnlySomeone,
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
+                    ReceiverCharacter = new Data.WebApi.Character
+                    {
+                        Id = friend.CharacterId,
+                        Name = friend.CharacterName
+                    }
+                });
+            }
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)

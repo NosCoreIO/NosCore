@@ -139,27 +139,29 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetFriends(long characterId)
+        public List<CharacterRelationStatus> GetFriends(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
-                .Where(s => (s.CharacterId == characterId || s.RelatedCharacterId == characterId) && s.RelationType != CharacterRelationType.Blocked);
+                .Where(s => s.CharacterId == id && s.RelationType != CharacterRelationType.Blocked);
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null
+                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    RelationType = rel.RelationType,
+                    CharacterRelationId = rel.CharacterRelationId,
                 });
             }
-            return Ok(charList);
+            return charList;
         }
 
         [HttpDelete]
-        public IActionResult Delete(Guid relationId)
+        public IActionResult Delete(Guid id)
         {
-            var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == relationId && s.RelationType == CharacterRelationType.Friend);
+            var rel = _characterRelationDao.FirstOrDefault(s => s.CharacterRelationId == id && s.RelationType == CharacterRelationType.Friend);
             _characterRelationDao.Delete(rel);
             return Ok();
         }
