@@ -380,11 +380,11 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 3},
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Light},
                 new Item
                 {
-                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1,
-                    SecondaryElement = 2
+                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = ElementType.Fire,
+                    SecondaryElement = ElementType.Water
                 }
             };
             _item = new ItemProvider(items,
@@ -407,11 +407,11 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 1},
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Fire},
                 new Item
                 {
-                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1,
-                    SecondaryElement = 2
+                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = ElementType.Fire,
+                    SecondaryElement = ElementType.Water
                 }
             };
             _item = new ItemProvider(items,
@@ -431,11 +431,11 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = 2},
+                new Item {Type = PocketType.Equipment, VNum = 1, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Water},
                 new Item
                 {
-                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = 1,
-                    SecondaryElement = 2
+                    Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Sp, Element = ElementType.Fire,
+                    SecondaryElement = ElementType.Water
                 }
             };
             _item = new ItemProvider(items,

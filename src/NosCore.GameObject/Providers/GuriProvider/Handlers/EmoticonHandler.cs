@@ -35,10 +35,10 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 return;
             }
 
-            if (requestData.Data.VisualEntityId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
+            if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff(requestData.Data.Data +
+                    requestData.ClientSession.Character.GenerateEff((int)requestData.Data.Data +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
         }

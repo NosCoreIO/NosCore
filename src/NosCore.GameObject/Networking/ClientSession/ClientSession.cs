@@ -28,6 +28,7 @@ using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Map;
+using ChickenAPI.Packets.ServerPackets.Relations;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -39,6 +40,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -61,18 +63,20 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IWebApiAccess _webApiAccess;
+        private readonly ISerializer _packetSerializer;
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess) : this(configuration, null, null, logger, packetsHandlers, webApiAccess) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess, ISerializer packetSerializer) : this(configuration, null, null, logger, packetsHandlers, webApiAccess, packetSerializer) { }
 
         public ClientSession(ServerConfiguration configuration,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess) : base(logger)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IWebApiAccess webApiAccess, ISerializer packetSerializer) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers;
             _webApiAccess = webApiAccess;
+            _packetSerializer = packetSerializer;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -157,9 +161,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
+                Character.SendFinfo(_webApiAccess, _packetSerializer, false);
 
-                //TODO fix
-                //_webApiAccess.Post<StatusRequest>(WebApiRoute.FriendStatus, new StatusRequest { Status = false, CharacterId = Character.CharacterId, Name = Character.Name });
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)
                 {

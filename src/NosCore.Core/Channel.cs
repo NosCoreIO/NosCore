@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Data.Enumerations;
 
@@ -50,5 +51,7 @@ namespace NosCore.Core
         public ServerConfiguration WebApi { get; set; }
 
         public RegionType UserLanguage { get; set; }
+
+        public string Token { get; set; }
     }
 }

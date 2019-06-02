@@ -35,6 +35,8 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Interaction;
+using ChickenAPI.Packets.Interfaces;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -42,7 +44,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
     {
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
-            return new GoldPacket {Gold = characterEntity.Gold};
+            return new GoldPacket { Gold = characterEntity.Gold };
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
@@ -71,17 +73,17 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
             foreach (var relation in blackList)
             {
-                if (relation.RelatedCharacterId == visualEntity.VisualId)
+                if (relation.CharacterId == visualEntity.VisualId)
                 {
                     continue;
                 }
 
                 subpackets.Add(new BlinitSubPacket
                 {
-                    RelatedCharacterId = relation.RelatedCharacterId,
+                    RelatedCharacterId = relation.CharacterId,
                     CharacterName = relation.CharacterName
                 });
             }
@@ -102,23 +104,55 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendlist = webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelation>();
+            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
             {
                 var account = accounts.Find(s =>
-                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.RelatedCharacterId);
+                    s.ConnectedCharacter != null && s.ConnectedCharacter.Id == relation.CharacterId);
                 subpackets.Add(new FinitSubPacket
                 {
-                    CharacterId = relation.RelatedCharacterId,
+                    CharacterId = relation.CharacterId,
                     RelationType = relation.RelationType,
                     IsOnline = account != null,
                     CharacterName = relation.CharacterName
                 });
             }
 
-            return new FinitPacket {SubPackets = subpackets};
+            return new FinitPacket { SubPackets = subpackets };
+        }
+
+        public static void SendFinfo(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess, ISerializer packetSerializer, bool isConnected)
+        {
+            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            foreach (var friend in friendlist)
+            {
+                webApiAccess.BroadcastPacket(new PostedPacket
+                {
+                    Packet = packetSerializer.Serialize(new[]
+                   {
+                            new FinfoPacket
+                            {
+                                FriendList = new List<FinfoSubPackets>
+                                {
+                                    new FinfoSubPackets
+                                    {
+                                        CharacterId = visualEntity.VisualId,
+                                        IsConnected = isConnected
+                                    }
+                                }
+                            }
+                        }),
+                    ReceiverType = ReceiverType.OnlySomeone,
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
+                    ReceiverCharacter = new Data.WebApi.Character
+                    {
+                        Id = friend.CharacterId,
+                        Name = friend.CharacterName
+                    }
+                });
+            }
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
@@ -173,14 +207,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Authority = (byte)visualEntity.Authority,//todo change chickenapi to short
                     Gender = visualEntity.Gender,
-                    HairStyle = (byte) visualEntity.HairStyle,
-                    HairColor = (byte) visualEntity.HairColor,
+                    HairStyle = visualEntity.HairStyle,
+                    HairColor = visualEntity.HairColor,
                     Class = visualEntity.Class,
                     Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.Group.GroupId,
@@ -194,7 +228,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = null,
-                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -204,7 +238,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FamilyLevel = 0,
                     FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
-                    Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }

@@ -26,6 +26,8 @@ namespace NosCore.Core.Networking
 {
     public interface IWebApiAccess
     {
+        string Token { get; set; }
+
         T Delete<T>(WebApiRoute route, ServerConfiguration webApi);
         T Delete<T>(WebApiRoute route, object id);
         T Delete<T>(WebApiRoute route);

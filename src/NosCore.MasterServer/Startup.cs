@@ -51,6 +51,7 @@ using NosCore.Database.DAL;
 using NosCore.Database;
 using NosCore.Data;
 using NosCore.MasterServer.Controllers;
+using Microsoft.EntityFrameworkCore;
 
 namespace NosCore.MasterServer
 {
@@ -69,6 +70,10 @@ namespace NosCore.MasterServer
             builder.Build().Bind(masterConfiguration);
             Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
                 validateAllProperties: true);
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(masterConfiguration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+
             return masterConfiguration;
         }
 

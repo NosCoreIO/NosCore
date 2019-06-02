@@ -43,12 +43,14 @@ namespace NosCore.Core.Controllers
         private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
 
+        private readonly IWebApiAccess _webApiAccess;
         private int _id;
 
-        public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
+        public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger, IWebApiAccess webApiAccess)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
+            _webApiAccess = webApiAccess;
         }
 
         [AllowAnonymous]
@@ -66,7 +68,7 @@ namespace NosCore.Core.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
-
+            _webApiAccess.Token = data.Token;
             var claims = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
@@ -111,7 +113,7 @@ namespace NosCore.Core.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo {Token = handler.WriteToken(securityToken), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
         }
 
         // GET api/channel

@@ -57,6 +57,7 @@ namespace NosCore.Tests.Helpers
         public static TestHelpers Instance => lazy.Value;
 
         public IGenericDao<AccountDto> AccountDao { get; }
+        public Mock<IWebApiAccess> WebApiMock = new Mock<IWebApiAccess>();
         private readonly IGenericDao<PortalDto> _portalDao;
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
@@ -64,7 +65,7 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<ShopItemDto> _shopItemDao;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ItemInstanceDao _itemInstanceDao;
-        private readonly IWebApiAccess _webApiAccess;
+        public readonly IWebApiAccess _webApiAccess;
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
 
@@ -72,7 +73,7 @@ namespace NosCore.Tests.Helpers
         private TestHelpers()
         {
 
-            _webApiAccess = new Mock<IWebApiAccess>().Object;
+            _webApiAccess = WebApiMock.Object;
             AccountDao = new GenericDao<Account, AccountDto>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
@@ -142,11 +143,11 @@ namespace NosCore.Tests.Helpers
             new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
             new Item {Type = PocketType.Main, VNum = 1013},
             new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
-            new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = 2},
+            new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Water},
             new Item
             {
                 Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2,
-                Element = 1
+                Element = ElementType.Fire
             },
             new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
             new Item
@@ -194,7 +195,7 @@ namespace NosCore.Tests.Helpers
                     new BlInsPackettHandler(_webApiAccess),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(_webApiAccess),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) }, _webApiAccess);
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) }, _webApiAccess, null);
             session.SessionId = _lastId;
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao,null, AccountDao, _logger, null)

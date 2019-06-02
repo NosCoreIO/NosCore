@@ -64,7 +64,7 @@ using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using NosCore.Data.Enumerations.Interaction;
-using ChickenAPI.Packets.ServerPackets.Minimap;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
 
 namespace NosCore.GameObject
 {
@@ -1117,7 +1117,7 @@ namespace NosCore.GameObject
                 Name = Account.Authority == AuthorityType.Moderator
                     ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
                 Unknown1 = null,
-                Unknown2 = -1,
+                GroupId = -1,
                 FamilyId = -1,
                 FamilyName = null,
                 CharacterId = CharacterId,
@@ -1247,11 +1247,11 @@ namespace NosCore.GameObject
                 SayColorType.Purple));
             SendPacket(new SdPacket {Cooldown = SpCooldown});
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
-            MapInstance.Sessions.SendPacket(new GuriPacket
+            MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
             {
-                Type = 6,
-                Argument = 1,
-                VisualEntityId = CharacterId
+                Type = GuriPacketType.Unknow2,
+                Value = 1,
+                EntityId = CharacterId
             });
             SendPacket(GenerateStat());
 
@@ -1301,11 +1301,11 @@ namespace NosCore.GameObject
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
             SendPacket(GenerateLev());
             MapInstance.Sessions.SendPacket(this.GenerateEff(196));
-            MapInstance.Sessions.SendPacket(new GuriPacket
+            MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
             {
-                Type = 6,
-                Argument = 1,
-                VisualEntityId = CharacterId
+                Type = GuriPacketType.Unknow2,
+                Value = 1,
+                EntityId = CharacterId
             });
             SendPacket(GenerateSpPoint());
             LoadSpeed();
