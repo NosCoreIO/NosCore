@@ -73,7 +73,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Blacklist, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)

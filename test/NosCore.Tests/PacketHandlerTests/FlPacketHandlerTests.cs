@@ -46,7 +46,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var friendRequestHolder = new FriendRequestHolder();
-            friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(), new Tuple<long, long>(_session.Character.CharacterId, targetSession.Character.CharacterId));
+            friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(), new Tuple<long, long>(targetSession.Character.CharacterId, _session.Character.CharacterId));
             var flPacket = new FlPacket
             {
                 CharacterName = targetSession.Character.Name
