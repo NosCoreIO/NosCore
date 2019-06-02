@@ -161,35 +161,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.Hp = 1;
                 }
-
-                var friendlist = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, Character.CharacterId) ?? new List<CharacterRelationStatus>();
-                foreach (var friend in friendlist)
-                {
-                    _webApiAccess.BroadcastPacket(new PostedPacket
-                    {
-                        Packet = _packetSerializer.Serialize(new[]
-                       {
-                            new FinfoPacket
-                            {
-                                FriendList = new List<FinfoSubPackets>
-                                {
-                                    new FinfoSubPackets
-                                    {
-                                        CharacterId = friend.CharacterId,
-                                        IsConnected = false
-                                    }
-                                }
-                            }
-                        }),
-                        ReceiverType = ReceiverType.OnlySomeone,
-                        SenderCharacter = new Data.WebApi.Character { Id = Character.CharacterId, Name = Character.Name },
-                        ReceiverCharacter = new Data.WebApi.Character
-                        {
-                            Id = friend.CharacterId,
-                            Name = friend.CharacterName
-                        }
-                    });
-                }
+                Character.SendFinfo(_webApiAccess, _packetSerializer, false);
 
                 var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                 if (targetId.HasValue)
