@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .ToList();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
+                inventories.ForEach(k => character.Inventory[k.ItemInstanceId] = InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
 
 #pragma warning disable CS0618
                 clientSession.SendPackets(clientSession.Character.GenerateInv());

@@ -161,7 +161,7 @@ namespace NosCore.Tests
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0));
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0));
             Assert.IsTrue(Inventory.Count == 2);
-            var item = Inventory.DeleteById(items[0].Id);
+            var item = Inventory.DeleteById(items[0].ItemInstanceId);
             Assert.IsNull(item);
             Assert.IsTrue(Inventory.Count == 1);
         }
