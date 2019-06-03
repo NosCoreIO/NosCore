@@ -132,7 +132,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             newItem.Slot = slot ?? freeSlot.Value;
 
-            if (ContainsKey(newItem.Id))
+            if (ContainsKey(newItem.ItemInstanceId))
             {
                 var e = new InvalidOperationException("Cannot add the same ItemInstance twice to pocket.");
                 _logger.Error(e.Message, e);
@@ -328,7 +328,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                         sourcePocket.ItemInstance.Amount -= amount;
                         itemDest.Amount = amount;
                         itemDest.Id = Guid.NewGuid();
-                        AddItemToPocket(new InventoryItemInstance { CharacterId = sourcePocket.CharacterId, Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
+                        AddItemToPocket(new InventoryItemInstance { Id = Guid.NewGuid(), CharacterId = sourcePocket.CharacterId, Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
                         break;
                     default:
                         if (destinationPocket.ItemInstance.ItemVNum == sourcePocket.ItemInstance.ItemVNum
@@ -371,8 +371,8 @@ namespace NosCore.GameObject.Providers.InventoryService
                             }
 
                             sourcePocket.Slot = destinationSlot;
-                            this[destinationPocket.Id] = destinationPocket;
-                            this[sourcePocket.Id] = sourcePocket;
+                            this[destinationPocket.ItemInstanceId] = destinationPocket;
+                            this[sourcePocket.ItemInstanceId] = sourcePocket;
                         }
 
                         break;
@@ -421,7 +421,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 inv.ItemInstance.Amount -= amount;
                 if (inv.ItemInstance.Amount <= 0)
                 {
-                    return TryRemove(inv.Id, out _) ? null : inv;
+                    return TryRemove(inv.ItemInstanceId, out _) ? null : inv;
                 }
 
                 return inv;
@@ -457,7 +457,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return null;
             }
 
-            TryRemove(itemInstance.Id, out _);
+            TryRemove(itemInstance.ItemInstanceId, out _);
             return itemInstance;
         }
     }
