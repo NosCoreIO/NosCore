@@ -22,6 +22,7 @@ using System.Reactive.Subjects;
 using NosCore.Data;
 using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
         {
         }
 
-        public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
+        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>> Requests { get; set; }
         public Item Item { get; set; }
 
         public object Clone()

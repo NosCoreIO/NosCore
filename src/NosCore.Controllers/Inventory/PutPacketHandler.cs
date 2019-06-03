@@ -22,15 +22,15 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
-                    clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot, putPacket.PocketType);
-            if ((invitem?.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
+                    clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot, putPacket.PocketType);
+            if ((invitem?.ItemInstance.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
             {
                 if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
                 {
                     if (clientSession.Character.MapInstance.MapItems.Count < 200)
                     {
                         var droppedItem =
-                            clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem, clientSession);
+                            clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance, clientSession);
                         if (droppedItem == null)
                         {
                             clientSession.SendPacket(new MsgPacket
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Inventory
                             return;
                         }
 
-                        invitem = clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(putPacket.Slot,
+                        invitem = clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot,
                             putPacket.PocketType);
                         clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                         clientSession.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());

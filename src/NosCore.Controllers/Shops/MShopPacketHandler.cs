@@ -94,20 +94,20 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        var inv = clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(item.Slot, item.Type);
+                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot, item.Type);
                         if (inv == null)
                         {
                             //log
                             continue;
                         }
 
-                        if (inv.Amount < item.Amount)
+                        if (inv.ItemInstance.Amount < item.Amount)
                         {
                             //todo log
                             return;
                         }
 
-                        if (!inv.Item.IsTradable || inv.BoundCharacterId != null)
+                        if (!inv.ItemInstance.Item.IsTradable || inv.ItemInstance.BoundCharacterId != null)
                         {
                             clientSession.SendPacket(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                             clientSession.SendPacket(clientSession.Character.GenerateSay(
@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.Shops
                                 Price = item.Price,
                                 Slot = (byte)shopSlot,
                                 Type = 0,
-                                ItemInstance = inv
+                                ItemInstance = inv.ItemInstance
                             });
                     }
 

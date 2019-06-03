@@ -89,7 +89,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -109,7 +109,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
@@ -129,7 +129,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -152,7 +152,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -176,7 +176,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -184,9 +184,9 @@ namespace NosCore.Tests
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 999), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 999);
             var packet = (MsgPacket)_session.LastPacket;
@@ -203,7 +203,7 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
@@ -211,12 +211,12 @@ namespace NosCore.Tests
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 1), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
-            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Amount == 999));
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
             Assert.IsTrue(_session.Character.Gold == 499002);
         }
 
@@ -229,20 +229,20 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 3, 1), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
-            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Amount == 999));
+            Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
             Assert.IsTrue(_session.Character.Reput == 499002);
         }
 
@@ -256,7 +256,7 @@ namespace NosCore.Tests
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, _logger, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -275,11 +275,11 @@ namespace NosCore.Tests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            var it = itemBuilder.Create(1, 1, 999);
-            session2.Character.Inventory.AddItemToPocket(it, PocketType.Etc, 0);
+            var it = itemBuilder.Create(1, 999);
+            session2.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(it, session2.Character.CharacterId), PocketType.Etc, 0);
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
             list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
             session2.Character.Shop = new Shop
@@ -287,8 +287,8 @@ namespace NosCore.Tests
                 Session = session2,
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1, 999), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2, 999), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), PocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), PocketType.Etc, 1);
             return session2;
         }
 

@@ -20,34 +20,35 @@
 using System;
 using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.InventoryService
 {
-    public interface IInventoryService : IDictionary<Guid, IItemInstance>
+    public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>
     {
         bool IsExpanded { get; set; }
 
-        List<IItemInstance> AddItemToPocket(IItemInstance newItem);
-        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type);
-        List<IItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type, short? slot);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type, short? slot);
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(PocketType inv);
-        IItemInstance DeleteById(Guid id);
-        IItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
-        T LoadByItemInstanceId<T>(Guid id) where T : IItemInstance;
-        T LoadBySlotAndType<T>(short slot, PocketType type) where T : IItemInstance;
+        InventoryItemInstance DeleteById(Guid id);
+        InventoryItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
+        InventoryItemInstance LoadByItemInstanceId(Guid id);
+        InventoryItemInstance LoadBySlotAndType(short slot, PocketType type);
 
-        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
+        InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
 
-        IItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+        InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
             short? targetSlot, bool swap);
 
         bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
-            out IItemInstance sourcePocket, out IItemInstance destinationPocket);
+            out InventoryItemInstance sourcePocket, out InventoryItemInstance destinationPocket);
 
-        bool EnoughPlace(List<IItemInstance> itemInstances);
-        IItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
+        bool EnoughPlace(List<IItemInstance> itemInstances, PocketType type);
+        InventoryItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }

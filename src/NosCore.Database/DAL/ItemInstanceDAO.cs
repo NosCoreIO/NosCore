@@ -245,12 +245,13 @@ namespace NosCore.Database
                 {
                     var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() : dto.Item1 is SpecialistInstance
                             ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() : dto.Item1 is WearableInstance
-                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() : dto.Item1 is UsableInstance 
+                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() : dto.Item1 is UsableInstance
                                     ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
-                    var entityfound = entityfounds.FirstOrDefault(s => dbkey.GetValue(s, null) == dto.Item2);
+                    var entityfound = entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
+                        continue;
                     }
 
                     entitytoadd.Add(entity);

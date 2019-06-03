@@ -35,6 +35,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -164,7 +165,7 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             var item = _session.Character.Inventory.First();
             item.Value.Type = PocketType.Wear;
             _nRunHandler.Execute(new NrunPacket
