@@ -246,11 +246,11 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
 
                     if (item.Value == item.Key.ItemInstance.Amount)
                     {
-                        originInventory.Remove(item.Key.Id);
+                        originInventory.Remove(item.Key.ItemInstanceId);
                     }
                     else
                     {
-                        newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
+                        newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.ItemInstanceId);
                     }
 
                     var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
