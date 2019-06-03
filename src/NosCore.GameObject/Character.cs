@@ -533,7 +533,7 @@ namespace NosCore.GameObject
             List<InventoryItemInstance> inv;
             if (shop.Session == null)
             {
-                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, amount));
+                inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
             }
             else
             {
@@ -549,12 +549,12 @@ namespace NosCore.GameObject
 
                 if (amount == item.ItemInstance.Amount)
                 {
-                    inv = Inventory.AddItemToPocket(item.ItemInstance);
+                    inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance, Session.Character.CharacterId));
                 }
                 else
                 {
-                    inv = Inventory.AddItemToPocket(
-                        ItemProvider.Create(item.ItemInstance.ItemVNum, amount));
+                    inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(
+                        ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
                 }
             }
 

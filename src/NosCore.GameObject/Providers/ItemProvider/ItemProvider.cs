@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
             Create(itemToCreateVNum, amount, 0);
 
         public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare) =>
-            Create(itemToCreateVNum, rare, 0);
+            Create(itemToCreateVNum, amount, rare, 0);
 
         public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade) => Create(itemToCreateVNum, amount, rare, upgrade, 0);
 

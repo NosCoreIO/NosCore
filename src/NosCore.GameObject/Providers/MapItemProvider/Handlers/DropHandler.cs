@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.Group;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(requestData.Data.Item1.ItemInstance)
+            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance, requestData.ClientSession.Character.CharacterId))
                 .FirstOrDefault();
 
             if (inv != null)

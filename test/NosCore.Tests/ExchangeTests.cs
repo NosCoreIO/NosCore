@@ -156,13 +156,13 @@ namespace NosCore.Tests
         public void Test_Process_Exchange()
         {
             IInventoryService inventory1 =
-                new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = PocketType.Main}},
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = PocketType.Main } },
                     _worldConfiguration, _logger);
             IInventoryService inventory2 =
-                new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = PocketType.Main}},
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = PocketType.Main } },
                     _worldConfiguration, _logger);
-            var item1 = inventory1.AddItemToPocket(_itemProvider.Create(1012, 1)).First();
-            var item2 = inventory2.AddItemToPocket(_itemProvider.Create(1013, 1)).First();
+            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0)).First();
+            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0)).First();
 
             _exchangeProvider.OpenExchange(1, 2);
             _exchangeProvider.AddItems(1, item1, 1);

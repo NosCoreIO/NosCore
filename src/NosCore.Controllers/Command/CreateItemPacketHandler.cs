@@ -29,6 +29,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -122,8 +123,8 @@ namespace NosCore.PacketHandlers.Command
                     ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = session.Character.Inventory.AddItemToPocket(_itemProvider.Create(vnum,
-                amount: amount, rare: rare, upgrade: upgrade, design: design));
+            var inv = session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(vnum,
+                amount: amount, rare: rare, upgrade: upgrade, design: design), session.Character.CharacterId));
 
             if (inv.Count <= 0)
             {

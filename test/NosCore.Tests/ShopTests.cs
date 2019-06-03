@@ -213,7 +213,7 @@ namespace NosCore.Tests
             };
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3, 1), _session.Character.CharacterId), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
@@ -232,14 +232,14 @@ namespace NosCore.Tests
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0 });
             var shop = new Shop
             {
                 ShopItems = list
             };
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3, 1), _session.Character.CharacterId), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));

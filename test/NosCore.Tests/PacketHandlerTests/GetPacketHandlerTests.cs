@@ -9,6 +9,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
@@ -64,7 +65,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionY = 0;
 
             _session.Character.MapInstance.MapItems.TryAdd(100001, TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1, 1));
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _getPacketHandler.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
@@ -80,8 +81,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance.MapItems.TryAdd(100001, TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1), 1, 1));
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             _getPacketHandler.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
