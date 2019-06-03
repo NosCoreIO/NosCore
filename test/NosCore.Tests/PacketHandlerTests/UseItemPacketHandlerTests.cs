@@ -47,8 +47,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 }, _session);
 
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear &&
-                s.Value.BoundCharacterId == _session.Character.VisualId));
+                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Wear &&
+                s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId));
         }
 
         [TestMethod]

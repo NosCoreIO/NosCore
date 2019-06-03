@@ -53,14 +53,14 @@ namespace NosCore.PacketHandlers.Shops
             {
                 PocketType type = (PocketType)sellPacket.Data;
 
-                var inv = clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(sellPacket.Slot.Value, type);
-                if (inv == null || sellPacket.Amount.Value > inv.Amount)
+                var inv = clientSession.Character.Inventory.LoadBySlotAndType(sellPacket.Slot.Value, type);
+                if (inv == null || sellPacket.Amount.Value > inv.ItemInstance.Amount)
                 {
                     //TODO log
                     return;
                 }
 
-                if (!inv.Item.IsSoldable)
+                if (!inv.ItemInstance.Item.IsSoldable)
                 {
                     clientSession.SendPacket(new SMemoPacket
                     {
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Shops
                     return;
                 }
 
-                long price = inv.Item.ItemType == ItemType.Sell ? inv.Item.Price : inv.Item.Price / 20;
+                long price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price : inv.ItemInstance.Item.Price / 20;
 
                 if (clientSession.Character.Gold + price * sellPacket.Amount.Value > _worldConfiguration.MaxGoldAmount)
                 {
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Shops
                     Type = SMemoType.Success,
                     Message = string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, clientSession.Account.Language),
-                        inv.Item.Name,
+                        inv.ItemInstance.Item.Name,
                         sellPacket.Amount.Value
                     )
                 });

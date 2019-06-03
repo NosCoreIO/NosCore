@@ -52,11 +52,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemVNum));
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
                 }
 
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.Item.Name} x {amount}",
+                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
                     requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
-                            $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
+                            $"{name}: {inv.ItemInstance.Item.Name} x {requestData.Data.Item1.Amount}",
                             SayColorType.Yellow));
                 }
             }

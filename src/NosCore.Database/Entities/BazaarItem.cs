@@ -23,11 +23,11 @@ namespace NosCore.Database.Entities
 {
     public class BazaarItem
     {
+        public virtual Character Seller { get; set; }
+
         public byte Amount { get; set; }
 
         public long BazaarItemId { get; set; }
-
-        public virtual Character Character { get; set; }
 
         public DateTime DateStart { get; set; }
 

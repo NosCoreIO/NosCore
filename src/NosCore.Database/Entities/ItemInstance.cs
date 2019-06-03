@@ -37,8 +37,6 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 
-        public long? BazaarItemId { get; set; }
-
         [ForeignKey(nameof(BoundCharacterId))]
         public Character BoundCharacter { get; set; }
 
@@ -59,12 +57,6 @@ namespace NosCore.Database.Entities
         public short ItemVNum { get; set; }
 
         public virtual ICollection<MinilandObject> MinilandObject { get; set; }
-
-        public short Rare { get; set; }
-
-        public short Slot { get; set; }
-
-        public PocketType Type { get; set; }
 
         public byte Upgrade { get; set; }
     }

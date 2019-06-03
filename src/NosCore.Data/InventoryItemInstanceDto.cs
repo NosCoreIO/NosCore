@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -17,31 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
 using System;
-using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {
-    public interface IItemInstanceDto
+    public class InventoryItemInstanceDto : IDto
     {
-        [Key]
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
 
-        short Amount { get; set; }
+        public InventoryItemInstanceDto()
+        {
+        }
 
-        long? BoundCharacterId { get; set; }
+        public long CharacterId { get; set; }
 
-        short Design { get; set; }
+        public Guid ItemInstanceId { get; set; }
 
-        int DurabilityPoint { get; set; }
+        public short Slot { get; set; }
 
-        DateTime? ItemDeleteTime { get; set; }
-
-        short ItemVNum { get; set; }
-
-        short Rare { get; set; }
-
-        byte Upgrade { get; set; }
+        public PocketType Type { get; set; }
     }
 }

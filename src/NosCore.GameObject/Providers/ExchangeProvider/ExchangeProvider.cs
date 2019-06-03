@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.Item.IsTradable))
+            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance.Item.IsTradable))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
@@ -120,8 +120,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.ToList()) ||
-                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.ToList()))
+            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type) ||
+                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.Select(s=>s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             return _exchangeDatas[visualId];
         }
 
-        public void AddItems(long visualId, IItemInstance item, short amount)
+        public void AddItems(long visualId, InventoryItemInstance item, short amount)
         {
             var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId);
             if (data.Equals(default))
@@ -242,9 +242,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
                     var targetId = user == firstUser ? secondUser : firstUser;
                     var sessionId = user == firstUser ? firstUser : secondUser;
-                    IItemInstance newItem = null;
+                    InventoryItemInstance newItem = null;
 
-                    if (item.Value == item.Key.Amount)
+                    if (item.Value == item.Key.ItemInstance.Amount)
                     {
                         originInventory.Remove(item.Key.Id);
                     }
@@ -253,9 +253,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                         newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
                     }
 
-                    var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemVNum,
-                        targetId, amount: item.Key.Amount, rare: (sbyte) item.Key.Rare, upgrade: item.Key.Upgrade,
-                        design: (byte) item.Key.Design)).FirstOrDefault();
+                    var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
+                        targetId, amount: item.Key.ItemInstance.Amount, rare: (sbyte) item.Key.ItemInstance.Rare, upgrade: item.Key.ItemInstance.Upgrade,
+                        design: (byte) item.Key.ItemInstance.Design)).FirstOrDefault();
 
                     items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
                         newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));
