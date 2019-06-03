@@ -123,7 +123,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             var inv = session.Character.Inventory.AddItemToPocket(_itemProvider.Create(vnum,
-                session.Character.CharacterId, amount: amount, rare: rare, upgrade: upgrade, design: design));
+                amount: amount, rare: rare, upgrade: upgrade, design: design));
 
             if (inv.Count <= 0)
             {

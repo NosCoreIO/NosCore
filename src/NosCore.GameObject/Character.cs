@@ -19,10 +19,8 @@
 
 using DotNetty.Transport.Channels;
 using NosCore.Core;
-using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
@@ -46,7 +44,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
@@ -56,15 +53,12 @@ using ChickenAPI.Packets.ServerPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Specialists;
-using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
-using ChickenAPI.Packets.ServerPackets.Relations;
-using NosCore.Data.Enumerations.Interaction;
-using ChickenAPI.Packets.ServerPackets.Minimap;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
 
 namespace NosCore.GameObject
 {
@@ -539,8 +533,7 @@ namespace NosCore.GameObject
             List<InventoryItemInstance> inv;
             if (shop.Session == null)
             {
-                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId,
-                    amount));
+                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, amount));
             }
             else
             {
@@ -561,7 +554,7 @@ namespace NosCore.GameObject
                 else
                 {
                     inv = Inventory.AddItemToPocket(
-                        ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                        ItemProvider.Create(item.ItemInstance.ItemVNum, amount));
                 }
             }
 

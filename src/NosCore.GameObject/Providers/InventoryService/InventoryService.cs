@@ -77,15 +77,14 @@ namespace NosCore.GameObject.Providers.InventoryService
             return this.Count(s => s.Value.Type == inv);
         }
 
-        public List<InventoryItemInstance> AddItemToPocket(IItemInstance newItem) => AddItemToPocket(newItem, null, null);
+        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem) => AddItemToPocket(newItem, null, null);
 
-        public List<InventoryItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type) =>
+        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type) =>
             AddItemToPocket(newItem, type, null);
 
-        public List<InventoryItemInstance> AddItemToPocket(IItemInstance Item, PocketType? type, short? slot)
+        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type, short? slot)
         {
             var invlist = new List<InventoryItemInstance>();
-            InventoryItemInstance newItem = null;//TODO get value
             // override type if necessary
             if (type.HasValue)
             {
@@ -108,8 +107,8 @@ namespace NosCore.GameObject.Providers.InventoryService
                     {
                         var max = slotToAdd.ItemInstance.Amount + newItem.ItemInstance.Amount;
                         max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
-                        newItem.ItemInstance.Amount = (short) (slotToAdd.ItemInstance.Amount + newItem.ItemInstance.Amount - max);
-                        slotToAdd.ItemInstance.Amount = (short) max;
+                        newItem.ItemInstance.Amount = (short)(slotToAdd.ItemInstance.Amount + newItem.ItemInstance.Amount - max);
+                        slotToAdd.ItemInstance.Amount = (short)max;
                         invlist.Add(slotToAdd);
                     }
                 }
@@ -122,8 +121,8 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             // create new item
             var freeSlot = newItem.Type == PocketType.Wear
-                ? (LoadBySlotAndType((short) newItem.ItemInstance.Item.EquipmentSlot, PocketType.Wear) == null
-                    ? (short?) newItem.ItemInstance.Item.EquipmentSlot
+                ? (LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, PocketType.Wear) == null
+                    ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null)
                 : GetFreeSlot(newItem.Type);
             if (!slot.HasValue && !freeSlot.HasValue)
@@ -282,9 +281,9 @@ namespace NosCore.GameObject.Providers.InventoryService
             if (targetType == PocketType.Wear)
             {
                 nextFreeSlot =
-                    LoadBySlotAndType((short) sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
-                        ? (short) sourceInstance.ItemInstance.Item.EquipmentSlot
-                        : (short) -1;
+                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
+                        ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
+                        : (short)-1;
             }
             else
             {
@@ -325,11 +324,11 @@ namespace NosCore.GameObject.Providers.InventoryService
                         sourcePocket.Slot = destinationSlot;
                         break;
                     case null:
-                        IItemInstance itemDest = (IItemInstance) sourcePocket.ItemInstance.Clone();
+                        IItemInstance itemDest = (IItemInstance)sourcePocket.ItemInstance.Clone();
                         sourcePocket.ItemInstance.Amount -= amount;
                         itemDest.Amount = amount;
                         itemDest.Id = Guid.NewGuid();
-                        AddItemToPocket(itemDest, sourcetype, destinationSlot);
+                        AddItemToPocket(new InventoryItemInstance { CharacterId = sourcePocket.CharacterId, Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
                         break;
                     default:
                         if (destinationPocket.ItemInstance.ItemVNum == sourcePocket.ItemInstance.ItemVNum
@@ -340,7 +339,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                                 var saveItemCount = destinationPocket.ItemInstance.Amount;
                                 destinationPocket.ItemInstance.Amount = _configuration.MaxItemAmount;
                                 sourcePocket.ItemInstance.Amount =
-                                    (short) (saveItemCount + sourcePocket.ItemInstance.Amount - _configuration.MaxItemAmount);
+                                    (short)(saveItemCount + sourcePocket.ItemInstance.Amount - _configuration.MaxItemAmount);
                             }
                             else
                             {
@@ -437,7 +436,7 @@ namespace NosCore.GameObject.Providers.InventoryService
         {
             var backPack = IsExpanded ? 1 : 0;
             var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)
-                .Select(i => (int) i.Slot);
+                .Select(i => (int)i.Slot);
             IEnumerable<int> instanceSlotsByType =
                 itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
             var nextFreeSlot = instanceSlotsByType.Any()
@@ -445,9 +444,9 @@ namespace NosCore.GameObject.Providers.InventoryService
                     .Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1)
                     .Except(instanceSlotsByType).FirstOrDefault()
                 : 0;
-            return (short?) nextFreeSlot
+            return (short?)nextFreeSlot
                 < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50)
-                    ? (short?) nextFreeSlot : null;
+                    ? (short?)nextFreeSlot : null;
         }
 
         private InventoryItemInstance TakeItem(short slot, PocketType type)

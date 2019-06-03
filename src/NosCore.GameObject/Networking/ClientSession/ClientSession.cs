@@ -267,8 +267,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GeneratePairy(
-                    Character.Inventory.LoadBySlotAndType<WearableInstance>((byte)EquipmentType.Fairy,
-                        PocketType.Wear)));
+                    Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy,
+                        PocketType.Wear).ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
                 SendPacket(Character.Group.GeneratePinit());
 

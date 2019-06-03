@@ -61,7 +61,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_PutPartialSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1, 999));
+            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 999));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -69,7 +69,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Amount = 500
             }, _session);
             Assert.IsTrue(_session.Character.Inventory.Count == 1 &&
-                _session.Character.Inventory.FirstOrDefault().Value.Amount == 499);
+                _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount == 499);
         }
 
         [TestMethod]

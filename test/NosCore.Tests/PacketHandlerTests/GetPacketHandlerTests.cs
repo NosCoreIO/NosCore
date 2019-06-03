@@ -71,7 +71,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.Inventory.First().Value.Amount == 2);
+            Assert.IsTrue(_session.Character.Inventory.First().Value.ItemInstance.Amount == 2);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapItems.TryAdd(100001, TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1, 1, 6), 1, 1));
+            _session.Character.MapInstance.MapItems.TryAdd(100001, TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1, 6), 1, 1));
 
             _getPacketHandler.Execute(new GetPacket
             {
@@ -107,7 +107,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.Inventory.First().Value.Rare == 6);
+            Assert.IsTrue(_session.Character.Inventory.First().Value.ItemInstance.Rare == 6);
         }
 
         [TestMethod]

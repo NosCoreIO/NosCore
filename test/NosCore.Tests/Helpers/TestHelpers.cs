@@ -161,7 +161,7 @@ namespace NosCore.Tests.Helpers
 
         public IItemProvider GenerateItemProvider()
         {
-            return new ItemProvider(ItemList, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>
+            return new ItemProvider(ItemList, new List<IEventHandler<Item, Tuple<GameObject.Providers.InventoryService.InventoryItemInstance, UseItemPacket>>>
             {
                 new SpRechargerEventHandler(WorldConfiguration),
                 new VehicleEventHandler(_logger),
