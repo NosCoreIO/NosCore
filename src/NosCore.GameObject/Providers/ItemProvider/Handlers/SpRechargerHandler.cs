@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.Id);
+                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange(itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
