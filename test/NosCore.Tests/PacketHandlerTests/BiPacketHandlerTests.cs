@@ -39,7 +39,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Delete_FromSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1, 999));
+            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 999));
             _biPacketHandler.Execute(new BiPacket
                 { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main }, _session);
             var packet = (IvnPacket)_session.LastPacket;

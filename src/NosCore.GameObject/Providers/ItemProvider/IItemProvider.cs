@@ -24,13 +24,12 @@ namespace NosCore.GameObject.Providers.ItemProvider
 {
     public interface IItemProvider
     {
-        IItemInstance Create(short itemToCreateVNum, long characterId);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare);
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade);
+        IItemInstance Create(short itemToCreateVNum);
+        IItemInstance Create(short itemToCreateVNum, short amount);
+        IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare);
+        IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade);
 
-        IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare, byte upgrade,
-            byte design);
+        IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade, byte design);
 
         IItemInstance Convert(IItemInstanceDto k);
     }

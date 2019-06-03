@@ -29,9 +29,9 @@ namespace NosCore.GameObject.Providers.InventoryService
     {
         bool IsExpanded { get; set; }
 
-        List<InventoryItemInstance> AddItemToPocket(IItemInstance newItem);
-        List<InventoryItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type);
-        List<InventoryItemInstance> AddItemToPocket(IItemInstance newItem, PocketType? type, short? slot);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type, short? slot);
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(PocketType inv);

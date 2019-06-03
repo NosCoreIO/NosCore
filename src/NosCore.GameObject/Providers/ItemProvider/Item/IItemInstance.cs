@@ -21,10 +21,11 @@ using System;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
-    public interface IItemInstance : IItemInstanceDto, IRequestableEntity<Tuple<IItemInstance, UseItemPacket>>
+    public interface IItemInstance : IItemInstanceDto, IRequestableEntity<Tuple<InventoryItemInstance, UseItemPacket>>
     {
         Item Item { get; set; }
         object Clone();

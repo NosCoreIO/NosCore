@@ -29,10 +29,11 @@ using Serilog;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class VehicleEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class VehicleEventHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
         public VehicleEventHandler(ILogger logger)
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
         public bool Condition(Item.Item item) =>
             item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
 
-        public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
+        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
@@ -68,15 +69,15 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (packet.Mode == 2 && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.Character.IsVehicled = true;
-                requestData.ClientSession.Character.VehicleSpeed = itemInstance.Item.Speed;
+                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;
                 requestData.ClientSession.Character.Morph = 
-                    itemInstance.Item.SecondMorph == 0 ?
-                    (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.Item.Morph) :
+                    itemInstance.ItemInstance.Item.SecondMorph == 0 ?
+                    (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.ItemInstance.Item.Morph) :
                     requestData.ClientSession.Character.Gender == GenderType.Male 
-                        ? itemInstance.Item.Morph
-                        : itemInstance.Item.SecondMorph;
+                        ? itemInstance.ItemInstance.Item.Morph
+                        : itemInstance.ItemInstance.Item.SecondMorph;
 
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196));

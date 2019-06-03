@@ -15,6 +15,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -50,7 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsTradable = true},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -59,7 +60,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _sellPacketHandler.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc }, _session);
             Assert.IsTrue(_session.Character.Gold == 0);
-            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType(0, PocketType.Etc));
         }
 
         [TestMethod]
@@ -69,7 +70,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = false},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -81,7 +82,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
             Assert.IsTrue(_session.Character.Gold == 0);
-            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+            Assert.IsNotNull(_session.Character.Inventory.LoadBySlotAndType(0, PocketType.Etc));
         }
 
         [TestMethod]
@@ -91,7 +92,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 1), PocketType.Etc, 0);
             _session.Character.Inventory.AddItemToPocket(itemBuilder.Create(1, 2), PocketType.Etc, 1);
@@ -100,7 +101,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _sellPacketHandler.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)PocketType.Etc }, _session);
             Assert.IsTrue(_session.Character.Gold > 0);
-            Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType<IItemInstance>(0, PocketType.Etc));
+            Assert.IsNull(_session.Character.Inventory.LoadBySlotAndType(0, PocketType.Etc));
         }
     }
 }

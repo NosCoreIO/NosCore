@@ -28,16 +28,17 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider
 {
     public class ItemProvider : IItemProvider
     {
-        private readonly List<IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> _handlers;
+        private readonly List<IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>> _handlers;
         private readonly List<ItemDto> _items;
 
         public ItemProvider(List<ItemDto> items,
-            IEnumerable<IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>> handlers)
+            IEnumerable<IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>> handlers)
         {
             _items = items;
             _handlers = handlers.ToList();
@@ -57,29 +58,28 @@ namespace NosCore.GameObject.Providers.ItemProvider
             return item;
         }
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId) =>
-            Create(itemToCreateVNum, characterId, 1);
+        public IItemInstance Create(short itemToCreateVNum) =>
+            Create(itemToCreateVNum, 1);
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount) =>
-            Create(itemToCreateVNum, characterId, amount, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount) =>
+            Create(itemToCreateVNum, amount, 0);
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare) =>
-            Create(itemToCreateVNum, characterId, amount, rare, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare) =>
+            Create(itemToCreateVNum, rare, 0);
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
-            byte upgrade) => Create(itemToCreateVNum, characterId, amount, rare, upgrade, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade) => Create(itemToCreateVNum, amount, rare, upgrade, 0);
 
-        public IItemInstance Create(short itemToCreateVNum, long characterId, short amount, sbyte rare,
-            byte upgrade, byte design)
+        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade,
+            byte design)
         {
-            var item = Generate(itemToCreateVNum, characterId, amount, rare, upgrade, design);
+            var item = Generate(itemToCreateVNum, amount, rare, upgrade, design);
             LoadHandlers(item);
             return item;
         }
 
         private void LoadHandlers(IItemInstance itemInstance)
         {
-            var handlersRequest = new Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>>();
+            var handlersRequest = new Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(itemInstance.Item))
@@ -90,8 +90,8 @@ namespace NosCore.GameObject.Providers.ItemProvider
             itemInstance.Requests = handlersRequest;
         }
 
-        public IItemInstance Generate(short itemToCreateVNum, long characterId, short amount, sbyte rare,
-            byte upgrade, byte design)
+        public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade,
+            byte design)
         {
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
             switch (itemToCreate.Type)
@@ -99,7 +99,6 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 case PocketType.Miniland:
                     return new ItemInstance(itemToCreate)
                     {
-                        CharacterId = characterId,
                         Amount = amount,
                         DurabilityPoint = itemToCreate.MinilandObjectPoint / 2
                     };
@@ -112,7 +111,6 @@ namespace NosCore.GameObject.Providers.ItemProvider
                             {
                                 SpLevel = 1,
                                 Amount = amount,
-                                CharacterId = characterId,
                                 Design = design,
                                 Upgrade = upgrade
                             };
@@ -120,7 +118,6 @@ namespace NosCore.GameObject.Providers.ItemProvider
                             return new BoxInstance(itemToCreate)
                             {
                                 Amount = amount,
-                                CharacterId = characterId,
                                 Upgrade = upgrade,
                                 Design = design
                             };
@@ -129,7 +126,6 @@ namespace NosCore.GameObject.Providers.ItemProvider
                             {
                                 Amount = amount,
                                 Rare = rare,
-                                CharacterId = characterId,
                                 Upgrade = upgrade,
                                 Design = design
                             };
@@ -144,9 +140,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 default:
                     return new ItemInstance(itemToCreate)
                     {
-                        Type = itemToCreate.Type,
                         Amount = amount,
-                        CharacterId = characterId
                     };
             }
         }

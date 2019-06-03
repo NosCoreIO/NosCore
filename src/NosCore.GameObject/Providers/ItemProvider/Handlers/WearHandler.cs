@@ -30,10 +30,11 @@ using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class WearEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class WearEventHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
         public WearEventHandler(ILogger logger)
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             || item.ItemType == ItemType.Fashion
             || item.ItemType == ItemType.Specialist;
 
-        public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
+        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123));
 
@@ -58,9 +59,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (itemInstance.BoundCharacterId == null)
+            if (itemInstance.ItemInstance.BoundCharacterId == null)
             {
-                if (packet.Mode == 0 && itemInstance.Item.RequireBinding)
+                if (packet.Mode == 0 && itemInstance.ItemInstance.Item.RequireBinding)
                 {
                     requestData.ClientSession.SendPacket(
                         new QnaPacket
@@ -74,16 +75,16 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
                 if (packet.Mode != 0)
                 {
-                    itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
+                    itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
                 }
             }
 
-            if (itemInstance.Item.LevelMinimum > (itemInstance.Item.IsHeroic
+            if (itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
                     ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level)
-                || itemInstance.Item.Sex != 0 &&
-                ((itemInstance.Item.Sex >> (byte) requestData.ClientSession.Character.Gender) & 1) != 1
-                || itemInstance.Item.Class != 0 &&
-                ((itemInstance.Item.Class >> (byte) requestData.ClientSession.Character.Class) & 1) != 1)
+                || itemInstance.ItemInstance.Item.Sex != 0 &&
+                ((itemInstance.ItemInstance.Item.Sex >> (byte) requestData.ClientSession.Character.Gender) & 1) != 1
+                || itemInstance.ItemInstance.Item.Class != 0 &&
+                ((itemInstance.ItemInstance.Item.Class >> (byte) requestData.ClientSession.Character.Class) & 1) != 1)
             {
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
@@ -92,13 +93,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (requestData.ClientSession.Character.UseSp && itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
+            if (requestData.ClientSession.Character.UseSp && itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(
+                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
                     (byte) EquipmentType.Sp, PocketType.Wear);
 
-                if (sp != null && sp.Item.Element != 0 && itemInstance.Item.Element != sp.Item.Element &&
-                    itemInstance.Item.Element != sp.Item.SecondaryElement)
+                if (sp != null && sp.ItemInstance.Item.Element != 0 && itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element &&
+                    itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement)
                 {
                     requestData.ClientSession.SendPacket(new MsgPacket
                     {
@@ -109,11 +110,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 }
             }
 
-            if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 double timeSpanSinceLastSpUsage =
                     (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
-                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(
+                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
                     (byte) EquipmentType.Sp, PocketType.Wear);
                 if (timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown && sp != null)
                 {
@@ -134,7 +135,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     return;
                 }
 
-                if (itemInstance.Rare == -2)
+                if (itemInstance.ItemInstance.Rare == -2)
                 {
                     requestData.ClientSession.SendPacket(new MsgPacket
                     {
@@ -145,7 +146,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 }
             }
 
-            if (requestData.ClientSession.Character.JobLevel < itemInstance.Item.LevelJobMinimum)
+            if (requestData.ClientSession.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
                 requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
@@ -155,10 +156,10 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             }
 
             requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, packet.Type, PocketType.Wear,
-                (short) itemInstance.Item.EquipmentSlot, true);
+                (short) itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem =
                 requestData.ClientSession.Character.Inventory
-                    .LoadBySlotAndType<IItemInstance>(packet.Slot, packet.Type);
+                    .LoadBySlotAndType(packet.Slot, packet.Type);
 
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
@@ -166,31 +167,31 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 .GenerateEq());
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
-            if (itemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
             }
 
-            if (itemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GeneratePairy(itemInstance as WearableInstance));
+                    requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
             }
 
-            if (itemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
             {
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
             }
 
 
-            if (itemInstance.Item.ItemValidTime > 0 && itemInstance.BoundCharacterId != null)
+            if (itemInstance.ItemInstance.Item.ItemValidTime > 0 && itemInstance.ItemInstance.BoundCharacterId != null)
             {
-                itemInstance.ItemDeleteTime = SystemTime.Now().AddSeconds(itemInstance.Item.ItemValidTime);
+                itemInstance.ItemInstance.ItemDeleteTime = SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime);
             }
 
-            if (itemInstance.Item.RequireBinding)
+            if (itemInstance.ItemInstance.Item.RequireBinding)
             {
-                itemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
+                itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
             }
         }
     }

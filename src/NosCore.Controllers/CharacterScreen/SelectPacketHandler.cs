@@ -83,10 +83,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.Group.JoinGroup(character);
                 clientSession.SetCharacter(character);
 
-                var inventories = _itemInstanceDao
-                    .Where(s => s.CharacterId == character.CharacterId)
-                    .ToList();
-                inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
+                //todo fix
+                //var inventories = _itemInstanceDao
+                //    .Where(s => s.CharacterId == character.CharacterId)
+                //    .ToList();
+                //inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
 #pragma warning disable CS0618
                 clientSession.SendPackets(clientSession.Character.GenerateInv());
 #pragma warning restore CS0618

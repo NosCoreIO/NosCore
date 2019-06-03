@@ -62,7 +62,7 @@ namespace NosCore.Tests
                 new Item {Type = PocketType.Main, VNum = 1013},
             };
 
-            _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>>());
+            _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, _logger);
         }
 
@@ -97,17 +97,20 @@ namespace NosCore.Tests
         {
             _exchangeProvider.OpenExchange(1, 2);
 
-            var item = new ItemInstance
+            var item = new InventoryItemInstance
             {
-                Amount = 1,
-                ItemVNum = 1012
+                ItemInstance = new ItemInstance
+                {
+                    Amount = 1,
+                    ItemVNum = 1012
+                }
             };
 
-            _exchangeProvider.AddItems(1, item, item.Amount);
+            _exchangeProvider.AddItems(1, item, item.ItemInstance.Amount);
 
             var data1 = _exchangeProvider.GetData(1);
 
-            Assert.IsTrue(data1.ExchangeItems.Any(s => s.Key.ItemVNum == 1012 && s.Key.Amount == 1));
+            Assert.IsTrue(data1.ExchangeItems.Any(s => s.Key.ItemInstance.ItemVNum == 1012 && s.Key.ItemInstance.Amount == 1));
         }
 
         [TestMethod]
