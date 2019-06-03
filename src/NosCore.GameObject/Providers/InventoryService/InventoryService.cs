@@ -162,7 +162,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return null;
             }
 
-            this[newItem.Id] = newItem;
+            this[newItem.ItemInstanceId] = newItem;
             invlist.Add(newItem);
 
             return invlist;
@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             var inv = this[id];
             if (inv != null)
             {
-                if (TryRemove(inv.Id, out var value))
+                if (TryRemove(inv.ItemInstanceId, out var value))
                 {
                     return null;
                 }
@@ -197,7 +197,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             if (inv != null && type != PocketType.Bazaar)
             {
-                if (TryRemove(inv.Id, out var value))
+                if (TryRemove(inv.ItemInstanceId, out var value))
                 {
                     return null;
                 }

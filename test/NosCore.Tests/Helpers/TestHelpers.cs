@@ -65,6 +65,7 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<ShopItemDto> _shopItemDao;
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         public readonly IWebApiAccess _webApiAccess;
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
@@ -83,6 +84,7 @@ namespace NosCore.Tests.Helpers
             _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
             CharacterDao = new GenericDao<Character, CharacterDto>(_logger);
             _itemInstanceDao = new ItemInstanceDao(_logger);
+            _inventoryItemInstanceDao = new GenericDao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto>(_logger);
             InitDatabase();
             MapInstanceProvider = GenerateMapInstanceProvider();
         }
@@ -136,7 +138,11 @@ namespace NosCore.Tests.Helpers
 
         public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration
         {
-            BackpackSize = 2, MaxItemAmount = 999, MaxSpPoints = 10_000, MaxAdditionalSpPoints = 1_000_000, MaxGoldAmount = 999_999_999
+            BackpackSize = 2,
+            MaxItemAmount = 999,
+            MaxSpPoints = 10_000,
+            MaxAdditionalSpPoints = 1_000_000,
+            MaxGoldAmount = 999_999_999
         };
         public List<ItemDto> ItemList { get; } = new List<ItemDto>
         {
@@ -195,10 +201,10 @@ namespace NosCore.Tests.Helpers
                     new BlInsPackettHandler(_webApiAccess),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(_webApiAccess),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao) }, _webApiAccess, null);
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao) }, _webApiAccess, null);
             session.SessionId = _lastId;
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao,null, AccountDao, _logger, null)
+                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao, null, null, AccountDao, _logger, null)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

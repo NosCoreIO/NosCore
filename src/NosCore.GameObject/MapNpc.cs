@@ -79,6 +79,7 @@ namespace NosCore.GameObject
                     shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
                 });
                 _shop = shopObj.Adapt<Shop>();
+                _shop.Session = null;
                 _shop.ShopItems = shopItemsList;
             }
         }

@@ -223,14 +223,14 @@ namespace NosCore.Database.DAL
 
                 foreach (var dto in list)
                 {
-                    var entity = dto.Item1.Adapt<TEntity>();
-                    var entityfound = entityfounds.FirstOrDefault(s => dbkey.GetValue(s, null) == dto.Item2);
+                    var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
+                    var entityfound = entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
+                        continue;
                     }
 
-                    context.Entry(entity).CurrentValues.SetValues(entity);
                     entitytoadd.Add(entity);
                 }
 
