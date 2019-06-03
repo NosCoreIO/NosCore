@@ -149,8 +149,8 @@ namespace NosCore.Database
                 .HasValue<UsableInstance>("UsableInstance")
                 .HasValue<BoxInstance>("BoxInstance");
 
-            modelBuilder.Entity<ItemInstance>()
-                .HasIndex(e => new {e.CharacterId, e.Slot, e.Type})
+            modelBuilder.Entity<InventoryItemInstance>()
+                .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
                 .IsUnique();
 
             modelBuilder.Entity<MapTypeMap>()
@@ -326,7 +326,7 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BazaarItem>()
-                .HasOne(e => e.Character)
+                .HasOne(e => e.Seller)
                 .WithMany(e => e.BazaarItem)
                 .HasForeignKey(e => e.SellerId)
                 .OnDelete(DeleteBehavior.Restrict);

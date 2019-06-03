@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject
@@ -26,10 +27,10 @@ namespace NosCore.GameObject
     {
         public ExchangeData()
         {
-            ExchangeItems = new ConcurrentDictionary<IItemInstance, short>();
+            ExchangeItems = new ConcurrentDictionary<InventoryItemInstance, short>();
         }
 
-        public ConcurrentDictionary<IItemInstance, short> ExchangeItems { get; set; }
+        public ConcurrentDictionary<InventoryItemInstance, short> ExchangeItems { get; set; }
 
         public long Gold { get; set; }
 

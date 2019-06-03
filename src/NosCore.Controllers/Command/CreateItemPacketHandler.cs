@@ -139,8 +139,8 @@ namespace NosCore.PacketHandlers.Command
             session.SendPacket(inv.GeneratePocketChange());
             var firstItem = inv[0];
             var wearable =
-                session.Character.Inventory.LoadBySlotAndType<WearableInstance>(firstItem.Slot,
-                    firstItem.Type);
+                session.Character.Inventory.LoadBySlotAndType(firstItem.Slot,
+                    firstItem.Type).ItemInstance as WearableInstance;
 
             if (wearable?.Item.EquipmentSlot is EquipmentType.Armor ||
                 wearable?.Item.EquipmentSlot is EquipmentType.MainWeapon ||

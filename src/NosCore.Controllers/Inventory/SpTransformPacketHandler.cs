@@ -38,8 +38,8 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             SpecialistInstance specialistInstance =
-              clientSession.Character.Inventory.LoadBySlotAndType<SpecialistInstance>((byte)EquipmentType.Sp,
-                  PocketType.Wear);
+              clientSession.Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Sp,
+                  PocketType.Wear).ItemInstance as SpecialistInstance;
 
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {

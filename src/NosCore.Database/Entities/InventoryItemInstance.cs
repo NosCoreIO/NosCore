@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -17,31 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
-namespace NosCore.Data
+namespace NosCore.Database.Entities
 {
-    public interface IItemInstanceDto
+    public class InventoryItemInstance : SynchronizableBaseEntity
     {
-        [Key]
-        Guid Id { get; set; }
+        public InventoryItemInstance()
+        {
+        }
 
-        short Amount { get; set; }
 
-        long? BoundCharacterId { get; set; }
+        public virtual Character Character { get; set; }
 
-        short Design { get; set; }
+        public long CharacterId { get; set; }
 
-        int DurabilityPoint { get; set; }
+        public virtual ItemInstance ItemInstance { get; set; }
 
-        DateTime? ItemDeleteTime { get; set; }
+        public Guid ItemInstanceId { get; set; }
 
-        short ItemVNum { get; set; }
+        public short Slot { get; set; }
 
-        short Rare { get; set; }
-
-        byte Upgrade { get; set; }
+        public PocketType Type { get; set; }
     }
 }

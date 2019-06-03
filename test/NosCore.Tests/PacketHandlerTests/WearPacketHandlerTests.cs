@@ -12,6 +12,7 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -75,7 +76,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
@@ -101,7 +102,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
@@ -138,7 +139,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
@@ -173,7 +174,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
@@ -196,7 +197,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
@@ -216,7 +217,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
@@ -239,7 +240,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
@@ -260,7 +261,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Equipment));
@@ -284,7 +285,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.Type == PocketType.Wear));
@@ -303,7 +304,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1, 1, -2));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
 
@@ -331,14 +332,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_item.Create(2, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             _session.Character.UseSp = true;
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemVNum == 2 && s.Value.Type == PocketType.Equipment));
+                s.Value.ItemInstance.ItemVNum == 2 && s.Value.Type == PocketType.Equipment));
             var packet = (SayPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
                 _session.Account.Language) && packet.Type == SayColorType.Yellow);
@@ -362,14 +363,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_item.Create(2, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             _session.Character.SpCooldown = 30;
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemVNum == 2 && s.Value.Type == PocketType.Equipment));
+                s.Value.ItemInstance.ItemVNum == 2 && s.Value.Type == PocketType.Equipment));
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language), 30));
         }
@@ -388,7 +389,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 }
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_item.Create(2, 1));
@@ -396,7 +397,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.UseSp = true;
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
+                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
             var packet = (MsgPacket)_session.LastPacket;
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                 _session.Account.Language));
@@ -415,7 +416,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 }
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_item.Create(2, 1));
@@ -423,7 +424,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.UseSp = true;
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(
-                _session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
+                _session.Character.Inventory.Any(s => s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
         }
 
         [TestMethod]
@@ -439,7 +440,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 }
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _session.Character.Inventory.AddItemToPocket(_item.Create(2, 1));
@@ -447,7 +448,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.UseSp = true;
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(
-                _session.Character.Inventory.Any(s => s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
+                _session.Character.Inventory.Any(s => s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Wear));
         }
 
         [TestMethod]
@@ -458,7 +459,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 new Item {Type = PocketType.Equipment, VNum = 1, RequireBinding = true},
             };
             _item = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>> { new WearEventHandler(_logger) });
 
             _session.Character.Inventory.AddItemToPocket(_item.Create(1, 1));
             _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
@@ -469,7 +470,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 && yespacket.Type == PocketType.Equipment
                 && packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND));
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
+                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Equipment));
         }
 
     }
