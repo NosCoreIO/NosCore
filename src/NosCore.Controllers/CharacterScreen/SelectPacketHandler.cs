@@ -28,6 +28,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
@@ -42,9 +43,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IItemProvider _itemProvider;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
 
         public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
-            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao)
+            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -52,6 +54,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _mapInstanceProvider = mapInstanceProvider;
             _itemProvider = itemProvider;
             _itemInstanceDao = itemInstanceDao;
+            _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
      
         public override void Execute(SelectPacket packet, ClientSession clientSession)
@@ -83,11 +86,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.Group.JoinGroup(character);
                 clientSession.SetCharacter(character);
 
-                //todo fix
-                //var inventories = _itemInstanceDao
-                //    .Where(s => s.CharacterId == character.CharacterId)
-                //    .ToList();
-                //inventories.ForEach(k => character.Inventory[k.Id] = _itemProvider.Convert(k));
+                var inventories = _inventoryItemInstanceDao
+                    .Where(s => s.CharacterId == character.CharacterId)
+                    .ToList();
+                var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
+                var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
+                inventories.ForEach(k => character.Inventory[k.Id] = InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
+
 #pragma warning disable CS0618
                 clientSession.SendPackets(clientSession.Character.GenerateInv());
 #pragma warning restore CS0618

@@ -31,6 +31,7 @@ namespace NosCore.Database.Entities
         {
             BazaarItem = new HashSet<BazaarItem>();
             MinilandObject = new HashSet<MinilandObject>();
+            InventoryItemInstance = new HashSet<InventoryItemInstance>();
         }
 
         public short Amount { get; set; }
@@ -41,8 +42,6 @@ namespace NosCore.Database.Entities
         public Character BoundCharacter { get; set; }
 
         public long? BoundCharacterId { get; set; }
-
-        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
@@ -55,6 +54,8 @@ namespace NosCore.Database.Entities
         public DateTime? ItemDeleteTime { get; set; }
 
         public short ItemVNum { get; set; }
+
+        public virtual ICollection<InventoryItemInstance> InventoryItemInstance { get; set; }
 
         public virtual ICollection<MinilandObject> MinilandObject { get; set; }
 

@@ -18,12 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {
     public class InventoryItemInstanceDto : IDto
     {
+        [Key]
         public Guid Id { get; set; }
 
         public InventoryItemInstanceDto()

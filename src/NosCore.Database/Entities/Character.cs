@@ -34,7 +34,7 @@ namespace NosCore.Database.Entities
             StaticBonus = new HashSet<StaticBonus>();
             StaticBuff = new HashSet<StaticBuff>();
             BazaarItem = new HashSet<BazaarItem>();
-            Inventory = new HashSet<ItemInstance>();
+            Inventory = new HashSet<InventoryItemInstance>();
             QuicklistEntry = new HashSet<QuicklistEntry>();
             Respawn = new HashSet<Respawn>();
             Mail = new HashSet<Mail>();
@@ -111,7 +111,7 @@ namespace NosCore.Database.Entities
 
         public bool HpBlocked { get; set; }
 
-        public virtual ICollection<ItemInstance> Inventory { get; set; }
+        public virtual ICollection<InventoryItemInstance> Inventory { get; set; }
 
         public byte JobLevel { get; set; }
 

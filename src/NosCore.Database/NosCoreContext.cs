@@ -337,6 +337,12 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<InventoryItemInstance>()
+                .HasOne(e => e.ItemInstance)
+                .WithMany(e => e.InventoryItemInstance)
+                .HasForeignKey(e => e.ItemInstanceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<MinilandObject>()
                 .HasOne(e => e.ItemInstance)
                 .WithMany(e => e.MinilandObject)
