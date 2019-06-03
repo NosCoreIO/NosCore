@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Shops
                     )
                 });
 
-                clientSession.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.Id);
+                clientSession.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.ItemInstanceId);
                 clientSession.SendPacket(clientSession.Character.GenerateGold());
             }
             else
