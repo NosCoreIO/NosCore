@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20190603044318_Aphrodite10")]
+    partial class Aphrodite10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -906,6 +908,8 @@ namespace NosCore.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BoundCharacterId");
+
+                    b.HasIndex("CharacterId");
 
                     b.HasIndex("ItemVNum");
 
@@ -2067,14 +2071,14 @@ namespace NosCore.Database.Migrations
             modelBuilder.Entity("NosCore.Database.Entities.InventoryItemInstance", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.Character", "Character")
-                        .WithMany("Inventory")
+                        .WithMany()
                         .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
-                        .WithMany("InventoryItemInstance")
+                        .WithMany()
                         .HasForeignKey("ItemInstanceId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ItemInstance", b =>
@@ -2082,6 +2086,11 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Character", "BoundCharacter")
                         .WithMany()
                         .HasForeignKey("BoundCharacterId");
+
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("Inventory")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NosCore.Database.Entities.Item", "Item")
                         .WithMany("ItemInstances")

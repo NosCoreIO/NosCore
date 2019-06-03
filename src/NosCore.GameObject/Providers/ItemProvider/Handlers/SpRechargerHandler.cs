@@ -28,10 +28,11 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class SpRechargerEventHandler : IEventHandler<Item.Item, Tuple<IItemInstance, UseItemPacket>>
+    public class SpRechargerEventHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
         private readonly WorldConfiguration _worldConfiguration;
 
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Special &&
             item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
 
-        public void Execute(RequestData<Tuple<IItemInstance, UseItemPacket>> requestData)
+        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.Id);
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange(itemInstance.Type, itemInstance.Slot));
-                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.Item.EffectValue);
+                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
             }
             else
             {

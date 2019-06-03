@@ -21,6 +21,7 @@ using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -29,15 +30,15 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
-            IItemInstance inv =
-                clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(useItemPacket.Slot, useItemPacket.Type);
-            if (inv?.Requests == null)
+            InventoryItemInstance inv =
+                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot, useItemPacket.Type);
+            if (inv?.ItemInstance.Requests == null)
             {
                 return;
             }
 
-            inv.Requests.OnNext(new RequestData<Tuple<IItemInstance, UseItemPacket>>(clientSession,
-                new Tuple<IItemInstance, UseItemPacket>(inv, useItemPacket)));
+            inv.ItemInstance.Requests.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
+                new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket)));
         }
     }
 }

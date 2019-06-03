@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.Group;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(requestData.Data.Item1.ItemInstance)
+            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance, requestData.ClientSession.Character.CharacterId))
                 .FirstOrDefault();
 
             if (inv != null)
@@ -52,11 +53,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     requestData.ClientSession.SendPacket(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemVNum));
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
                 }
 
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.Item.Name} x {amount}",
+                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
                     requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
-                            $"{name}: {inv.Item.Name} x {requestData.Data.Item1.Amount}",
+                            $"{name}: {inv.ItemInstance.Item.Name} x {requestData.Data.Item1.Amount}",
                             SayColorType.Yellow));
                 }
             }

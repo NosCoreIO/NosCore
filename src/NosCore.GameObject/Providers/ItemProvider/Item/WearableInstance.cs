@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
             return (WearableInstance) MemberwiseClone();
         }
 
-        public Subject<RequestData<Tuple<IItemInstance, UseItemPacket>>> Requests { get; set; }
+        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>> Requests { get; set; }
 
         public void SetRarityPoint()
         {

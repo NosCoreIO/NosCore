@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Inventory
             var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
                 mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            clientSession.SendPacket(((IItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            clientSession.SendPacket(((InventoryItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
     }
 }

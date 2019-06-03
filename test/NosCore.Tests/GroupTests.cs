@@ -48,7 +48,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(null, null, null, null, null,null, _logger, null)
+            var entity = new Character(null, null, null, null, null,null, null, _logger, null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -65,7 +65,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(null, null, null, null, null, null, _logger, null)
+            var entity = new Character(null, null, null, null, null, null, null, _logger, null)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -98,7 +98,7 @@ namespace NosCore.Tests
         {
             for (var i = 0; i < (long) _group.Type; i++)
             {
-                var entity = new Character(null, null, null, null, null, null, _logger, null)
+                var entity = new Character(null, null, null, null, null, null, null, _logger, null)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         void ConfirmExchange(long visualId);
         bool IsExchangeConfirmed(long visualId);
         ExchangeData GetData(long visualId);
-        void AddItems(long visualId, IItemInstance item, short amount);
+        void AddItems(long visualId, InventoryItemInstance item, short amount);
         bool CheckExchange(long visualId);
         long? GetTargetId(long visualId);
         bool CheckExchange(long visualId, long targetId);

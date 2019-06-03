@@ -19,10 +19,8 @@
 
 using DotNetty.Transport.Channels;
 using NosCore.Core;
-using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
@@ -46,7 +44,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
@@ -56,14 +53,11 @@ using ChickenAPI.Packets.ServerPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Specialists;
-using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
-using ChickenAPI.Packets.ServerPackets.Relations;
-using NosCore.Data.Enumerations.Interaction;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 
 namespace NosCore.GameObject
@@ -76,9 +70,10 @@ namespace NosCore.GameObject
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
-            ,IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
+            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -91,6 +86,7 @@ namespace NosCore.GameObject
             _accountDao = accountDao;
             _logger = logger;
             _packetSerializer = packetSerializer;
+            _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
 
         public AccountDto Account { get; set; }
@@ -129,7 +125,7 @@ namespace NosCore.GameObject
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
         public Subject<RequestData> Requests { get; set; }
 
-        public short Race => (byte) Class;
+        public short Race => (byte)Class;
         public Shop Shop { get; set; }
 
         public bool Camouflage { get; set; }
@@ -173,7 +169,7 @@ namespace NosCore.GameObject
             {
                 if (VehicleSpeed != null)
                 {
-                    return (byte) VehicleSpeed;
+                    return (byte)VehicleSpeed;
                 }
                 //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
                 //    {
@@ -187,13 +183,13 @@ namespace NosCore.GameObject
                     return 59;
                 }
 
-                return (byte) (_speed + bonusSpeed);
+                return (byte)(_speed + bonusSpeed);
             }
 
             set
             {
                 LastSpeedChange = SystemTime.Now();
-                _speed = value > 59 ? (byte) 59 : value;
+                _speed = value > 59 ? (byte)59 : value;
             }
         }
 
@@ -214,9 +210,9 @@ namespace NosCore.GameObject
 
         public bool IsAlive { get; set; }
 
-        public int MaxHp => (int) HpLoad();
+        public int MaxHp => (int)HpLoad();
 
-        public int MaxMp => (int) MpLoad();
+        public int MaxMp => (int)MpLoad();
 
         public void SetHeroLevel(byte level)
         {
@@ -232,7 +228,7 @@ namespace NosCore.GameObject
 
         public void SetJobLevel(byte jobLevel)
         {
-            JobLevel = (byte) ((CharacterClassType) Class == CharacterClassType.Adventurer && jobLevel > 20 ? 20
+            JobLevel = (byte)((CharacterClassType)Class == CharacterClassType.Adventurer && jobLevel > 20 ? 20
                 : jobLevel);
             JobLevelXp = 0;
             SendPacket(GenerateLev());
@@ -294,15 +290,18 @@ namespace NosCore.GameObject
                 var account = Session.Account;
                 _accountDao.InsertOrUpdate(ref account);
 
-                CharacterDto character = (Character) MemberwiseClone();
-               _characterDao.InsertOrUpdate(ref character);
+                CharacterDto character = (Character)MemberwiseClone();
+                _characterDao.InsertOrUpdate(ref character);
 
                 // load and concat inventory with equipment
-                var currentlySavedInventorys = _itemInstanceDao
-                    .Where(i => i.CharacterId == CharacterId);
-                _itemInstanceDao
-                    .Delete(currentlySavedInventorys.Except(Inventory.Values.ToArray()));
-                _itemInstanceDao.InsertOrUpdate(Inventory.Values.ToArray());
+                var itemsToDelete = _inventoryItemInstanceDao
+                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => !Inventory.Values.Any(o => o.Id == i.Id)).ToList();
+
+                _inventoryItemInstanceDao.Delete(itemsToDelete);
+                _itemInstanceDao.Delete(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
+
+                _itemInstanceDao.InsertOrUpdate(Inventory.Values.Select(s => s.ItemInstance).ToArray());
+                _inventoryItemInstanceDao.InsertOrUpdate(Inventory.Values.ToArray());
             }
             catch (Exception e)
             {
@@ -312,22 +311,22 @@ namespace NosCore.GameObject
 
         public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
         {
-            Armor = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Armor, PocketType.Wear)?.ItemVNum,
-            CostumeHat = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.CostumeHat, PocketType.Wear)
-                ?.ItemVNum,
-            CostumeSuit = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.CostumeSuit, PocketType.Wear)
-                ?.ItemVNum,
-            Fairy = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Fairy, PocketType.Wear)?.ItemVNum,
-            Hat = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Hat, PocketType.Wear)?.ItemVNum,
-            MainWeapon = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.MainWeapon, PocketType.Wear)
-                ?.ItemVNum,
-            Mask = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.Mask, PocketType.Wear)?.ItemVNum,
+            Armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, PocketType.Wear)?.ItemInstance.ItemVNum,
+            CostumeHat = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, PocketType.Wear)
+                ?.ItemInstance.ItemVNum,
+            CostumeSuit = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, PocketType.Wear)
+                ?.ItemInstance.ItemVNum,
+            Fairy = Inventory.LoadBySlotAndType((short)EquipmentType.Fairy, PocketType.Wear)?.ItemInstance.ItemVNum,
+            Hat = Inventory.LoadBySlotAndType((short)EquipmentType.Hat, PocketType.Wear)?.ItemInstance.ItemVNum,
+            MainWeapon = Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, PocketType.Wear)
+                ?.ItemInstance.ItemVNum,
+            Mask = Inventory.LoadBySlotAndType((short)EquipmentType.Mask, PocketType.Wear)?.ItemInstance.ItemVNum,
             SecondaryWeapon = Inventory
-                .LoadBySlotAndType<IItemInstance>((short) EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemVNum,
-            WeaponSkin = Inventory.LoadBySlotAndType<IItemInstance>((short) EquipmentType.WeaponSkin, PocketType.Wear)
-                ?.ItemVNum,
-            WingSkin = Inventory.LoadBySlotAndType<IItemInstance>((short)EquipmentType.WingSkin, PocketType.Wear)
-                ?.ItemVNum
+                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemInstance.ItemVNum,
+            WeaponSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WeaponSkin, PocketType.Wear)
+                ?.ItemInstance.ItemVNum,
+            WingSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WingSkin, PocketType.Wear)
+                ?.ItemInstance.ItemVNum
         };
 
         public UpgradeRareSubPacket WeaponUpgradeRareSubPacket
@@ -335,11 +334,11 @@ namespace NosCore.GameObject
             get
             {
                 var weapon =
-                    Inventory.LoadBySlotAndType<WearableInstance>((short) EquipmentType.MainWeapon, PocketType.Wear);
+                    Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, PocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
-                    Upgrade = weapon?.Upgrade ?? 0,
-                    Rare = (sbyte) (weapon?.Rare ?? 0)
+                    Upgrade = weapon?.ItemInstance.Upgrade ?? 0,
+                    Rare = (sbyte)(weapon?.ItemInstance.Rare ?? 0)
                 };
             }
         }
@@ -348,11 +347,11 @@ namespace NosCore.GameObject
         {
             get
             {
-                var armor = Inventory.LoadBySlotAndType<WearableInstance>((short) EquipmentType.Armor, PocketType.Wear);
+                var armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, PocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
-                    Upgrade = armor?.Upgrade ?? 0,
-                    Rare = (sbyte) (armor?.Rare ?? 0)
+                    Upgrade = armor?.ItemInstance.Upgrade ?? 0,
+                    Rare = (sbyte)(armor?.ItemInstance.Rare ?? 0)
                 };
             }
         }
@@ -534,12 +533,11 @@ namespace NosCore.GameObject
                 return;
             }
 
-            short slotChar = item.ItemInstance.Slot;
-            List<IItemInstance> inv;
+            short slotChar = item.Slot;
+            List<InventoryItemInstance> inv;
             if (shop.Session == null)
             {
-                inv = Inventory.AddItemToPocket(ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId,
-                    amount));
+                inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
             }
             else
             {
@@ -555,12 +553,12 @@ namespace NosCore.GameObject
 
                 if (amount == item.ItemInstance.Amount)
                 {
-                    inv = Inventory.AddItemToPocket(item.ItemInstance);
+                    inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance, Session.Character.CharacterId));
                 }
                 else
                 {
-                    inv = Inventory.AddItemToPocket(
-                        ItemProvider.Create(item.ItemInstance.ItemVNum, CharacterId, amount));
+                    inv = Inventory.AddItemToPocket(InventoryItemInstance.Create(
+                        ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
                 }
             }
 
@@ -581,7 +579,7 @@ namespace NosCore.GameObject
                 });
                 if (reputprice == 0)
                 {
-                    Gold -= (long) (price * percent);
+                    Gold -= (long)(price * percent);
                     SendPacket(this.GenerateGold());
                 }
                 else
@@ -606,7 +604,7 @@ namespace NosCore.GameObject
 
         private NInvPacket BuyFrom(ShopItem item, short amount, short slotChar)
         {
-            var type = item.ItemInstance.Type;
+            var type = item.Type;
             var itemInstance = amount == item.ItemInstance.Amount
                 ? Inventory.DeleteById(item.ItemInstance.Id)
                 : Inventory.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
@@ -617,7 +615,7 @@ namespace NosCore.GameObject
                 Shop.ShopItems.TryRemove(slot, out _);
             }
 
-            SendPacket(itemInstance.GeneratePocketChange(type, slotChar));
+            SendPacket(itemInstance.GeneratePocketChange((PocketType)type, slotChar));
             SendPacket(new SMemoPacket
             {
                 Type = SMemoType.Success,
@@ -704,13 +702,13 @@ namespace NosCore.GameObject
                 LevelXp = LevelXp,
                 JobLevel = JobLevel,
                 JobLevelXp = JobLevelXp,
-                XpLoad = (int) CharacterHelper.Instance.XpLoad(Level),
-                JobXpLoad = (int) CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
+                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
+                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
                 Reputation = Reput,
                 SkillCp = 0,
                 HeroXp = HeroXp,
                 HeroLevel = HeroLevel,
-                HeroXpLoad = (int) CharacterHelper.Instance.HeroXpLoad(HeroLevel)
+                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
             };
         }
 
@@ -719,7 +717,7 @@ namespace NosCore.GameObject
             return new FdPacket
             {
                 Reput = Reput,
-                Dignity = (int) Dignity,
+                Dignity = (int)Dignity,
                 ReputIcon = GetReputIco(),
                 DignityIcon = Math.Abs(GetDignityIco())
             };
@@ -804,12 +802,12 @@ namespace NosCore.GameObject
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public IEnumerable<IPacket> GenerateInv()
         {
-            var inv0 = new InvPacket {Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv1 = new InvPacket {Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv2 = new InvPacket {Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv3 = new InvPacket {Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv6 = new InvPacket {Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>()};
-            var inv7 = new InvPacket {Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>()};
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
 
             if (Inventory != null)
             {
@@ -818,14 +816,14 @@ namespace NosCore.GameObject
                     switch (inv.Type)
                     {
                         case PocketType.Equipment:
-                            if (inv.Item.EquipmentSlot == EquipmentType.Sp)
+                            if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
                             {
-                                if (inv is SpecialistInstance specialistInstance)
+                                if (inv.ItemInstance is SpecialistInstance specialistInstance)
                                 {
                                     inv7.IvnSubPackets.Add(new IvnSubPacket
                                     {
                                         Slot = inv.Slot,
-                                        VNum = inv.ItemVNum,
+                                        VNum = inv.ItemInstance.ItemVNum,
                                         RareAmount = specialistInstance.Rare,
                                         UpgradeDesign = specialistInstance.Upgrade,
                                         SecondUpgrade = specialistInstance.SpStoneUpgrade
@@ -834,14 +832,14 @@ namespace NosCore.GameObject
                             }
                             else
                             {
-                                if (inv is WearableInstance wearableInstance)
+                                if (inv.ItemInstance is WearableInstance wearableInstance)
                                 {
                                     inv0.IvnSubPackets.Add(new IvnSubPacket
                                     {
                                         Slot = inv.Slot,
-                                        VNum = inv.ItemVNum,
+                                        VNum = inv.ItemInstance.ItemVNum,
                                         RareAmount = wearableInstance.Rare,
-                                        UpgradeDesign = inv.Item.IsColored ? wearableInstance.Design
+                                        UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
                                             : wearableInstance.Upgrade
                                     });
                                 }
@@ -851,26 +849,26 @@ namespace NosCore.GameObject
 
                         case PocketType.Main:
                             inv1.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
                         case PocketType.Etc:
                             inv2.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
                         case PocketType.Miniland:
                             inv3.IvnSubPackets.Add(new IvnSubPacket
-                                {Slot = inv.Slot, VNum = inv.ItemVNum, RareAmount = inv.Amount});
+                            { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
                         case PocketType.Specialist:
-                            if (inv is SpecialistInstance specialist)
+                            if (inv.ItemInstance is SpecialistInstance specialist)
                             {
                                 inv6.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
-                                    VNum = inv.ItemVNum,
+                                    VNum = inv.ItemInstance.ItemVNum,
                                     RareAmount = specialist.Rare,
                                     UpgradeDesign = specialist.Upgrade,
                                     SecondUpgrade = specialist.SpStoneUpgrade
@@ -880,12 +878,12 @@ namespace NosCore.GameObject
                             break;
 
                         case PocketType.Costume:
-                            if (inv is WearableInstance costumeInstance)
+                            if (inv.ItemInstance is WearableInstance costumeInstance)
                             {
                                 inv7.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
-                                    VNum = inv.ItemVNum,
+                                    VNum = inv.ItemInstance.ItemVNum,
                                     RareAmount = costumeInstance.Rare,
                                     UpgradeDesign = costumeInstance.Upgrade
                                 });
@@ -907,7 +905,7 @@ namespace NosCore.GameObject
                 }
             }
 
-            return new List<IPacket> {inv0, inv1, inv2, inv3, inv6, inv7};
+            return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
         public int GetReputIco()
@@ -1066,14 +1064,14 @@ namespace NosCore.GameObject
 
         public void LoadSpeed()
         {
-            Speed = CharacterHelper.Instance.SpeedData[(byte) Class];
+            Speed = CharacterHelper.Instance.SpeedData[(byte)Class];
         }
 
         public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int) ((CharacterHelper.Instance.MpData[(byte) Class][Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData[(byte)Class][Level] + mp) * multiplicator);
         }
 
         public double HpLoad()
@@ -1081,7 +1079,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int) ((CharacterHelper.Instance.HpData[(byte) Class][Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData[(byte)Class][Level] + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -1104,7 +1102,7 @@ namespace NosCore.GameObject
         {
             return new TitPacket
             {
-                ClassType = Session.GetMessageFromKey((LanguageKey) Enum.Parse(typeof(LanguageKey),
+                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
                     Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpperInvariant())),
                 Name = Name
             };
@@ -1121,13 +1119,13 @@ namespace NosCore.GameObject
                 FamilyId = -1,
                 FamilyName = null,
                 CharacterId = CharacterId,
-                Authority = (byte) Account.Authority,
+                Authority = (byte)Account.Authority,
                 Gender = Gender,
                 HairStyle = HairStyle,
                 HairColor = HairColor,
                 Class = Class,
-                Icon = (byte) (GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
-                Compliment = (short) (Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
+                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
+                Compliment = (short)(Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
                 Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,
@@ -1174,9 +1172,9 @@ namespace NosCore.GameObject
 
         public EquipPacket GenerateEquipment()
         {
-            EquipmentSubPacket generateEquipmentSubPacket(EquipmentType eqType)
+            EquipmentSubPacket GenerateEquipmentSubPacket(EquipmentType eqType)
             {
-                var eq = Inventory.LoadBySlotAndType<IItemInstance>((short) eqType, PocketType.Wear);
+                var eq = Inventory.LoadBySlotAndType((short)eqType, PocketType.Wear);
                 if (eq == null)
                 {
                     return null;
@@ -1185,9 +1183,9 @@ namespace NosCore.GameObject
                 return new EquipmentSubPacket
                 {
                     EquipmentType = eqType,
-                    VNum = eq.ItemVNum,
-                    Rare = eq.Rare,
-                    Upgrade = (eq?.Item.IsColored == true ? eq?.Design : eq?.Upgrade) ?? 0,
+                    VNum = eq.ItemInstance.ItemVNum,
+                    Rare = eq.ItemInstance.Rare,
+                    Upgrade = (eq?.ItemInstance.Item.IsColored == true ? eq.ItemInstance?.Design : eq?.ItemInstance.Upgrade) ?? 0,
                     Unknown = 0,
                 };
             }
@@ -1196,23 +1194,23 @@ namespace NosCore.GameObject
             {
                 WeaponUpgradeRareSubPacket = WeaponUpgradeRareSubPacket,
                 ArmorUpgradeRareSubPacket = ArmorUpgradeRareSubPacket,
-                Armor = generateEquipmentSubPacket(EquipmentType.Armor),
-                WeaponSkin = generateEquipmentSubPacket(EquipmentType.WeaponSkin),
-                SecondaryWeapon = generateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
-                Sp = generateEquipmentSubPacket(EquipmentType.Sp),
-                Amulet = generateEquipmentSubPacket(EquipmentType.Amulet),
-                Boots = generateEquipmentSubPacket(EquipmentType.Boots),
-                CostumeHat = generateEquipmentSubPacket(EquipmentType.CostumeHat),
-                CostumeSuit = generateEquipmentSubPacket(EquipmentType.CostumeSuit),
-                Fairy = generateEquipmentSubPacket(EquipmentType.Fairy),
-                Gloves = generateEquipmentSubPacket(EquipmentType.Gloves),
-                Hat = generateEquipmentSubPacket(EquipmentType.Hat),
-                MainWeapon = generateEquipmentSubPacket(EquipmentType.MainWeapon),
-                Mask = generateEquipmentSubPacket(EquipmentType.Mask),
-                Necklace = generateEquipmentSubPacket(EquipmentType.Necklace),
-                Ring = generateEquipmentSubPacket(EquipmentType.Ring),
-                Bracelet = generateEquipmentSubPacket(EquipmentType.Bracelet),
-                WingSkin = generateEquipmentSubPacket(EquipmentType.WingSkin)
+                Armor = GenerateEquipmentSubPacket(EquipmentType.Armor),
+                WeaponSkin = GenerateEquipmentSubPacket(EquipmentType.WeaponSkin),
+                SecondaryWeapon = GenerateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
+                Sp = GenerateEquipmentSubPacket(EquipmentType.Sp),
+                Amulet = GenerateEquipmentSubPacket(EquipmentType.Amulet),
+                Boots = GenerateEquipmentSubPacket(EquipmentType.Boots),
+                CostumeHat = GenerateEquipmentSubPacket(EquipmentType.CostumeHat),
+                CostumeSuit = GenerateEquipmentSubPacket(EquipmentType.CostumeSuit),
+                Fairy = GenerateEquipmentSubPacket(EquipmentType.Fairy),
+                Gloves = GenerateEquipmentSubPacket(EquipmentType.Gloves),
+                Hat = GenerateEquipmentSubPacket(EquipmentType.Hat),
+                MainWeapon = GenerateEquipmentSubPacket(EquipmentType.MainWeapon),
+                Mask = GenerateEquipmentSubPacket(EquipmentType.Mask),
+                Necklace = GenerateEquipmentSubPacket(EquipmentType.Necklace),
+                Ring = GenerateEquipmentSubPacket(EquipmentType.Ring),
+                Bracelet = GenerateEquipmentSubPacket(EquipmentType.Bracelet),
+                WingSkin = GenerateEquipmentSubPacket(EquipmentType.WingSkin)
             };
         }
 
@@ -1221,7 +1219,7 @@ namespace NosCore.GameObject
             return new EqPacket
             {
                 VisualId = VisualId,
-                Visibility = (byte) (Authority < AuthorityType.GameMaster ? 0 : 2),
+                Visibility = (byte)(Authority < AuthorityType.GameMaster ? 0 : 2),
                 Gender = Gender,
                 HairStyle = HairStyle,
                 Haircolor = HairColor,
@@ -1245,7 +1243,7 @@ namespace NosCore.GameObject
             SendPacket(this.GenerateSay(
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
-            SendPacket(new SdPacket {Cooldown = SpCooldown});
+            SendPacket(new SdPacket { Cooldown = SpCooldown });
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
             MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
             {
@@ -1261,16 +1259,16 @@ namespace NosCore.GameObject
                     string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
                         SpCooldown), SayColorType.Purple));
-                SendPacket(new SdPacket {Cooldown = 0});
+                SendPacket(new SdPacket { Cooldown = 0 });
             });
         }
 
         public void ChangeSp()
         {
             SpecialistInstance sp =
-                Inventory.LoadBySlotAndType<SpecialistInstance>((byte) EquipmentType.Sp, PocketType.Wear);
+                Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, PocketType.Wear)?.ItemInstance as SpecialistInstance;
             WearableInstance fairy =
-                Inventory.LoadBySlotAndType<WearableInstance>((byte) EquipmentType.Fairy, PocketType.Wear);
+                Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, PocketType.Wear)?.ItemInstance as WearableInstance;
 
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
@@ -1317,13 +1315,13 @@ namespace NosCore.GameObject
         {
             if (UseSp)
             {
-                SpecialistInstance sp =
-                    Inventory.LoadBySlotAndType<SpecialistInstance>((byte) EquipmentType.Sp, PocketType.Wear);
+                InventoryItemInstance sp =
+                    Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, PocketType.Wear);
                 if (sp != null)
                 {
-                    Morph = sp.Item.Morph;
-                    MorphDesign = sp.Design;
-                    MorphUpgrade = sp.Upgrade;
+                    Morph = sp.ItemInstance.Item.Morph;
+                    MorphDesign = sp.ItemInstance.Design;
+                    MorphUpgrade = sp.ItemInstance.Upgrade;
                 }
                 else
                 {

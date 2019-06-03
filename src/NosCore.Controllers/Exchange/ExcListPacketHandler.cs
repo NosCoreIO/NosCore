@@ -63,10 +63,10 @@ namespace NosCore.PacketHandlers.Exchange
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
-                    var item = clientSession.Character.Inventory.LoadBySlotAndType<IItemInstance>(value.Slot,
+                    var item = clientSession.Character.Inventory.LoadBySlotAndType(value.Slot,
                         value.PocketType);
 
-                    if (item == null || item.Amount < value.Amount)
+                    if (item == null || item.ItemInstance.Amount < value.Amount)
                     {
                         var closeExchange =
                             _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure);
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!item.Item.IsTradable)
+                    if (!item.ItemInstance.Item.IsTradable)
                     {
                         clientSession.SendPacket(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure));
@@ -92,9 +92,9 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         ExchangeSlot = i,
                         PocketType = value.PocketType,
-                        ItemVnum = item.ItemVNum,
-                        Upgrade = item.Upgrade,
-                        AmountOrRare = value.PocketType == PocketType.Equipment ? item.Rare : value.Amount
+                        ItemVnum = item.ItemInstance.ItemVNum,
+                        Upgrade = item.ItemInstance.Upgrade,
+                        AmountOrRare = value.PocketType == PocketType.Equipment ? item.ItemInstance.Rare : value.Amount
                     };
 
 
