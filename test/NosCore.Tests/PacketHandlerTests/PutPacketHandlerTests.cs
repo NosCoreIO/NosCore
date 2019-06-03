@@ -61,7 +61,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_PutPartialSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 999));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999),0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -75,7 +75,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_PutNotDroppable()
         {
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1013, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -92,7 +92,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Put()
         {
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -107,7 +107,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session.Character.PositionX = 2;
             _session.Character.PositionY = 2;
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -125,7 +125,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session.Character.PositionX = -1;
             _session.Character.PositionY = -1;
-            _session.Character.Inventory.AddItemToPocket(_item.Create(1012, 1));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,

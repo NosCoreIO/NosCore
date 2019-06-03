@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Inventory
         {
             SpecialistInstance specialistInstance =
               clientSession.Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Sp,
-                  PocketType.Wear).ItemInstance as SpecialistInstance;
+                  PocketType.Wear)?.ItemInstance as SpecialistInstance;
 
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {

@@ -253,8 +253,8 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                         newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.Id);
                     }
 
-                    var inv = destInventory.AddItemToPocket(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
-                        amount: item.Key.ItemInstance.Amount, rare: (sbyte)item.Key.ItemInstance.Rare, upgrade: item.Key.ItemInstance.Upgrade, design: (byte)item.Key.ItemInstance.Design)).FirstOrDefault();
+                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
+                        amount: item.Key.ItemInstance.Amount, rare: (sbyte)item.Key.ItemInstance.Rare, upgrade: item.Key.ItemInstance.Upgrade, design: (byte)item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
 
                     items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
                         newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));

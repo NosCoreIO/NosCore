@@ -12,7 +12,15 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         public static InventoryItemInstance Create(IItemInstance it, long characterId)
         {
-            throw new NotImplementedException();
+            return new InventoryItemInstance
+            {
+                Id = it.Id,
+                CharacterId = characterId,
+                ItemInstance = it,
+                ItemInstanceId = it.Id,
+                Slot = 0,
+                Type = it.Item.Type
+            };
         }
     }
 }
