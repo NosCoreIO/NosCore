@@ -4,7 +4,7 @@ using NosCore.Data.Enumerations.Buff;
 
 namespace NosCore.Data
 {
-    public class StaticBonusDto
+    public class StaticBonusDto : IDto
     {
         public long CharacterId { get; set; }
 
