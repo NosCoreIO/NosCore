@@ -28,6 +28,7 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -95,6 +96,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void AddBankGold(long bankGold);
 
         void RemoveBankGold(long bankGold);
+
+        List<StaticBonusDto> StaticBonusList { get; set; }
 
         void ChangeClass(CharacterClassType classType);
     }
