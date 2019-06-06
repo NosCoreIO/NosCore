@@ -31,6 +31,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.Data;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.SendPacket(
                         new QnaPacket
                         {
-                            YesPacket = requestData.ClientSession.Character.GenerateUseItem(itemInstance.Type,
+                            YesPacket = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
                                 itemInstance.Slot, (byte) packet.Mode, (byte) packet.Parameter),
                             Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                         });
@@ -155,11 +156,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, packet.Type, NoscorePocketType.Wear,
+            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type, NoscorePocketType.Wear,
                 (short) itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem =
                 requestData.ClientSession.Character.Inventory
-                    .LoadBySlotAndType(packet.Slot, packet.Type);
+                    .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 

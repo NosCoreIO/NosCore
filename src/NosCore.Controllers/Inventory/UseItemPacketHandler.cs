@@ -19,6 +19,7 @@
 
 using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -31,7 +32,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             InventoryItemInstance inv =
-                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot, useItemPacket.Type);
+                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot, (NoscorePocketType)useItemPacket.Type);
             if (inv?.ItemInstance.Requests == null)
             {
                 return;

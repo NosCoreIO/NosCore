@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     Type = 3,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem(itemInstance.Type, itemInstance.Slot,
+                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot,
                         2, 0)
                 });
                 return;

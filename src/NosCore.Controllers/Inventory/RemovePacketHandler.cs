@@ -21,6 +21,7 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            clientSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+            clientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
 
             clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateEq());
             clientSession.SendPacket(clientSession.Character.GenerateEquipment());

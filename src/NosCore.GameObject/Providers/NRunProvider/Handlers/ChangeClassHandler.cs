@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Data;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

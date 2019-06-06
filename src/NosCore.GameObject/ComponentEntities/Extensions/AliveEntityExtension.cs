@@ -36,6 +36,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.Groups;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -193,7 +194,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, NoscorePocketType type, short slot,
+        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, PocketType type, short slot,
             byte mode, byte parameter)
         {
             return new UseItemPacket

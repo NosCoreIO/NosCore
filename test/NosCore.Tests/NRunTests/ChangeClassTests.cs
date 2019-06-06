@@ -33,6 +33,7 @@ using Serilog;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ClientPackets.Npcs;
+using NosCore.Data;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
 using NosCore.GameObject.Providers.InventoryService;
