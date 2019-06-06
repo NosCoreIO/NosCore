@@ -38,6 +38,6 @@ namespace NosCore.Data
 
         public short Slot { get; set; }
 
-        public PocketType Type { get; set; }
+        public NoscorePocketType Type { get; set; }
     }
 }

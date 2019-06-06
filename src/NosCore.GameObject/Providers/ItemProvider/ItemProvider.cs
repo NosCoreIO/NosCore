@@ -96,14 +96,14 @@ namespace NosCore.GameObject.Providers.ItemProvider
             Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {
-                case PocketType.Miniland:
+                case NoscorePocketType.Miniland:
                     return new ItemInstance(itemToCreate)
                     {
                         Amount = amount,
                         DurabilityPoint = itemToCreate.MinilandObjectPoint / 2
                     };
 
-                case PocketType.Equipment:
+                case NoscorePocketType.Equipment:
                     switch (itemToCreate.ItemType)
                     {
                         case ItemType.Specialist:

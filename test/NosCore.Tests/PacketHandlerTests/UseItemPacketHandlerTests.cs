@@ -45,10 +45,10 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Test_Binding()
         {
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 }, _session);
+            _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = NoscorePocketType.Equipment, Mode = 1 }, _session);
 
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Wear &&
+                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == NoscorePocketType.Wear &&
                 s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId));
         }
 

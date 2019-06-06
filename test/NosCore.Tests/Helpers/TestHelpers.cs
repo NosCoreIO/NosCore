@@ -146,19 +146,19 @@ namespace NosCore.Tests.Helpers
         };
         public List<ItemDto> ItemList { get; } = new List<ItemDto>
         {
-            new Item {Type = PocketType.Main, VNum = 1012, IsDroppable = true},
-            new Item {Type = PocketType.Main, VNum = 1013},
-            new Item {Type = PocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
-            new Item {Type = PocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Water},
+            new Item {Type = NoscorePocketType.Main, VNum = 1012, IsDroppable = true},
+            new Item {Type = NoscorePocketType.Main, VNum = 1013},
+            new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
+            new Item {Type = NoscorePocketType.Equipment, VNum = 2, EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Water},
             new Item
             {
-                Type = PocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2,
+                Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist, ReputationMinimum = 2,
                 Element = ElementType.Fire
             },
-            new Item {Type = PocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
+            new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
             new Item
             {
-                Type = PocketType.Main, VNum = 1078, ItemType = ItemType.Special,
+                Type = NoscorePocketType.Main, VNum = 1078, ItemType = ItemType.Special,
                 Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000
             }
         };
