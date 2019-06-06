@@ -22,6 +22,7 @@ using ChickenAPI.Packets.ClientPackets.Exchanges;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Exchange
                 foreach (var value in packet.SubPackets)
                 {
                     var item = clientSession.Character.Inventory.LoadBySlotAndType(value.Slot,
-                        value.PocketType);
+                        (NoscorePocketType)value.PocketType);
 
                     if (item == null || item.ItemInstance.Amount < value.Amount)
                     {

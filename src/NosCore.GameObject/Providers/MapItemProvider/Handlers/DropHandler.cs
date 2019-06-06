@@ -45,9 +45,9 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 
             if (inv != null)
             {
-                requestData.ClientSession.SendPacket(inv.GeneratePocketChange(inv.Type, inv.Slot));
+                requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
-                    out var value);
+                    out _);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                     requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)

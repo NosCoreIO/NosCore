@@ -6,6 +6,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -54,7 +55,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.IsVehicled = true;
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket)_session.LastPacket;
@@ -77,7 +78,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
             _session.Character.UseSp = true;
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             Assert.IsFalse(_session.Character.UseSp);
@@ -90,7 +91,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Reput = 5000000;
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             Assert.IsTrue(_session.Character.UseSp);
@@ -104,9 +105,9 @@ namespace NosCore.Tests.PacketHandlerTests
             var item = _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId)).First();
             var fairy = _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1), _session.Character.CharacterId)).First();
 
-            item.Type = PocketType.Wear;
+            item.Type = NoscorePocketType.Wear;
             item.Slot = (byte)EquipmentType.Sp;
-            fairy.Type = PocketType.Wear;
+            fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             var packet = (MsgPacket)_session.LastPacket;
@@ -120,7 +121,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.SpPoint = 1;
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             var packet = (MsgPacket)_session.LastPacket;
@@ -137,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.SpCooldown = 30;
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             var packet = (MsgPacket)_session.LastPacket;
@@ -152,7 +153,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.LastSp = SystemTime.Now();
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = (SlPacketType)1 }, _session);
             var packet = (MsgPacket)_session.LastPacket;
@@ -167,7 +168,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.LastSp = SystemTime.Now();
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId));
             var item = _session.Character.Inventory.First();
-            item.Value.Type = PocketType.Wear;
+            item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (DelayPacket)_session.LastPacket;

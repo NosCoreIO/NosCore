@@ -19,6 +19,7 @@
 
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -46,8 +47,8 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot, mvePacket.InventoryType,
-                mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
+            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot, (NoscorePocketType)mvePacket.InventoryType,
+                (NoscorePocketType)mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
             clientSession.SendPacket(((InventoryItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }

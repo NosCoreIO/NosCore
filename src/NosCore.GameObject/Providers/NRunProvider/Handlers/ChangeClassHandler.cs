@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Data;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
@@ -59,7 +60,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 return;
             }
 
-            if (requestData.ClientSession.Character.Inventory.Any(s => s.Value.Type == PocketType.Wear))
+            if (requestData.ClientSession.Character.Inventory.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {

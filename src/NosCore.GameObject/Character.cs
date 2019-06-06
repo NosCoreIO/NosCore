@@ -65,15 +65,15 @@ namespace NosCore.GameObject
     public class Character : CharacterDto, ICharacterEntity
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private byte _speed;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
+        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
-            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
+            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -85,8 +85,8 @@ namespace NosCore.GameObject
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
             _logger = logger;
-            _packetSerializer = packetSerializer;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
+            _staticBonusDao = staticBonusDao;
         }
 
         public AccountDto Account { get; set; }
@@ -295,13 +295,19 @@ namespace NosCore.GameObject
 
                 // load and concat inventory with equipment
                 var itemsToDelete = _inventoryItemInstanceDao
-                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => !Inventory.Values.Any(o => o.Id == i.Id)).ToList();
+                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => Inventory.Values.All(o => o.Id != i.Id)).ToList();
 
                 _inventoryItemInstanceDao.Delete(itemsToDelete);
                 _itemInstanceDao.Delete(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
                 _itemInstanceDao.InsertOrUpdate(Inventory.Values.Select(s => s.ItemInstance).ToArray());
                 _inventoryItemInstanceDao.InsertOrUpdate(Inventory.Values.ToArray());
+
+                var staticBonusToDelete = _staticBonusDao
+                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
+                _staticBonusDao.Delete(staticBonusToDelete);
+                _staticBonusDao.InsertOrUpdate(StaticBonusList);
+
             }
             catch (Exception e)
             {
@@ -311,21 +317,21 @@ namespace NosCore.GameObject
 
         public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
         {
-            Armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, PocketType.Wear)?.ItemInstance.ItemVNum,
-            CostumeHat = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, PocketType.Wear)
+            Armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
+            CostumeHat = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)
                 ?.ItemInstance.ItemVNum,
-            CostumeSuit = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, PocketType.Wear)
+            CostumeSuit = Inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)
                 ?.ItemInstance.ItemVNum,
-            Fairy = Inventory.LoadBySlotAndType((short)EquipmentType.Fairy, PocketType.Wear)?.ItemInstance.ItemVNum,
-            Hat = Inventory.LoadBySlotAndType((short)EquipmentType.Hat, PocketType.Wear)?.ItemInstance.ItemVNum,
-            MainWeapon = Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, PocketType.Wear)
+            Fairy = Inventory.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
+            Hat = Inventory.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
+            MainWeapon = Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
                 ?.ItemInstance.ItemVNum,
-            Mask = Inventory.LoadBySlotAndType((short)EquipmentType.Mask, PocketType.Wear)?.ItemInstance.ItemVNum,
+            Mask = Inventory.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
             SecondaryWeapon = Inventory
-                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, PocketType.Wear)?.ItemInstance.ItemVNum,
-            WeaponSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WeaponSkin, PocketType.Wear)
+                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
+            WeaponSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)
                 ?.ItemInstance.ItemVNum,
-            WingSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WingSkin, PocketType.Wear)
+            WingSkin = Inventory.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)
                 ?.ItemInstance.ItemVNum
         };
 
@@ -334,7 +340,7 @@ namespace NosCore.GameObject
             get
             {
                 var weapon =
-                    Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, PocketType.Wear);
+                    Inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = weapon?.ItemInstance.Upgrade ?? 0,
@@ -347,7 +353,7 @@ namespace NosCore.GameObject
         {
             get
             {
-                var armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, PocketType.Wear);
+                var armor = Inventory.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
                     Upgrade = armor?.ItemInstance.Upgrade ?? 0,
@@ -355,6 +361,8 @@ namespace NosCore.GameObject
                 };
             }
         }
+
+        public List<StaticBonusDto> StaticBonusList { get; set; }
 
         public void ChangeClass(CharacterClassType classType)
         {
@@ -571,7 +579,7 @@ namespace NosCore.GameObject
                     SendPacket(packet);
                 }
 
-                SendPackets(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type, invItem.Slot)));
+                SendPackets(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
                 SendPacket(new SMemoPacket
                 {
                     Type = SMemoType.Success,
@@ -815,7 +823,7 @@ namespace NosCore.GameObject
                 {
                     switch (inv.Type)
                     {
-                        case PocketType.Equipment:
+                        case NoscorePocketType.Equipment:
                             if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
                             {
                                 if (inv.ItemInstance is SpecialistInstance specialistInstance)
@@ -847,22 +855,22 @@ namespace NosCore.GameObject
 
                             break;
 
-                        case PocketType.Main:
+                        case NoscorePocketType.Main:
                             inv1.IvnSubPackets.Add(new IvnSubPacket
                             { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
-                        case PocketType.Etc:
+                        case NoscorePocketType.Etc:
                             inv2.IvnSubPackets.Add(new IvnSubPacket
                             { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
-                        case PocketType.Miniland:
+                        case NoscorePocketType.Miniland:
                             inv3.IvnSubPackets.Add(new IvnSubPacket
                             { Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount });
                             break;
 
-                        case PocketType.Specialist:
+                        case NoscorePocketType.Specialist:
                             if (inv.ItemInstance is SpecialistInstance specialist)
                             {
                                 inv6.IvnSubPackets.Add(new IvnSubPacket
@@ -877,7 +885,7 @@ namespace NosCore.GameObject
 
                             break;
 
-                        case PocketType.Costume:
+                        case NoscorePocketType.Costume:
                             if (inv.ItemInstance is WearableInstance costumeInstance)
                             {
                                 inv7.IvnSubPackets.Add(new IvnSubPacket
@@ -891,11 +899,7 @@ namespace NosCore.GameObject
 
                             break;
 
-                        case PocketType.Wear:
-                        case PocketType.Bazaar:
-                        case PocketType.Warehouse:
-                        case PocketType.FamilyWareHouse:
-                        case PocketType.PetWarehouse:
+                        case NoscorePocketType.Wear:
                             break;
                         default:
                             _logger.Information(
@@ -1174,7 +1178,7 @@ namespace NosCore.GameObject
         {
             EquipmentSubPacket GenerateEquipmentSubPacket(EquipmentType eqType)
             {
-                var eq = Inventory.LoadBySlotAndType((short)eqType, PocketType.Wear);
+                var eq = Inventory.LoadBySlotAndType((short)eqType, NoscorePocketType.Wear);
                 if (eq == null)
                 {
                     return null;
@@ -1266,9 +1270,9 @@ namespace NosCore.GameObject
         public void ChangeSp()
         {
             SpecialistInstance sp =
-                Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, PocketType.Wear)?.ItemInstance as SpecialistInstance;
+                Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
             WearableInstance fairy =
-                Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, PocketType.Wear)?.ItemInstance as WearableInstance;
+                Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
@@ -1316,7 +1320,7 @@ namespace NosCore.GameObject
             if (UseSp)
             {
                 InventoryItemInstance sp =
-                    Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, PocketType.Wear);
+                    Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
                     Morph = sp.ItemInstance.Item.Morph;

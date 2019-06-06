@@ -165,7 +165,7 @@ namespace NosCore.Data
 
         public byte SpType { get; set; }
 
-        public PocketType Type { get; set; }
+        public NoscorePocketType Type { get; set; }
 
         [Key]
         public short VNum { get; set; }

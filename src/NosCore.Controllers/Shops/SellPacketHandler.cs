@@ -23,6 +23,7 @@ using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Shops
 
             if (sellPacket.Amount.HasValue && sellPacket.Slot.HasValue)
             {
-                PocketType type = (PocketType)sellPacket.Data;
+                NoscorePocketType type = (NoscorePocketType)sellPacket.Data;
 
                 var inv = clientSession.Character.Inventory.LoadBySlotAndType(sellPacket.Slot.Value, type);
                 if (inv == null || sellPacket.Amount.Value > inv.ItemInstance.Amount)

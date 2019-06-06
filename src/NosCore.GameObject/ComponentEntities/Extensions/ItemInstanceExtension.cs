@@ -22,6 +22,7 @@ using System.Linq;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
@@ -59,7 +60,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Slot = slot,
                         VNum = itemInstance.ItemInstance.ItemVNum,
                         RareAmount =
-                            itemInstance.Type != PocketType.Equipment ? itemInstance.ItemInstance.Amount : itemInstance.ItemInstance.Rare,
+                            itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount : itemInstance.ItemInstance.Rare,
                         UpgradeDesign = itemInstance.ItemInstance.Upgrade,
                         SecondUpgrade = 0
                     }
@@ -73,12 +74,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 return new IvnPacket
                 {
-                    Type = itemInstance[0].Type,
+                    Type = (PocketType)itemInstance[0].Type,
                     IvnSubPackets = itemInstance.Select(item => new IvnSubPacket
                     {
                         Slot = item.Slot,
                         VNum = item.ItemInstance.ItemVNum,
-                        RareAmount = item.Type != PocketType.Equipment ? item.ItemInstance.Amount : item.ItemInstance.Rare,
+                        RareAmount = item.Type != NoscorePocketType.Equipment ? item.ItemInstance.Amount : item.ItemInstance.Rare,
                         UpgradeDesign = item.ItemInstance.Upgrade,
                         SecondUpgrade = 0
                     }).ToList()

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 
 namespace NosCore.Database.Entities
@@ -199,7 +200,7 @@ namespace NosCore.Database.Entities
 
         public byte SpType { get; set; }
 
-        public PocketType Type { get; set; }
+        public NoscorePocketType Type { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

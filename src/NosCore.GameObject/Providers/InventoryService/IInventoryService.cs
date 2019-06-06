@@ -30,25 +30,25 @@ namespace NosCore.GameObject.Providers.InventoryService
         bool IsExpanded { get; set; }
 
         List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
-        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type);
-        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type, short? slot);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);
+        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
-        int CountItemInAnPocket(PocketType inv);
+        int CountItemInAnPocket(NoscorePocketType inv);
         InventoryItemInstance DeleteById(Guid id);
-        InventoryItemInstance DeleteFromTypeAndSlot(PocketType type, short slot);
+        InventoryItemInstance DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
         InventoryItemInstance LoadByItemInstanceId(Guid id);
-        InventoryItemInstance LoadBySlotAndType(short slot, PocketType type);
+        InventoryItemInstance LoadBySlotAndType(short slot, NoscorePocketType type);
 
-        InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType);
+        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType);
 
-        InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
             short? targetSlot, bool swap);
 
-        bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+        bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out InventoryItemInstance sourcePocket, out InventoryItemInstance destinationPocket);
 
-        bool EnoughPlace(List<IItemInstance> itemInstances, PocketType type);
+        bool EnoughPlace(List<IItemInstance> itemInstances, NoscorePocketType type);
         InventoryItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }
