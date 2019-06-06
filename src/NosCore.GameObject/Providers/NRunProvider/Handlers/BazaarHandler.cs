@@ -19,49 +19,43 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ClientPackets.Shops;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
-    public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
+    public class BazaarHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public override void Execute(CSkillPacket packet, ClientSession clientSession)
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenNosBazaar
+            && item.Item1 is MapNpc;
+
+        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (clientSession.Character.InExchangeOrTrade)
+            if (requestData.ClientSession.Character.InExchangeOrTrade)
             {
                 return;
             }
 
-            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+            var medalBonus = requestData.ClientSession.Character.StaticBonusList
+                .FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medalBonus != null)
             {
                 byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
                 int time = (int)(medalBonus.DateEnd - DateTime.Now).TotalHours;
-                clientSession.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language),
-                    Type = MessageType.Whisper
-                });
-                clientSession.SendPacket(new WopenPacket
+
+                requestData.ClientSession.SendPacket(new WopenPacket
                 {
                     Type = WindowType.NosBazaar,
                     Unknown = medal,
                     Unknown2 = (byte)time
-                });
-            }
-            else
-            {
-                clientSession.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language)
                 });
             }
         }

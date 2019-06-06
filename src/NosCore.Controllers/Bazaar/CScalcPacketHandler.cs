@@ -34,35 +34,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         public override void Execute(BuyPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                return;
-            }
 
-            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            if (medalBonus != null)
-            {
-                byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                int time = (int)(medalBonus.DateEnd - DateTime.Now).TotalHours;
-                clientSession.SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language),
-                    Type = MessageType.Whisper
-                });
-                clientSession.SendPacket(new WopenPacket
-                {
-                    Type = WindowType.NosBazaar,
-                    Unknown = medal,
-                    Unknown2 = (byte)time
-                });
-            }
-            else
-            {
-                clientSession.SendPacket(new InfoPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language)
-                });
-            }
         }
     }
 }

@@ -254,6 +254,7 @@ namespace NosCore.Data.Enumerations.I18N
         UPDATE_GOLD,
         SP_ADDPOINTS_FULL,
         PORTAL_DELAY,
-        INFO_BAZAAR
+        INFO_BAZAAR,
+        EFFECT_ACTIVATED
     }
 }
