@@ -239,7 +239,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).IsAssignableFrom(t))
+                .Where(t => typeof(IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 

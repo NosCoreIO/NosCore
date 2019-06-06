@@ -30,6 +30,7 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;

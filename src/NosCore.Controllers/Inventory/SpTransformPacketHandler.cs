@@ -24,6 +24,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Inventory
         {
             SpecialistInstance specialistInstance =
               clientSession.Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Sp,
-                  PocketType.Wear)?.ItemInstance as SpecialistInstance;
+                  NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
 
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {

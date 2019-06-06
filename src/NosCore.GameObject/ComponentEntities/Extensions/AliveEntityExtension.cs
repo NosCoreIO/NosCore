@@ -36,6 +36,7 @@ using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.Groups;
+using NosCore.Data;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -328,9 +329,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Slot = item.Slot,
                         Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.Type == (byte)PocketType.Equipment ? item.ItemInstance.Rare
+                        RareAmount = item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
                             : item.Amount,
-                        UpgradeDesign = item.Type == (byte)PocketType.Equipment
+                        UpgradeDesign = item.Type == (byte)NoscorePocketType.Equipment
                             ? (item.ItemInstance.Item.IsColored
                                 ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
                         VNum = item.ItemInstance.Item.VNum

@@ -257,9 +257,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                         amount: item.Key.ItemInstance.Amount, rare: (sbyte)item.Key.ItemInstance.Rare, upgrade: item.Key.ItemInstance.Upgrade, design: (byte)item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
 
                     items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
-                        newItem.GeneratePocketChange(item.Key.Type, item.Key.Slot)));
+                        newItem.GeneratePocketChange((PocketType)item.Key.Type, item.Key.Slot)));
                     items.Add(new KeyValuePair<long, IvnPacket>(targetId,
-                        item.Key.GeneratePocketChange(inv.Type, inv.Slot)));
+                        item.Key.GeneratePocketChange((PocketType)inv.Type, inv.Slot)));
                 }
             }
 

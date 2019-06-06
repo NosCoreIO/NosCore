@@ -23,6 +23,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -94,7 +95,7 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot, item.Type);
+                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot, (NoscorePocketType)item.Type);
                         if (inv == null)
                         {
                             //log

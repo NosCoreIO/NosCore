@@ -44,9 +44,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IItemProvider _itemProvider;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
+        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
 
         public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
-            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
+            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -55,6 +56,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _itemProvider = itemProvider;
             _itemInstanceDao = itemInstanceDao;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
+            _staticBonusDao = staticBonusDao;
         }
      
         public override void Execute(SelectPacket packet, ClientSession clientSession)
@@ -107,29 +109,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
-                //var relations =
-                //    _characterRelationDao.Where(s => s.CharacterId == Session.Character.CharacterId);
-                //var relationsWithCharacter =
-                //    _characterRelationDao.Where(s => s.RelatedCharacterId == Session.Character.CharacterId);
-
-                //var characters = _characterDao
-                //    .Where(s => relations.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-                //var relatedCharacters = _characterDao.Where(s =>
-                //    relationsWithCharacter.Select(v => v.RelatedCharacterId).Contains(s.CharacterId)).ToList();
-
-                //foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relations))
-                //{
-                //    relation.CharacterName = characters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
-                //    Session.Character.CharacterRelations[relation.CharacterRelationId] = relation;
-                //}
-
-                //foreach (var relation in _adapter.Adapt<IEnumerable<CharacterRelation>>(relationsWithCharacter))
-                //{
-                //    relation.CharacterName =
-                //        relatedCharacters.Find(s => s.CharacterId == relation.RelatedCharacterId)?.Name;
-                //    Session.Character.RelationWithCharacter[relation.CharacterRelationId] = relation;
-                //}
-
+                clientSession.Character.StaticBonusList = _staticBonusDao.Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.SendPacket(new OkPacket());
             }
             catch (Exception ex)

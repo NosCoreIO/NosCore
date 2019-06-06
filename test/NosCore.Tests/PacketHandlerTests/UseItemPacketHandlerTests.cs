@@ -48,7 +48,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 }, _session);
 
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == PocketType.Wear &&
+                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == NoscorePocketType.Wear &&
                 s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId));
         }
 
@@ -62,7 +62,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
@@ -101,7 +101,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
