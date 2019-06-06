@@ -33,9 +33,9 @@ namespace NosCore.Tests.PacketHandlerTests
             Type = CreateShopPacketType.Open,
             ItemList = new List<MShopItemSubPacket>
             {
-                new MShopItemSubPacket {Type = NoscorePocketType.Etc, Slot = 0, Amount = 1, Price = 10000},
-                new MShopItemSubPacket {Type = NoscorePocketType.Etc, Slot = 1, Amount = 2, Price = 20000},
-                new MShopItemSubPacket {Type = NoscorePocketType.Etc, Slot = 2, Amount = 3, Price = 30000},
+                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 0, Amount = 1, Price = 10000},
+                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 1, Amount = 2, Price = 20000},
+                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 2, Amount = 3, Price = 30000},
             },
             Name = "TEST SHOP"
         };

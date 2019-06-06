@@ -64,7 +64,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999),0));
             _putPacketHandler.Execute(new PutPacket
             {
-                NoscorePocketType = NoscorePocketType.Main,
+                PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 500
             }, _session);
@@ -78,7 +78,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
-                NoscorePocketType = NoscorePocketType.Main,
+                PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
             }, _session);
@@ -95,7 +95,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
-                NoscorePocketType = NoscorePocketType.Main,
+                PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
             }, _session);
@@ -110,7 +110,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
-                NoscorePocketType = NoscorePocketType.Main,
+                PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
             }, _session);
@@ -128,7 +128,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
             _putPacketHandler.Execute(new PutPacket
             {
-                NoscorePocketType = NoscorePocketType.Main,
+                PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
             }, _session);

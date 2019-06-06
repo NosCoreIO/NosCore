@@ -65,15 +65,15 @@ namespace NosCore.GameObject
     public class Character : CharacterDto, ICharacterEntity
     {
         private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private byte _speed;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
+        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
-            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, ISerializer packetSerializer)
+            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -85,8 +85,8 @@ namespace NosCore.GameObject
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
             _logger = logger;
-            _packetSerializer = packetSerializer;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
+            _staticBonusDao = staticBonusDao;
         }
 
         public AccountDto Account { get; set; }
@@ -295,13 +295,19 @@ namespace NosCore.GameObject
 
                 // load and concat inventory with equipment
                 var itemsToDelete = _inventoryItemInstanceDao
-                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => !Inventory.Values.Any(o => o.Id == i.Id)).ToList();
+                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => Inventory.Values.All(o => o.Id != i.Id)).ToList();
 
                 _inventoryItemInstanceDao.Delete(itemsToDelete);
                 _itemInstanceDao.Delete(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
                 _itemInstanceDao.InsertOrUpdate(Inventory.Values.Select(s => s.ItemInstance).ToArray());
                 _inventoryItemInstanceDao.InsertOrUpdate(Inventory.Values.ToArray());
+
+                var staticBonusToDelete = _staticBonusDao
+                    .Where(i => i.CharacterId == CharacterId).ToList().Where(i => StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
+                _staticBonusDao.Delete(staticBonusToDelete);
+                _staticBonusDao.InsertOrUpdate(StaticBonusList);
+
             }
             catch (Exception e)
             {
@@ -897,7 +903,7 @@ namespace NosCore.GameObject
                             break;
                         default:
                             _logger.Information(
-                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NoscorePocketType_UNKNOWN));
+                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.POCKETTYPE_UNKNOWN));
                             break;
                     }
                 }

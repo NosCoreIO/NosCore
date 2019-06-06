@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
                 requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange(itemInstance.Type, itemInstance.Slot));
+                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
             }
             else

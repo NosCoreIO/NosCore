@@ -2,6 +2,7 @@
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -22,7 +23,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
-                    clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot, putPacket.NoscorePocketType);
+                    clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot, (NoscorePocketType)putPacket.PocketType);
             if ((invitem?.ItemInstance.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
             {
                 if (putPacket.Amount > 0 && putPacket.Amount <= _worldConfiguration.MaxItemAmount)
@@ -43,8 +44,8 @@ namespace NosCore.PacketHandlers.Inventory
                         }
 
                         invitem = clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot,
-                            putPacket.NoscorePocketType);
-                        clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.NoscorePocketType, putPacket.Slot));
+                            (NoscorePocketType)putPacket.PocketType);
+                        clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                         clientSession.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
                     }
                     else

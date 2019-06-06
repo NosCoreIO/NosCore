@@ -19,6 +19,7 @@
 
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             // actually move the item from source to destination
-            clientSession.Character.Inventory.TryMoveItem(mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
+            clientSession.Character.Inventory.TryMoveItem((NoscorePocketType)mviPacket.InventoryType, mviPacket.Slot, mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             clientSession.SendPacket(newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
             clientSession.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
