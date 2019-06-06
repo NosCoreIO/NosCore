@@ -193,7 +193,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, PocketType type, short slot,
+        public static UseItemPacket GenerateUseItem(this IAliveEntity aliveEntity, NoscorePocketType type, short slot,
             byte mode, byte parameter)
         {
             return new UseItemPacket
@@ -328,9 +328,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Slot = item.Slot,
                         Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.Type == (byte)PocketType.Equipment ? item.ItemInstance.Rare
+                        RareAmount = item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
                             : item.Amount,
-                        UpgradeDesign = item.Type == (byte)PocketType.Equipment
+                        UpgradeDesign = item.Type == (byte)NoscorePocketType.Equipment
                             ? (item.ItemInstance.Item.IsColored
                                 ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
                         VNum = item.ItemInstance.Item.VNum

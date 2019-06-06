@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Exchange
                 foreach (var value in packet.SubPackets)
                 {
                     var item = clientSession.Character.Inventory.LoadBySlotAndType(value.Slot,
-                        value.PocketType);
+                        value.NoscorePocketType);
 
                     if (item == null || item.ItemInstance.Amount < value.Amount)
                     {
@@ -91,10 +91,10 @@ namespace NosCore.PacketHandlers.Exchange
                     var subPacket = new ServerExcListSubPacket
                     {
                         ExchangeSlot = i,
-                        PocketType = value.PocketType,
+                        NoscorePocketType = value.NoscorePocketType,
                         ItemVnum = item.ItemInstance.ItemVNum,
                         Upgrade = item.ItemInstance.Upgrade,
-                        AmountOrRare = value.PocketType == PocketType.Equipment ? item.ItemInstance.Rare : value.Amount
+                        AmountOrRare = value.NoscorePocketType == NoscorePocketType.Equipment ? item.ItemInstance.Rare : value.Amount
                     };
 
 

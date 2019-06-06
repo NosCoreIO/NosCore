@@ -95,19 +95,19 @@ namespace NosCore.Parser.Parsers
                         {
                             case 4:
                             case 8:
-                                item.Type = PocketType.Equipment;
+                                item.Type = NoscorePocketType.Equipment;
                                 break;
 
                             case 9:
-                                item.Type = PocketType.Main;
+                                item.Type = NoscorePocketType.Main;
                                 break;
 
                             case 10:
-                                item.Type = PocketType.Etc;
+                                item.Type = NoscorePocketType.Etc;
                                 break;
 
                             default:
-                                item.Type = (PocketType) Enum.Parse(typeof(PocketType), currentLine[2]);
+                                item.Type = (NoscorePocketType) Enum.Parse(typeof(NoscorePocketType), currentLine[2]);
                                 break;
                         }
 
@@ -1104,7 +1104,7 @@ namespace NosCore.Parser.Parsers
                                 break;
                         }
 
-                        if (item.Type == PocketType.Miniland)
+                        if (item.Type == NoscorePocketType.Miniland)
                         {
                             item.MinilandObjectPoint = int.Parse(currentLine[2]);
                             item.EffectValue = short.Parse(currentLine[8]);

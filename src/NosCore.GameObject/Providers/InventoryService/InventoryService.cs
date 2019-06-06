@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         public bool IsExpanded { get; set; }
 
-        public InventoryItemInstance LoadBySlotAndType(short slot, PocketType type)
+        public InventoryItemInstance LoadBySlotAndType(short slot, NoscorePocketType type)
         {
             InventoryItemInstance retItem = default;
             try
@@ -72,17 +72,17 @@ namespace NosCore.GameObject.Providers.InventoryService
             return this.Select(s => s.Value).Where(s => s.ItemInstance.ItemVNum == itemVNum).Sum(i => i.ItemInstance.Amount);
         }
 
-        public int CountItemInAnPocket(PocketType inv)
+        public int CountItemInAnPocket(NoscorePocketType inv)
         {
             return this.Count(s => s.Value.Type == inv);
         }
 
         public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem) => AddItemToPocket(newItem, null, null);
 
-        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type) =>
+        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type) =>
             AddItemToPocket(newItem, type, null);
 
-        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, PocketType? type, short? slot)
+        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot)
         {
             var invlist = new List<InventoryItemInstance>();
             // override type if necessary
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             // check if item can be stapled
             if (slot == null
-                && (newItem.Type == PocketType.Etc || newItem.Type == PocketType.Main))
+                && (newItem.Type == NoscorePocketType.Etc || newItem.Type == NoscorePocketType.Main))
             {
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
                      i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum) && i.ItemInstance.Amount < _configuration.MaxItemAmount);
@@ -120,8 +120,8 @@ namespace NosCore.GameObject.Providers.InventoryService
             }
 
             // create new item
-            var freeSlot = newItem.Type == PocketType.Wear
-                ? (LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, PocketType.Wear) == null
+            var freeSlot = newItem.Type == NoscorePocketType.Wear
+                ? (LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null)
                 : GetFreeSlot(newItem.Type);
@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return null;
             }
 
-            if (newItem.Type == PocketType.Specialist && !(newItem.ItemInstance is SpecialistInstance))
+            if (newItem.Type == NoscorePocketType.Specialist && !(newItem.ItemInstance is SpecialistInstance))
             {
                 var e = new InvalidOperationException(
                     "Cannot add an item of type Specialist without beeing a SpecialistInstance.");
@@ -153,7 +153,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return null;
             }
 
-            if ((newItem.Type == PocketType.Equipment || newItem.Type == PocketType.Wear)
+            if ((newItem.Type == NoscorePocketType.Equipment || newItem.Type == NoscorePocketType.Wear)
                 && !(newItem.ItemInstance is WearableInstance) && !(newItem.ItemInstance is SpecialistInstance))
             {
                 var e = new InvalidOperationException(
@@ -191,11 +191,11 @@ namespace NosCore.GameObject.Providers.InventoryService
             return this[id];
         }
 
-        public InventoryItemInstance DeleteFromTypeAndSlot(PocketType type, short slot)
+        public InventoryItemInstance DeleteFromTypeAndSlot(NoscorePocketType type, short slot)
         {
             var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
 
-            if (inv != null && type != PocketType.Bazaar)
+            if (inv != null)
             {
                 if (TryRemove(inv.ItemInstanceId, out var value))
                 {
@@ -210,10 +210,10 @@ namespace NosCore.GameObject.Providers.InventoryService
             return null;
         }
 
-        public InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType)
+        public InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType)
             => MoveInPocket(sourceSlot, sourceType, targetType, null, false);
 
-        public InventoryItemInstance MoveInPocket(short sourceSlot, PocketType sourceType, PocketType targetType,
+        public InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
             short? targetSlot, bool swap)
         {
             if (sourceSlot == targetSlot && sourceType == targetType)
@@ -231,16 +231,16 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return null;
             }
 
-            if (sourceInstance.ItemInstance is WearableInstance && targetType != PocketType.Equipment &&
-                targetType != PocketType.Costume && targetType != PocketType.Wear)
+            if (sourceInstance.ItemInstance is WearableInstance && targetType != NoscorePocketType.Equipment &&
+                targetType != NoscorePocketType.Costume && targetType != NoscorePocketType.Wear)
             {
                 var e = new InvalidOperationException("WearableInstance can't be move to this inventory");
                 _logger.Error(e.Message, e);
                 return null;
             }
 
-            if (sourceInstance.ItemInstance is SpecialistInstance && targetType != PocketType.Equipment &&
-                targetType != PocketType.Specialist && targetType != PocketType.Wear)
+            if (sourceInstance.ItemInstance is SpecialistInstance && targetType != NoscorePocketType.Equipment &&
+                targetType != NoscorePocketType.Specialist && targetType != NoscorePocketType.Wear)
             {
                 var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
                 _logger.Error(e.Message, e);
@@ -278,7 +278,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             // check for free target slot
             short? nextFreeSlot;
-            if (targetType == PocketType.Wear)
+            if (targetType == NoscorePocketType.Wear)
             {
                 nextFreeSlot =
                     LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
@@ -303,7 +303,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             return sourceInstance;
         }
 
-        public bool TryMoveItem(PocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
+        public bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out InventoryItemInstance sourcePocket, out InventoryItemInstance destinationPocket)
         {
             // load source and destination slots
@@ -332,7 +332,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                         break;
                     default:
                         if (destinationPocket.ItemInstance.ItemVNum == sourcePocket.ItemInstance.ItemVNum
-                            && (sourcePocket.ItemInstance.Item.Type == PocketType.Main || sourcePocket.ItemInstance.Item.Type == PocketType.Etc))
+                            && (sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Main || sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Etc))
                         {
                             if (destinationPocket.ItemInstance.Amount + amount > _configuration.MaxItemAmount)
                             {
@@ -384,24 +384,24 @@ namespace NosCore.GameObject.Providers.InventoryService
             return true;
         }
 
-        public bool EnoughPlace(List<IItemInstance> itemInstances, PocketType type)
+        public bool EnoughPlace(List<IItemInstance> itemInstances, NoscorePocketType type)
         {
-            var place = new Dictionary<PocketType, int>();
+            var place = new Dictionary<NoscorePocketType, int>();
             foreach (var itemGroup in itemInstances.GroupBy(s => s.ItemVNum))
             {
                 var itemList = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
                 if (!place.ContainsKey(type))
                 {
                     place.Add(type,
-                        (type != PocketType.Miniland ? _configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12
+                        (type != NoscorePocketType.Miniland ? _configuration.BackpackSize + Convert.ToInt16(IsExpanded) * 12
                             : 50) - itemList.Count);
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);
-                var rest = amount % (type == PocketType.Equipment ? 1 : _configuration.MaxItemAmount);
+                var rest = amount % (type == NoscorePocketType.Equipment ? 1 : _configuration.MaxItemAmount);
                 var newSlotNeeded = itemList.Where(s => s.ItemInstance.ItemVNum == itemGroup.Key)
                     .Sum(s => _configuration.MaxItemAmount - s.ItemInstance.Amount) <= rest;
-                place[type] -= (amount / (type == PocketType.Equipment ? 1 : _configuration.MaxItemAmount)) +
+                place[type] -= (amount / (type == NoscorePocketType.Equipment ? 1 : _configuration.MaxItemAmount)) +
                     (newSlotNeeded ? 1 : 0);
 
                 if (place[type] < 0)
@@ -432,7 +432,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             return null;
         }
 
-        private short? GetFreeSlot(PocketType type)
+        private short? GetFreeSlot(NoscorePocketType type)
         {
             var backPack = IsExpanded ? 1 : 0;
             var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)
@@ -441,15 +441,15 @@ namespace NosCore.GameObject.Providers.InventoryService
                 itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
             var nextFreeSlot = instanceSlotsByType.Any()
                 ? Enumerable
-                    .Range(0, (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1)
+                    .Range(0, (type != NoscorePocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50) + 1)
                     .Except(instanceSlotsByType).FirstOrDefault()
                 : 0;
             return (short?)nextFreeSlot
-                < (type != PocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50)
+                < (type != NoscorePocketType.Miniland ? _configuration.BackpackSize + (backPack * 12) : 50)
                     ? (short?)nextFreeSlot : null;
         }
 
-        private InventoryItemInstance TakeItem(short slot, PocketType type)
+        private InventoryItemInstance TakeItem(short slot, NoscorePocketType type)
         {
             var itemInstance = this.Select(s => s.Value).SingleOrDefault(i => i.Slot == slot && i.Type == type);
             if (itemInstance == null)

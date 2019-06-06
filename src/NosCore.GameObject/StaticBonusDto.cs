@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___  
+﻿//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -17,31 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using ChickenAPI.Packets.Enumerations;
-using NosCore.Database.Entities.Base;
-
-namespace NosCore.Database.Entities
+namespace NosCore.GameObject
 {
-    public class InventoryItemInstance : SynchronizableBaseEntity
+    public class StaticBonusDto
     {
-        public InventoryItemInstance()
-        {
-        }
-
-
-        public virtual Character Character { get; set; }
-
-        public long CharacterId { get; set; }
-
-        public virtual ItemInstance ItemInstance { get; set; }
-
-        public Guid ItemInstanceId { get; set; }
-
-        public short Slot { get; set; }
-
-        public NoscorePocketType Type { get; set; }
     }
 }

@@ -199,7 +199,7 @@ namespace NosCore.Database.Entities
 
         public byte SpType { get; set; }
 
-        public PocketType Type { get; set; }
+        public NoscorePocketType Type { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

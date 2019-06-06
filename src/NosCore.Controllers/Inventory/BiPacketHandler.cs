@@ -2,6 +2,7 @@
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -72,7 +73,7 @@ namespace NosCore.PacketHandlers.Inventory
                         return;
                     }
 
-                    var item = clientSession.Character.Inventory.DeleteFromTypeAndSlot(bIPacket.PocketType, bIPacket.Slot);
+                    var item = clientSession.Character.Inventory.DeleteFromTypeAndSlot((NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
                     clientSession.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:

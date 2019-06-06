@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Command
                 rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == ItemEffectType.BoxEffect
                     ? (sbyte)createItemPacket.Upgrade.Value : rare;
             }
-            else if (iteminfo.Type == PocketType.Equipment)
+            else if (iteminfo.Type == NoscorePocketType.Equipment)
             {
                 if (createItemPacket.Upgrade.HasValue)
                 {

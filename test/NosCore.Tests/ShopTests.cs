@@ -87,7 +87,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -107,7 +107,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -127,7 +127,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -150,7 +150,7 @@ namespace NosCore.Tests
             _session.Character.Reput = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -174,7 +174,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -184,9 +184,9 @@ namespace NosCore.Tests
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 999);
             var packet = (MsgPacket)_session.LastPacket;
@@ -201,7 +201,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -211,9 +211,9 @@ namespace NosCore.Tests
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
@@ -227,7 +227,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -237,9 +237,9 @@ namespace NosCore.Tests
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), PocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), PocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
@@ -273,13 +273,13 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = PocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);
-            session2.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(it, session2.Character.CharacterId), PocketType.Etc, 0);
+            session2.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
             list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
             session2.Character.Shop = new Shop
@@ -287,8 +287,8 @@ namespace NosCore.Tests
                 Session = session2,
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), PocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), PocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), NoscorePocketType.Etc, 1);
             return session2;
         }
 

@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.UseSp && itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-                    (byte) EquipmentType.Sp, PocketType.Wear);
+                    (byte) EquipmentType.Sp, NoscorePocketType.Wear);
 
                 if (sp != null && sp.ItemInstance.Item.Element != 0 && itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element &&
                     itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement)
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 double timeSpanSinceLastSpUsage =
                     (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-                    (byte) EquipmentType.Sp, PocketType.Wear);
+                    (byte) EquipmentType.Sp, NoscorePocketType.Wear);
                 if (timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown && sp != null)
                 {
                     requestData.ClientSession.SendPacket(new MsgPacket
@@ -155,7 +155,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, packet.Type, PocketType.Wear,
+            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, packet.Type, NoscorePocketType.Wear,
                 (short) itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem =
                 requestData.ClientSession.Character.Inventory
