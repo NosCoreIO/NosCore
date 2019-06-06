@@ -1,273 +1,687 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="ACCOUNT_ARRIVED" xml:space="preserve">
-    <value>Polączono nowego uzytkownika</value>
-  </data>
-  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>Przynajmniej jeden z wymaganych plików nie mógł zostać znaleziony</value>
-  </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Uwierzytelnienie nie powiodło się !</value>
-  </data>
-  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Uwierzytelnienie powiodło się !</value>
-  </data>
-  <data name="AUTH_ERROR" xml:space="preserve">
-    <value>Błąd Uwierzytelniania</value>
-  </data>
-  <data name="AUTH_INCORRECT" xml:space="preserve">
-    <value>Niepoprawne Uwierzytelnianie</value>
-  </data>
-  <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Cards Wprowadzonych</value>
-  </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Postać nie zainicjowana</value>
-  </data>
-  <data name="CLIENT_ARRIVED" xml:space="preserve">
-    <value>Dotarł nowy uzytkownik</value>
-  </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Uzytkownik połączony ClientId = {0}</value>
-  </data>
-  <data name="CLIENT_DISCONNECTED" xml:space="preserve">
-    <value>Użytkownik rozłaczony</value>
-  </data>
-  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
-    <value>Corrupted Keepalive on client {0}.</value>
-  </data>
-  <data name="CORRUPT_PACKET" xml:space="preserve">
-    <value>Pakiet z Headerem {0} PacketDefinition jest niewłaściwy.</value>
-  </data>
-  <data name="DATABASE_INITIALIZED" xml:space="preserve">
-    <value>Baza danych zostala zaladowana !</value>
-  </data>
-  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
-    <value>Baza danych jest nie aktualna. prosze przeprowadzić aktualizację.</value>
-  </data>
-  <data name="DONE" xml:space="preserve">
-    <value>Wprowadzanie ukończone!</value>
-  </data>
-  <data name="ENTER_PATH" xml:space="preserve">
-    <value>Podaj ściezkę pliku aby przeprowadzić rozbiór danych</value>
-  </data>
-  <data name="ERROR_CHANGE_MAP" xml:space="preserve">
-    <value>Błąd zmiany mapy</value>
-  </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Rozłaczanie użytkownika {0}, zbyt dużo połączeń.</value>
-  </data>
-  <data name="HANDLER_NOT_FOUND" xml:space="preserve">
-    <value>Could not found Handler implementation</value>
-  </data>
-  <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Nie poprawne ID Uzytkownika</value>
-  </data>
-  <data name="INVALID_PASSWORD" xml:space="preserve">
-    <value>Niepoprawne haslo!</value>
-  </data>
-  <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>{0} Przedmiotów Wprowadzonych!</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Komunikacja z Port została rozpoczęta</value>
-  </data>
-  <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>{0} potworów wprowadzonych</value>
-  </data>
-  <data name="MAPS_LOADED" xml:space="preserve">
-    <value>{0} Map Wprowadzonych !</value>
-  </data>
-  <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>Nie udało się połączyć z MasterServer Ponowne połaczenie się ....</value>
-  </data>
-  <data name="NO_MAP" xml:space="preserve">
-    <value>ID Mapy jest nie właściwe</value>
-  </data>
-  <data name="PARSE_ACCOUNTS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Konta?</value>
-  </data>
-  <data name="PARSE_ALL" xml:space="preserve">
-    <value>Czy chcesz wprowadzić wszystko?</value>
-  </data>
-  <data name="PARSE_CARDS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Cards?</value>
-  </data>
-  <data name="PARSE_ITEMS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Przedmioty?</value>
-  </data>
-  <data name="PARSE_MAPNPCS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić MapNpc?</value>
-  </data>
-  <data name="PARSE_MAPS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Mapy?</value>
-  </data>
-  <data name="PARSE_MAPTYPES" xml:space="preserve">
-    <value>Czy chcesz wprowadzić MapTypes?</value>
-  </data>
-  <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Potwory?</value>
-  </data>
-  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
-    <value>Czy chesz wprowadzić dane NpcMonster?</value>
-  </data>
-  <data name="PARSE_NPCMONSTERS" xml:space="preserve">
-    <value>Czy chesz wprowadzić dane NpcMonster?</value>
-  </data>
-  <data name="PARSE_PORTALS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Portale?</value>
-  </data>
-  <data name="PARSE_QUESTS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Zadania?</value>
-  </data>
-  <data name="PARSE_RECIPES" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Przepisy?</value>
-  </data>
-  <data name="PARSE_SHOPITEMS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić ShopItems?</value>
-  </data>
-  <data name="PARSE_SHOPS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Sklepy?</value>
-  </data>
-  <data name="PARSE_SHOPSKILLS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Sklepy z umiejętnościami?</value>
-  </data>
-  <data name="PARSE_SKILLS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Umiejętności?</value>
-  </data>
-  <data name="PARSE_TELEPORTERS" xml:space="preserve">
-    <value>Czy chcesz wprowadzić Teleporters?</value>
-  </data>
-  <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>Czy chcesz wprowadzic Czaso-Przestrzenie?</value>
-  </data>
-  <data name="REGISTRED_ON_MASTER" xml:space="preserve">
-    <value>Zarejestrowany w MASTER</value>
-  </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Wybierz MapID</value>
-  </data>
-  <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>Pomyślnie załadowany</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Błędnie wybrane MapID</value>
-  </data>
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<root> 
+  <!--  
+    Microsoft ResX Schema  
+     
+    Version 2.0 
+     
+    The primary goals of this format is to allow a simple XML format  
+    that is mostly human readable. The generation and parsing of the  
+    various data types are done through the TypeConverter classes  
+    associated with the data types. 
+     
+    Example: 
+     
+    ... ado.net/XML headers & schema ... 
+    <resheader name="resmimetype">text/microsoft-resx</resheader> 
+    <resheader name="version">2.0</resheader> 
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader> 
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader> 
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data> 
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data> 
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64"> 
+        <value>[base64 mime encoded serialized .NET Framework object]</value> 
+    </data> 
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64"> 
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value> 
+        <comment>This is a comment</comment> 
+    </data> 
+                 
+    There are any number of "resheader" rows that contain simple  
+    name/value pairs. 
+     
+    Each data row contains a name, and value. The row also contains a  
+    type or mimetype. Type corresponds to a .NET class that support  
+    text/value conversion through the TypeConverter architecture.  
+    Classes that don't support this are serialized and stored with the  
+    mimetype set. 
+     
+    The mimetype is used for serialized objects, and tells the  
+    ResXResourceReader how to depersist the object. This is currently not  
+    extensible. For a given mimetype the value must be set accordingly: 
+     
+    Note - application/x-microsoft.net.object.binary.base64 is the format  
+    that the ResXResourceWriter will generate, however the reader can  
+    read any of the formats listed below. 
+     
+    mimetype: application/x-microsoft.net.object.binary.base64 
+    value   : The object must be serialized with  
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter 
+            : and then encoded with base64 encoding. 
+     
+    mimetype: application/x-microsoft.net.object.soap.base64 
+    value   : The object must be serialized with  
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter 
+            : and then encoded with base64 encoding. 
+ 
+    mimetype: application/x-microsoft.net.object.bytearray.base64 
+    value   : The object must be serialized into a byte array  
+            : using a System.ComponentModel.TypeConverter 
+            : and then encoded with base64 encoding. 
+    --> 
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"> 
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" /> 
+    <xsd:element name="root" msdata:IsDataSet="true"> 
+      <xsd:complexType> 
+        <xsd:choice maxOccurs="unbounded"> 
+          <xsd:element name="metadata"> 
+            <xsd:complexType> 
+              <xsd:sequence> 
+                <xsd:element name="value" type="xsd:string" minOccurs="0" /> 
+              </xsd:sequence> 
+              <xsd:attribute name="name" use="required" type="xsd:string" /> 
+              <xsd:attribute name="type" type="xsd:string" /> 
+              <xsd:attribute name="mimetype" type="xsd:string" /> 
+              <xsd:attribute ref="xml:space" /> 
+            </xsd:complexType> 
+          </xsd:element> 
+          <xsd:element name="assembly"> 
+            <xsd:complexType> 
+              <xsd:attribute name="alias" type="xsd:string" /> 
+              <xsd:attribute name="name" type="xsd:string" /> 
+            </xsd:complexType> 
+          </xsd:element> 
+          <xsd:element name="data"> 
+            <xsd:complexType> 
+              <xsd:sequence> 
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /> 
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /> 
+              </xsd:sequence> 
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /> 
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /> 
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /> 
+              <xsd:attribute ref="xml:space" /> 
+            </xsd:complexType> 
+          </xsd:element> 
+          <xsd:element name="resheader"> 
+            <xsd:complexType> 
+              <xsd:sequence> 
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /> 
+              </xsd:sequence> 
+              <xsd:attribute name="name" type="xsd:string" use="required" /> 
+            </xsd:complexType> 
+          </xsd:element> 
+        </xsd:choice> 
+      </xsd:complexType> 
+    </xsd:element> 
+  </xsd:schema> 
+  <resheader name="resmimetype"> 
+    <value>text/microsoft-resx</value> 
+  </resheader> 
+  <resheader name="version"> 
+    <value>2.0</value> 
+  </resheader> 
+  <resheader name="reader"> 
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value> 
+  </resheader> 
+  <resheader name="writer"> 
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value> 
+  </resheader> 
+  <data name="ACCOUNT_ARRIVED" xml:space="preserve"> 
+    <value>Połączono konto z ID sesji {0} </value> 
+  </data> 
+  <data name="ADMINISTRATOR" xml:space="preserve"> 
+    <value>Administrator</value> 
+  </data> 
+  <data name="ADVENTURER" xml:space="preserve"> 
+    <value>Poszukiwacz Przygód</value> 
+  </data> 
+  <data name="ALREADY_FRIEND" xml:space="preserve"> 
+    <value>Już jesteście przyjaciółmi!</value> 
+  </data> 
+  <data name="ALREADY_IN_GROUP" xml:space="preserve"> 
+    <value>Aktualnie jesteście już w grupie!</value> 
+  </data> 
+  <data name="ALREADY_TAKEN" xml:space="preserve"> 
+    <value>Ta nazwa jest już zajęta!</value> 
+  </data> 
+  <data name="ARCHER" xml:space="preserve"> 
+    <value>Łucznik</value> 
+  </data> 
+  <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve"> 
+    <value>Przynajmniej jeden z wymaganych plików nie mógł zostać znaleziony.</value> 
+  </data> 
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve"> 
+    <value>Uwierzytelnienie nie powiodło się!</value> 
+  </data> 
+  <data name="AUTHENTICATED_SUCCESS" xml:space="preserve"> 
+    <value>Uwierzytelnienie powiodło się!</value> 
+  </data> 
+  <data name="AUTH_ERROR" xml:space="preserve"> 
+    <value>Błąd uwierzytelniania!</value> 
+  </data> 
+  <data name="AUTH_INCORRECT" xml:space="preserve"> 
+    <value>Niepoprawne uwierzytelnianie!</value> 
+  </data> 
+  <data name="BAD_EQUIPMENT" xml:space="preserve"> 
+    <value>Twoja postać nie spełnia wymagań niezbędnych do noszenia tego przedmiotu!</value> 
+  </data> 
+  <data name="BAD_FAIRY" xml:space="preserve"> 
+    <value>Karta Specjalisty i Twoja wróżka posiadają różne elementy!</value> 
+  </data> 
+  <data name="BAD_PASSWORD" xml:space="preserve"> 
+    <value>Błędne hasło!</value> 
+  </data> 
+  <data name="BLACKLIST_ADDED" xml:space="preserve"> 
+    <value>Dodano do czarnej listy!</value> 
+  </data> 
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve"> 
+    <value>Ten gracz Cię blokuje!</value> 
+  </data> 
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve"> 
+    <value>Nie możesz handlować przedmiotami, których nie można handlować!</value> 
+  </data> 
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve"> 
+    <value>Nie możesz zablokować przyjaciela!</value> 
+  </data> 
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve"> 
+    <value>Nie możesz zamienić się w tą samą klasę!</value> 
+  </data> 
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve"> 
+    <value>Nie możesz załóżyć zniszczonej Karty Specjalisty!</value> 
+  </data> 
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve"> 
+    <value>Nie można znaleźć tej postaci!</value> 
+  </data> 
+  <data name="CARDS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0] Kart...</value> 
+  </data> 
+  <data name="CHANNEL" xml:space="preserve"> 
+    <value>Kanał</value> 
+  </data> 
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve"> 
+    <value>Kanał zamknie się za kilka chwil...</value> 
+  </data> 
+  <data name="CHARACTER_NOT_INIT" xml:space="preserve"> 
+    <value>Postać nie zainicjowana</value> 
+  </data> 
+  <data name="CHARACTER_OFFLINE" xml:space="preserve"> 
+    <value>Postać jest niedostępna!</value> 
+  </data> 
+  <data name="CLASS_CHANGED" xml:space="preserve"> 
+    <value>Pomyślnie zmieniłeś klasę!</value> 
+  </data> 
+  <data name="CLIENT_ARRIVED" xml:space="preserve"> 
+    <value>Dotarł nowy uzytkownik</value> 
+  </data> 
+  <data name="CLIENT_CONNECTED" xml:space="preserve"> 
+    <value>Uzytkownik połączony ClientId = {0}</value> 
+  </data> 
+  <data name="CLIENT_DISCONNECTED" xml:space="preserve"> 
+    <value>Użytkownik rozłaczony. ClientID = {0}</value> 
+  </data> 
+  <data name="CONNECTION_LOST" xml:space="preserve"> 
+    <value>Utracono połączenie...</value> 
+  </data> 
+  <data name="CORRUPTED_KEEPALIVE" xml:space="preserve"> 
+    <value>Uszkodzony Keepalive na kliencie {0}.</value> 
+  </data> 
+  <data name="CORRUPT_PACKET" xml:space="preserve"> 
+    <value>Pakiet {0} jest zepsuty lub definicja pakietu jest nie prawidłowa. Treść: {1}.</value> 
+  </data> 
+  <data name="DATABASE_INITIALIZED" xml:space="preserve"> 
+    <value>Baza danych zostala załadowana!</value> 
+  </data> 
+  <data name="DATABASE_NOT_UPTODATE" xml:space="preserve"> 
+    <value>Baza danych jest nie aktualna. Proszę przeprowadzić aktualizację.</value> 
+  </data> 
+  <data name="DONE" xml:space="preserve"> 
+    <value>Wprowadzanie ukończone!</value> 
+  </data> 
+  <data name="DROP_MAP_FULL" xml:space="preserve"> 
+    <value>Jest za dużo przedmiotów na tej mapie! Spróbuj później!</value> 
+  </data> 
+  <data name="ENCODE_ERROR" xml:space="preserve"> 
+    <value>Błąd Encode: {0}.</value> 
+  </data> 
+  <data name="ENTER_PATH" xml:space="preserve"> 
+    <value>Proszę podać ścieżkę do plików do wprowadzenia.</value> 
+  </data> 
+  <data name="EQ_NOT_EMPTY" xml:space="preserve"> 
+    <value>Aby zmienić klasę, ściągnij swój cały ekwipunek.</value> 
+  </data> 
+  <data name="ERROR_CHANGE_MAP" xml:space="preserve"> 
+    <value>Błąd zmiany mapy!</value> 
+  </data> 
+  <data name="ERROR_DECODING" xml:space="preserve"> 
+    <value>Błąd Decoding:  {0}.</value> 
+  </data> 
+  <data name="EXCEPTION" xml:space="preserve"> 
+    <value>Wyrzucono wyjątek : {0}.</value> 
+  </data> 
+  <data name="FORCED_DISCONNECTION" xml:space="preserve"> 
+    <value>Rozłaczanie użytkownika {0}, zbyt dużo połączeń.</value> 
+  </data> 
+  <data name="FRIENDLIST_FULL" xml:space="preserve"> 
+    <value>Twoja lista przyjacioł jest pełna!</value> 
+  </data> 
+  <data name="FRIEND_ADD" xml:space="preserve"> 
+    <value>[{0}] chce być Twoim przyjacielem! Czy chcesz zaakceptować prośbę?</value> 
+  </data> 
+  <data name="FRIEND_ADDED" xml:space="preserve"> 
+    <value>Dodano nowego przyjaciela!</value> 
+  </data> 
+  <data name="FRIEND_DELETED" xml:space="preserve"> 
+    <value>Przyjaciel został usunięty.</value> 
+  </data> 
+  <data name="FRIEND_OFFLINE" xml:space="preserve"> 
+    <value>Twój przyjaciel jest niedostępny!</value> 
+  </data> 
+  <data name="FRIEND_REJECTED" xml:space="preserve"> 
+    <value>Prośba została odrzucona!</value> 
+  </data> 
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve"> 
+    <value>Gracz blokuje prośby zostania przyjacielem.</value> 
+  </data> 
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve"> 
+    <value>Prośba została wysłana!</value> 
+  </data> 
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve"> 
+    <value>Nieznany typ żądania grupy.</value> 
+  </data> 
+  <data name="GROUP_ADMIN" xml:space="preserve"> 
+    <value>Jesteś mistrzem grupy!</value> 
+  </data> 
+  <data name="GROUP_BLOCKED" xml:space="preserve"> 
+    <value>Ten gracz blokuje wysyłanie zaproszeń do grupy!</value> 
+  </data> 
+  <data name="GROUP_CLOSED" xml:space="preserve"> 
+    <value>Grupa została rozwiązana.</value> 
+  </data> 
+  <data name="GROUP_FULL" xml:space="preserve"> 
+    <value>Grupa jest pełna!</value> 
+  </data> 
+  <data name="GROUP_INVITE" xml:space="preserve"> 
+    <value>Gracz został zaproszony.</value> 
+  </data> 
+  <data name="GROUP_LEFT" xml:space="preserve"> 
+    <value>Wyszedłeś z grupy.</value> 
+  </data> 
+  <data name="GROUP_REFUSED" xml:space="preserve"> 
+    <value>Gracz odrzucił Twoje zaproszenie!</value> 
+  </data> 
+  <data name="GROUP_SHARE_INFO" xml:space="preserve"> 
+    <value>Wysłano zapytanie z prośbą o udostępnienie Twojego miejsca powrotu innym członkom grupy.</value> 
+  </data> 
+  <data name="HANDLER_NOT_FOUND" xml:space="preserve"> 
+    <value>Nie znaleziono Handler pakietu: {0}</value> 
+  </data> 
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve"> 
+    <value>Zmieniono poziom bohatera!</value> 
+  </data> 
+  <data name="I18N_ACTDESC_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N ActDescs! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_BCARD_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N BCards! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_CARD_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N Cards! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_ITEM_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N Items! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N MapIdDatas! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N MapPointDatas! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N NpcMonsters! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N NpcMonsterTalk! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_QUEST_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N Quests! Region: {1}.</value> 
+  </data> 
+  <data name="I18N_SKILL_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono I18N Skills! Region: {1}.</value> 
+  </data> 
+  <data name="INVALID_ACCOUNT" xml:space="preserve"> 
+    <value>Niepoprawne ID użytkownika!</value> 
+  </data> 
+  <data name="INVALID_CHARNAME" xml:space="preserve"> 
+    <value>Nieprawidłowe znaki w nazwie!</value> 
+  </data> 
+  <data name="INVALID_PASSWORD" xml:space="preserve"> 
+    <value>Niepoprawne hasło!</value> 
+  </data> 
+  <data name="INVENTORY_FULL" xml:space="preserve"> 
+    <value>Twój ekwipunek jest pełny!</value> 
+  </data> 
+  <data name="INVITED_YOU_GROUP" xml:space="preserve"> 
+    <value>[{0}] zaprosił Cię do grupy!</value> 
+  </data> 
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve"> 
+    <value>Nieznany typ zaproszenia.</value> 
+  </data> 
+  <data name="ITEMS_LOADED" xml:space="preserve"> 
+    <value>{0} przedmiotów załadowano!</value> 
+  </data> 
+  <data name="ITEMS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} przedmiotów!</value> 
+  </data> 
+  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve"> 
+    <value>Nieznany typ przedmiotu.</value> 
+  </data> 
+  <data name="ITEM_ACQUIRED" xml:space="preserve"> 
+    <value>Otrzymałeś przedmiot</value> 
+  </data> 
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve"> 
+    <value>Nie możesz wyrzucić tego przedmiotu!</value> 
+  </data> 
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve"> 
+    <value>Nie możesz wyrzucić tego przedmiotu tutaj!</value> 
+  </data> 
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve"> 
+    <value>Ten przedmiot nie może być sprzedany!</value> 
+  </data> 
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve"> 
+    <value>Nie możesz handlować niektórymi przedmiotami.</value> 
+  </data> 
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve"> 
+    <value>Twoja profesja została zmieniona!</value> 
+  </data> 
+  <data name="JOINED_GROUP" xml:space="preserve"> 
+    <value>Dołączyłeś do grupy.</value> 
+  </data> 
+  <data name="LANGUAGE_MISSING" xml:space="preserve"> 
+    <value>Brakujący język.</value> 
+  </data> 
+  <data name="LEAVE_GROUP" xml:space="preserve"> 
+    <value>[{0}] wyszedł z grupy!</value> 
+  </data> 
+  <data name="LEVEL_CHANGED" xml:space="preserve"> 
+    <value>Twój poziom został zmieniony!</value> 
+  </data> 
+  <data name="LISTENING_PORT" xml:space="preserve"> 
+    <value>Komunikacja z Port została rozpoczęta</value> 
+  </data> 
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve"> 
+    <value>Ładowanie MapInstances...</value> 
+  </data> 
+  <data name="LOW_JOB_LVL" xml:space="preserve"> 
+    <value>Twój poziom profesji jest zbyt niski, aby założyć Kartę Specjalisty.</value> 
+  </data> 
+  <data name="LOW_REP" xml:space="preserve"> 
+    <value>Twoja reputacja jest za niska, aby założyć Kartę Specjalisty.</value> 
+  </data> 
+  <data name="MAGICIAN" xml:space="preserve"> 
+    <value>Mag</value> 
+  </data> 
+  <data name="MAPMONSTERS_LOADED" xml:space="preserve"> 
+    <value>{0} potworów załadowano!</value> 
+  </data> 
+  <data name="MAPNPCS_LOADED" xml:space="preserve"> 
+    <value>{0} MapNpcs załadowano!</value> 
+  </data> 
+  <data name="MAPS_LOADED" xml:space="preserve"> 
+    <value>{0} map załadowano!</value> 
+  </data> 
+  <data name="MAPS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} map!</value> 
+  </data> 
+  <data name="MAPTYPES_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} typów mapy!</value> 
+  </data> 
+  <data name="MAP_DONT_EXIST" xml:space="preserve"> 
+    <value>Ta mapa nie istnieje!</value> 
+  </data> 
+  <data name="MARTIALARTIST" xml:space="preserve"> 
+    <value>Mistrz Sztuk Walki</value> 
+  </data> 
+  <data name="MASTER_SERVER_PING" xml:space="preserve"> 
+    <value>Ping do Master Server.</value> 
+  </data> 
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve"> 
+    <value>Ping do Master Server się nie powiódł.</value> 
+  </data> 
+  <data name="MASTER_SERVER_RETRY" xml:space="preserve"> 
+    <value>Nie udało połączyć się z Master Server! Próba ponownego połączenia za {0} sekund...</value> 
+  </data> 
+  <data name="MAX_GOLD" xml:space="preserve"> 
+    <value>Osiągnięto maksymalną ilość złota!</value> 
+  </data> 
+  <data name="MONSTERS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} potworów!</value> 
+  </data> 
+  <data name="NEW_LEADER" xml:space="preserve"> 
+    <value>Zostałeś nowym liderem grupy!</value> 
+  </data> 
+  <data name="NOT_ADVENTURER" xml:space="preserve"> 
+    <value>Nie jesteś Poszukiwaczem Przygód.</value> 
+  </data> 
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve"> 
+    <value>Nie masz wystarczająco złota, aby kupić ten przedmiot!</value> 
+  </data> 
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve"> 
+    <value>Za mało miejsca.</value> 
+  </data> 
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve"> 
+    <value>Nie masz wystarczająco reputacji, aby kupić ten przedmiot!</value> 
+  </data> 
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve"> 
+    <value>Ten gracz nie jest na Twojej czarnej liście.</value> 
+  </data> 
+  <data name="NOT_YOUR_ITEM" xml:space="preserve"> 
+    <value>Ten przedmiot nie należy do Ciebie!</value> 
+  </data> 
+  <data name="NO_ITEM" xml:space="preserve"> 
+    <value>Przedmiot nie istnieje!</value> 
+  </data> 
+  <data name="NO_MAP" xml:space="preserve"> 
+    <value>Serwer potrzebuje przynajmniej mapy NosVille aby działał!</value> 
+  </data> 
+  <data name="NO_SP" xml:space="preserve"> 
+    <value>Nie posiadasz założonej Karty Specjalisty!</value> 
+  </data> 
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve"> 
+    <value>Brak specjalnych właściwości do noszenia.</value> 
+  </data> 
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve"> 
+    <value>{0} NpcMonster załadowano!</value> 
+  </data> 
+  <data name="NPCMONSTERS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} NpcMonster!</value> 
+  </data> 
+  <data name="NPCS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} MapNpcs!</value> 
+  </data> 
+  <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve"> 
+    <value>Odebrany pakiet bez postaci został ustawiony {0}</value> 
+  </data> 
+  <data name="PARSE_ACCOUNTS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić konta?</value> 
+  </data> 
+  <data name="PARSE_ALL" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić wszystko?</value> 
+  </data> 
+  <data name="PARSE_CARDS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić cards?</value> 
+  </data> 
+  <data name="PARSE_ITEMS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić przedmioty?</value> 
+  </data> 
+  <data name="PARSE_MAPNPCS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić MapNpc?</value> 
+  </data> 
+  <data name="PARSE_MAPS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić mapy?</value> 
+  </data> 
+  <data name="PARSE_MAPTYPES" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić typy map?</value> 
+  </data> 
+  <data name="PARSE_MONSTERS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić potwory?</value> 
+  </data> 
+  <data name="PARSE_NPCMONSTERDATA" xml:space="preserve"> 
+    <value>Czy chesz wprowadzić dane NpcMonster?</value> 
+  </data> 
+  <data name="PARSE_NPCMONSTERS" xml:space="preserve"> 
+    <value>Czy chesz wprowadzić dane NpcMonster?</value> 
+  </data> 
+  <data name="PARSE_PORTALS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić portale?</value> 
+  </data> 
+  <data name="PARSE_QUESTS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić misje?</value> 
+  </data> 
+  <data name="PARSE_RECIPES" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić przepisy?</value> 
+  </data> 
+  <data name="PARSE_SHOPITEMS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić przedmioty w sklepie?</value> 
+  </data> 
+  <data name="PARSE_SHOPS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić sklepy?</value> 
+  </data> 
+  <data name="PARSE_SHOPSKILLS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić sklepy z umiejętnościami?</value> 
+  </data> 
+  <data name="PARSE_SKILLS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić umiejętności?</value> 
+  </data> 
+  <data name="PARSE_TELEPORTERS" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzić teleportale?</value> 
+  </data> 
+  <data name="PARSE_TIMESPACES" xml:space="preserve"> 
+    <value>Czy chcesz wprowadzic czasoprzestrzenie?</value> 
+  </data> 
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve"> 
+    <value>Nieznany typ Pocket</value> 
+  </data> 
+  <data name="REGISTRED_ON_MASTER" xml:space="preserve"> 
+    <value>Zarejestrowany w MASTER</value> 
+  </data> 
+  <data name="REMOVE_VEHICLE" xml:space="preserve"> 
+    <value>Musisz zejść z pojazdu, aby się przekształcić.</value> 
+  </data> 
+  <data name="REPUTATION_CHANGED" xml:space="preserve"> 
+    <value>Twoja reputacja została zmieniona!</value> 
+  </data> 
+  <data name="REPUT_DECREASED" xml:space="preserve"> 
+    <value>Twoja reputacja zmniejszyła się!</value> 
+  </data> 
+  <data name="RESPAWNTYPE_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} RespawnTypes!</value> 
+  </data> 
+  <data name="SAVING_ALL" xml:space="preserve"> 
+    <value>Zapisywanie wszystkich danych!</value> 
+  </data> 
+  <data name="SELECT_MAPID" xml:space="preserve"> 
+    <value>Proszę, wybierz ID Mapy:</value> 
+  </data> 
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve"> 
+    <value>Twój przedmiot został sprzedany! {0}</value> 
+  </data> 
+  <data name="SHARED_REFUSED" xml:space="preserve"> 
+    <value>Odmówiłeś dzielenia punktu powrotu z członkami grupy.</value> 
+  </data> 
+  <data name="SHOPITEMS_LOADED" xml:space="preserve"> 
+    <value>{0} ShopItems załadowano!</value> 
+  </data> 
+  <data name="SHOPITEMS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} ShopItems!</value> 
+  </data> 
+  <data name="SHOPS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} Shops!</value> 
+  </data> 
+  <data name="SHOP_EMPTY" xml:space="preserve"> 
+    <value>Nie możesz otworzyć pustego sklepu!</value> 
+  </data> 
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve"> 
+    <value>Otwórz sklep zdala od portalu.</value> 
+  </data> 
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve"> 
+    <value>Nie możesz otworzyć sklepu na tej mapie.</value> 
+  </data> 
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve"> 
+    <value>Nie możesz otworzyć sklepu w rajdzie.</value> 
+  </data> 
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve"> 
+    <value>Możesz sprzedawać tylko przedmioty do wymiany! Sprawdź przedmioty, które chcesz sprzedać.</value> 
+  </data> 
+  <data name="SHOP_OPEN" xml:space="preserve"> 
+    <value>Otworzyłeś sklep.</value> 
+  </data> 
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve"> 
+    <value>Czy otworzyć sklep?</value> 
+  </data> 
+  <data name="SKILLS_PARSED" xml:space="preserve"> 
+    <value>Wprowadzono {0} Skills!</value> 
+  </data> 
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve"> 
+    <value>Osiągnąłeś maksymalną ilość PS!</value> 
+  </data> 
+  <data name="SP_BLOCKED" xml:space="preserve"> 
+    <value>Aktualnie jesteś w transformacji! </value> 
+  </data> 
+  <data name="SP_INLOADING" xml:space="preserve"> 
+    <value>Nie można dokonać transformacji z powodu jej skutków ubocznych: {0} sek.</value> 
+  </data> 
+  <data name="SP_NOPOINTS" xml:space="preserve"> 
+    <value>Nie posiadasz wystarczająco PS aby się transformować!</value> 
+  </data> 
+  <data name="SP_POINTSADDED" xml:space="preserve"> 
+    <value>PS zostały zwiększone o {0}!</value> 
+  </data> 
+  <data name="STAY_TIME" xml:space="preserve"> 
+    <value>Pozostały czas efektów ubocznych: {0} sekund.</value> 
+  </data> 
+  <data name="SUCCESSFULLY_LOADED" xml:space="preserve"> 
+    <value>Załadowano pomyślnie!</value> 
+  </data> 
+  <data name="SUPPORT" xml:space="preserve"> 
+    <value>Wsparcie</value> 
+  </data> 
+  <data name="SURE_TO_DELETE" xml:space="preserve"> 
+    <value>Czy na pewno chcesz usunąć ten przedmiot?</value> 
+  </data> 
+  <data name="SWORDMAN" xml:space="preserve"> 
+    <value>Wojownik</value> 
+  </data> 
+  <data name="TOO_LOW_LEVEL" xml:space="preserve"> 
+    <value>Potrzebujesz przynajmniej 15 poziomu oraz 20 profesji, aby zmienić klasę.</value> 
+  </data> 
+  <data name="TOO_RICH_SELLER" xml:space="preserve"> 
+    <value>Sprzedawca posiada za dużo złota, aby sfinalizować transakcję.</value> 
+  </data> 
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve"> 
+    <value>Efekt uboczny transformacji minął. {0}.</value> 
+  </data> 
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve"> 
+    <value>Nie można wysłać zaproszenia do grupy.</value> 
+  </data> 
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve"> 
+    <value>Nieznany typ ekwipunku: {0}.</value> 
+  </data> 
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve"> 
+    <value>Nieznany typ Picket</value> 
+  </data> 
+  <data name="UNKNOWN_RECEIVERTYPE" xml:space="preserve"> 
+    <value>Nieznany typ Reciever</value> 
+  </data> 
+  <data name="UPDATE_GOLD" xml:space="preserve"> 
+    <value>Twoje złoto zostało pomyślnie zaktualizowane!</value> 
+  </data> 
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve"> 
+    <value>Gracz nie jest Twoim przyjacielem!</value> 
+  </data> 
+  <data name="USER_NOT_CONNECTED" xml:space="preserve"> 
+    <value>Gracz nie jest połączony.</value> 
+  </data> 
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve"> 
+    <value>Wykryto nieprawidłową Kartę Specjalisty!</value> 
+  </data> 
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve"> 
+    <value>VisualEntity nie istnieje: {0}</value> 
+  </data> 
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve"> 
+    <value>Nieznany VisualType: {0}</value> 
+  </data> 
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve"> 
+    <value>Błędnie wybrane MapID</value> 
+  </data> 
 </root>

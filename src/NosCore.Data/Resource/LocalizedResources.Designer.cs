@@ -1775,7 +1775,7 @@ namespace NosCore.Data.Resource {
         /// </summary>
         public static string UNKWNOWN_RECEIVERTYPE {
             get {
-                return ResourceManager.GetString("UNKWNOWN_RECEIVERTYPE", resourceCulture);
+                return ResourceManager.GetString("UNKNOWN_RECEIVERTYPE", resourceCulture);
             }
         }
         
