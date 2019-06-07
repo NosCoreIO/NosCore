@@ -368,11 +368,8 @@ namespace NosCore.GameObject
         {
             if (Class == classType)
             {
-                SendPacket(new MsgPacket
-                {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Account.Language),
-                    Type = MessageType.White
-                });
+                _logger.Error(
+                    Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Account.Language));
                 return;
             }
             
