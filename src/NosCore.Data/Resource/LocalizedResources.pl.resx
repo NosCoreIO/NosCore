@@ -231,6 +231,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Jest za dużo przedmiotów na tej mapie! Spróbuj później!</value>
   </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>Aktywowano przedmiot: {0}.</value>
+  </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Błąd Encode: {0}.</value>
   </data>
@@ -345,11 +348,17 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>Czy zaakceptować wymianę?</value>
   </data>
+  <data name="INFO_BAAZAR" xml:space="preserve">
+    <value>Za pomocą Medalu NosHandlaraza możesz korzystać z NosBazaru na każdej mapie ogólnej.</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Niepoprawne ID użytkownika!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
     <value>Nieprawidłowe znaki w nazwie!</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Nieznana lista wymiany!</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Niepoprawne hasło!</value>
