@@ -46,12 +46,28 @@ namespace NosCore.GameObject.Providers.ItemProvider
 
         public IItemInstance Convert(IItemInstanceDto k)
         {
-            IItemInstance item =
-                k.Adapt<BoxInstance>() ??
-                k.Adapt<SpecialistInstance>() ??
-                k.Adapt<WearableInstance>() ??
-                k.Adapt<UsableInstance>() ??
-                (IItemInstance) k.Adapt<ItemInstance>();
+            IItemInstance item;
+
+            if (k is BoxInstanceDto)
+            {
+                item = k.Adapt<BoxInstance>();
+            }
+            else if (k is SpecialistInstanceDto)
+            {
+                item = k.Adapt<SpecialistInstance>();
+            }
+            else if (k is WearableInstanceDto)
+            {
+                item = k.Adapt<WearableInstance>();
+            }
+            else if (k is UsableInstanceDto)
+            {
+                item = k.Adapt<UsableInstance>();
+            }
+            else
+            {
+                item = k.Adapt<ItemInstance>();
+            }
 
             item.Item = _items.Find(s => s.VNum == k.ItemVNum).Adapt<Item.Item>();
             LoadHandlers(item);
