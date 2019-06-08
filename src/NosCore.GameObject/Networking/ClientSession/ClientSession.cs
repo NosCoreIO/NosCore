@@ -397,7 +397,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         }
 
                         var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
-                        if (handler != null)
+                        if (handler != null && packet.IsValid)
                         {
                             var attr = _attributeDic[packet.GetType()];
                             if (!HasSelectedCharacter && !attr.AnonymousAccess)
