@@ -81,9 +81,9 @@ namespace NosCore.MasterServer
         {
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-            var assemblyDb = typeof(Account).Assembly.GetTypes();
+            var assemblyDb = typeof(Database.Entities.Account).Assembly.GetTypes();
 
-            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && !p.Name.Contains("InstanceDto") && p.IsClass)
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
                 .ToList()
                 .ForEach(t =>
                 {

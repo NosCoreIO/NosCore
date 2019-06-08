@@ -17,16 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    //public class CBuyPacketHandler : PacketHandler<BuyPacket>, IWorldPacketHandler
-    //{
-    //    public override void Execute(CBuyPacket packet, ClientSession clientSession)
-    //    {
-    //    }
-    //}
+    public class CBuyPacketHandler : PacketHandler<CBuyPacket>, IWorldPacketHandler
+    {
+        public override void Execute(CBuyPacket packet, ClientSession clientSession)
+        {
+        }
+    }
 }
