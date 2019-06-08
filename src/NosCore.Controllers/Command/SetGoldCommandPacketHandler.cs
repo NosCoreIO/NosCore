@@ -29,6 +29,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -47,11 +48,11 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name },
+                Character = new Character { Name = goldPacket.Name ?? session.Character.Name },
                 Data = goldPacket.Gold
             };
 
-            var receiver = _webApiAccess.GetCharacter(null, goldPacket.Name);
+            var receiver = _webApiAccess.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -64,6 +65,8 @@ namespace NosCore.PacketHandlers.Command
             }
 
             _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, receiver.Item1);
+
+            session.SendPacket(session.Character.GenerateGold());
         }
     }
 }

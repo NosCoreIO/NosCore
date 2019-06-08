@@ -36,10 +36,8 @@ namespace NosCore.Core.Networking
         T Get<T>(WebApiRoute route, ServerConfiguration webApi);
         T Get<T>(WebApiRoute route);
         T Get<T>(WebApiRoute route, ServerConfiguration webApi, object id);
-        T Post<T>(WebApiRoute route, ServerConfiguration webApi);
         T Post<T>(WebApiRoute route, object data);
         T Post<T>(WebApiRoute route, object data, ServerConfiguration webApi);
-        T Put<T>(WebApiRoute route, ServerConfiguration webApi);
         T Put<T>(WebApiRoute route, object data);
         T Put<T>(WebApiRoute route, object data, ServerConfiguration webApi);
         T Patch<T>(WebApiRoute route, object id, ServerConfiguration webApi);

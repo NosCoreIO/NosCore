@@ -29,5 +29,6 @@ namespace NosCore.Data.Enumerations
         ConnectedAccount,
         Friend,
         Blacklist,
+        Bazaar,
     }
 }

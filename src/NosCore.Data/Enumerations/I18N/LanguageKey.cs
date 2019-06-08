@@ -256,6 +256,9 @@ namespace NosCore.Data.Enumerations.I18N
         PORTAL_DELAY,
         INFO_BAZAAR,
         EFFECT_ACTIVATED,
-        ITEM_TIMEOUT
+        ITEM_TIMEOUT,
+        PRICE_EXCEEDED,
+        LIMIT_EXCEEDED,
+        OBJECT_IN_BAZAAR
     }
 }
