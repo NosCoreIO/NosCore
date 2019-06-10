@@ -24,7 +24,7 @@ namespace NosCore.Data
 {
     public class BazaarItemDto : IDto
     {
-        public byte Amount { get; set; }
+        public short Amount { get; set; }
         [Key]
         public long BazaarItemId { get; set; }
 

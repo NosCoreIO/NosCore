@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -52,6 +53,9 @@ using NosCore.Database;
 using NosCore.Data;
 using NosCore.MasterServer.Controllers;
 using Microsoft.EntityFrameworkCore;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer
 {
@@ -93,6 +97,26 @@ namespace NosCore.MasterServer
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+
+            containerBuilder.Register(c =>
+                {
+                    var items = c.Resolve<IGenericDao<ItemDto>>().LoadAll().ToList();
+                    StaticDtoAttribute staticDtoAttribute = typeof(ItemDto).GetCustomAttribute<StaticDtoAttribute>();
+                    if (items.Count != 0)
+                    {
+                        c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                            items.Count);
+                    }
+                    else
+                    {
+                        c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                    }
+
+                    return items;
+                })
+                .As<List<ItemDto>>()
+                .SingleInstance()
+                .AutoActivate();
         }
 
         public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder) where TDb : class
@@ -108,6 +132,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
+            containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
             containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
@@ -123,10 +148,10 @@ namespace NosCore.MasterServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {configuration.WebApi.ToString()}
+                Addresses = { configuration.WebApi.ToString() }
             });
             LogLanguage.Language = configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "NosCore Master API", Version = "v1"}));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
             var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));

@@ -41,59 +41,59 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CBListPacketHandler : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
         private readonly IWebApiAccess _webApiAccess;
+        private readonly List<ItemDto> _items;
 
-        public CBListPacketHandler(IWebApiAccess webApiAccess)
+        public CBListPacketHandler(IWebApiAccess webApiAccess, List<ItemDto> items)
         {
             _webApiAccess = webApiAccess;
+            _items = items;
         }
 
         public override void Execute(CBListPacket packet, ClientSession clientSession)
         {
-            var itemssearch = packet.ItemVNumFilter == "0" ? new List<string>() : packet.ItemVNumFilter.Split(' ').ToList();
+            var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var result = _webApiAccess.Get<List<BazaarItemDto>>(WebApiRoute.Bazaar, $"{ packet.Index}&TypeFilter={packet.TypeFilter}&SubTypeFilter={packet.SubTypeFilter}&LevelFilter={packet.LevelFilter}&RareFilter={packet.RareFilter}&UpgradeFilter={packet.UpgradeFilter}") ?? new List<BazaarItemDto>();
-            var bzlist = new List<BazaarItem>();
-         
-            var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum.ToString())).ToList();
+            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"{packet.Index}&PageSize=50&TypeFilter={packet.TypeFilter}&SubTypeFilter={packet.SubTypeFilter}&LevelFilter={packet.LevelFilter}&RareFilter={packet.RareFilter}&UpgradeFilter={packet.UpgradeFilter}&SellerFilter={null}") ?? new List<BazaarLink>();
+            var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
             var definitivelist = itemssearch.Any() ? bzlistsearched : bzlist;
             switch (packet.OrderFilter)
             {
                 case 0:
-                    definitivelist = definitivelist.OrderBy(s => s.ItemInstance.Item.Name).ThenBy(s => s.Price).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenBy(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 1:
-                    definitivelist = definitivelist.OrderBy(s => s.ItemInstance.Item.Name).ThenByDescending(s => s.Price).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenByDescending(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 2:
-                    definitivelist = definitivelist.OrderBy(s => s.ItemInstance.Item.Name).ThenBy(s => s.Amount).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenBy(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 case 3:
-                    definitivelist = definitivelist.OrderBy(s => s.ItemInstance.Item.Name).ThenByDescending(s => s.Amount).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o=>o.VNum == s.ItemInstance.ItemVNum).Name).ThenByDescending(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 default:
-                    definitivelist = definitivelist.OrderBy(s => s.ItemInstance.Item.Name).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ToList();
                     break;
             }
 
             clientSession.SendPacket(new RcbListPacket
             {
                 PageIndex = packet.Index,
-                Items = definitivelist.Where(s => (s.DateStart.AddHours(s.Duration) - DateTime.Now).TotalMinutes > 0 && s.ItemInstance.Amount > 0).Skip(packet.Index * 50).Take(50).Select(bzlink => new RcbListElementPacket
+                Items = definitivelist.Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - DateTime.Now).TotalMinutes > 0 && s.ItemInstance.Amount > 0).Select(bzlink => new RcbListElementPacket
                 {
-                    AuctionId = bzlink.BazaarItemId,
-                    OwnerId = bzlink.SellerId,
+                    AuctionId = bzlink.BazaarItem.BazaarItemId,
+                    OwnerId = bzlink.BazaarItem.SellerId,
                     OwnerName = bzlink.SellerName,
-                    ItemId = bzlink.ItemInstance.Item.VNum,
+                    ItemId = bzlink.ItemInstance.ItemVNum,
                     Amount = bzlink.ItemInstance.Amount,
-                    IsPackage = bzlink.IsPackage,
-                    Price = bzlink.Price,
-                    MinutesLeft = (long)(bzlink.DateStart.AddHours(bzlink.Duration) - DateTime.Now).TotalMinutes,
+                    IsPackage = bzlink.BazaarItem.IsPackage,
+                    Price = bzlink.BazaarItem.Price,
+                    MinutesLeft = (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - DateTime.Now).TotalMinutes,
                     Unknown1 = false,
                     Unknown = 2,
                     Rarity = bzlink.ItemInstance.Rare,
