@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -30,9 +31,9 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CBuyPacketHandler : PacketHandler<BuyPacket>, IWorldPacketHandler
+    public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
-        public override void Execute(BuyPacket packet, ClientSession clientSession)
+        public override void Execute(CScalcPacket packet, ClientSession clientSession)
         {
 
         }
