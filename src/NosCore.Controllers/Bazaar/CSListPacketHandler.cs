@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Core.Networking;
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 var info = new EInfoPacket();
 
-                if (packet.Filter == 0 || packet.Filter == status)
+                if (packet.Filter == BazaarStatusType.Default || packet.Filter == status)
                 {
                     list.Add(new RcsListPacket.RcsListElementPacket()
                     {
