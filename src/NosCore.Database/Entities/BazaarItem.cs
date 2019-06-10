@@ -25,7 +25,7 @@ namespace NosCore.Database.Entities
     {
         public virtual Character Seller { get; set; }
 
-        public byte Amount { get; set; }
+        public short Amount { get; set; }
 
         public long BazaarItemId { get; set; }
 
