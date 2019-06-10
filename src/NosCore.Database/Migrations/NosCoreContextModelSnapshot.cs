@@ -99,7 +99,7 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("BazaarItemId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<byte>("Amount");
+                    b.Property<short>("Amount");
 
                     b.Property<DateTime>("DateStart");
 

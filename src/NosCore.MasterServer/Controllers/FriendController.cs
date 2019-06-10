@@ -31,6 +31,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.MasterServer.DataHolders;
 using Serilog;
 
 namespace NosCore.MasterServer.Controllers

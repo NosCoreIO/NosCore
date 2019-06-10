@@ -51,8 +51,6 @@ namespace NosCore.Core.Networking
 
         public StringContent Content { get; private set; }
 
-        public void RegisterBaseAdress() => RegisterBaseAdress(null);
-
         public void RegisterBaseAdress(Channel channel)
         {
             if (string.IsNullOrEmpty(channel?.MasterCommunication?.ToString()))
@@ -143,8 +141,6 @@ namespace NosCore.Core.Networking
             throw new HttpRequestException(response.Headers.ToString());
         }
 
-        public T Post<T>(WebApiRoute route, ServerConfiguration webApi) => Post<T>(route, null, webApi);
-
         public T Post<T>(WebApiRoute route, object data) => Post<T>(route, data, null);
 
         public T Post<T>(WebApiRoute route, object data, ServerConfiguration webApi)
@@ -164,8 +160,6 @@ namespace NosCore.Core.Networking
 
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
-
-        public T Put<T>(WebApiRoute route, ServerConfiguration webApi) => Put<T>(route, null, webApi);
 
         public T Put<T>(WebApiRoute route, object data) => Put<T>(route, data, null);
 

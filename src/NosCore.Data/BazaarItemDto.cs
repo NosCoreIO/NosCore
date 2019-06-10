@@ -17,22 +17,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations.Bazaar
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace NosCore.Data
 {
-    public enum BazaarListType : byte
+    public class BazaarItemDto : IDto
     {
-        Default = 0,
-        Weapon = 1,
-        Armor = 2,
-        Equipment = 3,
-        Jewelery = 4,
-        Specialist = 5,
-        Pet = 6,
-        Npc = 7,
-        Shell = 8,
-        Main = 9,
-        Usable = 10,
-        Other = 11,
-        Vehicle = 12
+        public short Amount { get; set; }
+        [Key]
+        public long BazaarItemId { get; set; }
+
+        public DateTime DateStart { get; set; }
+
+        public short Duration { get; set; }
+
+        public bool IsPackage { get; set; }
+
+        public Guid ItemInstanceId { get; set; }
+
+        public bool MedalUsed { get; set; }
+
+        public long Price { get; set; }
+
+        public long SellerId { get; set; }
     }
 }

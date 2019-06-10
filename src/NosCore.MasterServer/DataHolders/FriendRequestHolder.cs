@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reactive.Subjects;
-using System.Text;
 
-namespace NosCore.MasterServer
+namespace NosCore.MasterServer.DataHolders
 {
     public class FriendRequestHolder
     {

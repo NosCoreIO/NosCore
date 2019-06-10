@@ -17,17 +17,81 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Auction;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Core.Networking;
+using NosCore.Data;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Bazaar;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CSListPacketHandler : PacketHandler<CSListPacket>, IWorldPacketHandler
     {
+        private readonly IWebApiAccess _webApiAccess;
+
+        public CSListPacketHandler(IWebApiAccess webApiAccess)
+        {
+            _webApiAccess = webApiAccess;
+        }
+
         public override void Execute(CSListPacket packet, ClientSession clientSession)
         {
+            var list = new List<RcsListPacket.RcsListElementPacket>();
+            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"{packet.Index}&pageSize=50&TypeFilter=0&SubTypeFilter=0&LevelFilter=0&RareFilter=0&UpgradeFilter=0&sellerFilter={clientSession.Character.CharacterId}") ?? new List<BazaarLink>();
+
+            foreach (var bz in bzlist)
+            {
+                int soldedAmount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
+                int amount = bz.BazaarItem.Amount;
+                bool isNosbazar = bz.BazaarItem.MedalUsed;
+                long price = bz.BazaarItem.Price;
+                long minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - DateTime.Now).TotalMinutes;
+                var status = minutesLeft >= 0 ? (soldedAmount < amount ? BazaarStatusType.OnSale : BazaarStatusType.Solded) : BazaarStatusType.DelayExpired;
+                if (status == BazaarStatusType.DelayExpired)
+                {
+                    minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) - DateTime.Now).TotalMinutes;
+                }
+
+                var info = new EInfoPacket();
+
+                if (packet.Filter == BazaarStatusType.Default || packet.Filter == status)
+                {
+                    list.Add(new RcsListPacket.RcsListElementPacket()
+                    {
+                        AuctionId = bz.BazaarItem.BazaarItemId,
+                        OwnerId = bz.BazaarItem.SellerId,
+                        ItemId = bz.ItemInstance.ItemVNum,
+                        SoldAmount = soldedAmount,
+                        Amount = amount,
+                        IsPackage = bz.BazaarItem.IsPackage,
+                        Status = status,
+                        Price = price,
+                        MinutesLeft = minutesLeft,
+                        IsSellerUsingMedal = isNosbazar,
+                        Unknown = 0,
+                        Rarity = bz.ItemInstance.Rare,
+                        Upgrade = bz.ItemInstance.Upgrade,
+                        EInfo = info
+                    });
+                }
+            }
+
+            clientSession.SendPacket(new RcsListPacket
+            {
+                PageNumber = packet.Index,
+                Items = list
+            });
         }
     }
 }
