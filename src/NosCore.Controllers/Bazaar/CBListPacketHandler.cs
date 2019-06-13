@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"{packet.Index}&PageSize=50&TypeFilter={packet.TypeFilter}&SubTypeFilter={packet.SubTypeFilter}&LevelFilter={packet.LevelFilter}&RareFilter={packet.RareFilter}&UpgradeFilter={packet.UpgradeFilter}&SellerFilter={null}") ?? new List<BazaarLink>();
+            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"-1&Index={packet.Index}&PageSize=50&TypeFilter={packet.TypeFilter}&SubTypeFilter={packet.SubTypeFilter}&LevelFilter={packet.LevelFilter}&RareFilter={packet.RareFilter}&UpgradeFilter={packet.UpgradeFilter}&SellerFilter={null}") ?? new List<BazaarLink>();
             var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down

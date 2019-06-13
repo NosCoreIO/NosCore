@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public override void Execute(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket>();
-            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"{packet.Index}&pageSize=50&TypeFilter=0&SubTypeFilter=0&LevelFilter=0&RareFilter=0&UpgradeFilter=0&sellerFilter={clientSession.Character.CharacterId}") ?? new List<BazaarLink>();
+            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"-1&Index={packet.Index}&pageSize=50&TypeFilter=0&SubTypeFilter=0&LevelFilter=0&RareFilter=0&UpgradeFilter=0&sellerFilter={clientSession.Character.CharacterId}") ?? new List<BazaarLink>();
 
             foreach (var bz in bzlist)
             {

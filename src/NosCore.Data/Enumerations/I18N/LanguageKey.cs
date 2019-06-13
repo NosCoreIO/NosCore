@@ -259,6 +259,7 @@ namespace NosCore.Data.Enumerations.I18N
         ITEM_TIMEOUT,
         PRICE_EXCEEDED,
         LIMIT_EXCEEDED,
-        OBJECT_IN_BAZAAR
+        OBJECT_IN_BAZAAR,
+        REMOVE_FROM_BAZAAR
     }
 }
