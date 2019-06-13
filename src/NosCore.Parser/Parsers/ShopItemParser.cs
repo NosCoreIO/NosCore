@@ -108,8 +108,11 @@ namespace NosCore.Parser.Parsers
                     }
                 }
             }
-
-            IEnumerable<ShopItemDto> shopItemDtos = shopitems;
+            IEnumerable<ShopItemDto> shopItemDtos = shopitems.OrderBy(s=>s.Slot).ToList();
+            for (byte i = 0; i < shopitems.Count; i++)
+            {
+                shopItemDtos.ElementAt(i).Slot = i;
+            }
 
             _shopItemDao.InsertOrUpdate(shopItemDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
