@@ -35,7 +35,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public List<BazaarLink> GetBazaar(long id, byte pageSize, BazaarListType TypeFilter, byte SubTypeFilter, byte LevelFilter, byte RareFilter, byte UpgradeFilter, long? sellerFilter)
+        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? TypeFilter, byte? SubTypeFilter, byte? LevelFilter, byte? RareFilter, byte? UpgradeFilter, long? sellerFilter)
         {
             var bzlist = new List<Data.WebApi.BazaarLink>();
 
@@ -47,7 +47,17 @@ namespace NosCore.MasterServer.Controllers
             PocketType? pocketType = null;
             ItemType? itemType = null;
             byte? subtypeFilter = null;
-            foreach (var bz in _holder.BazaarItems.Values.Where(s => s.BazaarItem.SellerId == sellerFilter || sellerFilter == null))
+            IEnumerable<BazaarLink> bzlinks;
+            if (id != -1)
+            {
+                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem.BazaarItemId == id);
+            }
+            else
+            {
+                bzlinks = _holder.BazaarItems.Values.Where(s =>  s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
+            }
+
+            foreach (var bz in bzlinks)
             {
                 switch (TypeFilter)
                 {
@@ -141,7 +151,7 @@ namespace NosCore.MasterServer.Controllers
                 bzlist.Add(bz);
             }
             //todo this need to be move to the filter when done
-            return bzlist.Skip((int)(id * pageSize)).Take(pageSize).ToList();
+            return bzlist.Skip((int)(index * pageSize)).Take((byte)pageSize).ToList();
         }
 
         [HttpPost]
