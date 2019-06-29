@@ -329,9 +329,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Slot = item.Slot,
                         Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
+                        RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
                             : item.Amount,
-                        UpgradeDesign = item.Type == (byte)NoscorePocketType.Equipment
+                        UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
                             ? (item.ItemInstance.Item.IsColored
                                 ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
                         VNum = item.ItemInstance.Item.VNum

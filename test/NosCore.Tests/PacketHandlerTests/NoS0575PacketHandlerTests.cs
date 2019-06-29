@@ -10,7 +10,9 @@ using NosCore.Core.Encryption;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
 
@@ -30,17 +32,17 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _loginConfiguration = new LoginConfiguration();
             _webApiAccess = new Mock<IWebApiAccess>();
-            _noS0575PacketHandler = new NoS0575PacketHandler(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object);
+            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object));
         }
 
         [TestMethod]
         public void LoginOldClient()
         {
-            _loginConfiguration.ClientData = "123456";
+            _loginConfiguration.ClientVersion = new ClientVersionSubPacket() {Major = 1};
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = _session.Account.Name.ToUpperInvariant()
+                Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -53,7 +55,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = "noaccount"
+                Username = "noaccount"
             }, _session);
 
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -66,7 +68,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = _session.Account.Name.ToUpperInvariant()
+                Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -81,7 +83,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = _session.Account.Name
+                Username = _session.Account.Name
             }, _session);
 
             Assert.IsTrue(_session.LastPacket is NsTestPacket);
@@ -96,7 +98,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = _session.Account.Name
+                Username = _session.Account.Name
             }, _session);
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AlreadyConnected);
@@ -110,7 +112,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
-                Name = _session.Account.Name
+                Username = _session.Account.Name
             }, _session);
             Assert.IsTrue(_session.LastPacket is FailcPacket);
             Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.CantConnect);
