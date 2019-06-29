@@ -33,21 +33,22 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.LoginService;
 
 namespace NosCore.PacketHandlers.Login
 {
     public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
-        private readonly LoginService _loginService;
+        private readonly ILoginService _loginService;
 
-        public NoS0575PacketHandler(LoginService loginService)
+        public NoS0575PacketHandler(ILoginService loginService)
         {
             _loginService = loginService;
         }
 
         public override void Execute(NoS0575Packet packet, ClientSession clientSession)
         {
-            _loginService.Login(packet.Name, packet.Md5String, packet.ClientVersion, clientSession, packet.Password, false);
+            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password, false);
         }
     }
 }

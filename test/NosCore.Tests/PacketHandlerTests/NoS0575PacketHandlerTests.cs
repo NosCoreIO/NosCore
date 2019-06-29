@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
 
