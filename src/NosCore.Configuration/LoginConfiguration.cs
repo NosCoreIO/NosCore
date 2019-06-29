@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.ClientPackets.Login;
 using NosCore.Data.Enumerations;
 
 namespace NosCore.Configuration
@@ -32,6 +33,7 @@ namespace NosCore.Configuration
 
         public RegionType UserLanguage { get; set; }
 
-        public string ClientData { get; set; }
+        public ClientVersionSubPacket ClientVersion { get; set; }
+        public string Md5String { get; set; }
     }
 }
