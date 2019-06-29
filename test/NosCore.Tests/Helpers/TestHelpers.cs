@@ -23,6 +23,7 @@ using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;

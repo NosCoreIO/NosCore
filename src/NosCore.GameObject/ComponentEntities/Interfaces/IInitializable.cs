@@ -1,4 +1,4 @@
-﻿namespace NosCore.GameObject
+﻿namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IInitializable
     {

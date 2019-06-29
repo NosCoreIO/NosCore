@@ -12,9 +12,9 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.GameObject.Networking.LoginService
 {
-    public class LoginService
+    public class LoginService : ILoginService
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
