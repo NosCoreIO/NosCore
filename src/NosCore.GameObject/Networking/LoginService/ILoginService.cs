@@ -17,23 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.ClientPackets.Login;
-using NosCore.Data.Enumerations;
 
-namespace NosCore.Configuration
+namespace NosCore.GameObject.Networking.LoginService
 {
-    public class LoginConfiguration : ServerConfiguration
+    public interface ILoginService
     {
-        [Required]
-        public WebApiConfiguration MasterCommunication { get; set; }
-
-        [Required]
-        public SqlConnectionConfiguration Database { get; set; }
-
-        public RegionType UserLanguage { get; set; }
-
-        public ClientVersionSubPacket ClientVersion { get; set; }
-        public string Md5String { get; set; }
+        void Login(string username, string md5String, ClientVersionSubPacket clientVersion, ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
     }
 }

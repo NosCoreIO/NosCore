@@ -45,6 +45,7 @@ using System.Collections.Generic;
 using System.Windows.Input;
 using NosCore.Core.Networking;
 using NosCore.GameObject;
+using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers;
 using NosCore.PacketHandlers.Login;
 
@@ -102,6 +103,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
+            containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
 
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -114,7 +116,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => (p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" || p.Name == "NoS0575Packet") 
+                .Where(p => (p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" || p.Namespace == "ChickenAPI.Packets.ClientPackets.Login") 
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
