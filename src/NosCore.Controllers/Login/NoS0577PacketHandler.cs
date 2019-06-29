@@ -36,18 +36,18 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Login
 {
-    public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
+    public class NoS0577PacketHandler : PacketHandler<NoS0577Packet>, ILoginPacketHandler
     {
         private readonly LoginService _loginService;
 
-        public NoS0575PacketHandler(LoginService loginService)
+        public NoS0577PacketHandler(LoginService loginService)
         {
             _loginService = loginService;
         }
 
-        public override void Execute(NoS0575Packet packet, ClientSession clientSession)
+        public override void Execute(NoS0577Packet packet, ClientSession clientSession)
         {
-            _loginService.Login(packet.Name, packet.Md5String, packet.ClientVersion, clientSession, packet.Password, false);
+            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.SessionToken, true);
         }
     }
 }
