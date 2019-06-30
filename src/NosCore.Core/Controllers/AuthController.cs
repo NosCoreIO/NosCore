@@ -112,13 +112,23 @@ namespace NosCore.Core.Controllers
 
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult IsConnectedToApi(string id, string token)
         {
-            if (SessionFactory.Instance.AuthCodes.ContainsKey(id) && SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+            if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                SessionFactory.Instance.AuthCodes.TryRemove(id, out _);
-                return Ok(true);
+                if (token == "thisisgfmode")
+                {
+                    if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id))
+                    {
+                        SessionFactory.Instance.ReadyForAuth.TryRemove(id, out _);
+                        return Ok(true);
+                    }
+                }
+                else if (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+                {
+                    SessionFactory.Instance.ReadyForAuth.TryAdd(id, id);
+                    return Ok(true);
+                }
             }
             return Ok(false);
         }
