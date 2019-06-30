@@ -31,8 +31,12 @@ namespace NosCore.Core.Networking
         private SessionFactory()
         {
             Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
+            AuthCodes = new ConcurrentDictionary<string, string>();
         }
+
         public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
+
+        public ConcurrentDictionary<string, string> AuthCodes { get; }
 
         public int GenerateSessionId()
         {

@@ -30,5 +30,6 @@ namespace NosCore.Data.Enumerations
         Friend,
         Blacklist,
         Bazaar,
+        Auth,
     }
 }

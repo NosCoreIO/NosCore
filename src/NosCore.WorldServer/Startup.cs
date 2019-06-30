@@ -206,7 +206,7 @@ namespace NosCore.WorldServer
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
 
             //NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
@@ -303,7 +303,7 @@ namespace NosCore.WorldServer
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 
 
