@@ -171,7 +171,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             Color = null,
                             WorldCount = 10000,
                             WorldId = 10000,
-                            Name = useApiAuth ? "1" : "4"
+                            Name = useApiAuth ? "4" : "1"
                         }); //useless server to end the client reception
                         clientSession.SendPacket(new NsTestPacket
                         {
