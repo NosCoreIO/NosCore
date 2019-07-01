@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{name}&token=thisisgfmode") || account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase))
+                    if (_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{name}&token={packet.Password}") || account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto
                         {
