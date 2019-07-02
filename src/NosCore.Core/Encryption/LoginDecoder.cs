@@ -25,6 +25,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
@@ -45,7 +46,13 @@ namespace NosCore.Core.Encryption
             try
             {
                 var decryptedPacket = new StringBuilder();
-
+                var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
+                if (mapper.SessionId == 0)
+                {
+                    SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = SessionFactory.Instance.GenerateSessionId();
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), mapper.SessionId);
+                }
+               
                 foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes))
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
