@@ -19,11 +19,11 @@ using NosCore.Tests.Helpers;
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
-    public class NoS0575PacketHandlerTests
+    public class NoS0577PacketHandlerTests
     {
         private LoginConfiguration _loginConfiguration;
         private ClientSession _session;
-        private NoS0575PacketHandler _noS0575PacketHandler;
+        private NoS0577PacketHandler _noS0577PacketHandler;
         private Mock<IWebApiAccess> _webApiAccess;
         [TestInitialize]
         public void Setup()
@@ -32,16 +32,17 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _loginConfiguration = new LoginConfiguration();
             _webApiAccess = new Mock<IWebApiAccess>();
-            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object));
+            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object));
+            _webApiAccess.Setup(s => s.Get<bool>(WebApiRoute.Auth, It.IsAny<string>())).Returns((WebApiRoute a, string b) => b == @"AccountTest101&token=5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49&sessionId=0");
         }
 
         [TestMethod]
         public void LoginOldClient()
         {
             _loginConfiguration.ClientVersion = new ClientVersionSubPacket {Major = 1};
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
@@ -52,9 +53,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginNoAccount()
         {
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = "noaccount"
             }, _session);
 
@@ -65,9 +66,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginWrongCaps()
         {
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
@@ -76,11 +77,11 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void LoginWrongPAssword()
+        public void LoginWrongToken()
         {
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test1".ToSha512(),
+                AuthToken = "AA22AA22AA22".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
 
@@ -93,9 +94,9 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
             _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>());
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
 
@@ -108,9 +109,9 @@ namespace NosCore.Tests.PacketHandlerTests
             _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
             _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>
                 {new ConnectedAccount {Name = _session.Account.Name}});
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
             Assert.IsTrue(_session.LastPacket is FailcPacket);
@@ -122,9 +123,9 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo>());
             _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount)).Returns(new List<ConnectedAccount>());
-            _noS0575PacketHandler.Execute(new NoS0575Packet
+            _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                Password = "test".ToSha512(),
+                AuthToken = "AA11AA11AA11".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
             Assert.IsTrue(_session.LastPacket is FailcPacket);
