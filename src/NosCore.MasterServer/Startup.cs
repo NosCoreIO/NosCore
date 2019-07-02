@@ -128,8 +128,7 @@ namespace NosCore.MasterServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
-            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
-            containerBuilder.RegisterType<TokenController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
@@ -177,7 +176,7 @@ namespace NosCore.MasterServer
                         .Build();
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
-                .AddApplicationPart(typeof(TokenController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 

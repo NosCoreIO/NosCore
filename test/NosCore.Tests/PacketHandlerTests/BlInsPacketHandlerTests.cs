@@ -40,9 +40,9 @@ namespace NosCore.Tests.PacketHandlerTests
             _webApiAccess = new Mock<IWebApiAccess>();
             _blInsPacketHandler = new BlInsPackettHandler(_webApiAccess.Object);
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-             .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(null, _session.Character.Name))
-             .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-            .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
+            .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
             var blacklist = new BlacklistController(TestHelpers.Instance.WebApiMock.Object, _characterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.WebApiMock.Setup(s => s.Post<LanguageKey>(WebApiRoute.Blacklist, It.IsAny<BlacklistRequest>(), It.IsAny<ServerConfiguration>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest
@@ -81,7 +81,8 @@ namespace NosCore.Tests.PacketHandlerTests
 
             _blInsPacketHandler.Execute(blinsPacket, _session);
             Assert.IsNotNull(
-                _characterRelationDao.FirstOrDefault(s => _session.Character.CharacterId == s.CharacterId && targetSession.Character.CharacterId == s.RelatedCharacterId && s.RelationType == CharacterRelationType.Blocked));
+                _characterRelationDao.FirstOrDefault(s => _session.Character.CharacterId == s.CharacterId
+                    && targetSession.Character.CharacterId == s.RelatedCharacterId && s.RelationType == CharacterRelationType.Blocked));
         }
     }
 }

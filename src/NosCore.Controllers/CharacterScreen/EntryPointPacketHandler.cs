@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<MateDto> _mateDao;
         private readonly IWebApiAccess _webApiAccess;
 
-        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao, 
+        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,
             IGenericDao<MateDto> mateDao, ILogger logger, IWebApiAccess webApiAccess)
         {
             _adapter = adapter;
@@ -80,8 +80,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (account.Password.Equals(packet.Password.ToSha512(),
-                        StringComparison.OrdinalIgnoreCase))
+                    if (_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{name}&token={packet.Password}&sessionId={clientSession.SessionId}") || account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto
                         {
@@ -154,8 +153,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Slot = character.Slot,
                     Name = character.Name,
                     Unknown = 0,
-                    Gender =  character.Gender,
-                    HairStyle =  character.HairStyle,
+                    Gender = character.Gender,
+                    HairStyle = character.HairStyle,
                     HairColor = character.HairColor,
                     Unknown1 = 0,
                     Class = character.Class,

@@ -84,7 +84,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             clientSession.SendPacket(new RcbListPacket
             {
                 PageIndex = packet.Index,
-                Items = definitivelist.Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - DateTime.Now).TotalMinutes > 0 && s.ItemInstance.Amount > 0).Select(bzlink => new RcbListElementPacket
+                Items = definitivelist
+                    .Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - DateTime.Now).TotalMinutes > 0 && s.ItemInstance.Amount > 0)
+                    .Select(bzlink => new RcbListElementPacket
                 {
                     AuctionId = bzlink.BazaarItem.BazaarItemId,
                     OwnerId = bzlink.BazaarItem.SellerId,
