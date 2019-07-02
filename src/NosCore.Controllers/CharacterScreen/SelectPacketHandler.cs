@@ -47,7 +47,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
 
         public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
-            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao)
+            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
+            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -93,7 +94,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .ToList();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
-                inventories.ForEach(k => character.Inventory[k.ItemInstanceId] = InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
+                inventories.ForEach(k => character.Inventory[k.ItemInstanceId] =
+                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
 
 #pragma warning disable CS0618
                 clientSession.SendPackets(clientSession.Character.GenerateInv());

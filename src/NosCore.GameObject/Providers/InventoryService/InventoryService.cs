@@ -328,7 +328,8 @@ namespace NosCore.GameObject.Providers.InventoryService
                         sourcePocket.ItemInstance.Amount -= amount;
                         itemDest.Amount = amount;
                         itemDest.Id = Guid.NewGuid();
-                        AddItemToPocket(new InventoryItemInstance { Id = Guid.NewGuid(), CharacterId = sourcePocket.CharacterId, Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
+                        AddItemToPocket(new InventoryItemInstance { Id = Guid.NewGuid(), CharacterId = sourcePocket.CharacterId,
+                            Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
                         break;
                     default:
                         if (destinationPocket.ItemInstance.ItemVNum == sourcePocket.ItemInstance.ItemVNum
