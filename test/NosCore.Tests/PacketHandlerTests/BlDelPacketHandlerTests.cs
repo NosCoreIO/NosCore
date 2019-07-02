@@ -21,6 +21,7 @@ using Serilog;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
+    //todo fix
     //[TestClass]
     //public class BlDelPacketHandlerTests
     //{

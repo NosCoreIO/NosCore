@@ -77,12 +77,6 @@ namespace NosCore.Core.Networking
             Channel = channel;
         }
 
-        public override void ChannelActive(IChannelHandlerContext context)
-        {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED),
-                ClientId);
-        }
-
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
             if (exception is SocketException sockException)
@@ -90,9 +84,9 @@ namespace NosCore.Core.Networking
                 switch (sockException.SocketErrorCode)
                 {
                     case SocketError.ConnectionReset:
-                        _logger.Information(string.Format(
+                        _logger.Information(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED),
-                            ClientId));
+                            ClientId);
                         break;
                     default:
                         _logger.Fatal(exception.StackTrace);

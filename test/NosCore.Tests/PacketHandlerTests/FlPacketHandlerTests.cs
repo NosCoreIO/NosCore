@@ -53,9 +53,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterName = targetSession.Character.Name
             };
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-              .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
+              .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
             var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, friendRequestHolder, TestHelpers.Instance.WebApiMock.Object);
             TestHelpers.Instance.WebApiMock.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>()))
                 .Returns(friend.AddFriend(new FriendShipRequest

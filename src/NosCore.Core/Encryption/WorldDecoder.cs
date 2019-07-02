@@ -212,6 +212,7 @@ namespace NosCore.Core.Encryption
                     return;
                 }
                 SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = _sessionId;
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), mapper.SessionId);
                 temp.Add(pack);
                 if (endofPacket.Length == 0)
                 {

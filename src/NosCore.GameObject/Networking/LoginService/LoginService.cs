@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
+using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
@@ -31,6 +34,7 @@ namespace NosCore.GameObject.Networking.LoginService
         {
             try
             {
+                clientSession.SessionId = clientSession.Channel?.Id != null ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
                 if (false) //TODO Maintenance
                 {
                     clientSession.SendPacket(new FailcPacket
@@ -66,7 +70,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if (acc == null
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth/* && check Auth*/))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{username}&token={passwordToken}&sessionId={clientSession.SessionId}")))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -159,8 +163,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             });
                             i++;
                         }
-
-                        var newSessionId = SessionFactory.Instance.GenerateSessionId();
+                      
                         subpacket.Add(new NsTeStSubPacket
                         {
                             Host = "-1",
@@ -168,13 +171,14 @@ namespace NosCore.GameObject.Networking.LoginService
                             Color = null,
                             WorldCount = 10000,
                             WorldId = 10000,
-                            Name = "1"
+                            Name = useApiAuth ? "4" : "1"
                         }); //useless server to end the client reception
                         clientSession.SendPacket(new NsTestPacket
                         {
                             AccountName = username,
                             SubPacket = subpacket,
-                            SessionId = newSessionId
+                            SessionId = clientSession.SessionId,
+                            Unknown = useApiAuth ? 2 : (int?) null
                         });
                         return;
                 }

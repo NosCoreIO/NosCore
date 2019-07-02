@@ -1271,6 +1271,11 @@ namespace NosCore.GameObject
         {
             SpecialistInstance sp =
                 Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
+            if (sp == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
+                return;
+            }
             WearableInstance fairy =
                 Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 
@@ -1303,7 +1308,7 @@ namespace NosCore.GameObject
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
             SendPacket(GenerateLev());
             MapInstance.Sessions.SendPacket(this.GenerateEff(196));
-            MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
+            MapInstance.Sessions.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
