@@ -254,7 +254,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     }
 
                     var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
-                        amount: item.Key.ItemInstance.Amount, rare: (sbyte)item.Key.ItemInstance.Rare, upgrade: item.Key.ItemInstance.Upgrade, design: (byte)item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
+                        item.Key.ItemInstance.Amount, (sbyte)item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade, (byte)item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
 
                     items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
                         newItem.GeneratePocketChange((PocketType)item.Key.Type, item.Key.Slot)));

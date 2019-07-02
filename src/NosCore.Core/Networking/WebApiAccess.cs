@@ -51,7 +51,7 @@ namespace NosCore.Core.Networking
 
         public StringContent Content { get; private set; }
 
-        public void RegisterBaseAdress(Channel channel)
+        public void RegisterBaseAdress(Channel channel)    
         {
             if (string.IsNullOrEmpty(channel?.MasterCommunication?.ToString()))
             {

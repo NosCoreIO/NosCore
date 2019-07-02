@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -69,7 +70,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
-            account.Language = Enum.Parse<RegionType>(session.GfLang.ToUpper());
+            account.Language = Enum.Parse<RegionType>(session.GfLang.ToUpper(CultureInfo.CurrentCulture));
             _accountDao.InsertOrUpdate(ref account);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]

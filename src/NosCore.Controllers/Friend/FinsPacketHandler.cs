@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
@@ -108,6 +109,9 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         });
                         break;
+
+                    default:
+                        throw new ArgumentException();
                 }
             }
         }

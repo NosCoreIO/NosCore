@@ -38,7 +38,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginOldClient()
         {
-            _loginConfiguration.ClientVersion = new ClientVersionSubPacket() {Major = 1};
+            _loginConfiguration.ClientVersion = new ClientVersionSubPacket {Major = 1};
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),

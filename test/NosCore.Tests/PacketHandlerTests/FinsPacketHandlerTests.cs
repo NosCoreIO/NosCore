@@ -54,9 +54,9 @@ namespace NosCore.Tests.PacketHandlerTests
             _characterRelationDao = new GenericDao<NosCore.Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
             _webApiAccess.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
+                .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
             _webApiAccess.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(), new ConnectedAccount() { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
             _finsPacketHandler = new FinsPacketHandler(_webApiAccess.Object);
         }
 
