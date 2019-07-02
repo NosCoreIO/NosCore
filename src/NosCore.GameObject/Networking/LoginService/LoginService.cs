@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Networking.LoginService
         {
             try
             {
-                clientSession.SessionId = SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId;
+                clientSession.SessionId = clientSession.Channel?.Id != null ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
                 if (false) //TODO Maintenance
                 {
                     clientSession.SendPacket(new FailcPacket
