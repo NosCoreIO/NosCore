@@ -32,13 +32,13 @@ namespace NosCore.Core.Networking
         {
             Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
             AuthCodes = new ConcurrentDictionary<string, string>();
-            ReadyForAuth = new ConcurrentDictionary<string, string>();
+            ReadyForAuth = new ConcurrentDictionary<string, long>();
         }
 
         public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
 
         public ConcurrentDictionary<string, string> AuthCodes { get; }
-        public ConcurrentDictionary<string, string> ReadyForAuth { get; set; }
+        public ConcurrentDictionary<string, long> ReadyForAuth { get; set; }
 
         public int GenerateSessionId()
         {

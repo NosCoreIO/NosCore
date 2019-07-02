@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Networking.LoginService
         {
             try
             {
+                clientSession.SessionId = SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId;
                 if (false) //TODO Maintenance
                 {
                     clientSession.SendPacket(new FailcPacket
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if (acc == null
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{username}&token={passwordToken}")))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{username}&token={passwordToken}&sessionId={clientSession.SessionId}")))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -162,8 +163,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             });
                             i++;
                         }
-
-                        var newSessionId = SessionFactory.Instance.GenerateSessionId();
+                      
                         subpacket.Add(new NsTeStSubPacket
                         {
                             Host = "-1",
@@ -177,7 +177,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         {
                             AccountName = username,
                             SubPacket = subpacket,
-                            SessionId = newSessionId,
+                            SessionId = clientSession.SessionId,
                             Unknown = useApiAuth ? 2 : (int?) null
                         });
                         return;
