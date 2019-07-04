@@ -720,4 +720,85 @@
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>{0} a annulé l'échange.</value>
   </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Point de retour partagé.</value>
+  </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Authentication API succès.</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Ce joueur vous a blacklist.</value>
+  </data>
+  <data name="BUY_ITEM_FOR" xml:space="preserve">
+    <value>Achète l'item pour {0}</value>
+  </data>
+  <data name="EFFECT_ACTIVED" xml:space="preserve">
+    <value>Effet actif : {0}.</value>
+  </data>
+  <data name="ERROR_SESSIONID" xml:space="preserve">
+    <value>Une erreur de session id.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>Demande d'échange refusée.</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Vous avez quitter le groupe.</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Invitation de groupe refusée.</value>
+  </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} souhaite faire un échange. Acceptez-vous ?</value>
+  </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>Information du nosbazard.</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} t'invite dans un groupe. Acceptez-vous ?</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>En attente de la réponse.</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Temps d'utilisation de l'object terminé.</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>{0} a rejoint le groupe.</value>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} à quitter le groupe.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>La limite est dépassé.</value>
+  </data>
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve">
+    <value>Chargement des instance de map.</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>{0} ajouté au NosBazard.</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Impossible d'utilisé ce portail pour le moment.</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Le prix maximum est dépassé.</value>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>{0} enlevé du NosBazard.</value>
+  </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>Partage de point de retour refusé.</value>
+  </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>Vous avez déjà le nombre maximum de points SP.</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Indefini</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>{0} n'est pas connecté.</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Demande d'échange envoyée à {0}.</value>
+  </data>
 </root>
