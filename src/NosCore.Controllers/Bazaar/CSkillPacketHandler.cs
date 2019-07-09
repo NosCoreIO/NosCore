@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 clientSession.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, clientSession.Account.Language)
                 });
             }
         }
