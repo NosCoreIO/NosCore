@@ -256,6 +256,7 @@ namespace NosCore.Data.Enumerations.I18N
         SP_ADDPOINTS_FULL,
         PORTAL_DELAY,
         INFO_BAZAAR,
+        NO_BAZAAR_MEDAL,
         EFFECT_ACTIVATED,
         ITEM_TIMEOUT,
         PRICE_EXCEEDED,
