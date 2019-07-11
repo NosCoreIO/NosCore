@@ -37,7 +37,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
-            _webApiAccess = new Mock<IWebApiAccess>();
+            _webApiAccess = TestHelpers.Instance.WebApiMock;
             _blInsPacketHandler = new BlInsPackettHandler(_webApiAccess.Object);
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
              .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
@@ -65,7 +65,7 @@ namespace NosCore.Tests.PacketHandlerTests
             TestHelpers.Instance.WebApiMock.Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
             var blacklist = new BlacklistController(TestHelpers.Instance.WebApiMock.Object, _characterRelationDao, TestHelpers.Instance.CharacterDao);
-            TestHelpers.Instance.WebApiMock.Setup(s => s.Post<LanguageKey>(WebApiRoute.Blacklist, It.IsAny<BlacklistRequest>(), It.IsAny<ServerConfiguration>()))
+            TestHelpers.Instance.WebApiMock.Setup(s => s.Post<LanguageKey>(WebApiRoute.Blacklist, It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest
                 {
                     CharacterId = _session.Character.CharacterId,

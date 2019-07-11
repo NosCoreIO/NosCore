@@ -72,7 +72,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>()))
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
@@ -87,7 +87,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
 
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
@@ -102,7 +102,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>(), It.IsAny<ServerConfiguration>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
 
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
