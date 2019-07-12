@@ -37,6 +37,7 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using ChickenAPI.Packets.Interfaces;
+using NosCore.GameObject.HttpClients;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -70,10 +71,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
+        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IBlacklistHttpClient blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Blacklist, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var blackList = blacklistHttpClient.GetCharacterRelationStatus(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)
@@ -91,7 +92,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient)
         {
             //same canal
             var servers = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
