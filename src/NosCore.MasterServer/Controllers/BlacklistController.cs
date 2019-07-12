@@ -25,6 +25,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -41,10 +42,10 @@ namespace NosCore.MasterServer.Controllers
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IWebApiAccess _webApiAccess;
-        public BlacklistController(IWebApiAccess webApiAccess, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
+        private readonly IChannelHttpClient _channelHttpClient;
+        public BlacklistController(IChannelHttpClient channelHttpClient, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
         {
-            _webApiAccess = webApiAccess;
+            _channelHttpClient = channelHttpClient;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
         }
@@ -52,8 +53,8 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
-            var targetCharacter = _webApiAccess.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+            var character = _channelHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
+            var targetCharacter = _channelHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
             if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();

@@ -123,12 +123,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new FinitPacket { SubPackets = subpackets };
         }
 
-        public static void SendFinfo(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess, ISerializer packetSerializer, bool isConnected)
+        public static void SendFinfo(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
         {
-            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
             foreach (var friend in friendlist)
             {
-                webApiAccess.BroadcastPacket(new PostedPacket
+                packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[]
                    {
