@@ -29,6 +29,7 @@ using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -47,15 +48,17 @@ namespace NosCore.WorldServer
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
         private readonly IWebApiAccess _webApiAccess;
+        private readonly IChannelHttpClient _channelHttpClient;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events, ILogger logger, IWebApiAccess webApiAccess)
+            IEnumerable<IGlobalEvent> events, ILogger logger, IWebApiAccess webApiAccess, IChannelHttpClient channelHttpClient)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _events = events.ToList();
             _logger = logger;
             _webApiAccess = webApiAccess;
+            _channelHttpClient = channelHttpClient;
         }
 
         public void Run()
@@ -67,7 +70,7 @@ namespace NosCore.WorldServer
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
-            ConnectMaster();
+            _channelHttpClient.Connect();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();
@@ -87,37 +90,6 @@ namespace NosCore.WorldServer
             {
                 Console.ReadKey();
             }
-        }
-
-        private void ConnectMaster()
-        {
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512());
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
-            });
-            _webApiAccess.RegisterBaseAdress(new Channel
-            {
-                MasterCommunication = _worldConfiguration.MasterCommunication,
-                ClientName = _worldConfiguration.ServerName,
-                ClientType = ServerType.WorldServer,
-                ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
-                Port = _worldConfiguration.Port,
-                ServerGroup = _worldConfiguration.ServerGroup,
-                Host = _worldConfiguration.Host,
-                WebApi = _worldConfiguration.WebApi,
-                Token = handler.WriteToken(securityToken)
-            });
         }
     }
 }

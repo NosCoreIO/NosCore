@@ -50,6 +50,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.WorldServer.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using FastExpressionCompiler;
 using NosCore.Core;
 using NosCore.Core.Controllers;
@@ -73,10 +75,16 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
+using NosCore.Core.HttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
 using NosCore.PacketHandlers.Login;
+using Deserializer = ChickenAPI.Packets.Deserializer;
+using Serializer = ChickenAPI.Packets.Serializer;
 
 namespace NosCore.WorldServer
 {
@@ -191,7 +199,34 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
-
+            containerBuilder.RegisterType<ChannelHttpClient>().AsImplementedInterfaces();
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "Server"),
+                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+            });
+            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512());
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Issuer = "Issuer",
+                Audience = "Audience",
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+            });
+            containerBuilder.Register(c => new Channel
+            {
+                MasterCommunication = _worldConfiguration.MasterCommunication,
+                ClientName = _worldConfiguration.ServerName,
+                ClientType = ServerType.WorldServer,
+                ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
+                Port = _worldConfiguration.Port,
+                ServerGroup = _worldConfiguration.ServerGroup,
+                Host = _worldConfiguration.Host,
+                WebApi = _worldConfiguration.WebApi,
+                Token = handler.WriteToken(securityToken)
+            });
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -278,7 +313,13 @@ namespace NosCore.WorldServer
                 PreferHostingUrls = true,
                 Addresses = { _worldConfiguration.WebApi.ToString() }
             });
+            services.Configure<IServerAddressesFeature>(o =>
+            {
+                o.PreferHostingUrls = true;
+                o.Addresses.Add(_worldConfiguration.WebApi.ToString());
+            });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+            services.AddHttpClient();
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
                 {
@@ -305,7 +346,7 @@ namespace NosCore.WorldServer
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
-
+            services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
             var containerBuilder = new ContainerBuilder();
             InitializeContainer(containerBuilder);
