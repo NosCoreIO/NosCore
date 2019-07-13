@@ -105,7 +105,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)

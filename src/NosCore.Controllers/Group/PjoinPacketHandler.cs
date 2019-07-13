@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -22,11 +23,11 @@ namespace NosCore.PacketHandlers.Group
     public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IWebApiAccess _webApiAccess;
-        public PjoinPacketHandler(ILogger logger, IWebApiAccess webApiAccess)
+        private readonly IBlacklistHttpClient _blacklistHttpCLient;
+        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient)
         {
             _logger = logger;
-            _webApiAccess = webApiAccess;
+            _blacklistHttpCLient = blacklistHttpCLient;
         }
         public override void Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    var blacklisteds = _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
                     if (blacklisteds.Any(s => s.RelatedCharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket

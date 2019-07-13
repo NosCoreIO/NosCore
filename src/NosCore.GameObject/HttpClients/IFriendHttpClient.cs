@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Data.Enumerations.I18N;
@@ -9,5 +10,6 @@ namespace NosCore.GameObject.HttpClients
     public interface IFriendHttpClient
     {
         LanguageKey AddFriend(FriendShipRequest friendShipRequest);
+        List<CharacterRelationStatus> GetListFriends(long visualEntityVisualId);
     }
 }

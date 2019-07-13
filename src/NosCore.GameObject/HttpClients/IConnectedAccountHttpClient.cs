@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NosCore.GameObject.HttpClients
 {
-    interface IConnectedAccountHttpClient
+    public interface IConnectedAccountHttpClient
     {
     }
 }
