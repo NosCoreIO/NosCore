@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -22,15 +23,15 @@ namespace NosCore.PacketHandlers.Friend
     public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IWebApiAccess _webApiAccess;
-        public BlInsPackettHandler(IWebApiAccess webApiAccess)
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _blacklistHttpClient = blacklistHttpClient;
         }
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Blacklist, new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
+            var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Friend
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
                             session.Account.Language)
                     });
-                    session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
+                    session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
                     break;
                 default:
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));

@@ -9,11 +9,13 @@ using ChickenAPI.Packets.ServerPackets.Login;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -21,13 +23,17 @@ namespace NosCore.GameObject.Networking.LoginService
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IAuthHttpClient _authHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IWebApiAccess webApiAccess)
+        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient )
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
-            _webApiAccess = webApiAccess;
+            _authHttpClient = authHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public void Login(string username, string md5String, ClientVersionSubPacket clientVersion, ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)

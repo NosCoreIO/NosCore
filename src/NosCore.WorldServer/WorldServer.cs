@@ -47,17 +47,15 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly IWebApiAccess _webApiAccess;
         private readonly IChannelHttpClient _channelHttpClient;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events, ILogger logger, IWebApiAccess webApiAccess, IChannelHttpClient channelHttpClient)
+            IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _events = events.ToList();
             _logger = logger;
-            _webApiAccess = webApiAccess;
             _channelHttpClient = channelHttpClient;
         }
 

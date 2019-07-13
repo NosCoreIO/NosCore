@@ -23,6 +23,12 @@ namespace NosCore.PacketHandlers.Movement
             {
                 return;
             }
+            //todo check speed and distance
+            if (((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3) % 2 != walkPacket.Unknown)
+            {
+                //todo log and disconnect
+                return;
+            }
 
             if (session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
