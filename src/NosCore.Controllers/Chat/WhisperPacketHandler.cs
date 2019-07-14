@@ -19,6 +19,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -31,13 +32,15 @@ namespace NosCore.PacketHandlers.Chat
         private readonly ISerializer _packetSerializer;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
 
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient, IChannelHttpClient channelHttpClient)
+        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient, IChannelHttpClient channelHttpClient, IPacketHttpClient packetHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _blacklistHttpClient = blacklistHttpClient;
             _channelHttpClient = channelHttpClient;
+            _packetHttpClient = packetHttpClient;
         }
 
         public override void Execute(WhisperPacket whisperPacket, ClientSession session)
@@ -99,7 +102,7 @@ namespace NosCore.PacketHandlers.Chat
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                _webApiAccess.BroadcastPacket(new PostedPacket
+                _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },

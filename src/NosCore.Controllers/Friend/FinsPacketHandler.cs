@@ -6,6 +6,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -14,6 +15,8 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -23,9 +26,13 @@ namespace NosCore.PacketHandlers.Friend
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
         private readonly IFriendHttpClient _friendHttpClient;
-        public FinsPacketHandler(IFriendHttpClient friendHttpClient)
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _friendHttpClient = friendHttpClient;
+            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(FinsPacket finsPacket, ClientSession session)
@@ -99,8 +106,8 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         });
 
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
-                        session.Character.SendPacket(session.Character.GenerateFinit(_webApiAccess));
+                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
+                        session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

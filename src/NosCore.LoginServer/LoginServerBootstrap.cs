@@ -64,6 +64,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Database;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
+using NosCore.GameObject.HttpClients;
 
 namespace NosCore.LoginServer
 {
@@ -106,6 +107,10 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
+                .Where(t => t.Name.EndsWith("HttpClient"))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
             containerBuilder.Register(c => new Channel
             {
                 MasterCommunication = _loginConfiguration.MasterCommunication,

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Core;
-using NosCore.Data.Enumerations;
+﻿using System.Collections.Generic;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.HttpClients
+namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
    public class PacketHttpClient : IPacketHttpClient
    {

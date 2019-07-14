@@ -132,7 +132,6 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
-            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

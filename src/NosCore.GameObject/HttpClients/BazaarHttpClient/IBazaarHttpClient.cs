@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.HttpClients
+namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
     public interface IBazaarHttpClient
     {

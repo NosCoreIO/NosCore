@@ -31,6 +31,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -41,14 +43,14 @@ namespace NosCore.PacketHandlers.Exchange
     public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         private readonly IExchangeProvider _exchangeProvider;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly ILogger _logger;
 
-        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger, IWebApiAccess webApiAccess)
+        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger, IBlacklistHttpClient blacklistHttpClient)
         {
             _exchangeProvider = exchangeProvider;
             _logger = logger;
-            _webApiAccess = webApiAccess;
+            _blacklistHttpClient = blacklistHttpClient;
         }
 
         public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -94,7 +96,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, clientSession.Character.VisualId) ?? new List<CharacterRelation>();
+                    var blacklisteds = _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
                     if (blacklisteds.Any(s => s.RelatedCharacterId == target.VisualId))
                     {
                         clientSession.SendPacket(new InfoPacket

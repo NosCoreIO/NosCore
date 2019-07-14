@@ -39,7 +39,6 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
-        private readonly IWebApiAccess _webApiAccess;
         private readonly IChannelHttpClient _channelHttpClient;
 
         public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient)

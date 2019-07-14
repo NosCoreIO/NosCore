@@ -22,6 +22,7 @@ using System.Linq;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -29,6 +30,9 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
+using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -36,10 +40,14 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetLevelCommandPacketHandler : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
-        public SetLevelCommandPacketHandler(IWebApiAccess webApiAccess)
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IStatHttpClient _statHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public SetLevelCommandPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _channelHttpClient = channelHttpClient;
+            _statHttpClient = statHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(SetLevelCommandPacket levelPacket, ClientSession session)
@@ -57,7 +65,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var channels = _channelHttpClient.GetChannels()
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount receiver = null;
@@ -66,7 +74,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts =
-                    _webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
+                    _connectedAccountHttpClient.GetConnectedAccount(channel.WebApi);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 
@@ -87,7 +95,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, config);
+            _statHttpClient.ChangeStat(data, config);
         }
     }
 }

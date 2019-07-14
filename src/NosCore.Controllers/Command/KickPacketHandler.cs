@@ -22,6 +22,7 @@ using System.Linq;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -29,21 +30,25 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
-        public KickPacketHandler(IWebApiAccess webApiAccess)
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        public KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IChannelHttpClient channelHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = _webApiAccess.GetCharacter(null, kickPacket.Name);
+            var receiver = _channelHttpClient.GetCharacter(null, kickPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -55,7 +60,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _webApiAccess.Delete<ConnectedAccount>(WebApiRoute.Session, receiver.Item1, receiver.Item2.ConnectedCharacter.Id);
+            _connectedAccountHttpClient.Disconnect(receiver.Item1, receiver.Item2.ConnectedCharacter.Id);
         }
     }
 }
