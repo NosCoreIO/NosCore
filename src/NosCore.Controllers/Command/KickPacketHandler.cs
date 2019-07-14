@@ -23,6 +23,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = _channelHttpClient.GetCharacter(null, kickPacket.Name);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

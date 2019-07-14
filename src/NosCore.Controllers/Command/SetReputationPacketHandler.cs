@@ -31,6 +31,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
@@ -39,11 +40,11 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetReputationPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
+        public SetReputationPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IStatHttpClient statHttpClient)
         {
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
             _statHttpClient = statHttpClient;
         }
 
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = setReputationPacket.Reputation
             };
 
-            var receiver = _channelHttpClient.GetCharacter(null, setReputationPacket.Name);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(null, setReputationPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

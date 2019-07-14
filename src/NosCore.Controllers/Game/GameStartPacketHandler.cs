@@ -9,6 +9,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Interaction;
@@ -19,6 +20,7 @@ using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Game

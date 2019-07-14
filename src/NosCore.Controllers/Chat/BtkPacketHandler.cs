@@ -14,7 +14,9 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -26,14 +28,14 @@ namespace NosCore.PacketHandlers.Chat
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
         private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IPacketHttpClient packetHttpClient)
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient, IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _friendHttpClient = friendHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
         }
 
@@ -65,7 +67,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = _channelHttpClient.GetCharacter(btkPacket.CharacterId, null);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

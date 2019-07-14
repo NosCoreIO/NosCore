@@ -20,6 +20,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -31,15 +33,15 @@ namespace NosCore.PacketHandlers.Chat
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
 
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient, IChannelHttpClient channelHttpClient, IPacketHttpClient packetHttpClient)
+        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _blacklistHttpClient = blacklistHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
         }
 
@@ -77,7 +79,7 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = _channelHttpClient.GetCharacter(null, receiverName);
+                var receiver =  _connectedAccountHttpClient.GetCharacter(null, receiverName);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {

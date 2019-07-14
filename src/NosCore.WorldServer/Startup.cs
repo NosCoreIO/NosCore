@@ -78,10 +78,14 @@ using ChickenAPI.Packets.Interfaces;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.PacketHandlers.Login;
 using Deserializer = ChickenAPI.Packets.Deserializer;
 using Serializer = ChickenAPI.Packets.Serializer;
@@ -199,6 +203,8 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()

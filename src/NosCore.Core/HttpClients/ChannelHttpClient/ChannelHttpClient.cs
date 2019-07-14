@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using Polly;
 using Serilog;
 
-namespace NosCore.Core.HttpClients
+namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
     public class ChannelHttpClient : IChannelHttpClient
     {
@@ -88,25 +84,6 @@ namespace NosCore.Core.HttpClients
         public string GetOrRefreshToken()
         {
             return _token;
-        }
-
-
-        public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
-        {
-            //var channels = MasterClientListSingleton.Instance.Channels ?? Get<List<ChannelInfo>>(WebApiRoute.Channel);
-            //foreach (var channel in (channels ?? new List<ChannelInfo>()).Where(c => c.Type == ServerType.WorldServer))
-            //{
-            //    var accounts = Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, channel.WebApi);
-
-            //    var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == characterName || s.ConnectedCharacter.Id == characterId);
-
-            //    if (target != null)
-            //    {
-            //        return (channel.WebApi, target);
-            //    }
-            //}
-
-            return (null, null);
         }
 
         public List<ChannelInfo> GetChannels()

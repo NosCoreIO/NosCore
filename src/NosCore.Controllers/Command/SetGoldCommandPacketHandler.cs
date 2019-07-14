@@ -32,6 +32,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
@@ -40,11 +41,11 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetGoldCommandPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
+        public SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IStatHttpClient statHttpClient)
         {
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
             _statHttpClient = statHttpClient;
         }
 
@@ -57,7 +58,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = _channelHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

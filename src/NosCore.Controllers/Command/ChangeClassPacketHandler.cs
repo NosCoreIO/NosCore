@@ -31,6 +31,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
@@ -40,11 +41,11 @@ namespace NosCore.PacketHandlers.Command
     public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
         private readonly IStatHttpClient _statHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        public ChangeClassPacketHandler(IStatHttpClient statHttpClient, IChannelHttpClient channelHttpClient)
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public ChangeClassPacketHandler(IStatHttpClient statHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _statHttpClient = statHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = (byte)changeClassPacket.ClassType,
             };
 
-            var receiver = _channelHttpClient.GetCharacter(null, changeClassPacket.Name);
+            var receiver = _connectedAccountHttpClient.GetCharacter(null, changeClassPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

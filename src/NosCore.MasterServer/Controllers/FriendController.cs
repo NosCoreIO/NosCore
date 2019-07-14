@@ -25,6 +25,7 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -32,6 +33,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.MasterServer.DataHolders;
 using Serilog;
 
@@ -45,23 +47,23 @@ namespace NosCore.MasterServer.Controllers
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly ILogger _logger;
         private readonly FriendRequestHolder _friendRequestHolder;
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao,
-            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IChannelHttpClient channelHttpClient)
+            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
 
         [HttpPost]
         public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            var character = _channelHttpClient.GetCharacter(friendPacket.CharacterId, null);
-            var targetCharacter = _channelHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            var character =  _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
+            var targetCharacter =  _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
               s.Value.Item2 == character.Item2.ConnectedCharacter.Id && s.Value.Item1 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
             if (character.Item2 != null && targetCharacter.Item2 != null)
@@ -151,7 +153,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _channelHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected =  _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });

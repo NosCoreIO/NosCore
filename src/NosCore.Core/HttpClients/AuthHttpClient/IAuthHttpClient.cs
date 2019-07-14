@@ -1,4 +1,4 @@
-﻿namespace NosCore.GameObject.HttpClients.AuthHttpClient
+﻿namespace NosCore.Core.HttpClients.AuthHttpClient
 {
     public interface IAuthHttpClient
     {

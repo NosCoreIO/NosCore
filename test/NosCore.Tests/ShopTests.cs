@@ -47,6 +47,8 @@ using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -65,7 +67,8 @@ namespace NosCore.Tests
     public class ShopTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private IWebApiAccess _webApiAccess;
+        private IFriendHttpClient _friendHttpClient;
+        private IPacketHttpClient _packetHttpClient;
         MapInstanceProvider _instanceProvider;
         private ClientSession _session;
 
@@ -74,7 +77,7 @@ namespace NosCore.Tests
         {
             Broadcaster.Reset();
             TestHelpers.Reset();
-            _webApiAccess = new Mock<IWebApiAccess>().Object;
+            _friendHttpClient = new Mock<IFriendHttpClient>().Object;
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
             _session = TestHelpers.Instance.GenerateSession();
@@ -249,7 +252,7 @@ namespace NosCore.Tests
         private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
-            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _webApiAccess, null);
+            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _friendHttpClient, null, _packetHttpClient);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };

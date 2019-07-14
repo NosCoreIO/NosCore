@@ -46,6 +46,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -77,9 +78,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : base(logger)
         {
             _logger = logger;
-            _packetsHandlers = packetsHandlers;
+            _packetsHandlers = packetsHandlers.ToList();
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
+            _packetHttpClient = packetHttpClient;
 
             if (configuration is WorldConfiguration worldConfiguration)
             {
@@ -87,7 +89,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 _mapInstanceProvider = mapInstanceProvider;
                 _exchangeProvider = exchangeProvider;
                 _isWorldClient = true;
-                foreach (var handler in packetsHandlers)
+                foreach (var handler in _packetsHandlers)
                 {
                     var type = handler.GetType().BaseType.GenericTypeArguments[0];
                     if (!_attributeDic.ContainsKey(type))

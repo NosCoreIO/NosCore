@@ -27,6 +27,7 @@ using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -38,7 +39,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients;
-using NosCore.GameObject.HttpClients.AuthHttpClient;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -54,10 +55,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<MateDto> _mateDao;
         private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
         public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,
-            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IChannelHttpClient channelHttpClient)
+            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -65,7 +66,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _mateDao = mateDao;
             _logger = logger;
             _authHttpClient = authHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
@@ -73,7 +74,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (clientSession.Account == null)
             {
                 var name = packet.Name;
-                var alreadyConnnected = _channelHttpClient.GetCharacter(null, packet.Name).Item2 != null;
+                var alreadyConnnected = _connectedAccountHttpClient.GetCharacter(null, packet.Name).Item2 != null;
 
                 if (alreadyConnnected)
                 {
