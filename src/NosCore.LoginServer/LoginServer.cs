@@ -27,6 +27,7 @@ using NosCore.GameObject.Networking;
 using Serilog;
 using System.Threading;
 using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;

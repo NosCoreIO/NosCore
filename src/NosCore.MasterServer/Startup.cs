@@ -53,6 +53,10 @@ using NosCore.Database;
 using NosCore.Data;
 using NosCore.MasterServer.Controllers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.MasterServer.DataHolders;
@@ -132,6 +136,8 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
+            containerBuilder.RegisterType<ChannelHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;
@@ -152,6 +158,8 @@ namespace NosCore.MasterServer
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
             var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
+            services.AddHttpClient();
+            services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
