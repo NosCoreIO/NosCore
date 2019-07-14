@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
 
@@ -10,5 +11,6 @@ namespace NosCore.Core.HttpClients
         HttpStatusCode Ping();
         string GetOrRefreshToken();
         (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName);
+        List<ChannelInfo> GetChannels();
     }
 }

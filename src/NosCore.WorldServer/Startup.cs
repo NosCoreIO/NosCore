@@ -199,6 +199,10 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
+                .Where(t => t.Name.EndsWith("HttpClient"))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
             var claims = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, "Server"),

@@ -16,6 +16,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.AuthHttpClient;
+using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -76,7 +78,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if (acc == null
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{username}&token={passwordToken}&sessionId={clientSession.SessionId}")))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username,passwordToken,clientSession.SessionId)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -102,15 +104,14 @@ namespace NosCore.GameObject.Networking.LoginService
                         });
                         break;
                     default:
-                        var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                        var servers = _channelHttpClient.GetChannels()
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = _webApiAccess.Get<List<ConnectedAccount>>(
-                                WebApiRoute.ConnectedAccount,
+                            var channelList = _connectedAccountHttpClient.GetConnectedAccount(
                                 server.WebApi);
                             connectedAccount.Add(i, channelList);
                             i++;

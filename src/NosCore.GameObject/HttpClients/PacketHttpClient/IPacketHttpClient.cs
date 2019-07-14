@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.HttpClients
+namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
     public interface IPacketHttpClient
     {

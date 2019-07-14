@@ -13,6 +13,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
 
@@ -21,23 +23,22 @@ namespace NosCore.PacketHandlers.Friend
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
      
-        public BlDelPacketHandler(ILogger logger, IWebApiAccess webApiAccess)
+        public BlDelPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _blacklistHttpClient = blacklistHttpClient;
             _logger = logger;
         }
 
         public override void Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Blacklist,
-                session.Character.VisualId);
+            var list = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                _webApiAccess.Delete<IActionResult>(WebApiRoute.Blacklist, idtorem.CharacterRelationId);
-                session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
+                _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
+                session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
             }
             else
             {

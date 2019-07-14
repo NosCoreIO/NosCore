@@ -108,5 +108,10 @@ namespace NosCore.Core.HttpClients
 
             return (null, null);
         }
+
+        public List<ChannelInfo> GetChannels()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

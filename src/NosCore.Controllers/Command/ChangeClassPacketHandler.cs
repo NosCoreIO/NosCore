@@ -22,6 +22,7 @@ using System.Linq;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -29,6 +30,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -36,10 +39,12 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
-        public ChangeClassPacketHandler(IWebApiAccess webApiAccess)
+        private readonly IStatHttpClient _statHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        public ChangeClassPacketHandler(IStatHttpClient statHttpClient, IChannelHttpClient channelHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _statHttpClient = statHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
@@ -57,7 +62,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = (byte)changeClassPacket.ClassType,
             };
 
-            var receiver = _webApiAccess.GetCharacter(null, changeClassPacket.Name);
+            var receiver = _channelHttpClient.GetCharacter(null, changeClassPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -69,7 +74,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _webApiAccess.Post<StatData>(WebApiRoute.Stat, data, receiver.Item1);
+            _statHttpClient.ChangeStat(data, receiver.Item1);
         }
     }
 

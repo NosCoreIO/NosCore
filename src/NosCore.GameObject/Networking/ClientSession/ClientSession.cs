@@ -45,6 +45,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -64,15 +65,16 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer) : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient) { }
 
         public ClientSession(ServerConfiguration configuration,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer) : base(logger)
+            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers;

@@ -93,7 +93,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected = _channelHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });
