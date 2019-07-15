@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -88,7 +89,20 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public List<ChannelInfo> GetChannels()
         {
-            throw new NotImplementedException();
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+            var channels = MasterClientListSingleton.Instance.Channels;
+            if (!MasterClientListSingleton.Instance.Channels.Any())
+            {
+                var response = client.GetAsync($"api/channel").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+
+            return channels;
         }
     }
 }
