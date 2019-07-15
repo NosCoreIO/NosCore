@@ -9,7 +9,6 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
@@ -22,10 +21,10 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Disconnect(ServerConfiguration receiverItem1, long connectedCharacterId)
+        public void Disconnect(long connectedCharacterId)
         {
             var client = Connect();
-            throw new NotImplementedException();
+            client.DeleteAsync($"api/blacklist?id={connectedCharacterId}");
         }
 
         public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
