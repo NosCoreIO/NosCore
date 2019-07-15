@@ -24,6 +24,7 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -32,7 +33,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients;
-using NosCore.GameObject.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Command
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _connectedAccountHttpClient.Disconnect(receiver.Item1, receiver.Item2.ConnectedCharacter.Id);
+            _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
         }
     }
 }

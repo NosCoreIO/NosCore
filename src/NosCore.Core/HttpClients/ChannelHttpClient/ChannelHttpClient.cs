@@ -84,6 +84,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public string GetOrRefreshToken()
         {
+            //todo refresh before end
             return _token;
         }
 
