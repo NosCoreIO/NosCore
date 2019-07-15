@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
 
                     var blacklisteds = _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
-                    if (blacklisteds.Any(s => s.RelatedCharacterId == target.VisualId))
+                    if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         clientSession.SendPacket(new InfoPacket
                         {

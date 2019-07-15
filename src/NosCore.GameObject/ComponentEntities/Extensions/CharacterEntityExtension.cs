@@ -80,7 +80,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IBlacklistHttpClient blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = blacklistHttpClient.GetBlackListsStatus(visualEntity.VisualId);
+            var blackList = blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)

@@ -15,7 +15,7 @@ using Serilog;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
-    public class ChannelHttpClient : IChannelHttpClient
+    public class ChannelHttpClient: IChannelHttpClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Channel _channel;

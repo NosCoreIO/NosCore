@@ -7,25 +7,17 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.Core.HttpClients.AuthHttpClient
 {
-    public class AuthHttpClient : IAuthHttpClient
+    public class AuthHttpClient : NoscoreHttpClient, IAuthHttpClient
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly Channel _channel;
-        private readonly IChannelHttpClient _channelHttpClient;
-
         public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+            : base(httpClientFactory, channel, channelHttpClient)
         {
-            _httpClientFactory = httpClientFactory;
-            _channel = channel;
-            _channelHttpClient = channelHttpClient;
+
         }
 
         public bool IsAwaitingConnection(string name, string packetPassword, int clientSessionSessionId)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
-
+            var client = Connect();
             var response = client.GetAsync($"api/auth?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
             if (response.IsSuccessStatusCode)
             {

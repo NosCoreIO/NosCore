@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
-   public class PacketHttpClient : IPacketHttpClient
+   public class PacketHttpClient : NoscoreHttpClient, IPacketHttpClient
    {
+       public PacketHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+           : base(httpClientFactory, channel, channelHttpClient)
+       {
+
+       }
+
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
             throw new NotImplementedException();
