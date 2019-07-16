@@ -28,6 +28,7 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
@@ -59,7 +60,7 @@ namespace NosCore.Tests.PacketHandlerTests
 
             _pLeavePacketHandler = new PleavePacketHandler();
 
-            var mock = new Mock<IWebApiAccess>();
+            var mock = new Mock<IBlacklistHttpClient>();
             _pJoinPacketHandler = new PjoinPacketHandler(_logger, mock.Object);
         }
 
