@@ -25,13 +25,11 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FdelPacketHandler : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        public FdelPacketHandler(ILogger logger, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+        public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
-            _logger = logger;
             _friendHttpClient = friendHttpClient;
             _channelHttpClient = channelHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
