@@ -7,6 +7,9 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
@@ -24,16 +27,20 @@ namespace NosCore.Tests.PacketHandlerTests
         private LoginConfiguration _loginConfiguration;
         private ClientSession _session;
         private NoS0577PacketHandler _noS0577PacketHandler;
-        private Mock<IWebApiAccess> _webApiAccess;
+        private Mock<IAuthHttpClient> _authHttpClient;
+        private Mock<IChannelHttpClient> _channelHttpClient;
+        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
         [TestInitialize]
         public void Setup()
         {
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _loginConfiguration = new LoginConfiguration();
-            _webApiAccess = new Mock<IWebApiAccess>();
-            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _webApiAccess.Object));
-            _webApiAccess.Setup(s => s.Get<bool>(WebApiRoute.Auth, It.IsAny<string>())).Returns((WebApiRoute a, string b) => b == @"AccountTest101&token=5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49&sessionId=0");
+            _authHttpClient = new Mock<IAuthHttpClient>();
+            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
+            _authHttpClient.Setup(s => s.IsAwaitingConnection( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns((string a, string b, int c) => a == "AccountTest101" && b == @"5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49" && c == 0);
         }
 
         [TestMethod]
@@ -92,8 +99,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Login()
         {
-            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
-            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>());
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+                .Returns(new List<ConnectedAccount>());
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
                 AuthToken = "AA11AA11AA11".ToSha512(),
@@ -106,9 +114,10 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo> { new ChannelInfo() });
-            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, It.IsAny<ServerConfiguration>())).Returns(new List<ConnectedAccount>
-                {new ConnectedAccount {Name = _session.Account.Name}});
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+                .Returns(new List<ConnectedAccount>
+            { new ConnectedAccount {Name = _session.Account.Name}});
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
                 AuthToken = "AA11AA11AA11".ToSha512(),
@@ -121,8 +130,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginNoServer()
         {
-            _webApiAccess.Setup(s => s.Get<List<ChannelInfo>>(WebApiRoute.Channel)).Returns(new List<ChannelInfo>());
-            _webApiAccess.Setup(s => s.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount)).Returns(new List<ConnectedAccount>());
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo>());
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+                .Returns(new List<ConnectedAccount>());
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
                 AuthToken = "AA11AA11AA11".ToSha512(),

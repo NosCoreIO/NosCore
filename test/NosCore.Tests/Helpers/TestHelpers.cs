@@ -12,6 +12,8 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -19,11 +21,15 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -58,7 +64,12 @@ namespace NosCore.Tests.Helpers
         public static TestHelpers Instance => lazy.Value;
 
         public IGenericDao<AccountDto> AccountDao { get; }
-        public Mock<IWebApiAccess> WebApiMock = new Mock<IWebApiAccess>();
+        public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
+        public Mock<IChannelHttpClient> ChannelHttpClient = new Mock<IChannelHttpClient>();
+        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
+        public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
+        public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
+        
         private readonly IGenericDao<PortalDto> _portalDao;
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
@@ -67,15 +78,16 @@ namespace NosCore.Tests.Helpers
         private readonly ItemInstanceDao _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
-        public readonly IWebApiAccess _webApiAccess;
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
 
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
-
-            _webApiAccess = WebApiMock.Object;
+            BlacklistHttpClient.Setup(s => s.GetBlackLists(It.IsAny<long>()))
+                .Returns(new List<CharacterRelationStatus>());
+            FriendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
+                .Returns(new List<CharacterRelationStatus>());
             AccountDao = new GenericDao<Account, AccountDto>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
@@ -199,10 +211,10 @@ namespace NosCore.Tests.Helpers
             AccountDao.InsertOrUpdate(ref acc);
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
                 new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
-                    new BlInsPackettHandler(_webApiAccess),
+                    new BlInsPackettHandler(BlacklistHttpClient.Object),
                     new UseItemPacketHandler(),
-                    new FinsPacketHandler(_webApiAccess),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao) }, _webApiAccess, null)
+                    new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, ConnectedAccountHttpClient.Object),
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao) },FriendHttpClient.Object,null, PacketHttpClient.Object)
             {
                 SessionId = _lastId
             };
