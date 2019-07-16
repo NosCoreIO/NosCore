@@ -22,13 +22,11 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
      
-        public BlDelPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpClient)
+        public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient)
         {
             _blacklistHttpClient = blacklistHttpClient;
-            _logger = logger;
         }
 
         public override void Execute(BlDelPacket bldelPacket, ClientSession session)

@@ -72,10 +72,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) 
+            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient) { }
 
-        public ClientSession(ServerConfiguration configuration,
-            IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : base(logger)
+        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
