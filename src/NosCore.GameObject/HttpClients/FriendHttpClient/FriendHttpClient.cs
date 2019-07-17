@@ -14,44 +14,28 @@ using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {
-    public class FriendHttpClient : NoscoreHttpClient, IFriendHttpClient
+    public class FriendHttpClient : MasterServerHttpClient, IFriendHttpClient
     {
         public FriendHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
-
+            ApiUrl = "api/friend";
+            RequireConnection = true;
         }
 
         public LanguageKey AddFriend(FriendShipRequest friendShipRequest)
         {
-            var client = Connect();
-            var content = new StringContent(JsonConvert.SerializeObject(friendShipRequest),
-                Encoding.Default, "application/json");
-            var response = client.PostAsync("api/friend", content).Result;
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<LanguageKey>(response.Content.ReadAsStringAsync().Result);
-            }
-
-            throw new ArgumentException();
+            return Post<LanguageKey>(friendShipRequest);
         }
 
         public List<CharacterRelationStatus> GetListFriends(long visualEntityVisualId)
         {
-            var client = Connect();
-            var response = client.GetAsync($"api/friend?id={visualEntityVisualId}").Result;
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<List<CharacterRelationStatus>>(response.Content.ReadAsStringAsync().Result);
-            }
-
-            throw new ArgumentException();
+            return Get<List<CharacterRelationStatus>>(visualEntityVisualId);
         }
 
-        public void Delete(Guid characterRelationId)
+        public void DeleteFriend(Guid characterRelationId)
         {
-            var client = Connect();
-            client.DeleteAsync($"api/friend?id={characterRelationId}");
+            Delete(characterRelationId);
         }
     }
 }

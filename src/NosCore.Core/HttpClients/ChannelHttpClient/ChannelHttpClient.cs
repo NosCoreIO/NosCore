@@ -105,5 +105,23 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
             return channels;
         }
+
+        public ChannelInfo GetChannel(int channelId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+            var channels = MasterClientListSingleton.Instance.Channels;
+            if (!MasterClientListSingleton.Instance.Channels.Any())
+            {
+                var response = client.GetAsync($"api/channel?id={channelId}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+
+            return channels.FirstOrDefault();
+        }
     }
 }
