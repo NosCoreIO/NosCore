@@ -12,13 +12,14 @@ namespace NosCore.Core.HttpClients.AuthHttpClient
         public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
-
+            ApiUrl = "api/auth";
+            RequireConnection = true;
         }
 
         public bool IsAwaitingConnection(string name, string packetPassword, int clientSessionSessionId)
         {
             var client = Connect();
-            var response = client.GetAsync($"api/auth?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
+            var response = client.GetAsync($"{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
