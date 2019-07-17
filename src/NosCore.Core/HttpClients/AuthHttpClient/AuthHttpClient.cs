@@ -7,7 +7,7 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.Core.HttpClients.AuthHttpClient
 {
-    public class AuthHttpClient : NoscoreHttpClient, IAuthHttpClient
+    public class AuthHttpClient : MasterServerHttpClient, IAuthHttpClient
     {
         public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)

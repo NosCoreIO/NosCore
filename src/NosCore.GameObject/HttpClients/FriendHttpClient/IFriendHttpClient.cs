@@ -9,6 +9,6 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
     {
         LanguageKey AddFriend(FriendShipRequest friendShipRequest);
         List<CharacterRelationStatus> GetListFriends(long visualEntityVisualId);
-        void Delete(Guid characterRelationId);
+        void DeleteFriend(Guid characterRelationId);
     }
 }

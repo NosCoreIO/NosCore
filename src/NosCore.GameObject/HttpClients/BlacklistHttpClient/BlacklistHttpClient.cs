@@ -12,44 +12,28 @@ using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 {
-    public class BlacklistHttpClient : NoscoreHttpClient, IBlacklistHttpClient
+    public class BlacklistHttpClient : MasterServerHttpClient, IBlacklistHttpClient
     {
         public BlacklistHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient) 
             : base(httpClientFactory, channel, channelHttpClient)
         {
-
+            ApiUrl = "api/blacklist";
+            RequireConnection = true;
         }
 
         public List<CharacterRelationStatus> GetBlackLists(long characterVisualId)
         {
-            var client = Connect();
-            var response = client.GetAsync($"api/blacklist?id={characterVisualId}").Result;
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<List<CharacterRelationStatus>>(response.Content.ReadAsStringAsync().Result);
-            }
-
-            throw new ArgumentException();
+            return Get<List<CharacterRelationStatus>>(characterVisualId);
         }
 
         public LanguageKey AddToBlacklist(BlacklistRequest blacklistRequest)
         {
-            var client = Connect();
-            var content = new StringContent(JsonConvert.SerializeObject(blacklistRequest),
-                Encoding.Default, "application/json");
-            var response = client.PostAsync("api/blacklist", content).Result;
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonConvert.DeserializeObject<LanguageKey>(response.Content.ReadAsStringAsync().Result);
-            }
-
-            throw new ArgumentException();
+            return Post<LanguageKey>(blacklistRequest);
         }
 
         public void DeleteFromBlacklist(Guid characterRelationId)
         {
-            var client = Connect();
-            client.DeleteAsync($"api/blacklist?id={characterRelationId}");
+            Delete(characterRelationId);
         }
     }
 }

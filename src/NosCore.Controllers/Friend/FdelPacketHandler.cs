@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                _friendHttpClient.Delete(idtorem.CharacterRelationId);
+                _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId);
                 session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)

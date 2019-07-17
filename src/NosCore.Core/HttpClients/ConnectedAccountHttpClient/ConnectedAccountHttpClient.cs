@@ -12,19 +12,20 @@ using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
-    public class ConnectedAccountHttpClient : NoscoreHttpClient, IConnectedAccountHttpClient
+    public class ConnectedAccountHttpClient : MasterServerHttpClient, IConnectedAccountHttpClient
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        public ConnectedAccountHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient) 
+        public ConnectedAccountHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             _channelHttpClient = channelHttpClient;
+            ApiUrl = "api/blacklist";
+            RequireConnection = true;
         }
 
         public void Disconnect(long connectedCharacterId)
         {
-            var client = Connect();
-            client.DeleteAsync($"api/blacklist?id={connectedCharacterId}");
+            Delete(connectedCharacterId);
         }
 
         public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
@@ -45,7 +46,10 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 
         public List<ConnectedAccount> GetConnectedAccount(ServerConfiguration serverWebApi)
         {
-            var client = Connect();
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(serverWebApi.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+
             var response = client.GetAsync($"api/connectedAccount").Result;
             if (response.IsSuccessStatusCode)
             {

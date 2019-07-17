@@ -9,5 +9,6 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         HttpStatusCode Ping();
         string GetOrRefreshToken();
         List<ChannelInfo> GetChannels();
+        ChannelInfo GetChannel(int channelId);
     }
 }
