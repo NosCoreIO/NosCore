@@ -30,7 +30,8 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient )
+        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient, 
+            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient )
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
