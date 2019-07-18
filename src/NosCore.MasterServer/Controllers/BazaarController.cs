@@ -182,7 +182,7 @@ namespace NosCore.MasterServer.Controllers
             var bazaarItem = new BazaarItemDto
             {
                 Amount = bazaarRequest.Amount,
-                DateStart = DateTime.Now,
+                DateStart = SystemTime.Now(),
                 Duration = bazaarRequest.Duration,
                 IsPackage = bazaarRequest.IsPackage,
                 MedalUsed = bazaarRequest.HasMedal,
