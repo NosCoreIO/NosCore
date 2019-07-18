@@ -25,6 +25,7 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
@@ -87,7 +88,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
-                    .Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - DateTime.Now).TotalMinutes > 0 && s.ItemInstance.Amount > 0)
+                    .Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes > 0 && s.ItemInstance.Amount > 0)
                     .Select(bzlink => new RcbListElementPacket
                 {
                     AuctionId = bzlink.BazaarItem.BazaarItemId,
@@ -97,7 +98,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Amount = bzlink.ItemInstance.Amount,
                     IsPackage = bzlink.BazaarItem.IsPackage,
                     Price = bzlink.BazaarItem.Price,
-                    MinutesLeft = (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - DateTime.Now).TotalMinutes,
+                    MinutesLeft = (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes,
                     Unknown1 = false,
                     Unknown = 2,
                     Rarity = bzlink.ItemInstance.Rare,
