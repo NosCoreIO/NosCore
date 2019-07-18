@@ -2,8 +2,17 @@ language: csharp
 mono: none
 sudo: required
 dist: xenial
-dotnet: 2.2
+addons:
+    snaps:
+        - name: dotnet-sdk
+        classic: true
+        channel: latest/beta
+sudo: required
+language: csharp
+mono: none
 script:
+    - sudo snap alias dotnet-sdk.dotnet dotnet
+    - dotnet --version
     - dotnet restore
     - dotnet build
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST

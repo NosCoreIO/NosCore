@@ -38,6 +38,7 @@ using Serilog;
 namespace NosCore.Core.Controllers
 {
     [Route("api/[controller]")]
+    [AuthorizeRole(AuthorityType.Root)]
     public class ChannelController : Controller
     {
         private readonly WebApiConfiguration _apiConfiguration;
@@ -48,6 +49,26 @@ namespace NosCore.Core.Controllers
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
+        }
+
+        private string GenerateToken()
+        {
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "Server"),
+                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+            });
+            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
+            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var handler = new JwtSecurityTokenHandler();
+            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Issuer = "Issuer",
+                Audience = "Audience",
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+            });
+            return handler.WriteToken(securityToken);
         }
 
         [AllowAnonymous]
@@ -65,21 +86,6 @@ namespace NosCore.Core.Controllers
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
-            });
 
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(),
                 data.ClientName);
@@ -110,7 +116,17 @@ namespace NosCore.Core.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo { Token = handler.WriteToken(securityToken), ChannelInfo = data });
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
+        }
+
+        [HttpPut]
+        public IActionResult UpdateToken([FromBody] Channel data)
+        {
+            var channel = MasterClientListSingleton.Instance.Channels.First(s => s.Name == data.ClientName && s.Host == data.Host && s.Port == data.Port);
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(),
+                data.ClientName);
+            channel.Token = data.Token;
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 
         // GET api/channel

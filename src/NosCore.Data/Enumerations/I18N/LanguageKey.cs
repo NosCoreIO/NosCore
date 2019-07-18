@@ -139,7 +139,9 @@ namespace NosCore.Data.Enumerations.I18N
         ERROR_SESSIONID,
         PACKET_USED_WITHOUT_CHARACTER,
         AUTH_API_SUCCESS,
-        FRIEND_REQUEST_DISCONNECTED
+        FRIEND_REQUEST_DISCONNECTED,
+        TOKEN_UPDATED,
+        SECURITY_TOKEN_UPDATED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

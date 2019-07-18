@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto()
                 {
                     CharacterId = requestData.ClientSession.Character.CharacterId,
-                    DateEnd = DateTime.Now.AddDays(itemInstance.ItemInstance.Item.EffectValue),
+                    DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance.Item.EffectValue),
                     StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
                 });
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED, requestData.ClientSession.Account.Language),
