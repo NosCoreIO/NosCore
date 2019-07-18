@@ -113,20 +113,18 @@ namespace NosCore.Core.Controllers
 
 
         [HttpGet]
-        public IActionResult IsConnectedToApi(string id, string token, long sessionId)
+        public IActionResult IsExpectingConnection(string id, string token, long sessionId)
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                if (token == "thisisgfmode")
-                {
-                    if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) && sessionId == SessionFactory.Instance.ReadyForAuth[id])
-                    {
-                        return Ok(true);
-                    }
-                }
-                else if (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+                if (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
                 {
                     SessionFactory.Instance.ReadyForAuth.TryAdd(id, sessionId);
+                    return Ok(true);
+                }
+
+                if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) && sessionId == SessionFactory.Instance.ReadyForAuth[id])
+                {
                     return Ok(true);
                 }
             }
