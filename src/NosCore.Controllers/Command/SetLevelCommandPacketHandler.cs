@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts =
-                    _connectedAccountHttpClient.GetConnectedAccount(channel.WebApi);
+                    _connectedAccountHttpClient.GetConnectedAccount(channel);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
 

@@ -107,7 +107,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    connectedAccountHttpClient.GetConnectedAccount(server.WebApi));
+                    connectedAccountHttpClient.GetConnectedAccount(server));
             }
 
             var subpackets = new List<FinitSubPacket>();

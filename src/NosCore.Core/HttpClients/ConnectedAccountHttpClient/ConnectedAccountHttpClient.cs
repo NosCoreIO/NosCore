@@ -19,7 +19,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             : base(httpClientFactory, channel, channelHttpClient)
         {
             _channelHttpClient = channelHttpClient;
-            ApiUrl = "api/blacklist";
+            ApiUrl = "api/connectedAccount";
             RequireConnection = true;
         }
 
@@ -32,7 +32,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         {
             foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
             {
-                List<ConnectedAccount> accounts = GetConnectedAccount(channel.WebApi);
+                List<ConnectedAccount> accounts = GetConnectedAccount(channel);
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == characterName || s.ConnectedCharacter.Id == characterId);
 
                 if (target != null)
@@ -44,11 +44,11 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             return (null, null);
         }
 
-        public List<ConnectedAccount> GetConnectedAccount(ServerConfiguration serverWebApi)
+        public List<ConnectedAccount> GetConnectedAccount(ChannelInfo channel)
         {
             var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(serverWebApi.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+            client.BaseAddress = new Uri(channel.WebApi.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
             var response = client.GetAsync($"api/connectedAccount").Result;
             if (response.IsSuccessStatusCode)

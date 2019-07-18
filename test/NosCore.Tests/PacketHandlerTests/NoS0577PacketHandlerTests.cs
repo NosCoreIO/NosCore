@@ -100,7 +100,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Login()
         {
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
@@ -115,7 +115,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void LoginAlreadyConnected()
         {
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>
             { new ConnectedAccount {Name = _session.Account.Name}});
             _noS0577PacketHandler.Execute(new NoS0577Packet
@@ -131,7 +131,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void LoginNoServer()
         {
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo>());
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ServerConfiguration>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {

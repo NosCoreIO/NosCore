@@ -58,6 +58,7 @@ using Microsoft.Extensions.Http;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.MasterServer.DataHolders;
 
@@ -65,6 +66,7 @@ namespace NosCore.MasterServer
 {
     public class Startup
     {
+        private MasterConfiguration _configuration;
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
@@ -132,6 +134,13 @@ namespace NosCore.MasterServer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
+            containerBuilder.Register(c => new Channel
+            {
+                MasterCommunication = _configuration.WebApi,
+                ClientName = "Master Server",
+                ClientType = ServerType.MasterServer,
+                WebApi = _configuration.WebApi,
+            });
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
@@ -148,15 +157,15 @@ namespace NosCore.MasterServer
         {
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
-            var configuration = InitializeConfiguration();
+            _configuration = InitializeConfiguration();
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { configuration.WebApi.ToString() }
+                Addresses = { _configuration.WebApi.ToString() }
             });
-            LogLanguage.Language = configuration.Language;
+            LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
-            var keyByteArray = Encoding.Default.GetBytes(configuration.WebApi.Password.ToSha512());
+            var keyByteArray = Encoding.Default.GetBytes(_configuration.WebApi.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddHttpClient();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
@@ -189,8 +198,8 @@ namespace NosCore.MasterServer
 
             services.AddSignalR();
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(configuration).As<MasterConfiguration>();
-            containerBuilder.RegisterInstance(configuration.WebApi).As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(_configuration).As<MasterConfiguration>();
+            containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             Task.Run(() => container.Resolve<MasterServer>().Run());
