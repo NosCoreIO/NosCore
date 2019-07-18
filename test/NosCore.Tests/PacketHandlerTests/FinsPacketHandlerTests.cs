@@ -25,6 +25,9 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.MasterServer.DataHolders;
 using Character = NosCore.GameObject.Character;
 
@@ -40,8 +43,9 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession _targetSession;
         private IGenericDao<CharacterRelationDto> _characterRelationDao;
         private FriendRequestHolder _friendRequestHolder;
-        private Mock<IWebApiAccess> _webApiAccess;
-
+        private Mock<IFriendHttpClient> _friendHttpClient;
+        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
+        private Mock<IChannelHttpClient> _channelHttpClient;
         [TestInitialize]
         public void Setup()
         {
@@ -50,14 +54,16 @@ namespace NosCore.Tests.PacketHandlerTests
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _targetSession = TestHelpers.Instance.GenerateSession();
-            _webApiAccess = TestHelpers.Instance.WebApiMock;
+            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _characterRelationDao = new GenericDao<NosCore.Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
-            _webApiAccess.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
+            _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
                 .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
-            _webApiAccess.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
+            _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
                 .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
-            _finsPacketHandler = new FinsPacketHandler(_webApiAccess.Object);
+            _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,_connectedAccountHttpClient.Object);
         }
 
         [TestMethod]
@@ -71,8 +77,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = FinsPacketType.Accepted
             };
 
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>()))
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _connectedAccountHttpClient.Object);
+            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
@@ -86,8 +92,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _connectedAccountHttpClient.Object);
+            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
             _finsPacketHandler.Execute(finsPacket, _session);
 
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
@@ -101,8 +107,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _webApiAccess.Object);
-            _webApiAccess.Setup(s => s.Post<LanguageKey>(WebApiRoute.Friend, It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _connectedAccountHttpClient.Object);
+            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
+                .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
 
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());

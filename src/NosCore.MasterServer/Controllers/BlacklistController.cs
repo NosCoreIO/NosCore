@@ -25,6 +25,9 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -41,10 +44,10 @@ namespace NosCore.MasterServer.Controllers
     {
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IWebApiAccess _webApiAccess;
-        public BlacklistController(IWebApiAccess webApiAccess, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public BlacklistController(IConnectedAccountHttpClient connectedAccountHttpClient, IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
         {
-            _webApiAccess = webApiAccess;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
         }
@@ -52,8 +55,8 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            var character = _webApiAccess.GetCharacter(blacklistRequest.CharacterId, null);
-            var targetCharacter = _webApiAccess.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+            var character =  _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
+            var targetCharacter =  _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
             if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
@@ -92,7 +95,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected =  _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });

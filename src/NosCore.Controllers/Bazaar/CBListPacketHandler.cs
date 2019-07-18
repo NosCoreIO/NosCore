@@ -32,6 +32,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using static ChickenAPI.Packets.ServerPackets.Auction.RcbListPacket;
@@ -40,12 +42,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CBListPacketHandler : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly List<ItemDto> _items;
 
-        public CBListPacketHandler(IWebApiAccess webApiAccess, List<ItemDto> items)
+        public CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items)
         {
-            _webApiAccess = webApiAccess;
+            _bazaarHttpClient = bazaarHttpClient;
             _items = items;
         }
 
@@ -53,7 +55,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, $"-1&Index={packet.Index}&PageSize=50&TypeFilter={packet.TypeFilter}&SubTypeFilter={packet.SubTypeFilter}&LevelFilter={packet.LevelFilter}&RareFilter={packet.RareFilter}&UpgradeFilter={packet.UpgradeFilter}&SellerFilter={null}") ?? new List<BazaarLink>();
+            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1,packet.Index,50,packet.TypeFilter,packet.SubTypeFilter,packet.LevelFilter,packet.RareFilter,packet.UpgradeFilter,null);
             var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down

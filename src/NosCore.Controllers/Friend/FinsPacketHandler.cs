@@ -6,6 +6,9 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -13,6 +16,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -21,10 +26,14 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
-        public FinsPacketHandler(IWebApiAccess webApiAccess)
+        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _friendHttpClient = friendHttpClient;
+            _channelHttpClient = channelHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(FinsPacket finsPacket, ClientSession session)
@@ -32,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
             {
-                var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Friend, new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
+                var result = _friendHttpClient.AddFriend(new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
 
                 switch (result)
                 {
@@ -98,8 +107,8 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         });
 
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_webApiAccess));
-                        session.Character.SendPacket(session.Character.GenerateFinit(_webApiAccess));
+                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
+                        session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

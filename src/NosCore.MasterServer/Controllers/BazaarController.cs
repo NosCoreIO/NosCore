@@ -24,8 +24,8 @@ namespace NosCore.MasterServer.Controllers
     public class BazaarController : Controller
     {
         private readonly BazaarItemsHolder _holder;
-        private IGenericDao<BazaarItemDto> _bazaarItemDao;
-        private IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<BazaarItemDto> _bazaarItemDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
         public BazaarController(BazaarItemsHolder holder, IGenericDao<BazaarItemDto> bazaarItemDao, IGenericDao<IItemInstanceDto> itemInstanceDao)
         {

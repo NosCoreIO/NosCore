@@ -24,6 +24,9 @@ using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -43,25 +46,24 @@ namespace NosCore.MasterServer.Controllers
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly ILogger _logger;
-        private readonly IWebApiAccess _webApiAccess;
         private readonly FriendRequestHolder _friendRequestHolder;
-
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao,
-            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IWebApiAccess webApiAccess)
+            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
-            _webApiAccess = webApiAccess;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
 
         [HttpPost]
         public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            var character = _webApiAccess.GetCharacter(friendPacket.CharacterId, null);
-            var targetCharacter = _webApiAccess.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            var character =  _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
+            var targetCharacter =  _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
               s.Value.Item2 == character.Item2.ConnectedCharacter.Id && s.Value.Item1 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
             if (character.Item2 != null && targetCharacter.Item2 != null)
@@ -151,7 +153,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _webApiAccess.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected =  _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });

@@ -34,6 +34,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -44,12 +46,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IBazaarHttpClient _bazaarHttpClient;
 
-        public CScalcPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess)
+        public CScalcPacketHandler(WorldConfiguration worldConfiguration, IBazaarHttpClient bazaarHttpClient)
         {
             _worldConfiguration = worldConfiguration;
-            _webApiAccess = webApiAccess;
+            _bazaarHttpClient = bazaarHttpClient;
         }
 
         public override void Execute(CScalcPacket packet, ClientSession clientSession)
@@ -58,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
-            var bz = _webApiAccess.Get<List<BazaarLink>>(WebApiRoute.Bazaar, packet.BazaarId).FirstOrDefault();
+            var bz = _bazaarHttpClient.GetBazaarLinks(packet.BazaarId).FirstOrDefault();
             if (bz != null && bz.SellerName == clientSession.Character.Name)
             {
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;

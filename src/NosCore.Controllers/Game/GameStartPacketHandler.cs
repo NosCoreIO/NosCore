@@ -8,12 +8,19 @@ using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Game
@@ -21,14 +28,23 @@ namespace NosCore.PacketHandlers.Game
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly IWebApiAccess _webApiAccess;
         private readonly ISerializer _packetSerializer;
+        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IWebApiAccess webApiAccess, ISerializer packetSerializer)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, 
+            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
-            _webApiAccess = webApiAccess;
             _packetSerializer = packetSerializer;
+            _blacklistHttpClient = blacklistHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
+            _friendHttpClient = friendHttpClient;
+            _packetHttpClient = packetHttpClient;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -133,10 +149,10 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            session.Character.SendFinfo(_webApiAccess, _packetSerializer, true);
+            session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
 
-            session.SendPacket(session.Character.GenerateFinit(_webApiAccess));
-            session.SendPacket(session.Character.GenerateBlinit(_webApiAccess));
+            session.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
+            session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);

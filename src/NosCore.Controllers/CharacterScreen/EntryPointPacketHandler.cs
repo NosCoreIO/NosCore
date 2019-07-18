@@ -26,6 +26,10 @@ using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -36,6 +40,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -50,25 +55,41 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<MateDto> _mateDao;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IAuthHttpClient _authHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
 
         public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,
-            IGenericDao<MateDto> mateDao, ILogger logger, IWebApiAccess webApiAccess)
+            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IChannelHttpClient channelHttpClient)
         {
             _adapter = adapter;
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;
             _logger = logger;
-            _webApiAccess = webApiAccess;
+            _authHttpClient = authHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession.Account == null)
             {
+                var alreadyConnnected = false;
                 var name = packet.Name;
-                var alreadyConnnected = _webApiAccess.GetCharacter(null, packet.Name).Item2 != null;
+                foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
+                {
+                    List<ConnectedAccount> accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    var target = accounts.FirstOrDefault(s => s.Name == name);
+
+                    if (target != null)
+                    {
+                        alreadyConnnected = true;
+                        break;
+                    }
+                }
 
                 if (alreadyConnnected)
                 {
@@ -80,7 +101,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{name}&token={packet.Password}&sessionId={clientSession.SessionId}") || account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase))
+                    if (_authHttpClient.IsAwaitingConnection(name,packet.Password,clientSession.SessionId) || account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase))
                     {
                         var accountobject = new AccountDto
                         {

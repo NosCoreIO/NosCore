@@ -5,6 +5,8 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -12,6 +14,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -22,17 +27,22 @@ namespace NosCore.PacketHandlers.Chat
     {
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
-        private readonly IWebApiAccess _webApiAccess;
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IWebApiAccess webApiAccess)
+        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
+            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
-            _webApiAccess = webApiAccess;
+            _friendHttpClient = friendHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _packetHttpClient = packetHttpClient;
         }
 
         public override void Execute(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = _webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, session.Character.VisualId) ?? new List<CharacterRelationStatus>();
+            var friendlist = _friendHttpClient.GetListFriends(session.Character.VisualId);
 
             if (!friendlist.Any(s => s.CharacterId == btkPacket.CharacterId))
             {
@@ -58,7 +68,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = _webApiAccess.GetCharacter(btkPacket.CharacterId, null);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -69,7 +79,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            _webApiAccess.BroadcastPacket(new PostedPacket
+            _packetHttpClient.BroadcastPacket(new PostedPacket
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Data.WebApi.Character

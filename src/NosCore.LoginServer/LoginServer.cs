@@ -26,6 +26,8 @@ using NosCore.Database;
 using NosCore.GameObject.Networking;
 using Serilog;
 using System.Threading;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -38,29 +40,21 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly LoginConfiguration _loginConfiguration;
         private readonly NetworkManager _networkManager;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IChannelHttpClient _channelHttpClient;
 
-        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger, IWebApiAccess webApiAccess)
+        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
-            _webApiAccess = webApiAccess;
+            _channelHttpClient = channelHttpClient;
         }
 
         public void Run()
         {
-            ConnectMaster();
-            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
-            {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
-                Thread.Sleep(5000);
-            };
+            _channelHttpClient.Connect();
             try
             {
-                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
-                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
                 Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
@@ -70,18 +64,6 @@ namespace NosCore.LoginServer
             {
                 Console.ReadKey();
             }
-        }
-
-        private void ConnectMaster()
-        {
-            _webApiAccess.RegisterBaseAdress(new Channel
-            {
-                MasterCommunication = _loginConfiguration.MasterCommunication,
-                ClientType = ServerType.LoginServer,
-                ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
-                Port = _loginConfiguration.Port,
-                Host = _loginConfiguration.Host
-            });
         }
     }
 }

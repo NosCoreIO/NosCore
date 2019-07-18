@@ -37,6 +37,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -46,14 +48,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CRegPacketHandler : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _configuration;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
 
-        public CRegPacketHandler(WorldConfiguration configuration, IWebApiAccess webApiAccess, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
+        public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
+            IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
         {
             _configuration = configuration;
-            _webApiAccess = webApiAccess;
+            _bazaarHttpClient = bazaarHttpClient;
             _itemInstanceDao = itemInstanceDao;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
@@ -118,7 +121,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 
-            var result = _webApiAccess.Post<LanguageKey>(WebApiRoute.Bazaar, new BazaarRequest
+            var result = _bazaarHttpClient.AddBazaar(new BazaarRequest
             {
                 ItemInstanceId = bazar.ItemInstance.Id,
                 CharacterId = clientSession.Character.CharacterId,

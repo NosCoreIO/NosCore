@@ -36,11 +36,11 @@ namespace NosCore.MasterServer
         public static void Main()
         {
             var host = BuildWebHost(null);
-            // ReSharper disable PossibleNullReferenceException
+            //// ReSharper disable PossibleNullReferenceException
             (host.ServerFeatures[typeof(IServerAddressesFeature)] as IServerAddressesFeature).Addresses.Add(
                 (host.Services.GetService(typeof(IServerAddressesFeature)) as IServerAddressesFeature)?.Addresses
                 .First());
-            // ReSharper enable PossibleNullReferenceException
+            //// ReSharper enable PossibleNullReferenceException
             try
             {
                 host.Run();

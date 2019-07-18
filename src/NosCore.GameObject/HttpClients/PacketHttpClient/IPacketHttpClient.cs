@@ -17,19 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations
+using System.Collections.Generic;
+using NosCore.Data.WebApi;
+
+namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
-    public enum WebApiRoute
+    public interface IPacketHttpClient
     {
-        Channel,
-        Session,
-        Relation,
-        Packet,
-        Stat,
-        ConnectedAccount,
-        Friend,
-        Blacklist,
-        Bazaar,
-        Auth,
+        void BroadcastPacket(PostedPacket packet, int channelId);
+        void BroadcastPacket(PostedPacket packet);
+        void BroadcastPackets(List<PostedPacket> packets);
+        void BroadcastPackets(List<PostedPacket> packets, int channelId);
     }
 }

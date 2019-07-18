@@ -22,6 +22,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core.HttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -29,6 +30,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -37,11 +40,11 @@ namespace NosCore.PacketHandlers.Command
     public class ShoutPacketHandler : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
         private readonly ISerializer _packetSerializer;
-        private readonly IWebApiAccess _webApiAccess;
-        public ShoutPacketHandler(ISerializer packetSerializer, IWebApiAccess webApiAccess)
+        private readonly IPacketHttpClient _packetHttpClient;
+        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
         {
             _packetSerializer = packetSerializer;
-            _webApiAccess = webApiAccess;
+            _packetHttpClient = packetHttpClient;
         }
 
         public override void Execute(ShoutPacket shoutPacket, ClientSession session)
@@ -79,7 +82,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            _webApiAccess.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
         }
     }
 }
