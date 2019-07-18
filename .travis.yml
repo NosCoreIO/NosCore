@@ -4,7 +4,7 @@ sudo: required
 dist: xenial
 addons:
     snaps:
-        - name: dotnet-sdk
+      - name: dotnet-sdk
         classic: true
         channel: latest/beta
 sudo: required
