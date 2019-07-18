@@ -114,7 +114,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
                             var channelList = _connectedAccountHttpClient.GetConnectedAccount(
-                                server.WebApi);
+                                server);
                             connectedAccount.Add(i, channelList);
                             i++;
                             if (channelList.Any(a => a.Name == acc.Name))

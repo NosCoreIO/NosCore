@@ -28,6 +28,7 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -56,9 +57,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<MateDto> _mateDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
 
         public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,
-            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IChannelHttpClient channelHttpClient)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -67,14 +70,26 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _logger = logger;
             _authHttpClient = authHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession.Account == null)
             {
+                var alreadyConnnected = false;
                 var name = packet.Name;
-                var alreadyConnnected = _connectedAccountHttpClient.GetCharacter(null, packet.Name).Item2 != null;
+                foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
+                {
+                    List<ConnectedAccount> accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    var target = accounts.FirstOrDefault(s => s.Name == name);
+
+                    if (target != null)
+                    {
+                        alreadyConnnected = true;
+                        break;
+                    }
+                }
 
                 if (alreadyConnnected)
                 {
