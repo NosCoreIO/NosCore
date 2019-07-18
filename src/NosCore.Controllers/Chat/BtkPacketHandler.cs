@@ -30,7 +30,8 @@ namespace NosCore.PacketHandlers.Chat
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient, IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
+            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;

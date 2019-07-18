@@ -52,7 +52,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
 
-        public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
+        public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
+            IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
         {
             _configuration = configuration;
             _bazaarHttpClient = bazaarHttpClient;

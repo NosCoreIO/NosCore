@@ -80,7 +80,8 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if (acc == null
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username,passwordToken,clientSession.SessionId)))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
+                    || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username,passwordToken,clientSession.SessionId)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {

@@ -37,7 +37,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = _channelHttpClient.GetChannel(channelId); ;
+            var channel = _channelHttpClient.GetChannel(channelId);
             if (channel != null)
             {
                 SendPacketToChannel(packet, channel.WebApi.ToString());

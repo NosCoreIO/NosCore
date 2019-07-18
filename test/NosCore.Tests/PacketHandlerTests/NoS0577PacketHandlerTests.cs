@@ -39,8 +39,11 @@ namespace NosCore.Tests.PacketHandlerTests
             _authHttpClient = new Mock<IAuthHttpClient>();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
-            _authHttpClient.Setup(s => s.IsAwaitingConnection( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns((string a, string b, int c) => a == "AccountTest101" && b == @"5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49" && c == 0);
+            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, 
+                _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
+            _authHttpClient.Setup(s => s.IsAwaitingConnection( It.IsAny<string>(), It.IsAny<string>(), 
+                It.IsAny<int>())).Returns((string a, string b, int c) => a == "AccountTest101" 
+                && b == @"5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49" && c == 0);
         }
 
         [TestMethod]
