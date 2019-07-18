@@ -10,7 +10,7 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.Core.HttpClients
 {
-    public abstract class MasterServerHttpClient
+    public class MasterServerHttpClient
     {
         protected readonly IHttpClientFactory _httpClientFactory;
         private readonly Channel _channel;

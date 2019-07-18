@@ -108,7 +108,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao, _friendRequestHolder, _connectedAccountHttpClient.Object);
-            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
+            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
+                .Returns(friend.AddFriend(new FriendShipRequest { CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket }));
 
             _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());

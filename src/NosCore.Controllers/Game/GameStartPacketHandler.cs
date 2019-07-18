@@ -35,7 +35,8 @@ namespace NosCore.PacketHandlers.Game
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, 
+            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
