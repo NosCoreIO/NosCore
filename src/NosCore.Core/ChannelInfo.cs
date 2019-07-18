@@ -37,5 +37,6 @@ namespace NosCore.Core
         public DateTime LastPing { get; set; }
 
         public ServerType Type { get; set; }
+        public string Token { get; set; }
     }
 }

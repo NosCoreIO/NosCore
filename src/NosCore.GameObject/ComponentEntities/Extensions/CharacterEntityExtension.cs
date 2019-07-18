@@ -37,6 +37,13 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using ChickenAPI.Packets.Interfaces;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -70,10 +77,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
+        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity, IBlacklistHttpClient blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Blacklist, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var blackList = blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)
@@ -91,20 +98,21 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess)
+        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient, 
+            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             //same canal
-            var servers = webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+            var servers = channelHttpClient.GetChannels()
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    webApiAccess.Get<List<ConnectedAccount>>(WebApiRoute.ConnectedAccount, server.WebApi));
+                    connectedAccountHttpClient.GetConnectedAccount(server));
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
@@ -123,12 +131,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new FinitPacket { SubPackets = subpackets };
         }
 
-        public static void SendFinfo(this ICharacterEntity visualEntity, IWebApiAccess webApiAccess, ISerializer packetSerializer, bool isConnected)
+        public static void SendFinfo(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
         {
-            var friendlist = webApiAccess.Get<List<CharacterRelationStatus>>(WebApiRoute.Friend, visualEntity.VisualId) ?? new List<CharacterRelationStatus>();
+            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
             foreach (var friend in friendlist)
             {
-                webApiAccess.BroadcastPacket(new PostedPacket
+                packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[]
                    {

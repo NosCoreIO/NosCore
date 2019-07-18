@@ -17,17 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Configuration;
-using NosCore.Core;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -35,15 +29,15 @@ namespace NosCore.PacketHandlers.Command
 {
     public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
-        private readonly IWebApiAccess _webApiAccess;
-        public KickPacketHandler(IWebApiAccess webApiAccess)
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        public KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient)
         {
-            _webApiAccess = webApiAccess;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = _webApiAccess.GetCharacter(null, kickPacket.Name);
+            var receiver =  _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -55,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _webApiAccess.Delete<ConnectedAccount>(WebApiRoute.Session, receiver.Item1, receiver.Item2.ConnectedCharacter.Id);
+            _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
         }
     }
 }

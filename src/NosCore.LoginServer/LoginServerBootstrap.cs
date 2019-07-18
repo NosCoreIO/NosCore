@@ -42,61 +42,67 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Autofac.Extensions.DependencyInjection;
 using NosCore.Core.Networking;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers;
 using NosCore.PacketHandlers.Login;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Data.Enumerations;
+using NosCore.Database;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.DependancyInjection;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 
 namespace NosCore.LoginServer
 {
     public static class LoginServerBootstrap
     {
+        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private static LoginConfiguration InitializeConfiguration()
+        private static LoginConfiguration _loginConfiguration;
+
+        private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
-            var loginConfiguration = new LoginConfiguration();
+            _loginConfiguration = new LoginConfiguration();
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
             builder.AddJsonFile("login.json", false);
-            builder.Build().Bind(loginConfiguration);
-            Validator.ValidateObject(loginConfiguration, new ValidationContext(loginConfiguration),
+            builder.Build().Bind(_loginConfiguration);
+            Validator.ValidateObject(_loginConfiguration, new ValidationContext(_loginConfiguration),
                 validateAllProperties: true);
-            LogLanguage.Language = loginConfiguration.Language;
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-            return loginConfiguration;
+
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+
+            LogLanguage.Language = _loginConfiguration.Language;
         }
 
-        public static void Main()
+        private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            Console.Title = Title;
-            Logger.PrintHeader(ConsoleText);
-            var container = InitializeContainer();
-            var loginServer = container.Resolve<LoginServer>();
-            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
-            try
-            {
-                loginServer.Run();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
-            }
-        }
-
-        private static IContainer InitializeContainer()
-        {
-            var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<WebApiAccess>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterInstance(_loginConfiguration).As<LoginConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
-            containerBuilder.RegisterInstance(InitializeConfiguration()).As<LoginConfiguration>()
-                .As<ServerConfiguration>();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
@@ -104,7 +110,21 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
-
+            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
+                .Where(t => t.Name.EndsWith("HttpClient"))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
+            containerBuilder.Register(c => new Channel
+            {
+                MasterCommunication = _loginConfiguration.MasterCommunication,
+                ClientType = ServerType.LoginServer,
+                ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
+                Port = _loginConfiguration.Port,
+                Host = _loginConfiguration.Host
+            });
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
                 if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type))
@@ -116,7 +136,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => (p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" || p.Namespace == "ChickenAPI.Packets.ClientPackets.Login") 
+                .Where(p => (p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" || p.Namespace == "ChickenAPI.Packets.ClientPackets.Login")
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
@@ -124,7 +144,53 @@ namespace NosCore.LoginServer
             containerBuilder.Register(c => new Serializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
-            return containerBuilder.Build();
+        }
+
+        public static void Main()
+        {
+            try
+            {
+                BuildHost(null).Run();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+            }
+        }
+
+        private static IHost BuildHost(string[] args)
+        {
+            return new HostBuilder()
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddSerilog();
+                })
+                .UseConsoleLifetime()
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureServices((hostContext, services) =>
+                {
+                    Console.Title = Title;
+                    Logger.PrintHeader(ConsoleText);
+                    InitializeConfiguration();
+
+                    services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
+                    services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+                    services.AddHttpClient();
+                    services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+                    services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
+                    var containerBuilder = new ContainerBuilder();
+                    InitializeContainer(containerBuilder);
+                    containerBuilder.Populate(services);
+                    var container = containerBuilder.Build();
+
+                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
+                    TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+
+
+                    Task.Run(() => container.Resolve<LoginServer>().Run());
+                })
+                .Build();
         }
     }
 }

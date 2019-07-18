@@ -8,6 +8,8 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -17,6 +19,9 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.HttpClients;
+using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
@@ -27,12 +32,18 @@ namespace NosCore.PacketHandlers.Chat
     {
         private readonly ILogger _logger;
         private readonly ISerializer _packetSerializer;
-        private readonly IWebApiAccess _webApiAccess;
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IWebApiAccess webApiAccess)
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
+
+        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
-            _webApiAccess = webApiAccess;
+            _blacklistHttpClient = blacklistHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _packetHttpClient = packetHttpClient;
         }
 
         public override void Execute(WhisperPacket whisperPacket, ClientSession session)
@@ -69,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = _webApiAccess.GetCharacter(null, receiverName);
+                var receiver =  _connectedAccountHttpClient.GetCharacter(null, receiverName);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
@@ -79,8 +90,8 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = _webApiAccess.Get<List<CharacterRelation>>(WebApiRoute.Blacklist, session.Character.VisualId) ?? new List<CharacterRelation>();
-                if (blacklisteds.Any(s => s.RelatedCharacterId == receiver.Item2.ConnectedCharacter.Id))
+                var blacklisteds = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket
                     {
@@ -94,7 +105,7 @@ namespace NosCore.PacketHandlers.Chat
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                _webApiAccess.BroadcastPacket(new PostedPacket
+                _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },

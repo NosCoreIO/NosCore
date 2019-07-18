@@ -9,11 +9,16 @@ using ChickenAPI.Packets.ServerPackets.Login;
 using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients;
+using NosCore.Core.HttpClients.AuthHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -21,13 +26,18 @@ namespace NosCore.GameObject.Networking.LoginService
     {
         private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IWebApiAccess _webApiAccess;
+        private readonly IAuthHttpClient _authHttpClient;
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IWebApiAccess webApiAccess)
+        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient, 
+            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient )
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
-            _webApiAccess = webApiAccess;
+            _authHttpClient = authHttpClient;
+            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHttpClient = channelHttpClient;
         }
 
         public void Login(string username, string md5String, ClientVersionSubPacket clientVersion, ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
@@ -70,7 +80,8 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if (acc == null
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)) || (useApiAuth && !_webApiAccess.Get<bool>(WebApiRoute.Auth, $"{username}&token={passwordToken}&sessionId={clientSession.SessionId}")))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
+                    || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username,passwordToken,clientSession.SessionId)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -96,16 +107,15 @@ namespace NosCore.GameObject.Networking.LoginService
                         });
                         break;
                     default:
-                        var servers = _webApiAccess.Get<List<ChannelInfo>>(WebApiRoute.Channel)
+                        var servers = _channelHttpClient.GetChannels()
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = _webApiAccess.Get<List<ConnectedAccount>>(
-                                WebApiRoute.ConnectedAccount,
-                                server.WebApi);
+                            var channelList = _connectedAccountHttpClient.GetConnectedAccount(
+                                server);
                             connectedAccount.Add(i, channelList);
                             i++;
                             if (channelList.Any(a => a.Name == acc.Name))
