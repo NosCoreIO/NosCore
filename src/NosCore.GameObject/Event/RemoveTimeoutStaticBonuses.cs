@@ -21,6 +21,7 @@ using System;
 using System.Threading.Tasks;
 using ChickenAPI.Packets.Enumerations;
 using JetBrains.Annotations;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -42,7 +43,7 @@ namespace NosCore.GameObject.Event
             {
                 Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session =>
                 {
-                    if (session.StaticBonusList.RemoveAll(s => s.DateEnd < DateTime.Now) > 0)
+                    if (session.StaticBonusList.RemoveAll(s => s.DateEnd < SystemTime.Now()) > 0)
                     {
                         session.SendPacket(session.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage), SayColorType.Yellow));
                     }

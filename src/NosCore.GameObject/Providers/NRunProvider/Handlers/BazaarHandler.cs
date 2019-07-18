@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             if (medalBonus != null)
             {
                 byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                int time = (int)(medalBonus.DateEnd - DateTime.Now).TotalHours;
+                int time = (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours;
 
                 requestData.ClientSession.SendPacket(new WopenPacket
                 {

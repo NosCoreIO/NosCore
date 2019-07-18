@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using Polly;
 using Serilog;
@@ -21,6 +27,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         private readonly Channel _channel;
         private readonly ILogger _logger;
         private string _token;
+        private DateTime _lastUpdateToken;
         public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
         {
             _httpClientFactory = httpClientFactory;
@@ -49,6 +56,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             var result =
                 JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
             _token = result.Token;
+            _lastUpdateToken = SystemTime.Now();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
             MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
             Task.Run(() =>
@@ -84,7 +92,36 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public string GetOrRefreshToken()
         {
-            //todo refresh before end
+            if (_lastUpdateToken.AddMinutes(25) < SystemTime.Now())
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+                var keyByteArray = Encoding.Default.GetBytes(_channel.MasterCommunication.Password.ToSha512());
+                var signinKey = new SymmetricSecurityKey(keyByteArray);
+                var handler = new JwtSecurityTokenHandler();
+                var claims = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "Server"),
+                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+                });
+                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Issuer = "Issuer",
+                    Audience = "Audience",
+                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                });
+                _channel.Token = handler.WriteToken(securityToken);
+                var content = new StringContent(JsonConvert.SerializeObject(_channel),
+                    Encoding.Default, "application/json");
+                var message = client.PutAsync($"api/channel", content);
+                var result =
+                    JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
+                _token = result.Token;
+                _lastUpdateToken = SystemTime.Now();
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
+            }
             return _token;
         }
 

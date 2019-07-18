@@ -23,6 +23,7 @@ using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (medalBonus != null)
             {
                 byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                int time = (int)(medalBonus.DateEnd - DateTime.Now).TotalHours;
+                int time = (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours;
                 clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language),

@@ -25,6 +25,7 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
@@ -58,11 +59,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 int amount = bz.BazaarItem.Amount;
                 bool isNosbazar = bz.BazaarItem.MedalUsed;
                 long price = bz.BazaarItem.Price;
-                long minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - DateTime.Now).TotalMinutes;
+                long minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes;
                 var status = minutesLeft >= 0 ? (soldedAmount < amount ? BazaarStatusType.OnSale : BazaarStatusType.Solded) : BazaarStatusType.DelayExpired;
                 if (status == BazaarStatusType.DelayExpired)
                 {
-                    minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) - DateTime.Now).TotalMinutes;
+                    minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) - SystemTime.Now()).TotalMinutes;
                 }
 
                 var info = new EInfoPacket();

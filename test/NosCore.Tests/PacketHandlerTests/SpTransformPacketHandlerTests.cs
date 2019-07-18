@@ -26,7 +26,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestCleanup]
         public void Cleanup()
         {
-            SystemTime.Freeze(DateTime.Now);
+            SystemTime.Freeze(SystemTime.Now());
         }
 
         [TestInitialize]
