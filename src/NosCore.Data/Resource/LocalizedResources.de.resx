@@ -784,6 +784,6 @@
     <value>Falsche MapId!</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Du hast eine Tauschanfrage gesendet!</value>
+    <value>Du hast {0} nach einem Tausch gefragt.</value>
   </data>
 </root>

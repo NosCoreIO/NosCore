@@ -1841,5 +1841,14 @@ namespace NosCore.Data.Resource {
                 return ResourceManager.GetString("WRONG_SELECTED_MAPID", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You ask for an exchange with: {0}..
+        /// </summary>
+        public static string YOU_ASK_FOR_EXCHANGE {
+            get {
+                return ResourceManager.GetString("YOU_ASK_FOR_EXCHANGE", resourceCulture);
+            }
+        }
     }
 }
