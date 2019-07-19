@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-	<TieredCompilation>true</TieredCompilation>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TieredCompilation>true</TieredCompilation>
+    <LangVersion>latest</LangVersion>
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>

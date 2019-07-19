@@ -498,3 +498,4 @@ fabric.properties
 Log.txt
 /build/Configuration
 /build/netcoreapp2.*
+/build/netcoreapp3.*
