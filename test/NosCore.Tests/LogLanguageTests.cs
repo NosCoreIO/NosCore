@@ -53,8 +53,8 @@ namespace NosCore.Tests
                 var matches = regex.Matches(content);
                 foreach (Match match in matches)
                 {
-                    int param = match.Groups?.Where(s => s.Name == "parameter").Count() ?? 0;
-                    string key = match.Groups?.FirstOrDefault(s => s.Name == "key").Value;
+                    int param = match.Groups?.Values?.Where(s => s.Name == "parameter").Count() ?? 0;
+                    string key = match.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value;
                     if (_dict.ContainsKey(key))
                     {
                         if (_dict[key] != param)
