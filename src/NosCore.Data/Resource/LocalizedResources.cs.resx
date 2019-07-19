@@ -544,4 +544,7 @@
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Špatně vybrané ID Mapy</value>
   </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Poprosileś o wymianę z graczem: {0}.</value>
+  </data>
 </root>
