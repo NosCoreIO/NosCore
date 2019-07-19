@@ -196,7 +196,6 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 
-            services.AddSignalR();
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(_configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
