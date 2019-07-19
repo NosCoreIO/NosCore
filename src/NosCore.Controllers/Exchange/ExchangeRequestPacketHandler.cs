@@ -121,8 +121,8 @@ namespace NosCore.PacketHandlers.Exchange
 
                     clientSession.SendPacket(new ModalPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
-                            clientSession.Account.Language),
+                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
+                            clientSession.Account.Language), target.Name),
                         Type = 0
                     });
 
@@ -132,8 +132,8 @@ namespace NosCore.PacketHandlers.Exchange
                             {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
                         NoPacket = new ExchangeRequestPacket
                             {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
-                        Question = Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
-                            clientSession.Account.Language)
+                        Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
+                            clientSession.Account.Language), clientSession.Character.Name)
                     });
                     return;
 
