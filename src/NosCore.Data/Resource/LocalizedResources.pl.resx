@@ -728,7 +728,7 @@
     <value>Odrzucono wymianę.</value>
   </data>
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>Czy zaakceptować wymianę?</value>
+    <value>Czy zaakceptować wymianę?: {0}</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Poprosiłeś o wymianę: {0}.</value>
