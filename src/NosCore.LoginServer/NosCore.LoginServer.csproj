@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-	<TieredCompilation>true</TieredCompilation>
-	<LangVersion>7.3</LangVersion>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TieredCompilation>true</TieredCompilation>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,6 +20,7 @@
 	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
 	<PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
 	<PackageReference Include="Mapster" Version="4.1.0" />
+	<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
 	<PackageReference Include="Polly" Version="7.1.0" />
 	<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.4" />
   </ItemGroup>
@@ -29,14 +30,6 @@
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="Microsoft.AspNetCore">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Hosting">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.hosting\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Hosting.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
 
 </Project>
