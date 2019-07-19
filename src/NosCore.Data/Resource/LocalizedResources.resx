@@ -729,4 +729,7 @@
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>
   </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>You ask for an exchange with: {0}.</value>
+  </data>
 </root>

@@ -720,4 +720,10 @@
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>{0} a annulé l'échange.</value>
   </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} t'a envoyé une demande d'échange.</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Tu as fait une demande d'échange avec {0}.</value>
+  </data>
 </root>
