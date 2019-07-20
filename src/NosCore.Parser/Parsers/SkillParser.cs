@@ -70,7 +70,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "NAME")
                     {
-                        skill.Name = currentLine[2];
+                        skill.NameI18NKey = currentLine[2];
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "TYPE")
                     {

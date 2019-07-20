@@ -23,7 +23,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class QuestDto : IDto
+    public class QuestDto : IStaticDto
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

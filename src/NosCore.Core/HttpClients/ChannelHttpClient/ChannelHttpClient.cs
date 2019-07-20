@@ -21,7 +21,7 @@ using Serilog;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
-    public class ChannelHttpClient: IChannelHttpClient
+    public class ChannelHttpClient : IChannelHttpClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Channel _channel;
@@ -42,7 +42,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
             var content = new StringContent(JsonConvert.SerializeObject(_channel),
                 Encoding.Default, "application/json");
-          
+
             var message = Policy
                 .Handle<Exception>()
                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
@@ -127,12 +127,13 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public List<ChannelInfo> GetChannels()
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
             var channels = MasterClientListSingleton.Instance.Channels;
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
+                var client = _httpClientFactory.CreateClient();
+                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+
                 var response = client.GetAsync($"api/channel").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -145,12 +146,13 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public ChannelInfo GetChannel(int channelId)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
             var channels = MasterClientListSingleton.Instance.Channels;
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
+                var client = _httpClientFactory.CreateClient();
+                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+
                 var response = client.GetAsync($"api/channel?id={channelId}").Result;
                 if (response.IsSuccessStatusCode)
                 {

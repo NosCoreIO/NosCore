@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 }
 
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name} x {amount}",
+                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
                     requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
-                            $"{name}: {inv.ItemInstance.Item.Name} x {requestData.Data.Item1.Amount}",
+                            $"{name}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
                             SayColorType.Yellow));
                 }
             }

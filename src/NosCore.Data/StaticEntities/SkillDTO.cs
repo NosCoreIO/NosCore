@@ -17,11 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Mapster;
+using NosCore.Data.Enumerations;
+using NosCore.Data.I18N;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class SkillDto : IDto
+    public class SkillDto : IStaticDto
     {
         public short AttackAnimation { get; set; }
 
@@ -63,7 +67,11 @@ namespace NosCore.Data.StaticEntities
 
         public short MpCost { get; set; }
 
-        public string Name { get; set; }
+        [I18NFrom(typeof(I18NSkillDto))]
+        public IDictionary<RegionType, string> Name { get; set; }
+
+        [AdaptMember("Name")]
+        public string NameI18NKey { get; set; }
 
         public int Price { get; set; }
 

@@ -19,8 +19,11 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations;
+using NosCore.Data.I18N;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 using MonsterType = NosCore.Data.Enumerations.Map.MonsterType;
 
@@ -99,8 +102,11 @@ namespace NosCore.Data.StaticEntities
 
         public MonsterType MonsterType { get; set; }
 
-        [MaxLength(255)]
-        public string Name { get; set; }
+        [I18NFrom(typeof(I18NNpcMonsterDto))]
+        public IDictionary<RegionType, string> Name { get; set; }
+
+        [AdaptMember("Name")]
+        public string NameI18NKey { get; set; }
 
         public bool NoAggresiveIcon { get; set; }
 

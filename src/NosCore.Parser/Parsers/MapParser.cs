@@ -109,7 +109,7 @@ namespace NosCore.Parser.Parsers
 
                 var map = new MapDto
                 {
-                    Name = name,
+                    NameI18NKey = name,
                     Music = music,
                     MapId = short.Parse(file.Name),
                     Data = File.ReadAllBytes(file.FullName),

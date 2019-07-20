@@ -36,6 +36,8 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
 using NosCore.Parser.Parsers;
+using Mapster;
+using NosCore.Data.StaticEntities;
 
 // ReSharper disable LocalizableElement
 
@@ -78,12 +80,12 @@ namespace NosCore.Parser
             Console.Title = Title;
             Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(ParserConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-
                 try
                 {
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
