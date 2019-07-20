@@ -64,23 +64,23 @@ namespace NosCore.PacketHandlers.CharacterScreen
             switch (packet.OrderFilter)
             {
                 case 0:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenBy(s => s.BazaarItem.Price).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenBy(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 1:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenByDescending(s => s.BazaarItem.Price).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenByDescending(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 2:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ThenBy(s => s.BazaarItem.Amount).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenBy(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 case 3:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o=>o.VNum == s.ItemInstance.ItemVNum).Name).ThenByDescending(s => s.BazaarItem.Amount).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o=>o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenByDescending(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 default:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name).ToList();
+                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ToList();
                     break;
             }
 

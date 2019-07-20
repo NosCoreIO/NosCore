@@ -19,7 +19,7 @@
 
 namespace NosCore.Data.StaticEntities
 {
-    public class RecipeDto : IDto
+    public class RecipeDto //: IStaticDto
     {
     }
 }

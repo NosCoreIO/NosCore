@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class RespawnMapTypeDto : IDto
+    public class RespawnMapTypeDto : IStaticDto
     {
         public short DefaultMapId { get; set; }
 

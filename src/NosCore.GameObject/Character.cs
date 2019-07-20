@@ -629,7 +629,7 @@ namespace NosCore.GameObject
                 Type = SMemoType.Success,
                 Message = string.Format(
                     Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name,
-                    item.ItemInstance.Item.Name, amount)
+                    item.ItemInstance.Item.Name[Account.Language], amount)
             });
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
