@@ -89,7 +89,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -109,7 +109,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -129,7 +129,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -152,7 +152,7 @@ namespace NosCore.Tests
             _session.Character.Reput = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
@@ -176,7 +176,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -203,7 +203,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -229,7 +229,7 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
@@ -275,7 +275,7 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
