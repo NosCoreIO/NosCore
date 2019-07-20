@@ -58,8 +58,8 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Main, VNum = 1012},
-                new Item {Type = NoscorePocketType.Main, VNum = 1013},
+                new Item {Type = NoscorePocketType.Main, VNum = 1012, Name = new I18NString()},
+                new Item {Type = NoscorePocketType.Main, VNum = 1013, Name = new I18NString() },
             };
 
             _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
@@ -156,10 +156,10 @@ namespace NosCore.Tests
         public void Test_Process_Exchange()
         {
             IInventoryService inventory1 =
-                new InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main, Name = new I18NString() } },
                     _worldConfiguration, _logger);
             IInventoryService inventory2 =
-                new InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main, Name = new I18NString() } },
                     _worldConfiguration, _logger);
             var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0)).First();
             var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0)).First();
