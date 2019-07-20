@@ -148,7 +148,7 @@ namespace NosCore.Data
         public short MpRegeneration { get; set; }
 
         [I18NFrom(typeof(I18NItemDto))]
-        public IDictionary<RegionType, string> Name { get; set; }
+         public I18NString Name { get; set; } = new I18NString();
 
         [AdaptMember("Name")]
         public string NameI18NKey { get; set; }
