@@ -20,7 +20,10 @@
 using ChickenAPI.Packets.Interfaces;
 using Mapster;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using System.Collections.Generic;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Mapping
 {
@@ -30,6 +33,7 @@ namespace NosCore.GameObject.Mapping
         public Mapper()
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
+
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()

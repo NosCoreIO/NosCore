@@ -43,6 +43,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AutofacSerilogIntegration;
+using FastMember;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -61,6 +62,8 @@ using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Data.StaticEntities;
+using NosCore.Data.I18N;
 
 namespace NosCore.MasterServer
 {
@@ -106,7 +109,17 @@ namespace NosCore.MasterServer
 
             containerBuilder.Register(c =>
                 {
+                    var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
+                    {
+                        { typeof(I18NItemDto), c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
+                    };
+
                     var items = c.Resolve<IGenericDao<ItemDto>>().LoadAll().ToList();
+                    var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
+
+                    var regions = Enum.GetValues(typeof(RegionType));
+                    var accessors = TypeAccessor.Create(typeof(ItemDto));
+                    Parallel.ForEach(items, (s) => (s).InjectI18N(props, dic, regions, accessors));
                     StaticDtoAttribute staticDtoAttribute = typeof(ItemDto).GetCustomAttribute<StaticDtoAttribute>();
                     if (items.Count != 0)
                     {
@@ -152,6 +165,7 @@ namespace NosCore.MasterServer
             return containerBuilder;
         }
 
+
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -196,11 +210,14 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
+                .IgnoreMember((member, side) => typeof(IDictionary<RegionType, string>).IsAssignableFrom(member.Type));
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
+
             var containerBuilder = InitializeContainer(services);
             containerBuilder.RegisterInstance(_configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
-            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             Task.Run(() => container.Resolve<MasterServer>().Run());
             return new AutofacServiceProvider(container);
         }

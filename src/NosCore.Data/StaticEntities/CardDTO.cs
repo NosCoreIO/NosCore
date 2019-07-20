@@ -19,11 +19,14 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Mapster;
+using NosCore.Data.Enumerations;
+using NosCore.Data.I18N;
 using BCardType = NosCore.Data.Enumerations.Buff.BCardType;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class CardDto : IDto
+    public class CardDto : IStaticDto
     {
         [Key]
         public short CardId { get; set; }
@@ -33,9 +36,6 @@ namespace NosCore.Data.StaticEntities
         public int EffectId { get; set; }
 
         public byte Level { get; set; }
-
-        [MaxLength(255)]
-        public string Name { get; set; }
 
         public int Delay { get; set; }
 
@@ -48,5 +48,11 @@ namespace NosCore.Data.StaticEntities
         public byte Propability { get; set; }
 
         public ICollection<BCardDto> BCards { get; set; }
+
+        [I18NFrom(typeof(I18NCardDto))]
+        public IDictionary<RegionType, string> Name { get; set; }
+
+        [AdaptMember("Name")]
+        public string NameI18NKey { get; set; }
     }
 }

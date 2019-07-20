@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class ComboDto : IDto
+    public class ComboDto : IStaticDto
     {
         public short Animation { get; set; }
 

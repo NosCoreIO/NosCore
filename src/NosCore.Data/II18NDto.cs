@@ -17,37 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
-
-namespace NosCore.Data.StaticEntities
+using NosCore.Data.Enumerations;
+namespace NosCore.Data
 {
-    public class BCardDto : IStaticDto
+    public interface II18NDto : IDto
     {
-        [Key]
-        public short BCardId { get; set; }
-
-        public byte SubType { get; set; }
-
-        public byte Type { get; set; }
-
-        public int FirstData { get; set; }
-
-        public int SecondData { get; set; }
-
-        public short? CardId { get; set; }
-
-        public short? ItemVNum { get; set; }
-
-        public short? SkillVNum { get; set; }
-
-        public short? NpcMonsterVNum { get; set; }
-
-        public byte CastType { get; set; }
-
-        public int ThirdData { get; set; }
-
-        public bool IsLevelScaled { get; set; }
-
-        public bool IsLevelDivided { get; set; }
+        string Key { get; set; }
+        RegionType RegionType { get; set; }
+        string Text { get; set; }
     }
 }

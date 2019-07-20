@@ -22,7 +22,7 @@ using RegionType = NosCore.Data.Enumerations.RegionType;
 
 namespace NosCore.Data.I18N
 {
-    public class I18NMapIdDataDto : IDto
+    public class I18NMapIdDataDto : II18NDto
     {
         [Key]
         public int I18NMapIdDataId { get; set; }

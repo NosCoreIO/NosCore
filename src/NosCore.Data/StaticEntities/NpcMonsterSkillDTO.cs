@@ -21,7 +21,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class NpcMonsterSkillDto : IDto
+    public class NpcMonsterSkillDto : IStaticDto
     {
         [Key]
         public long NpcMonsterSkillId { get; set; }

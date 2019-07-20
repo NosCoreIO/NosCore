@@ -17,8 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Mapster;
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations;
+using NosCore.Data.I18N;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 
 namespace NosCore.Data.StaticEntities
@@ -29,8 +33,11 @@ namespace NosCore.Data.StaticEntities
         [Key]
         public short MapId { get; set; }
 
-        [MaxLength(255)]
-        public string Name { get; set; }
+        [I18NFrom(typeof(I18NMapIdDataDto))]
+        public IDictionary<RegionType, string> Name { get; set; }
+
+        [AdaptMember("Name")]
+        public string NameI18NKey { get; set; }
 
         public byte[] Data { get; set; }
 
