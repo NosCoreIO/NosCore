@@ -17,32 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Mapster;
-using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
-using NosCore.Data.I18N;
-using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
+using System.Collections.Generic;
 
-namespace NosCore.Data.StaticEntities
+namespace NosCore.Data
 {
-    [StaticDto(LoadedMessage = LogLanguageKey.MAPS_LOADED, EmptyMessage = LogLanguageKey.NO_MAP)]
-    public class MapDto : IStaticDto
+    public class I18NString : Dictionary<RegionType, string>
     {
-        [Key]
-        public short MapId { get; set; }
-
-        [I18NFrom(typeof(I18NMapIdDataDto))]
-         public I18NString Name { get; set; } = new I18NString();
-
-        [AdaptMember("Name")]
-        public string NameI18NKey { get; set; }
-
-        public byte[] Data { get; set; }
-
-        public int Music { get; set; }
-
-        public bool ShopAllowed { get; set; }
+        public I18NString()
+        {
+            Add(RegionType.EN, "NONAME");
+            Add(RegionType.DE, "NONAME");
+            Add(RegionType.FR, "NONAME");
+            Add(RegionType.IT, "NONAME");
+            Add(RegionType.PL, "NONAME");
+            Add(RegionType.ES, "NONAME");
+            Add(RegionType.CS, "NONAME");
+            Add(RegionType.TR, "NONAME");
+            Add(RegionType.RU, "NONAME");
+        }
     }
 }

@@ -103,7 +103,7 @@ namespace NosCore.Data.StaticEntities
         public MonsterType MonsterType { get; set; }
 
         [I18NFrom(typeof(I18NNpcMonsterDto))]
-        public IDictionary<RegionType, string> Name { get; set; }
+         public I18NString Name { get; set; } = new I18NString();
 
         [AdaptMember("Name")]
         public string NameI18NKey { get; set; }
