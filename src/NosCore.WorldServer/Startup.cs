@@ -390,7 +390,7 @@ namespace NosCore.WorldServer
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
-                .IgnoreMember((member, side) => typeof(IDictionary<RegionType, string>).IsAssignableFrom(member.Type));
+                .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();
