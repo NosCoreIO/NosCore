@@ -22,18 +22,31 @@ namespace NosCore.Data.StaticEntities
             return dic;
         }
 
-        public static void InjectI18N(this IStaticDto staticDto, IDictionary<PropertyInfo, Tuple<PropertyInfo, Type>> propertyInfos, IDictionary<Type, List<II18NDto>> langDictionary, Array regions, TypeAccessor accessor)
+        public static void InjectI18N(this IStaticDto staticDto, IDictionary<PropertyInfo, Tuple<PropertyInfo, Type>> propertyInfos, IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>> langDictionary, Array regions, TypeAccessor accessor)
         {
             foreach (var prop in propertyInfos)
             {
                 var key = accessor[staticDto, prop.Value.Item1.Name]?.ToString() ?? "NONAME";
-                var list = langDictionary[prop.Value.Item2].Where(s => s.Key == key).Take(regions.Length);
+
                 var dic = new Dictionary<RegionType, string>();
                 foreach (RegionType region in regions)
                 {
-                    dic.Add(region, list.FirstOrDefault(s => s.Key == key && s.RegionType == region)?.Text ?? key);
+                    if (langDictionary[prop.Value.Item2].ContainsKey(key))
+                    {
+                        if (langDictionary[prop.Value.Item2][key].ContainsKey(region))
+                        {
+                            dic.Add(region, langDictionary[prop.Value.Item2][key][region].Text);
+                        }
+                        else
+                        {
+                            dic.Add(region, key);
+                        }
+                    }
+                    else
+                    {
+                        dic.Add(region, key);
+                    }
                 }
-
                 accessor[staticDto, prop.Key.Name] = dic;
             }
         }

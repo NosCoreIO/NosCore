@@ -109,12 +109,9 @@ namespace NosCore.MasterServer
 
             containerBuilder.Register(c =>
                 {
-                    var dic = new Dictionary<Type, List<II18NDto>>
+                    var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
                     {
-                        {
-                            typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().Cast<II18NDto>().ToList()
-                        }
+                        { typeof(I18NItemDto), c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
                     };
 
                     var items = c.Resolve<IGenericDao<ItemDto>>().LoadAll().ToList();
