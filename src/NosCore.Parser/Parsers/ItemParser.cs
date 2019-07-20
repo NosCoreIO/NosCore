@@ -87,7 +87,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "NAME")
                     {
-                        item.Name = currentLine[2];
+                        item.NameI18NKey = currentLine[2];
                     }
                     else if (currentLine.Length > 7 && currentLine[1] == "INDEX")
                     {

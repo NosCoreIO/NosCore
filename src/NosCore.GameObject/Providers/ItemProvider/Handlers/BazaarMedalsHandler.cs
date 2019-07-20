@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
                 });
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED, requestData.ClientSession.Account.Language),
-                    itemInstance.ItemInstance.Item.Name), SayColorType.Green));
+                    itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]), SayColorType.Green));
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
 

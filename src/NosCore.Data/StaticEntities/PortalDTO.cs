@@ -22,7 +22,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities
 {
-    public class PortalDto : IDto
+    public class PortalDto : IStaticDto
     {
         public short DestinationMapId { get; set; }
 

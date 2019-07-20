@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Shops
                     Type = SMemoType.Success,
                     Message = string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, clientSession.Account.Language),
-                        inv.ItemInstance.Item.Name,
+                        inv.ItemInstance.Item.Name[clientSession.Account.Language],
                         sellPacket.Amount.Value
                     )
                 });

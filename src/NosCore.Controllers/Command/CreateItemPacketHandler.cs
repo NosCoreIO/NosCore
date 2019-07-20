@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             session.SendPacket(session.Character.GenerateSay(
-                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name} x {amount}",
+                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
                 SayColorType.Green));
         }
     }

@@ -108,7 +108,7 @@ namespace NosCore.Tests.Helpers
             var map = new Map
             {
                 MapId = 0,
-                Name = "testMap",
+                NameI18NKey = "testMap",
                 Data = new byte[]
                 {
                 8, 0, 8, 0,
@@ -124,7 +124,7 @@ namespace NosCore.Tests.Helpers
             var mapShop = new Map
             {
                 MapId = 1,
-                Name = "shopMap",
+                NameI18NKey = "shopMap",
                 ShopAllowed = true,
                 Data = new byte[]
                  {
