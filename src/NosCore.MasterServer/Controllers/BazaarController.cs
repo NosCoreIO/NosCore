@@ -190,10 +190,11 @@ namespace NosCore.MasterServer.Controllers
                 SellerId = bazaarRequest.CharacterId,
                 ItemInstanceId = itemId
             };
-            _holder.BazaarItems.TryAdd(bazaarItem.SellerId,
+            _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
+            _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
                 new BazaarLink
                 { BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName, ItemInstance = item.Adapt<ItemInstanceDto>() });
-            _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
+     
             return LanguageKey.OBJECT_IN_BAZAAR;
         }
     }

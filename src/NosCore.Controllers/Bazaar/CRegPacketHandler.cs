@@ -125,6 +125,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 ItemInstanceId = bazar.ItemInstance.Id,
                 CharacterId = clientSession.Character.CharacterId,
+                CharacterName = clientSession.Character.Name,
                 HasMedal = medal != null,
                 Price = cRegPacket.Price,
                 IsPackage = cRegPacket.IsPackage != 0,

@@ -46,18 +46,16 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
             var medalBonus = requestData.ClientSession.Character.StaticBonusList
                 .FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            if (medalBonus != null)
-            {
-                byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                int time = (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours;
+            byte medal = medalBonus != null ? (medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver) : (byte)0;
+            int time = (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours;
 
-                requestData.ClientSession.SendPacket(new WopenPacket
-                {
-                    Type = WindowType.NosBazaar,
-                    Unknown = medal,
-                    Unknown2 = (byte)time
-                });
-            }
+            requestData.ClientSession.SendPacket(new WopenPacket
+            {
+                Type = WindowType.NosBazaar,
+                Unknown = medal,
+                Unknown2 = (byte)time
+            });
+
         }
     }
 }

@@ -17,7 +17,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
         public BazaarHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
-            ApiUrl = "api/blacklist";
+            ApiUrl = "api/bazaar";
             RequireConnection = true;
         }
 
