@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         }
                         else
                         {
-                            _logger.LogError(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
                         }
                     }
                     else
