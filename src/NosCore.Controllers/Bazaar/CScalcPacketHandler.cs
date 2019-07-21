@@ -25,7 +25,6 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
-using Microsoft.Extensions.Logging;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -41,6 +40,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
