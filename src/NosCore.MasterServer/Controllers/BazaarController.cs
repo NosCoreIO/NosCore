@@ -184,7 +184,7 @@ namespace NosCore.MasterServer.Controllers
         public LanguageKey AddBazaar([FromBody] BazaarRequest bazaarRequest)
         {
             var items = _holder.BazaarItems.Values.Where(o => o.BazaarItem.SellerId == bazaarRequest.CharacterId);
-            if (items.Count() > 10 * (bazaarRequest.HasMedal ? 1 : 10))
+            if (items.Count() > 10 * (bazaarRequest.HasMedal ? 10 : 1) - 1)
             {
                 return LanguageKey.LIMIT_EXCEEDED;
             }

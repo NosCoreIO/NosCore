@@ -40,6 +40,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
@@ -154,7 +155,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             bazar.ItemInstanceId);
                     }
 
-                    clientSession.SendPacket(bazar.GeneratePocketChange(cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory, cRegPacket.Slot));
+                    clientSession.SendPacket(((InventoryItemInstance)null).GeneratePocketChange(cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory, cRegPacket.Slot));
                     clientSession.Character.Gold -= tax;
                     clientSession.SendPacket(clientSession.Character.GenerateGold());
 
