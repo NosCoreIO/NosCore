@@ -142,7 +142,8 @@ namespace NosCore.Data.Enumerations.I18N
         FRIEND_REQUEST_DISCONNECTED,
         TOKEN_UPDATED,
         SECURITY_TOKEN_UPDATED,
-        BAZAAR_DELETE_ERROR
+        BAZAAR_DELETE_ERROR,
+        BAZAAR_BUY_ERROR
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -267,5 +268,6 @@ namespace NosCore.Data.Enumerations.I18N
         LIMIT_EXCEEDED,
         OBJECT_IN_BAZAAR,
         REMOVE_FROM_BAZAAR,
+        STATE_CHANGED_BAZAAR,
     }
 }
