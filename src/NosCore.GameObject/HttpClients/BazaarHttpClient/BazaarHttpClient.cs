@@ -43,5 +43,17 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
         {
            return Get<List<BazaarLink>>(bazaarId);
         }
+
+        public bool Remove(long bazaarId, int count, string requestCharacterName)
+        {
+            var client = Connect();
+            var response = client.DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new ArgumentException();
+        }
     }
 }
