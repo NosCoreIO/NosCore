@@ -166,9 +166,9 @@ namespace NosCore.MasterServer.Controllers
 
             if (bzlink.ItemInstance.Amount == count && requestCharacterName == bzlink.SellerName)
             {
-                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);
                 _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
                 _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
+                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);  
             }
             else
             {
