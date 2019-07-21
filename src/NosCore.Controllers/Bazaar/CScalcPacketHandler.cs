@@ -23,6 +23,7 @@ using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
@@ -87,7 +88,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         var remove = _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount, clientSession.Character.Name);
                         if (remove)
                         {
-                            clientSession.SendPacket(new RCScalcPacket { Type = VisualType.Player, Price = bz.BazaarItem.Price, RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount), Amount = bz.BazaarItem.Amount, Taxes = taxes, Total = price + taxes });
+                            clientSession.SendPacket(new RCScalcPacket
+                            {
+                                Type = VisualType.Player,
+                                Price = bz.BazaarItem.Price,
+                                RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount),
+                                Amount = bz.BazaarItem.Amount,
+                                Taxes = taxes,
+                                Total = price + taxes
+                            });
+                            clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
                         }
                         else
                         {
