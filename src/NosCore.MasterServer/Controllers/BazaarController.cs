@@ -54,7 +54,7 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s =>  s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
+                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
             }
 
             foreach (var bz in bzlinks)
@@ -151,7 +151,33 @@ namespace NosCore.MasterServer.Controllers
                 bzlist.Add(bz);
             }
             //todo this need to be move to the filter when done
-            return bzlist.Skip((int)(index * pageSize)).Take((byte)pageSize).ToList();
+            return bzlist.Skip((int)(index ?? 0 * pageSize ?? 0)).Take((byte)(pageSize ?? bzlist.Count)).ToList();
+        }
+
+
+        [HttpDelete]
+        public bool DeleteBazaar(long id, short count, string requestCharacterName)
+        {
+            var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem.BazaarItemId == id);
+            if (bzlink.ItemInstance.Amount - count < 0 || count < 0)
+            {
+                return false;
+            }
+
+            if (bzlink.ItemInstance.Amount == count && requestCharacterName == bzlink.SellerName)
+            {
+                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);
+                _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
+                _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
+            }
+            else
+            {
+                var item = (IItemInstanceDto)bzlink.ItemInstance;
+                item.Amount -= count;
+                _itemInstanceDao.InsertOrUpdate(ref item);
+            }
+
+            return true;
         }
 
         [HttpPost]
@@ -194,7 +220,7 @@ namespace NosCore.MasterServer.Controllers
             _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
                 new BazaarLink
                 { BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName, ItemInstance = item.Adapt<ItemInstanceDto>() });
-     
+
             return LanguageKey.OBJECT_IN_BAZAAR;
         }
     }

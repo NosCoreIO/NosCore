@@ -11,5 +11,6 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
         LanguageKey AddBazaar(BazaarRequest bazaarRequest);
         List<BazaarLink> GetBazaarLinks(long bazaarId);
+        bool Remove(long bazaarId, int count, string requestCharacterName);
     }
 }
