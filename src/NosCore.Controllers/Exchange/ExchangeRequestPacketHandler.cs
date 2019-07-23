@@ -181,8 +181,8 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
-                                clientSession.Account.Language)
+                            Message = String.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
+                                clientSession.Account.Language), exchangeTarget.Name)
                         });
                         return;
                     }

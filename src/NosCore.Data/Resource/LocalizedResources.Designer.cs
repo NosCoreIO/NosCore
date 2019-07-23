@@ -61,6 +61,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You accepted point share !.
+        /// </summary>
+        public static string ACCEPTED_SHARE {
+            get {
+                return ResourceManager.GetString("ACCEPTED_SHARE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Account with SessionId {0} has arrived..
         /// </summary>
         public static string ACCOUNT_ARRIVED {
@@ -93,6 +102,15 @@ namespace NosCore.Data.Resource {
         public static string ALREADY_BLACKLISTED {
             get {
                 return ResourceManager.GetString("ALREADY_BLACKLISTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à User is in exchange!.
+        /// </summary>
+        public static string ALREADY_EXCHANGE {
+            get {
+                return ResourceManager.GetString("ALREADY_EXCHANGE", resourceCulture);
             }
         }
         
@@ -232,6 +250,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your bank account is full..
+        /// </summary>
+        public static string BANK_FULL {
+            get {
+                return ResourceManager.GetString("BANK_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Character added to blacklist!.
         /// </summary>
         public static string BLACKLIST_ADDED {
@@ -246,6 +273,15 @@ namespace NosCore.Data.Resource {
         public static string BLACKLIST_BLOCKED {
             get {
                 return ResourceManager.GetString("BLACKLIST_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You bought an item from {0}!.
+        /// </summary>
+        public static string BUY_ITEM_FROM {
+            get {
+                return ResourceManager.GetString("BUY_ITEM_FROM", resourceCulture);
             }
         }
         
@@ -300,6 +336,24 @@ namespace NosCore.Data.Resource {
         public static string CANT_FIND_CHARACTER {
             get {
                 return ResourceManager.GetString("CANT_FIND_CHARACTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t move an item in the shop !.
+        /// </summary>
+        public static string CANT_MOVE_ITEM_IN_SHOP {
+            get {
+                return ResourceManager.GetString("CANT_MOVE_ITEM_IN_SHOP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t use any items in the shop..
+        /// </summary>
+        public static string CANT_USE_ITEM_IN_SHOP {
+            get {
+                return ResourceManager.GetString("CANT_USE_ITEM_IN_SHOP", resourceCulture);
             }
         }
         
@@ -448,6 +502,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à The {0} effect has been activated !.
+        /// </summary>
+        public static string EFFECT_ACTIVATED {
+            get {
+                return ResourceManager.GetString("EFFECT_ACTIVATED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Encode Error: {0}.
         /// </summary>
         public static string ENCODE_ERROR {
@@ -498,6 +561,24 @@ namespace NosCore.Data.Resource {
         public static string EXCEPTION {
             get {
                 return ResourceManager.GetString("EXCEPTION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Exchange blocked.
+        /// </summary>
+        public static string EXCHANGE_BLOCKED {
+            get {
+                return ResourceManager.GetString("EXCHANGE_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You refused your exchange request..
+        /// </summary>
+        public static string EXCHANGE_REFUSED {
+            get {
+                return ResourceManager.GetString("EXCHANGE_REFUSED", resourceCulture);
             }
         }
         
@@ -561,6 +642,15 @@ namespace NosCore.Data.Resource {
         public static string FRIEND_REQUEST_BLOCKED {
             get {
                 return ResourceManager.GetString("FRIEND_REQUEST_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your friend request could not be completed because the user is disconnected..
+        /// </summary>
+        public static string FRIEND_REQUEST_DISCONNECTED {
+            get {
+                return ResourceManager.GetString("FRIEND_REQUEST_DISCONNECTED", resourceCulture);
             }
         }
         
@@ -673,6 +763,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t exchange with shop keepers..
+        /// </summary>
+        public static string HAS_SHOP_OPENED {
+            get {
+                return ResourceManager.GetString("HAS_SHOP_OPENED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your hero level have changed.
         /// </summary>
         public static string HERO_LEVEL_CHANGED {
@@ -772,6 +871,33 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à In Waiting for {0}..
+        /// </summary>
+        public static string IN_WAITING_FOR {
+            get {
+                return ResourceManager.GetString("IN_WAITING_FOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à {0} wants to exchange with you..
+        /// </summary>
+        public static string INCOMING_EXCHANGE {
+            get {
+                return ResourceManager.GetString("INCOMING_EXCHANGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à With the NosMerchant medal, you can use the NosBazar at any time on all maps..
+        /// </summary>
+        public static string INFO_BAZAAR {
+            get {
+                return ResourceManager.GetString("INFO_BAZAAR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -790,6 +916,24 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can only exchange tradable items..
+        /// </summary>
+        public static string INVALID_EXCHANGE {
+            get {
+                return ResourceManager.GetString("INVALID_EXCHANGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Invalid exchange list..
+        /// </summary>
+        public static string INVALID_EXCHANGE_LIST {
+            get {
+                return ResourceManager.GetString("INVALID_EXCHANGE_LIST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Password!.
         /// </summary>
         public static string INVALID_PASSWORD {
@@ -804,6 +948,15 @@ namespace NosCore.Data.Resource {
         public static string INVENTORY_FULL {
             get {
                 return ResourceManager.GetString("INVENTORY_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Do you want to set as a return point ?.
+        /// </summary>
+        public static string INVITED_GROUP_SHARE {
+            get {
+                return ResourceManager.GetString("INVITED_GROUP_SHARE", resourceCulture);
             }
         }
         
@@ -831,6 +984,15 @@ namespace NosCore.Data.Resource {
         public static string ITEM_ACQUIRED {
             get {
                 return ResourceManager.GetString("ITEM_ACQUIRED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The Land of the Dead object {0} has been acquired..
+        /// </summary>
+        public static string ITEM_ACQUIRED_LOD {
+            get {
+                return ResourceManager.GetString("ITEM_ACQUIRED_LOD", resourceCulture);
             }
         }
         
@@ -867,6 +1029,15 @@ namespace NosCore.Data.Resource {
         public static string ITEM_NOT_TRADABLE {
             get {
                 return ResourceManager.GetString("ITEM_NOT_TRADABLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Item is no longer valid..
+        /// </summary>
+        public static string ITEM_TIMEOUT {
+            get {
+                return ResourceManager.GetString("ITEM_TIMEOUT", resourceCulture);
             }
         }
         
@@ -939,6 +1110,15 @@ namespace NosCore.Data.Resource {
         public static string LEVEL_CHANGED {
             get {
                 return ResourceManager.GetString("LEVEL_CHANGED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t add more item on the bazaar because the limit is exceeded..
+        /// </summary>
+        public static string LIMIT_EXCEEDED {
+            get {
+                return ResourceManager.GetString("LIMIT_EXCEEDED", resourceCulture);
             }
         }
         
@@ -1105,6 +1285,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You don&apos;t have the NosMarchand medal..
+        /// </summary>
+        public static string NO_BAZAAR_MEDAL {
+            get {
+                return ResourceManager.GetString("NO_BAZAAR_MEDAL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Item does not exist!.
         /// </summary>
         public static string NO_ITEM {
@@ -1146,6 +1335,15 @@ namespace NosCore.Data.Resource {
         public static string NOT_ADVENTURER {
             get {
                 return ResourceManager.GetString("NOT_ADVENTURER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You don&apos;t have enough gold..
+        /// </summary>
+        public static string NOT_ENOUGH_GOLD {
+            get {
+                return ResourceManager.GetString("NOT_ENOUGH_GOLD", resourceCulture);
             }
         }
         
@@ -1218,6 +1416,15 @@ namespace NosCore.Data.Resource {
         public static string NPCS_PARSED {
             get {
                 return ResourceManager.GetString("NPCS_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your item has been added on the bazaar !.
+        /// </summary>
+        public static string OBJECT_IN_BAZAAR {
+            get {
+                return ResourceManager.GetString("OBJECT_IN_BAZAAR", resourceCulture);
             }
         }
         
@@ -1420,11 +1627,29 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à The {0} player is in store mode..
+        /// </summary>
+        public static string PLAYER_IN_SHOP {
+            get {
+                return ResourceManager.GetString("PLAYER_IN_SHOP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Unknown PocketType.
         /// </summary>
         public static string POCKETTYPE_UNKNOWN {
             get {
                 return ResourceManager.GetString("POCKETTYPE_UNKNOWN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Please wait before you teleport !.
+        /// </summary>
+        public static string PORTAL_DELAY {
+            get {
+                return ResourceManager.GetString("PORTAL_DELAY", resourceCulture);
             }
         }
         
@@ -1438,11 +1663,29 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à The price limit is exceeded..
+        /// </summary>
+        public static string PRICE_EXCEEDED {
+            get {
+                return ResourceManager.GetString("PRICE_EXCEEDED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Registered on MasterServer.
         /// </summary>
         public static string REGISTRED_ON_MASTER {
             get {
                 return ResourceManager.GetString("REGISTRED_ON_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The sale is completed, you receive gold: {0}..
+        /// </summary>
+        public static string REMOVE_FROM_BAZAAR {
+            get {
+                return ResourceManager.GetString("REMOVE_FROM_BAZAAR", resourceCulture);
             }
         }
         
@@ -1506,6 +1749,15 @@ namespace NosCore.Data.Resource {
         public static string SELL_ITEM_VALIDE {
             get {
                 return ResourceManager.GetString("SELL_ITEM_VALIDE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Message sent to user..
+        /// </summary>
+        public static string SEND_MESSAGE_TO_CHARACTER {
+            get {
+                return ResourceManager.GetString("SEND_MESSAGE_TO_CHARACTER", resourceCulture);
             }
         }
         
@@ -1812,6 +2064,15 @@ namespace NosCore.Data.Resource {
         public static string USER_NOT_CONNECTED {
             get {
                 return ResourceManager.GetString("USER_NOT_CONNECTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The player isn&apos;t in exchange..
+        /// </summary>
+        public static string USER_NOT_IN_EXCHANGE {
+            get {
+                return ResourceManager.GetString("USER_NOT_IN_EXCHANGE", resourceCulture);
             }
         }
         
