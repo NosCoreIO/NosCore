@@ -738,11 +738,29 @@
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>User is in exchange!</value>
   </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>Your bank account is full.</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>You bought an item from {0}!</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>You can't move an item in the shop !</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>You can't use any items in the shop.</value>
+  </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>The {0} effect has been activated !</value>
+  </data>
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Exchange blocked</value>
   </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>{0} refused your exchange request.</value>
+  </data>
+  <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
+    <value>Your friend request could not be completed because the user is disconnected.</value>
   </data>
   <data name="HAS_SHOP_OPENED" xml:space="preserve">
     <value>You can't exchange with shop keepers.</value>
@@ -750,11 +768,23 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} wants to exchange with you.</value>
   </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>With the NosMerchant medal, you can use the NosBazar at any time on all maps.</value>
+  </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>You can only exchange tradable items.</value>
   </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Invalid exchange list.</value>
+  </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Do you want to set as a return point ?</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>In Waiting for {0}.</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>The Land of the Dead object {0} has been acquired.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item is no longer valid.</value>
@@ -762,10 +792,31 @@
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>You can't add more item on the bazaar because the limit is exceeded.</value>
   </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>You don't have enough gold.</value>
+  </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>You don't have the NosMarchand medal.</value>
+  </data>
   <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
     <value>Your item has been added on the bazaar !</value>
   </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>The {0} player is in store mode.</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Please wait before you teleport !</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>The price limit is exceeded.</value>
+  </data>
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>The sale is completed, you receive gold: {0}.</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Message sent to user.</value>
+  </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>The player isn't in exchange.</value>
   </data>
 </root>
