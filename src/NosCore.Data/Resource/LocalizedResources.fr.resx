@@ -361,7 +361,7 @@
     <value>Canal</value>
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Personnage hors ligne</value>
+    <value>Personnage hors ligne.</value>
   </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
     <value>Les PNJ ont été chargés avec succès !</value>
@@ -415,7 +415,7 @@
     <value>L'objet a été acquis.</value>
   </data>
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>L'objet  {0} de la Terre des Mort a été acquis.</value>
+    <value>L'objet {0} de la Terre des Mort a été acquis.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Impossible de jeter l'objet.</value>
@@ -523,7 +523,7 @@
     <value>Type d'équipement inconnu.</value>
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
-    <value>Reciever inconnu.</value>
+    <value>Type de destinataire inconnu.</value>
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Type Visuel inconnu.</value>
@@ -661,7 +661,7 @@
     <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>L'effet secondaire de la transformation a disparru. Vous pouvez équiper une SP  à nouveau.  {0}</value>
+    <value>L'effet secondaire de la transformation a disparu. Vous pouvez de nouveau équiper une SP. {0}</value>
   </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Une carte SP invalide a été détéctée.</value>
