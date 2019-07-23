@@ -574,7 +574,7 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} refused your exchange request..
+        ///   Recherche une chaîne localisée semblable à You refused your exchange request..
         /// </summary>
         public static string EXCHANGE_REFUSED {
             get {
