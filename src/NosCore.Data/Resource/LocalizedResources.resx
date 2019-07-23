@@ -732,4 +732,40 @@
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>You ask for an exchange with: {0}.</value>
   </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>You accepted point share !</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>User is in exchange!</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Exchange blocked</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>{0} refused your exchange request.</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>You can't exchange with shop keepers.</value>
+  </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} wants to exchange with you.</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>You can only exchange tradable items.</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Do you want to set as a return point ?</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Item is no longer valid.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>You can't add more item on the bazaar because the limit is exceeded.</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Your item has been added on the bazaar !</value>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>The sale is completed, you receive gold: {0}.</value>
+  </data>
 </root>

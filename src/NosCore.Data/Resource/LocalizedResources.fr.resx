@@ -726,4 +726,52 @@
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Tu as fait une demande d'échange avec {0}.</value>
   </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Tu as changé le point du retour commun au groupe.</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Vous êtes dans sa liste noire.</value>
+  </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>L'effet {0} a été activé.</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Tu as quitté le groupe.</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Ton invitation a été refusé.</value>
+  </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>Avec la médaille NosMarchand, tu peux utiliser le NosBazar à tout moment sur toutes les cartes générales.</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>{0} t'a invité dans un groupe.</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>La limite de temps d'utilisation de cet objet est expirée.</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Groupe rejoint.</value>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>{0} a quitté le groupe.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Tu ne peux plus ajouter d'objet au NosBazard car tu as dépassé la limite autorisée.</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>La limite de prix est dépassée.</value>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>La vente est terminée. Or : {0}.</value>
+  </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>Tu as refusé de partager le point de retour avec les membres du groupe.</value>
+  </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>Tu as déjà atteint la quantité maximale de point SP.</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>Ce joueur n'est pas connecté.</value>
+  </data>
 </root>
