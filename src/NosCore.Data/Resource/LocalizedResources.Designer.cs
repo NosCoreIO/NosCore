@@ -61,6 +61,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You accepted point share !.
+        /// </summary>
+        public static string ACCEPTED_SHARE {
+            get {
+                return ResourceManager.GetString("ACCEPTED_SHARE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Account with SessionId {0} has arrived..
         /// </summary>
         public static string ACCOUNT_ARRIVED {
@@ -93,6 +102,15 @@ namespace NosCore.Data.Resource {
         public static string ALREADY_BLACKLISTED {
             get {
                 return ResourceManager.GetString("ALREADY_BLACKLISTED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à User is in exchange!.
+        /// </summary>
+        public static string ALREADY_EXCHANGE {
+            get {
+                return ResourceManager.GetString("ALREADY_EXCHANGE", resourceCulture);
             }
         }
         
@@ -502,6 +520,24 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Exchange blocked.
+        /// </summary>
+        public static string EXCHANGE_BLOCKED {
+            get {
+                return ResourceManager.GetString("EXCHANGE_BLOCKED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à {0} refused your exchange request..
+        /// </summary>
+        public static string EXCHANGE_REFUSED {
+            get {
+                return ResourceManager.GetString("EXCHANGE_REFUSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Forced disconnection of the client {0}..
         /// </summary>
         public static string FORCED_DISCONNECTION {
@@ -673,6 +709,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t exchange with shop keepers..
+        /// </summary>
+        public static string HAS_SHOP_OPENED {
+            get {
+                return ResourceManager.GetString("HAS_SHOP_OPENED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your hero level have changed.
         /// </summary>
         public static string HERO_LEVEL_CHANGED {
@@ -772,6 +817,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à {0} wants to exchange with you..
+        /// </summary>
+        public static string INCOMING_EXCHANGE {
+            get {
+                return ResourceManager.GetString("INCOMING_EXCHANGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -790,6 +844,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can only exchange tradable items..
+        /// </summary>
+        public static string INVALID_EXCHANGE {
+            get {
+                return ResourceManager.GetString("INVALID_EXCHANGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Password!.
         /// </summary>
         public static string INVALID_PASSWORD {
@@ -804,6 +867,15 @@ namespace NosCore.Data.Resource {
         public static string INVENTORY_FULL {
             get {
                 return ResourceManager.GetString("INVENTORY_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Do you want to set as a return point ?.
+        /// </summary>
+        public static string INVITED_GROUP_SHARE {
+            get {
+                return ResourceManager.GetString("INVITED_GROUP_SHARE", resourceCulture);
             }
         }
         
@@ -867,6 +939,15 @@ namespace NosCore.Data.Resource {
         public static string ITEM_NOT_TRADABLE {
             get {
                 return ResourceManager.GetString("ITEM_NOT_TRADABLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Item is no longer valid..
+        /// </summary>
+        public static string ITEM_TIMEOUT {
+            get {
+                return ResourceManager.GetString("ITEM_TIMEOUT", resourceCulture);
             }
         }
         
@@ -939,6 +1020,15 @@ namespace NosCore.Data.Resource {
         public static string LEVEL_CHANGED {
             get {
                 return ResourceManager.GetString("LEVEL_CHANGED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can&apos;t add more item on the bazaar because the limit is exceeded..
+        /// </summary>
+        public static string LIMIT_EXCEEDED {
+            get {
+                return ResourceManager.GetString("LIMIT_EXCEEDED", resourceCulture);
             }
         }
         
@@ -1222,6 +1312,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Your item has been added on the bazaar !.
+        /// </summary>
+        public static string OBJECT_IN_BAZAAR {
+            get {
+                return ResourceManager.GetString("OBJECT_IN_BAZAAR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Packet received without character being set {0}.
         /// </summary>
         public static string PACKET_USED_WITHOUT_CHARACTER {
@@ -1443,6 +1542,15 @@ namespace NosCore.Data.Resource {
         public static string REGISTRED_ON_MASTER {
             get {
                 return ResourceManager.GetString("REGISTRED_ON_MASTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The sale is completed, you receive gold: {0}..
+        /// </summary>
+        public static string REMOVE_FROM_BAZAAR {
+            get {
+                return ResourceManager.GetString("REMOVE_FROM_BAZAAR", resourceCulture);
             }
         }
         

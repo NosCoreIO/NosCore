@@ -392,6 +392,9 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skills geladen! Region: {1}</value>
   </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>Tausch von {0} akzeptieren?</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
   </data>
@@ -413,6 +416,9 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Einladungs typ</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Warten auf {0}.</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items geladen!</value>
@@ -441,6 +447,9 @@
   </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Du kannst das Item nicht tauschen!</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Item ist nicht mehr benutzbar.</value>
   </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Dein Job Level hat sich geändert!</value>
