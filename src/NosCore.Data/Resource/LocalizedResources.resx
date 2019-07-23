@@ -757,7 +757,7 @@
     <value>Exchange blocked</value>
   </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>{0} refused your exchange request.</value>
+    <value>You refused your exchange request.</value>
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Your friend request could not be completed because the user is disconnected.</value>
