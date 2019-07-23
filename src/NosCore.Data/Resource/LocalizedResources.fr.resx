@@ -670,7 +670,7 @@
     <value>la visualentity n'existe pas.</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
-    <value>La compte en banque à atteint sa valeur max</value>
+    <value>Ton compte en banque est déjà remplit.</value>
   </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Un ou plusieurs objets ne sont pas échangeables.</value>
@@ -685,7 +685,7 @@
     <value>Impossible de mettre l'objet dans le magasin car il est non échangeable</value>
   </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>L'objet ne peut pas etre mis en vente.</value>
+    <value>Tu ne peux pas utiliser d'objet dans la boutique.</value>
   </data>
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Le joueur à bloqué les échanges.</value>
@@ -732,8 +732,17 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Vous êtes dans sa liste noire.</value>
   </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Vous avez acheté un article de {0} !</value>
+  </data>
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>L'effet {0} a été activé.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>Tu as refusé la demande d'échange.</value>
+  </data>
+  <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
+    <value>Ta demande d'ami n'a pu être aboutie car l'utilisateur est déconnecté.</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Tu as quitté le groupe.</value>
@@ -747,6 +756,9 @@
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>{0} t'a invité dans un groupe.</value>
   </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>En attente {0}.</value>
+  </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>La limite de temps d'utilisation de cet objet est expirée.</value>
   </data>
@@ -759,11 +771,29 @@
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Tu ne peux plus ajouter d'objet au NosBazard car tu as dépassé la limite autorisée.</value>
   </data>
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve">
+    <value>Chargement des instances de cartes.</value>
+  </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>Tu ne possèdes pas la médaille de NosMarchand.</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Ton objet a été ajouté sur le bazar !</value>
+  </data>
+  <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
+    <value>Paquet reçu sans que le caractère ne soit spécifié {0}.</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Patiente avant de prendre le portail !</value>
+  </data>
   <data name="PRICE_EXCEEDED" xml:space="preserve">
     <value>La limite de prix est dépassée.</value>
   </data>
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>La vente est terminée. Or : {0}.</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Message envoyé à l'utilisateur.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Tu as refusé de partager le point de retour avec les membres du groupe.</value>
