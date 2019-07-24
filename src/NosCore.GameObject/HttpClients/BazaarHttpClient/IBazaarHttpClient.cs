@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
+using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
@@ -10,6 +11,8 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
         List<BazaarLink> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter, byte packetSubTypeFilter, byte packetLevelFilter,
             byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
         LanguageKey AddBazaar(BazaarRequest bazaarRequest);
-        List<BazaarLink> GetBazaarLinks(long bazaarId);
+        BazaarLink GetBazaarLink(long bazaarId);
+        bool Remove(long bazaarId, int count, string requestCharacterName);
+        BazaarLink Modify(long bazaarId, object patchBz);
     }
 }

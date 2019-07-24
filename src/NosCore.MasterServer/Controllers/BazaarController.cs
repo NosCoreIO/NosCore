@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -54,7 +58,7 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s =>  s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
+                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
             }
 
             foreach (var bz in bzlinks)
@@ -151,14 +155,40 @@ namespace NosCore.MasterServer.Controllers
                 bzlist.Add(bz);
             }
             //todo this need to be move to the filter when done
-            return bzlist.Skip((int)(index * pageSize)).Take((byte)pageSize).ToList();
+            return bzlist.Skip((int)(index ?? 0 * pageSize ?? 0)).Take((byte)(pageSize ?? bzlist.Count)).ToList();
+        }
+
+
+        [HttpDelete]
+        public bool DeleteBazaar(long id, short count, string requestCharacterName)
+        {
+            var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem.BazaarItemId == id);
+            if (bzlink.ItemInstance.Amount - count < 0 || count < 0)
+            {
+                return false;
+            }
+
+            if (bzlink.ItemInstance.Amount == count && requestCharacterName == bzlink.SellerName)
+            {
+                _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
+                _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
+                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);
+            }
+            else
+            {
+                var item = (IItemInstanceDto)bzlink.ItemInstance;
+                item.Amount -= count;
+                _itemInstanceDao.InsertOrUpdate(ref item);
+            }
+
+            return true;
         }
 
         [HttpPost]
         public LanguageKey AddBazaar([FromBody] BazaarRequest bazaarRequest)
         {
             var items = _holder.BazaarItems.Values.Where(o => o.BazaarItem.SellerId == bazaarRequest.CharacterId);
-            if (items.Count() > 10 * (bazaarRequest.HasMedal ? 1 : 10))
+            if (items.Count() > 10 * (bazaarRequest.HasMedal ? 10 : 1) - 1)
             {
                 return LanguageKey.LIMIT_EXCEEDED;
             }
@@ -190,11 +220,27 @@ namespace NosCore.MasterServer.Controllers
                 SellerId = bazaarRequest.CharacterId,
                 ItemInstanceId = itemId
             };
-            _holder.BazaarItems.TryAdd(bazaarItem.SellerId,
+            _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
+            _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
                 new BazaarLink
                 { BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName, ItemInstance = item.Adapt<ItemInstanceDto>() });
-            _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
+
             return LanguageKey.OBJECT_IN_BAZAAR;
+        }
+
+        [HttpPatch]
+        public BazaarLink ModifyBazaar(long id, [FromBody]JsonPatchDocument<BazaarLink> bzMod)
+        {
+            var item = _holder.BazaarItems.Values
+                .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
+            if (item != null)
+            {
+                bzMod.ApplyTo(item);
+                var bz = item.BazaarItem;
+                _bazaarItemDao.InsertOrUpdate(ref bz);
+                return item;
+            }
+            return null;
         }
     }
 }
