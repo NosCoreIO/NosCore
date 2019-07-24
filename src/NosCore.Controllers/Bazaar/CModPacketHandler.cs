@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName == clientSession.Character.Name)
+            if (bz != null && bz.SellerName == clientSession.Character.Name || bz.BazaarItem.Amount != bz.ItemInstance.Amount)
             {
                 var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
                 {
