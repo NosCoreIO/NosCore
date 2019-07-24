@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Data;
@@ -168,7 +172,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
                 _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
-                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);  
+                _itemInstanceDao.Delete(bzlink.ItemInstance.Id);
             }
             else
             {
@@ -222,6 +226,21 @@ namespace NosCore.MasterServer.Controllers
                 { BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName, ItemInstance = item.Adapt<ItemInstanceDto>() });
 
             return LanguageKey.OBJECT_IN_BAZAAR;
+        }
+
+        [HttpPatch]
+        public BazaarLink ModifyBazaar(long id, [FromBody]JsonPatchDocument<BazaarLink> bzMod)
+        {
+            var item = _holder.BazaarItems.Values
+                .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
+            if (item != null)
+            {
+                bzMod.ApplyTo(item);
+                var bz = item.BazaarItem;
+                _bazaarItemDao.InsertOrUpdate(ref bz);
+                return item;
+            }
+            return null;
         }
     }
 }

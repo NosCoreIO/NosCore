@@ -57,8 +57,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
-            var bz = _bazaarHttpClient.GetBazaarLinks(packet.BazaarId).FirstOrDefault();
-            if (bz != null && bz.SellerName != clientSession.Character.Name)
+            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            if (bz != null && bz.SellerName != clientSession.Character.Name && packet.Price == bz.BazaarItem.Price)
             {
                 var price = bz.BazaarItem.Price * packet.Amount;
                 if (clientSession.Character.Inventory.CanAddItem(bz.ItemInstance.ItemVNum) && bz.ItemInstance.Amount >= packet.Amount)
