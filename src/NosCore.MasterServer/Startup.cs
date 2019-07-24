@@ -64,6 +64,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.I18N;
+using NosCore.Data.WebApi;
 
 namespace NosCore.MasterServer
 {

@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) 
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
             : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient) { }
 
         public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger,
@@ -403,23 +403,26 @@ namespace NosCore.GameObject.Networking.ClientSession
                         }
 
                         var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
-                        if (handler != null && packet.IsValid)
+                        if (handler != null)
                         {
-                            var attr = _attributeDic[packet.GetType()];
-                            if (!HasSelectedCharacter && !attr.AnonymousAccess)
+                            if (packet.IsValid)
                             {
-                                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
-                                    packet.Header);
-                                continue;
-                            }
+                                var attr = _attributeDic[packet.GetType()];
+                                if (!HasSelectedCharacter && !attr.AnonymousAccess)
+                                {
+                                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                        packet.Header);
+                                    continue;
+                                }
 
-                            //check for the correct authority
-                            if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
-                            {
-                                continue;
-                            }
+                                //check for the correct authority
+                                if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
+                                {
+                                    continue;
+                                }
 
-                            handler.Execute(packet, this);
+                                handler.Execute(packet, this);
+                            }
 
                         }
                         else

@@ -23,6 +23,7 @@ using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
@@ -40,6 +41,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -47,11 +49,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly WorldConfiguration _worldConfiguration;
         private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IItemProvider _itemProvider;
+        private readonly ILogger _logger;
 
-        public CScalcPacketHandler(WorldConfiguration worldConfiguration, IBazaarHttpClient bazaarHttpClient)
+        public CScalcPacketHandler(WorldConfiguration worldConfiguration, IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _bazaarHttpClient = bazaarHttpClient;
+            _itemProvider = itemProvider;
+            _logger = logger;
         }
 
         public override void Execute(CScalcPacket packet, ClientSession clientSession)
@@ -60,7 +66,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
-            var bz = _bazaarHttpClient.GetBazaarLinks(packet.BazaarId).FirstOrDefault();
+
+            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if (bz != null && bz.SellerName == clientSession.Character.Name)
             {
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
@@ -74,18 +81,29 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         clientSession.SendPacket(clientSession.Character.GenerateGold());
                         clientSession.SendPacket(clientSession.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
                             clientSession.Account.Language), price), SayColorType.Yellow));
+                        var item = _itemProvider.Convert(bz.ItemInstance);
+                        item.Id = Guid.NewGuid();
 
-                        if (bz.ItemInstance.Amount != 0)
+                        var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                        clientSession.SendPacket(newInv.GeneratePocketChange());
+                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount, clientSession.Character.Name);
+                        if (remove)
                         {
-                            //var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(, clientSession.Character.CharacterId));
+                            clientSession.SendPacket(new RCScalcPacket
+                            {
+                                Type = VisualType.Player,
+                                Price = bz.BazaarItem.Price,
+                                RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount),
+                                Amount = bz.BazaarItem.Amount,
+                                Taxes = taxes,
+                                Total = price + taxes
+                            });
+                            clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
                         }
                         else
                         {
-                            //todo delete
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
                         }
-
-
-                        clientSession.SendPacket(new RCScalcPacket { Type = VisualType.Player, Price = bz.BazaarItem.Price, RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount), Amount = bz.BazaarItem.Amount, Taxes = taxes, Total = price + taxes });
                     }
                     else
                     {

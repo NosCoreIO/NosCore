@@ -52,6 +52,21 @@ namespace NosCore.Core.HttpClients
             throw new ArgumentException();
         }
 
+
+        protected T Patch<T>(object id, object objectToPost)
+        {
+            var client = Connect();
+            var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+                Encoding.Default, "application/json");
+            var response = client.PatchAsync($"{ApiUrl}?id={id}", content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            throw new ArgumentException();
+        }
+
         protected void Post(object objectToPost)
         {
             var client = Connect();
