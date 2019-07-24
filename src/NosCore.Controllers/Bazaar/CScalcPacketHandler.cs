@@ -66,7 +66,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
-            var bz = _bazaarHttpClient.GetBazaarLinks(packet.BazaarId).FirstOrDefault();
+
+            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if (bz != null && bz.SellerName == clientSession.Character.Name)
             {
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;

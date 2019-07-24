@@ -35,6 +35,11 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.ServerPackets.Auction;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Core;
+using Microsoft.AspNetCore.JsonPatch;
+using NosCore.Data.WebApi;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -56,31 +61,31 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLinks(packet.BazaarId).FirstOrDefault();
+            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if (bz != null && bz.SellerName == clientSession.Character.Name)
             {
-                //var remove = _bazaarHttpClient.Patch();
-                //if (remove)
-                //{
-                //    clientSession.SendPacket(new RCScalcPacket
-                //    {
-                //        Type = VisualType.Player,
-                //        Price = bz.BazaarItem.Price,
-                //        RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount),
-                //        Amount = bz.BazaarItem.Amount,
-                //        Taxes = taxes,
-                //        Total = price + taxes
-                //    });
-                //    clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
-                //}
-                //else
-                //{
-                //    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
-                //}
+                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
+                {
+                    new {op = "replace", path = "/BazaarItem/Price", value = packet.NewAmount}
+                });
+
+
+                if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
+                {
+                    clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
+                }
+                else
+                {
+                    clientSession.SendPacket(new ModalPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
+                        Type = 1
+                    });
+                }
             }
             else
             {
-              
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_MOD_ERROR));
             }
         }
     }
