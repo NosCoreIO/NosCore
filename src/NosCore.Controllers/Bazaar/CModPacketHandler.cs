@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
                     clientSession.Character.GenerateSay(
-                        string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
+                        string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, clientSession.Account.Language),
                         bz.BazaarItem.Price
                     ), SayColorType.Yellow);
                 }
