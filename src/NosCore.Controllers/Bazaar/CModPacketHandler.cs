@@ -66,13 +66,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
                 {
-                    new {op = "replace", path = "/BazaarItem/Price", value = packet.NewAmount}
+                    new {op = "replace", path = "/BazaarItem/Price", value = packet.NewPrice}
                 });
 
 
                 if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
                 {
                     clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
+                    clientSession.Character.GenerateSay(
+                        string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
+                        bz.BazaarItem.Price
+                    ), SayColorType.Yellow);
                 }
                 else
                 {
