@@ -804,4 +804,7 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Ce joueur n'est pas connecté.</value>
   </data>
+  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
+    <value>Le prix de vente a été rectifié : {0} pièces d'or.</value>
+  </data>
 </root>

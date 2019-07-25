@@ -270,5 +270,6 @@ namespace NosCore.Data.Enumerations.I18N
         OBJECT_IN_BAZAAR,
         REMOVE_FROM_BAZAAR,
         STATE_CHANGED_BAZAAR,
+        BAZAAR_PRICE_CHANGED,
     }
 }
