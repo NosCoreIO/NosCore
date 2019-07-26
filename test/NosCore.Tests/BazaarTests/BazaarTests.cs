@@ -88,13 +88,90 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public void AddToBazaarNegativeAmount()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+                       .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                       .Returns(new ItemInstanceDto
+                       {
+                           Id = _guid,
+                           Amount = 99
+                       });
+            Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
+                new Data.WebApi.BazaarRequest
+                {
+                    Amount = -50,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                }));
+        }
+
+        [TestMethod]
+        public void AddToBazaarNegativePrice()
+        {
+            _mockItemDao
+                       .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                       .Returns(new ItemInstanceDto
+                       {
+                           Id = _guid,
+                           Amount = 99
+                       });
+            Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
+                new Data.WebApi.BazaarRequest
+                {
+                    Amount = 50,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = -50
+                }));
         }
 
         [TestMethod]
         public void AddToBazaarMoreThanItem()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+               .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+               .Returns(new ItemInstanceDto
+               {
+                   Id = _guid,
+                   Amount = 99
+               });
+            Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
+                new Data.WebApi.BazaarRequest
+                {
+                    Amount = 100,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 100
+                }));
+        }
+
+        [TestMethod]
+        public void AddToBazaarNullItem()
+        {
+            Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
+                new Data.WebApi.BazaarRequest
+                {
+                    Amount = 50,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 100
+                }));
         }
 
         [TestMethod]

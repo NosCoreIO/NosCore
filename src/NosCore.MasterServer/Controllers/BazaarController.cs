@@ -187,6 +187,11 @@ namespace NosCore.MasterServer.Controllers
             }
 
             var item = _itemInstanceDao.FirstOrDefault(s => s.Id == bazaarRequest.ItemInstanceId);
+            if (item == null || item.Amount < bazaarRequest.Amount || bazaarRequest.Amount < 0 || bazaarRequest.Price < 0)
+            {
+                throw new ArgumentException();
+            }
+
             Guid itemId;
             if (item.Amount == bazaarRequest.Amount)
             {
