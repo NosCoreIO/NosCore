@@ -195,7 +195,7 @@ namespace NosCore.MasterServer.Controllers
             else
             {
                 itemId = item.Id;
-                item.Amount = bazaarRequest.Amount;
+                item.Amount -= bazaarRequest.Amount;
                 _itemInstanceDao.InsertOrUpdate(ref item);
                 item.Id = Guid.NewGuid();
             }
@@ -211,7 +211,7 @@ namespace NosCore.MasterServer.Controllers
                 MedalUsed = bazaarRequest.HasMedal,
                 Price = bazaarRequest.Price,
                 SellerId = bazaarRequest.CharacterId,
-                ItemInstanceId = itemId
+                ItemInstanceId = item.Id
             };
             _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
             _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
