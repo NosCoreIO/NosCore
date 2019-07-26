@@ -25,10 +25,7 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

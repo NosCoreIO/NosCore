@@ -46,8 +46,6 @@ using AutofacSerilogIntegration;
 using FastMember;
 using NosCore.Core.Controllers;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Database.Entities;
 using NosCore.Core;
 using NosCore.Database.DAL;
 using NosCore.Database;
@@ -60,11 +58,9 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.I18N;
-using NosCore.Data.WebApi;
 
 namespace NosCore.MasterServer
 {

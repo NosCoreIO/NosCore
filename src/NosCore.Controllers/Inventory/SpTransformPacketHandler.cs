@@ -19,7 +19,6 @@
 
 using System;
 using ChickenAPI.Packets.ClientPackets.Specialists;
-using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;

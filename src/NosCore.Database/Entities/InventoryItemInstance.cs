@@ -18,9 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using ChickenAPI.Packets.Enumerations;
 using NosCore.Data;
 using NosCore.Database.Entities.Base;
 
