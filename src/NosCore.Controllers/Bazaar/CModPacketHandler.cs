@@ -49,8 +49,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Amount != bz.ItemInstance.Amount)
+            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Amount != packet.Amount)
             {
+                if(bz.BazaarItem.Amount != bz.ItemInstance.Amount)
+                {
+                    clientSession.SendPacket(new ModalPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, clientSession.Account.Language),
+                        Type = 1
+                    });
+                    return;
+                }
                 var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
                 {
                     new {op = "replace", path = "/BazaarItem/Price", value = packet.NewPrice}
