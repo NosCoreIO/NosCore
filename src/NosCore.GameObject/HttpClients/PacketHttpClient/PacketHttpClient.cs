@@ -6,10 +6,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using NosCore.Core;
-using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient

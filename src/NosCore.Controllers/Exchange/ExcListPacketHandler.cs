@@ -29,7 +29,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Exchange

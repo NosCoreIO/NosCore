@@ -18,20 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using Microsoft.EntityFrameworkCore;
 using NosCore.Configuration;
-using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Database;
 using NosCore.GameObject.Networking;
 using Serilog;
-using System.Threading;
-using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Database.DAL;
 
 namespace NosCore.LoginServer
 {

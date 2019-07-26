@@ -19,22 +19,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading;
-using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
-using NosCore.Core;
-using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Networking;

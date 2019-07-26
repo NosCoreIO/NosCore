@@ -1,25 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
-using NosCore.Database.DAL;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.PacketHandlers.Friend;
-using NosCore.Tests.Helpers;
-using Serilog;
-
-namespace NosCore.Tests.PacketHandlerTests
+﻿namespace NosCore.Tests.PacketHandlerTests
 {
     //todo fix
     //[TestClass]

@@ -25,7 +25,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory

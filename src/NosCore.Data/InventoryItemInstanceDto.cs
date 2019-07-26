@@ -19,7 +19,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {

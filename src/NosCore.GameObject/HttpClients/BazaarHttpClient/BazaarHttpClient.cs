@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using ChickenAPI.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using NosCore.Core;
 using NosCore.Core.HttpClients;

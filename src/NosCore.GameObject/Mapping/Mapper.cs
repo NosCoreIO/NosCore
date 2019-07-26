@@ -20,9 +20,7 @@
 using ChickenAPI.Packets.Interfaces;
 using Mapster;
 using NosCore.Data;
-using NosCore.Data.Enumerations;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Mapping

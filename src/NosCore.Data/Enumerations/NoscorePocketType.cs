@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ChickenAPI.Packets.Enumerations;
+﻿using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {

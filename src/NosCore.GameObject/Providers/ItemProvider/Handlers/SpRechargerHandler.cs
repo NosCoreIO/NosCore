@@ -24,7 +24,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
