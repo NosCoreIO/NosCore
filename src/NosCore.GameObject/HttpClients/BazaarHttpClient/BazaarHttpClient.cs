@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
+using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             throw new ArgumentException();
         }
 
-        public BazaarLink Modify(long bazaarId, object patchBz)
+        public BazaarLink Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
         {
             return Patch<BazaarLink>(bazaarId, patchBz);
         }

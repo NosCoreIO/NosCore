@@ -20,8 +20,10 @@
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
+using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
@@ -60,11 +62,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     });
                     return;
                 }
-                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
-                {
-                    new {op = "replace", path = "/BazaarItem/Price", value = packet.NewPrice}
-                });
 
+                var patch = new JsonPatchDocument<BazaarLink>();
+                patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
+                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
 
                 if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
                 {
