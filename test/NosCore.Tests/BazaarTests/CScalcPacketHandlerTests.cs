@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NosCore.Tests.BazaarTests
 {
-    class CRegPacketHandlerTests
+    class CScalcPacketHandlerTests
     {
     }
 }
