@@ -17,25 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Bazaar;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

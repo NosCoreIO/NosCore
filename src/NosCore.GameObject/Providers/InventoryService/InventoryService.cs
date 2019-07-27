@@ -21,7 +21,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
 using NosCore.Configuration;
 using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider.Item;

@@ -17,21 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
-using NosCore.Configuration;
-using NosCore.Core;
-using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 

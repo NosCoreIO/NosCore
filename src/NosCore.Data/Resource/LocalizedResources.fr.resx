@@ -807,4 +807,7 @@
   <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
     <value>Le prix de vente a été rectifié : {0} pièces d'or.</value>
   </data>
+  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
+    <value>Tu ne peux pas ajuster le prix car tu as déjà vendu certains objets. Replace tes objets pour ajuster le prix.</value>
+  </data>
 </root>

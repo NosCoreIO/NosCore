@@ -20,7 +20,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Mapster;
-using NosCore.Data.Enumerations;
 using NosCore.Data.I18N;
 using BCardType = NosCore.Data.Enumerations.Buff.BCardType;
 

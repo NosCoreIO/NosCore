@@ -22,7 +22,6 @@ using System.ComponentModel.DataAnnotations;
 using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.Enumerations;
 using NosCore.Data.I18N;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 using MonsterType = NosCore.Data.Enumerations.Map.MonsterType;

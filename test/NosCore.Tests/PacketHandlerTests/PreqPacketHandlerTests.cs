@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Movement;

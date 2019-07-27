@@ -1,24 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Text;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NosCore.Core;
-using NosCore.Core.Networking;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
-using NosCore.Database.Entities;
 using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer.Controllers
@@ -163,6 +156,10 @@ namespace NosCore.MasterServer.Controllers
         public bool DeleteBazaar(long id, short count, string requestCharacterName)
         {
             var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem.BazaarItemId == id);
+            if(bzlink == null)
+            {
+                throw new ArgumentException();
+            }
             if (bzlink.ItemInstance.Amount - count < 0 || count < 0)
             {
                 return false;
@@ -194,6 +191,11 @@ namespace NosCore.MasterServer.Controllers
             }
 
             var item = _itemInstanceDao.FirstOrDefault(s => s.Id == bazaarRequest.ItemInstanceId);
+            if (item == null || item.Amount < bazaarRequest.Amount || bazaarRequest.Amount < 0 || bazaarRequest.Price < 0)
+            {
+                throw new ArgumentException();
+            }
+
             Guid itemId;
             if (item.Amount == bazaarRequest.Amount)
             {
@@ -202,7 +204,7 @@ namespace NosCore.MasterServer.Controllers
             else
             {
                 itemId = item.Id;
-                item.Amount = bazaarRequest.Amount;
+                item.Amount -= bazaarRequest.Amount;
                 _itemInstanceDao.InsertOrUpdate(ref item);
                 item.Id = Guid.NewGuid();
             }
@@ -218,7 +220,7 @@ namespace NosCore.MasterServer.Controllers
                 MedalUsed = bazaarRequest.HasMedal,
                 Price = bazaarRequest.Price,
                 SellerId = bazaarRequest.CharacterId,
-                ItemInstanceId = itemId
+                ItemInstanceId = item.Id
             };
             _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
             _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
@@ -233,7 +235,7 @@ namespace NosCore.MasterServer.Controllers
         {
             var item = _holder.BazaarItems.Values
                 .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
-            if (item != null)
+            if (item != null && item.BazaarItem.Amount == item.ItemInstance.Amount)
             {
                 bzMod.ApplyTo(item);
                 var bz = item.BazaarItem;

@@ -8,7 +8,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.PacketHandlers.Inventory
 {

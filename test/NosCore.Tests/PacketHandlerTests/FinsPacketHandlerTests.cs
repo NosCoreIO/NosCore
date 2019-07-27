@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
@@ -9,27 +8,21 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.MasterServer;
 using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
-using Microsoft.AspNetCore.Mvc;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.MasterServer.DataHolders;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

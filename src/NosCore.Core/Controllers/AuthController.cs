@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text;
@@ -28,7 +27,6 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;

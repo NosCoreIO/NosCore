@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
-using Newtonsoft.Json;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -18,7 +14,6 @@ using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients;
 
 namespace NosCore.GameObject.Networking.LoginService
 {

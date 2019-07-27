@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NosCore.Data.Enumerations.Bazaar
+﻿namespace NosCore.Data.Enumerations.Bazaar
 {
     public enum BazaarMainType
     {

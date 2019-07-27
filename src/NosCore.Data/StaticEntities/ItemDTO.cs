@@ -17,12 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.Enumerations;
 using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
 using ItemEffectType = NosCore.Data.Enumerations.Items.ItemEffectType;
