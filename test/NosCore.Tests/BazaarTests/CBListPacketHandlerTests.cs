@@ -5,6 +5,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using System.Collections.Generic;
 using NosCore.Data;
+using System;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -20,5 +21,13 @@ namespace NosCore.Tests.BazaarTests
         {
             _cblistPacketHandler = new CBListPacketHandler(_bazaarHttpClient.Object, new List<ItemDto>());
         }
+
+        [TestMethod]
+        public void ListShouldReturnTheItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        //todo list filter
     }
 }
