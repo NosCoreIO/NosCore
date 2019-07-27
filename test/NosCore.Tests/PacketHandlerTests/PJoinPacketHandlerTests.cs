@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;

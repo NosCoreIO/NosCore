@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;

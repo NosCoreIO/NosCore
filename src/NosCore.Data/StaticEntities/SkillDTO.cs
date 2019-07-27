@@ -18,9 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
-using NosCore.Data.Enumerations;
 using NosCore.Data.I18N;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data.StaticEntities

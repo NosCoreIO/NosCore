@@ -1,7 +1,5 @@
 ﻿using ChickenAPI.Packets.Enumerations;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Data.WebApi
 {

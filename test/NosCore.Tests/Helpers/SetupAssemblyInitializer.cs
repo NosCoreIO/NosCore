@@ -1,10 +1,6 @@
 ﻿using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data;
-using NosCore.Data.Enumerations;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Tests
 {

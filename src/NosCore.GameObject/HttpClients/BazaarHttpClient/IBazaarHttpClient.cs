@@ -13,6 +13,6 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
         LanguageKey AddBazaar(BazaarRequest bazaarRequest);
         BazaarLink GetBazaarLink(long bazaarId);
         bool Remove(long bazaarId, int count, string requestCharacterName);
-        BazaarLink Modify(long bazaarId, object patchBz);
+        BazaarLink Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
     }
 }

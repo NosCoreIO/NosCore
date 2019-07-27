@@ -19,7 +19,6 @@
 
 using System.Collections.Concurrent;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject
 {

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
 using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 

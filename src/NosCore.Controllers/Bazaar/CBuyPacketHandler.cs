@@ -18,11 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -34,7 +32,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

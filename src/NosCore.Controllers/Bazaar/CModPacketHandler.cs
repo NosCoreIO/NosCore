@@ -18,28 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Configuration;
+using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ServerPackets.Auction;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using NosCore.Core;
-using Microsoft.AspNetCore.JsonPatch;
-using NosCore.Data.WebApi;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -62,13 +51,21 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Amount != bz.ItemInstance.Amount)
+            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Amount != packet.Amount)
             {
-                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, new object[]
+                if(bz.BazaarItem.Amount != bz.ItemInstance.Amount)
                 {
-                    new {op = "replace", path = "/BazaarItem/Price", value = packet.NewPrice}
-                });
+                    clientSession.SendPacket(new ModalPacket
+                    {
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, clientSession.Account.Language),
+                        Type = 1
+                    });
+                    return;
+                }
 
+                var patch = new JsonPatchDocument<BazaarLink>();
+                patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
+                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
 
                 if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
                 {

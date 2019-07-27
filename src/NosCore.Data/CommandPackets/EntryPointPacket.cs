@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ChickenAPI.Packets;
+﻿using ChickenAPI.Packets;
 using ChickenAPI.Packets.Attributes;
 
 namespace NosCore.Data.CommandPackets
