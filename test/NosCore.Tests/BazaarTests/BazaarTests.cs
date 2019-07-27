@@ -8,6 +8,8 @@ using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 using System;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.JsonPatch;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -42,7 +44,7 @@ namespace NosCore.Tests.BazaarTests
                           Amount = 99
                       });
             var add = _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = 99,
                     CharacterId = 1,
@@ -96,7 +98,7 @@ namespace NosCore.Tests.BazaarTests
                            Amount = 99
                        });
             Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = -50,
                     CharacterId = 1,
@@ -161,7 +163,7 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarNullItem()
         {
             Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = 50,
                     CharacterId = 1,
@@ -177,45 +179,177 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public void DeleteFromBazaarNegativeCount()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+                  .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                  .Returns(new ItemInstanceDto
+                  {
+                      Id = _guid,
+                      Amount = 99
+                  });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                });
+            Assert.AreEqual(false, _bazaarController.DeleteBazaar(0, -1, "test"));
         }
 
         [TestMethod]
         public void DeleteFromBazaarMoreThanRegistered()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+                   .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                   .Returns(new ItemInstanceDto
+                   {
+                       Id = _guid,
+                       Amount = 99
+                   });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                });
+            Assert.AreEqual(false, _bazaarController.DeleteBazaar(0, 100, "test"));
         }
 
         [TestMethod]
         public void DeleteFromBazaarSomeoneElse()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                });
+            Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test2"));
+            Assert.AreEqual(1, _bazaarItemsHolder.BazaarItems.Values.Count);
+            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance.Amount);
+            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Amount);
         }
 
         [TestMethod]
         public void DeleteFromUserBazaar()
         {
-            throw new NotImplementedException();
+            _mockItemDao
+                 .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                 .Returns(new ItemInstanceDto
+                 {
+                     Id = _guid,
+                     Amount = 99
+                 });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                });
+            Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test"));
+            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems.Values.Count);
         }
 
         [TestMethod]
         public void DeleteFromBazaarNotRegistered()
         {
-            throw new NotImplementedException();
-        }
-
-        [TestMethod]
-        public void ModifyBazaar()
-        {
-            throw new NotImplementedException();
+            Assert.ThrowsException<ArgumentException>(() => _bazaarController.DeleteBazaar(0, 99, "test"));
         }
 
         [TestMethod]
         public void ModifyBazaarNotRegistered()
         {
-            throw new NotImplementedException();
+            var patch = new JsonPatchDocument<BazaarLink>();
+            patch.Replace(link => link.BazaarItem.Price, 50);
+            Assert.IsNull(_bazaarController.ModifyBazaar(0, patch));
         }
 
-        //TODO test filters get
+        [TestMethod]
+        public void ModifyBazaar()
+        {
+            _mockItemDao
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 80
+                });
+            var patch = new JsonPatchDocument<BazaarLink>();
+            patch.Replace(link => link.BazaarItem.Price, 50);
+            Assert.IsNotNull(_bazaarController.ModifyBazaar(0, patch));
+            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Price);
+        }
+
+        [TestMethod]
+        public void ModifyBazaarAlreadySold()
+        {
+            _mockItemDao
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
+            var add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = _guid,
+                    Price = 50
+                });
+            _bazaarItemsHolder.BazaarItems[0].ItemInstance.Amount--;
+            var patch = new JsonPatchDocument<BazaarLink>();
+            patch.Replace(link => link.BazaarItem.Price, 10);
+            Assert.IsNull(_bazaarController.ModifyBazaar(0, patch));
+            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Price);
+        }
+
     }
 }
