@@ -177,6 +177,12 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
+        public void AddMoreThanLimit()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
         public void DeleteFromBazaarNegativeCount()
         {
             _mockItemDao
