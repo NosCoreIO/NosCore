@@ -33,7 +33,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
