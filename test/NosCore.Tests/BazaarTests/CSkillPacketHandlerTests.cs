@@ -1,10 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.PacketHandlers.Bazaar;
 
 namespace NosCore.Tests.BazaarTests
 {
-    class CSkillPacketHandlerTests
+    [TestClass]
+    public class CSkillPacketHandlerTest
     {
+        private CSkillPacketHandler _cskillPacketHandler;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _cskillPacketHandler = new CSkillPacketHandler();
+        }
     }
 }
