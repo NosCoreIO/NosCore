@@ -18,5 +18,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _cSListPacketHandler = new CSListPacketHandler(_bazaarHttpClient.Object);
         }
+
+        //TODO list tests
     }
 }
