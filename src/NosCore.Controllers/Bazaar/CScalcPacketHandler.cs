@@ -89,6 +89,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Total = price + taxes
                             });
                             clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
+                            return;
                         }
                         else
                         {
