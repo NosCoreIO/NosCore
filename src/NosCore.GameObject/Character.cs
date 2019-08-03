@@ -363,6 +363,7 @@ namespace NosCore.GameObject
         }
 
         public List<StaticBonusDto> StaticBonusList { get; set; }
+        public List<QuicklistEntryDto> QuicklistEntries { get; set; }
 
         public void ChangeClass(CharacterClassType classType)
         {
