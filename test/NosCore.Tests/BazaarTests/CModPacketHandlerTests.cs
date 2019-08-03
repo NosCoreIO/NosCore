@@ -73,6 +73,13 @@ namespace NosCore.Tests.BazaarTests
         public void ModifyWhenInExchange()
         {
             _session.Character.InExchangeOrTrade = true;
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 1,
+                NewPrice = 50,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
             Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 

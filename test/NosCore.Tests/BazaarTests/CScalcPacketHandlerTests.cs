@@ -65,6 +65,13 @@ namespace NosCore.Tests.BazaarTests
         public void RetrieveWhenInExchangeOrTrade()
         {
             _session.Character.InExchangeOrTrade = true;
+            _cScalcPacketHandler.Execute(new CScalcPacket
+            {
+                BazaarId = 1,
+                Price = 50,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
             Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
