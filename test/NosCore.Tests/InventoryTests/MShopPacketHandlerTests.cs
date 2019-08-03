@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
@@ -69,7 +70,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void UserCanNotCreateShopCloseToPortal()
         {
             _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -82,7 +83,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Team);
             _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -95,7 +96,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Group);
             _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message !=
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
         }
@@ -106,7 +107,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -145,7 +147,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
             _mShopPacketHandler.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket)_session.LastPacket;
+            var packet = (SayPacket)_session.LastPacket.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
         }
@@ -198,7 +200,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Name = "TEST SHOP"
             }, _session);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket)_session.LastPacket;
+            var packet = (SayPacket)_session.LastPacket.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
         }

@@ -64,7 +64,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Mode = 0,
                 Parameter = 0
             }, _session);
-            Assert.IsTrue(_session.Character.SpAdditionPoint != 0 && !(_session.LastPacket is MsgPacket));
+            Assert.IsTrue(_session.Character.SpAdditionPoint != 0 && !_session.LastPacket.Any(s => s is MsgPacket));
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Mode = 0,
                 Parameter = 0
             }, _session);
-            var packet = (MsgPacket)_session.LastPacket;
+            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints &&
                 packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                     _session.Character.Account.Language));
@@ -104,7 +104,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Parameter = 0
             }, _session);
             Assert.IsTrue(_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints &&
-                !(_session.LastPacket is MsgPacket));
+                 !_session.LastPacket.Any(s => s is MsgPacket));
         }
 
     }

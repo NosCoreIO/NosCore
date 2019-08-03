@@ -156,7 +156,7 @@ namespace NosCore.MasterServer.Controllers
         public bool DeleteBazaar(long id, short count, string requestCharacterName)
         {
             var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem.BazaarItemId == id);
-            if(bzlink == null)
+            if (bzlink == null)
             {
                 throw new ArgumentException();
             }

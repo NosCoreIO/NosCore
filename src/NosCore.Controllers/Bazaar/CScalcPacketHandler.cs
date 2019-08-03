@@ -33,7 +33,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
@@ -89,6 +89,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                                 Total = price + taxes
                             });
                             clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
+                            return;
                         }
                         else
                         {

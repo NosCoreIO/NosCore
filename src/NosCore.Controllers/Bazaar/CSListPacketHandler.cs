@@ -27,7 +27,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSListPacketHandler : PacketHandler<CSListPacket>, IWorldPacketHandler
     {
@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public override void Execute(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket>();
-            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1,packet.Index,50,0,0,0,0,0,clientSession.Character.CharacterId);
+            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0, clientSession.Character.CharacterId);
 
             foreach (var bz in bzlist)
             {
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 bool isNosbazar = bz.BazaarItem.MedalUsed;
                 long price = bz.BazaarItem.Price;
                 long minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes;
-                var status = minutesLeft >= 0 ? (soldedAmount < amount ? BazaarStatusType.OnSale : BazaarStatusType.Solded) : BazaarStatusType.DelayExpired;
+                var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
                 if (status == BazaarStatusType.DelayExpired)
                 {
                     minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) - SystemTime.Now()).TotalMinutes;
