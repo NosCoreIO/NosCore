@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Enumerations;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -39,7 +40,7 @@ namespace NosCore.Data
 
         public short Slot { get; set; }
 
-        public short Type { get; set; }
+        public QSetType Type { get; set; }
     }
 
 }
