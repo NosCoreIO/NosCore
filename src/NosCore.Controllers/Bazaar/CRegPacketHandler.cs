@@ -67,12 +67,21 @@ namespace NosCore.PacketHandlers.CharacterScreen
             long taxmin = price >= 4000 ? (60 + (price - 4000) / 2000 * 30 > 10000 ? 10000 : 60 + (price - 4000) / 2000 * 30) : 50;
             long tax = medal == null ? taxmax : taxmin;
             long maxGold = _configuration.MaxGoldAmount;
-            if (clientSession.Character.Gold < tax || cRegPacket.Amount <= 0 || clientSession.Character.InExchangeOrShop)
+            if (clientSession.Character.Gold < tax)
+            {
+                clientSession.SendPacket(new MsgPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                        clientSession.Account.Language)
+                });
+                return;
+            }
+            if (cRegPacket.Amount <= 0 || clientSession.Character.InExchangeOrShop)
             {
                 return;
             }
             var it = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot, cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType)cRegPacket.Inventory);
-            if (it == null || !it.ItemInstance.Item.IsSoldable || it.ItemInstance.BoundCharacterId != null)
+            if (it == null || !it.ItemInstance.Item.IsSoldable || it.ItemInstance.BoundCharacterId != null || cRegPacket.Amount > it.ItemInstance.Amount)
             {
                 return;
             }
@@ -84,6 +93,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
                 });
+                return;
+            }
+
+            if (medal == null && cRegPacket.Durability > 1)
+            {
                 return;
             }
 
@@ -109,6 +123,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 default:
                     return;
             }
+
             var bazar = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot, cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType)cRegPacket.Inventory);
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
