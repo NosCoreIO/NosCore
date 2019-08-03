@@ -18,6 +18,7 @@ using NosCore.Data.Enumerations.I18N;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using System.Linq;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -64,7 +65,7 @@ namespace NosCore.Tests.BazaarTests
         public void RetrieveWhenInExchangeOrTrade()
         {
             _session.Character.InExchangeOrTrade = true;
-            Assert.IsNull(_session.LastPacket);
+            Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
         [TestMethod]
@@ -77,7 +78,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket;
+            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket.Price);
         }
 
@@ -91,7 +92,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket;
+            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket.Price);
         }
 
@@ -111,7 +112,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket;
+            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket.Price);
         }
 
@@ -126,8 +127,9 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (CSListPacket)_session.LastPacket;
-            Assert.AreEqual(0, lastpacket.Index);
+            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+                          _session.Account.Language), lastpacket.Message);
         }
 
 
@@ -141,7 +143,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket;
+            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket.Total);
         }
     }

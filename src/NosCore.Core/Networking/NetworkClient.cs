@@ -18,9 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Core.I18N;
@@ -32,9 +34,11 @@ namespace NosCore.Core.Networking
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
         private readonly ILogger _logger;
+        const short maxPacketsBuffer = 50;
         public NetworkClient(ILogger logger)
         {
             _logger = logger;
+            LastPacket = new ConcurrentQueue<IPacket>();
         }
 
         public IChannel Channel { get; private set; }
@@ -44,7 +48,7 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public IPacket LastPacket { get; private set; }
+        public ConcurrentQueue<IPacket> LastPacket { get; private set; }
 
         public long ClientId { get; set; }
 
@@ -57,7 +61,7 @@ namespace NosCore.Core.Networking
 
         public void SendPacket(IPacket packet)
         {
-            SendPackets(new[] {packet});
+            SendPackets(new[] { packet });
         }
 
         public void SendPackets(IEnumerable<IPacket> packets)
@@ -68,7 +72,8 @@ namespace NosCore.Core.Networking
                 return;
             }
 
-            LastPacket = packetDefinitions.Last();
+            Parallel.ForEach(packets, (packet) => LastPacket.Enqueue(packet));
+            Parallel.For(0, LastPacket.Count - maxPacketsBuffer, (_, __) => LastPacket.TryDequeue(out var ___));
             Channel?.WriteAndFlushAsync(packetDefinitions);
         }
 

@@ -1,11 +1,20 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using ChickenAPI.Packets.ClientPackets.Bazaar;
+using ChickenAPI.Packets.ServerPackets.UI;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Tests.Helpers;
 using Serilog;
 using System;
+using System.Linq;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -20,37 +29,63 @@ namespace NosCore.Tests.BazaarTests
         [TestInitialize]
         public void Setup()
         {
+            TestHelpers.Reset();
+            Broadcaster.Reset();
+            _session = TestHelpers.Instance.GenerateSession();
+            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, _logger);
+
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).Returns(
+                new BazaarLink
+                {
+                    SellerName = "test",
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
+                });
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).Returns(
+                new BazaarLink
+                {
+                    SellerName = _session.Character.Name,
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
+                });
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).Returns((BazaarLink)null);
+            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).Returns(true);
         }
 
         [TestMethod]
         public void ModifyWhenInExchange()
         {
-            //return
-            throw new NotImplementedException();
+            _session.Character.InExchangeOrTrade = true;
+            Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
         [TestMethod]
         public void ModifyWhenNoItem()
-        {        
-            //                    clientSession.SendPacket(new ModalPacket
-            //                    {
-            //                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
-            //                        Type = 1
-            //                    });
-            throw new NotImplementedException();
+        {
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 1,
+                NewPrice = 50,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
+            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s=>s is ModalPacket);
+            Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
 
         [TestMethod]
         public void ModifyWhenOtherSeller()
         {
-            //                    clientSession.SendPacket(new ModalPacket
-            //                    {
-            //                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
-            //                        Type = 1
-            //                    });
-            throw new NotImplementedException();
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 0,
+                NewPrice = 50,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
+            Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
         [TestMethod]

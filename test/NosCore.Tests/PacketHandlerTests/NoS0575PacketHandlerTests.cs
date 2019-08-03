@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
@@ -50,8 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.OldClient);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.OldClient);
         }
 
         [TestMethod]
@@ -63,8 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = "noaccount"
             }, _session);
 
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
@@ -76,8 +75,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.WrongCaps);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.WrongCaps);
         }
 
         [TestMethod]
@@ -89,8 +87,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name
             }, _session);
 
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AccountOrPasswordWrong);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
@@ -105,7 +102,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name
             }, _session);
 
-            Assert.IsTrue(_session.LastPacket is NsTestPacket);
+            Assert.IsNotNull((NsTestPacket)_session.LastPacket.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
@@ -119,8 +116,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "test".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.AlreadyConnected);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AlreadyConnected);
         }
          
         [TestMethod]
@@ -135,8 +131,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "test".ToSha512(),
                 Username = _session.Account.Name
             }, _session);
-            Assert.IsTrue(_session.LastPacket is FailcPacket);
-            Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.CantConnect);
+            Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.CantConnect);
         }
 
         //[TestMethod]
@@ -160,7 +155,7 @@ namespace NosCore.Tests.PacketHandlerTests
         //        Name = Name,
         //    });
         //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket)_session.LastPacket).Type == LoginFailType.Maintenance);
+        //    Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.Maintenance);
         //}
     }
 }
