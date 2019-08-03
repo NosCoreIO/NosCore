@@ -1,5 +1,7 @@
 ﻿using ChickenAPI.Packets.ClientPackets.Bazaar;
+using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -42,15 +44,29 @@ namespace NosCore.Tests.BazaarTests
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
+
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(3)).Returns(
+                new BazaarLink
+                {
+                    SellerName = _session.Character.Name,
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
+                });
+
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).Returns(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
-                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).Returns((BazaarLink)null);
-            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).Returns(true);
+            _bazaarHttpClient.Setup(b => b.Modify(It.IsAny<long>(), It.IsAny<JsonPatchDocument<BazaarLink>>())).Returns(new BazaarLink
+            {
+                SellerName = _session.Character.Name,
+                BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },
+                ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
+            });
         }
 
         [TestMethod]
@@ -70,8 +86,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s=>s is ModalPacket);
-            Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
+            Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
 
@@ -91,44 +106,59 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public void ModifyWhenSold()
         {
-            //clientSession.SendPacket(new ModalPacket
-            //                    {
-            //                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, clientSession.Account.Language),
-            //                        Type = 1
-            //                    });
-            throw new NotImplementedException();
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 3,
+                NewPrice = 60,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
+            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s => s is ModalPacket);
+            Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
         }
 
         [TestMethod]
         public void ModifyWhenWrongAmount()
         {
-            //                    clientSession.SendPacket(new ModalPacket
-            //                    {
-            //                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
-            //                        Type = 1
-            //                    });
-            throw new NotImplementedException();
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 2,
+                NewPrice = 70,
+                Amount = 2,
+                VNum = 1012,
+            }, _session);
+            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s => s is ModalPacket);
+            Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
         public void ModifyWhenPriceSamePrice()
         {
-            //                    clientSession.SendPacket(new ModalPacket
-            //                    {
-            //                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
-            //                        Type = 1
-            //                    });
-            throw new NotImplementedException();
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 2,
+                NewPrice = 60,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
+            Assert.IsNull(_session.LastPacket.FirstOrDefault());
         }
 
         [TestMethod]
         public void Modify()
         {
-            //                    clientSession.Character.GenerateSay(
-            //                        string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, clientSession.Account.Language),
-            //                        bz.BazaarItem.Price
-            //                    ), SayColorType.Yellow);
-            throw new NotImplementedException();
+            _cmodPacketHandler.Execute(new CModPacket
+            {
+                BazaarId = 2,
+                NewPrice = 70,
+                Amount = 1,
+                VNum = 1012,
+            }, _session);
+            var lastpacket = (SayPacket)_session.LastPacket.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue(lastpacket.Message == 
+                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
+                70
+                ));
         }
     }
 }
