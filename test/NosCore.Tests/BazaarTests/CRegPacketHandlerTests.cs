@@ -46,7 +46,7 @@ namespace NosCore.Tests.BazaarTests
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _inventoryItemInstanceDao = new Mock<IGenericDao<InventoryItemInstanceDto>>();
             _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
-            _bazaarHttpClient.Setup(s=>s.AddBazaar(It.IsAny<BazaarRequest>())).Returns(LanguageKey.OBJECT_IN_BAZAAR);
+            _bazaarHttpClient.Setup(s => s.AddBazaar(It.IsAny<BazaarRequest>())).Returns(LanguageKey.OBJECT_IN_BAZAAR);
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true},
@@ -157,6 +157,32 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
+        public void RegisterHasSmallerTaxWhenMedal()
+        {
+            _session.Character.Gold = 100000;
+            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                StaticBonusType = Data.Enumerations.Buff.StaticBonusType.BazaarMedalGold
+            });
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0)).First();
+            _cregPacketHandler.Execute(new CRegPacket
+            {
+                Type = 0,
+                Inventory = 1,
+                Slot = 0,
+                Durability = 1,
+                IsPackage = 0,
+                Amount = 1,
+                Taxe = 0,
+                MedalUsed = 0,
+                Price = 10000000
+            }, _session);
+            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(0, _session.Character.Inventory.Count);
+            Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+        }
+
+        [TestMethod]
         public void RegisterTooExpensive()
         {
             _session.Character.Gold = 5000000;
@@ -171,7 +197,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
-                Price = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount+1
+                Price = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount + 1
             }, _session);
             var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
