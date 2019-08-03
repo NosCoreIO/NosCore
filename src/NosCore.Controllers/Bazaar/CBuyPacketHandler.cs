@@ -55,10 +55,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName != clientSession.Character.Name && packet.Price == bz.BazaarItem.Price)
+            if (bz != null && bz.SellerName != clientSession.Character.Name && packet.Price == bz.BazaarItem.Price && bz.ItemInstance.Amount >= packet.Amount)
             {
+                if (bz.BazaarItem.IsPackage && bz.BazaarItem.Amount != packet.Amount)
+                {
+                    return;
+                }
+
                 var price = bz.BazaarItem.Price * packet.Amount;
-                if (clientSession.Character.Inventory.CanAddItem(bz.ItemInstance.ItemVNum) && bz.ItemInstance.Amount >= packet.Amount)
+                if (clientSession.Character.Inventory.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
                     if (clientSession.Character.Gold - price > 0)
                     {

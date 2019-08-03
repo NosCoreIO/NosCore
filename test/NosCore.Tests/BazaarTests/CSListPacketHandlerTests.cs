@@ -1,10 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.PacketHandlers.Bazaar;
 
 namespace NosCore.Tests.BazaarTests
 {
-    class CSListPacketHandlerTests
+    [TestClass]
+    public class CSListPacketHandlerTest
     {
+        private CSListPacketHandler _cSListPacketHandler;
+        private ClientSession _session;
+        private Mock<IBazaarHttpClient> _bazaarHttpClient;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _cSListPacketHandler = new CSListPacketHandler(_bazaarHttpClient.Object);
+        }
+
+        //TODO list tests
     }
 }

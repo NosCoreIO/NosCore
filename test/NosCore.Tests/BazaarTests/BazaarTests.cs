@@ -10,6 +10,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data.WebApi;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -19,18 +20,23 @@ namespace NosCore.Tests.BazaarTests
         private BazaarItemsHolder _bazaarItemsHolder;
         private BazaarController _bazaarController;
         private Guid _guid;
+        private Mock<IGenericDao<BazaarItemDto>> _mockBzDao;
         private Mock<IGenericDao<IItemInstanceDto>> _mockItemDao;
+
+        public delegate SaveResult DeleegateInsert(ref BazaarItemDto y);
+
 
         [TestInitialize]
         public void Setup()
         {
             _guid = Guid.NewGuid();
-            var mockBzDao = new Mock<IGenericDao<BazaarItemDto>>();
+            _mockBzDao = new Mock<IGenericDao<BazaarItemDto>>();
             _mockItemDao = new Mock<IGenericDao<IItemInstanceDto>>();
+          
             var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
             var itemList = new System.Collections.Generic.List<ItemDto>();
-            _bazaarItemsHolder = new BazaarItemsHolder(mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);
-            _bazaarController = new BazaarController(_bazaarItemsHolder, mockBzDao.Object, _mockItemDao.Object);
+            _bazaarItemsHolder = new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);
+            _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);
         }
 
         [TestMethod]
@@ -174,6 +180,47 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 100
                 }));
+        }
+
+        [TestMethod]
+        public void AddMoreThanLimit()
+        {
+            var rand = new Random();
+            _mockBzDao.Setup(m => m.InsertOrUpdate(ref It.Ref<BazaarItemDto>.IsAny))
+              .Returns((DeleegateInsert)((ref BazaarItemDto y) =>
+              {
+
+                  y.BazaarItemId = rand.Next(0, 9999999);
+                  return SaveResult.Saved;
+              }));
+            LanguageKey? add = null;
+            for (var i = 0; i < 12; i++)
+            {
+                var guid = Guid.NewGuid();
+                _mockItemDao.Reset();
+                _mockItemDao
+                 .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                 .Returns(new ItemInstanceDto
+                 {
+                     Id = guid,
+                     Amount = 99
+                 });
+                add = _bazaarController.AddBazaar(
+                new BazaarRequest
+                {
+                    Amount = 99,
+                    CharacterId = 1,
+                    CharacterName = "test",
+                    Duration = 3600,
+                    HasMedal = false,
+                    IsPackage = false,
+                    ItemInstanceId = guid,
+                    Price = 50
+                });
+            }
+
+            Assert.AreEqual(10, _bazaarItemsHolder.BazaarItems.Count);
+            Assert.AreEqual(LanguageKey.LIMIT_EXCEEDED, add);
         }
 
         [TestMethod]

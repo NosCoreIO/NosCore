@@ -51,9 +51,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Amount != packet.Amount)
+            if (bz != null && bz.SellerName == clientSession.Character.Name && bz.BazaarItem.Price != packet.NewPrice)
             {
-                if(bz.BazaarItem.Amount != bz.ItemInstance.Amount)
+                if (bz.BazaarItem.Amount != bz.ItemInstance.Amount)
                 {
                     clientSession.SendPacket(new ModalPacket
                     {
@@ -62,27 +62,27 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     });
                     return;
                 }
-
-                var patch = new JsonPatchDocument<BazaarLink>();
-                patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
-                var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
-
-                if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
+                if (bz.BazaarItem.Amount == packet.Amount)
                 {
-                    clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
-                    clientSession.Character.GenerateSay(
-                        string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, clientSession.Account.Language),
-                        bz.BazaarItem.Price
-                    ), SayColorType.Yellow);
-                }
-                else
-                {
-                    clientSession.SendPacket(new ModalPacket
+                    var patch = new JsonPatchDocument<BazaarLink>();
+                    patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
+                    var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
+
+                    if (bzMod != null && bzMod.BazaarItem.Price != bz.BazaarItem.Price)
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
-                        Type = 1
-                    });
+                        clientSession.HandlePackets(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
+                        clientSession.SendPacket(clientSession.Character.GenerateSay(
+                            string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, clientSession.Account.Language),
+                            bz.BazaarItem.Price
+                        ), SayColorType.Yellow));
+                        return;
+                    }
                 }
+                clientSession.SendPacket(new ModalPacket
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
+                    Type = 1
+                });
             }
             else
             {

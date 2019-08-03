@@ -28,7 +28,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
     {
