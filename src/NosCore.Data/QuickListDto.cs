@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___  
+﻿//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -18,13 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Database.Entities.Base;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.Database.Entities
+namespace NosCore.Data
 {
-    public class QuicklistEntry : SynchronizableBaseEntity
+    public class QuicklistEntryDto : IDto
     {
-        public virtual Character Character { get; set; }
+        [Key]
+        public Guid Id { get; set; }
 
         public long CharacterId { get; set; }
 
@@ -40,4 +42,5 @@ namespace NosCore.Database.Entities
 
         public QSetType Type { get; set; }
     }
+
 }
