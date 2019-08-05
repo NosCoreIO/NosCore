@@ -45,10 +45,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
+        private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
 
         public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
-            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao)
+            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao, IGenericDao<QuicklistEntryDto> quickListEntriesDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -58,6 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _itemInstanceDao = itemInstanceDao;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
             _staticBonusDao = staticBonusDao;
+            _quickListEntriesDao = quickListEntriesDao;
         }
      
         public override void Execute(SelectPacket packet, ClientSession clientSession)
@@ -111,6 +113,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
+                clientSession.Character.QuicklistEntries = _quickListEntriesDao.Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.Character.StaticBonusList = _staticBonusDao.Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.SendPacket(new OkPacket());
             }

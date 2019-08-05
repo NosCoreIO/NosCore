@@ -66,15 +66,13 @@ namespace NosCore.Core.Networking
 
         public void SendPackets(IEnumerable<IPacket> packets)
         {
-            var packetDefinitions = packets as IPacket[] ?? packets.ToArray();
-            if (packetDefinitions.Length == 0)
+            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
+            if (packetDefinitions.Any())
             {
-                return;
+                Parallel.ForEach(packets, (packet) => LastPacket.Enqueue(packet));
+                Parallel.For(0, LastPacket.Count - maxPacketsBuffer, (_, __) => LastPacket.TryDequeue(out var ___));
+                Channel?.WriteAndFlushAsync(packetDefinitions);
             }
-
-            Parallel.ForEach(packets, (packet) => LastPacket.Enqueue(packet));
-            Parallel.For(0, LastPacket.Count - maxPacketsBuffer, (_, __) => LastPacket.TryDequeue(out var ___));
-            Channel?.WriteAndFlushAsync(packetDefinitions);
         }
 
         public void RegisterChannel(IChannel channel)

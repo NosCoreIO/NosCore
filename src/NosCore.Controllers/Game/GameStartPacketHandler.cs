@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Game
 
             session.SendPacket(session.Character.GenerateGold());
             session.SendPacket(session.Character.GenerateCond());
-            //            Session.SendPackets(Session.Character.GenerateQuicklist());
+            session.SendPackets(session.Character.GenerateQuicklist());
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
