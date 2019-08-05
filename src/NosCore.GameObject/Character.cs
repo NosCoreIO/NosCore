@@ -59,6 +59,7 @@ using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
+using ChickenAPI.Packets.ServerPackets.Quicklist;
 
 namespace NosCore.GameObject
 {
@@ -71,9 +72,11 @@ namespace NosCore.GameObject
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
+        private readonly IGenericDao<QuicklistEntryDto> _quicklistEntriesDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
-            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao)
+            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
+            IGenericDao<QuicklistEntryDto> quicklistEntriesDao)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -87,6 +90,8 @@ namespace NosCore.GameObject
             _logger = logger;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
             _staticBonusDao = staticBonusDao;
+            QuicklistEntries = new List<QuicklistEntryDto>();
+            _quicklistEntriesDao = quicklistEntriesDao;
         }
 
         public AccountDto Account { get; set; }
@@ -293,6 +298,11 @@ namespace NosCore.GameObject
                 CharacterDto character = (Character)MemberwiseClone();
                 _characterDao.InsertOrUpdate(ref character);
 
+                var quicklistEntriesToDelete = _quicklistEntriesDao
+                 .Where(i => i.CharacterId == CharacterId).ToList().Where(i => QuicklistEntries.All(o => o.Id != i.Id)).ToList();
+                _quicklistEntriesDao.Delete(quicklistEntriesToDelete.Select(s => s.Id).ToArray());
+                _quicklistEntriesDao.InsertOrUpdate(QuicklistEntries);
+
                 // load and concat inventory with equipment
                 var itemsToDelete = _inventoryItemInstanceDao
                     .Where(i => i.CharacterId == CharacterId).ToList().Where(i => Inventory.Values.All(o => o.Id != i.Id)).ToList();
@@ -363,6 +373,8 @@ namespace NosCore.GameObject
         }
 
         public List<StaticBonusDto> StaticBonusList { get; set; }
+        public List<QuicklistEntryDto> QuicklistEntries { get; set; }
+
 
         public void ChangeClass(CharacterClassType classType)
         {
@@ -401,8 +413,21 @@ namespace NosCore.GameObject
                 Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
                 Type = MessageType.White
             });
-            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
 
+            QuicklistEntries = new List<QuicklistEntryDto>
+            {
+                new QuicklistEntryDto
+                {
+                    CharacterId = CharacterId,
+                    Q1 = 0,
+                    Q2 = 9,
+                    Type = QSetType.Set,
+                    Slot = 3,
+                    Pos = 1
+                }
+            };
+
+            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
             MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
             MapInstance.Sessions.SendPacket(this.GenerateEff(6));
             MapInstance.Sessions.SendPacket(this.GenerateEff(198));
@@ -718,6 +743,34 @@ namespace NosCore.GameObject
                 HeroLevel = HeroLevel,
                 HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
             };
+        }
+
+        public IEnumerable<QSlotPacket> GenerateQuicklist()
+        {
+            var pktQs = new QSlotPacket[2];
+            for (var i = 0; i < pktQs.Length; i++)
+            {
+                var subpacket = new List<QsetClientSubPacket>();
+                for (int j = 0; j < 30; j++)
+                {
+                    var qi = QuicklistEntries.FirstOrDefault(n => n.Q1 == i && n.Q2 == j && n.Morph == (UseSp ? Morph : 0));
+
+                    subpacket.Add(new QsetClientSubPacket
+                    {
+                        Type = qi?.Type ?? QSetType.Reset,
+                        OriginQuickListSlot = qi?.Slot ?? 7,
+                        Data = qi?.Pos ?? -1
+                    });
+
+                }
+                pktQs[i] = new QSlotPacket
+                {
+                    Slot = i,
+                    Data = subpacket
+                };
+            }
+
+            return pktQs;
         }
 
         public FdPacket GenerateFd()
@@ -1269,15 +1322,11 @@ namespace NosCore.GameObject
 
         public void ChangeSp()
         {
-            SpecialistInstance sp =
-                Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
-            if (sp == null)
+            if (!(Inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance sp))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
                 return;
             }
-            WearableInstance fairy =
-                Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 
             if (GetReputIco() < sp.Item.ReputationMinimum)
             {
@@ -1289,8 +1338,9 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (fairy != null && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element &&
-                fairy.Item.Element != sp.Item.SecondaryElement)
+            if (Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is WearableInstance fairy 
+                && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element 
+                && fairy.Item.Element != sp.Item.SecondaryElement)
             {
                 SendPacket(new MsgPacket
                 {
