@@ -4,6 +4,7 @@ using ChickenAPI.Packets.ServerPackets.Quicklist;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using System;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -45,6 +46,7 @@ namespace NosCore.PacketHandlers.Game
                     session.Character.QuicklistEntries.RemoveAll(n => n.Q1 == q1 && n.Q2 == q2 && n.Morph == morph);
                     session.Character.QuicklistEntries.Add(new QuicklistEntryDto
                     {
+                        Id = Guid.NewGuid(),
                         CharacterId = session.Character.CharacterId,
                         Type = type,
                         Q1 = q1,
@@ -67,7 +69,7 @@ namespace NosCore.PacketHandlers.Game
 
                         if (qlTo == null)
                         {
-                            SendQSet(session, qlFrom.Q1, qlFrom.Q2, type, qlFrom.Slot, qlFrom.Pos);
+                            SendQSet(session, qlFrom.Q1, qlFrom.Q2, qlFrom.Type, qlFrom.Slot, qlFrom.Pos);
                             SendQSet(session, data1, data2, QSetType.Reset, 7, -1);
                         }
                         else
@@ -82,7 +84,7 @@ namespace NosCore.PacketHandlers.Game
 
                 case QSetType.Remove:
                     session.Character.QuicklistEntries.RemoveAll(n => n.Q1 == q1 && n.Q2 == q2 && n.Morph == morph);
-                    SendQSet(session, data1, data2, QSetType.Reset, 7, -1);
+                    SendQSet(session, q1, q2, QSetType.Reset, 7, -1);
                     break;
 
                 default:
