@@ -757,7 +757,7 @@ namespace NosCore.GameObject
 
                     subpacket.Add(new QsetClientSubPacket
                     {
-                        Type = qi?.Type ?? QSetType.Reset,
+                        OriginQuickList = (short?)(qi?.Type) ?? 7,
                         OriginQuickListSlot = qi?.Slot ?? 7,
                         Data = qi?.Pos ?? -1
                     });
