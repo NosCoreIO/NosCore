@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         new QnaPacket
                         {
                             YesPacket = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
-                                itemInstance.Slot, (byte) packet.Mode, (byte) packet.Parameter),
+                                itemInstance.Slot, 1, (byte) packet.Parameter),
                             Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                         });
                     return;
