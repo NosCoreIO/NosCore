@@ -144,7 +144,8 @@ namespace NosCore.Data.Enumerations.I18N
         SECURITY_TOKEN_UPDATED,
         BAZAAR_DELETE_ERROR,
         BAZAAR_BUY_ERROR,
-        BAZAAR_MOD_ERROR
+        BAZAAR_MOD_ERROR,
+        DIRECT_ACCESS_OBJECT_DETECTED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -271,6 +272,6 @@ namespace NosCore.Data.Enumerations.I18N
         REMOVE_FROM_BAZAAR,
         STATE_CHANGED_BAZAAR,
         BAZAAR_PRICE_CHANGED,
-        CAN_NOT_MODIFY_SOLD_ITEMS,
+        CAN_NOT_MODIFY_SOLD_ITEMS
     }
 }
