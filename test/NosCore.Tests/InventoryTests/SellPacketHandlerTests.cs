@@ -74,7 +74,7 @@ namespace NosCore.Tests.PacketHandlerTests
 
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _sellPacketHandler.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc }, _session);
-            var packet = (SMemoPacket)_session.LastPacket.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
             Assert.IsTrue(_session.Character.Gold == 0);

@@ -76,7 +76,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0
             }, _session);
 
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
 
@@ -95,7 +95,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0
             }, _session);
 
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 
@@ -114,7 +114,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 100000001
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
         }
 
@@ -177,7 +177,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 10000000
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.Inventory.Count);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
@@ -199,7 +199,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount + 1
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
         }
 
@@ -220,7 +220,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
 
@@ -241,7 +241,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -263,7 +263,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(999, _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, _session.Account.Language));
         }
@@ -285,7 +285,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.Inventory.Count);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
@@ -307,7 +307,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -327,7 +327,7 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0,
                 Price = 1
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(50, _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }

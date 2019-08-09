@@ -80,7 +80,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
 
@@ -107,7 +107,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
         }
 
@@ -134,7 +134,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 2,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPacket.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
@@ -148,7 +148,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (SayPacket)_session.LastPacket.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket.Message == 
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
                 70
