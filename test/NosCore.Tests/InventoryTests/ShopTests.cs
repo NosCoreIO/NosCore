@@ -84,7 +84,7 @@ namespace NosCore.Tests
                 ShopItems = list
             };
             _session.Character.Buy(shop, 1, 99);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace NosCore.Tests
                 ShopItems = list
             };
             _session.Character.Buy(shop, 0, 99);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -125,7 +125,7 @@ namespace NosCore.Tests
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket)_session.LastPacket.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
@@ -148,7 +148,7 @@ namespace NosCore.Tests
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket)_session.LastPacket.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
         }
@@ -175,7 +175,7 @@ namespace NosCore.Tests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 999);
-            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
@@ -322,7 +322,7 @@ namespace NosCore.Tests
             _session.Character.Buy(session2.Character.Shop, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 999);
-            var packet = (SMemoPacket)_session.LastPacket.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
         }

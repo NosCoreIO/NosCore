@@ -72,7 +72,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
+            var lastpacket = (RCScalcPacket)_session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket.Price);
         }
 
@@ -99,7 +99,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
+            var lastpacket = (RCScalcPacket)_session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket.Price);
         }
 
@@ -119,7 +119,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
+            var lastpacket = (RCScalcPacket)_session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket.Price);
         }
 
@@ -134,7 +134,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                           _session.Account.Language), lastpacket.Message);
         }
@@ -150,7 +150,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (RCScalcPacket)_session.LastPacket.FirstOrDefault(s => s is RCScalcPacket);
+            var lastpacket = (RCScalcPacket)_session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket.Total);
         }
     }

@@ -34,7 +34,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _session.Character.InExchangeOrTrade = true;
             _cskillPacketHandler.Execute(new CSkillPacket(), _session);
-            Assert.IsNull(_session.LastPacket.FirstOrDefault());
+            Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
 
@@ -42,7 +42,7 @@ namespace NosCore.Tests.BazaarTests
         public void OpenWhenNoMedal()
         {
             _cskillPacketHandler.Execute(new CSkillPacket(), _session);
-            var lastpacket = (InfoPacket)_session.LastPacket.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
         }
 
@@ -54,7 +54,7 @@ namespace NosCore.Tests.BazaarTests
                 StaticBonusType = Data.Enumerations.Buff.StaticBonusType.BazaarMedalGold
             });
             _cskillPacketHandler.Execute(new CSkillPacket(), _session);
-            var lastpacket = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
         }
     }
