@@ -88,7 +88,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            var packet = (MsgPacket)_session.LastPacket.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                 _session.Account.Language) && packet.Type == 0);
             Assert.IsTrue(_session.Character.Inventory.Count == 2);
@@ -127,7 +127,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            var packet = (SayPacket)_session.LastPacket.FirstOrDefault(s => s is SayPacket);
+            var packet = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
                 _session.Account.Language) && packet.Type == SayColorType.Yellow);
             Assert.IsTrue(_session.Character.Inventory.Count == 0);
