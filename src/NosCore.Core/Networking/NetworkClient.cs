@@ -38,7 +38,7 @@ namespace NosCore.Core.Networking
         public NetworkClient(ILogger logger)
         {
             _logger = logger;
-            LastPacket = new ConcurrentQueue<IPacket>();
+            LastPackets = new ConcurrentQueue<IPacket>();
         }
 
         public IChannel Channel { get; private set; }
@@ -48,7 +48,7 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public ConcurrentQueue<IPacket> LastPacket { get; private set; }
+        public ConcurrentQueue<IPacket> LastPackets { get; private set; }
 
         public long ClientId { get; set; }
 
@@ -69,8 +69,8 @@ namespace NosCore.Core.Networking
             var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
             if (packetDefinitions.Any())
             {
-                Parallel.ForEach(packets, (packet) => LastPacket.Enqueue(packet));
-                Parallel.For(0, LastPacket.Count - maxPacketsBuffer, (_, __) => LastPacket.TryDequeue(out var ___));
+                Parallel.ForEach(packets, (packet) => LastPackets.Enqueue(packet));
+                Parallel.For(0, LastPackets.Count - maxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
                 Channel?.WriteAndFlushAsync(packetDefinitions);
             }
         }
