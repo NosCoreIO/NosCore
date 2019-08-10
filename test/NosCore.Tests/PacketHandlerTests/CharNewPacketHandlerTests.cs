@@ -43,7 +43,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, _logger);
+                    _logger);
             const string name = "TestCharacter";
             _charNewPacketHandler.Execute(new CharNewPacket
             {
