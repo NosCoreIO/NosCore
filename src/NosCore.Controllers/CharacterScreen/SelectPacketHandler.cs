@@ -47,7 +47,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
-        private readonly IMinilandProvider _minilandProvider;
 
         public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
