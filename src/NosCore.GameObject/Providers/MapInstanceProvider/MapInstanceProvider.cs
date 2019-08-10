@@ -40,7 +40,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly IMapItemProvider _mapItemProvider;
         private readonly IGenericDao<MapMonsterDto> _mapMonsters;
         private readonly IGenericDao<PortalDto> _portalDao;
-        private readonly IAdapter _adapter;
         private readonly List<MapDto> _maps;
         private readonly IGenericDao<MapNpcDto> _mapNpcs;
         private ConcurrentDictionary<Guid, MapInstance> MapInstances =
@@ -48,15 +47,43 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public MapInstanceProvider(List<MapDto> maps,
             IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
-            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, IAdapter adapter, ILogger logger)
+            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, ILogger logger)
         {
             _mapItemProvider = mapItemProvider;
             _mapMonsters = mapMonsters;
             _portalDao = portalDao;
-            _adapter = adapter;
             _maps = maps;
             _mapNpcs = mapNpcs;
             _logger = logger;
+        }
+
+        public void AddMapInstance(MapInstance mapInstance)
+        {
+            MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
+            LoadPortals(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
+        }
+
+        private void LoadPortals(MapInstance mapInstance, List<PortalDto> portals)
+        {
+            var partitioner = Partitioner.Create(
+                portals.Where(s => s.SourceMapId == mapInstance.Map.MapId).Adapt<List<Portal>>(),
+                EnumerablePartitionerOptions.None);
+            var portalList = new ConcurrentDictionary<int, Portal>();
+            Parallel.ForEach(partitioner, portal =>
+            {
+                portal.SourceMapInstanceId = mapInstance.MapInstanceId;
+                if (portal.DestinationMapInstanceId == default)
+                {
+                    portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
+                }
+                portalList[portal.PortalId] = portal;
+            });
+            mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
+        }
+
+        public void RemoveMap(Guid mapInstanceId)
+        {
+            MapInstances.TryRemove(mapInstanceId, out _);
         }
 
         public void Initialize()
@@ -73,7 +100,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 map =>
                 {
                     var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
-                        _mapItemProvider, _adapter, _logger);
+                        _mapItemProvider, _logger);
                     if (monsters.ContainsKey(map.MapId))
                     {
                         mapinstance.LoadMonsters(monsters[map.MapId]);
@@ -89,17 +116,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             var mapInstancePartitioner = Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
             Parallel.ForEach(mapInstancePartitioner, mapInstance =>
             {
-                var partitioner = Partitioner.Create(
-                    portals.Where(s => s.SourceMapId == mapInstance.Map.MapId).Adapt<List<Portal>>(),
-                    EnumerablePartitionerOptions.None);
-                var portalList = new ConcurrentDictionary<int, Portal>();
-                Parallel.ForEach(partitioner, portal =>
-                {
-                    portal.SourceMapInstanceId = mapInstance.MapInstanceId;
-                    portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
-                    portalList[portal.PortalId] = portal;
-                });
-                mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
+                LoadPortals(mapInstance, portals);
             });
         }
 

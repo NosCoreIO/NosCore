@@ -31,6 +31,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen

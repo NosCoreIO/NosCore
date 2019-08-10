@@ -19,6 +19,7 @@ using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
@@ -38,6 +39,7 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
+using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
@@ -66,7 +68,7 @@ namespace NosCore.Tests.Helpers
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
-        
+
         private readonly IGenericDao<PortalDto> _portalDao;
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
@@ -77,7 +79,7 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
-
+        public Guid MinilandId { get; set; } = Guid.NewGuid();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private TestHelpers()
         {
@@ -135,14 +137,31 @@ namespace NosCore.Tests.Helpers
                  }
             };
 
+            var miniland = new Map
+            {
+                MapId = 20001,
+                NameI18NKey = "miniland",
+                ShopAllowed = true,
+                Data = new byte[]
+               {
+                    8, 0, 8, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0
+               }
+            };
             var npc = new MapNpcDto();
             _mapNpcDao.InsertOrUpdate(ref npc);
 
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop },
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland },
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter(), _logger);
+                _mapMonsterDao, _portalDao, _logger);
             instanceAccessService.Initialize();
+            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false, MapInstanceType.NormalInstance, MapItemProvider, _logger));
             return instanceAccessService;
         }
 
@@ -206,12 +225,13 @@ namespace NosCore.Tests.Helpers
             _lastId++;
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
+            var minilandProvider = new Mock<IMinilandProvider>();
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
                 new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
                     new BlInsPackettHandler(BlacklistHttpClient.Object),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, ConnectedAccountHttpClient.Object),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null) },FriendHttpClient.Object,null, PacketHttpClient.Object)
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null) }, FriendHttpClient.Object, null, PacketHttpClient.Object, minilandProvider.Object)
             {
                 SessionId = _lastId
             };
