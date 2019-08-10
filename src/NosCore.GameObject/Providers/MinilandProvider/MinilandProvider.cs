@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -16,7 +17,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 {
     public class MinilandProvider : IMinilandProvider
     {
-        private readonly ConcurrentDictionary<long, Guid> _minilandIds;
+        private readonly ConcurrentDictionary<long, MinilandInfo> _minilandIds;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly List<MapDto> _maps;
         private readonly IMapItemProvider _mapItemProvider;
@@ -28,14 +29,14 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             _maps = maps;
             _mapItemProvider = mapItemProvider;
             _logger = logger;
-            _minilandIds = new ConcurrentDictionary<long, Guid>();
+            _minilandIds = new ConcurrentDictionary<long, MinilandInfo>();
         }
 
         public List<Portal> GetMinilandPortals(long characterId)
         {
             var nosville = _mapInstanceProvider.GetBaseMapById(1);
             var oldNosville = _mapInstanceProvider.GetBaseMapById(145);
-            var miniland = GetMiniland(characterId);
+            var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
             return new List<Portal> { new Portal
             {
                 SourceX = 48,
@@ -61,12 +62,11 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             } };
 
         }
-
-        public MapInstance GetMiniland(long characterId)
+        public MinilandInfo GetMinilandInfo(long characterId)
         {
             if (_minilandIds.ContainsKey(characterId))
             {
-                return _mapInstanceProvider.GetMapInstance(_minilandIds[characterId]);
+                return _minilandIds[characterId];
             }
             throw new ArgumentException();
         }
@@ -75,18 +75,23 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         {
             if (_minilandIds.ContainsKey(characterId))
             {
-                _mapInstanceProvider.RemoveMap(_minilandIds[characterId]);
+                _mapInstanceProvider.RemoveMap(_minilandIds[characterId].MapInstanceId);
             }
         }
 
-        public MapInstance Initialize(long characterId)
+        public MinilandInfo Initialize(long characterId, MinilandState state)
         {
             var map = _maps.FirstOrDefault(s => s.MapId == 20001);
             var miniland = new MapInstance(map.Adapt<Map.Map>(), Guid.NewGuid(), map.ShopAllowed, MapInstanceType.NormalInstance,
                 _mapItemProvider, _logger);
-            _minilandIds.TryAdd(characterId, miniland.MapInstanceId);
+            var minilandInfo = new MinilandInfo
+            {
+                MapInstanceId = miniland.MapInstanceId,
+                State = state
+            };
+            _minilandIds.TryAdd(characterId, minilandInfo);
             _mapInstanceProvider.AddMapInstance(miniland);
-            return miniland;
+            return minilandInfo;
         }
     }
 }

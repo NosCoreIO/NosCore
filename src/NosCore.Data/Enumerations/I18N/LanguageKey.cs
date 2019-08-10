@@ -272,6 +272,7 @@ namespace NosCore.Data.Enumerations.I18N
         REMOVE_FROM_BAZAAR,
         STATE_CHANGED_BAZAAR,
         BAZAAR_PRICE_CHANGED,
-        CAN_NOT_MODIFY_SOLD_ITEMS
+        CAN_NOT_MODIFY_SOLD_ITEMS,
+        MINILAND_CLOSED_BY_FRIEND
     }
 }
