@@ -23,6 +23,7 @@ namespace NosCore.Tests.PacketHandlerTests
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _minilandProvider = new Mock<IMinilandProvider>();
+            _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler = new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider, _minilandProvider.Object);
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(0);
 
