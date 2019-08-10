@@ -73,7 +73,7 @@ namespace NosCore.PathFinder.Gui
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    null, _logger)
+                    _logger)
                 {
                     IsSleeping = false
                 };

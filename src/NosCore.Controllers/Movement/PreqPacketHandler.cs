@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
@@ -9,6 +11,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PathFinder;
 
 namespace NosCore.PacketHandlers.Movement
@@ -16,9 +19,12 @@ namespace NosCore.PacketHandlers.Movement
     public class PreqPacketHandler : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
-        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider)
+        private readonly IMinilandProvider _minilandProvider;
+
+        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider)
         {
             _mapInstanceProvider = mapInstanceProvider;
+            _minilandProvider = minilandProvider;
         }
 
         public override void Execute(PreqPacket _, ClientSession session)
@@ -30,7 +36,12 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            var portal = session.Character.MapInstance.Portals.Find(port =>
+            var portals = new List<Portal>();
+            portals.AddRange(session.Character.MapInstance.Portals);
+            portals.AddRange(_minilandProvider
+                .GetMinilandPortals(session.Character.CharacterId)
+                .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
+            var portal = portals.Find(port =>
                 Heuristic.Octile(Math.Abs(session.Character.PositionX - port.SourceX),
                     Math.Abs(session.Character.PositionY - port.SourceY)) <= 2);
             if (portal == null) 

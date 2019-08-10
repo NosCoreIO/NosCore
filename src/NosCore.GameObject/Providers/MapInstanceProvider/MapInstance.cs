@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly ILogger _logger;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-           IMapItemProvider mapItemProvider, IAdapter adapter, ILogger logger)
+           IMapItemProvider mapItemProvider, ILogger logger)
         {
             XpRate = 1;
             DropRate = 1;
@@ -215,6 +215,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             var packets = new List<IPacket>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
+
             Monsters.ForEach(s =>
             {
                 packets.Add(s.GenerateIn());
