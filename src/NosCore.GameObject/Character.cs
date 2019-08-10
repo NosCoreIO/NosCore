@@ -1144,7 +1144,7 @@ namespace NosCore.GameObject
             return new AtPacket
             {
                 CharacterId = CharacterId,
-                MapId = MapId,
+                MapId = MapInstance.Map.MapId,
                 PositionX = PositionX,
                 PositionY = PositionY,
                 Direction = Direction,

@@ -38,6 +38,7 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
+using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
@@ -141,7 +142,7 @@ namespace NosCore.Tests.Helpers
             var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop },
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, new Adapter(), _logger);
+                _mapMonsterDao, _portalDao, _logger);
             instanceAccessService.Initialize();
             return instanceAccessService;
         }
@@ -206,12 +207,13 @@ namespace NosCore.Tests.Helpers
             _lastId++;
             var acc = new AccountDto { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
+            var minilandProvider = new Mock<IMinilandProvider>();
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
                 new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
                     new BlInsPackettHandler(BlacklistHttpClient.Object),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, ConnectedAccountHttpClient.Object),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null) },FriendHttpClient.Object,null, PacketHttpClient.Object)
+                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider, _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null) },FriendHttpClient.Object, null, PacketHttpClient.Object, minilandProvider.Object)
             {
                 SessionId = _lastId
             };

@@ -44,6 +44,7 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
@@ -58,6 +59,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IMinilandProvider _minilandProvider;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
@@ -66,22 +68,22 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(ServerConfiguration configuration,
             ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
-            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient) { }
+            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, null) { }
 
         public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : base(logger)
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IMinilandProvider minilandProvider) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
-
             if (configuration is WorldConfiguration worldConfiguration)
             {
                 WorldConfiguration = worldConfiguration;
                 _mapInstanceProvider = mapInstanceProvider;
                 _exchangeProvider = exchangeProvider;
+                _minilandProvider = minilandProvider;
                 _isWorldClient = true;
                 foreach (var handler in _packetsHandlers)
                 {
@@ -139,6 +141,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             if (character != null)
             {
                 Character.Session = this;
+                _minilandProvider.Initialize(character.CharacterId);
             }
         }
 
@@ -174,6 +177,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.LeaveGroup();
                 Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+                _minilandProvider.DeleteMiniland(Character.CharacterId);
 
                 Character.Save();
             }
@@ -240,6 +244,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.MapInstanceId = mapInstanceId;
                 Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId);
+
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
@@ -269,6 +274,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
+                var minilandPortals = _minilandProvider
+                .GetMinilandPortals(Character.CharacterId)
+                .Where(s => s.SourceMapInstanceId == mapInstanceId)
+                .ToList();
+
+                if (minilandPortals.Count > 0)
+                {
+                    SendPackets(minilandPortals.Select(s => s.GenerateGp()));
+                }
                 SendPacket(Character.Group.GeneratePinit());
 
                 if (!Character.Group.IsEmpty)
