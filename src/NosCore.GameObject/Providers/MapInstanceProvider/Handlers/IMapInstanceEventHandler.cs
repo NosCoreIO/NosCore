@@ -18,11 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 
-namespace NosCore.GameObject.Providers.GuriProvider.Handlers
+namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 {
     public interface IMapInstanceEventHandler
     {
         MapInstanceEventType MapInstanceEventType { get; }
+
+        void Execute(RequestData<MapInstance> requestData);
     }
 }

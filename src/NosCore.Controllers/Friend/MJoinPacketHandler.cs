@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Friend
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
             if (target != null && _friendHttpClient.GetListFriends(session.Character.CharacterId).Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
-                var info = _minilandProvider.GetMinilandInfo(mJoinPacket.VisualId);
+                var info = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (info.State == MinilandState.Open)
                 {
                     session.ChangeMapInstance(info.MapInstanceId, 5, 8);

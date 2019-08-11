@@ -23,9 +23,9 @@ namespace NosCore.Database.Entities
 {
     public class MinilandObject
     {
-        public virtual Character Character { get; set; }
+        public virtual Miniland Miniland { get; set; }
 
-        public long CharacterId { get; set; }
+        public Guid MinilandId { get; set; }
 
         public virtual ItemInstance ItemInstance { get; set; }
 

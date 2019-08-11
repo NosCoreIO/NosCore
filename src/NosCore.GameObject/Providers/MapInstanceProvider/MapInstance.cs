@@ -37,6 +37,8 @@ using NosCore.PathFinder;
 using Serilog;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
+using System.Reactive.Subjects;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -51,7 +53,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly ILogger _logger;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-           IMapItemProvider mapItemProvider, ILogger logger)
+           IMapItemProvider mapItemProvider, ILogger logger, List<IMapInstanceEventHandler> mapInstanceEventHandler)
         {
             XpRate = 1;
             DropRate = 1;
@@ -69,6 +71,21 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             Sessions = new DefaultChannelGroup(executor);
             _mapItemProvider = mapItemProvider;
             _logger = logger;
+            Requests = new Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>>();
+            _mapInstanceEventHandler = mapInstanceEventHandler;
+            foreach (MapInstanceEventType eventTypes in Enum.GetValues(typeof(MapInstanceEventType)))
+            {
+                Requests[eventTypes] = new Subject<RequestData<MapInstance>>();
+            }
+        }
+
+        public void LoadHandlers()
+        {
+            _mapInstanceEventHandler.ForEach(handler =>
+            {
+                var type = handler.MapInstanceEventType;
+                Requests[type].Subscribe(handler.Execute);
+            });
         }
 
         public DateTime LastUnregister { get; set; }
@@ -132,7 +149,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private IDisposable Life { get; set; }
 
         public IChannelGroup Sessions { get; set; }
+        public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
+        private List<IMapInstanceEventHandler> _mapInstanceEventHandler;
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new ConcurrentDictionary<Guid, MapDesignObject>();
 
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)

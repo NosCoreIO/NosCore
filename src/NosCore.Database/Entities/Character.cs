@@ -39,9 +39,9 @@ namespace NosCore.Database.Entities
             Respawn = new HashSet<Respawn>();
             Mail = new HashSet<Mail>();
             Mail1 = new HashSet<Mail>();
-            MinilandObject = new HashSet<MinilandObject>();
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
+            Miniland = new HashSet<Miniland>();
         }
 
         public virtual Account Account { get; set; }
@@ -57,6 +57,8 @@ namespace NosCore.Database.Entities
         public int ArenaWinner { get; set; }
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
+
+        public virtual ICollection<Miniland> Miniland { get; set; }
 
         [MaxLength(255)]
         public string Biography { get; set; }
@@ -144,15 +146,6 @@ namespace NosCore.Database.Entities
         public byte MaxMateCount { get; set; }
 
         public bool MinilandInviteBlocked { get; set; }
-
-        [MaxLength(255)]
-        public string MinilandMessage { get; set; }
-
-        public virtual ICollection<MinilandObject> MinilandObject { get; set; }
-
-        public short MinilandPoint { get; set; }
-
-        public MinilandState MinilandState { get; set; }
 
         public bool MouseAimLock { get; set; }
 

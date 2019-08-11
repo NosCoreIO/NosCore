@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             if (character != null)
             {
                 Character.Session = this;
-                _minilandProvider?.Initialize(character.CharacterId, character.MinilandState);
+                _minilandProvider?.Initialize(character);
             }
         }
 
@@ -177,9 +177,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.LeaveGroup();
                 Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
-                _minilandProvider.DeleteMiniland(Character.CharacterId);
-
                 Character.Save();
+
+                _minilandProvider.DeleteMiniland(Character.CharacterId);
             }
 
             Broadcaster.Instance.UnregisterSession(this);
@@ -320,6 +320,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     Character.MapInstance.Sessions.Add(Channel);
                 }
+
+                Character.MapInstance.Requests[MapInstanceEventType.Entrance].OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
 
                 Character.IsChangingMapInstance = false;
             }
