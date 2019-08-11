@@ -46,13 +46,13 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
         public void Execute(RequestData<MapInstance> requestData)
         {
-            var miniland = _minilandProvider.GetMinilandInfoFromMapInstanceId(requestData.Data.MapInstanceId);
+            var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
             if (miniland == null)
             {
                 return;
             }
 
-            if (miniland.Owner != requestData.ClientSession.Character.CharacterId)
+            if (miniland.Owner.VisualId != requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
