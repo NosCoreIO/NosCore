@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Text.RegularExpressions;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
@@ -33,9 +35,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CharNewPacketHandler : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly IGenericDao<CharacterDto> _characterDao;
-        public CharNewPacketHandler(IGenericDao<CharacterDto> characterDao)
+        private readonly IGenericDao<MinilandDto> _minilandDao;
+
+        public CharNewPacketHandler(IGenericDao<CharacterDto> characterDao, IGenericDao<MinilandDto> minilandDao)
         {
             _characterDao = characterDao;
+            _minilandDao = minilandDao;
         }
 
         public override void Execute(CharNewPacket packet, ClientSession clientSession)
@@ -84,10 +89,19 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Name = characterName,
                         Slot = slot,
                         AccountId = accountId,
-                        MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
                     _characterDao.InsertOrUpdate(ref chara);
+
+                    var miniland = new MinilandDto
+                    {
+                        MinilandId = Guid.NewGuid(),
+                        State = MinilandState.Open,
+                        MinilandMessage = "Welcome",
+                        OwnerId = chara.CharacterId,
+                        WelcomeMusicInfo = "Spring^Melody"
+                    };
+                    _minilandDao.InsertOrUpdate(ref miniland);
                     clientSession.HandlePackets(new[] { new SelectPacket {Slot = chara.Slot } });
                 }
                 else

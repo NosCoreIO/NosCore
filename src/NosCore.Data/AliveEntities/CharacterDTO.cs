@@ -103,13 +103,6 @@ namespace NosCore.Data.AliveEntities
 
         public bool MinilandInviteBlocked { get; set; }
 
-        [MaxLength(255)]
-        public string MinilandMessage { get; set; }
-
-        public short MinilandPoint { get; set; }
-
-        public MinilandState MinilandState { get; set; }
-
         public bool MouseAimLock { get; set; }
 
         public int Mp { get; set; }

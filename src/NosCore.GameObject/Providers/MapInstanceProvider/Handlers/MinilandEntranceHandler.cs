@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -28,10 +29,11 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Data.Enumerations.I18N;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
-    public class MinilandEntranceHandler : IEventHandler<Map.Map, MapInstance>, IMapInstanceEventHandler
+    public class MinilandEntranceHandler : IMapInstanceEventHandler
     {
         private readonly IMinilandProvider _minilandProvider;
 
@@ -42,35 +44,28 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             _minilandProvider = minilandProvider;
         }
 
-        public bool Condition(Map.Map map) => map.MapId == 20001;
-
         public void Execute(RequestData<MapInstance> requestData)
         {
-            var miniland = _minilandProvider.GetMinilandInfoFromMapInstanceId(requestData.Data.MapInstanceId);
-            if (miniland == null)
-            {
-                return;
-            }
-
-            if (miniland.Owner != requestData.ClientSession.Character.CharacterId)
+            var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
+            if (miniland.Owner.VisualId != requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
                     Message = miniland.MinilandMessage.Replace(' ', '^')
                 });
 
+                miniland.DailyVisitCount++;
+                miniland.VisitCount++;
                 requestData.ClientSession.SendPacket(miniland.GenerateMlinfobr());
-                //TODO add entrance
             }
             else
             {
                 requestData.ClientSession.SendPacket(miniland.GenerateMlinfo());
             }
             //TODO add pets
-            //TODO add entrance counts
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR, requestData.ClientSession.Account.Language), 0, 0), SayColorType.Yellow)
+                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR, requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount), SayColorType.Yellow)
                 );
         }
     }

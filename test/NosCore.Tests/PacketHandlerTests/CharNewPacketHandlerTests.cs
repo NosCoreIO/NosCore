@@ -10,6 +10,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
@@ -33,7 +34,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _chara = _session.Character;
             _session.SetCharacter(null);
-            _charNewPacketHandler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao);
+            _charNewPacketHandler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
         }
 
         [TestMethod]
@@ -43,7 +44,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    _logger);
+                    _logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter";
             _charNewPacketHandler.Execute(new CharNewPacket
             {

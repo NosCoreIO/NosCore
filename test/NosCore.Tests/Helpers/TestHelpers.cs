@@ -37,6 +37,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.GameObject.Providers.MinilandProvider;
@@ -78,6 +79,7 @@ namespace NosCore.Tests.Helpers
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         public IGenericDao<CharacterDto> CharacterDao { get; }
+        public IGenericDao<MinilandDto> MinilandDao { get; }
         public MapItemProvider MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
@@ -91,6 +93,7 @@ namespace NosCore.Tests.Helpers
             _portalDao = new GenericDao<Portal, PortalDto>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
             _mapNpcDao = new GenericDao<MapNpc, MapNpcDto>(_logger);
+            MinilandDao = new GenericDao<Database.Entities.Miniland, MinilandDto>(_logger);
             _shopDao = new GenericDao<Shop, ShopDto>(_logger);
             _shopItemDao = new GenericDao<ShopItem, ShopItemDto>(_logger);
             CharacterDao = new GenericDao<Character, CharacterDto>(_logger);
@@ -161,7 +164,7 @@ namespace NosCore.Tests.Helpers
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _logger);
             instanceAccessService.Initialize();
-            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false, MapInstanceType.NormalInstance, MapItemProvider, _logger));
+            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false, MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>()));
             return instanceAccessService;
         }
 
@@ -227,7 +230,7 @@ namespace NosCore.Tests.Helpers
             AccountDao.InsertOrUpdate(ref acc);
             var minilandProvider = new Mock<IMinilandProvider>();
             var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
-                new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao),
+                new List<IPacketHandler> { new CharNewPacketHandler(CharacterDao, MinilandDao),
                     new BlInsPackettHandler(BlacklistHttpClient.Object),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, ConnectedAccountHttpClient.Object),
@@ -236,7 +239,7 @@ namespace NosCore.Tests.Helpers
                 SessionId = _lastId
             };
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao, null, null, AccountDao, _logger, null, null)
+                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao, null, null, AccountDao, _logger, null, null, null, null)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

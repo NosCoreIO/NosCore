@@ -60,6 +60,7 @@ using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
+using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.GameObject
 {
@@ -73,10 +74,12 @@ namespace NosCore.GameObject
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<QuicklistEntryDto> _quicklistEntriesDao;
+        private readonly IGenericDao<MinilandDto> _minilandDao;
+        private readonly IMinilandProvider _minilandProvider;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
             , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao, ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
-            IGenericDao<QuicklistEntryDto> quicklistEntriesDao)
+            IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao, IMinilandProvider minilandProvider)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -92,6 +95,8 @@ namespace NosCore.GameObject
             _staticBonusDao = staticBonusDao;
             QuicklistEntries = new List<QuicklistEntryDto>();
             _quicklistEntriesDao = quicklistEntriesDao;
+            _minilandDao = minilandDao;
+            _minilandProvider = minilandProvider;
         }
 
         public AccountDto Account { get; set; }
@@ -318,6 +323,8 @@ namespace NosCore.GameObject
                 _staticBonusDao.Delete(staticBonusToDelete);
                 _staticBonusDao.InsertOrUpdate(StaticBonusList);
 
+                var minilandDto = (MinilandDto)_minilandProvider.GetMiniland(CharacterId);
+                _minilandDao.InsertOrUpdate(ref minilandDto);
             }
             catch (Exception e)
             {
