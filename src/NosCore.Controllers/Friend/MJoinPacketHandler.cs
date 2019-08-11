@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Miniland;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Character;
