@@ -177,9 +177,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Character.LeaveGroup();
                 Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
-                _minilandProvider.DeleteMiniland(Character.CharacterId);
-
                 Character.Save();
+
+                _minilandProvider.DeleteMiniland(Character.CharacterId);
             }
 
             Broadcaster.Instance.UnregisterSession(this);

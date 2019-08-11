@@ -1,10 +1,12 @@
 ﻿using ChickenAPI.Packets.Enumerations;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
     public class MinilandDto : IDto
     {
+        [Key]
         public Guid MinilandId { get; set; }
 
         public MinilandState State { get; set; }

@@ -23,7 +23,7 @@ namespace NosCore.Database.Entities
 {
     public class MinilandObject
     {
-        public virtual Miniland Character { get; set; }
+        public virtual Miniland Miniland { get; set; }
 
         public Guid MinilandId { get; set; }
 

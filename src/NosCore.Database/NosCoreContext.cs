@@ -34,6 +34,8 @@ namespace NosCore.Database
 
         public virtual DbSet<Card> Card { get; set; }
 
+        public virtual DbSet<Miniland> Miniland { get; set; }
+
         public virtual DbSet<BCard> BCard { get; set; }
 
         public virtual DbSet<EquipmentOption> EquipmentOption { get; set; }
@@ -301,11 +303,20 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Character>()
-                .HasMany(e => e.MinilandObject)
-                .WithOne(e => e.Character)
-                .HasForeignKey(e => e.CharacterId)
+            modelBuilder.Entity<Miniland>()
+                .HasOne(e => e.Owner)
+                .WithMany(e => e.Miniland)
+                .HasForeignKey(e=> e.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Miniland>()
+                .HasOne(e => e.Owner);
+
+            modelBuilder.Entity<Miniland>()
+               .HasMany(e => e.MinilandObject)
+               .WithOne(e => e.Miniland)
+               .HasForeignKey(e => e.MinilandId)
+               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail1)
