@@ -33,7 +33,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _chara = _session.Character;
             _session.SetCharacter(null);
-            _charNewPacketHandler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao);
+            _charNewPacketHandler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
         }
 
         [TestMethod]

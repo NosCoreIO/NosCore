@@ -41,6 +41,7 @@ namespace NosCore.Database.Entities
             Mail1 = new HashSet<Mail>();
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
+            Miniland = new HashSet<Miniland>();
         }
 
         public virtual Account Account { get; set; }
@@ -56,6 +57,8 @@ namespace NosCore.Database.Entities
         public int ArenaWinner { get; set; }
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
+
+        public virtual ICollection<Miniland> Miniland { get; set; }
 
         [MaxLength(255)]
         public string Biography { get; set; }
@@ -143,8 +146,6 @@ namespace NosCore.Database.Entities
         public byte MaxMateCount { get; set; }
 
         public bool MinilandInviteBlocked { get; set; }
-
-        public virtual Miniland Miniland { get; set; }
 
         public bool MouseAimLock { get; set; }
 
