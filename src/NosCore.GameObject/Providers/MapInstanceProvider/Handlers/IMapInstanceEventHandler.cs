@@ -17,15 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Diagnostics.CodeAnalysis;
+using NosCore.Data.Enumerations.Map;
 
-namespace NosCore.Data.Enumerations.Character
+namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum MinilandState : byte
+    public interface IMapInstanceEventHandler
     {
-        Open = 0,
-        Private = 1,
-        Lock = 2
+        MapInstanceEventType MapInstanceEventType { get; }
     }
 }
