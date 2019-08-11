@@ -133,6 +133,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public IChannelGroup Sessions { get; set; }
 
+        public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new ConcurrentDictionary<Guid, MapDesignObject>();
+
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             Guid random2 = Guid.NewGuid();
