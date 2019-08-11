@@ -37,6 +37,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.GameObject.Providers.MinilandProvider;
@@ -163,7 +164,7 @@ namespace NosCore.Tests.Helpers
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _logger);
             instanceAccessService.Initialize();
-            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false, MapInstanceType.NormalInstance, MapItemProvider, _logger));
+            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false, MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>()));
             return instanceAccessService;
         }
 

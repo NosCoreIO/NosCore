@@ -18,6 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -29,5 +33,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         void AddMapInstance(MapInstance mapInstance);
         void Initialize();
         void RemoveMap(Guid guid);
+        MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance, List<IMapInstanceEventHandler> mapInstanceEventHandler);
     }
 }

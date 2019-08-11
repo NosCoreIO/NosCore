@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core;
@@ -29,6 +30,7 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using Serilog;
 
@@ -99,8 +101,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 map => mapsdic[map.MapId],
                 map =>
                 {
-                    var mapinstance = new MapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance,
-                        _mapItemProvider, _logger);
+                    var mapinstance = CreateMapInstance(map, mapsdic[map.MapId], map.ShopAllowed,
+                        MapInstanceType.BaseMapInstance, new List<IMapInstanceEventHandler>());
+
                     if (monsters.ContainsKey(map.MapId))
                     {
                         mapinstance.LoadMonsters(monsters[map.MapId]);
@@ -135,6 +138,11 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         {
             return MapInstances.FirstOrDefault(s =>
                 s.Value?.Map.MapId == mapId && s.Value.MapInstanceType == MapInstanceType.BaseMapInstance).Value;
+        }
+
+        public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance, List<IMapInstanceEventHandler> mapInstanceEventHandler)
+        {
+           return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemProvider, _logger, mapInstanceEventHandler);
         }
     }
 }

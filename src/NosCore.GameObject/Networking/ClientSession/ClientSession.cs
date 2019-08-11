@@ -321,6 +321,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapInstance.Sessions.Add(Channel);
                 }
 
+                Character.MapInstance.Requests[MapInstanceEventType.Entrance].OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
+
                 Character.IsChangingMapInstance = false;
             }
             catch (Exception)
