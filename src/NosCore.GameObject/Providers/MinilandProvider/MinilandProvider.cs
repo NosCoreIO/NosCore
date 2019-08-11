@@ -87,11 +87,17 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             var minilandInfo = new MinilandInfo
             {
                 MapInstanceId = miniland.MapInstanceId,
-                State = state
+                State = state,
+                Owner = characterId
             };
             _minilandIds.TryAdd(characterId, minilandInfo);
             _mapInstanceProvider.AddMapInstance(miniland);
             return minilandInfo;
+        }
+
+        public MinilandInfo GetMinilandInfoFromMapInstanceId(Guid mapInstanceId)
+        {
+           return _minilandIds.FirstOrDefault(s => s.Value.MapInstanceId == mapInstanceId).Value;
         }
     }
 }

@@ -20,7 +20,6 @@
 using ChickenAPI.Packets.Enumerations;
 using System.ComponentModel.DataAnnotations;
 using CharacterState = NosCore.Data.Enumerations.Character.CharacterState;
-using MinilandState = NosCore.Data.Enumerations.Character.MinilandState;
 
 namespace NosCore.Data.AliveEntities
 {
