@@ -29,12 +29,20 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using System.Linq;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class AddobjPacketHandler : PacketHandler<AddobjPacket>, IWorldPacketHandler
     {
+        private readonly IMinilandProvider _minilandProvider;
+
+        public AddobjPacketHandler(IMinilandProvider minilandProvider)
+        {
+            _minilandProvider = minilandProvider;
+        }
+
         public override void Execute(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject = clientSession.Character.Inventory.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
@@ -52,7 +60,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            if (clientSession.Character.MinilandState != MinilandState.Lock)
+            if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
                 clientSession.SendPacket(new MsgPacket
                 {

@@ -9,10 +9,10 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 {
     public interface IMinilandProvider
     {
-        MinilandInfo GetMinilandInfo(long character);
+        Miniland GetMiniland(long character);
         void DeleteMiniland(long characterId);
-        MinilandInfo Initialize(long characterId, MinilandState state);
+        Miniland Initialize(Character character);
         List<Portal> GetMinilandPortals(long characterId);
-        MinilandInfo GetMinilandInfoFromMapInstanceId(Guid mapInstanceId);
+        Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId);
     }
 }

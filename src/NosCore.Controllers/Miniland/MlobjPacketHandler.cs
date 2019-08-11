@@ -25,12 +25,12 @@ namespace NosCore.PacketHandlers.Miniland
 
         public override void Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
         {
+            var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
             {
                 case 1:
                     clientSession.SendPacket(new MlintroPacket { Intro = mlEditPacket.MinilandInfo.Replace(' ', '^') });
-                    clientSession.Character.MinilandMessage = mlEditPacket.MinilandInfo;
-                    _minilandProvider.GetMinilandInfo(clientSession.Character.CharacterId).MinilandMessage = mlEditPacket.MinilandInfo;
+                    miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     clientSession.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED, clientSession.Account.Language)
@@ -45,8 +45,8 @@ namespace NosCore.PacketHandlers.Miniland
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE, clientSession.Account.Language)
                             });
-                            clientSession.Character.MinilandState = MinilandState.Private;
-                            _minilandProvider.GetMinilandInfo(clientSession.Character.CharacterId).State = MinilandState.Private;
+                            miniland.State = MinilandState.Private;
+                            _minilandProvider.GetMiniland(clientSession.Character.CharacterId).State = MinilandState.Private;
                             break;
 
                         case MinilandState.Lock:
@@ -54,8 +54,8 @@ namespace NosCore.PacketHandlers.Miniland
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK, clientSession.Account.Language)
                             });
-                            clientSession.Character.MinilandState = MinilandState.Lock;
-                            _minilandProvider.GetMinilandInfo(clientSession.Character.CharacterId).State = MinilandState.Lock;
+                            miniland.State = MinilandState.Lock;
+                            _minilandProvider.GetMiniland(clientSession.Character.CharacterId).State = MinilandState.Lock;
                             break;
 
                         case MinilandState.Open:

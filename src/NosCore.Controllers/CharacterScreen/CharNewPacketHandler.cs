@@ -84,7 +84,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Name = characterName,
                         Slot = slot,
                         AccountId = accountId,
-                        MinilandMessage = "Welcome",
                         State = CharacterState.Active
                     };
                     _characterDao.InsertOrUpdate(ref chara);

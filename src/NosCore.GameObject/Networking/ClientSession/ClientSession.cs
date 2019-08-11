@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             if (character != null)
             {
                 Character.Session = this;
-                _minilandProvider?.Initialize(character.CharacterId, character.MinilandState);
+                _minilandProvider?.Initialize(character);
             }
         }
 

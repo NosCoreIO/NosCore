@@ -102,7 +102,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            _minilandProvider.Setup(s => s.GetMinilandInfo(It.IsAny<long>())).Returns(new MinilandInfo { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
+            _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
             _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
@@ -118,7 +118,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = _targetSession.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _minilandProvider.Setup(s => s.GetMinilandInfo(It.IsAny<long>())).Returns(new MinilandInfo { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
+            _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
             _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus {
