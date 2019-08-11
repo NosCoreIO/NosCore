@@ -39,6 +39,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Serilog;
 using ChickenAPI.Packets.ClientPackets.Drops;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -73,7 +74,7 @@ namespace NosCore.PathFinder.Gui
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    _logger)
+                    _logger, new List<IMapInstanceEventHandler>())
                 {
                     IsSleeping = false
                 };
@@ -123,8 +124,8 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             foreach (var wall in _walls)

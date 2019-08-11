@@ -2,16 +2,15 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Providers.GuriProvider.Handlers;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using Serilog;
 
@@ -23,15 +22,12 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         private readonly IGenericDao<MinilandDto> _minilandDao;
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly List<MapDto> _maps;
-        private readonly IMapItemProvider _mapItemProvider;
-        private readonly ILogger _logger;
 
-        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, List<MapDto> maps, ILogger logger, IMapItemProvider mapItemProvider, IGenericDao<MinilandDto> minilandDao)
+        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, List<MapDto> maps,
+           IGenericDao<MinilandDto> minilandDao)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _maps = maps;
-            _mapItemProvider = mapItemProvider;
-            _logger = logger;
             _minilandIds = new ConcurrentDictionary<long, Miniland>();
             _minilandDao = minilandDao;
         }
@@ -64,8 +60,8 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 DestinationMapInstanceId = miniland.MapInstanceId,
                 SourceMapInstanceId = oldNosville.MapInstanceId
             } };
-
         }
+
         public Miniland GetMiniland(long characterId)
         {
             if (_minilandIds.ContainsKey(characterId))
@@ -86,15 +82,15 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
         public Miniland Initialize(Character character)
         {
-            var minilandInfoDto = _minilandDao.FirstOrDefault(s=>s.OwnerId == character.CharacterId);
-            if(minilandInfoDto == null)
+            var minilandInfoDto = _minilandDao.FirstOrDefault(s => s.OwnerId == character.CharacterId);
+            if (minilandInfoDto == null)
             {
                 throw new ArgumentException();
             }
 
             var map = _maps.FirstOrDefault(s => s.MapId == 20001);
-            var miniland = new MapInstance(map.Adapt<Map.Map>(), Guid.NewGuid(), map.ShopAllowed, MapInstanceType.NormalInstance,
-                _mapItemProvider, _logger);
+            var miniland = _mapInstanceProvider.CreateMapInstance(map.Adapt<Map.Map>(), Guid.NewGuid(), map.ShopAllowed,
+                MapInstanceType.NormalInstance, new List<IMapInstanceEventHandler> { new MinilandEntranceHandler(this) });
 
             var minilandInfo = minilandInfoDto.Adapt<Miniland>();
             minilandInfo.MapInstanceId = miniland.MapInstanceId;
@@ -102,12 +98,13 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
             _minilandIds.TryAdd(character.CharacterId, minilandInfo);
             _mapInstanceProvider.AddMapInstance(miniland);
+            miniland.LoadHandlers();
             return minilandInfo;
         }
 
         public Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId)
         {
-           return _minilandIds.FirstOrDefault(s => s.Value.MapInstanceId == mapInstanceId).Value;
+            return _minilandIds.FirstOrDefault(s => s.Value.MapInstanceId == mapInstanceId).Value;
         }
     }
 }
