@@ -151,7 +151,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public IChannelGroup Sessions { get; set; }
         public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
-        private List<IMapInstanceEventHandler> _mapInstanceEventHandler;
+        private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new ConcurrentDictionary<Guid, MapDesignObject>();
 
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
