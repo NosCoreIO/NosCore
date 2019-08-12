@@ -274,6 +274,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
+                SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
+                
                 var minilandPortals = _minilandProvider
                 .GetMinilandPortals(Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == mapInstanceId)
@@ -284,7 +286,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                     SendPackets(minilandPortals.Select(s => s.GenerateGp()));
                 }
                 SendPacket(Character.Group.GeneratePinit());
-
                 if (!Character.Group.IsEmpty)
                 {
                     SendPackets(Character.Group.GeneratePst());

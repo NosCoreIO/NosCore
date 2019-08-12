@@ -19,6 +19,7 @@
 
 using ChickenAPI.Packets.ClientPackets.Miniland;
 using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Map;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -27,23 +28,58 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapDesignObject : MinilandObjectDto
     {
-        public InventoryItemInstance InventoryItemInstance { get; set; }
+        public MapDesignObject(InventoryItemInstance inventoryItemInstance)
+        {
+            Effect = (short)(inventoryItemInstance.ItemInstance.Item?.EffectValue ?? inventoryItemInstance.ItemInstance.Design);
+            Width = inventoryItemInstance.ItemInstance.Item.Width;
+            Height = inventoryItemInstance.ItemInstance.Item.Height;
+            DurabilityPoint = (short)inventoryItemInstance.ItemInstance.DurabilityPoint;
+            IsWarehouse = inventoryItemInstance.ItemInstance.Item.IsWarehouse;
+            ItemInstanceId = inventoryItemInstance.Id;
+            InventoryItemInstance = inventoryItemInstance;
+        }
+
         public short Effect { get; set; }
 
-        public IPacket GenerateMapDesignObject(bool deleted)
+        public short Width { get; set; }
+
+        public short Height { get; set; }
+
+        public short Slot { get; set; }
+
+        public short DurabilityPoint { get; set; }
+
+        public bool IsWarehouse { get; set; }
+
+        public InventoryItemInstance InventoryItemInstance { get; set; }
+
+        public GroundEffectPacket GenerateEffect() => GenerateEffect(false);
+        public GroundEffectPacket GenerateEffect(bool isRemoval)
+        {
+            return new GroundEffectPacket
+            {
+                Effect = (ushort)Effect,
+                XYCoordinates = $"{MapX}{MapY.ToString("00")}",
+                MapX = (ushort)MapX,
+                MapY = (ushort)MapY,
+                IsRemoval = isRemoval
+            };
+        }
+        public MlobjPacket GenerateMapDesignObject() => GenerateMapDesignObject(false);
+        public MlobjPacket GenerateMapDesignObject(bool deleted)
         {
             return new MlobjPacket
             {
                 Deleted = deleted,
-                Slot = InventoryItemInstance.Slot,
+                Slot = Slot,
                 MapX = MapX,
                 MapY = MapY,
-                Width = InventoryItemInstance.ItemInstance.Item.Width,
-                Height = InventoryItemInstance.ItemInstance.Item.Height,
+                Width = Width,
+                Height = Height,
                 Unknown = 0,
-                DurabilityPoint = (short)InventoryItemInstance.ItemInstance.DurabilityPoint,
+                DurabilityPoint = DurabilityPoint,
                 Unknown2 = 0,
-                IsWarehouse = InventoryItemInstance.ItemInstance.Item.IsWarehouse
+                IsWarehouse = IsWarehouse
             };
         }
     }
