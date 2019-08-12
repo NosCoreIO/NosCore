@@ -68,11 +68,10 @@ namespace NosCore.PacketHandlers.Inventory
                 });
                 return;
             }
-            var minilandobj = new MapDesignObject
+            var minilandobj = new MapDesignObject(minilandobject)
             {
+                Slot = (short)(clientSession.Character.MapInstance.MapDesignObjects.Count+1),
                 CharacterId = clientSession.Character.CharacterId,
-                InventoryItemInstance = minilandobject,
-                ItemInstanceId = minilandobject.Id,
                 MapX = addobjPacket.PositionX,
                 MapY = addobjPacket.PositionY,
                 Level1BoxAmount = 0,
@@ -119,7 +118,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.Character.MapInstance.MapDesignObjects.TryAdd(minilandobject.Id, minilandobj);
             clientSession.SendPacket(minilandobj.GenerateEffect());
             clientSession.SendPacket(new MinilandPointPacket { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
-            clientSession.SendPacket(minilandobj.GenerateMapDesignObject(false));
+            clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
         }
     }
 }

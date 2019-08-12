@@ -62,6 +62,8 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             {
                 requestData.ClientSession.SendPacket(miniland.GenerateMlinfo());
             }
+            //requestData.ClientSession.Character.MapInstance.MapDesignObjects.Select(s => new subpacket());
+            //SendPacket(Character.MapInstance.Generatemlobjlst()));
             //TODO add pets
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(
