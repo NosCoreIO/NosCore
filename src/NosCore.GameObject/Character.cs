@@ -1430,10 +1430,14 @@ namespace NosCore.GameObject
                         IsWarehouse = item.ItemInstance.Item.IsWarehouse
                     }
                 });
+            }
+
+            return new MlobjlstPacket
+            {
+                MlobjlstSubPacket = mlobj
+            };
         }
 
-            return new MlobjlstPacket { MlobjlstSubPacket = mlobj
-    };
-}
+        public void ChangeMap(short mapId, short mapX, short mapY) => Session.ChangeMap(mapId, mapX, mapY);
     }
 }

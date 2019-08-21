@@ -85,7 +85,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public void RemoveMap(Guid mapInstanceId)
         {
-            MapInstances.TryRemove(mapInstanceId, out _);
+            MapInstances.TryRemove(mapInstanceId, out var mapInstance);
+            mapInstance?.Kick();
         }
 
         public void Initialize()
