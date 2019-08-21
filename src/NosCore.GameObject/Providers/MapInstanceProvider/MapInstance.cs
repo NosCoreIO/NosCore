@@ -25,7 +25,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using Mapster;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -42,7 +41,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
-    public class MapInstance : IBroadcastable
+    public class MapInstance : IBroadcastable, IDisposable
     {
         private readonly IMapItemProvider _mapItemProvider;
         private bool _isSleeping;
@@ -294,6 +293,24 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                     _logger.Error(e.Message, e);
                 }
             });
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Life != null)
+                {
+                    Life.Dispose();
+                    Life = null;
+                }
+            }
         }
     }
 }

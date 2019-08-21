@@ -2,7 +2,6 @@
 using NosCore.Core.I18N;
 using NosCore.PacketHandlers.Bazaar;
 using Serilog;
-using NosCore.Configuration;
 using Moq;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
