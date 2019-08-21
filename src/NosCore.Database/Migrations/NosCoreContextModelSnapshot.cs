@@ -1160,10 +1160,10 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.MinilandObject", b =>
                 {
-                    b.Property<long>("MinilandObjectId")
+                    b.Property<Guid>("MinilandObjectId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("ItemInstanceId");
+                    b.Property<Guid?>("InventoryItemInstanceId");
 
                     b.Property<byte>("Level1BoxAmount");
 
@@ -1179,11 +1179,11 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short>("MapY");
 
-                    b.Property<Guid>("MinilandId");
+                    b.Property<Guid?>("MinilandId");
 
                     b.HasKey("MinilandObjectId");
 
-                    b.HasIndex("ItemInstanceId");
+                    b.HasIndex("InventoryItemInstanceId");
 
                     b.HasIndex("MinilandId");
 
@@ -2202,15 +2202,14 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.MinilandObject", b =>
                 {
-                    b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
+                    b.HasOne("NosCore.Database.Entities.InventoryItemInstance", "InventoryItemInstance")
                         .WithMany("MinilandObject")
-                        .HasForeignKey("ItemInstanceId")
+                        .HasForeignKey("InventoryItemInstanceId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("NosCore.Database.Entities.Miniland", "Miniland")
+                    b.HasOne("NosCore.Database.Entities.Miniland")
                         .WithMany("MinilandObject")
-                        .HasForeignKey("MinilandId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("MinilandId");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.NpcMonsterSkill", b =>

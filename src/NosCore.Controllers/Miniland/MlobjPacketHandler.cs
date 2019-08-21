@@ -3,14 +3,10 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Miniland;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.PacketHandlers.Miniland
 {

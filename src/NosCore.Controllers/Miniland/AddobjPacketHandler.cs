@@ -26,10 +26,10 @@ using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using System;
 using System.Linq;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -68,45 +68,29 @@ namespace NosCore.PacketHandlers.Inventory
                 });
                 return;
             }
-            var minilandobj = new MapDesignObject(minilandobject)
+
+            var minilandobj = new MapDesignObject
             {
-                Slot = (short)(clientSession.Character.MapInstance.MapDesignObjects.Count+1),
-                CharacterId = clientSession.Character.CharacterId,
+                MinilandObjectId = Guid.NewGuid(),
                 MapX = addobjPacket.PositionX,
                 MapY = addobjPacket.PositionY,
                 Level1BoxAmount = 0,
                 Level2BoxAmount = 0,
                 Level3BoxAmount = 0,
                 Level4BoxAmount = 0,
-                Level5BoxAmount = 0
+                Level5BoxAmount = 0,
             };
+
+            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
             if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
             {
-                switch (minilandobject.ItemInstance.Item.ItemSubType)
-                {
-                    case 0:
-                        minilandobj.MapX = 24;
-                        minilandobj.MapY = 7;
-                        break;
-
-                    case 1:
-                        minilandobj.MapX = 21;
-                        minilandobj.MapY = 4;
-                        break;
-
-                    case 2:
-                        minilandobj.MapX = 31;
-                        minilandobj.MapY = 3;
-                        break;
-                }
-
                 var min = clientSession.Character.MapInstance.MapDesignObjects
                     .FirstOrDefault(s => s.Value.InventoryItemInstance.ItemInstance.Item.ItemType == ItemType.House &&
                     s.Value.InventoryItemInstance.ItemInstance.Item.ItemSubType == minilandobject.ItemInstance.Item.ItemSubType).Value;
                 if (min != null)
                 {
-                    clientSession.HandlePackets(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance.Slot } });
+                    clientSession.HandlePackets(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance.Slot} });
                 }
             }
 
@@ -115,7 +99,6 @@ namespace NosCore.PacketHandlers.Inventory
                 //TODO add warehouse points
                 //clientSession.Character.WareHouseSize = minilandobject.ItemInstance.Item.MinilandObjectPoint;
             }
-            clientSession.Character.MapInstance.MapDesignObjects.TryAdd(minilandobject.Id, minilandobj);
             clientSession.SendPacket(minilandobj.GenerateEffect());
             clientSession.SendPacket(new MinilandPointPacket { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
             clientSession.SendPacket(minilandobj.GenerateMapDesignObject());

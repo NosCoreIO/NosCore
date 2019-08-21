@@ -1,9 +1,7 @@
-﻿using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject.Providers.MinilandProvider
 {
@@ -14,5 +12,6 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         Miniland Initialize(Character character);
         List<Portal> GetMinilandPortals(long characterId);
         Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId);
+        void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);
     }
 }

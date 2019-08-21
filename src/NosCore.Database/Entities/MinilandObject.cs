@@ -23,13 +23,9 @@ namespace NosCore.Database.Entities
 {
     public class MinilandObject
     {
-        public virtual Miniland Miniland { get; set; }
+        public virtual InventoryItemInstance InventoryItemInstance { get; set; }
 
-        public Guid MinilandId { get; set; }
-
-        public virtual ItemInstance ItemInstance { get; set; }
-
-        public Guid? ItemInstanceId { get; set; }
+        public Guid? InventoryItemInstanceId { get; set; }
 
         public byte Level1BoxAmount { get; set; }
 
@@ -45,6 +41,6 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
-        public long MinilandObjectId { get; set; }
+        public Guid MinilandObjectId { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using ChickenAPI.Packets.ClientPackets.Quicklist;
+﻿using ChickenAPI.Packets.ClientPackets.Quicklist;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,8 +6,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
 using NosCore.Tests.Helpers;
 using System.Linq;
-using ChickenAPI.Packets.Interfaces;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

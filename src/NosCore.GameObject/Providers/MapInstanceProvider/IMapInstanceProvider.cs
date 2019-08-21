@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
