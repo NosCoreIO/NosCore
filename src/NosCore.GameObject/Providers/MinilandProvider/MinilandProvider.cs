@@ -129,7 +129,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 ml.State = state;
                 if (ml.State != MinilandState.Open)
                 {
-                    miniland.Kick(o => o.VisualId == characterId);
+                    miniland.Kick(o => o.VisualId != characterId);
                 }
                 return;
             }
