@@ -17,11 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
-using ChickenAPI.Packets.ClientPackets.UI;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Core.I18N;
@@ -61,9 +58,8 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             else
             {
                 requestData.ClientSession.SendPacket(miniland.GenerateMlinfo());
+                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateMlobjlst());
             }
-            //requestData.ClientSession.Character.MapInstance.MapDesignObjects.Select(s => new subpacket());
-            //SendPacket(Character.MapInstance.Generatemlobjlst()));
             //TODO add pets
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(

@@ -61,6 +61,7 @@ using ChickenAPI.Packets.ServerPackets.Visibility;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
 using NosCore.GameObject.Providers.MinilandProvider;
+using ChickenAPI.Packets.ServerPackets.Miniland;
 
 namespace NosCore.GameObject
 {
@@ -1345,8 +1346,8 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is WearableInstance fairy 
-                && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element 
+            if (Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is WearableInstance fairy
+                && sp.Item.Element != 0 && fairy.Item.Element != sp.Item.Element
                 && fairy.Item.Element != sp.Item.SecondaryElement)
             {
                 SendPacket(new MsgPacket
@@ -1404,5 +1405,35 @@ namespace NosCore.GameObject
             SendPacket(this.GenerateCond());
             MapInstance.Sessions.SendPacket(this.GenerateCMode());
         }
+
+        public MlobjlstPacket GenerateMlobjlst()
+        {
+            var mlobj = new List<MlobjlstSubPacket>();
+            foreach (var item in Inventory.Where(s => s.Value.Type == NoscorePocketType.Miniland).OrderBy(s => s.Value.Slot).Select(s => s.Value))
+            {
+                bool used = Session.Character.MapInstance.MapDesignObjects.ContainsKey(item.Id);
+                var mp = used ? Session.Character.MapInstance.MapDesignObjects[item.Id] : null;
+
+                mlobj.Add(new MlobjlstSubPacket
+                {
+                    InUse = used,
+                    Slot = item.Slot,
+                    MlObjSubPacket = new MlobjSubPacket
+                    {
+                        MapX = used ? mp.MapX : (short)0,
+                        MapY = used ? mp.MapY : (short)0,
+                        Width = item.ItemInstance.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
+                        Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
+                        DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
+                        Unknown = 100,
+                        Unknown2 = false,
+                        IsWarehouse = item.ItemInstance.Item.IsWarehouse
+                    }
+                });
+        }
+
+            return new MlobjlstPacket { MlobjlstSubPacket = mlobj
+    };
+}
     }
 }

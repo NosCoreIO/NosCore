@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
-using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
@@ -23,7 +19,6 @@ using NosCore.GameObject.Providers.MinilandProvider;
 using ChickenAPI.Packets.ClientPackets.Miniland;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Character;
 using System.Collections.Generic;
 
 namespace NosCore.Tests.PacketHandlerTests

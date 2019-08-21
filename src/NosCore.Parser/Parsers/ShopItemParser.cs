@@ -108,13 +108,20 @@ namespace NosCore.Parser.Parsers
                     }
                 }
             }
-            IEnumerable<ShopItemDto> shopItemDtos = shopitems.OrderBy(s=>s.Slot).ToList();
-            for (byte i = 0; i < shopitems.Count; i++)
+
+            var groups = shopitems.GroupBy(s => s.ShopId);
+            List<ShopItemDto> shopListItemDtos = new List<ShopItemDto>();
+            foreach (var group in groups)
             {
-                shopItemDtos.ElementAt(i).Slot = i;
+                var shopItemDtos = group.OrderBy(s => s.Slot).ToList();
+                for (byte i = 0; i < shopItemDtos.Count; i++)
+                {
+                    shopItemDtos.ElementAt(i).Slot = i;
+                }
+                shopListItemDtos.AddRange(shopItemDtos);
             }
 
-            _shopItemDao.InsertOrUpdate(shopItemDtos);
+            _shopItemDao.InsertOrUpdate(shopListItemDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }

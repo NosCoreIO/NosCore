@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 {

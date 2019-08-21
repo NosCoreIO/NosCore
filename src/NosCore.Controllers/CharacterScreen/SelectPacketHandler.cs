@@ -31,7 +31,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -90,8 +89,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.Direction = 2;
                 character.Account = clientSession.Account;
                 character.Group.JoinGroup(character);
-                clientSession.SetCharacter(character);
-
+        
                 var inventories = _inventoryItemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
@@ -99,11 +97,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
                 inventories.ForEach(k => character.Inventory[k.ItemInstanceId] =
                     InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
+                clientSession.SetCharacter(character);
 
 #pragma warning disable CS0618
                 clientSession.SendPackets(clientSession.Character.GenerateInv());
 #pragma warning restore CS0618
-
+                clientSession.SendPacket(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
                     clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
