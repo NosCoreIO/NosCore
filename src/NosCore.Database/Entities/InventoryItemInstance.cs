@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using NosCore.Data;
 using NosCore.Database.Entities.Base;
 
@@ -27,6 +28,7 @@ namespace NosCore.Database.Entities
     {
         public InventoryItemInstance()
         {
+            MinilandObject = new HashSet<MinilandObject>();
         }
 
 
@@ -37,6 +39,8 @@ namespace NosCore.Database.Entities
         public virtual ItemInstance ItemInstance { get; set; }
 
         public Guid ItemInstanceId { get; set; }
+
+        public virtual ICollection<MinilandObject> MinilandObject { get; set; }
 
         public short Slot { get; set; }
 

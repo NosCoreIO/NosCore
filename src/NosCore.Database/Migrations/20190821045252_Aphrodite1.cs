@@ -1,29 +1,10 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
-// 
-// Copyright (C) 2018 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NosCore.Database.Migrations
 {
-    public partial class Aphrodite : Migration
+    public partial class Aphrodite1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -37,10 +18,14 @@ namespace NosCore.Database.Migrations
                     Email = table.Column<string>(maxLength: 255, nullable: true),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     Password = table.Column<string>(unicode: false, maxLength: 255, nullable: true),
-                    RegistrationIP = table.Column<string>(maxLength: 45, nullable: true),
-                    VerificationToken = table.Column<string>(maxLength: 32, nullable: true)
+                    RegistrationIp = table.Column<string>(maxLength: 45, nullable: true),
+                    VerificationToken = table.Column<string>(maxLength: 32, nullable: true),
+                    Language = table.Column<int>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Account", x => x.AccountId));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Account", x => x.AccountId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Card",
@@ -57,42 +42,199 @@ namespace NosCore.Database.Migrations
                     BuffType = table.Column<byte>(nullable: false),
                     Propability = table.Column<byte>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Card", x => x.CardId));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Card", x => x.CardId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Family",
                 columns: table => new
                 {
-                    FamilyExperience = table.Column<int>(nullable: false),
-                    FamilyHeadGender = table.Column<byte>(nullable: false),
                     FamilyId = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    FamilyExperience = table.Column<int>(nullable: false),
+                    FamilyHeadGender = table.Column<byte>(nullable: false),
                     FamilyLevel = table.Column<byte>(nullable: false),
                     FamilyFaction = table.Column<byte>(nullable: false),
                     FamilyMessage = table.Column<string>(maxLength: 255, nullable: true),
-                    ManagerAuthorityType = table.Column<byte>(nullable: false),
+                    ManagerAuthorityType = table.Column<int>(nullable: false),
                     ManagerCanGetHistory = table.Column<bool>(nullable: false),
                     ManagerCanInvite = table.Column<bool>(nullable: false),
                     ManagerCanNotice = table.Column<bool>(nullable: false),
                     ManagerCanShout = table.Column<bool>(nullable: false),
                     MaxSize = table.Column<byte>(nullable: false),
-                    MemberAuthorityType = table.Column<byte>(nullable: false),
+                    MemberAuthorityType = table.Column<int>(nullable: false),
                     MemberCanGetHistory = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     WarehouseSize = table.Column<byte>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Family", x => x.FamilyId));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Family", x => x.FamilyId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NActDesc",
+                columns: table => new
+                {
+                    I18NActDescId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NActDesc", x => x.I18NActDescId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NBCard",
+                columns: table => new
+                {
+                    I18NbCardId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NBCard", x => x.I18NbCardId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NCard",
+                columns: table => new
+                {
+                    I18NCardId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NCard", x => x.I18NCardId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NItem",
+                columns: table => new
+                {
+                    I18NItemId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NItem", x => x.I18NItemId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NMapIdData",
+                columns: table => new
+                {
+                    I18NMapIdDataId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NMapIdData", x => x.I18NMapIdDataId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NMapPointData",
+                columns: table => new
+                {
+                    I18NMapPointDataId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NMapPointData", x => x.I18NMapPointDataId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NNpcMonster",
+                columns: table => new
+                {
+                    I18NNpcMonsterId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NNpcMonster", x => x.I18NNpcMonsterId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NNpcMonsterTalk",
+                columns: table => new
+                {
+                    I18NNpcMonsterTalkId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NNpcMonsterTalk", x => x.I18NNpcMonsterTalkId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NQuest",
+                columns: table => new
+                {
+                    I18NQuestId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NQuest", x => x.I18NQuestId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "I18NSkill",
+                columns: table => new
+                {
+                    I18NSkillId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Key = table.Column<string>(nullable: true),
+                    RegionType = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_I18NSkill", x => x.I18NSkillId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Item",
                 columns: table => new
                 {
+                    VNum = table.Column<short>(nullable: false),
                     BasicUpgrade = table.Column<byte>(nullable: false),
                     Flag1 = table.Column<bool>(nullable: false),
                     Flag2 = table.Column<bool>(nullable: false),
                     Flag3 = table.Column<bool>(nullable: false),
                     Flag4 = table.Column<bool>(nullable: false),
-                    Flag5 = table.Column<bool>(nullable: false),
+                    RequireBinding = table.Column<bool>(nullable: false),
                     Flag6 = table.Column<bool>(nullable: false),
                     Flag7 = table.Column<bool>(nullable: false),
                     Flag8 = table.Column<bool>(nullable: false),
@@ -112,7 +254,7 @@ namespace NosCore.Database.Migrations
                     DistanceDefenceDodge = table.Column<short>(nullable: false),
                     Effect = table.Column<short>(nullable: false),
                     EffectValue = table.Column<int>(nullable: false),
-                    Element = table.Column<byte>(nullable: false),
+                    Element = table.Column<int>(nullable: false),
                     ElementRate = table.Column<short>(nullable: false),
                     EquipmentSlot = table.Column<byte>(nullable: false),
                     FireElement = table.Column<byte>(nullable: false),
@@ -146,6 +288,7 @@ namespace NosCore.Database.Migrations
                     MoreHp = table.Column<short>(nullable: false),
                     MoreMp = table.Column<short>(nullable: false),
                     Morph = table.Column<short>(nullable: false),
+                    SecondMorph = table.Column<short>(nullable: false),
                     Mp = table.Column<short>(nullable: false),
                     MpRegeneration = table.Column<short>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
@@ -155,35 +298,41 @@ namespace NosCore.Database.Migrations
                     ReduceOposantResistance = table.Column<short>(nullable: false),
                     ReputationMinimum = table.Column<byte>(nullable: false),
                     ReputPrice = table.Column<long>(nullable: false),
-                    SecondaryElement = table.Column<byte>(nullable: false),
+                    SecondaryElement = table.Column<int>(nullable: false),
                     Sex = table.Column<byte>(nullable: false),
                     Speed = table.Column<byte>(nullable: false),
                     SpType = table.Column<byte>(nullable: false),
                     Type = table.Column<byte>(nullable: false),
-                    VNum = table.Column<short>(nullable: false),
                     WaitDelay = table.Column<short>(nullable: false),
                     WaterElement = table.Column<byte>(nullable: false),
                     WaterResistance = table.Column<short>(nullable: false),
                     Width = table.Column<byte>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Item", x => x.VNum));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Item", x => x.VNum);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Map",
                 columns: table => new
                 {
-                    Data = table.Column<byte[]>(nullable: true),
                     MapId = table.Column<short>(nullable: false),
+                    Data = table.Column<byte[]>(nullable: true),
                     Music = table.Column<int>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     ShopAllowed = table.Column<bool>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Map", x => x.MapId));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Map", x => x.MapId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "NpcMonster",
                 columns: table => new
                 {
+                    NpcMonsterVNum = table.Column<short>(nullable: false),
                     AmountRequired = table.Column<byte>(nullable: false),
                     AttackClass = table.Column<byte>(nullable: false),
                     AttackUpgrade = table.Column<byte>(nullable: false),
@@ -206,31 +355,33 @@ namespace NosCore.Database.Migrations
                     ElementRate = table.Column<short>(nullable: false),
                     FireResistance = table.Column<short>(nullable: false),
                     HeroLevel = table.Column<byte>(nullable: false),
-                    HeroXP = table.Column<int>(nullable: false),
+                    HeroXp = table.Column<int>(nullable: false),
                     IsHostile = table.Column<bool>(nullable: false),
-                    JobXP = table.Column<int>(nullable: false),
+                    JobXp = table.Column<int>(nullable: false),
                     Level = table.Column<byte>(nullable: false),
                     LightResistance = table.Column<short>(nullable: false),
                     MagicDefence = table.Column<short>(nullable: false),
-                    MaxHP = table.Column<int>(nullable: false),
-                    MaxMP = table.Column<int>(nullable: false),
+                    MaxHp = table.Column<int>(nullable: false),
+                    MaxMp = table.Column<int>(nullable: false),
                     MonsterType = table.Column<byte>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     NoAggresiveIcon = table.Column<bool>(nullable: false),
                     NoticeRange = table.Column<byte>(nullable: false),
-                    NpcMonsterVNum = table.Column<short>(nullable: false),
                     Race = table.Column<byte>(nullable: false),
                     RaceType = table.Column<byte>(nullable: false),
                     RespawnTime = table.Column<int>(nullable: false),
                     Speed = table.Column<byte>(nullable: false),
                     VNumRequired = table.Column<short>(nullable: false),
                     WaterResistance = table.Column<short>(nullable: false),
-                    XP = table.Column<int>(nullable: false),
+                    Xp = table.Column<int>(nullable: false),
                     IsPercent = table.Column<bool>(nullable: false),
                     TakeDamages = table.Column<int>(nullable: false),
                     GiveDamagePercentage = table.Column<int>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_NpcMonster", x => x.NpcMonsterVNum));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NpcMonster", x => x.NpcMonsterVNum);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Quest",
@@ -250,12 +401,16 @@ namespace NosCore.Database.Migrations
                     IsDaily = table.Column<bool>(nullable: false),
                     SpecialData = table.Column<int>(nullable: true)
                 },
-                constraints: table => table.PrimaryKey("PK_Quest", x => x.QuestId));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Quest", x => x.QuestId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Skill",
                 columns: table => new
                 {
+                    SkillVNum = table.Column<short>(nullable: false),
                     AttackAnimation = table.Column<short>(nullable: false),
                     CastAnimation = table.Column<short>(nullable: false),
                     CastEffect = table.Column<short>(nullable: false),
@@ -263,7 +418,7 @@ namespace NosCore.Database.Migrations
                     CastTime = table.Column<short>(nullable: false),
                     Class = table.Column<byte>(nullable: false),
                     Cooldown = table.Column<short>(nullable: false),
-                    CPCost = table.Column<byte>(nullable: false),
+                    CpCost = table.Column<byte>(nullable: false),
                     Duration = table.Column<short>(nullable: false),
                     Effect = table.Column<short>(nullable: false),
                     Element = table.Column<byte>(nullable: false),
@@ -280,26 +435,28 @@ namespace NosCore.Database.Migrations
                     Price = table.Column<int>(nullable: false),
                     Range = table.Column<byte>(nullable: false),
                     SkillType = table.Column<byte>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false),
                     TargetRange = table.Column<byte>(nullable: false),
                     TargetType = table.Column<byte>(nullable: false),
                     Type = table.Column<byte>(nullable: false),
                     UpgradeSkill = table.Column<short>(nullable: false),
                     UpgradeType = table.Column<short>(nullable: false)
                 },
-                constraints: table => table.PrimaryKey("PK_Skill", x => x.SkillVNum));
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Skill", x => x.SkillVNum);
+                });
 
             migrationBuilder.CreateTable(
                 name: "PenaltyLog",
                 columns: table => new
                 {
+                    PenaltyLogId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     AccountId = table.Column<long>(nullable: false),
                     AdminName = table.Column<string>(nullable: true),
                     DateEnd = table.Column<DateTime>(nullable: false),
                     DateStart = table.Column<DateTime>(nullable: false),
                     Penalty = table.Column<byte>(nullable: false),
-                    PenaltyLogId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Reason = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -317,10 +474,10 @@ namespace NosCore.Database.Migrations
                 name: "FamilyLog",
                 columns: table => new
                 {
-                    FamilyId = table.Column<long>(nullable: false),
-                    FamilyLogData = table.Column<string>(maxLength: 255, nullable: true),
                     FamilyLogId = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    FamilyId = table.Column<long>(nullable: false),
+                    FamilyLogData = table.Column<string>(maxLength: 255, nullable: true),
                     FamilyLogType = table.Column<byte>(nullable: false),
                     Timestamp = table.Column<DateTime>(nullable: false)
                 },
@@ -373,6 +530,8 @@ namespace NosCore.Database.Migrations
                 name: "Character",
                 columns: table => new
                 {
+                    CharacterId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     AccountId = table.Column<long>(nullable: false),
                     Act4Dead = table.Column<int>(nullable: false),
                     Act4Kill = table.Column<int>(nullable: false),
@@ -380,8 +539,6 @@ namespace NosCore.Database.Migrations
                     ArenaWinner = table.Column<int>(nullable: false),
                     Biography = table.Column<string>(maxLength: 255, nullable: true),
                     BuffBlocked = table.Column<bool>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Class = table.Column<byte>(nullable: false),
                     Compliment = table.Column<short>(nullable: false),
                     Dignity = table.Column<float>(nullable: false),
@@ -412,9 +569,6 @@ namespace NosCore.Database.Migrations
                     MasterTicket = table.Column<int>(nullable: false),
                     MaxMateCount = table.Column<byte>(nullable: false),
                     MinilandInviteBlocked = table.Column<bool>(nullable: false),
-                    MinilandMessage = table.Column<string>(maxLength: 255, nullable: true),
-                    MinilandPoint = table.Column<short>(nullable: false),
-                    MinilandState = table.Column<byte>(nullable: false),
                     MouseAimLock = table.Column<bool>(nullable: false),
                     Mp = table.Column<int>(nullable: false),
                     Prefix = table.Column<string>(maxLength: 25, nullable: true),
@@ -452,12 +606,12 @@ namespace NosCore.Database.Migrations
                 name: "Portal",
                 columns: table => new
                 {
+                    PortalId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     DestinationMapId = table.Column<short>(nullable: false),
                     DestinationX = table.Column<short>(nullable: false),
                     DestinationY = table.Column<short>(nullable: false),
                     IsDisabled = table.Column<bool>(nullable: false),
-                    PortalId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     SourceMapId = table.Column<short>(nullable: false),
                     SourceX = table.Column<short>(nullable: false),
                     SourceY = table.Column<short>(nullable: false),
@@ -484,18 +638,18 @@ namespace NosCore.Database.Migrations
                 name: "RespawnMapType",
                 columns: table => new
                 {
-                    DefaultMapId = table.Column<short>(nullable: false),
+                    RespawnMapTypeId = table.Column<long>(nullable: false),
+                    MapId = table.Column<short>(nullable: false),
                     DefaultX = table.Column<short>(nullable: false),
                     DefaultY = table.Column<short>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: true),
-                    RespawnMapTypeId = table.Column<long>(nullable: false)
+                    Name = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RespawnMapType", x => x.RespawnMapTypeId);
                     table.ForeignKey(
-                        name: "FK_RespawnMapType_Map_DefaultMapId",
-                        column: x => x.DefaultMapId,
+                        name: "FK_RespawnMapType_Map_MapId",
+                        column: x => x.MapId,
                         principalTable: "Map",
                         principalColumn: "MapId",
                         onDelete: ReferentialAction.Restrict);
@@ -505,13 +659,13 @@ namespace NosCore.Database.Migrations
                 name: "ScriptedInstance",
                 columns: table => new
                 {
+                    ScriptedInstanceId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     MapId = table.Column<short>(nullable: false),
                     PositionX = table.Column<short>(nullable: false),
                     PositionY = table.Column<short>(nullable: false),
                     Label = table.Column<string>(nullable: true),
                     Script = table.Column<string>(maxLength: 2147483647, nullable: true),
-                    ScriptedInstanceId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Type = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
@@ -529,10 +683,10 @@ namespace NosCore.Database.Migrations
                 name: "MapMonster",
                 columns: table => new
                 {
+                    MapMonsterId = table.Column<int>(nullable: false),
                     IsDisabled = table.Column<bool>(nullable: false),
                     IsMoving = table.Column<bool>(nullable: false),
                     MapId = table.Column<short>(nullable: false),
-                    MapMonsterId = table.Column<int>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
                     MapY = table.Column<short>(nullable: false),
                     VNum = table.Column<short>(nullable: false),
@@ -559,6 +713,7 @@ namespace NosCore.Database.Migrations
                 name: "MapNpc",
                 columns: table => new
                 {
+                    MapNpcId = table.Column<int>(nullable: false),
                     Dialog = table.Column<short>(nullable: false),
                     Effect = table.Column<short>(nullable: false),
                     EffectDelay = table.Column<short>(nullable: false),
@@ -566,7 +721,6 @@ namespace NosCore.Database.Migrations
                     IsMoving = table.Column<bool>(nullable: false),
                     IsSitting = table.Column<bool>(nullable: false),
                     MapId = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
                     MapY = table.Column<short>(nullable: false),
                     VNum = table.Column<short>(nullable: false),
@@ -688,9 +842,9 @@ namespace NosCore.Database.Migrations
                 name: "Combo",
                 columns: table => new
                 {
-                    Animation = table.Column<short>(nullable: false),
                     ComboId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Animation = table.Column<short>(nullable: false),
                     Effect = table.Column<short>(nullable: false),
                     Hit = table.Column<short>(nullable: false),
                     SkillVNum = table.Column<short>(nullable: false)
@@ -768,9 +922,8 @@ namespace NosCore.Database.Migrations
                 name: "CharacterRelation",
                 columns: table => new
                 {
+                    CharacterRelationId = table.Column<Guid>(nullable: false),
                     CharacterId = table.Column<long>(nullable: false),
-                    CharacterRelationId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     RelatedCharacterId = table.Column<long>(nullable: false),
                     RelationType = table.Column<short>(nullable: false)
                 },
@@ -820,12 +973,12 @@ namespace NosCore.Database.Migrations
                 name: "FamilyCharacter",
                 columns: table => new
                 {
+                    FamilyCharacterId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Authority = table.Column<byte>(nullable: false),
                     CharacterId = table.Column<long>(nullable: false),
                     DailyMessage = table.Column<string>(maxLength: 255, nullable: true),
                     Experience = table.Column<int>(nullable: false),
-                    FamilyCharacterId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     FamilyId = table.Column<long>(nullable: false),
                     Rank = table.Column<byte>(nullable: false)
                 },
@@ -851,21 +1004,17 @@ namespace NosCore.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Amount = table.Column<int>(nullable: false),
-                    BazaarItemId = table.Column<long>(nullable: true),
+                    Amount = table.Column<short>(nullable: false),
                     BoundCharacterId = table.Column<long>(nullable: true),
                     CharacterId = table.Column<long>(nullable: false),
                     Design = table.Column<short>(nullable: false),
                     DurabilityPoint = table.Column<int>(nullable: false),
                     ItemDeleteTime = table.Column<DateTime>(nullable: true),
                     ItemVNum = table.Column<short>(nullable: false),
-                    Rare = table.Column<short>(nullable: false),
-                    Slot = table.Column<short>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
                     Upgrade = table.Column<byte>(nullable: false),
                     Discriminator = table.Column<string>(nullable: false),
-                    HP = table.Column<short>(nullable: true),
-                    MP = table.Column<short>(nullable: true),
+                    Hp = table.Column<short>(nullable: true),
+                    Mp = table.Column<short>(nullable: true),
                     Ammo = table.Column<byte>(nullable: true),
                     Cellon = table.Column<byte>(nullable: true),
                     CloseDefence = table.Column<short>(nullable: true),
@@ -884,28 +1033,28 @@ namespace NosCore.Database.Migrations
                     FireElement = table.Column<byte>(nullable: true),
                     FireResistance = table.Column<short>(nullable: true),
                     HitRate = table.Column<short>(nullable: true),
-                    WearableInstance_HP = table.Column<short>(nullable: true),
+                    WearableInstance_Hp = table.Column<short>(nullable: true),
                     IsEmpty = table.Column<bool>(nullable: true),
                     IsFixed = table.Column<bool>(nullable: true),
                     LightElement = table.Column<byte>(nullable: true),
                     LightResistance = table.Column<short>(nullable: true),
                     MagicDefence = table.Column<short>(nullable: true),
                     MaxElementRate = table.Column<short>(nullable: true),
-                    WearableInstance_MP = table.Column<short>(nullable: true),
+                    WearableInstance_Mp = table.Column<short>(nullable: true),
                     ShellRarity = table.Column<byte>(nullable: true),
                     WaterElement = table.Column<byte>(nullable: true),
                     WaterResistance = table.Column<short>(nullable: true),
-                    XP = table.Column<long>(nullable: true),
+                    Xp = table.Column<long>(nullable: true),
                     SlDamage = table.Column<short>(nullable: true),
                     SlDefence = table.Column<short>(nullable: true),
                     SlElement = table.Column<short>(nullable: true),
-                    SlHP = table.Column<short>(nullable: true),
+                    SlHp = table.Column<short>(nullable: true),
                     SpDamage = table.Column<byte>(nullable: true),
                     SpDark = table.Column<byte>(nullable: true),
                     SpDefence = table.Column<byte>(nullable: true),
                     SpElement = table.Column<byte>(nullable: true),
                     SpFire = table.Column<byte>(nullable: true),
-                    SpHP = table.Column<byte>(nullable: true),
+                    SpHp = table.Column<byte>(nullable: true),
                     SpLevel = table.Column<byte>(nullable: true),
                     SpLight = table.Column<byte>(nullable: true),
                     SpStoneUpgrade = table.Column<byte>(nullable: true),
@@ -922,12 +1071,6 @@ namespace NosCore.Database.Migrations
                         principalColumn: "CharacterId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ItemInstance_Character_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Character",
-                        principalColumn: "CharacterId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_ItemInstance_Item_ItemVNum",
                         column: x => x.ItemVNum,
                         principalTable: "Item",
@@ -939,6 +1082,8 @@ namespace NosCore.Database.Migrations
                 name: "Mail",
                 columns: table => new
                 {
+                    MailId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     AttachmentAmount = table.Column<byte>(nullable: false),
                     AttachmentRarity = table.Column<byte>(nullable: false),
                     AttachmentUpgrade = table.Column<byte>(nullable: false),
@@ -947,8 +1092,6 @@ namespace NosCore.Database.Migrations
                     EqPacket = table.Column<string>(maxLength: 255, nullable: true),
                     IsOpened = table.Column<bool>(nullable: false),
                     IsSenderCopy = table.Column<bool>(nullable: false),
-                    MailId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Message = table.Column<string>(maxLength: 255, nullable: true),
                     ReceiverId = table.Column<long>(nullable: false),
                     SenderCharacterClass = table.Column<byte>(nullable: false),
@@ -986,6 +1129,8 @@ namespace NosCore.Database.Migrations
                 name: "Mate",
                 columns: table => new
                 {
+                    MateId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Attack = table.Column<byte>(nullable: false),
                     CanPickUp = table.Column<bool>(nullable: false),
                     CharacterId = table.Column<long>(nullable: false),
@@ -999,8 +1144,6 @@ namespace NosCore.Database.Migrations
                     Loyalty = table.Column<short>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
                     MapY = table.Column<short>(nullable: false),
-                    MateId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     MateType = table.Column<byte>(nullable: false),
                     Mp = table.Column<int>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
@@ -1025,6 +1168,30 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Miniland",
+                columns: table => new
+                {
+                    MinilandId = table.Column<Guid>(nullable: false),
+                    MinilandMessage = table.Column<string>(maxLength: 255, nullable: true),
+                    MinilandPoint = table.Column<long>(nullable: false),
+                    State = table.Column<byte>(nullable: false),
+                    OwnerId = table.Column<long>(nullable: false),
+                    DailyVisitCount = table.Column<int>(nullable: false),
+                    VisitCount = table.Column<int>(nullable: false),
+                    WelcomeMusicInfo = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Miniland", x => x.MinilandId);
+                    table.ForeignKey(
+                        name: "FK_Miniland_Character_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Character",
+                        principalColumn: "CharacterId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "QuicklistEntry",
                 columns: table => new
                 {
@@ -1035,7 +1202,7 @@ namespace NosCore.Database.Migrations
                     Q1 = table.Column<short>(nullable: false),
                     Q2 = table.Column<short>(nullable: false),
                     Slot = table.Column<short>(nullable: false),
-                    Type = table.Column<short>(nullable: false)
+                    Type = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1052,10 +1219,10 @@ namespace NosCore.Database.Migrations
                 name: "StaticBonus",
                 columns: table => new
                 {
-                    CharacterId = table.Column<long>(nullable: false),
-                    DateEnd = table.Column<DateTime>(nullable: false),
                     StaticBonusId = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    CharacterId = table.Column<long>(nullable: false),
+                    DateEnd = table.Column<DateTime>(nullable: false),
                     StaticBonusType = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
@@ -1073,11 +1240,11 @@ namespace NosCore.Database.Migrations
                 name: "StaticBuff",
                 columns: table => new
                 {
+                    StaticBuffId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     CharacterId = table.Column<long>(nullable: false),
                     CardId = table.Column<short>(nullable: false),
-                    RemainingTime = table.Column<int>(nullable: false),
-                    StaticBuffId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                    RemainingTime = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1127,10 +1294,10 @@ namespace NosCore.Database.Migrations
                 name: "Respawn",
                 columns: table => new
                 {
-                    CharacterId = table.Column<long>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
                     RespawnId = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    CharacterId = table.Column<long>(nullable: false),
+                    MapId = table.Column<short>(nullable: false),
                     RespawnMapTypeId = table.Column<long>(nullable: false),
                     X = table.Column<short>(nullable: false),
                     Y = table.Column<short>(nullable: false)
@@ -1162,11 +1329,11 @@ namespace NosCore.Database.Migrations
                 name: "Recipe",
                 columns: table => new
                 {
+                    RecipeId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Amount = table.Column<byte>(nullable: false),
                     ItemVNum = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false),
-                    RecipeId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                    MapNpcId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1189,11 +1356,11 @@ namespace NosCore.Database.Migrations
                 name: "Shop",
                 columns: table => new
                 {
+                    ShopId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     MapNpcId = table.Column<int>(nullable: false),
                     MenuType = table.Column<byte>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
-                    ShopId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     ShopType = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
@@ -1211,14 +1378,14 @@ namespace NosCore.Database.Migrations
                 name: "Teleporter",
                 columns: table => new
                 {
+                    TeleporterId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Index = table.Column<short>(nullable: false),
                     Type = table.Column<byte>(nullable: false),
                     MapId = table.Column<short>(nullable: false),
                     MapNpcId = table.Column<int>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    TeleporterId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                    MapY = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1241,9 +1408,9 @@ namespace NosCore.Database.Migrations
                 name: "BazaarItem",
                 columns: table => new
                 {
-                    Amount = table.Column<byte>(nullable: false),
                     BazaarItemId = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Amount = table.Column<short>(nullable: false),
                     DateStart = table.Column<DateTime>(nullable: false),
                     Duration = table.Column<short>(nullable: false),
                     IsPackage = table.Column<bool>(nullable: false),
@@ -1291,32 +1458,26 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MinilandObject",
+                name: "InventoryItemInstance",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(nullable: false),
                     CharacterId = table.Column<long>(nullable: false),
-                    ItemInstanceId = table.Column<Guid>(nullable: true),
-                    Level1BoxAmount = table.Column<byte>(nullable: false),
-                    Level2BoxAmount = table.Column<byte>(nullable: false),
-                    Level3BoxAmount = table.Column<byte>(nullable: false),
-                    Level4BoxAmount = table.Column<byte>(nullable: false),
-                    Level5BoxAmount = table.Column<byte>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    MinilandObjectId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                    ItemInstanceId = table.Column<Guid>(nullable: false),
+                    Slot = table.Column<short>(nullable: false),
+                    Type = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MinilandObject", x => x.MinilandObjectId);
+                    table.PrimaryKey("PK_InventoryItemInstance", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MinilandObject_Character_CharacterId",
+                        name: "FK_InventoryItemInstance_Character_CharacterId",
                         column: x => x.CharacterId,
                         principalTable: "Character",
                         principalColumn: "CharacterId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_MinilandObject_ItemInstance_ItemInstanceId",
+                        name: "FK_InventoryItemInstance_ItemInstance_ItemInstanceId",
                         column: x => x.ItemInstanceId,
                         principalTable: "ItemInstance",
                         principalColumn: "Id",
@@ -1327,23 +1488,17 @@ namespace NosCore.Database.Migrations
                 name: "Drop",
                 columns: table => new
                 {
-                    Amount = table.Column<int>(nullable: false),
-                    DropChance = table.Column<int>(nullable: false),
                     DropId = table.Column<short>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    ItemVNum = table.Column<short>(nullable: false),
+                    Amount = table.Column<int>(nullable: false),
+                    DropChance = table.Column<int>(nullable: false),
+                    VNum = table.Column<short>(nullable: false),
                     MapTypeId = table.Column<short>(nullable: true),
                     MonsterVNum = table.Column<short>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Drop", x => x.DropId);
-                    table.ForeignKey(
-                        name: "FK_Drop_Item_ItemVNum",
-                        column: x => x.ItemVNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Drop_MapType_MapTypeId",
                         column: x => x.MapTypeId,
@@ -1355,6 +1510,12 @@ namespace NosCore.Database.Migrations
                         column: x => x.MonsterVNum,
                         principalTable: "NpcMonster",
                         principalColumn: "NpcMonsterVNum",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Drop_Item_VNum",
+                        column: x => x.VNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1388,11 +1549,11 @@ namespace NosCore.Database.Migrations
                 name: "RecipeItem",
                 columns: table => new
                 {
+                    RecipeItemId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Amount = table.Column<short>(nullable: false),
                     ItemVNum = table.Column<short>(nullable: false),
-                    RecipeId = table.Column<short>(nullable: false),
-                    RecipeItemId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                    RecipeId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1415,12 +1576,12 @@ namespace NosCore.Database.Migrations
                 name: "ShopItem",
                 columns: table => new
                 {
+                    ShopItemId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Color = table.Column<byte>(nullable: false),
                     ItemVNum = table.Column<short>(nullable: false),
                     Rare = table.Column<short>(nullable: false),
                     ShopId = table.Column<int>(nullable: false),
-                    ShopItemId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Slot = table.Column<byte>(nullable: false),
                     Type = table.Column<byte>(nullable: false),
                     Upgrade = table.Column<byte>(nullable: false)
@@ -1446,9 +1607,9 @@ namespace NosCore.Database.Migrations
                 name: "ShopSkill",
                 columns: table => new
                 {
-                    ShopId = table.Column<int>(nullable: false),
                     ShopSkillId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    ShopId = table.Column<int>(nullable: false),
                     SkillVNum = table.Column<short>(nullable: false),
                     Slot = table.Column<byte>(nullable: false),
                     Type = table.Column<byte>(nullable: false)
@@ -1469,6 +1630,44 @@ namespace NosCore.Database.Migrations
                         principalColumn: "SkillVNum",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "MinilandObject",
+                columns: table => new
+                {
+                    MinilandObjectId = table.Column<Guid>(nullable: false),
+                    InventoryItemInstanceId = table.Column<Guid>(nullable: true),
+                    Level1BoxAmount = table.Column<byte>(nullable: false),
+                    Level2BoxAmount = table.Column<byte>(nullable: false),
+                    Level3BoxAmount = table.Column<byte>(nullable: false),
+                    Level4BoxAmount = table.Column<byte>(nullable: false),
+                    Level5BoxAmount = table.Column<byte>(nullable: false),
+                    MapX = table.Column<short>(nullable: false),
+                    MapY = table.Column<short>(nullable: false),
+                    MinilandId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MinilandObject", x => x.MinilandObjectId);
+                    table.ForeignKey(
+                        name: "FK_MinilandObject_InventoryItemInstance_InventoryItemInstanceId",
+                        column: x => x.InventoryItemInstanceId,
+                        principalTable: "InventoryItemInstance",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MinilandObject_Miniland_MinilandId",
+                        column: x => x.MinilandId,
+                        principalTable: "Miniland",
+                        principalColumn: "MinilandId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Account_Name",
+                table: "Account",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_BazaarItem_ItemInstanceId",
@@ -1546,11 +1745,6 @@ namespace NosCore.Database.Migrations
                 column: "SkillVNum");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Drop_ItemVNum",
-                table: "Drop",
-                column: "ItemVNum");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Drop_MapTypeId",
                 table: "Drop",
                 column: "MapTypeId");
@@ -1559,6 +1753,11 @@ namespace NosCore.Database.Migrations
                 name: "IX_Drop_MonsterVNum",
                 table: "Drop",
                 column: "MonsterVNum");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Drop_VNum",
+                table: "Drop",
+                column: "VNum");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EquipmentOption_WearableInstanceId",
@@ -1581,6 +1780,77 @@ namespace NosCore.Database.Migrations
                 column: "FamilyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_I18NActDesc_Key_RegionType",
+                table: "I18NActDesc",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NBCard_Key_RegionType",
+                table: "I18NBCard",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NCard_Key_RegionType",
+                table: "I18NCard",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NItem_Key_RegionType",
+                table: "I18NItem",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NMapIdData_Key_RegionType",
+                table: "I18NMapIdData",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NMapPointData_Key_RegionType",
+                table: "I18NMapPointData",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NNpcMonster_Key_RegionType",
+                table: "I18NNpcMonster",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NNpcMonsterTalk_Key_RegionType",
+                table: "I18NNpcMonsterTalk",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NQuest_Key_RegionType",
+                table: "I18NQuest",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_I18NSkill_Key_RegionType",
+                table: "I18NSkill",
+                columns: new[] { "Key", "RegionType" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItemInstance_ItemInstanceId",
+                table: "InventoryItemInstance",
+                column: "ItemInstanceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItemInstance_CharacterId_Slot_Type",
+                table: "InventoryItemInstance",
+                columns: new[] { "CharacterId", "Slot", "Type" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ItemInstance_BoundCharacterId",
                 table: "ItemInstance",
                 column: "BoundCharacterId");
@@ -1589,12 +1859,6 @@ namespace NosCore.Database.Migrations
                 name: "IX_ItemInstance_ItemVNum",
                 table: "ItemInstance",
                 column: "ItemVNum");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ItemInstance_CharacterId_Slot_Type",
-                table: "ItemInstance",
-                columns: new[] { "CharacterId", "Slot", "Type" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mail_AttachmentVNum",
@@ -1663,14 +1927,19 @@ namespace NosCore.Database.Migrations
                 column: "VNum");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MinilandObject_CharacterId",
-                table: "MinilandObject",
-                column: "CharacterId");
+                name: "IX_Miniland_OwnerId",
+                table: "Miniland",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MinilandObject_ItemInstanceId",
+                name: "IX_MinilandObject_InventoryItemInstanceId",
                 table: "MinilandObject",
-                column: "ItemInstanceId");
+                column: "InventoryItemInstanceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MinilandObject_MinilandId",
+                table: "MinilandObject",
+                column: "MinilandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NpcMonsterSkill_NpcMonsterVNum",
@@ -1748,9 +2017,9 @@ namespace NosCore.Database.Migrations
                 column: "RespawnMapTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RespawnMapType_DefaultMapId",
+                name: "IX_RespawnMapType_MapId",
                 table: "RespawnMapType",
-                column: "DefaultMapId");
+                column: "MapId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RollGeneratedItem_ItemGeneratedVNum",
@@ -1851,6 +2120,36 @@ namespace NosCore.Database.Migrations
                 name: "FamilyLog");
 
             migrationBuilder.DropTable(
+                name: "I18NActDesc");
+
+            migrationBuilder.DropTable(
+                name: "I18NBCard");
+
+            migrationBuilder.DropTable(
+                name: "I18NCard");
+
+            migrationBuilder.DropTable(
+                name: "I18NItem");
+
+            migrationBuilder.DropTable(
+                name: "I18NMapIdData");
+
+            migrationBuilder.DropTable(
+                name: "I18NMapPointData");
+
+            migrationBuilder.DropTable(
+                name: "I18NNpcMonster");
+
+            migrationBuilder.DropTable(
+                name: "I18NNpcMonsterTalk");
+
+            migrationBuilder.DropTable(
+                name: "I18NQuest");
+
+            migrationBuilder.DropTable(
+                name: "I18NSkill");
+
+            migrationBuilder.DropTable(
                 name: "Mail");
 
             migrationBuilder.DropTable(
@@ -1917,7 +2216,10 @@ namespace NosCore.Database.Migrations
                 name: "MapType");
 
             migrationBuilder.DropTable(
-                name: "ItemInstance");
+                name: "InventoryItemInstance");
+
+            migrationBuilder.DropTable(
+                name: "Miniland");
 
             migrationBuilder.DropTable(
                 name: "Quest");
@@ -1938,22 +2240,25 @@ namespace NosCore.Database.Migrations
                 name: "RespawnMapType");
 
             migrationBuilder.DropTable(
+                name: "ItemInstance");
+
+            migrationBuilder.DropTable(
+                name: "MapNpc");
+
+            migrationBuilder.DropTable(
                 name: "Character");
 
             migrationBuilder.DropTable(
                 name: "Item");
 
             migrationBuilder.DropTable(
-                name: "MapNpc");
+                name: "NpcMonster");
 
             migrationBuilder.DropTable(
                 name: "Account");
 
             migrationBuilder.DropTable(
                 name: "Map");
-
-            migrationBuilder.DropTable(
-                name: "NpcMonster");
         }
     }
 }

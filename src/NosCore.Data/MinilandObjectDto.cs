@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Data
 {
-    public class MinilandObjectDto
+    public class MinilandObjectDto : IDto
     {
-        public long CharacterId { get; set; }
-
-        public Guid? ItemInstanceId { get; set; }
+        public Guid? InventoryItemInstanceId { get; set; }
 
         public byte Level1BoxAmount { get; set; }
 
@@ -24,6 +21,7 @@ namespace NosCore.Data
 
         public short MapY { get; set; }
 
-        public long MinilandObjectId { get; set; }
+        [Key]
+        public Guid MinilandObjectId { get; set; }
     }
 }

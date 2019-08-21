@@ -29,7 +29,6 @@ namespace NosCore.Database.Entities
         public ItemInstance()
         {
             BazaarItem = new HashSet<BazaarItem>();
-            MinilandObject = new HashSet<MinilandObject>();
             InventoryItemInstance = new HashSet<InventoryItemInstance>();
         }
 
@@ -55,8 +54,6 @@ namespace NosCore.Database.Entities
         public short ItemVNum { get; set; }
 
         public virtual ICollection<InventoryItemInstance> InventoryItemInstance { get; set; }
-
-        public virtual ICollection<MinilandObject> MinilandObject { get; set; }
 
         public byte Upgrade { get; set; }
     }

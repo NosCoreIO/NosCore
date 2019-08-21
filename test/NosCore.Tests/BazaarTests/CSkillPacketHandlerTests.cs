@@ -7,7 +7,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Tests.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

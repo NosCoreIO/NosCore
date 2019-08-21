@@ -5,7 +5,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using System.Collections.Generic;
 using NosCore.Data;
-using System;
 using NosCore.Tests.Helpers;
 using NosCore.GameObject.Networking;
 using ChickenAPI.Packets.ClientPackets.Bazaar;

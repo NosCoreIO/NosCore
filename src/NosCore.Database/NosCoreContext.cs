@@ -312,12 +312,6 @@ namespace NosCore.Database
             modelBuilder.Entity<Miniland>()
                 .HasOne(e => e.Owner);
 
-            modelBuilder.Entity<Miniland>()
-               .HasMany(e => e.MinilandObject)
-               .WithOne(e => e.Miniland)
-               .HasForeignKey(e => e.MinilandId)
-               .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail1)
                 .WithOne(e => e.Receiver)
@@ -355,9 +349,9 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MinilandObject>()
-                .HasOne(e => e.ItemInstance)
+                .HasOne(e => e.InventoryItemInstance)
                 .WithMany(e => e.MinilandObject)
-                .HasForeignKey(e => e.ItemInstanceId)
+                .HasForeignKey(e => e.InventoryItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<FamilyCharacter>()

@@ -39,10 +39,4 @@
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Migrations\20181223220614_Aphrodite8.Designer.cs">
-      <DependentUpon>20181223220614_Aphrodite8.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>

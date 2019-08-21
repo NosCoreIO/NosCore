@@ -4,8 +4,6 @@ using NosCore.Core.I18N;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
-using Serilog;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Data;
 using System;
