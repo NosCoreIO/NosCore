@@ -120,6 +120,23 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return minilandInfo;
         }
 
+        public void SetState(long characterId, MinilandState state)
+        {
+            if (_minilandIds.ContainsKey(characterId))
+            {
+                var ml = _minilandIds[characterId];
+                var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
+                ml.State = state;
+                if (ml.State != MinilandState.Open)
+                {
+                    miniland.Kick(o => o.VisualId != characterId);
+                }
+                return;
+            }
+            throw new ArgumentException();
+
+        }
+
         public Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId)
         {
             return _minilandIds.FirstOrDefault(s => s.Value.MapInstanceId == mapInstanceId).Value;

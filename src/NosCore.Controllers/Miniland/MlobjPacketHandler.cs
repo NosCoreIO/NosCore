@@ -41,8 +41,7 @@ namespace NosCore.PacketHandlers.Miniland
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE, clientSession.Account.Language)
                             });
-                            miniland.State = MinilandState.Private;
-                            _minilandProvider.GetMiniland(clientSession.Character.CharacterId).State = MinilandState.Private;
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
                             break;
 
                         case MinilandState.Lock:
@@ -50,8 +49,7 @@ namespace NosCore.PacketHandlers.Miniland
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK, clientSession.Account.Language)
                             });
-                            miniland.State = MinilandState.Lock;
-                            _minilandProvider.GetMiniland(clientSession.Character.CharacterId).State = MinilandState.Lock;
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
                             break;
 
                         case MinilandState.Open:
