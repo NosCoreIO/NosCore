@@ -103,17 +103,20 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             var minilandInfo = minilandInfoDto.Adapt<Miniland>();
             minilandInfo.MapInstanceId = miniland.MapInstanceId;
             minilandInfo.Owner = character;
-            var listobjects = character.Inventory.Values.Where(s => s.Type == NoscorePocketType.Miniland).Select(s=>s.Id).ToArray();
-            var minilandObjectsDto = _minilandObjectsDao.Where(s => listobjects.Contains((Guid)s.InventoryItemInstanceId)).ToList();
-            foreach (var mlobjdto in minilandObjectsDto)
-            {
-                var mlobj = mlobjdto.Adapt<MapDesignObject>();
-                AddMinilandObject(mlobj, character.CharacterId, character.Inventory.LoadByItemInstanceId((Guid)mlobjdto.InventoryItemInstanceId));
-            }
 
             _minilandIds.TryAdd(character.CharacterId, minilandInfo);
             _mapInstanceProvider.AddMapInstance(miniland);
             miniland.LoadHandlers();
+
+            var listobjects = character.Inventory.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
+            var idlist = listobjects.Select(s => s.Id).ToArray();
+            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid)s.InventoryItemInstanceId)).ToList();
+            foreach (var mlobjdto in minilandObjectsDto)
+            {
+                var mlobj = mlobjdto.Adapt<MapDesignObject>();
+                AddMinilandObject(mlobj, character.CharacterId, listobjects.First(s => s.Id == mlobjdto.InventoryItemInstanceId));
+            }
+
             return minilandInfo;
         }
 

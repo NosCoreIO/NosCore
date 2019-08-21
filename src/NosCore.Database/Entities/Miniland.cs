@@ -9,13 +9,10 @@ namespace NosCore.Database.Entities
     {
         public Miniland()
         {
-            MinilandObject = new HashSet<MinilandObject>();
         }
 
         [MaxLength(255)]
         public string MinilandMessage { get; set; }
-
-        public virtual ICollection<MinilandObject> MinilandObject { get; set; }
 
         public long MinilandPoint { get; set; }
 
