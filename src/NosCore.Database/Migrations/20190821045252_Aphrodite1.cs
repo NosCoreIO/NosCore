@@ -1644,7 +1644,6 @@ namespace NosCore.Database.Migrations
                     Level5BoxAmount = table.Column<byte>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
                     MapY = table.Column<short>(nullable: false),
-                    MinilandId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1654,12 +1653,6 @@ namespace NosCore.Database.Migrations
                         column: x => x.InventoryItemInstanceId,
                         principalTable: "InventoryItemInstance",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MinilandObject_Miniland_MinilandId",
-                        column: x => x.MinilandId,
-                        principalTable: "Miniland",
-                        principalColumn: "MinilandId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
