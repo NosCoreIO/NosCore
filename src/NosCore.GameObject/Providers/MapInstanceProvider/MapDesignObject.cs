@@ -53,12 +53,12 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 IsRemoval = isRemoval
             };
         }
-        public MlobjPacket GenerateMapDesignObject() => GenerateMapDesignObject(true);
-        public MlobjPacket GenerateMapDesignObject(bool inUse)
+        public MlobjPacket GenerateMapDesignObject() => GenerateMapDesignObject(false);
+        public MlobjPacket GenerateMapDesignObject(bool isRemoval)
         {
             return new MlobjPacket
             {
-                Deleted = !inUse,
+                InUse = !isRemoval,
                 Slot = Slot,
                 MlobjSubPacket = new MlobjSubPacket
                 {

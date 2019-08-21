@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             clientSession.SendPacket(minilandObject.GenerateEffect(true));
             clientSession.SendPacket(new MinilandPointPacket { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
-            clientSession.SendPacket(minilandObject.GenerateMapDesignObject(false));
+            clientSession.SendPacket(minilandObject.GenerateMapDesignObject(true));
         }
     }
 }
