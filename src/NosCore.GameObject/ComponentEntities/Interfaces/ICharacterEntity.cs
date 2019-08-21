@@ -34,7 +34,10 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
     public interface ICharacterEntity : INamedEntity, IRequestableEntity
     {
         bool FriendRequestBlocked { get; set; }
+
         AuthorityType Authority { get; }
+
+        short MapId { get; set; }
 
         GenderType Gender { get; }
 
@@ -99,5 +102,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         List<StaticBonusDto> StaticBonusList { get; set; }
 
         void ChangeClass(CharacterClassType classType);
+
+        void ChangeMap(short mapId, short mapX, short mapY);
     }
 }
