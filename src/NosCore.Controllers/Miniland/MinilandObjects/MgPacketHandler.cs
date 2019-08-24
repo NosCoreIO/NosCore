@@ -345,6 +345,7 @@ namespace NosCore.PacketHandlers.Miniland
                 });
                 return;
             }
+
             if (_miniland.MinilandPoint <= 0)
             {
                 _clientSession.SendPacket(new QnaPacket
@@ -359,7 +360,9 @@ namespace NosCore.PacketHandlers.Miniland
                     },
                     Question = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MINILAND_POINT, _clientSession.Account.Language)
                 });
+                return;
             }
+
             _clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow,

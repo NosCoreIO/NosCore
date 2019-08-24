@@ -25,14 +25,6 @@ namespace NosCore.Database.Entities
 {
     public class Mail
     {
-        public byte AttachmentAmount { get; set; }
-
-        public byte AttachmentRarity { get; set; }
-
-        public byte AttachmentUpgrade { get; set; }
-
-        public short? AttachmentVNum { get; set; }
-
         public DateTime Date { get; set; }
 
         [MaxLength(255)]
@@ -42,7 +34,9 @@ namespace NosCore.Database.Entities
 
         public bool IsSenderCopy { get; set; }
 
-        public virtual Item Item { get; set; }
+        public virtual ItemInstance ItemInstance { get; set; }
+
+        public Guid ItemInstanceId { get; set; }
 
         [Key]
         public long MailId { get; set; }
@@ -56,6 +50,8 @@ namespace NosCore.Database.Entities
 
         public virtual Character Sender { get; set; }
 
+        public long SenderId { get; set; }
+
         public CharacterClassType SenderCharacterClass { get; set; }
 
         public GenderType SenderGender { get; set; }
@@ -64,11 +60,10 @@ namespace NosCore.Database.Entities
 
         public HairStyleType SenderHairStyle { get; set; }
 
-        public long SenderId { get; set; }
-
         public short SenderMorphId { get; set; }
 
         [MaxLength(255)]
         public string Title { get; set; }
+
     }
 }
