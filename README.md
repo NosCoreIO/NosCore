@@ -29,11 +29,11 @@ This Website and Project is in no way affiliated with, authorized, maintained, s
 ## Disclaimer ##
 This project is a community project not for commercial use. The emulator itself is proof of concept of our idea to try out anything what's not possible on original servers. The result is to learn and program together for prove the study. 
 
-### Contribution is only possible with Visual Studio 2017 ###
+### Contribution is only possible with Visual Studio 2019 ###
 We recommend usage of : 
 * [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 * [Resharper](https://www.jetbrains.com/resharper/)
-* [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectforVS2017)
+* [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2019)
 
 
 # Building the code #
