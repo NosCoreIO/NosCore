@@ -1,4 +1,4 @@
-﻿namespace NosCore.GameObject.Helper
+﻿namespace NosCore.GameObject
 {
     public class Gift
     {
