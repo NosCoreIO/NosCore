@@ -10,6 +10,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         public Guid MapInstanceId { get; set; }
 
         public ICharacterEntity Owner { get; set; }
+        public int CurrentMinigame { get; set; }
 
         public MlInfoBrPacket GenerateMlinfobr()
         {
