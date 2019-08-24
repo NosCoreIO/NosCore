@@ -283,6 +283,7 @@ namespace NosCore.Data.Enumerations.I18N
         MINILAND_VISITOR,
         REFILL_MINIGAME,
         NOT_ENOUGH_DURABILITY_POINT,
-        NOT_ENOUGH_MINILAND_POINT
+        NOT_ENOUGH_MINILAND_POINT,
+        ITEM_GIFTED
     }
 }
