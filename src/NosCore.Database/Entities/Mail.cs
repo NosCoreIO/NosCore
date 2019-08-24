@@ -50,17 +50,17 @@ namespace NosCore.Database.Entities
 
         public virtual Character Sender { get; set; }
 
-        public long SenderId { get; set; }
+        public long? SenderId { get; set; }
 
-        public CharacterClassType SenderCharacterClass { get; set; }
+        public CharacterClassType? SenderCharacterClass { get; set; }
 
-        public GenderType SenderGender { get; set; }
+        public GenderType? SenderGender { get; set; }
 
-        public HairColorType SenderHairColor { get; set; }
+        public HairColorType? SenderHairColor { get; set; }
 
-        public HairStyleType SenderHairStyle { get; set; }
+        public HairStyleType? SenderHairStyle { get; set; }
 
-        public short SenderMorphId { get; set; }
+        public short? SenderMorphId { get; set; }
 
         [MaxLength(255)]
         public string Title { get; set; }

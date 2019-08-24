@@ -49,7 +49,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public bool SendMail([FromBody] MailRequest mailRequest)
+        public bool SendMail([FromBody] MailDto mail)
         {
             throw new NotImplementedException();
         }

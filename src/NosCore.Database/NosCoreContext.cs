@@ -300,6 +300,7 @@ namespace NosCore.Database
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail)
                 .WithOne(e => e.Sender)
+                .IsRequired(false)
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
