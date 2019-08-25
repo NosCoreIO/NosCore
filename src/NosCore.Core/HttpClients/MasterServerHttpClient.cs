@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
+using System.Threading.Tasks;
 
 namespace NosCore.Core.HttpClients
 {
@@ -64,12 +65,12 @@ namespace NosCore.Core.HttpClients
             throw new ArgumentException();
         }
 
-        protected void Post(object objectToPost)
+        protected Task Post(object objectToPost)
         {
             var client = Connect();
             var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
                 Encoding.Default, "application/json");
-            client.PostAsync(ApiUrl, content);
+            return client.PostAsync(ApiUrl, content);
         }
 
         protected T Get<T>() => Get<T>(null);
@@ -86,10 +87,10 @@ namespace NosCore.Core.HttpClients
             throw new ArgumentException();
         }
 
-        protected void Delete(object id)
+        protected Task Delete(object id)
         {
             var client = Connect();
-            client.DeleteAsync($"{ApiUrl}?id={id}");
+            return client.DeleteAsync($"{ApiUrl}?id={id}");
         }
     }
 }

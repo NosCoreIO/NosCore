@@ -61,6 +61,7 @@ using NosCore.Data.Enumerations;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.I18N;
+using NosCore.GameObject.Providers.ItemProvider;
 
 namespace NosCore.MasterServer
 {
@@ -157,6 +158,8 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

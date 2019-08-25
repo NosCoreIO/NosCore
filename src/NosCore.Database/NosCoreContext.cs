@@ -300,6 +300,7 @@ namespace NosCore.Database
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail)
                 .WithOne(e => e.Sender)
+                .IsRequired(false)
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -348,6 +349,12 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Mail>()
+                 .HasOne(e => e.ItemInstance)
+                 .WithMany(e => e.Mail)
+                 .HasForeignKey(e => e.ItemInstanceId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            
             modelBuilder.Entity<MinilandObject>()
                 .HasOne(e => e.InventoryItemInstance)
                 .WithMany(e => e.MinilandObject)
@@ -387,9 +394,9 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Mail>()
-                .HasOne(e => e.Item)
+                .HasOne(e => e.ItemInstance)
                 .WithMany(e => e.Mail)
-                .HasForeignKey(e => e.AttachmentVNum)
+                .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RollGeneratedItem>()

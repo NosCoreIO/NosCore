@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20190824071926_Aphrodite2")]
+    partial class Aphrodite2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -912,17 +914,10 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("MailId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<short?>("Armor");
-
-                    b.Property<short?>("CostumeHat");
-
-                    b.Property<short?>("CostumeSuit");
-
                     b.Property<DateTime>("Date");
 
-                    b.Property<short?>("Fairy");
-
-                    b.Property<short?>("Hat");
+                    b.Property<string>("EqPacket")
+                        .HasMaxLength(255);
 
                     b.Property<bool>("IsOpened");
 
@@ -932,35 +927,25 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short?>("ItemVNum");
 
-                    b.Property<short?>("MainWeapon");
-
-                    b.Property<short?>("Mask");
-
                     b.Property<string>("Message")
                         .HasMaxLength(255);
 
                     b.Property<long>("ReceiverId");
 
-                    b.Property<short?>("SecondaryWeapon");
+                    b.Property<byte>("SenderCharacterClass");
 
-                    b.Property<byte?>("SenderCharacterClass");
+                    b.Property<byte>("SenderGender");
 
-                    b.Property<byte?>("SenderGender");
+                    b.Property<byte>("SenderHairColor");
 
-                    b.Property<byte?>("SenderHairColor");
+                    b.Property<byte>("SenderHairStyle");
 
-                    b.Property<byte?>("SenderHairStyle");
+                    b.Property<long>("SenderId");
 
-                    b.Property<long?>("SenderId");
-
-                    b.Property<short?>("SenderMorphId");
+                    b.Property<short>("SenderMorphId");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255);
-
-                    b.Property<short?>("WeaponSkin");
-
-                    b.Property<short?>("WingSkin");
 
                     b.HasKey("MailId");
 
