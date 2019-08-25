@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Movement;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -30,10 +31,11 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using Serilog;
 using System;
+using ServiceStack;
 
 namespace NosCore.WorldServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class IncommingMailController : Controller
     {
@@ -54,8 +56,22 @@ namespace NosCore.WorldServer.Controllers
 
             session.SendPacket(session.GenerateSay(
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.Amount), SayColorType.Green));
-            //session.SendPacket(new ParcelPacket { });
-            //parcel 1 1 {MailList.First(s => s.Value.MailId == mail.MailId).Key} {(mail.Title == "NOSMALL" ? 1 : 4)} 0 {mail.Date.ToString("yyMMddHHmm")} {mail.Title} {mail.AttachmentVNum} {mail.AttachmentAmount} {(byte)ServerManager.Instance.GetItem((short)mail.AttachmentVNum).Type}
+            session.SendPacket(new ParcelPacket
+            {
+                Type = 1,
+                Unknown = 1,
+                Id = data.MailId,
+                ParcelAttachment = new ParcelAttachmentSubPacket
+                {
+                    TitleType = data.Title == "NOSMALL" ? (byte)1 : (byte)4,
+                    Unknown2 = 0,
+                    Date = data.Date.ToString("yyMMddHHmm"),
+                    Title = data.Title,
+                    AttachmentVNum = data.AttachmentVNum,
+                    AttachmentAmount = data.Amount,
+                    ItemType = data.ItemType
+                }
+            });
 
             return Ok();
         }

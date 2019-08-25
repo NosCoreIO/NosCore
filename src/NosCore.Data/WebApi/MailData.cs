@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using UpdateStatActionType = NosCore.Data.Enumerations.UpdateStatActionType;
 
 namespace NosCore.Data.WebApi
@@ -25,5 +26,10 @@ namespace NosCore.Data.WebApi
     {
         public short Amount { get; set; }
         public string CharacterName { get; set; }
+        public short MailId { get; set; }
+        public string Title { get; set; }
+        public DateTime Date { get; set; }
+        public short AttachmentVNum { get; set; }
+        public short ItemType { get; set; }
     }
 }

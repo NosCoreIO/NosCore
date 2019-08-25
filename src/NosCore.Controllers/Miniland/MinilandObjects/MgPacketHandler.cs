@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Miniland
             List<Gift> gifts = new List<Gift>();
             for (int i = 0; i < amount; i++)
             {
-                var gift = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum, _minigamePacket.Point);
+                var gift = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum, _minigamePacket.Point ?? 0);
                 if (gift != null)
                 {
                     if (gifts.Any(o => o.VNum == gift.VNum))
@@ -255,7 +255,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            var obj = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum, _minigamePacket.Point);
+            var obj = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum, _minigamePacket.Point ?? 0);
             if (obj == null)
             {
                 return;
