@@ -27,7 +27,25 @@ namespace NosCore.Data
     {
         public DateTime Date { get; set; }
 
-        public string EqPacket { get; set; }
+        public short? Hat { get; set; }
+
+        public short? Armor { get; set; }
+
+        public short? MainWeapon { get; set; }
+
+        public short? SecondaryWeapon { get; set; }
+
+        public short? Mask { get; set; }
+
+        public short? Fairy { get; set; }
+
+        public short? CostumeSuit { get; set; }
+
+        public short? CostumeHat { get; set; }
+
+        public short? WeaponSkin { get; set; }
+
+        public short? WingSkin { get; set; }
 
         public bool IsOpened { get; set; }
 
