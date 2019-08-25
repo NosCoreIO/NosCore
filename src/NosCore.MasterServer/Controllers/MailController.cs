@@ -10,6 +10,7 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Bazaar;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
@@ -63,9 +64,9 @@ namespace NosCore.MasterServer.Controllers
         public bool SendMail([FromBody] MailRequest mail)
         {
             var mailref = mail.Mail;
+            var it = _items.Find(item => item.VNum == mail.VNum);
             if (mail.Mail.ItemInstanceId == Guid.Empty)
             {
-                var it = _items.Find(item => item.VNum == mail.VNum);
                 if (it == null)
                 {
                     return false;
@@ -113,11 +114,21 @@ namespace NosCore.MasterServer.Controllers
                 mailref.IsSenderCopy = true;
                 _mailDao.InsertOrUpdate(ref mailref);
             }
-
+            var id = _mailDao.Where(s=>s.IsSenderCopy == false && s.ReceiverId == mailref.ReceiverId).Count();
             var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
             if (receiver.Item2 != null)
             {
-                _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, new MailData { Amount = (short)mail.Amount, CharacterName = receiver.Item2.ConnectedCharacter.Name});
+                _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId,
+                    new MailData
+                    {
+                        Amount = (short)mail.Amount,
+                        CharacterName = receiver.Item2.ConnectedCharacter.Name,
+                        MailId = (short)id,
+                        Title = mail.Mail.Title,
+                        Date = mail.Mail.Date,
+                        AttachmentVNum = it.VNum,
+                        ItemType = (short)it.ItemType,
+                    });
             }
 
             return true;
