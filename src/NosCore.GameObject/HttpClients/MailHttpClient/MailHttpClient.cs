@@ -19,15 +19,11 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {
     public class MailHttpClient : MasterServerHttpClient, IMailHttpClient
     {
-        private readonly ISerializer _serializer;
-
-        public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient,
-            List<ItemDto> items, WorldConfiguration worldConfiguration, ISerializer serializer)
+        public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient, ISerializer serializer)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/mail";
             RequireConnection = true;
-            _serializer = serializer;
         }
 
         private MailRequest GenerateMailRequest(ICharacterEntity characterEntity, long receiverId, [CanBeNull] IItemInstanceDto itemInstance,
@@ -63,25 +59,13 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
         }
         public void SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall)
         {
-            Post<LanguageKey>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall));
-
-            if (characterEntity.VisualId == receiverId)
-            {
-                characterEntity.SendPacket(characterEntity.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, characterEntity.AccountLanguage), itemInstance.Amount), SayColorType.Green));
-            }
+             Post<bool>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall));
         }
 
         public void SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
             byte upgrade, bool isNosmall)
         {
-            Post(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall)).Wait();
-
-            if (characterEntity.VisualId == receiverId)
-            {
-                characterEntity.SendPacket(characterEntity.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, characterEntity.AccountLanguage), amount), SayColorType.Green));
-            }
+            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall));
         }
     }
 }
