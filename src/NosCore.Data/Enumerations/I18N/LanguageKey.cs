@@ -284,6 +284,7 @@ namespace NosCore.Data.Enumerations.I18N
         REFILL_MINIGAME,
         NOT_ENOUGH_DURABILITY_POINT,
         NOT_ENOUGH_MINILAND_POINT,
-        ITEM_GIFTED
+        ITEM_GIFTED,
+        GIFT_SENT
     }
 }
