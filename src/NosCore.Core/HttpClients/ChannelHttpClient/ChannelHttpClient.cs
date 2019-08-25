@@ -27,6 +27,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         private readonly ILogger _logger;
         private string _token;
         private DateTime _lastUpdateToken;
+
         public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
         {
             _httpClientFactory = httpClientFactory;
@@ -159,7 +160,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 }
             }
 
-            return channels.FirstOrDefault();
+            return channels.FirstOrDefault(s=>s.Id == channelId);
         }
     }
 }

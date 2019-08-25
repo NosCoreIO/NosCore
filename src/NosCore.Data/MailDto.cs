@@ -21,10 +21,12 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
 
-namespace NosCore.Database.Entities
+namespace NosCore.Data
 {
-    public class Mail
+    public class MailDto : IDto
     {
+        public DateTime Date { get; set; }
+
         public short? Hat { get; set; }
 
         public short? Armor { get; set; }
@@ -45,27 +47,18 @@ namespace NosCore.Database.Entities
 
         public short? WingSkin { get; set; }
 
-        public DateTime Date { get; set; }
-
         public bool IsOpened { get; set; }
 
         public bool IsSenderCopy { get; set; }
-
-        public virtual ItemInstance ItemInstance { get; set; }
 
         public Guid ItemInstanceId { get; set; }
 
         [Key]
         public long MailId { get; set; }
 
-        [MaxLength(255)]
         public string Message { get; set; }
 
-        public virtual Character Receiver { get; set; }
-
         public long ReceiverId { get; set; }
-
-        public virtual Character Sender { get; set; }
 
         public long? SenderId { get; set; }
 
@@ -79,8 +72,6 @@ namespace NosCore.Database.Entities
 
         public short? SenderMorphId { get; set; }
 
-        [MaxLength(255)]
         public string Title { get; set; }
-
     }
 }
