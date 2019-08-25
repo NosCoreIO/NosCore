@@ -23,7 +23,7 @@ using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {
-    public class MailDto
+    public class MailDto : IDto
     {
         public DateTime Date { get; set; }
 
