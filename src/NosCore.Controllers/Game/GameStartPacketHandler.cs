@@ -24,9 +24,11 @@ namespace NosCore.PacketHandlers.Game
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IMailHttpClient _mailHttpClient;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, 
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient, ISerializer packetSerializer)
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient,
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
@@ -35,6 +37,7 @@ namespace NosCore.PacketHandlers.Game
             _channelHttpClient = channelHttpClient;
             _friendHttpClient = friendHttpClient;
             _packetHttpClient = packetHttpClient;
+            _mailHttpClient = mailHttpClient;
         }
 
         public override void Execute(GameStartPacket _, ClientSession session)
@@ -176,12 +179,8 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            //            IEnumerable<MailDTO> mails = _mailDao.Where(s => s.ReceiverId.Equals(Session.Character.CharacterId)).ToList();
-
-            //            foreach (MailDTO mail in mails)
-            //            {
-            //                Session.Character.GenerateMail(mail);
-            //            }
+            var mails = _mailHttpClient.GetGifts(session.Character.CharacterId);
+            session.Character.GenerateMail(mails);
             //            int giftcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum != null && !mail.IsOpened);
             //            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
             //            if (giftcount > 0)

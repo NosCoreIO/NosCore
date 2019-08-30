@@ -67,5 +67,10 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
         {
             Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall));
         }
+
+        public IEnumerable<MailData> GetGifts(long characterId)
+        {
+            return Get<IEnumerable<MailData>>(characterId);
+        }
     }
 }
