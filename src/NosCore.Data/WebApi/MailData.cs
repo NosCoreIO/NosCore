@@ -27,7 +27,8 @@ namespace NosCore.Data.WebApi
     public class MailData
     {
         public short Amount { get; set; }
-        public string CharacterName { get; set; }
+        public string ReceiverName { get; set; }
+        public string SenderName { get; set; }
         public short MailId { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }
