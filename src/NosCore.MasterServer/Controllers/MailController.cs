@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
@@ -138,7 +139,7 @@ namespace NosCore.MasterServer.Controllers
                 var idcopy = _mailDao.Where(s => s.IsSenderCopy == true && s.SenderId == mailref.SenderId).Count();
                 if (receiver.Item2 != null)
                 {
-                    _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId,
+                    Notify(receiver.Item2.ChannelId,
                         new MailData
                         {
                             ReceiverName = receiver.Item2.ConnectedCharacter.Name,
@@ -156,21 +157,27 @@ namespace NosCore.MasterServer.Controllers
             var id = _mailDao.Where(s => s.IsSenderCopy == false && s.ReceiverId == mailref.ReceiverId).Count();
             if (receiver.Item2 != null)
             {
-                _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId,
+                Notify(receiver.Item2.ChannelId,
                     new MailData
                     {
                         ReceiverName = receiver.Item2.ConnectedCharacter.Name,
-                        MailId = (short)id,
+                        MailId = (short) id,
                         Title = mail.Mail.Title,
                         Date = mail.Mail.Date,
                         ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
-                        ItemType = (short)it.ItemType,
+                        ItemType = (short) it.ItemType,
                         SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
                         IsSenderCopy = false
                     });
             }
 
             return true;
+        }
+
+        private void Notify(int channelId, MailData mailData)
+        {
+            //todo add to holder
+            _incommingMailHttpClient.NotifyIncommingMail(channelId, mailData);
         }
     }
 }
