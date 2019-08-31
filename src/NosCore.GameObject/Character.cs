@@ -650,7 +650,7 @@ namespace NosCore.GameObject
         {
             foreach (var mail in mails)
             {
-                if (!mail.IsSenderCopy && mail.CharacterName == Name)
+                if (!mail.IsSenderCopy && mail.ReceiverName == Name)
                 {
                     if (mail.Amount != 0)
                     {
