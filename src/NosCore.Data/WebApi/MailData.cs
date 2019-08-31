@@ -20,7 +20,6 @@
 using System;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Parcel;
-using UpdateStatActionType = NosCore.Data.Enumerations.UpdateStatActionType;
 
 namespace NosCore.Data.WebApi
 {

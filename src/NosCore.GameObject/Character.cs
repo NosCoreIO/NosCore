@@ -63,8 +63,6 @@ using ChickenAPI.Packets.ServerPackets.Quicklist;
 using NosCore.GameObject.Providers.MinilandProvider;
 using ChickenAPI.Packets.ServerPackets.Miniland;
 using NosCore.Data.WebApi;
-using ChickenAPI.Packets.ServerPackets.Movement;
-using ChickenAPI.Packets.ServerPackets.Parcel;
 
 namespace NosCore.GameObject
 {

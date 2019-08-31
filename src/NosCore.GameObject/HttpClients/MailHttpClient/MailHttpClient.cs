@@ -4,15 +4,11 @@ using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.HttpClients.FriendHttpClient

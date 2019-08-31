@@ -38,9 +38,6 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 using System.Reactive.Subjects;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using System.Linq.Expressions;
-using DotNetty.Transport.Channels;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
