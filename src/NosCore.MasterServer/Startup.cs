@@ -156,6 +156,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
             containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
+            containerBuilder.RegisterType<ParcelHolder>().SingleInstance();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();

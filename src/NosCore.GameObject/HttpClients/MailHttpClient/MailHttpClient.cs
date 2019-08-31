@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
                 Date = DateTime.Now,
                 ReceiverId = receiverId,
                 IsSenderCopy = false,
-                ItemInstanceId = itemInstance?.Id ?? Guid.Empty,
+                ItemInstanceId = itemInstance?.Id,
                 Title = isNosmall ? "NOSMALL" : characterEntity.Name,
                 SenderId = isNosmall ? (long?)null : characterEntity.VisualId,
                 SenderCharacterClass = isNosmall ? (CharacterClassType?)null : characterEntity.Class,
@@ -66,7 +67,17 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 
         public IEnumerable<MailData> GetGifts(long characterId)
         {
-            return Get<IEnumerable<MailData>>(characterId);
+            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
+        }
+
+        public MailData GetGift(long id,long characterId)
+        {
+            return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}").FirstOrDefault();
+        }
+
+        public void DeleteGift(int giftId, long visualId)
+        {
+            Delete($"{giftId}&characterId={visualId}").Wait();
         }
     }
 }

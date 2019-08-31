@@ -25,13 +25,12 @@ namespace NosCore.Data.WebApi
 {
     public class MailData
     {
-        public short Amount { get; set; }
         public string ReceiverName { get; set; }
         public string SenderName { get; set; }
         public short MailId { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }
-        public short AttachmentVNum { get; set; }
+        public ItemInstanceDto ItemInstance { get; set; }
         public short ItemType { get; set; }
         public bool IsSenderCopy { get; set; }
 
@@ -62,8 +61,8 @@ namespace NosCore.Data.WebApi
                             Unknown2 = 0,
                             Date = Date.ToString("yyMMddHHmm"),
                             Title = Title,
-                            AttachmentVNum = AttachmentVNum,
-                            AttachmentAmount = Amount,
+                            AttachmentVNum = ItemInstance.ItemVNum,
+                            AttachmentAmount = ItemInstance.Amount,
                             ItemType = ItemType
                         }
                     };

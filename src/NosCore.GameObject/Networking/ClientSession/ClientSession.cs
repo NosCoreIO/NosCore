@@ -157,33 +157,37 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            if (Character != null)
+            if (Character == null || !Character.IsDisconnecting)
             {
-                if (Character.Hp < 1)
+                if (Character != null)
                 {
-                    Character.Hp = 1;
-                }
-                Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
-
-                var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
-                if (targetId.HasValue)
-                {
-                    var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
-                    if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                    Character.IsDisconnecting = true;
+                    if (Character.Hp < 1)
                     {
-                        target.SendPacket(closeExchange);
+                        Character.Hp = 1;
                     }
+                    Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+
+                    var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
+                    if (targetId.HasValue)
+                    {
+                        var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                        if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                        {
+                            target.SendPacket(closeExchange);
+                        }
+                    }
+
+                    Character.LeaveGroup();
+                    Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+                    Character.Save();
+
+                    _minilandProvider.DeleteMiniland(Character.CharacterId);
                 }
 
-                Character.LeaveGroup();
-                Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
-                Character.Save();
-
-                _minilandProvider.DeleteMiniland(Character.CharacterId);
+                Broadcaster.Instance.UnregisterSession(this);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
-
-            Broadcaster.Instance.UnregisterSession(this);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
         }
 
         public void ChangeMap() => ChangeMap(null, null, null);
@@ -275,7 +279,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
                 SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
-                
+
                 var minilandPortals = _minilandProvider
                 .GetMinilandPortals(Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == mapInstanceId)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -10,6 +11,7 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -22,70 +24,57 @@ namespace NosCore.MasterServer.Controllers
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly List<ItemDto> _items;
         private readonly IItemProvider _itemProvider;
-        private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
+        private readonly ParcelHolder _parcelHolder;
 
         public MailController(IGenericDao<MailDto> mailDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IConnectedAccountHttpClient connectedAccountHttpClient,
-            List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, IGenericDao<CharacterDto> characterDao)
+            List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, ParcelHolder parcelHolder)
         {
             _mailDao = mailDao;
             _itemInstanceDao = itemInstanceDao;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _items = items;
             _itemProvider = itemProvider;
-            _characterDao = characterDao;
             _incommingMailHttpClient = incommingMailHttpClient;
+            _parcelHolder = parcelHolder;
         }
 
         [HttpGet]
-        public List<MailData> GetMails(long characterId)
+        public List<MailData> GetMails(long id, long characterId)
         {
-            var listmails = new List<MailData>();
-            var mails = _mailDao.Where(s => s.ReceiverId == characterId || s.SenderId == characterId).ToList();
-            var idcopy = 0;
-            var id = 0;
-            foreach (var mail in mails)
+            var mails = _parcelHolder.ParcelDictionary[characterId][false].Values.Concat(_parcelHolder.ParcelDictionary[characterId][true].Values);
+            if (id != -1)
             {
-                var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
-                var it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
-                var senderName = mail.SenderId == null ? "NOSMALL" : _characterDao.FirstOrDefault(s=>s.CharacterId == mail.SenderId).Name;
-                var receiverName = _characterDao.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name;
-                listmails.Add(new MailData
-                {
-                    Amount = itinst.Amount,
-                    SenderName = senderName,
-                    ReceiverName = receiverName,
-                    MailId = mail.IsSenderCopy ? (short)idcopy : (short)id,
-                    Title = mail.Title,
-                    Date = mail.Date,
-                    AttachmentVNum = it.VNum,
-                    ItemType = (short)it.ItemType,
-                    IsSenderCopy = mail.IsSenderCopy
-                });
-
-                if (mail.IsSenderCopy)
-                {
-                    idcopy++;
-                }
-                else
-                {
-                    id++;
-                }
+                mails = new[] { _parcelHolder.ParcelDictionary[characterId][false][id] };
             }
-            return listmails;
+            return mails.ToList();
         }
 
 
         [HttpDelete]
-        public bool DeleteMail(long id)
+        public bool DeleteMail(long id, long characterId, bool senderCopy)
         {
-            throw new NotImplementedException();
+            var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
+            _mailDao.Delete(mail.MailId);
+            if (mail.ItemInstance != null)
+            {
+                _itemInstanceDao.Delete(mail.ItemInstance.Id);
+            }
+            return true;
         }
 
         [HttpPatch]
-        public bool ViewMail(long id)
+        public bool ViewMail(long id, long characterId, bool senderCopy)
         {
-            throw new NotImplementedException();
+            var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
+            var mailDto = _mailDao.FirstOrDefault(s=>s.MailId == mail.MailId);
+            if (mailDto != null)
+            {
+                _mailDao.InsertOrUpdate(ref mailDto);
+                return true;
+            }
+
+            return false;
         }
 
         [HttpPost]
@@ -93,6 +82,7 @@ namespace NosCore.MasterServer.Controllers
         {
             var mailref = mail.Mail;
             var it = _items.Find(item => item.VNum == mail.VNum);
+            IItemInstanceDto itemInstance = null;
             if (mail.Mail.ItemInstanceId == null)
             {
                 if (it == null)
@@ -126,7 +116,7 @@ namespace NosCore.MasterServer.Controllers
                     mail.Amount = 1;
                 }
                 mail.Amount = it.Type == NoscorePocketType.Etc || it.Type == NoscorePocketType.Main ? mail.Amount : 1;
-                IItemInstanceDto itemInstance = _itemProvider.Create((short)mail.VNum, amount: (short)mail.Amount, rare: (sbyte)mail.Rare, upgrade: (byte)mail.Upgrade);
+                itemInstance = _itemProvider.Create((short)mail.VNum, amount: (short)mail.Amount, rare: (sbyte)mail.Rare, upgrade: (byte)mail.Upgrade);
                 if (itemInstance == null)
                 {
                     return false;
@@ -151,12 +141,11 @@ namespace NosCore.MasterServer.Controllers
                     _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId,
                         new MailData
                         {
-                            Amount = (short)mail.Amount,
                             ReceiverName = receiver.Item2.ConnectedCharacter.Name,
                             MailId = (short)idcopy,
                             Title = mail.Mail.Title,
                             Date = mail.Mail.Date,
-                            AttachmentVNum = it.VNum,
+                            ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
                             ItemType = (short)it.ItemType,
                             IsSenderCopy = true,
                             SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL"
@@ -170,12 +159,11 @@ namespace NosCore.MasterServer.Controllers
                 _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId,
                     new MailData
                     {
-                        Amount = (short)mail.Amount,
                         ReceiverName = receiver.Item2.ConnectedCharacter.Name,
                         MailId = (short)id,
                         Title = mail.Mail.Title,
                         Date = mail.Mail.Date,
-                        AttachmentVNum = it.VNum,
+                        ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
                         ItemType = (short)it.ItemType,
                         SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
                         IsSenderCopy = false
