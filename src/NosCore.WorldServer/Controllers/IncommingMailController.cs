@@ -27,11 +27,10 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using System;
-using ChickenAPI.Packets.ServerPackets.Parcel;
 
 namespace NosCore.WorldServer.Controllers
 {
-    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
+    [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class IncommingMailController : Controller
     {
@@ -51,24 +50,8 @@ namespace NosCore.WorldServer.Controllers
             }
 
             session.SendPacket(session.GenerateSay(
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.Amount), SayColorType.Green));
-            session.SendPacket(new ParcelPacket
-            {
-                Type = 1,
-                Unknown = 1,
-                Id = data.MailId,
-                ParcelAttachment = new ParcelAttachmentSubPacket
-                {
-                    TitleType = data.Title == "NOSMALL" ? (byte)1 : (byte)4,
-                    Unknown2 = 0,
-                    Date = data.Date.ToString("yyMMddHHmm"),
-                    Title = data.Title,
-                    AttachmentVNum = data.AttachmentVNum,
-                    AttachmentAmount = data.Amount,
-                    ItemType = data.ItemType
-                }
-            });
-
+                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            session.GenerateMail(new[] { data });
             return Ok();
         }
     }

@@ -21,7 +21,9 @@ using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -40,12 +42,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
-        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger)
+        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger, IGenericDao<IItemInstanceDto> itemInstanceDao)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _itemProvider = itemProvider;
             _logger = logger;
+            _itemInstanceDao = itemInstanceDao;
         }
 
         public override void Execute(CBuyPacket packet, ClientSession clientSession)
@@ -70,7 +74,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         clientSession.Character.Gold -= price;
                         clientSession.SendPacket(clientSession.Character.GenerateGold());
 
-                        var item = _itemProvider.Convert(bz.ItemInstance);
+                        var itemInstance = _itemInstanceDao.FirstOrDefault(s=>s.Id == bz.ItemInstance.Id);
+                        var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
                         var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());

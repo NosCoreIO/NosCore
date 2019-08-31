@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public void Kick() => Kick(o => o != null);
         public void Kick(Func<ICharacterEntity, bool> filter)
         {
-            Broadcaster.Instance.GetCharacters(filter).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+            Broadcaster.Instance.GetCharacters(filter).Where(s=>!s.IsDisconnecting).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }

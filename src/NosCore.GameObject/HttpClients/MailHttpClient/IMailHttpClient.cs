@@ -10,5 +10,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
         void SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
         void SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare, byte upgrade, bool isNosmall);
         IEnumerable<MailData> GetGifts(long characterId);
+        MailData GetGift(long id, long characterId);
+        void DeleteGift(int giftId, long visualId);
     }
 }

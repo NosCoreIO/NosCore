@@ -383,7 +383,7 @@ namespace NosCore.GameObject
 
         public List<StaticBonusDto> StaticBonusList { get; set; }
         public List<QuicklistEntryDto> QuicklistEntries { get; set; }
-
+        public bool IsDisconnecting { get; internal set; }
 
         public void ChangeClass(CharacterClassType classType)
         {
@@ -650,7 +650,7 @@ namespace NosCore.GameObject
             {
                 if (!mail.IsSenderCopy && mail.ReceiverName == Name)
                 {
-                    if (mail.Amount != 0)
+                    if (mail.ItemInstance != null)
                     {
                         Session.SendPacket(mail.GeneratePost(0));
                     }
