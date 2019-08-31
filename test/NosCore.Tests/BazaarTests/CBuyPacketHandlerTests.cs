@@ -18,16 +18,17 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using System.Linq;
+using NosCore.Core;
 
 namespace NosCore.Tests.BazaarTests
 {
     [TestClass]
     public class CBuyPacketHandlerTest
     {
-
         private CBuyPacketHandler _cbuyPacketHandler;
         private ClientSession _session;
         private Mock<IBazaarHttpClient> _bazaarHttpClient;
+        private Mock<IGenericDao<IItemInstanceDto>> _itemInstanceDao;
         private Mock<IItemProvider> _itemProvider;
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -38,8 +39,9 @@ namespace NosCore.Tests.BazaarTests
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
             _itemProvider = new Mock<IItemProvider>();
-            _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, _logger);
+            _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, _logger, _itemInstanceDao.Object);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).Returns(
                 new BazaarLink
