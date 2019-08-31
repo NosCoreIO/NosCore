@@ -18,20 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Movement;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using Serilog;
 using System;
-using ServiceStack;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 
 namespace NosCore.WorldServer.Controllers

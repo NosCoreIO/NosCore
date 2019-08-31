@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using Mapster;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Bazaar;
-using NosCore.Data.Enumerations.Buff;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -59,7 +52,7 @@ namespace NosCore.MasterServer.Controllers
                 var receiverName = _characterDao.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name;
                 listmails.Add(new MailData
                 {
-                    Amount = (short)itinst.Amount,
+                    Amount = itinst.Amount,
                     SenderName = senderName,
                     ReceiverName = receiverName,
                     MailId = mail.IsSenderCopy ? (short)idcopy : (short)id,
@@ -100,7 +93,7 @@ namespace NosCore.MasterServer.Controllers
         {
             var mailref = mail.Mail;
             var it = _items.Find(item => item.VNum == mail.VNum);
-            if (mail.Mail.ItemInstanceId == Guid.Empty)
+            if (mail.Mail.ItemInstanceId == null)
             {
                 if (it == null)
                 {

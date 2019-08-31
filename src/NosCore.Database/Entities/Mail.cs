@@ -20,6 +20,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using JetBrains.Annotations;
 
 namespace NosCore.Database.Entities
 {
@@ -51,9 +52,10 @@ namespace NosCore.Database.Entities
 
         public bool IsSenderCopy { get; set; }
 
+        [CanBeNull]
         public virtual ItemInstance ItemInstance { get; set; }
 
-        public Guid ItemInstanceId { get; set; }
+        public Guid? ItemInstanceId { get; set; }
 
         [Key]
         public long MailId { get; set; }

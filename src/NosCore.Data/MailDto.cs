@@ -51,7 +51,7 @@ namespace NosCore.Data
 
         public bool IsSenderCopy { get; set; }
 
-        public Guid ItemInstanceId { get; set; }
+        public Guid? ItemInstanceId { get; set; }
 
         [Key]
         public long MailId { get; set; }
