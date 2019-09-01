@@ -27,12 +27,14 @@ namespace NosCore.Data.WebApi
     {
         public string ReceiverName { get; set; }
         public string SenderName { get; set; }
-        public short MailId { get; set; }
+        public long MailId { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }
         public ItemInstanceDto ItemInstance { get; set; }
         public short ItemType { get; set; }
         public bool IsSenderCopy { get; set; }
+        public long MailDbKey { get; set; }
+        public bool IsOpened { get; set; }
 
         public PostPacket GeneratePostMessage(byte type)
         {
@@ -40,7 +42,7 @@ namespace NosCore.Data.WebApi
             {
                 Type = 5,
                 Unknown = type,
-                Id = MailId,
+                Id = (short)MailId,
             };
             //return $"post 5 {type} {MailList.First(s => s.Value == mailDto).Key} 0 0 {(byte)mailDto.SenderClass} {(byte)mailDto.SenderGender} {mailDto.SenderMorphId} {(byte)mailDto.SenderHairStyle} {(byte)mailDto.SenderHairColor} {mailDto.EqPacket} {sender.Name} {mailDto.Title} {mailDto.Message}";
         }
@@ -54,7 +56,7 @@ namespace NosCore.Data.WebApi
                     {
                         Type = 1,
                         Unknown = 1,
-                        Id = MailId,
+                        Id = (short)MailId,
                         ParcelAttachment = new ParcelAttachmentSubPacket
                         {
                             TitleType = Title == "NOSMALL" ? (byte)1 : (byte)4,
@@ -73,7 +75,7 @@ namespace NosCore.Data.WebApi
                     {
                         Type = 1,
                         Unknown = type,
-                        Id = MailId,
+                        Id = (short)MailId,
                     };
                 default:
                     throw new ArgumentException();

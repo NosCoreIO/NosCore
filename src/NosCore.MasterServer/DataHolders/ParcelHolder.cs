@@ -17,7 +17,7 @@ namespace NosCore.MasterServer.DataHolders
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
-        public ConcurrentDictionary<long, ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>> ParcelDictionary { get; set; } 
+        public ConcurrentDictionary<long, ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>> ParcelDictionary { get; set; }
             = new ConcurrentDictionary<long, ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>();
 
         public ParcelHolder(IGenericDao<CharacterDto> characterDao, IGenericDao<MailDto> mailDao, List<ItemDto> items, IGenericDao<IItemInstanceDto> itemInstanceDao)
@@ -34,25 +34,35 @@ namespace NosCore.MasterServer.DataHolders
             var mails = _mailDao.LoadAll();
             var idcopy = 0;
             var idmail = 0;
-            var listmails = new List<MailData>();
+            var charactersIds = Enumerable.Union(mails.Select(s => s.ReceiverId), mails.Where(s => s.SenderId != null).Select(s => (long)s.SenderId));
+            var characternames = new Dictionary<long, string>();
+            foreach (var characterId in charactersIds)
+            {
+                characternames.Add(characterId, _characterDao.FirstOrDefault(s => s.CharacterId == characterId).Name);
+                ParcelDictionary.TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
+                ParcelDictionary[characterId].TryAdd(false, new ConcurrentDictionary<long, MailData>());
+                ParcelDictionary[characterId].TryAdd(true, new ConcurrentDictionary<long, MailData>());
+            }
             foreach (var mail in mails)
             {
                 var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
                 var it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
-                var senderName = mail.SenderId == null ? "NOSMALL" : _characterDao.FirstOrDefault(s => s.CharacterId == mail.SenderId).Name;
-                var receiverName = _characterDao.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name;
-                listmails.Add(new MailData
-                {
-                    ItemInstance = itinst.Adapt<ItemInstanceDto>(),
-                    SenderName = senderName,
-                    ReceiverName = receiverName,
-                    MailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail,
-                    Title = mail.Title,
-                    Date = mail.Date,
-                    ItemType = (short)it.ItemType,
-                    IsSenderCopy = mail.IsSenderCopy
-                });
-
+                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long)mail.SenderId];
+                var receiverName = characternames[mail.ReceiverId];
+                var mailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail;
+                ParcelDictionary[mail.IsSenderCopy ? (long)mail.SenderId : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
+                    new MailData
+                    {
+                        ItemInstance = itinst.Adapt<ItemInstanceDto>(),
+                        SenderName = senderName,
+                        ReceiverName = receiverName,
+                        MailId = mailId,
+                        MailDbKey = mail.MailId,
+                        Title = mail.Title,
+                        Date = mail.Date,
+                        ItemType = (short)it.ItemType,
+                        IsSenderCopy = mail.IsSenderCopy
+                    });
                 if (mail.IsSenderCopy)
                 {
                     idcopy++;

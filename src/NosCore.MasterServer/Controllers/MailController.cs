@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data;
@@ -56,11 +58,13 @@ namespace NosCore.MasterServer.Controllers
         public bool DeleteMail(long id, long characterId, bool senderCopy)
         {
             var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
-            _mailDao.Delete(mail.MailId);
+            _mailDao.Delete(mail.MailDbKey);
             if (mail.ItemInstance != null)
             {
                 _itemInstanceDao.Delete(mail.ItemInstance.Id);
             }
+
+            _parcelHolder.ParcelDictionary[characterId][senderCopy].TryRemove(id, out _);
             return true;
         }
 
@@ -68,9 +72,11 @@ namespace NosCore.MasterServer.Controllers
         public bool ViewMail(long id, long characterId, bool senderCopy)
         {
             var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
-            var mailDto = _mailDao.FirstOrDefault(s=>s.MailId == mail.MailId);
+            mail.IsOpened = true;
+            var mailDto = _mailDao.FirstOrDefault(s => s.MailId == mail.MailDbKey);
             if (mailDto != null)
             {
+                mailDto.IsOpened = true;
                 _mailDao.InsertOrUpdate(ref mailDto);
                 return true;
             }
@@ -126,58 +132,49 @@ namespace NosCore.MasterServer.Controllers
                 mailref.ItemInstanceId = itemInstance.Id;
             }
 
-            _mailDao.InsertOrUpdate(ref mailref);
             var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
             var sender = _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
 
+            InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance);
             if (mailref.SenderId != null && mailref.SenderId != mailref.ReceiverId)
             {
                 mailref.MailId = 0;
                 mailref.IsSenderCopy = true;
-                _mailDao.InsertOrUpdate(ref mailref);
-
-                var idcopy = _mailDao.Where(s => s.IsSenderCopy == true && s.SenderId == mailref.SenderId).Count();
-                if (receiver.Item2 != null)
-                {
-                    Notify(receiver.Item2.ChannelId,
-                        new MailData
-                        {
-                            ReceiverName = receiver.Item2.ConnectedCharacter.Name,
-                            MailId = (short)idcopy,
-                            Title = mail.Mail.Title,
-                            Date = mail.Mail.Date,
-                            ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
-                            ItemType = (short)it.ItemType,
-                            IsSenderCopy = true,
-                            SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL"
-                        });
-                }
-            }
-
-            var id = _mailDao.Where(s => s.IsSenderCopy == false && s.ReceiverId == mailref.ReceiverId).Count();
-            if (receiver.Item2 != null)
-            {
-                Notify(receiver.Item2.ChannelId,
-                    new MailData
-                    {
-                        ReceiverName = receiver.Item2.ConnectedCharacter.Name,
-                        MailId = (short) id,
-                        Title = mail.Mail.Title,
-                        Date = mail.Mail.Date,
-                        ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
-                        ItemType = (short) it.ItemType,
-                        SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
-                        IsSenderCopy = false
-                    });
+                InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance);
             }
 
             return true;
         }
 
-        private void Notify(int channelId, MailData mailData)
+        private void InsertAndNotify((ServerConfiguration, ConnectedAccount) receiver, (ServerConfiguration, ConnectedAccount) sender, 
+            MailDto mailref, bool isSenderCopy, ItemDto it, IItemInstanceDto itemInstance)
         {
-            //todo add to holder
-            _incommingMailHttpClient.NotifyIncommingMail(channelId, mailData);
+            if (receiver.Item2 != null)
+            {
+                var characterId = receiver.Item2.ConnectedCharacter.Id;
+                if (!_parcelHolder.ParcelDictionary.ContainsKey(characterId))
+                {
+                    _parcelHolder.ParcelDictionary.TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
+                    _parcelHolder.ParcelDictionary[characterId].TryAdd(false, new ConcurrentDictionary<long, MailData>());
+                    _parcelHolder.ParcelDictionary[characterId].TryAdd(true, new ConcurrentDictionary<long, MailData>());
+                }
+                var count = _parcelHolder.ParcelDictionary[characterId][isSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1).Max();
+                _mailDao.InsertOrUpdate(ref mailref);
+                var mailData = new MailData
+                {
+                    ReceiverName = receiver.Item2.ConnectedCharacter.Name,
+                    MailId = (short)++count,
+                    Title = mailref.Title,
+                    Date = mailref.Date,
+                    ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
+                    ItemType = (short)it.ItemType,
+                    SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
+                    IsSenderCopy = isSenderCopy,
+                    MailDbKey = mailref.MailId
+                };
+                _parcelHolder.ParcelDictionary[characterId][mailData.IsSenderCopy].TryAdd(count, mailData);
+                _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, mailData);
+            }
         }
     }
 }
