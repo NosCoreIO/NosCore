@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.HttpClients.FriendHttpClient
@@ -36,7 +33,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
                 Date = DateTime.Now,
                 ReceiverId = receiverId,
                 IsSenderCopy = false,
-                ItemInstanceId = itemInstance?.Id ?? Guid.Empty,
+                ItemInstanceId = itemInstance?.Id,
                 Title = isNosmall ? "NOSMALL" : characterEntity.Name,
                 SenderId = isNosmall ? (long?)null : characterEntity.VisualId,
                 SenderCharacterClass = isNosmall ? (CharacterClassType?)null : characterEntity.Class,
@@ -66,6 +63,21 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             byte upgrade, bool isNosmall)
         {
             Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall));
+        }
+
+        public IEnumerable<MailData> GetGifts(long characterId)
+        {
+            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
+        }
+
+        public MailData GetGift(long id,long characterId)
+        {
+            return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}").FirstOrDefault();
+        }
+
+        public void DeleteGift(int giftId, long visualId)
+        {
+            Delete($"{giftId}&characterId={visualId}").Wait();
         }
     }
 }

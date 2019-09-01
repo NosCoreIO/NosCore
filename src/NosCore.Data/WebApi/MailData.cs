@@ -18,18 +18,68 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using UpdateStatActionType = NosCore.Data.Enumerations.UpdateStatActionType;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Parcel;
 
 namespace NosCore.Data.WebApi
 {
     public class MailData
     {
-        public short Amount { get; set; }
-        public string CharacterName { get; set; }
-        public short MailId { get; set; }
+        public string ReceiverName { get; set; }
+        public string SenderName { get; set; }
+        public long MailId { get; set; }
         public string Title { get; set; }
         public DateTime Date { get; set; }
-        public short AttachmentVNum { get; set; }
+        public ItemInstanceDto ItemInstance { get; set; }
         public short ItemType { get; set; }
+        public bool IsSenderCopy { get; set; }
+        public long MailDbKey { get; set; }
+        public bool IsOpened { get; set; }
+
+        public PostPacket GeneratePostMessage(byte type)
+        {
+            return new PostPacket
+            {
+                Type = 5,
+                Unknown = type,
+                Id = (short)MailId,
+            };
+            //return $"post 5 {type} {MailList.First(s => s.Value == mailDto).Key} 0 0 {(byte)mailDto.SenderClass} {(byte)mailDto.SenderGender} {mailDto.SenderMorphId} {(byte)mailDto.SenderHairStyle} {(byte)mailDto.SenderHairColor} {mailDto.EqPacket} {sender.Name} {mailDto.Title} {mailDto.Message}";
+        }
+
+        public IPacket GeneratePost(byte type)
+        {
+            switch (type)
+            {
+                case 0:
+                    return new ParcelPacket
+                    {
+                        Type = 1,
+                        Unknown = 1,
+                        Id = (short)MailId,
+                        ParcelAttachment = new ParcelAttachmentSubPacket
+                        {
+                            TitleType = Title == "NOSMALL" ? (byte)1 : (byte)4,
+                            Unknown2 = 0,
+                            Date = Date.ToString("yyMMddHHmm"),
+                            Title = Title,
+                            AttachmentVNum = ItemInstance.ItemVNum,
+                            AttachmentAmount = ItemInstance.Amount,
+                            ItemType = ItemType
+                        }
+                    };
+                case 1:
+                case 2:
+                    //return $"post 1 {type} {MailList.First(s => s.Value.MailId == mail.MailId).Key} 0 {(mail.IsOpened ? 1 : 0)} {mail.Date.ToString("yyMMddHHmm")} {(type == 2 ? DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name : DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.SenderId).Name)} {mail.Title}";
+                    return new PostPacket
+                    {
+                        Type = 1,
+                        Unknown = type,
+                        Id = (short)MailId,
+                    };
+                default:
+                    throw new ArgumentException();
+            }
+        }
     }
 }

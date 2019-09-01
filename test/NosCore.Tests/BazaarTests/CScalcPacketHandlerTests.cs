@@ -18,6 +18,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using System.Linq;
+using NosCore.Core;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -28,6 +29,7 @@ namespace NosCore.Tests.BazaarTests
         private ClientSession _session;
         private Mock<IBazaarHttpClient> _bazaarHttpClient;
         private Mock<IItemProvider> _itemProvider;
+        private Mock<IGenericDao<IItemInstanceDto>> _itemInstanceDao;
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         [TestInitialize]
@@ -38,8 +40,8 @@ namespace NosCore.Tests.BazaarTests
             _session = TestHelpers.Instance.GenerateSession();
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _itemProvider = new Mock<IItemProvider>();
-            _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration, _bazaarHttpClient.Object, _itemProvider.Object, _logger);
-
+            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration, _bazaarHttpClient.Object, _itemProvider.Object, _logger, _itemInstanceDao.Object);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).Returns(
                 new BazaarLink
