@@ -285,6 +285,7 @@ namespace NosCore.Data.Enumerations.I18N
         NOT_ENOUGH_DURABILITY_POINT,
         NOT_ENOUGH_MINILAND_POINT,
         ITEM_GIFTED,
-        GIFT_SENT
+        GIFT_SENT,
+        ITEM_RECEIVED
     }
 }

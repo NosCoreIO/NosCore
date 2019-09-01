@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient

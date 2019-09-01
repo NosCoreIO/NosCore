@@ -38,9 +38,6 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 using System.Reactive.Subjects;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using System.Linq.Expressions;
-using DotNetty.Transport.Channels;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
@@ -96,7 +93,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public void Kick() => Kick(o => o != null);
         public void Kick(Func<ICharacterEntity, bool> filter)
         {
-            Broadcaster.Instance.GetCharacters(filter).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+            Broadcaster.Instance.GetCharacters(filter).Where(s=>!s.IsDisconnecting).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }

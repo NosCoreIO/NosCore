@@ -62,6 +62,7 @@ using ChickenAPI.Packets.ServerPackets.MiniMap;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
 using NosCore.GameObject.Providers.MinilandProvider;
 using ChickenAPI.Packets.ServerPackets.Miniland;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject
 {
@@ -382,7 +383,7 @@ namespace NosCore.GameObject
 
         public List<StaticBonusDto> StaticBonusList { get; set; }
         public List<QuicklistEntryDto> QuicklistEntries { get; set; }
-
+        public bool IsDisconnecting { get; internal set; }
 
         public void ChangeClass(CharacterClassType classType)
         {
@@ -640,6 +641,28 @@ namespace NosCore.GameObject
                         Session.Account.Language),
                     Type = 0
                 });
+            }
+        }
+
+        public void GenerateMail(IEnumerable<MailData> mails)
+        {
+            foreach (var mail in mails)
+            {
+                if (!mail.IsSenderCopy && mail.ReceiverName == Name)
+                {
+                    if (mail.ItemInstance != null)
+                    {
+                        Session.SendPacket(mail.GeneratePost(0));
+                    }
+                    else
+                    {
+                        Session.SendPacket(mail.GeneratePost(1));
+                    }
+                }
+                else
+                {
+                    Session.SendPacket(mail.GeneratePost(2));
+                }
             }
         }
 

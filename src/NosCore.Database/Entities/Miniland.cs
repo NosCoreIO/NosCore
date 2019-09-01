@@ -1,6 +1,5 @@
 ﻿using ChickenAPI.Packets.Enumerations;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities

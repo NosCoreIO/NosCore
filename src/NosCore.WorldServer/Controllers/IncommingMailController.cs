@@ -18,24 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Movement;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using Serilog;
 using System;
-using ServiceStack;
 
 namespace NosCore.WorldServer.Controllers
 {
-    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
+    [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class IncommingMailController : Controller
     {
@@ -47,7 +42,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.CharacterName);
+            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.ReceiverName);
 
             if (session == null)
             {
@@ -55,24 +50,8 @@ namespace NosCore.WorldServer.Controllers
             }
 
             session.SendPacket(session.GenerateSay(
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.Amount), SayColorType.Green));
-            session.SendPacket(new ParcelPacket
-            {
-                Type = 1,
-                Unknown = 1,
-                Id = data.MailId,
-                ParcelAttachment = new ParcelAttachmentSubPacket
-                {
-                    TitleType = data.Title == "NOSMALL" ? (byte)1 : (byte)4,
-                    Unknown2 = 0,
-                    Date = data.Date.ToString("yyMMddHHmm"),
-                    Title = data.Title,
-                    AttachmentVNum = data.AttachmentVNum,
-                    AttachmentAmount = data.Amount,
-                    ItemType = data.ItemType
-                }
-            });
-
+                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            session.GenerateMail(new[] { data });
             return Ok();
         }
     }
