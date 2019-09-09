@@ -1079,53 +1079,6 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Mail",
-                columns: table => new
-                {
-                    MailId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    AttachmentAmount = table.Column<byte>(nullable: false),
-                    AttachmentRarity = table.Column<byte>(nullable: false),
-                    AttachmentUpgrade = table.Column<byte>(nullable: false),
-                    AttachmentVNum = table.Column<short>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    EqPacket = table.Column<string>(maxLength: 255, nullable: true),
-                    IsOpened = table.Column<bool>(nullable: false),
-                    IsSenderCopy = table.Column<bool>(nullable: false),
-                    Message = table.Column<string>(maxLength: 255, nullable: true),
-                    ReceiverId = table.Column<long>(nullable: false),
-                    SenderCharacterClass = table.Column<byte>(nullable: false),
-                    SenderGender = table.Column<byte>(nullable: false),
-                    SenderHairColor = table.Column<byte>(nullable: false),
-                    SenderHairStyle = table.Column<byte>(nullable: false),
-                    SenderId = table.Column<long>(nullable: false),
-                    SenderMorphId = table.Column<short>(nullable: false),
-                    Title = table.Column<string>(maxLength: 255, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Mail", x => x.MailId);
-                    table.ForeignKey(
-                        name: "FK_Mail_Item_AttachmentVNum",
-                        column: x => x.AttachmentVNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Mail_Character_ReceiverId",
-                        column: x => x.ReceiverId,
-                        principalTable: "Character",
-                        principalColumn: "CharacterId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Mail_Character_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "Character",
-                        principalColumn: "CharacterId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Mate",
                 columns: table => new
                 {
@@ -1485,6 +1438,66 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Mail",
+                columns: table => new
+                {
+                    MailId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Hat = table.Column<short>(nullable: true),
+                    Armor = table.Column<short>(nullable: true),
+                    MainWeapon = table.Column<short>(nullable: true),
+                    SecondaryWeapon = table.Column<short>(nullable: true),
+                    Mask = table.Column<short>(nullable: true),
+                    Fairy = table.Column<short>(nullable: true),
+                    CostumeSuit = table.Column<short>(nullable: true),
+                    CostumeHat = table.Column<short>(nullable: true),
+                    WeaponSkin = table.Column<short>(nullable: true),
+                    WingSkin = table.Column<short>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    IsOpened = table.Column<bool>(nullable: false),
+                    IsSenderCopy = table.Column<bool>(nullable: false),
+                    ItemInstanceId = table.Column<Guid>(nullable: true),
+                    Message = table.Column<string>(maxLength: 255, nullable: true),
+                    ReceiverId = table.Column<long>(nullable: false),
+                    SenderId = table.Column<long>(nullable: true),
+                    SenderCharacterClass = table.Column<byte>(nullable: true),
+                    SenderGender = table.Column<byte>(nullable: true),
+                    SenderHairColor = table.Column<byte>(nullable: true),
+                    SenderHairStyle = table.Column<byte>(nullable: true),
+                    SenderMorphId = table.Column<short>(nullable: true),
+                    Title = table.Column<string>(maxLength: 255, nullable: true),
+                    ItemVNum = table.Column<short>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Mail", x => x.MailId);
+                    table.ForeignKey(
+                        name: "FK_Mail_ItemInstance_ItemInstanceId",
+                        column: x => x.ItemInstanceId,
+                        principalTable: "ItemInstance",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Mail_Item_ItemVNum",
+                        column: x => x.ItemVNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Mail_Character_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "Character",
+                        principalColumn: "CharacterId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Mail_Character_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Character",
+                        principalColumn: "CharacterId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Drop",
                 columns: table => new
                 {
@@ -1643,7 +1656,7 @@ namespace NosCore.Database.Migrations
                     Level4BoxAmount = table.Column<byte>(nullable: false),
                     Level5BoxAmount = table.Column<byte>(nullable: false),
                     MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
+                    MapY = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1854,9 +1867,14 @@ namespace NosCore.Database.Migrations
                 column: "ItemVNum");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Mail_AttachmentVNum",
+                name: "IX_Mail_ItemInstanceId",
                 table: "Mail",
-                column: "AttachmentVNum");
+                column: "ItemInstanceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Mail_ItemVNum",
+                table: "Mail",
+                column: "ItemVNum");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mail_ReceiverId",
@@ -1928,11 +1946,6 @@ namespace NosCore.Database.Migrations
                 name: "IX_MinilandObject_InventoryItemInstanceId",
                 table: "MinilandObject",
                 column: "InventoryItemInstanceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MinilandObject_MinilandId",
-                table: "MinilandObject",
-                column: "MinilandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NpcMonsterSkill_NpcMonsterVNum",
@@ -2155,6 +2168,9 @@ namespace NosCore.Database.Migrations
                 name: "Mate");
 
             migrationBuilder.DropTable(
+                name: "Miniland");
+
+            migrationBuilder.DropTable(
                 name: "MinilandObject");
 
             migrationBuilder.DropTable(
@@ -2210,9 +2226,6 @@ namespace NosCore.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "InventoryItemInstance");
-
-            migrationBuilder.DropTable(
-                name: "Miniland");
 
             migrationBuilder.DropTable(
                 name: "Quest");
