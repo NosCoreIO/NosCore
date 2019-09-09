@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20190824101016_Aphrodite3")]
-    partial class Aphrodite3
+    [Migration("20190909080806_Aphrodite1")]
+    partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -914,23 +914,36 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("MailId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<short?>("Armor");
+
+                    b.Property<short?>("CostumeHat");
+
+                    b.Property<short?>("CostumeSuit");
+
                     b.Property<DateTime>("Date");
 
-                    b.Property<string>("EqPacket")
-                        .HasMaxLength(255);
+                    b.Property<short?>("Fairy");
+
+                    b.Property<short?>("Hat");
 
                     b.Property<bool>("IsOpened");
 
                     b.Property<bool>("IsSenderCopy");
 
-                    b.Property<Guid>("ItemInstanceId");
+                    b.Property<Guid?>("ItemInstanceId");
 
                     b.Property<short?>("ItemVNum");
+
+                    b.Property<short?>("MainWeapon");
+
+                    b.Property<short?>("Mask");
 
                     b.Property<string>("Message")
                         .HasMaxLength(255);
 
                     b.Property<long>("ReceiverId");
+
+                    b.Property<short?>("SecondaryWeapon");
 
                     b.Property<byte?>("SenderCharacterClass");
 
@@ -946,6 +959,10 @@ namespace NosCore.Database.Migrations
 
                     b.Property<string>("Title")
                         .HasMaxLength(255);
+
+                    b.Property<short?>("WeaponSkin");
+
+                    b.Property<short?>("WingSkin");
 
                     b.HasKey("MailId");
 
