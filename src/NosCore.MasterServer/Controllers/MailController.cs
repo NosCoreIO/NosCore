@@ -31,7 +31,7 @@ namespace NosCore.MasterServer.Controllers
         private readonly ParcelHolder _parcelHolder;
 
         public MailController(IGenericDao<MailDto> mailDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IConnectedAccountHttpClient connectedAccountHttpClient,
-            List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, ParcelHolder parcelHolder)
+                List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, ParcelHolder parcelHolder)
         {
             _mailDao = mailDao;
             _itemInstanceDao = itemInstanceDao;
@@ -45,10 +45,16 @@ namespace NosCore.MasterServer.Controllers
         [HttpGet]
         public List<MailData> GetMails(long id, long characterId)
         {
-            var mails = _parcelHolder.ParcelDictionary[characterId][false].Values.Concat(_parcelHolder.ParcelDictionary[characterId][true].Values);
+            var mails = _parcelHolder[characterId][false].Values.Concat(_parcelHolder[characterId][true].Values);
             if (id != -1)
             {
-                mails = new[] { _parcelHolder.ParcelDictionary[characterId][false][id] };
+                if (_parcelHolder[characterId][false].ContainsKey(id))
+                {
+                    mails = new[] { _parcelHolder[characterId][false][id] };
+                } else
+                {
+                    return new List<MailData>();
+                }
             }
             return mails.ToList();
         }
@@ -57,21 +63,21 @@ namespace NosCore.MasterServer.Controllers
         [HttpDelete]
         public bool DeleteMail(long id, long characterId, bool senderCopy)
         {
-            var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
+            var mail = _parcelHolder[characterId][senderCopy][id];
             _mailDao.Delete(mail.MailDbKey);
             if (mail.ItemInstance != null)
             {
                 _itemInstanceDao.Delete(mail.ItemInstance.Id);
             }
 
-            _parcelHolder.ParcelDictionary[characterId][senderCopy].TryRemove(id, out _);
+            _parcelHolder[characterId][senderCopy].TryRemove(id, out _);
             return true;
         }
 
         [HttpPatch]
         public bool ViewMail(long id, long characterId, bool senderCopy)
         {
-            var mail = _parcelHolder.ParcelDictionary[characterId][senderCopy][id];
+            var mail = _parcelHolder[characterId][senderCopy][id];
             mail.IsOpened = true;
             var mailDto = _mailDao.FirstOrDefault(s => s.MailId == mail.MailDbKey);
             if (mailDto != null)
@@ -146,19 +152,13 @@ namespace NosCore.MasterServer.Controllers
             return true;
         }
 
-        private void InsertAndNotify((ServerConfiguration, ConnectedAccount) receiver, (ServerConfiguration, ConnectedAccount) sender, 
+        private void InsertAndNotify((ServerConfiguration, ConnectedAccount) receiver, (ServerConfiguration, ConnectedAccount) sender,
             MailDto mailref, bool isSenderCopy, ItemDto it, IItemInstanceDto itemInstance)
         {
             if (receiver.Item2 != null)
             {
                 var characterId = receiver.Item2.ConnectedCharacter.Id;
-                if (!_parcelHolder.ParcelDictionary.ContainsKey(characterId))
-                {
-                    _parcelHolder.ParcelDictionary.TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
-                    _parcelHolder.ParcelDictionary[characterId].TryAdd(false, new ConcurrentDictionary<long, MailData>());
-                    _parcelHolder.ParcelDictionary[characterId].TryAdd(true, new ConcurrentDictionary<long, MailData>());
-                }
-                var count = _parcelHolder.ParcelDictionary[characterId][isSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1).Max();
+                var count = _parcelHolder[characterId][isSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1).Max();
                 _mailDao.InsertOrUpdate(ref mailref);
                 var mailData = new MailData
                 {
@@ -172,7 +172,7 @@ namespace NosCore.MasterServer.Controllers
                     IsSenderCopy = isSenderCopy,
                     MailDbKey = mailref.MailId
                 };
-                _parcelHolder.ParcelDictionary[characterId][mailData.IsSenderCopy].TryAdd(count, mailData);
+                _parcelHolder[characterId][mailData.IsSenderCopy].TryAdd(count, mailData);
                 _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, mailData);
             }
         }
