@@ -5,6 +5,7 @@ using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -75,9 +76,14 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}").FirstOrDefault();
         }
 
-        public void DeleteGift(int giftId, long visualId)
+        public void DeleteGift(long giftId, long visualId)
         {
             Delete($"{giftId}&characterId={visualId}").Wait();
+        }
+
+        public void ViewGift(long giftId, JsonPatchDocument<MailDto> mailData)
+        {
+            Patch<MailData>(giftId, mailData);
         }
     }
 }
