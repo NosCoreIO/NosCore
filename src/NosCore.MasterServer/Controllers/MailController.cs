@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Mapster;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -75,19 +76,19 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public bool ViewMail(long id, long characterId, bool senderCopy)
+        public MailData ViewMail(long dbKey, [FromBody]JsonPatchDocument<MailDto> mailData)
         {
-            var mail = _parcelHolder[characterId][senderCopy][id];
-            mail.IsOpened = true;
-            var mailDto = _mailDao.FirstOrDefault(s => s.MailId == mail.MailDbKey);
-            if (mailDto != null)
+            var mail = _mailDao.FirstOrDefault(s => s.MailId == dbKey);
+            if (mail != null)
             {
-                mailDto.IsOpened = true;
-                _mailDao.InsertOrUpdate(ref mailDto);
-                return true;
+                mailData.ApplyTo(mail);
+                var bz = mail;
+                _mailDao.InsertOrUpdate(ref bz);
+                var maildata = _parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId : mail.ReceiverId][mail.IsSenderCopy].FirstOrDefault();
+                maildata.Value.IsOpened = true;
+                return maildata.Value;
             }
-
-            return false;
+            return null;
         }
 
         [HttpPost]
