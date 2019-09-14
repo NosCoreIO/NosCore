@@ -44,8 +44,8 @@ namespace NosCore.PacketHandlers.Parcel
                     }
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
-                    _mailHttpClient.ViewGift(mail.MailDbKey, patch);
-                    //open packet
+                    _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
+                    clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
                     break;
                 case 2:
                     if (mail == null)
@@ -56,7 +56,6 @@ namespace NosCore.PacketHandlers.Parcel
                     clientSession.SendPacket(
                         clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED, clientSession.Account.Language),
                         SayColorType.Purple));
-                    //delete packet
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
