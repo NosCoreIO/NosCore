@@ -33,7 +33,8 @@ namespace NosCore.PacketHandlers.Parcel
 
         public override void Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
-            var mail = _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId);
+            var isCopy = pstClientPacket.Type == 2;
+            var mail = _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Parcel
                     {
                         return;
                     }
-                    _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId);
+                    _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
                     clientSession.SendPacket(
                         clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED, clientSession.Account.Language),
                         SayColorType.Purple));

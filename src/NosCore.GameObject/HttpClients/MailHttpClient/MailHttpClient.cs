@@ -77,14 +77,14 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
         }
 
-        public MailData GetGift(long id, long characterId)
+        public MailData GetGift(long id, long characterId, bool isCopy)
         {
-            return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}").FirstOrDefault();
+            return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}").FirstOrDefault();
         }
 
-        public void DeleteGift(long giftId, long visualId)
+        public void DeleteGift(long giftId, long visualId, bool isCopy)
         {
-            Delete($"{giftId}&characterId={visualId}").Wait();
+            Delete($"{giftId}&characterId={visualId}&senderCopy={isCopy}").Wait();
         }
 
         public void ViewGift(long giftId, JsonPatchDocument<MailDto> mailData)
