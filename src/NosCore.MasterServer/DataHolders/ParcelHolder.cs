@@ -69,12 +69,8 @@ namespace NosCore.MasterServer.DataHolders
                         SenderName = senderName,
                         ReceiverName = receiverName,
                         MailId = mailId,
-                        MailDbKey = mail.MailId,
-                        Title = mail.Title,
-                        Message = mail.Message,
-                        Date = mail.Date,
+                        MailDto = mail,
                         ItemType = (short?)it?.ItemType ?? -1,
-                        IsSenderCopy = mail.IsSenderCopy
                     });
                 if (mail.IsSenderCopy)
                 {
