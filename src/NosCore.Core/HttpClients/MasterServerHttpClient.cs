@@ -36,6 +36,19 @@ namespace NosCore.Core.HttpClients
             return client;
         }
 
+        public HttpClient Connect(int channelId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var channel = _channelHttpClient.GetChannel(channelId);
+            if (channel == null)
+            {
+                return null;
+            }
+            client.BaseAddress = new Uri(channel.WebApi.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
+            return client;
+        }
+
         protected T Post<T>(object objectToPost)
         {
             var client = Connect();

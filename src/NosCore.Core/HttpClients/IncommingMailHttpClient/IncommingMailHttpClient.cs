@@ -19,18 +19,22 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             _channelHttpClient = channelHttpClient;
         }
 
+        public void DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
+        {
+            var client = Connect(channelId);
+            client.DeleteAsync($"{ApiUrl}?id={id}&mailId={mailId}&postType={postType}").Wait();
+        }
+
         public void NotifyIncommingMail(int channelId, MailData mailRequest)
         {
-            var client = _httpClientFactory.CreateClient();
-            var channel = _channelHttpClient.GetChannel(channelId);
-            if(channel == null)
-            {
-                return;
-            }
-            client.BaseAddress = new Uri(channel.WebApi.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
+            var client = Connect(channelId);
             var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default, "application/json");
             client.PostAsync(ApiUrl, content).Wait();
+        }
+
+        public void OpenIncommingMail(int channelId, MailData mailData)
+        {
+            throw new NotImplementedException();
         }
     }
 }
