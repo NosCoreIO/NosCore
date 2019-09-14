@@ -25,6 +25,7 @@ namespace NosCore.MasterServer.Controllers
     {
         private readonly IGenericDao<MailDto> _mailDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<CharacterDto> _characterDto;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly List<ItemDto> _items;
         private readonly IItemProvider _itemProvider;
@@ -32,7 +33,8 @@ namespace NosCore.MasterServer.Controllers
         private readonly ParcelHolder _parcelHolder;
 
         public MailController(IGenericDao<MailDto> mailDao, IGenericDao<IItemInstanceDto> itemInstanceDao, IConnectedAccountHttpClient connectedAccountHttpClient,
-                List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, ParcelHolder parcelHolder)
+                List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient, ParcelHolder parcelHolder,
+                IGenericDao<CharacterDto> characterDto)
         {
             _mailDao = mailDao;
             _itemInstanceDao = itemInstanceDao;
@@ -41,6 +43,7 @@ namespace NosCore.MasterServer.Controllers
             _itemProvider = itemProvider;
             _incommingMailHttpClient = incommingMailHttpClient;
             _parcelHolder = parcelHolder;
+            _characterDto = characterDto;
         }
 
         [HttpGet]
@@ -52,7 +55,8 @@ namespace NosCore.MasterServer.Controllers
                 if (_parcelHolder[characterId][false].ContainsKey(id))
                 {
                     mails = new[] { _parcelHolder[characterId][false][id] };
-                } else
+                }
+                else
                 {
                     return new List<MailData>();
                 }
@@ -95,9 +99,15 @@ namespace NosCore.MasterServer.Controllers
         public bool SendMail([FromBody] MailRequest mail)
         {
             var mailref = mail.Mail;
+            var receivdto = _characterDto.FirstOrDefault(s => s.CharacterId == mailref.ReceiverId);
+            if (receivdto == null)
+            {
+                return false;
+            }
+            var receiverName = receivdto.Name;
             var it = _items.Find(item => item.VNum == mail.VNum);
             IItemInstanceDto itemInstance = null;
-            if (mail.Mail.ItemInstanceId == null)
+            if (mail.Mail.ItemInstanceId == null && mail.VNum != null)
             {
                 if (it == null)
                 {
@@ -142,38 +152,38 @@ namespace NosCore.MasterServer.Controllers
             var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
             var sender = _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
 
-            InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance);
+            InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance, receiverName);
             if (mailref.SenderId != null && mailref.SenderId != mailref.ReceiverId)
             {
                 mailref.MailId = 0;
                 mailref.IsSenderCopy = true;
-                InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance);
+                InsertAndNotify(receiver, sender, mailref, mailref.IsSenderCopy, it, itemInstance, receiverName);
             }
 
             return true;
         }
 
         private void InsertAndNotify((ServerConfiguration, ConnectedAccount) receiver, (ServerConfiguration, ConnectedAccount) sender,
-            MailDto mailref, bool isSenderCopy, ItemDto it, IItemInstanceDto itemInstance)
+            MailDto mailref, bool isSenderCopy, ItemDto it, IItemInstanceDto itemInstance, string receiverName)
         {
+            var count = _parcelHolder[mailref.ReceiverId][isSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1).Max();
+            _mailDao.InsertOrUpdate(ref mailref);
+            var mailData = new MailData
+            {
+                ReceiverName = receiverName,
+                MailId = (short)++count,
+                Title = mailref.Title,
+                Message = mailref.Message,
+                Date = mailref.Date,
+                ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
+                ItemType = (short?)it?.ItemType ?? -1,
+                SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
+                IsSenderCopy = isSenderCopy,
+                MailDbKey = mailref.MailId
+            };
+            _parcelHolder[mailref.ReceiverId][mailData.IsSenderCopy].TryAdd(count, mailData);
             if (receiver.Item2 != null)
             {
-                var characterId = receiver.Item2.ConnectedCharacter.Id;
-                var count = _parcelHolder[characterId][isSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1).Max();
-                _mailDao.InsertOrUpdate(ref mailref);
-                var mailData = new MailData
-                {
-                    ReceiverName = receiver.Item2.ConnectedCharacter.Name,
-                    MailId = (short)++count,
-                    Title = mailref.Title,
-                    Date = mailref.Date,
-                    ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
-                    ItemType = (short)it.ItemType,
-                    SenderName = sender.Item2?.ConnectedCharacter.Name ?? "NOSMALL",
-                    IsSenderCopy = isSenderCopy,
-                    MailDbKey = mailref.MailId
-                };
-                _parcelHolder[characterId][mailData.IsSenderCopy].TryAdd(count, mailData);
                 _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, mailData);
             }
         }

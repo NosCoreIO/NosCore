@@ -14,5 +14,6 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
         MailData GetGift(long id, long characterId);
         void DeleteGift(long giftId, long visualId);
         void ViewGift(long giftId, JsonPatchDocument<MailDto> mailData);
+        void SendMessage(ICharacterEntity character, long characterId, string title, string text);
     }
 }

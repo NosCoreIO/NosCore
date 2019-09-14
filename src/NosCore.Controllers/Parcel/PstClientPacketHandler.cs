@@ -16,69 +16,59 @@ using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.Core;
 using Microsoft.AspNetCore.JsonPatch;
+using NosCore.Data.AliveEntities;
 
 namespace NosCore.PacketHandlers.Parcel
 {
     public class PstClientPacketHandler : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
         private readonly IMailHttpClient _mailHttpClient;
+        private readonly IGenericDao<CharacterDto> _characterDao;
 
-        public PstClientPacketHandler(IMailHttpClient mailHttpClient)
+        public PstClientPacketHandler(IMailHttpClient mailHttpClient, IGenericDao<CharacterDto> characterDao)
         {
             _mailHttpClient = mailHttpClient;
+            _characterDao = characterDao;
         }
 
         public override void Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var mail = _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId);
-            if (mail == null)
-            {
-                return;
-            }
-
             switch (pstClientPacket.ActionType)
             {
                 case 3:
+                    if (mail == null)
+                    {
+                        return;
+                    }
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
                     _mailHttpClient.ViewGift(mail.MailDbKey, patch);
+                    //open packet
                     break;
                 case 2:
+                    if (mail == null)
+                    {
+                        return;
+                    }
                     _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId);
                     clientSession.SendPacket(
                         clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED, clientSession.Account.Language),
                         SayColorType.Purple));
+                    //delete packet
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
                     {
                         return;
                     }
-
-                    if (true)
+                    var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+                    if (dest != null)
                     {
-                        //_mailHttpClient.SendGift(session.Character, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum, giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
+                        _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text);
                         clientSession.SendPacket(clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(
                             LanguageKey.MAILED,
                             clientSession.Account.Language), SayColorType.Yellow));
-                        //sendmessage
-                        //var mail = new MailDTO
-                        //{
-                        //    AttachmentAmount = 0,
-                        //    IsOpened = false,
-                        //    Date = DateTime.Now,
-                        //    Title = datasplit[0],
-                        //    Message = datasplit[1],
-                        //    ReceiverId = receiver.CharacterId,
-                        //    SenderId = Session.Character.CharacterId,
-                        //    IsSenderCopy = false,
-                        //    SenderClass = Session.Character.Class,
-                        //    SenderGender = Session.Character.Gender,
-                        //    SenderHairColor = Enum.IsDefined(typeof(HairColorType), color) ? (HairColorType)color : 0,
-                        //    SenderHairStyle = Session.Character.HairStyle,
-                        //    EqPacket = Session.Character.GenerateEqListForPacket(),
-                        //    SenderMorphId = Session.Character.Morph == 0 ? (short)-1 : (short)(Session.Character.Morph > short.MaxValue ? 0 : Session.Character.Morph)
-                        //};
                     }
                     else
                     {

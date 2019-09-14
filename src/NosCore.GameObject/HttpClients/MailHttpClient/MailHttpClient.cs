@@ -26,7 +26,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 
         private MailRequest GenerateMailRequest(ICharacterEntity characterEntity, long receiverId, [CanBeNull] IItemInstanceDto itemInstance,
             short? vnum, short? amount, sbyte? rare,
-            byte? upgrade, bool isNosmall)
+            byte? upgrade, bool isNosmall, string title, string text)
         {
             var mail = new MailDto
             {
@@ -35,7 +35,8 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
                 ReceiverId = receiverId,
                 IsSenderCopy = false,
                 ItemInstanceId = itemInstance?.Id,
-                Title = isNosmall ? "NOSMALL" : characterEntity.Name,
+                Title = isNosmall ? "NOSMALL" : title ?? characterEntity.Name,
+                Message = text,
                 SenderId = isNosmall ? (long?)null : characterEntity.VisualId,
                 SenderCharacterClass = isNosmall ? (CharacterClassType?)null : characterEntity.Class,
                 SenderGender = isNosmall ? (GenderType?)null : characterEntity.Gender,
@@ -57,13 +58,18 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
         }
         public void SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall)
         {
-             Post<bool>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall));
+            Post<bool>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall, null, null));
         }
 
         public void SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
             byte upgrade, bool isNosmall)
         {
-            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall));
+            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall, null, null));
+        }
+
+        public void SendMessage(ICharacterEntity characterEntity, long receiverId, string title, string text)
+        {
+            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, null, null, null, null, false, title, text));
         }
 
         public IEnumerable<MailData> GetGifts(long characterId)
@@ -71,7 +77,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
         }
 
-        public MailData GetGift(long id,long characterId)
+        public MailData GetGift(long id, long characterId)
         {
             return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}").FirstOrDefault();
         }
