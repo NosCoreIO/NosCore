@@ -25,7 +25,7 @@ namespace NosCore.MasterServer.DataHolders
                 if (!ContainsKey(characterId))
                 {
                     TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
-                    this.First(s=>s.Key == characterId).Value.TryAdd(false, new ConcurrentDictionary<long, MailData>());
+                    this.First(s => s.Key == characterId).Value.TryAdd(false, new ConcurrentDictionary<long, MailData>());
                     this.First(s => s.Key == characterId).Value.TryAdd(true, new ConcurrentDictionary<long, MailData>());
                 }
                 return this.First(s => s.Key == characterId).Value;
@@ -54,7 +54,11 @@ namespace NosCore.MasterServer.DataHolders
             foreach (var mail in mails)
             {
                 var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
-                var it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
+                ItemDto it = null;
+                if (itinst != null)
+                {
+                    it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
+                }
                 var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long)mail.SenderId];
                 var receiverName = characternames[mail.ReceiverId];
                 var mailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail;
@@ -67,8 +71,9 @@ namespace NosCore.MasterServer.DataHolders
                         MailId = mailId,
                         MailDbKey = mail.MailId,
                         Title = mail.Title,
+                        Message = mail.Message,
                         Date = mail.Date,
-                        ItemType = (short)it.ItemType,
+                        ItemType = (short?)it?.ItemType ?? -1,
                         IsSenderCopy = mail.IsSenderCopy
                     });
                 if (mail.IsSenderCopy)

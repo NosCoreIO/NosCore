@@ -49,8 +49,11 @@ namespace NosCore.WorldServer.Controllers
                 throw new InvalidOperationException();
             }
 
-            session.SendPacket(session.GenerateSay(
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            if (data.ItemInstance != null)
+            {
+                session.SendPacket(session.GenerateSay(
+                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            }
             session.GenerateMail(new[] { data });
             return Ok();
         }

@@ -29,6 +29,7 @@ namespace NosCore.Data.WebApi
         public string SenderName { get; set; }
         public long MailId { get; set; }
         public string Title { get; set; }
+        public string Message { get; set; }
         public DateTime Date { get; set; }
         public ItemInstanceDto ItemInstance { get; set; }
         public short ItemType { get; set; }
@@ -44,7 +45,6 @@ namespace NosCore.Data.WebApi
                 Unknown = type,
                 Id = (short)MailId,
             };
-            //return $"post 5 {type} {MailList.First(s => s.Value == mailDto).Key} 0 0 {(byte)mailDto.SenderClass} {(byte)mailDto.SenderGender} {mailDto.SenderMorphId} {(byte)mailDto.SenderHairStyle} {(byte)mailDto.SenderHairColor} {mailDto.EqPacket} {sender.Name} {mailDto.Title} {mailDto.Message}";
         }
 
         public IPacket GeneratePost(byte type)
@@ -70,12 +70,17 @@ namespace NosCore.Data.WebApi
                     };
                 case 1:
                 case 2:
-                    //return $"post 1 {type} {MailList.First(s => s.Value.MailId == mail.MailId).Key} 0 {(mail.IsOpened ? 1 : 0)} {mail.Date.ToString("yyMMddHHmm")} {(type == 2 ? DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name : DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.SenderId).Name)} {mail.Title}";
                     return new PostPacket
                     {
                         Type = 1,
-                        Unknown = type,
+                        PostType = type,
                         Id = (short)MailId,
+                        Unknown = 0,
+                        IsOpened = IsOpened,
+                        DateTime = Date.ToString("yyMMddHHmm"),
+                        SenderName = type == 2 ? ReceiverName : SenderName,
+                        Title = Title,
+                        Message = Message,
                     };
                 default:
                     throw new ArgumentException();
