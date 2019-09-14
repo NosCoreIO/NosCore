@@ -286,6 +286,9 @@ namespace NosCore.Data.Enumerations.I18N
         NOT_ENOUGH_MINILAND_POINT,
         ITEM_GIFTED,
         GIFT_SENT,
-        ITEM_RECEIVED
+        ITEM_RECEIVED,
+        USER_NOT_FOUND,
+        MAIL_DELETED,
+        MAILED
     }
 }

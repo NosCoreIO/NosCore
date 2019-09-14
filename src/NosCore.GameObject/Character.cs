@@ -648,7 +648,7 @@ namespace NosCore.GameObject
         {
             foreach (var mail in mails)
             {
-                if (!mail.IsSenderCopy && mail.ReceiverName == Name)
+                if (!mail.MailDto.IsSenderCopy && mail.ReceiverName == Name)
                 {
                     if (mail.ItemInstance != null)
                     {
@@ -661,7 +661,14 @@ namespace NosCore.GameObject
                 }
                 else
                 {
-                    Session.SendPacket(mail.GeneratePost(2));
+                    if (mail.ItemInstance != null)
+                    {
+                        Session.SendPacket(mail.GeneratePost(3));
+                    }
+                    else
+                    {
+                        Session.SendPacket(mail.GeneratePost(2));
+                    }
                 }
             }
         }

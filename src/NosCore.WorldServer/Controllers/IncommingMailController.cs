@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Parcel;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -49,9 +50,36 @@ namespace NosCore.WorldServer.Controllers
                 throw new InvalidOperationException();
             }
 
-            session.SendPacket(session.GenerateSay(
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            if (data.ItemInstance != null)
+            {
+                session.SendPacket(session.GenerateSay(
+                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+            }
             session.GenerateMail(new[] { data });
+            return Ok();
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteMail(long id, short mailId, byte postType)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var session = Broadcaster.Instance.GetCharacter(s => s.VisualId == id);
+
+            if (session == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            session.SendPacket(new PostPacket
+            {
+                Type = 2,
+                PostType = postType,
+                Id = mailId,
+            });
             return Ok();
         }
     }

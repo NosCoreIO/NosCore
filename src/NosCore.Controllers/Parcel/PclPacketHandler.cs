@@ -33,7 +33,8 @@ namespace NosCore.PacketHandlers.Parcel
 
         public override void Execute(PclPacket getGiftPacket, ClientSession clientSession)
         {
-            var mail = _mailHttpClient.GetGift(getGiftPacket.GiftId, clientSession.Character.VisualId);
+            var isCopy = getGiftPacket.Type == 2;
+            var mail = _mailHttpClient.GetGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             if (mail == null)
             {
                 return;
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.Parcel
                          string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED, clientSession.Account.Language),
                              newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
                     clientSession.SendPacket(new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId });
-                    _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId);
+                    _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
                 }
                 else
                 {
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Parcel
             else if (getGiftPacket.Type == 5)
             {
                 clientSession.SendPacket(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId });
-                _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId);
+                _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             }
         }
     }

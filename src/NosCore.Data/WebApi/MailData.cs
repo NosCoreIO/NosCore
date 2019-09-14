@@ -18,8 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Parcel;
+using ChickenAPI.Packets.ServerPackets.Visibility;
 
 namespace NosCore.Data.WebApi
 {
@@ -28,41 +30,62 @@ namespace NosCore.Data.WebApi
         public string ReceiverName { get; set; }
         public string SenderName { get; set; }
         public long MailId { get; set; }
-        public string Title { get; set; }
-        public DateTime Date { get; set; }
+        public MailDto MailDto { get; set; }
         public ItemInstanceDto ItemInstance { get; set; }
         public short ItemType { get; set; }
-        public bool IsSenderCopy { get; set; }
-        public long MailDbKey { get; set; }
-        public bool IsOpened { get; set; }
 
-        public PostPacket GeneratePostMessage(byte type)
+        public PostPacket GeneratePostMessage(int type)
         {
             return new PostPacket
             {
                 Type = 5,
-                Unknown = type,
+                PostType = (byte)type,
                 Id = (short)MailId,
+                Unknown = 0,
+                PostSubPacket = new PostSubPacket
+                {
+                    Class = MailDto.SenderCharacterClass ?? CharacterClassType.Adventurer,
+                    Gender = MailDto.SenderGender ?? GenderType.Female,
+                    MorphId = MailDto.SenderMorphId ?? 0,
+                    HairStyle = MailDto.SenderHairStyle ?? HairStyleType.HairStyleA,
+                    HairColor = MailDto.SenderHairColor ?? HairColorType.Black,
+                    Equipment = new InEquipmentSubPacket
+                    {
+                        Armor = MailDto.Armor,
+                        CostumeHat = MailDto.CostumeHat,
+                        CostumeSuit = MailDto.CostumeSuit,
+                        Fairy = MailDto.Fairy,
+                        Hat = MailDto.Hat,
+                        MainWeapon = MailDto.MainWeapon,
+                        Mask = MailDto.Mask,
+                        SecondaryWeapon = MailDto.SecondaryWeapon,
+                        WeaponSkin = MailDto.WeaponSkin,
+                        WingSkin = MailDto.WingSkin
+                    }
+                },
+                SenderName = SenderName,
+                Title = MailDto.Title,
+                Message = MailDto.Message,
             };
-            //return $"post 5 {type} {MailList.First(s => s.Value == mailDto).Key} 0 0 {(byte)mailDto.SenderClass} {(byte)mailDto.SenderGender} {mailDto.SenderMorphId} {(byte)mailDto.SenderHairStyle} {(byte)mailDto.SenderHairColor} {mailDto.EqPacket} {sender.Name} {mailDto.Title} {mailDto.Message}";
         }
 
         public IPacket GeneratePost(byte type)
         {
             switch (type)
             {
+                case 3:
                 case 0:
                     return new ParcelPacket
                     {
                         Type = 1,
-                        Unknown = 1,
+                        Unknown = type == 0 ? (byte)1 : (byte)2,
                         Id = (short)MailId,
                         ParcelAttachment = new ParcelAttachmentSubPacket
                         {
-                            TitleType = Title == "NOSMALL" ? (byte)1 : (byte)4,
+                            TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
                             Unknown2 = 0,
-                            Date = Date.ToString("yyMMddHHmm"),
-                            Title = Title,
+                            Date = MailDto.Date.ToString("yyMMddHHmm"),
+                            Title = MailDto.Title,
                             AttachmentVNum = ItemInstance.ItemVNum,
                             AttachmentAmount = ItemInstance.Amount,
                             ItemType = ItemType
@@ -70,12 +93,17 @@ namespace NosCore.Data.WebApi
                     };
                 case 1:
                 case 2:
-                    //return $"post 1 {type} {MailList.First(s => s.Value.MailId == mail.MailId).Key} 0 {(mail.IsOpened ? 1 : 0)} {mail.Date.ToString("yyMMddHHmm")} {(type == 2 ? DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.ReceiverId).Name : DAOFactory.CharacterDAO.FirstOrDefault(s => s.CharacterId == mail.SenderId).Name)} {mail.Title}";
                     return new PostPacket
                     {
                         Type = 1,
-                        Unknown = type,
+                        PostType = type,
                         Id = (short)MailId,
+                        Unknown = 0,
+                        IsOpened = MailDto.IsOpened,
+                        DateTime = MailDto.Date.ToString("yyMMddHHmm"),
+                        SenderName = type == 2 ? ReceiverName : SenderName,
+                        Title = MailDto.Title,
+                        Message = MailDto.Message,
                     };
                 default:
                     throw new ArgumentException();
