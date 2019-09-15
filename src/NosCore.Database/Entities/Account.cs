@@ -47,6 +47,12 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string Password { get; set; }
 
+        [MaxLength(255)]
+        public string NewAuthPassword { get; set; }
+
+        [MaxLength(255)]
+        public string NewAuthSalt { get; set; }
+
         public virtual ICollection<PenaltyLog> PenaltyLog { get; set; }
 
         [MaxLength(45)]
