@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Enumerations;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Configuration
@@ -25,5 +26,7 @@ namespace NosCore.Configuration
     {
         [Required]
         public string Password { get; set; }
+
+        public HashingType HashingType { get; set; }
     }
 }
