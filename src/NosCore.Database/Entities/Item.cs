@@ -35,7 +35,6 @@ namespace NosCore.Database.Entities
         {
             Drop = new HashSet<Drop>();
             Recipe = new HashSet<Recipe>();
-            Mail = new HashSet<Mail>();
             RollGeneratedItem = new HashSet<RollGeneratedItem>();
             RollGeneratedItem2 = new HashSet<RollGeneratedItem>();
             RecipeItem = new HashSet<RecipeItem>();
@@ -142,8 +141,6 @@ namespace NosCore.Database.Entities
         public short LightResistance { get; set; }
 
         public short MagicDefence { get; set; }
-
-        public virtual ICollection<Mail> Mail { get; set; }
 
         public virtual ICollection<RollGeneratedItem> RollGeneratedItem { get; set; }
 

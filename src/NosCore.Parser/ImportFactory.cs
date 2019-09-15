@@ -30,6 +30,7 @@ namespace NosCore.Parser
 {
     public class ImportFactory
     {
+        private string password = "test".ToSha512();
         private readonly List<string[]> _packetList = new List<string[]>();
         private string _folder;
 
@@ -78,7 +79,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
-                Password = "test".ToSha512()
+                Password = password
             };
 
             if (_accountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)
@@ -90,7 +91,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.User,
                 Name = "test",
-                Password = "test".ToSha512()
+                Password = password
             };
 
             if (_accountDao.FirstOrDefault(s => s.Name == acc1.Name) == null)

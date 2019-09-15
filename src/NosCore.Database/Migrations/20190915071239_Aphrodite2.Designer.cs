@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20190915071239_Aphrodite2")]
+    partial class Aphrodite2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -936,6 +938,8 @@ namespace NosCore.Database.Migrations
 
                     b.Property<Guid?>("ItemInstanceId");
 
+                    b.Property<short?>("ItemVNum");
+
                     b.Property<short?>("MainWeapon");
 
                     b.Property<short?>("Mask");
@@ -969,6 +973,8 @@ namespace NosCore.Database.Migrations
                     b.HasKey("MailId");
 
                     b.HasIndex("ItemInstanceId");
+
+                    b.HasIndex("ItemVNum");
 
                     b.HasIndex("ReceiverId");
 
@@ -2128,6 +2134,10 @@ namespace NosCore.Database.Migrations
                         .WithMany("Mail")
                         .HasForeignKey("ItemInstanceId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NosCore.Database.Entities.Item")
+                        .WithMany("Mail")
+                        .HasForeignKey("ItemVNum");
 
                     b.HasOne("NosCore.Database.Entities.Character", "Receiver")
                         .WithMany("Mail1")

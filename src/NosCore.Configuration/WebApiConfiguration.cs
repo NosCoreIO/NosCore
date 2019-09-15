@@ -28,5 +28,7 @@ namespace NosCore.Configuration
         public string Password { get; set; }
 
         public HashingType HashingType { get; set; }
+
+        public string Salt { get; set; }
     }
 }
