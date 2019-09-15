@@ -33,6 +33,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using NosCore.Data.Enumerations;
 using System.Text;
 
 namespace NosCore.Core.Controllers
@@ -58,7 +59,21 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
+            string password;
+            switch (_apiConfiguration.HashingType)
+            {
+                case HashingType.BCrypt:
+                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt);
+                    break;
+                case HashingType.Pbkdf2:
+                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt);
+                    break;
+                case HashingType.Sha512:
+                default:
+                    password = _apiConfiguration.Password.ToSha512();
+                    break;
+            }
+            var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -66,7 +81,7 @@ namespace NosCore.Core.Controllers
                 Subject = claims,
                 Issuer = "Issuer",
                 Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             return handler.WriteToken(securityToken);
         }

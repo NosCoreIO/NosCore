@@ -180,7 +180,21 @@ namespace NosCore.MasterServer
             });
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
-            var keyByteArray = Encoding.Default.GetBytes(_configuration.WebApi.Password.ToSha512());
+            string password;
+            switch (_configuration.WebApi.HashingType)
+            {
+                case HashingType.BCrypt:
+                    password = _configuration.WebApi.Password.ToBcrypt(_configuration.WebApi.Salt);
+                    break;
+                case HashingType.Pbkdf2:
+                    password = _configuration.WebApi.Password.ToPbkdf2Hash(_configuration.WebApi.Salt);
+                    break;
+                case HashingType.Sha512:
+                default:
+                    password = _configuration.WebApi.Password.ToSha512();
+                    break;
+            }
+            var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddHttpClient();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();

@@ -63,11 +63,29 @@ namespace NosCore.Core.Controllers
             }
 
             var account = _accountDao.FirstOrDefault(s => s.Name == session.Identity);
-            if (!(account?.Password.ToLower().Equals(session.Password.ToSha512()) ?? false))
+            switch (_apiConfiguration.HashingType)
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                case HashingType.BCrypt:
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToBcrypt(account.NewAuthSalt)) ?? false))
+                    {
+                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                    }
+                    break;
+                case HashingType.Pbkdf2:
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
+                    {
+                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                    }
+                    break;
+                case HashingType.Sha512:
+                default:
+                    if (!(account?.Password.ToLower().Equals(session.Password.ToSha512()) ?? false))
+                    {
+                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                    }
+                    break;
             }
-
+            
             account.Language = Enum.Parse<RegionType>(session.GfLang.ToUpper(CultureInfo.CurrentCulture));
             _accountDao.InsertOrUpdate(ref account);
             var platformGameAccountId = Guid.NewGuid();
@@ -77,7 +95,21 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString()),
             });
-            var keyByteArray = Encoding.Default.GetBytes(_apiConfiguration.Password.ToSha512());
+            string password;
+            switch (_apiConfiguration.HashingType)
+            {
+                case HashingType.BCrypt:
+                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt);
+                    break;
+                case HashingType.Pbkdf2:
+                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt);
+                    break;
+                case HashingType.Sha512:
+                default:
+                    password = _apiConfiguration.Password.ToSha512();
+                    break;
+            }
+            var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -85,7 +117,7 @@ namespace NosCore.Core.Controllers
                 Subject = claims,
                 Issuer = "Issuer",
                 Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS), session.Identity, platformGameAccountId, session.Locale);
             return Ok(new
@@ -115,9 +147,9 @@ namespace NosCore.Core.Controllers
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                if (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+                if (token != "thisisgfmode" && SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
                 {
-                    SessionFactory.Instance.ReadyForAuth.TryAdd(id, sessionId);
+                    SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
                     return Ok(true);
                 }
 
