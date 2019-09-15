@@ -153,21 +153,23 @@ namespace NosCore.MasterServer.Controllers
             var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
             var sender = _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
 
+            _mailDao.InsertOrUpdate(ref mailref);
+            var mailData = GenerateMailData(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
+            _parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
+            Notify(0, receiver, mailData);
+
             if (mailref.SenderId != null)
             {
                 mailref.IsSenderCopy = true;
+                mailref.MailId = 0;
+                itemInstance.Id = new System.Guid();
+                _itemInstanceDao.InsertOrUpdate(ref itemInstance);
+                mailref.ItemInstanceId = itemInstance.Id;
                 _mailDao.InsertOrUpdate(ref mailref);
                 var mailDataCopy = GenerateMailData(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
                 _parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy].TryAdd(mailDataCopy.MailId, mailDataCopy);
                 Notify(0, receiver, mailDataCopy);
             }
-
-            mailref.MailId = 0;
-            mailref.IsSenderCopy = false;
-            _mailDao.InsertOrUpdate(ref mailref);
-            var mailData = GenerateMailData(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
-            _parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
-            Notify(0, receiver, mailData);
 
             return true;
         }
