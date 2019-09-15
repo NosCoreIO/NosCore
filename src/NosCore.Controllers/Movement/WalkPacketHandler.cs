@@ -1,5 +1,4 @@
-﻿using System;
-using ChickenAPI.Packets.ClientPackets.Movement;
+﻿using ChickenAPI.Packets.ClientPackets.Movement;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
@@ -8,6 +7,7 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
+using System;
 
 namespace NosCore.PacketHandlers.Movement
 {

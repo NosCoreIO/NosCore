@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Miniland;
+﻿using ChickenAPI.Packets.ClientPackets.Miniland;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -9,6 +8,7 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Friend
 {

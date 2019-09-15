@@ -17,28 +17,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
 using Serilog;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.MiniMap;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public void Kick() => Kick(o => o != null);
         public void Kick(Func<ICharacterEntity, bool> filter)
         {
-            Broadcaster.Instance.GetCharacters(filter).Where(s=>!s.IsDisconnecting).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+            Broadcaster.Instance.GetCharacters(filter).Where(s => !s.IsDisconnecting).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }

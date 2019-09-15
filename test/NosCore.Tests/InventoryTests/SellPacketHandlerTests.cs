@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,6 +14,9 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

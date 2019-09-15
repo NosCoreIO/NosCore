@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Parser.Parsers;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace NosCore.Parser
 {
@@ -49,8 +49,8 @@ namespace NosCore.Parser
         private readonly ShopParser _shopParser;
         private readonly SkillParser _skillParser;
         private readonly IGenericDao<AccountDto> _accountDao;
-        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser, MapMonsterParser mapMonsterParser, 
-            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser, 
+        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser, MapMonsterParser mapMonsterParser,
+            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
             ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, IGenericDao<AccountDto> accountDao)
         {

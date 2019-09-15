@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using Serilog;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.GameObject.Providers.InventoryService;
+using Serilog;
+using System;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -71,10 +71,10 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;
-                requestData.ClientSession.Character.Morph = 
+                requestData.ClientSession.Character.Morph =
                     itemInstance.ItemInstance.Item.SecondMorph == 0 ?
-                    (short) ((short) requestData.ClientSession.Character.Gender + itemInstance.ItemInstance.Item.Morph) :
-                    requestData.ClientSession.Character.Gender == GenderType.Male 
+                    (short)((short)requestData.ClientSession.Character.Gender + itemInstance.ItemInstance.Item.Morph) :
+                    requestData.ClientSession.Character.Gender == GenderType.Male
                         ? itemInstance.ItemInstance.Item.Morph
                         : itemInstance.ItemInstance.Item.SecondMorph;
 

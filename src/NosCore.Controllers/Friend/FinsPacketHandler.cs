@@ -1,5 +1,4 @@
-﻿using System;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -12,6 +11,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using System;
 
 namespace NosCore.PacketHandlers.Friend
 {

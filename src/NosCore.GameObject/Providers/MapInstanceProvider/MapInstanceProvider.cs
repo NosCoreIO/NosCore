@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -33,6 +27,12 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance, List<IMapInstanceEventHandler> mapInstanceEventHandler)
         {
-           return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemProvider, _logger, mapInstanceEventHandler);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemProvider, _logger, mapInstanceEventHandler);
         }
     }
 }

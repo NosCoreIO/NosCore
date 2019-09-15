@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Movement;
+﻿using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -13,6 +10,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PathFinder;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Movement
             var portal = portals.Find(port =>
                 Heuristic.Octile(Math.Abs(session.Character.PositionX - port.SourceX),
                     Math.Abs(session.Character.PositionY - port.SourceY)) <= 2);
-            if (portal == null) 
+            if (portal == null)
             {
                 return;
             }

@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Inventory
         {
             _logger = logger;
         }
-     
+
         public override void Execute(MviPacket mviPacket, ClientSession clientSession)
         {
             // check if the character is allowed to move the item

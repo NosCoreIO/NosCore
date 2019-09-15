@@ -1,9 +1,9 @@
-﻿using NosCore.Data.Enumerations;
+﻿using FastMember;
+using NosCore.Data.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FastMember;
 
 namespace NosCore.Data.StaticEntities
 {

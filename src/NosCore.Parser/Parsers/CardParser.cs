@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.Parser.Parsers
 
@@ -65,7 +65,7 @@ namespace NosCore.Parser.Parsers
                 {
                     CardId = _card.CardId,
                     Type = byte.Parse(currentLine[2 + (i * 6)]),
-                    SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
+                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
@@ -90,12 +90,12 @@ namespace NosCore.Parser.Parsers
                 {
                     CardId = _card.CardId,
                     Type = byte.Parse(currentLine[2 + (i * 6)]),
-                    SubType = (byte) (((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
+                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
                     SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
                     ThirdData = int.Parse(currentLine[5 + (i * 6)]),
-                    IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
-                    IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2
+                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
+                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2
                 };
                 Bcards.Add(bcard);
             }
@@ -149,7 +149,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "STYLE")
                     {
-                        _card.BuffType = (BCardType.CardType) Convert.ToByte(currentLine[3]);
+                        _card.BuffType = (BCardType.CardType)Convert.ToByte(currentLine[3]);
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "TIME")
                     {

@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Inventory
         {
             _logger = logger;
         }
-     
+
         public override void Execute(MvePacket mvePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)

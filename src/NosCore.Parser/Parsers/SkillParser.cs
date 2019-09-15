@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.Parser.Parsers
 {
@@ -107,12 +107,12 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 3 && currentLine[1] == "COST")
                     {
-                        skill.CpCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
+                        skill.CpCost = currentLine[2] == "-1" ? (byte)0 : byte.Parse(currentLine[2]);
                         skill.Price = int.Parse(currentLine[3]);
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "LEVEL")
                     {
-                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte) 0;
+                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte)0;
                         if (skill.Class > 31)
                         {
                             var firstskill = skills.Find(s => s.Class == skill.Class);
@@ -231,10 +231,10 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte) 0;
-                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte) 0;
-                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte) 0;
-                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte) 0;
+                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte)0;
+                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte)0;
+                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte)0;
+                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte)0;
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "EFFECT")
                     {
@@ -261,7 +261,7 @@ namespace NosCore.Parser.Parsers
                     }
                     else if (currentLine.Length > 2 && currentLine[1] == "BASIC")
                     {
-                        var type = (byte) int.Parse(currentLine[3]);
+                        var type = (byte)int.Parse(currentLine[3]);
                         if (type == 0 || type == 255)
                         {
                             continue;
@@ -272,12 +272,12 @@ namespace NosCore.Parser.Parsers
                         {
                             SkillVNum = skill.SkillVNum,
                             Type = type,
-                            SubType = (byte) (((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                            IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
-                            IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2,
-                            FirstData = (short) (first > 0 ? first : -first / 4),
-                            SecondData = (short) (int.Parse(currentLine[6]) / 4),
-                            ThirdData = (short) (int.Parse(currentLine[7]) / 4)
+                            SubType = (byte)(((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
+                            IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
+                            IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
+                            FirstData = (short)(first > 0 ? first : -first / 4),
+                            SecondData = (short)(int.Parse(currentLine[6]) / 4),
+                            ThirdData = (short)(int.Parse(currentLine[7]) / 4)
                         };
                         skillCards.Add(itemCard);
                     }

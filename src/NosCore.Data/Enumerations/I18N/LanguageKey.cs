@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NosCore.Data.Enumerations.I18N
 {
@@ -289,6 +289,7 @@ namespace NosCore.Data.Enumerations.I18N
         ITEM_RECEIVED,
         USER_NOT_FOUND,
         MAIL_DELETED,
-        MAILED
+        MAILED,
+        NOT_IN_FRIENDLIST
     }
 }

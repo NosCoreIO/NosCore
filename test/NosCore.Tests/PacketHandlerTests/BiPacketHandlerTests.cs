@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,6 +10,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

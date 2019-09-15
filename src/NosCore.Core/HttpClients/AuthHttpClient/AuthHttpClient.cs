@@ -1,6 +1,6 @@
-﻿using System.Net.Http;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
+using System.Net.Http;
 
 namespace NosCore.Core.HttpClients.AuthHttpClient
 {

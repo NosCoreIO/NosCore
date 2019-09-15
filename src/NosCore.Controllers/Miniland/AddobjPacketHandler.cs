@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Inventory
                     s.Value.InventoryItemInstance.ItemInstance.Item.ItemSubType == minilandobject.ItemInstance.Item.ItemSubType).Value;
                 if (min != null)
                 {
-                    clientSession.HandlePackets(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance.Slot} });
+                    clientSession.HandlePackets(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance.Slot } });
                 }
             }
 

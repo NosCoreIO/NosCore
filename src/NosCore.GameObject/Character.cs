@@ -17,10 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.ClientPackets.Player;
+using ChickenAPI.Packets.ClientPackets.Shops;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Miniland;
+using ChickenAPI.Packets.ServerPackets.MiniMap;
+using ChickenAPI.Packets.ServerPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Quicklist;
+using ChickenAPI.Packets.ServerPackets.Shop;
+using ChickenAPI.Packets.ServerPackets.Specialists;
+using ChickenAPI.Packets.ServerPackets.UI;
+using ChickenAPI.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
@@ -28,6 +48,11 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -36,33 +61,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.Group;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
 using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Specialists;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Shop;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.ClientPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Visibility;
-using ChickenAPI.Packets.ServerPackets.MiniMap;
-using ChickenAPI.Packets.ServerPackets.Quicklist;
-using NosCore.GameObject.Providers.MinilandProvider;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject
 {

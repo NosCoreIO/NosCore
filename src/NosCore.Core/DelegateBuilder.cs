@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using FastExpressionCompiler;
+using NosCore.Core.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using FastExpressionCompiler;
-using NosCore.Core.Extensions;
 
 namespace NosCore.Core
 {

@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -30,6 +25,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.Parser.Parsers
 {
@@ -107,15 +107,15 @@ namespace NosCore.Parser.Parsers
                                 break;
 
                             default:
-                                item.Type = (NoscorePocketType) Enum.Parse(typeof(NoscorePocketType), currentLine[2]);
+                                item.Type = (NoscorePocketType)Enum.Parse(typeof(NoscorePocketType), currentLine[2]);
                                 break;
                         }
 
                         item.ItemType = currentLine[3] != "-1"
-                            ? (ItemType) Enum.Parse(typeof(ItemType), $"{(short) item.Type}{currentLine[3]}")
+                            ? (ItemType)Enum.Parse(typeof(ItemType), $"{(short)item.Type}{currentLine[3]}")
                             : ItemType.Weapon;
                         item.ItemSubType = Convert.ToByte(currentLine[4]);
-                        item.EquipmentSlot = (EquipmentType) Enum.Parse(typeof(EquipmentType),
+                        item.EquipmentSlot = (EquipmentType)Enum.Parse(typeof(EquipmentType),
                             currentLine[5] != "-1" ? currentLine[5] : "0");
                         switch (item.VNum)
                         {
@@ -397,7 +397,7 @@ namespace NosCore.Parser.Parsers
                     else if (currentLine.Length > 3 && currentLine[1] == "TYPE")
                     {
                         // currentLine[2] 0-range 2-range 3-magic
-                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte) 15
+                        item.Class = item.EquipmentSlot == EquipmentType.Fairy ? (byte)15
                             : Convert.ToByte(currentLine[3]);
                     }
                     else if (currentLine.Length > 1 && currentLine[1] == "FLAG")
@@ -464,8 +464,8 @@ namespace NosCore.Parser.Parsers
 
                         if (currentLine.Length > 18)
                         {
-                            item.Sex = currentLine[18] == "1" ? (byte) 1 :
-                                currentLine[17] == "1" ? (byte) 2 : (byte) 0;
+                            item.Sex = currentLine[18] == "1" ? (byte)1 :
+                                currentLine[17] == "1" ? (byte)2 : (byte)0;
                         }
 
                         //not used item.Flag6 = currentLine[19] == "1";
@@ -554,7 +554,7 @@ namespace NosCore.Parser.Parsers
                                         break;
 
                                     default:
-                                        item.Effect = (ItemEffectType) Convert.ToUInt16(currentLine[2]);
+                                        item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                         item.EffectValue = Convert.ToInt32(currentLine[3]);
                                         item.LevelMinimum = Convert.ToByte(currentLine[4]);
                                         break;
@@ -605,12 +605,12 @@ namespace NosCore.Parser.Parsers
                                             if (item.ElementRate == 0)
                                             {
                                                 item.MaxElementRate = (item.VNum >= 800 && item.VNum <= 804)
-                                                    ? (short) 50 : (short) 70;
+                                                    ? (short)50 : (short)70;
                                             }
                                             else if (item.ElementRate == 30)
                                             {
                                                 item.MaxElementRate = (item.VNum >= 884 && item.VNum <= 887)
-                                                    ? (short) 50 : (short) 30;
+                                                    ? (short)50 : (short)30;
                                             }
                                             else if (item.ElementRate == 35)
                                             {
@@ -913,7 +913,7 @@ namespace NosCore.Parser.Parsers
                                         }
                                         else
                                         {
-                                            item.Effect = (ItemEffectType) Convert.ToUInt16(currentLine[2]);
+                                            item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                         }
 
                                         break;
@@ -967,7 +967,7 @@ namespace NosCore.Parser.Parsers
                                 }
                                 else
                                 {
-                                    item.Effect = (ItemEffectType) Convert.ToUInt16(currentLine[2]);
+                                    item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 }
 
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
@@ -990,7 +990,7 @@ namespace NosCore.Parser.Parsers
                                 item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
                                 item.ReputationMinimum = Convert.ToByte(currentLine[21]);
 
-                                var elementdic = new Dictionary<ElementType, int> {{0, 0 } };
+                                var elementdic = new Dictionary<ElementType, int> { { 0, 0 } };
                                 if (item.FireResistance != 0)
                                 {
                                     elementdic.Add(ElementType.Fire, item.FireResistance);
@@ -1043,12 +1043,12 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Map:
                             case ItemType.Main:
                             case ItemType.Teacher:
-                                item.Effect = (ItemEffectType) Convert.ToUInt16(currentLine[2]);
+                                item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 item.EffectValue = Convert.ToInt32(currentLine[4]);
                                 break;
 
                             case ItemType.Upgrade:
-                                item.Effect = (ItemEffectType) Convert.ToUInt16(currentLine[2]);
+                                item.Effect = (ItemEffectType)Convert.ToUInt16(currentLine[2]);
                                 switch (item.VNum)
                                 {
                                     // UpgradeItems (needed to be hardcoded)
@@ -1128,7 +1128,7 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 0; i < 5; i++)
                         {
-                            var type = (byte) int.Parse(currentLine[2 + (5 * i)]);
+                            var type = (byte)int.Parse(currentLine[2 + (5 * i)]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
@@ -1139,12 +1139,12 @@ namespace NosCore.Parser.Parsers
                             {
                                 ItemVNum = item.VNum,
                                 Type = type,
-                                SubType = (byte) (((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
+                                SubType = (byte)(((int.Parse(currentLine[5 + (5 * i)]) + 1) * 10) + 1),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = (uint) (first > 0 ? first : -first) % 4 == 2,
-                                FirstData = (short) ((first > 0 ? first : -first) / 4),
-                                SecondData = (short) (int.Parse(currentLine[4 + (5 * i)]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[6 + (5 * i)]) / 4)
+                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
+                                FirstData = (short)((first > 0 ? first : -first) / 4),
+                                SecondData = (short)(int.Parse(currentLine[4 + (5 * i)]) / 4),
+                                ThirdData = (short)(int.Parse(currentLine[6 + (5 * i)]) / 4)
                             };
                             _itemCards.Add(itemCard);
                         }

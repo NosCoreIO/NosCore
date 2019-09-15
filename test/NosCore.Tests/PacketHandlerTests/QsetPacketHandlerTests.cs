@@ -40,7 +40,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.AreEqual(0, (int)lastpacket.Data.Data);
             Assert.AreEqual(3, (int)lastpacket.Data.OriginQuickList);
             Assert.AreEqual(4, (int)lastpacket.Data.OriginQuickListSlot);
-            Assert.AreEqual(1,_session.Character.QuicklistEntries.Count);
+            Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]

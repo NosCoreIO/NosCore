@@ -17,21 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.IO;
-using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.GameObject.Map;
 using OpenTK.Graphics;
 using Serilog;
-using NosCore.Data.StaticEntities;
-using NosCore.Database.DAL;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -75,7 +75,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (Map) _mapDao.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (Map)_mapDao.FirstOrDefault(m => m.MapId == askMapId);
 
                     if (map?.XLength > 0 && map.YLength > 0)
                     {

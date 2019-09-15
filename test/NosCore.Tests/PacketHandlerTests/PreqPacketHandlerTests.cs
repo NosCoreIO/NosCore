@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Movement;
+﻿using ChickenAPI.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Map;
@@ -8,6 +7,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Tests.Helpers;
+using System.Collections.Generic;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

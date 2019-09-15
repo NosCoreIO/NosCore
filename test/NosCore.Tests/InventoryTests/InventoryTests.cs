@@ -17,9 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -30,8 +29,9 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests
 {
@@ -56,7 +56,7 @@ namespace NosCore.Tests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
-            Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999}, _logger);
+            Inventory = new InventoryService(items, new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 }, _logger);
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@ namespace NosCore.Tests
         {
             var weapon = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1), 0)).First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
             Assert.IsTrue(item.Type == NoscorePocketType.Wear &&
                 Inventory.LoadBySlotAndType(0, NoscorePocketType.Equipment) == null);
         }
@@ -264,12 +264,12 @@ namespace NosCore.Tests
             var weapon = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(2), 0)).First();
             var weapon2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1), 0)).First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
             var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
 
             Assert.IsTrue(item.Type == NoscorePocketType.Equipment && item.Slot == 1 && item2.Type == NoscorePocketType.Wear &&
-                item2.Slot == (short) EquipmentType.MainWeapon);
+                item2.Slot == (short)EquipmentType.MainWeapon);
         }
     }
 }
