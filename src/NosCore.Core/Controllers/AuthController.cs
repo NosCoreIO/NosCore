@@ -66,13 +66,13 @@ namespace NosCore.Core.Controllers
             switch (_apiConfiguration.HashingType)
             {
                 case HashingType.BCrypt:
-                    if (!(account?.NewAuthPassword.ToLower().Equals(session.Password.ToBcrypt(account.NewAuthSalt)) ?? false))
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToBcrypt(account.NewAuthSalt)) ?? false))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
                     break;
                 case HashingType.Pbkdf2:
-                    if (!(account?.NewAuthPassword.ToLower().Equals(session.Password.ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
