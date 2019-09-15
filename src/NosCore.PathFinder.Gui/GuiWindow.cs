@@ -17,11 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using ChickenAPI.Packets.ClientPackets.Drops;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -32,14 +28,18 @@ using NosCore.Database.DAL;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Serilog;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NosCore.PathFinder.Gui
 {

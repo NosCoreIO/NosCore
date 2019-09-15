@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using ChickenAPI.Packets.ClientPackets.Specialists;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -29,12 +28,13 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using System;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-     
+
         public override void Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             SpecialistInstance specialistInstance =

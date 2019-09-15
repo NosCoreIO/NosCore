@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ChickenAPI.Packets;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
@@ -32,6 +28,10 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.Core.Encryption
 {
@@ -283,7 +283,7 @@ namespace NosCore.Core.Encryption
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), ex.Data["Packet"]);
                         return new UnresolvedPacket { KeepAliveId = ushort.Parse((ex.Data["Packet"].ToString().Split(" ")[0])), Header = "0" };
                     }
-                 
+
                 }));
             }
             if (temp.Count > 0)

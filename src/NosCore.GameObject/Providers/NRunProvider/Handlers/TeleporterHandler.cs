@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using System;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

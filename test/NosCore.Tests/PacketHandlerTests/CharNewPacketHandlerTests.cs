@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
@@ -15,6 +12,9 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests

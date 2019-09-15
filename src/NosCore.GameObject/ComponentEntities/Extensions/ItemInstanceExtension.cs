@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

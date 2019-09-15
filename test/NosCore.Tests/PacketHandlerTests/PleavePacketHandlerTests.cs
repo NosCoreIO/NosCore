@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
@@ -33,6 +31,8 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

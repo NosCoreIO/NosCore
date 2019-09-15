@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
-using NosCore.Core.HttpClients.ChannelHttpClient;
 using System.Threading.Tasks;
 
 namespace NosCore.Core.HttpClients
@@ -91,7 +91,7 @@ namespace NosCore.Core.HttpClients
         protected T Get<T>(object id)
         {
             var client = Connect();
-            var response = client.GetAsync($"{ApiUrl}{(id!=null? $"?id={id}" : "")}").Result;
+            var response = client.GetAsync($"{ApiUrl}{(id != null ? $"?id={id}" : "")}").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);

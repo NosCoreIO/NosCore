@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using ChickenAPI.Packets.Enumerations;
+﻿using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
@@ -12,6 +8,10 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 
 namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {

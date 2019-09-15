@@ -1,19 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.PacketHandlers.CharacterScreen;
-using System.Collections.Generic;
-using NosCore.Data;
-using NosCore.Tests.Helpers;
-using NosCore.GameObject.Networking;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using System.Linq;
-using ChickenAPI.Packets.ServerPackets.Auction;
+﻿using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using ChickenAPI.Packets.ServerPackets.Auction;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core;
+using NosCore.Data;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Tests.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.BazaarTests
 {

@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Enumerations;
 using System;
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data
 {

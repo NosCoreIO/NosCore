@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Mapster;
 using NosCore.Data.I18N;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using BCardType = NosCore.Data.Enumerations.Buff.BCardType;
 
 namespace NosCore.Data.StaticEntities
@@ -49,7 +49,7 @@ namespace NosCore.Data.StaticEntities
         public ICollection<BCardDto> BCards { get; set; }
 
         [I18NFrom(typeof(I18NCardDto))]
-         public I18NString Name { get; set; } = new I18NString();
+        public I18NString Name { get; set; } = new I18NString();
 
         [AdaptMember("Name")]
         public string NameI18NKey { get; set; }

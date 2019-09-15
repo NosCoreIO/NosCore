@@ -160,7 +160,7 @@ namespace NosCore.Tests.BazaarTests
                 VNum = 1012,
             }, _session);
             var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(lastpacket.Message == 
+            Assert.IsTrue(lastpacket.Message ==
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
                 70
                 ));

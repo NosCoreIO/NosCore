@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver =  _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
+            var receiver = _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

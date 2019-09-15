@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using System;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using ChickenAPI.Packets.Enumerations;
+using System;
 
 namespace NosCore.GameObject
 {

@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
@@ -32,6 +30,8 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
+using System;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
 
-        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider, 
+        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao, IGenericDao<QuicklistEntryDto> quickListEntriesDao)
         {
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _staticBonusDao = staticBonusDao;
             _quickListEntriesDao = quickListEntriesDao;
         }
-     
+
         public override void Execute(SelectPacket packet, ClientSession clientSession)
         {
             try
@@ -89,14 +89,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.Direction = 2;
                 character.Account = clientSession.Account;
                 character.Group.JoinGroup(character);
-        
+
                 var inventories = _inventoryItemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
                 inventories.ForEach(k => character.Inventory[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s=>s.Id == k.ItemInstanceId)), character.CharacterId, k));
+                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)), character.CharacterId, k));
                 clientSession.SetCharacter(character);
 
 #pragma warning disable CS0618

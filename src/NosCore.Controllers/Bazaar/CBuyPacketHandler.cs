@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         clientSession.Character.Gold -= price;
                         clientSession.SendPacket(clientSession.Character.GenerateGold());
 
-                        var itemInstance = _itemInstanceDao.FirstOrDefault(s=>s.Id == bz.ItemInstance.Id);
+                        var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
                         var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));

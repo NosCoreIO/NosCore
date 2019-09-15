@@ -17,26 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Entities;
+using ChickenAPI.Packets.ServerPackets.Groups;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Movement;
+using ChickenAPI.Packets.ServerPackets.Player;
+using ChickenAPI.Packets.ServerPackets.Shop;
 using NosCore.Core;
+using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Movement;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Shop;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Entities;
-using ChickenAPI.Packets.ServerPackets.Groups;
-using NosCore.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -105,8 +105,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
-                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
+                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
+                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -129,10 +129,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     short mapX = nonPlayableEntity.MapX;
                     short mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
                             Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
@@ -327,13 +327,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Type = 0,
                         Slot = item.Slot,
-                        Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
                         RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
                             : item.Amount,
                         UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
                             ? (item.ItemInstance.Item.IsColored
-                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?) null,
+                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
                         VNum = item.ItemInstance.Item.VNum
                     });
                 }

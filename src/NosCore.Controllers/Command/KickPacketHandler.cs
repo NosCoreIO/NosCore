@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(KickPacket kickPacket, ClientSession session)
         {
-            var receiver =  _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
+            var receiver = _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

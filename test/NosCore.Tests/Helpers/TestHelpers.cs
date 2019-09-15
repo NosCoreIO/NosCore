@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ChickenAPI.Packets.ClientPackets.Drops;
+﻿using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
@@ -45,6 +42,9 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Map = NosCore.GameObject.Map.Map;

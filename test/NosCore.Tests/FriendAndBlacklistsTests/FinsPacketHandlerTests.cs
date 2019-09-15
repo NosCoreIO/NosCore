@@ -1,28 +1,28 @@
-﻿using System;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.MasterServer.Controllers;
+using NosCore.MasterServer.DataHolders;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.MasterServer.DataHolders;
+using System;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -56,14 +56,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _targetSession.Character.CharacterId } }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
                 .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
-            _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,_connectedAccountHttpClient.Object);
+            _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object);
         }
 
         [TestMethod]
         public void Test_Add_Friend()
         {
             _friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>( _targetSession.Character.CharacterId, _session.Character.CharacterId));
+                new Tuple<long, long>(_targetSession.Character.CharacterId, _session.Character.CharacterId));
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId,

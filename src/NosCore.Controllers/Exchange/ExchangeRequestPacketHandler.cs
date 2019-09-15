@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Exchanges;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
@@ -32,6 +30,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using Serilog;
+using System;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Exchange
 {
@@ -124,9 +124,9 @@ namespace NosCore.PacketHandlers.Exchange
                     target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
+                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
+                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
                         Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });

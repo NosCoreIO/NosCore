@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Exchanges;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -30,10 +30,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.Inventory;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {
@@ -120,7 +120,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             }
 
             if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type) ||
-                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.Select(s=>s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type))
+                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
@@ -230,7 +230,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser,
             IInventoryService sessionInventory, IInventoryService targetInventory)
         {
-            var usersArray = new[] {firstUser, secondUser};
+            var usersArray = new[] { firstUser, secondUser };
             var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
 
             foreach (var user in usersArray)

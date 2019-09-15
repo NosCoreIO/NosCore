@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Reflection;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core.Extensions;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Linq;
+using System.Reflection;
 
 namespace NosCore.PacketHandlers.Command
 {

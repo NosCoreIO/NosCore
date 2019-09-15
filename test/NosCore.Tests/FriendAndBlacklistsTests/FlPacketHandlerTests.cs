@@ -1,5 +1,4 @@
-﻿using System;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -16,6 +15,7 @@ using NosCore.MasterServer.DataHolders;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

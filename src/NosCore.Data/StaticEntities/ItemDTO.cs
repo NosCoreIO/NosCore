@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
+using System.ComponentModel.DataAnnotations;
 using ItemEffectType = NosCore.Data.Enumerations.Items.ItemEffectType;
 using ItemType = NosCore.Data.Enumerations.Items.ItemType;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
@@ -146,7 +146,7 @@ namespace NosCore.Data
         public short MpRegeneration { get; set; }
 
         [I18NFrom(typeof(I18NItemDto))]
-         public I18NString Name { get; set; } = new I18NString();
+        public I18NString Name { get; set; } = new I18NString();
 
         [AdaptMember("Name")]
         public string NameI18NKey { get; set; }
