@@ -23,6 +23,7 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (account.Password.ToLower() == packet.Password.ToSha512())
+            if (account.Password.ToLower() == packet.Password.ToSha512() || account.Name == packet.Password)
             {
                 var character = _characterDao.FirstOrDefault(s =>
                     s.AccountId == account.AccountId && s.Slot == packet.Slot
@@ -68,7 +69,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                clientSession.HandlePackets(new[] { new SelectPacket() });
+                clientSession.HandlePackets(new[] { new EntryPointPacket {
+                     Header = "EntryPoint",
+                     Title = "EntryPoint",
+                     Name = account.Name,
+                } });
             }
             else
             {

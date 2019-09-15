@@ -9,6 +9,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -42,6 +43,40 @@ namespace NosCore.Tests.PacketHandlerTests
             _authHttpClient.Setup(s => s.IsAwaitingConnection(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).Returns((string a, string b, int c) => a == "AccountTest101"
                 && b == @"5c19456afb3cc19b8db378b6c7a439cc7a8e45e7c58c7f6929d1bb3295386b2a89d66ddef9014a89591db8c74384d1974c467c03cd6fd4fa0dc22af85a257a49" && c == 0);
+        }
+
+        [TestMethod]
+        public void LoginBCrypt()
+        {
+            _loginConfiguration.MasterCommunication.HashingType = HashingType.BCrypt;
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+                .Returns(new List<ConnectedAccount>());
+            _noS0577PacketHandler.Execute(new NoS0577Packet
+            {
+                AuthToken = "AA11AA11AA11".ToBcrypt("MY_SUPER_SECRET_HASH"),
+                Username = _session.Account.Name
+            }, _session);
+
+            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.OldClient);
+        }
+
+        [TestMethod]
+        public void LoginPbkdf2()
+        {
+            _loginConfiguration.MasterCommunication.HashingType = HashingType.Pbkdf2;
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+                .Returns(new List<ConnectedAccount>());
+            _noS0577PacketHandler.Execute(new NoS0577Packet
+            {
+                AuthToken = "AA11AA11AA11".ToPbkdf2Hash("MY_SUPER_SECRET_HASH"),
+                Username = _session.Account.Name
+            }, _session);
+
+            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.OldClient);
         }
 
         [TestMethod]
