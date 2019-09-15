@@ -44,5 +44,9 @@ namespace NosCore.Database.Entities
         public long Price { get; set; }
 
         public long SellerId { get; set; }
+
+        public string NewAuthPassword { get; set; }
+
+        public string NewAuthSalt { get; set; }
     }
 }

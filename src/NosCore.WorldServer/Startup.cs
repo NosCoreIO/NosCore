@@ -252,7 +252,7 @@ namespace NosCore.WorldServer
                 Subject = claims,
                 Issuer = "Issuer",
                 Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             containerBuilder.Register(c => new Channel
             {
@@ -359,6 +359,20 @@ namespace NosCore.WorldServer
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
+            string password;
+            switch(_worldConfiguration.MasterCommunication.HashingType)
+            {
+                case HashingType.BCrypt:
+                    password = _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration.MasterCommunication.Salt);
+                    break;
+                case HashingType.Pbkdf2:
+                    password = _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration.MasterCommunication.Salt);
+                    break;
+                case HashingType.Sha512:
+                default:
+                    password = _worldConfiguration.MasterCommunication.Password.ToSha512();
+                    break;
+            }
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
                 {
@@ -367,7 +381,7 @@ namespace NosCore.WorldServer
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512())),
+                            Encoding.Default.GetBytes(password)),
                         ValidAudience = "Audience",
                         ValidIssuer = "Issuer",
                         ValidateIssuerSigningKey = true,

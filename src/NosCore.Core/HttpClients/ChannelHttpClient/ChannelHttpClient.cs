@@ -15,6 +15,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using NosCore.Data.Enumerations;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -97,7 +98,21 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-                var keyByteArray = Encoding.Default.GetBytes(_channel.MasterCommunication.Password.ToSha512());
+                string password;
+                switch (_channel.MasterCommunication.HashingType)
+                {
+                    case HashingType.BCrypt:
+                        password = _channel.MasterCommunication.Password.ToBcrypt(_channel.MasterCommunication.Salt);
+                        break;
+                    case HashingType.Pbkdf2:
+                        password = _channel.MasterCommunication.Password.ToPbkdf2Hash(_channel.MasterCommunication.Salt);
+                        break;
+                    case HashingType.Sha512:
+                    default:
+                        password = _channel.MasterCommunication.Password.ToSha512();
+                        break;
+                }
+                var keyByteArray = Encoding.Default.GetBytes(password);
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
                 var claims = new ClaimsIdentity(new[]
@@ -110,7 +125,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                     Subject = claims,
                     Issuer = "Issuer",
                     Audience = "Audience",
-                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256)
+                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
                 });
                 _channel.Token = handler.WriteToken(securityToken);
                 var content = new StringContent(JsonConvert.SerializeObject(_channel),
