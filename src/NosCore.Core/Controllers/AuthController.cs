@@ -115,7 +115,7 @@ namespace NosCore.Core.Controllers
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                if (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+                if (token != "thisisgfmode" && SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
                 {
                     SessionFactory.Instance.ReadyForAuth.TryAdd(id, sessionId);
                     return Ok(true);
