@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using System.Collections.Generic;
 
 namespace NosCore.Parser.Parsers
 {

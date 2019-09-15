@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -10,6 +9,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -37,9 +37,9 @@ namespace NosCore.PacketHandlers.Friend
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 });
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                if ( targetCharacter != null)
+                if (targetCharacter != null)
                 {
-                    targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient,_channelHttpClient, _connectedAccountHttpClient));
+                    targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
                 }
 
                 session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Friend
             {
                 session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language)
                 });
             }

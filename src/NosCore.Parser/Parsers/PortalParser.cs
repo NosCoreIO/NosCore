@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Parser.Parsers
 {
@@ -146,7 +146,7 @@ namespace NosCore.Parser.Parsers
                     SourceX = short.Parse(currentPacket[1]),
                     SourceY = short.Parse(currentPacket[2]),
                     DestinationMapId = short.Parse(currentPacket[3]),
-                    Type = (PortalType) Enum.Parse(typeof(PortalType), currentPacket[4]),
+                    Type = (PortalType)Enum.Parse(typeof(PortalType), currentPacket[4]),
                     DestinationX = -1,
                     DestinationY = -1,
                     IsDisabled = false

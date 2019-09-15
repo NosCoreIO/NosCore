@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -29,6 +26,9 @@ using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -49,8 +49,8 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            var character =  _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
-            var targetCharacter =  _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+            var character = _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
+            var targetCharacter = _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
             if (character.Item2 != null && targetCharacter.Item2 != null)
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId).ToList();
@@ -89,7 +89,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected =  _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });

@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Mapster;
+using NosCore.Core;
+using NosCore.Data.Enumerations;
+using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,10 +28,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Mapster;
-using NosCore.Core;
-using NosCore.Data.Enumerations;
-using Serilog;
 
 namespace NosCore.Database.DAL
 {

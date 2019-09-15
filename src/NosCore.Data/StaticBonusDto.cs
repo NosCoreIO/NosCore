@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NosCore.Data.Enumerations.Buff;
+using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Buff;
 
 namespace NosCore.Data
 {

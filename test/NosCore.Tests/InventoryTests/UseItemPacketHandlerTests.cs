@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,6 +11,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -92,7 +92,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Test_CloseToLimit_SpAdditionPoints()
         {
             _session.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1078, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1078, 1), 0));
             var item = _session.Character.Inventory.First();
             _useItemPacketHandler.Execute(new UseItemPacket
             {

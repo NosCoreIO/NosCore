@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
@@ -29,6 +28,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
 using Serilog;
+using System;
 
 namespace NosCore.PacketHandlers.Inventory
 {

@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                clientSession.HandlePackets(new []{new SelectPacket()});
+                clientSession.HandlePackets(new[] { new SelectPacket() });
             }
             else
             {

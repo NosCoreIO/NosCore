@@ -27,7 +27,7 @@ namespace NosCore.Database.DAL
         public static Expression<Func<TTo, bool>> ReplaceParameter<TFrom, TTo>(
             this Expression<Func<TFrom, bool>> target)
         {
-            return (Expression<Func<TTo, bool>>) new WhereReplacerVisitor<TFrom, TTo>().Visit(target);
+            return (Expression<Func<TTo, bool>>)new WhereReplacerVisitor<TFrom, TTo>().Visit(target);
         }
 
         private class WhereReplacerVisitor<TFrom, TTo> : ExpressionVisitor

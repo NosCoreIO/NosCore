@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using ChickenAPI.Packets.ClientPackets.UI;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using ChickenAPI.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {

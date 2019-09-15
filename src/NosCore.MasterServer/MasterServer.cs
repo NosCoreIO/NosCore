@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Reactive.Linq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
+using System;
+using System.Linq;
+using System.Reactive.Linq;
 
 namespace NosCore.MasterServer
 {

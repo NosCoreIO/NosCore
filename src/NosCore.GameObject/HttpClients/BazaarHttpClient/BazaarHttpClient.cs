@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using ChickenAPI.Packets.Enumerations;
+﻿using ChickenAPI.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using NosCore.Core;
@@ -10,6 +6,10 @@ using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 
         public BazaarLink GetBazaarLink(long bazaarId)
         {
-           return Get<List<BazaarLink>>(bazaarId).FirstOrDefault();
+            return Get<List<BazaarLink>>(bazaarId).FirstOrDefault();
         }
 
         public bool Remove(long bazaarId, int count, string requestCharacterName)

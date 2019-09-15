@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -25,6 +24,7 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.Parser.Parsers
 {
@@ -44,11 +44,11 @@ namespace NosCore.Parser.Parsers
             var list = _dropDao.LoadAll().ToList();
             var mt1 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act1,
+                MapTypeId = (short)MapTypeType.Act1,
                 MapTypeName = "Act1",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt1.MapTypeId))
             {
@@ -57,11 +57,11 @@ namespace NosCore.Parser.Parsers
 
             var mt2 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act2,
+                MapTypeId = (short)MapTypeType.Act2,
                 MapTypeName = "Act2",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt2.MapTypeId))
             {
@@ -70,11 +70,11 @@ namespace NosCore.Parser.Parsers
 
             var mt3 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act3,
+                MapTypeId = (short)MapTypeType.Act3,
                 MapTypeName = "Act3",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt3.MapTypeId))
             {
@@ -83,7 +83,7 @@ namespace NosCore.Parser.Parsers
 
             var mt4 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act4,
+                MapTypeId = (short)MapTypeType.Act4,
                 MapTypeName = "Act4",
                 PotionDelay = 5000
             };
@@ -94,11 +94,11 @@ namespace NosCore.Parser.Parsers
 
             var mt5 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act51,
+                MapTypeId = (short)MapTypeType.Act51,
                 MapTypeName = "Act5.1",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct5,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct5
+                RespawnMapTypeId = (long)RespawnType.DefaultAct5,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct5
             };
             if (list.All(s => s.MapTypeId != mt5.MapTypeId))
             {
@@ -107,11 +107,11 @@ namespace NosCore.Parser.Parsers
 
             var mt6 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act52,
+                MapTypeId = (short)MapTypeType.Act52,
                 MapTypeName = "Act5.2",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct5,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct5
+                RespawnMapTypeId = (long)RespawnType.DefaultAct5,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct5
             };
             if (list.All(s => s.MapTypeId != mt6.MapTypeId))
             {
@@ -120,11 +120,11 @@ namespace NosCore.Parser.Parsers
 
             var mt7 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act61,
+                MapTypeId = (short)MapTypeType.Act61,
                 MapTypeName = "Act6.1",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct6,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt7.MapTypeId))
             {
@@ -133,11 +133,11 @@ namespace NosCore.Parser.Parsers
 
             var mt8 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act62,
+                MapTypeId = (short)MapTypeType.Act62,
                 MapTypeName = "Act6.2",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct6,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt8.MapTypeId))
             {
@@ -146,11 +146,11 @@ namespace NosCore.Parser.Parsers
 
             var mt9 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act61A,
+                MapTypeId = (short)MapTypeType.Act61A,
                 MapTypeName = "Act6.1a", // angel camp
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct6,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt9.MapTypeId))
             {
@@ -159,11 +159,11 @@ namespace NosCore.Parser.Parsers
 
             var mt10 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act61D,
+                MapTypeId = (short)MapTypeType.Act61D,
                 MapTypeName = "Act6.1d", // demon camp
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct6,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt10.MapTypeId))
             {
@@ -172,11 +172,11 @@ namespace NosCore.Parser.Parsers
 
             var mt11 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.CometPlain,
+                MapTypeId = (short)MapTypeType.CometPlain,
                 MapTypeName = "CometPlain",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt11.MapTypeId))
             {
@@ -185,11 +185,11 @@ namespace NosCore.Parser.Parsers
 
             var mt12 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Mine1,
+                MapTypeId = (short)MapTypeType.Mine1,
                 MapTypeName = "Mine1",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt12.MapTypeId))
             {
@@ -198,11 +198,11 @@ namespace NosCore.Parser.Parsers
 
             var mt13 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Mine2,
+                MapTypeId = (short)MapTypeType.Mine2,
                 MapTypeName = "Mine2",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt13.MapTypeId))
             {
@@ -211,11 +211,11 @@ namespace NosCore.Parser.Parsers
 
             var mt14 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.MeadowOfMine,
+                MapTypeId = (short)MapTypeType.MeadowOfMine,
                 MapTypeName = "MeadownOfPlain",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt14.MapTypeId))
             {
@@ -224,11 +224,11 @@ namespace NosCore.Parser.Parsers
 
             var mt15 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.SunnyPlain,
+                MapTypeId = (short)MapTypeType.SunnyPlain,
                 MapTypeName = "SunnyPlain",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt15.MapTypeId))
             {
@@ -237,11 +237,11 @@ namespace NosCore.Parser.Parsers
 
             var mt16 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Fernon,
+                MapTypeId = (short)MapTypeType.Fernon,
                 MapTypeName = "Fernon",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt16.MapTypeId))
             {
@@ -250,11 +250,11 @@ namespace NosCore.Parser.Parsers
 
             var mt17 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.FernonF,
+                MapTypeId = (short)MapTypeType.FernonF,
                 MapTypeName = "FernonF",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt17.MapTypeId))
             {
@@ -263,11 +263,11 @@ namespace NosCore.Parser.Parsers
 
             var mt18 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Cliff,
+                MapTypeId = (short)MapTypeType.Cliff,
                 MapTypeName = "Cliff",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                RespawnMapTypeId = (long)RespawnType.DefaultAct1,
+                ReturnMapTypeId = (long)RespawnType.ReturnAct1
             };
             if (list.All(s => s.MapTypeId != mt18.MapTypeId))
             {
@@ -276,7 +276,7 @@ namespace NosCore.Parser.Parsers
 
             var mt19 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.LandOfTheDead,
+                MapTypeId = (short)MapTypeType.LandOfTheDead,
                 MapTypeName = "LandOfTheDead",
                 PotionDelay = 300
             };
@@ -287,7 +287,7 @@ namespace NosCore.Parser.Parsers
 
             var mt20 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act32,
+                MapTypeId = (short)MapTypeType.Act32,
                 MapTypeName = "Act 3.2",
                 PotionDelay = 300
             };
@@ -298,7 +298,7 @@ namespace NosCore.Parser.Parsers
 
             var mt21 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.CleftOfDarkness,
+                MapTypeId = (short)MapTypeType.CleftOfDarkness,
                 MapTypeName = "Cleft of Darkness",
                 PotionDelay = 300
             };
@@ -309,7 +309,7 @@ namespace NosCore.Parser.Parsers
 
             var mt23 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.CitadelAngel,
+                MapTypeId = (short)MapTypeType.CitadelAngel,
                 MapTypeName = "AngelCitadel",
                 PotionDelay = 300
             };
@@ -320,7 +320,7 @@ namespace NosCore.Parser.Parsers
 
             var mt24 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.CitadelDemon,
+                MapTypeId = (short)MapTypeType.CitadelDemon,
                 MapTypeName = "DemonCitadel",
                 PotionDelay = 300
             };
@@ -331,11 +331,11 @@ namespace NosCore.Parser.Parsers
 
             var mt25 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Oasis,
+                MapTypeId = (short)MapTypeType.Oasis,
                 MapTypeName = "Oasis",
                 PotionDelay = 300,
-                RespawnMapTypeId = (long) RespawnType.DefaultOasis,
-                ReturnMapTypeId = (long) RespawnType.DefaultOasis
+                RespawnMapTypeId = (long)RespawnType.DefaultOasis,
+                ReturnMapTypeId = (long)RespawnType.DefaultOasis
             };
             if (list.All(s => s.MapTypeId != mt25.MapTypeId))
             {
@@ -344,7 +344,7 @@ namespace NosCore.Parser.Parsers
 
             var mt26 = new MapTypeDto
             {
-                MapTypeId = (short) MapTypeType.Act42,
+                MapTypeId = (short)MapTypeType.Act42,
                 MapTypeName = "Act42",
                 PotionDelay = 5000
             };

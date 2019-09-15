@@ -19,7 +19,7 @@ namespace NosCore.PacketHandlers.Group
 
             clientSession.Character.Group.Sessions.SendPacket(
                 clientSession.Character.GenerateSpk(new SpeakPacket
-                    { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
+                { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
         }
     }
 }

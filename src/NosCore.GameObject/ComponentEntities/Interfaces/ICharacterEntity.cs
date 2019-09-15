@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
+using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
+using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
-using NosCore.GameObject.Providers.InventoryService;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Visibility;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using NosCore.Data;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Providers.InventoryService;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

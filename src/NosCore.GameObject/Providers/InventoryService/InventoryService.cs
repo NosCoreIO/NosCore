@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using NosCore.Configuration;
 using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Providers.InventoryService
 {
@@ -327,8 +327,15 @@ namespace NosCore.GameObject.Providers.InventoryService
                         sourcePocket.ItemInstance.Amount -= amount;
                         itemDest.Amount = amount;
                         itemDest.Id = Guid.NewGuid();
-                        AddItemToPocket(new InventoryItemInstance { Id = Guid.NewGuid(), CharacterId = sourcePocket.CharacterId,
-                            Slot = sourcePocket.Slot, Type = sourcePocket.Type, ItemInstance = itemDest, ItemInstanceId = itemDest.Id }, sourcetype, destinationSlot);
+                        AddItemToPocket(new InventoryItemInstance
+                        {
+                            Id = Guid.NewGuid(),
+                            CharacterId = sourcePocket.CharacterId,
+                            Slot = sourcePocket.Slot,
+                            Type = sourcePocket.Type,
+                            ItemInstance = itemDest,
+                            ItemInstanceId = itemDest.Id
+                        }, sourcetype, destinationSlot);
                         break;
                     default:
                         if (destinationPocket.ItemInstance.ItemVNum == sourcePocket.ItemInstance.ItemVNum

@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -28,6 +25,9 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace NosCore.Core.Encryption
 {
@@ -52,7 +52,7 @@ namespace NosCore.Core.Encryption
                     SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = SessionFactory.Instance.GenerateSessionId();
                     _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), mapper.SessionId);
                 }
-               
+
                 foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes))
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)

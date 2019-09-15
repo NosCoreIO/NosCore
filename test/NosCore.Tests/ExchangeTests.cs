@@ -17,9 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -30,8 +29,9 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests
 {

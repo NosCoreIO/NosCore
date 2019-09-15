@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Login;
+﻿using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +14,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -37,14 +37,14 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _loginConfiguration = new LoginConfiguration();
-            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao, 
+            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
         }
 
         [TestMethod]
         public void LoginOldClient()
         {
-            _loginConfiguration.ClientVersion = new ClientVersionSubPacket {Major = 1};
+            _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
@@ -118,15 +118,15 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AlreadyConnected);
         }
-         
+
         [TestMethod]
         public void LoginNoServer()
         {
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo>());
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
-     
-                 _noS0575PacketHandler.Execute(new NoS0575Packet
+
+            _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = "test".ToSha512(),
                 Username = _session.Account.Name

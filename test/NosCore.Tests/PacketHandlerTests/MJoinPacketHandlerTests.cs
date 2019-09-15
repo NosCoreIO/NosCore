@@ -1,25 +1,25 @@
-﻿using System.Linq;
+﻿using ChickenAPI.Packets.ClientPackets.Miniland;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.Providers.MinilandProvider;
-using ChickenAPI.Packets.ClientPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Data.Enumerations.I18N;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

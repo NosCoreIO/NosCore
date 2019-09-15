@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Login;
+﻿using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using NosCore.Configuration;
@@ -14,6 +11,9 @@ using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -25,8 +25,8 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient, 
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient )
+        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient,
+            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 if (acc == null
                     || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
-                    || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username,passwordToken,clientSession.SessionId)))
+                    || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username, passwordToken, clientSession.SessionId)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             });
                             i++;
                         }
-                      
+
                         subpacket.Add(new NsTeStSubPacket
                         {
                             Host = "-1",
@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?) null
+                            Unknown = useApiAuth ? 2 : (int?)null
                         });
                         return;
                 }

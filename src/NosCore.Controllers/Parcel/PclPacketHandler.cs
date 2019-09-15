@@ -1,20 +1,19 @@
-﻿using System;
-using ChickenAPI.Packets.ClientPackets.Parcel;
+﻿using ChickenAPI.Packets.ClientPackets.Parcel;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.Core;
+using System;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Parcel
 {
