@@ -2,7 +2,7 @@
 {
     public enum BazaarMainType
     {
-        Main= 1,
+        Main = 1,
         Upgrade = 2,
         Production = 3,
         Special = 4,

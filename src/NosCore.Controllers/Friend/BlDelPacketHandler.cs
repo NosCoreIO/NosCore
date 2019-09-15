@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -7,13 +6,14 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-     
+
         public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient)
         {
             _blacklistHttpClient = blacklistHttpClient;

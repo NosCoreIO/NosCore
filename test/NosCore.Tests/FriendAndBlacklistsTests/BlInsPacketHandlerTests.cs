@@ -15,7 +15,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.FriendAndBlacklistsTests
 {
     [TestClass]
     public class BlInsPacketHandlerTests
@@ -33,9 +33,9 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(null, _session.Character.Name))
-             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+             .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-            .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = targetSession.Character.CharacterId } }));
+            .Returns((new ServerConfiguration(), new ConnectedAccount { ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId } }));
             var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object, _characterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklist(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest

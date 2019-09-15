@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
@@ -31,6 +30,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
+using System.Collections.Generic;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.Tests

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.Enumerations;
+﻿using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +10,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.MasterServer.DataHolders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.MasterServer.Controllers
 {

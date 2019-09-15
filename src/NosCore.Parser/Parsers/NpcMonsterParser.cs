@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.Parser.Parsers
 {
@@ -156,7 +156,7 @@ namespace NosCore.Parser.Parsers
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int) i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
                     continue;
                 }
 
@@ -546,7 +546,7 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 0; i < 4; i++)
                         {
-                            var type = (byte) int.Parse(currentLine[(5 * i) + 2]);
+                            var type = (byte)int.Parse(currentLine[(5 * i) + 2]);
                             if (type == 0 || type == 255)
                             {
                                 continue;
@@ -557,13 +557,13 @@ namespace NosCore.Parser.Parsers
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte) (int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
+                                SubType = (byte)(int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
                                     + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = (uint) (first > 0 ? first : -first) % 4 == 2,
-                                FirstData = (short) ((first > 0 ? first : -first) / 4),
-                                SecondData = (short) (int.Parse(currentLine[(5 * i) + 4]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[(5 * i) + 6]) / 4)
+                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
+                                FirstData = (short)((first > 0 ? first : -first) / 4),
+                                SecondData = (short)(int.Parse(currentLine[(5 * i) + 4]) / 4),
+                                ThirdData = (short)(int.Parse(currentLine[(5 * i) + 6]) / 4)
                             };
                             monstercards.Add(itemCard);
                         }
@@ -572,7 +572,7 @@ namespace NosCore.Parser.Parsers
                     {
                         for (var i = 0; i < 4; i++)
                         {
-                            var type = (byte) int.Parse(currentLine[(5 * i) + 2]);
+                            var type = (byte)int.Parse(currentLine[(5 * i) + 2]);
                             if (type == 0)
                             {
                                 continue;
@@ -584,10 +584,10 @@ namespace NosCore.Parser.Parsers
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
                                 SubType =
-                                    (byte) (((int.Parse(currentLine[(5 * i) + 6]) + 1) * 10) + 1 + (first > 0 ? 0 : 1)),
-                                FirstData = (short) ((first > 0 ? first : -first) / 4),
-                                SecondData = (short) (int.Parse(currentLine[(5 * i) + 4]) / 4),
-                                ThirdData = (short) (int.Parse(currentLine[(5 * i) + 3]) / 4),
+                                    (byte)(((int.Parse(currentLine[(5 * i) + 6]) + 1) * 10) + 1 + (first > 0 ? 0 : 1)),
+                                FirstData = (short)((first > 0 ? first : -first) / 4),
+                                SecondData = (short)(int.Parse(currentLine[(5 * i) + 4]) / 4),
+                                ThirdData = (short)(int.Parse(currentLine[(5 * i) + 3]) / 4),
                                 CastType = 1,
                                 IsLevelScaled = false,
                                 IsLevelDivided = false

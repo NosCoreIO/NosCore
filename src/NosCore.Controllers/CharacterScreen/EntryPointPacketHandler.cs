@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
@@ -41,6 +38,9 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_authHttpClient.IsAwaitingConnection(name,packet.Password,clientSession.SessionId) || 
+                    if (_authHttpClient.IsAwaitingConnection(name, packet.Password, clientSession.SessionId) ||
                         (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) && !_authHttpClient.IsAwaitingConnection(name, "", clientSession.SessionId)))
                     {
                         var accountobject = new AccountDto

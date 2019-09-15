@@ -1,4 +1,13 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.I18N;
+using Polly;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -8,15 +17,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.I18N;
-using Polly;
-using Serilog;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
@@ -160,7 +160,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 }
             }
 
-            return channels.FirstOrDefault(s=>s.Id == channelId);
+            return channels.FirstOrDefault(s => s.Id == channelId);
         }
     }
 }

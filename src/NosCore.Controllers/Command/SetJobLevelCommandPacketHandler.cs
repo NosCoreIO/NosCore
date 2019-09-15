@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var receiver =  _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name);
+            var receiver = _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

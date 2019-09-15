@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
+﻿using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -13,6 +11,8 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests

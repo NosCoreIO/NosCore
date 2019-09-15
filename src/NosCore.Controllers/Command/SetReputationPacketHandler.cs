@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = setReputationPacket.Reputation
             };
 
-            var receiver =  _connectedAccountHttpClient.GetCharacter(null, setReputationPacket.Name);
+            var receiver = _connectedAccountHttpClient.GetCharacter(null, setReputationPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

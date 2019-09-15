@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Data;
+using System;
+using System.Linq;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
+            if (requestData.ClientSession.Character.Class != (byte)CharacterClassType.Adventurer)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.ChangeClass((CharacterClassType) requestData.Data.Item2.Type);
+            requestData.ClientSession.Character.ChangeClass((CharacterClassType)requestData.Data.Item2.Type);
         }
     }
 }

@@ -1,24 +1,24 @@
 ﻿using ChickenAPI.Packets.ClientPackets.Bazaar;
+using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
 using System;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using NosCore.Data.WebApi;
-using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Data;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using System.Linq;
-using NosCore.Core;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -92,7 +92,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s=>s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
@@ -106,7 +106,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s=>s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
@@ -120,7 +120,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s=>s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
@@ -155,7 +155,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 2,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s=>s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
@@ -200,7 +200,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012,
             }, _session);
-            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s=>s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 

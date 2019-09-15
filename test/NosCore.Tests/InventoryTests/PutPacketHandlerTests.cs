@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,6 +10,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -40,7 +40,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_PutPartialSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -54,7 +54,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_PutNotDroppable()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -71,7 +71,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Put()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -86,7 +86,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session.Character.PositionX = 2;
             _session.Character.PositionY = 2;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -104,7 +104,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session.Character.PositionX = -1;
             _session.Character.PositionY = -1;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,

@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.AliveEntities;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 using System;
 using System.Linq.Expressions;
-using Microsoft.AspNetCore.JsonPatch;
-using NosCore.Data.WebApi;
-using NosCore.Data.Enumerations;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -32,7 +32,7 @@ namespace NosCore.Tests.BazaarTests
             _guid = Guid.NewGuid();
             _mockBzDao = new Mock<IGenericDao<BazaarItemDto>>();
             _mockItemDao = new Mock<IGenericDao<IItemInstanceDto>>();
-          
+
             var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
             var itemList = new System.Collections.Generic.List<ItemDto>();
             _bazaarItemsHolder = new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);

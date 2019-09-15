@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Chat;
+﻿using ChickenAPI.Packets.ClientPackets.Chat;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -14,6 +13,7 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Chat
 {
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver =  _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
+            var receiver = _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

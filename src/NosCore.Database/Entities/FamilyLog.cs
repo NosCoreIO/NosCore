@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Enumerations.Family;
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Family;
 
 namespace NosCore.Database.Entities
 {

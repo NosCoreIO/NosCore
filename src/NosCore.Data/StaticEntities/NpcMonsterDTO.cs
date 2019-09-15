@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Mapster;
 using NosCore.Data.AliveEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.I18N;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 using MonsterType = NosCore.Data.Enumerations.Map.MonsterType;
 
@@ -102,7 +102,7 @@ namespace NosCore.Data.StaticEntities
         public MonsterType MonsterType { get; set; }
 
         [I18NFrom(typeof(I18NNpcMonsterDto))]
-         public I18NString Name { get; set; } = new I18NString();
+        public I18NString Name { get; set; } = new I18NString();
 
         [AdaptMember("Name")]
         public string NameI18NKey { get; set; }

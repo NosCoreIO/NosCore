@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Chats;
@@ -19,6 +16,9 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -108,7 +108,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionY = 7;
             _mShopPacketHandler.Execute(_shopPacket, _session);
             var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            
+
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
@@ -124,7 +124,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
             var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1),0));
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
             _mShopPacketHandler.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);

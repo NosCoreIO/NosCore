@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Text.RegularExpressions;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -29,6 +27,8 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using System;
+using System.Text.RegularExpressions;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = "Spring^Melody"
                     };
                     _minilandDao.InsertOrUpdate(ref miniland);
-                    clientSession.HandlePackets(new[] { new SelectPacket {Slot = chara.Slot } });
+                    clientSession.HandlePackets(new[] { new SelectPacket { Slot = chara.Slot } });
                 }
                 else
                 {

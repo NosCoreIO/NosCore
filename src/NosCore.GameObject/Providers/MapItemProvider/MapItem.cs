@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Reactive.Subjects;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Entities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ServerPackets.Entities;
+using System;
+using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {
@@ -77,7 +77,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         {
             return new DropPacket
             {
-                VNum = VNum, VisualId = VisualId, PositionX = PositionX, PositionY = PositionY, Amount = Amount,
+                VNum = VNum,
+                VisualId = VisualId,
+                PositionX = PositionX,
+                PositionY = PositionY,
+                Amount = Amount,
                 OwnerId = OwnerId
             };
         }

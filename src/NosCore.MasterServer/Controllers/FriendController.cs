@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -32,6 +29,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.MasterServer.DataHolders;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -58,8 +58,8 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            var character =  _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
-            var targetCharacter =  _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            var character = _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
+            var targetCharacter = _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
               s.Value.Item2 == character.Item2.ConnectedCharacter.Id && s.Value.Item1 == targetCharacter.Item2.ConnectedCharacter.Id).ToList();
             if (character.Item2 != null && targetCharacter.Item2 != null)
@@ -93,7 +93,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
-          
+
                 if (!friendRequest.Any())
                 {
                     _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] = new Tuple<long, long>(character.Item2.ConnectedCharacter.Id, targetCharacter.Item2.ConnectedCharacter.Id);
@@ -149,7 +149,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected =  _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId,
                 });

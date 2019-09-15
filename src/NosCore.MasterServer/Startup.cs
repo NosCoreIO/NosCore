@@ -17,15 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AutofacSerilogIntegration;
 using FastExpressionCompiler;
+using FastMember;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,35 +29,39 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
-using NosCore.Core.Encryption;
-using Swashbuckle.AspNetCore.Swagger;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using AutofacSerilogIntegration;
-using FastMember;
-using NosCore.Core.Controllers;
-using NosCore.Core.I18N;
 using NosCore.Core;
-using NosCore.Database.DAL;
-using NosCore.Database;
-using NosCore.Data;
-using NosCore.MasterServer.Controllers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Http;
+using NosCore.Core.Controllers;
+using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
-using NosCore.MasterServer.DataHolders;
-using NosCore.Data.StaticEntities;
 using NosCore.Data.I18N;
+using NosCore.Data.StaticEntities;
+using NosCore.Database;
+using NosCore.Database.DAL;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.MasterServer.Controllers;
+using NosCore.MasterServer.DataHolders;
+using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NosCore.MasterServer
 {

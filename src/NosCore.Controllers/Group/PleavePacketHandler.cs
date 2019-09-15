@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Groups;
+﻿using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -12,6 +10,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Group
 {
