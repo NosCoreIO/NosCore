@@ -810,4 +810,10 @@
   <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
     <value>Tu ne peux pas ajuster le prix car tu as déjà vendu certains objets. Replace tes objets pour ajuster le prix.</value>
   </data>
+  <data name="CANT_USE" xml:space="preserve">
+    <value>Impossible de l'utiliser ici.</value>
+  </data>
+  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
+    <value>Lorsque tu es sur une monture, tu ne peux utiliser que des potions HP et MP.</value>
+  </data>
 </root>

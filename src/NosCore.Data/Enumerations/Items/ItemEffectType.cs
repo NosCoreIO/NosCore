@@ -22,6 +22,7 @@ namespace NosCore.Data.Enumerations.Items
     public enum ItemEffectType : ushort
     {
         NoEffect = 0,
+        Teleport = 1,
         ApplyHairDie = 10,
         MarriageProposal = 34,
         Undefined = 69,
