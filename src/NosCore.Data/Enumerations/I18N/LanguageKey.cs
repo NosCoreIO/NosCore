@@ -291,6 +291,8 @@ namespace NosCore.Data.Enumerations.I18N
         USER_NOT_FOUND,
         MAIL_DELETED,
         MAILED,
+        CANT_USE,
+        CANT_USE_IN_VEHICLE,
         NOT_IN_FRIENDLIST
     }
 }
