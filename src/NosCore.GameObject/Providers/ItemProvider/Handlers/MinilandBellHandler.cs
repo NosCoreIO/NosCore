@@ -14,7 +14,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 
-
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class MinilandBellHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
@@ -61,14 +60,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 });
                 return;
             }
-            else
-            {
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-                requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-                var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-                requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5,8);
-            }
+            requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            requestData.ClientSession.SendPacket(
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
+            requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5,8);
         }
     }
 }
