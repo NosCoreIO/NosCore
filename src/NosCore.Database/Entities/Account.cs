@@ -32,6 +32,7 @@ namespace NosCore.Database.Entities
             PenaltyLog = new HashSet<PenaltyLog>();
         }
 
+        [Key]
         public long AccountId { get; set; }
 
         public AuthorityType Authority { get; set; }

@@ -37,6 +37,7 @@ namespace NosCore.Database.Entities
         [MaxLength(int.MaxValue)]
         public string Script { get; set; }
 
+        [Key]
         public short ScriptedInstanceId { get; set; }
 
         public ScriptedInstanceType Type { get; set; }

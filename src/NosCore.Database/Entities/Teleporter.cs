@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.Database.Entities
@@ -39,6 +40,7 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
+        [Key]
         public short TeleporterId { get; set; }
     }
 }

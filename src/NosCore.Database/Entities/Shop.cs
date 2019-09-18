@@ -39,6 +39,7 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string Name { get; set; }
 
+        [Key]
         public int ShopId { get; set; }
 
         public virtual ICollection<ShopItem> ShopItem { get; set; }
