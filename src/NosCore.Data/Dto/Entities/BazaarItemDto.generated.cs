@@ -49,9 +49,5 @@ namespace NosCore.Data.Dto
 
 	 	public long SellerId { get; set; }
 
-	 	public string NewAuthPassword { get; set; }
-
-	 	public string NewAuthSalt { get; set; }
-
 	 }
 }

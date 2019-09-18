@@ -30,12 +30,12 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class MapTypeMapDto : IStaticDto
 	{
+		[Key]
 		public short MapTypeMapId { get; set; }
 
 	 	public short MapId { get; set; }
 
-	 	[Key]
-		public short MapTypeId { get; set; }
+	 	public short MapTypeId { get; set; }
 
 	 }
 }
