@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <LangVersion>latest</LangVersion>
+    <UseNETCoreGenerator>true</UseNETCoreGenerator>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,6 +41,18 @@
       <LastGenOutput>LocalizedResources.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\EntitiesGenerated\" />
+    <Folder Include="Dto\I18NGenerated\" />
+    <Folder Include="Dto\StaticEntitiesGenerated\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dto\GenerateDtos.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
   </ItemGroup>
 
 </Project>
