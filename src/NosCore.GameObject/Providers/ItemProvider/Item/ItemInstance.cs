@@ -18,11 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using NosCore.Data;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using System;
 using System.Reactive.Subjects;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {

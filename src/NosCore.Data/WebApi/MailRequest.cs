@@ -1,4 +1,6 @@
-﻿namespace NosCore.Data.WebApi
+﻿using NosCore.Data.Dto;
+
+namespace NosCore.Data.WebApi
 {
     public class MailRequest
     {

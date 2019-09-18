@@ -19,7 +19,7 @@
 
 using ChickenAPI.Packets.ServerPackets.Map;
 using ChickenAPI.Packets.ServerPackets.Miniland;
-using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider

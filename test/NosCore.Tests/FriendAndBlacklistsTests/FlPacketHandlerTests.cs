@@ -5,7 +5,6 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;
@@ -16,6 +15,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using System;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

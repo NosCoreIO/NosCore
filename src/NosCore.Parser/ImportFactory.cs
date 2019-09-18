@@ -19,12 +19,12 @@
 
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Data;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NosCore.Data.Dto;
 
 namespace NosCore.Parser
 {

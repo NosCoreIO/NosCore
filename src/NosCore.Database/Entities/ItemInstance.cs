@@ -59,5 +59,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<InventoryItemInstance> InventoryItemInstance { get; set; }
 
         public byte Upgrade { get; set; }
+
+        public short Rare { get; set; }
     }
 }

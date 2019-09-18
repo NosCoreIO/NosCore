@@ -7,7 +7,6 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
@@ -20,6 +19,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

@@ -22,7 +22,6 @@ using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -32,6 +31,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 using System;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

@@ -21,12 +21,12 @@ using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Core;
-using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.StaticEntities;
 using static ChickenAPI.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.CharacterScreen

@@ -27,8 +27,6 @@ using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
@@ -41,6 +39,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.PacketHandlers.CharacterScreen

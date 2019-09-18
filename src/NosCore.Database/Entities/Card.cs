@@ -20,11 +20,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 using static NosCore.Data.Enumerations.Buff.BCardType;
 
 namespace NosCore.Database.Entities
 {
-    public class Card
+    public class Card : IStaticEntity
     {
         public Card()
         {
