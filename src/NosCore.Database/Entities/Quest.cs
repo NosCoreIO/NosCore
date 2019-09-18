@@ -27,6 +27,7 @@ namespace NosCore.Database.Entities
     {
         public Quest()
         {
+            QuestObjective = new HashSet<QuestObjective>();
             CharacterQuest = new HashSet<CharacterQuest>();
         }
 
@@ -36,7 +37,7 @@ namespace NosCore.Database.Entities
 
         public int QuestType { get; set; }
 
-        public HashSet<CharacterQuest> CharacterQuest { get; set; }
+        public virtual HashSet<CharacterQuest> CharacterQuest { get; set; }
 
         public byte LevelMin { get; set; }
 
@@ -46,7 +47,7 @@ namespace NosCore.Database.Entities
 
         public int? EndDialogId { get; set; }
 
-        public HashSet<QuestObjective> QuestObjective { get; set; }
+        public virtual HashSet<QuestObjective> QuestObjective { get; set; }
 
         public short? TargetMap { get; set; }
 

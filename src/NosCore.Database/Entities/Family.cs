@@ -37,6 +37,7 @@ namespace NosCore.Database.Entities
 
         public GenderType FamilyHeadGender { get; set; }
 
+        [Key]
         public long FamilyId { get; set; }
 
         public byte FamilyLevel { get; set; }
