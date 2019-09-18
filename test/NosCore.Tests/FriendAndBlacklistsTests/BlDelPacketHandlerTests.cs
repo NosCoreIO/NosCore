@@ -6,8 +6,6 @@ using Moq;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -21,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {

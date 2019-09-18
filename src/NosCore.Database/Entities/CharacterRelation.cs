@@ -19,6 +19,7 @@
 
 using ChickenAPI.Packets.Enumerations;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
@@ -30,6 +31,7 @@ namespace NosCore.Database.Entities
 
         public long CharacterId { get; set; }
 
+        [Key]
         public Guid CharacterRelationId { get; set; }
 
         public long RelatedCharacterId { get; set; }

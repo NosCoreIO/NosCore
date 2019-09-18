@@ -5,7 +5,7 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject.Networking;

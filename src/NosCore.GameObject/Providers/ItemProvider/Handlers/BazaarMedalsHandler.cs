@@ -21,7 +21,6 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -31,6 +30,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using Serilog;
 using System;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (!requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver))
             {
                 var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto()
+                requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
                 {
                     CharacterId = requestData.ClientSession.Character.CharacterId,
                     DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance.Item.EffectValue),

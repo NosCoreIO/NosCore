@@ -33,6 +33,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 using System.Collections.Generic;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.PacketHandlers.Command
 {

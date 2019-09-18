@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -11,6 +10,8 @@ using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 using System;
 using System.Linq.Expressions;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.Tests.BazaarTests
 {

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
@@ -41,6 +42,7 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
+        [Key]
         public Guid MinilandObjectId { get; set; }
     }
 }

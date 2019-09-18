@@ -26,8 +26,12 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short>("Authority");
 
+                    b.Property<long>("BankMoney");
+
                     b.Property<string>("Email")
                         .HasMaxLength(255);
+
+                    b.Property<long>("ItemShopMoney");
 
                     b.Property<int>("Language");
 
@@ -747,7 +751,7 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short>("DistanceDefenceDodge");
 
-                    b.Property<short>("Effect");
+                    b.Property<int>("Effect");
 
                     b.Property<int>("EffectValue");
 
@@ -899,6 +903,8 @@ namespace NosCore.Database.Migrations
                     b.Property<DateTime?>("ItemDeleteTime");
 
                     b.Property<short>("ItemVNum");
+
+                    b.Property<short>("Rare");
 
                     b.Property<byte>("Upgrade");
 
@@ -1914,33 +1920,33 @@ namespace NosCore.Database.Migrations
                 {
                     b.HasBaseType("NosCore.Database.Entities.WearableInstance");
 
-                    b.Property<short?>("SlDamage");
+                    b.Property<short>("SlDamage");
 
-                    b.Property<short?>("SlDefence");
+                    b.Property<short>("SlDefence");
 
-                    b.Property<short?>("SlElement");
+                    b.Property<short>("SlElement");
 
-                    b.Property<short?>("SlHp");
+                    b.Property<short>("SlHp");
 
-                    b.Property<byte?>("SpDamage");
+                    b.Property<byte>("SpDamage");
 
-                    b.Property<byte?>("SpDark");
+                    b.Property<byte>("SpDark");
 
-                    b.Property<byte?>("SpDefence");
+                    b.Property<byte>("SpDefence");
 
-                    b.Property<byte?>("SpElement");
+                    b.Property<byte>("SpElement");
 
-                    b.Property<byte?>("SpFire");
+                    b.Property<byte>("SpFire");
 
-                    b.Property<byte?>("SpHp");
+                    b.Property<byte>("SpHp");
 
-                    b.Property<byte?>("SpLevel");
+                    b.Property<byte>("SpLevel");
 
-                    b.Property<byte?>("SpLight");
+                    b.Property<byte>("SpLight");
 
-                    b.Property<byte?>("SpStoneUpgrade");
+                    b.Property<byte>("SpStoneUpgrade");
 
-                    b.Property<byte?>("SpWater");
+                    b.Property<byte>("SpWater");
 
                     b.HasDiscriminator().HasValue("SpecialistInstance");
                 });

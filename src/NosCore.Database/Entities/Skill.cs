@@ -20,10 +20,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Skill
+    public class Skill : IStaticEntity
     {
         public short AttackAnimation { get; set; }
 
@@ -70,6 +71,7 @@ namespace NosCore.Database.Entities
         public short MpCost { get; set; }
 
         [MaxLength(255)]
+        [I18NString(typeof(I18NSkill))]
         public string Name { get; set; }
 
         public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; } = new HashSet<NpcMonsterSkill>();

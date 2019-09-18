@@ -146,7 +146,8 @@ namespace NosCore.Data.Enumerations.I18N
         BAZAAR_BUY_ERROR,
         BAZAAR_MOD_ERROR,
         DIRECT_ACCESS_OBJECT_DETECTED,
-        TRY_OLD_AUTH
+        TRY_OLD_AUTH,
+        SHOPSKILLS_LOADED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
