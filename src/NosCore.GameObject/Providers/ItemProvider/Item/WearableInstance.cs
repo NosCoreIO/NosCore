@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
         public WearableInstance(Item item)
         {
+            Id = Guid.NewGuid();
             Item = item;
             ItemVNum = item.VNum;
         }
