@@ -21,10 +21,13 @@ using NosCore.Data.Enumerations.Map;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
+    [StaticMetaData(LoadedMessage = LogLanguageKey.NPCMONSTERS_LOADED)]
     public class NpcMonster : IStaticEntity
     {
         public NpcMonster()
@@ -109,6 +112,7 @@ namespace NosCore.Database.Entities
         public MonsterType MonsterType { get; set; }
 
         [MaxLength(255)]
+        [I18NString(typeof(I18NNpcMonster))]
         public string Name { get; set; }
 
         public bool NoAggresiveIcon { get; set; }
