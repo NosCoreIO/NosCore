@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
@@ -38,6 +39,7 @@ namespace NosCore.Database.Entities
 
         public int MapNpcId { get; set; }
 
+        [Key]
         public short RecipeId { get; set; }
 
         public virtual ICollection<RecipeItem> RecipeItem { get; set; }

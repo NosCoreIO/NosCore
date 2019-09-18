@@ -65,6 +65,7 @@ namespace NosCore.Database.Entities
 
         public bool BuffBlocked { get; set; }
 
+        [Key]
         public long CharacterId { get; set; }
 
         public virtual ICollection<CharacterRelation> CharacterRelation1 { get; set; }

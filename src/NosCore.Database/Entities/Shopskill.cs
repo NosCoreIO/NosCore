@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Database.Entities
 {
     public class ShopSkill
@@ -25,6 +27,7 @@ namespace NosCore.Database.Entities
 
         public int ShopId { get; set; }
 
+        [Key]
         public int ShopSkillId { get; set; }
 
         public virtual Skill Skill { get; set; }

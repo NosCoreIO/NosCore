@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace NosCore.Database.Entities
 {
     public class MapTypeMap
@@ -29,6 +31,7 @@ namespace NosCore.Database.Entities
 
         public virtual MapType MapType { get; set; }
 
+        [Key]
         public short MapTypeId { get; set; }
     }
 }
