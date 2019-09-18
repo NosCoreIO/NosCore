@@ -21,10 +21,11 @@ using NosCore.Data.Enumerations.Map;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class NpcMonster
+    public class NpcMonster : IStaticEntity
     {
         public NpcMonster()
         {

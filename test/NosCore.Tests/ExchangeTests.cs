@@ -32,6 +32,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.Tests
 {

@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -27,6 +26,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject
 {

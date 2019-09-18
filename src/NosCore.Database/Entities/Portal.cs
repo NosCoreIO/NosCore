@@ -19,10 +19,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Portal
+    public class Portal : IStaticEntity
     {
         public short DestinationMapId { get; set; }
 

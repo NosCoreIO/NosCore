@@ -63,5 +63,9 @@ namespace NosCore.Database.Entities
         public string VerificationToken { get; set; }
 
         public RegionType Language { get; set; }
+
+        public long BankMoney { get; set; }
+
+        public long ItemShopMoney { get; set; }
     }
 }

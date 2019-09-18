@@ -20,7 +20,6 @@
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -34,6 +33,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject
 {

@@ -19,10 +19,11 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Shop
+    public class Shop : IStaticEntity
     {
         public Shop()
         {

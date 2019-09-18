@@ -21,6 +21,8 @@ using NosCore.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.Tests.BazaarTests
 {

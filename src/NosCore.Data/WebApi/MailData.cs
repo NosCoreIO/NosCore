@@ -22,6 +22,7 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using System;
+using NosCore.Data.Dto;
 
 namespace NosCore.Data.WebApi
 {

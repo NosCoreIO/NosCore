@@ -28,6 +28,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Providers.ItemProvider
 {
