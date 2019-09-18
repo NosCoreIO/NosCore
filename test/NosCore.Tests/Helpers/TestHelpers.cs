@@ -246,7 +246,9 @@ namespace NosCore.Tests.Helpers
                 Slot = 1,
                 AccountId = acc.AccountId,
                 MapId = 1,
-                State = CharacterState.Active
+                State = CharacterState.Active,
+                Level = 1,
+                JobLevel = 1
             };
             var charaDto = chara.Adapt<CharacterDto>();
             CharacterDao.InsertOrUpdate(ref charaDto);

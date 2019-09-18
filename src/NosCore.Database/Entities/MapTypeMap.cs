@@ -24,6 +24,7 @@ namespace NosCore.Database.Entities
 {
     public class MapTypeMap : IStaticEntity
     {
+        [Key]
         public short MapTypeMapId { get; set; }
 
         public virtual Map Map { get; set; }
@@ -32,7 +33,6 @@ namespace NosCore.Database.Entities
 
         public virtual MapType MapType { get; set; }
 
-        [Key]
         public short MapTypeId { get; set; }
     }
 }

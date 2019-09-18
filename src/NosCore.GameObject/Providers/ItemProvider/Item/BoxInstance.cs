@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
     {
         public BoxInstance(Item item)
         {
+            Id = Guid.NewGuid();
             Item = item;
             ItemVNum = item.VNum;
         }
