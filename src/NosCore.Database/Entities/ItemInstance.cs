@@ -40,7 +40,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Mail> Mail { get; set; }
 
         [ForeignKey(nameof(BoundCharacterId))]
-        public Character BoundCharacter { get; set; }
+        public virtual Character BoundCharacter { get; set; }
 
         public long? BoundCharacterId { get; set; }
 
@@ -59,5 +59,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<InventoryItemInstance> InventoryItemInstance { get; set; }
 
         public byte Upgrade { get; set; }
+
+        public short Rare { get; set; }
     }
 }

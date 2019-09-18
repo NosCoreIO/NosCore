@@ -17,9 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
+
 namespace NosCore.Database.Entities
 {
-    public class ShopItem
+    [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPITEMS_LOADED)]
+    public class ShopItem : IStaticEntity
     {
         public byte Color { get; set; }
 
@@ -33,6 +39,7 @@ namespace NosCore.Database.Entities
 
         public int ShopId { get; set; }
 
+        [Key]
         public int ShopItemId { get; set; }
 
         public byte Slot { get; set; }

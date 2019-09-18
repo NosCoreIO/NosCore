@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Portal
+    public class Portal : IStaticEntity
     {
         public short DestinationMapId { get; set; }
 
@@ -35,6 +37,7 @@ namespace NosCore.Database.Entities
 
         public virtual Map Map1 { get; set; }
 
+        [Key]
         public int PortalId { get; set; }
 
         public short SourceMapId { get; set; }

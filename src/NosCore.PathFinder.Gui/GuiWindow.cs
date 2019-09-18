@@ -21,7 +21,6 @@ using ChickenAPI.Packets.ClientPackets.Drops;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
@@ -40,6 +39,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Dto;
 
 namespace NosCore.PathFinder.Gui
 {

@@ -23,13 +23,14 @@ using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    /// <summary>
-    ///     Do Not forget to change Mapping in Item GO when changing this class
-    /// </summary>
-    public class Item
+    [StaticMetaData(LoadedMessage = LogLanguageKey.ITEMS_LOADED)]
+    public class Item : IStaticEntity
     {
         public Item()
         {
@@ -82,7 +83,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Drop> Drop { get; set; }
 
-        public short Effect { get; set; }
+        public ItemEffectType Effect { get; set; }
 
         public int EffectValue { get; set; }
 
@@ -169,6 +170,7 @@ namespace NosCore.Database.Entities
         public short MpRegeneration { get; set; }
 
         [MaxLength(255)]
+        [I18NString(typeof(I18NItem))]
         public string Name { get; set; }
 
         public long Price { get; set; }

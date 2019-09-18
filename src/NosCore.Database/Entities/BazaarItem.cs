@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
@@ -27,6 +28,7 @@ namespace NosCore.Database.Entities
 
         public short Amount { get; set; }
 
+        [Key]
         public long BazaarItemId { get; set; }
 
         public DateTime DateStart { get; set; }
@@ -44,9 +46,5 @@ namespace NosCore.Database.Entities
         public long Price { get; set; }
 
         public long SellerId { get; set; }
-
-        public string NewAuthPassword { get; set; }
-
-        public string NewAuthSalt { get; set; }
     }
 }

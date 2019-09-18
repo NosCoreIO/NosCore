@@ -118,15 +118,15 @@ namespace NosCore.MasterServer
                     var regions = Enum.GetValues(typeof(RegionType));
                     var accessors = TypeAccessor.Create(typeof(ItemDto));
                     Parallel.ForEach(items, (s) => (s).InjectI18N(props, dic, regions, accessors));
-                    StaticDtoAttribute staticDtoAttribute = typeof(ItemDto).GetCustomAttribute<StaticDtoAttribute>();
+                    StaticMetaDataAttribute staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
                     if (items.Count != 0)
                     {
-                        c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                        c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
                             items.Count);
                     }
                     else
                     {
-                        c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                        c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
                     }
 
                     return items;

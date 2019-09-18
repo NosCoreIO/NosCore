@@ -1,10 +1,10 @@
 ﻿using ChickenAPI.Packets.ClientPackets.Quicklist;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
-using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using System;
+using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.Game
 {

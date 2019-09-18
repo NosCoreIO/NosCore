@@ -21,14 +21,13 @@ using ChickenAPI.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.MasterServer.Controllers
 {

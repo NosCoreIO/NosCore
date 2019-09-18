@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
@@ -15,6 +14,7 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.BazaarTests
 {

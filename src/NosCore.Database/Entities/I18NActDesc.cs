@@ -17,12 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
 
 namespace NosCore.Database.Entities
 {
     public class I18NActDesc
     {
+        [Key]
         public int I18NActDescId { get; set; }
         public string Key { get; set; }
         public RegionType RegionType { get; set; }

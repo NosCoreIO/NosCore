@@ -20,7 +20,6 @@
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -33,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {

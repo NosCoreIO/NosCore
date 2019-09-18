@@ -1,11 +1,12 @@
 ﻿using Mapster;
 using NosCore.Core;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.MasterServer.DataHolders
 {

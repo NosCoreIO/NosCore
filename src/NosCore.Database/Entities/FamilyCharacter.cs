@@ -37,6 +37,7 @@ namespace NosCore.Database.Entities
 
         public virtual Family Family { get; set; }
 
+        [Key]
         public long FamilyCharacterId { get; set; }
 
         public long FamilyId { get; set; }
