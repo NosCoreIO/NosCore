@@ -18,6 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.I18N;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -36,7 +39,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte Level { get; set; }
 
-	 	public string Name { get; set; }
+	 	[I18NFrom(typeof(I18NBCardDto))]
+		public I18NString Name { get; set; } = new I18NString();
+		public string NameI18NKey { get; set; }
 
 	 	public int Delay { get; set; }
 

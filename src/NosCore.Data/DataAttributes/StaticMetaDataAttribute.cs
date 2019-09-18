@@ -22,7 +22,7 @@ using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
 
 namespace NosCore.Data.DataAttributes
 {
-    public class StaticDtoAttribute : Attribute
+    public class StaticMetaDataAttribute : Attribute
     {
         public LogLanguageKey LoadedMessage { get; set; }
 

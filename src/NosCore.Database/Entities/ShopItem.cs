@@ -18,10 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
+    [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPITEMS_LOADED)]
     public class ShopItem : IStaticEntity
     {
         public byte Color { get; set; }
