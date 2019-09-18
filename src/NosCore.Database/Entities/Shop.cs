@@ -19,10 +19,14 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Shop
+    [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
+    public class Shop : IStaticEntity
     {
         public Shop()
         {
@@ -39,6 +43,7 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string Name { get; set; }
 
+        [Key]
         public int ShopId { get; set; }
 
         public virtual ICollection<ShopItem> ShopItem { get; set; }

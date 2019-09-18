@@ -19,6 +19,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using System;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.BazaarTests
 {

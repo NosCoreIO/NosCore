@@ -19,7 +19,7 @@
 
 using ChickenAPI.Packets.Interfaces;
 using Mapster;
-using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 

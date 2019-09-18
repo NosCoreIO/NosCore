@@ -20,10 +20,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Map
+    [StaticMetaData(LoadedMessage = LogLanguageKey.MAPS_LOADED, EmptyMessage = LogLanguageKey.NO_MAP)]
+    public class Map : IStaticEntity
     {
         public Map()
         {
@@ -42,7 +46,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Character> Character { get; set; }
 
         public byte[] Data { get; set; }
-
+       
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short MapId { get; set; }
 
@@ -55,6 +60,7 @@ namespace NosCore.Database.Entities
         public int Music { get; set; }
 
         [MaxLength(255)]
+        [I18NString(typeof(I18NMapIdData))]
         public string Name { get; set; }
 
         public virtual ICollection<Portal> Portal { get; set; }

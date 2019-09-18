@@ -20,13 +20,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Quest
+    public class Quest : IStaticEntity
     {
         public Quest()
         {
+            QuestObjective = new HashSet<QuestObjective>();
             CharacterQuest = new HashSet<CharacterQuest>();
         }
 
@@ -36,7 +38,7 @@ namespace NosCore.Database.Entities
 
         public int QuestType { get; set; }
 
-        public HashSet<CharacterQuest> CharacterQuest { get; set; }
+        public virtual HashSet<CharacterQuest> CharacterQuest { get; set; }
 
         public byte LevelMin { get; set; }
 
@@ -46,7 +48,7 @@ namespace NosCore.Database.Entities
 
         public int? EndDialogId { get; set; }
 
-        public HashSet<QuestObjective> QuestObjective { get; set; }
+        public virtual HashSet<QuestObjective> QuestObjective { get; set; }
 
         public short? TargetMap { get; set; }
 

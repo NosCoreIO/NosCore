@@ -17,11 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Database.Entities
 {
+    [StaticMetaData(LoadedMessage = LogLanguageKey.MAPNPCS_LOADED)]
     public class MapNpc
     {
         public MapNpc()
@@ -47,6 +51,7 @@ namespace NosCore.Database.Entities
 
         public short MapId { get; set; }
 
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int MapNpcId { get; set; }
 

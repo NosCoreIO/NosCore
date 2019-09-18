@@ -21,7 +21,6 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Helper;
@@ -30,6 +29,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using Serilog;
 using System;
 using System.Reactive.Subjects;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
         public WearableInstance(Item item)
         {
+            Id = Guid.NewGuid();
             Item = item;
             ItemVNum = item.VNum;
         }

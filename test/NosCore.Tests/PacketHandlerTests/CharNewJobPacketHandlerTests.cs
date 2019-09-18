@@ -1,7 +1,7 @@
 ﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Data.AliveEntities;
+using NosCore.Data.Dto;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;

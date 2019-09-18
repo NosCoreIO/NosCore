@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <LangVersion>latest</LangVersion>
+    <UseNETCoreGenerator>true</UseNETCoreGenerator>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,8 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dto\I18NGenerated\**" />
+    <Compile Remove="Dto\StaticEntitiesGenerated\**" />
     <Compile Remove="StaticEntities\Text\**" />
+    <EmbeddedResource Remove="Dto\I18NGenerated\**" />
+    <EmbeddedResource Remove="Dto\StaticEntitiesGenerated\**" />
     <EmbeddedResource Remove="StaticEntities\Text\**" />
+    <None Remove="Dto\I18NGenerated\**" />
+    <None Remove="Dto\StaticEntitiesGenerated\**" />
     <None Remove="StaticEntities\Text\**" />
   </ItemGroup>
 
@@ -40,6 +47,23 @@
       <LastGenOutput>LocalizedResources.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dto\GenerateDtos.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\Entities\" />
+    <Folder Include="Dto\I18N\" />
+    <Folder Include="Dto\StaticEntities\" />
   </ItemGroup>
 
 </Project>

@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Teleporter
+    public class Teleporter : IStaticEntity
     {
         public short Index { get; set; }
 
@@ -39,6 +41,7 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
+        [Key]
         public short TeleporterId { get; set; }
     }
 }

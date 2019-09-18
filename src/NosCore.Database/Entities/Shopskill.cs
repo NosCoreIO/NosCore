@@ -17,14 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
+
 namespace NosCore.Database.Entities
 {
-    public class ShopSkill
+    [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPSKILLS_LOADED)]
+    public class ShopSkill : IStaticEntity
     {
         public virtual Shop Shop { get; set; }
 
         public int ShopId { get; set; }
 
+        [Key]
         public int ShopSkillId { get; set; }
 
         public virtual Skill Skill { get; set; }

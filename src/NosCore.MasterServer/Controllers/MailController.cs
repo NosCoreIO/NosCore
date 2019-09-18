@@ -5,7 +5,6 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
@@ -13,6 +12,8 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.DataHolders;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.MasterServer.Controllers
 {

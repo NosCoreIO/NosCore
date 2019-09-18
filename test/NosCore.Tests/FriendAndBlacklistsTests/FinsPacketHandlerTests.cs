@@ -8,8 +8,6 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
@@ -23,6 +21,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using System;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

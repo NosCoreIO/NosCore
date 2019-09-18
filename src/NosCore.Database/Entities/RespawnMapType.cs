@@ -20,10 +20,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class RespawnMapType
+    public class RespawnMapType : IStaticEntity
     {
         public RespawnMapType()
         {
@@ -40,15 +41,16 @@ namespace NosCore.Database.Entities
 
         public virtual Map Map { get; set; }
 
-        public ICollection<MapType> MapTypes { get; set; }
+        public virtual ICollection<MapType> MapTypes { get; set; }
 
-        public ICollection<MapType> MapTypes1 { get; set; }
+        public virtual ICollection<MapType> MapTypes1 { get; set; }
 
         [MaxLength(255)]
         public string Name { get; set; }
 
         public virtual ICollection<Respawn> Respawn { get; set; }
 
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long RespawnMapTypeId { get; set; }
     }

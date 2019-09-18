@@ -7,13 +7,13 @@ using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Networking.LoginService
 {

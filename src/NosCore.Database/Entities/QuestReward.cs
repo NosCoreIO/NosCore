@@ -17,10 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
+using NosCore.Database.Entities.Base;
+
 namespace NosCore.Database.Entities
 {
-    public class QuestReward
+    public class QuestReward : IStaticEntity
     {
+        [Key]
         public long QuestRewardId { get; set; }
 
         public byte RewardType { get; set; }
