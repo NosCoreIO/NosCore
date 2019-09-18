@@ -20,10 +20,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Quest
+    public class Quest : IStaticEntity
     {
         public Quest()
         {

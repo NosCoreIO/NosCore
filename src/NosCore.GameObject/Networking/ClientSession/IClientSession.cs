@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.Networking;
-using NosCore.Data;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {

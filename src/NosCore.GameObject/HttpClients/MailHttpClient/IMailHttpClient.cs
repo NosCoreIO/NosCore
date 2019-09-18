@@ -3,6 +3,7 @@ using NosCore.Data;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using System.Collections.Generic;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {

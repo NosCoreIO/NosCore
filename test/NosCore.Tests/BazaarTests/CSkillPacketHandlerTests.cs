@@ -9,6 +9,7 @@ using NosCore.PacketHandlers.Bazaar;
 using NosCore.Tests.Helpers;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -24,7 +25,7 @@ namespace NosCore.Tests.BazaarTests
             TestHelpers.Reset();
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
-            _session.Character.StaticBonusList = new List<Data.StaticBonusDto>();
+            _session.Character.StaticBonusList = new List<StaticBonusDto>();
             _cskillPacketHandler = new CSkillPacketHandler();
         }
 
@@ -48,7 +49,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public void Open()
         {
-            _session.Character.StaticBonusList.Add(new Data.StaticBonusDto
+            _session.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 StaticBonusType = Data.Enumerations.Buff.StaticBonusType.BazaarMedalGold
             });

@@ -182,7 +182,7 @@ namespace NosCore.WorldServer
                     var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
                     {
                         { typeof(I18NActDescDto), c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
-                        { typeof(I18NbCardDto), c.Resolve<IGenericDao<I18NbCardDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
+                        { typeof(I18NBCardDto), c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
                         { typeof(I18NCardDto), c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
                         { typeof(I18NItemDto), c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
                         { typeof(I18NMapIdDataDto), c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },

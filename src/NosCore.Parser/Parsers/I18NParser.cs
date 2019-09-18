@@ -47,7 +47,7 @@ namespace NosCore.Parser.Parsers
 
         private readonly IGenericDao<I18NActDescDto> _i18NActDescDao;
         private readonly IGenericDao<I18NCardDto> _i18NCardDao;
-        private readonly IGenericDao<I18NbCardDto> _i18NbCardDao;
+        private readonly IGenericDao<I18NBCardDto> _i18NbCardDao;
         private readonly IGenericDao<I18NItemDto> _i18NItemDao;
         private readonly IGenericDao<I18NMapIdDataDto> _i18NMapIdDataDao;
         private readonly IGenericDao<I18NMapPointDataDto> _i18NMapPointDataDao;
@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers
 
         public I18NParser(IGenericDao<I18NQuestDto> i18NQuestDao, IGenericDao<I18NSkillDto> i18NSkillDao, IGenericDao<I18NNpcMonsterTalkDto> i18NNpcMonsterTalkDao,
             IGenericDao<I18NNpcMonsterDto> i18NNpcMonsterDao, IGenericDao<I18NMapPointDataDto> i18NMapPointDataDao, IGenericDao<I18NMapIdDataDto> i18NMapIdDataDao,
-            IGenericDao<I18NItemDto> i18NItemDao, IGenericDao<I18NbCardDto> i18NbCardDao, IGenericDao<I18NCardDto> i18NCardDao, IGenericDao<I18NActDescDto> i18NActDescDao, ILogger logger)
+            IGenericDao<I18NItemDto> i18NItemDao, IGenericDao<I18NBCardDto> i18NbCardDao, IGenericDao<I18NCardDto> i18NCardDao, IGenericDao<I18NActDescDto> i18NActDescDao, ILogger logger)
         {
             _i18NQuestDao = i18NQuestDao;
             _i18NSkillDao = i18NSkillDao;
@@ -165,7 +165,7 @@ namespace NosCore.Parser.Parsers
             var bcardlist = _i18NbCardDao.LoadAll().ToList();
             foreach (RegionType region in Enum.GetValues(typeof(RegionType)))
             {
-                var bcarddtos = new List<I18NbCardDto>();
+                var bcarddtos = new List<I18NBCardDto>();
                 try
                 {
                     using (var stream = new StreamReader(I18NTextFileName(BCardTxt, region),
@@ -177,7 +177,7 @@ namespace NosCore.Parser.Parsers
                             if (bcardlist.Find(s => s.Key == currentLine[0] && s.RegionType == region)
                                 == null && currentLine.Length > 1 && !bcarddtos.Exists(s => s.Key == currentLine[0]))
                             {
-                                bcarddtos.Add(new I18NbCardDto
+                                bcarddtos.Add(new I18NBCardDto
                                 {
                                     Key = currentLine[0],
                                     RegionType = region,

@@ -1,7 +1,7 @@
 ﻿using ChickenAPI.Packets.ServerPackets.Miniland;
-using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using System;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.MinilandProvider
 {

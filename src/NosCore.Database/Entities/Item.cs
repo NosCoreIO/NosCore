@@ -23,13 +23,14 @@ using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
     /// <summary>
     ///     Do Not forget to change Mapping in Item GO when changing this class
     /// </summary>
-    public class Item
+    public class Item : IStaticEntity
     {
         public Item()
         {
@@ -82,7 +83,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Drop> Drop { get; set; }
 
-        public short Effect { get; set; }
+        public ItemEffectType Effect { get; set; }
 
         public int EffectValue { get; set; }
 

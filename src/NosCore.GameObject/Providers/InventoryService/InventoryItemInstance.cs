@@ -1,6 +1,6 @@
-﻿using NosCore.Data;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+﻿using NosCore.GameObject.Providers.ItemProvider.Item;
 using System;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Providers.InventoryService
 {

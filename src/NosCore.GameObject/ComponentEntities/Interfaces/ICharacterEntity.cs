@@ -22,13 +22,13 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

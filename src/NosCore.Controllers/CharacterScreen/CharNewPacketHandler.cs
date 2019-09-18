@@ -21,14 +21,13 @@ using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
-using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Text.RegularExpressions;
+using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

@@ -34,6 +34,7 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using System.Linq;
+using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

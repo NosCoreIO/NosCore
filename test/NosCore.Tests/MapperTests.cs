@@ -22,7 +22,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
@@ -31,6 +30,7 @@ using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 using System.Collections.Generic;
+using NosCore.Data.Dto;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.Tests

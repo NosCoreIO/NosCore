@@ -19,10 +19,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Teleporter
+    public class Teleporter : IStaticEntity
     {
         public short Index { get; set; }
 

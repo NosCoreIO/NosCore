@@ -19,13 +19,13 @@
 
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.AliveEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NosCore.Data.Dto;
 
 namespace NosCore.Parser.Parsers
 {

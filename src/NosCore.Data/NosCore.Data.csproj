@@ -16,8 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dto\I18NGenerated\**" />
+    <Compile Remove="Dto\StaticEntitiesGenerated\**" />
     <Compile Remove="StaticEntities\Text\**" />
+    <EmbeddedResource Remove="Dto\I18NGenerated\**" />
+    <EmbeddedResource Remove="Dto\StaticEntitiesGenerated\**" />
     <EmbeddedResource Remove="StaticEntities\Text\**" />
+    <None Remove="Dto\I18NGenerated\**" />
+    <None Remove="Dto\StaticEntitiesGenerated\**" />
     <None Remove="StaticEntities\Text\**" />
   </ItemGroup>
 
@@ -44,12 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\EntitiesGenerated\" />
-    <Folder Include="Dto\I18NGenerated\" />
-    <Folder Include="Dto\StaticEntitiesGenerated\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Dto\GenerateDtos.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>GenerateDtos.cs</LastGenOutput>
@@ -58,6 +58,12 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\Entities\" />
+    <Folder Include="Dto\I18N\" />
+    <Folder Include="Dto\StaticEntities\" />
   </ItemGroup>
 
 </Project>
