@@ -18,6 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.I18N;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Data.StaticEntities
 {

@@ -125,7 +125,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
             if (isStatic)
             {
-                StaticDtoAttribute staticDtoAttribute = typeof(TDto).GetCustomAttribute<StaticDtoAttribute>();
+                StaticMetaDataAttribute staticMetaDataAttribute = typeof(TDto).GetCustomAttribute<StaticMetaDataAttribute>();
                 containerBuilder.Register(c =>
                     {
                         var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
@@ -137,17 +137,17 @@ namespace NosCore.WorldServer
                             var accessors = TypeAccessor.Create(typeof(TDto));
                             Parallel.ForEach(items, (s) => ((IStaticDto)s).InjectI18N(props, dic, regions, accessors));
                         }
-                        if (items.Count != 0 || staticDtoAttribute == null || staticDtoAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
+                        if (items.Count != 0 || staticMetaDataAttribute == null || staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN)
                         {
-                            if (staticDtoAttribute != null && staticDtoAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
+                            if (staticMetaDataAttribute != null && staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                             {
-                                c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.LoadedMessage),
+                                c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
                                     items.Count);
                             }
                         }
                         else
                         {
-                            c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticDtoAttribute.EmptyMessage));
+                            c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
                         }
 
                         return items;
