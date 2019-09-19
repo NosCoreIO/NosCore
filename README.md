@@ -33,6 +33,7 @@ This project is a community project not for commercial use. The emulator itself 
 We recommend usage of : 
 * [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 * [Resharper](https://www.jetbrains.com/resharper/)
+* [Fortea Resharper extension for T4 Development](https://plugins.jetbrains.com/plugin/11634-fortea)
 * [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2019)
 
 
