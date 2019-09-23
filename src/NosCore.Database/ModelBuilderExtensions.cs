@@ -28,7 +28,7 @@ namespace NosCore.Database
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.Relational().TableName = entity.DisplayName();
+                entity.SetTableName(entity.DisplayName());
             }
         }
     }
