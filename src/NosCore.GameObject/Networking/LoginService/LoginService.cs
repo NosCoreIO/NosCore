@@ -61,8 +61,7 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
-                var acc = _accountDao.FirstOrDefault(s =>
-                    string.Equals(s.Name, username, StringComparison.OrdinalIgnoreCase));
+                var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());
 
                 if (acc != null && acc.Name != username)
                 {
