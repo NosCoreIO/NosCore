@@ -87,6 +87,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
 using Deserializer = ChickenAPI.Packets.Deserializer;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = ChickenAPI.Packets.Serializer;
@@ -346,7 +347,7 @@ namespace NosCore.WorldServer
             InitializeConfiguration();
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore World API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
@@ -391,11 +392,13 @@ namespace NosCore.WorldServer
 
             services.AddMvc(o =>
                 {
+                    o.EnableEndpointRouting = false;
                     var policy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
                         .Build();
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
+                .AddNewtonsoftJson()
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
