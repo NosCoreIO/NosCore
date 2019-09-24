@@ -28,7 +28,10 @@ namespace NosCore.Database
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.SetTableName(entity.DisplayName());
+                if (entity.BaseType == null)
+                {
+                    entity.SetTableName(entity.DisplayName());
+                }
             }
         }
     }
