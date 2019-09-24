@@ -30,10 +30,5 @@ namespace NosCore.Database.Entities
         public byte Type { get; set; }
 
         public int Value { get; set; }
-
-        [ForeignKey(nameof(WearableInstanceId))]
-        public virtual WearableInstance WearableInstance { get; set; }
-
-        public Guid WearableInstanceId { get; set; }
     }
 }
