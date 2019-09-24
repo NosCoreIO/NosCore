@@ -62,6 +62,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
 
 namespace NosCore.MasterServer
 {
@@ -179,7 +180,7 @@ namespace NosCore.MasterServer
                 Addresses = { _configuration.WebApi.ToString() }
             });
             LogLanguage.Language = _configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info { Title = "NosCore Master API", Version = "v1" }));
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
             string password;
             switch (_configuration.WebApi.HashingType)
             {
@@ -216,11 +217,13 @@ namespace NosCore.MasterServer
 
             services.AddMvc(o =>
                 {
+                    o.EnableEndpointRouting = false;
                     var policy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
                         .Build();
                     o.Filters.Add(new AuthorizeFilter(policy));
                 })
+                .AddNewtonsoftJson()
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
