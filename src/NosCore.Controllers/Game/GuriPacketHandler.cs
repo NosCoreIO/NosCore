@@ -8,6 +8,7 @@ namespace NosCore.PacketHandlers.Game
     public class GuriPacketHandler : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
         private readonly IGuriProvider _guriProvider;
+
         public GuriPacketHandler(IGuriProvider guriProvider)
         {
             _guriProvider = guriProvider;

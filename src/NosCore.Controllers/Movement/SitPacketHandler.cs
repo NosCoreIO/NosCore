@@ -32,10 +32,12 @@ namespace NosCore.PacketHandlers.Movement
                         entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
                         if (entity.VisualId != clientSession.Character.VisualId)
                         {
-                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED),
+                            _logger.Error(
+                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED),
                                 clientSession.Character, sitpacket);
                             return;
                         }
+
                         break;
                     default:
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),

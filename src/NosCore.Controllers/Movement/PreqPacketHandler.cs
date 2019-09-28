@@ -1,4 +1,7 @@
-﻿using ChickenAPI.Packets.ClientPackets.Movement;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Movement;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -10,9 +13,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PathFinder;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -29,10 +29,12 @@ namespace NosCore.PacketHandlers.Movement
 
         public override void Execute(PreqPacket _, ClientSession session)
         {
-            if ((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4 ||
-                session.Character.LastPortal > session.Character.LastMove)
+            if (((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4) ||
+                (session.Character.LastPortal > session.Character.LastMove))
             {
-                session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language), SayColorType.Yellow));
+                session.SendPacket(session.Character.GenerateSay(
+                    Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
+                    SayColorType.Yellow));
                 return;
             }
 
@@ -56,10 +58,10 @@ namespace NosCore.PacketHandlers.Movement
 
             session.Character.LastPortal = SystemTime.Now();
 
-            if (_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
-                != MapInstanceType.BaseMapInstance
-                && _mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
-                == MapInstanceType.BaseMapInstance)
+            if ((_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
+                    != MapInstanceType.BaseMapInstance)
+                && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
+                    == MapInstanceType.BaseMapInstance))
             {
                 session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
             }

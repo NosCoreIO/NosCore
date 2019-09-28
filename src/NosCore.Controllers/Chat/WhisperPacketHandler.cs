@@ -1,4 +1,7 @@
-﻿using ChickenAPI.Packets.ClientPackets.Chat;
+﻿using System;
+using System.Linq;
+using System.Text;
+using ChickenAPI.Packets.ClientPackets.Chat;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
@@ -16,21 +19,20 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
-using System;
-using System.Linq;
-using System.Text;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
+        private readonly ISerializer _packetSerializer;
 
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer, IBlacklistHttpClient blacklistHttpClient,
+        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
+            IBlacklistHttpClient blacklistHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient)
         {
             _logger = logger;
@@ -90,7 +92,7 @@ namespace NosCore.PacketHandlers.Chat
                     session.SendPacket(new SayPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                session.Account.Language),
+                            session.Account.Language),
                         Type = SayColorType.Yellow
                     });
                     return;
@@ -101,9 +103,9 @@ namespace NosCore.PacketHandlers.Chat
 
                 _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
-                    Packet = _packetSerializer.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Data.WebApi.Character { Name = receiverName },
-                    SenderCharacter = new Data.WebApi.Character { Name = session.Character.Name },
+                    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
+                    ReceiverCharacter = new Character {Name = receiverName},
+                    SenderCharacter = new Character {Name = session.Character.Name},
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId);
@@ -116,7 +118,6 @@ namespace NosCore.PacketHandlers.Chat
             {
                 _logger.Error("Whisper failed.", e);
             }
-
         }
     }
 }

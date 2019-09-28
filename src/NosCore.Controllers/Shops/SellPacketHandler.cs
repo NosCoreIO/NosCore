@@ -51,10 +51,10 @@ namespace NosCore.PacketHandlers.Shops
 
             if (sellPacket.Amount.HasValue && sellPacket.Slot.HasValue)
             {
-                NoscorePocketType type = (NoscorePocketType)sellPacket.Data;
+                var type = (NoscorePocketType) sellPacket.Data;
 
                 var inv = clientSession.Character.Inventory.LoadBySlotAndType(sellPacket.Slot.Value, type);
-                if (inv == null || sellPacket.Amount.Value > inv.ItemInstance.Amount)
+                if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance.Amount))
                 {
                     //TODO log
                     return;
@@ -71,7 +71,8 @@ namespace NosCore.PacketHandlers.Shops
                     return;
                 }
 
-                long price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price : inv.ItemInstance.Item.Price / 20;
+                var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
+                    : inv.ItemInstance.Item.Price / 20;
 
                 if (clientSession.Character.Gold + price * sellPacket.Amount.Value > _worldConfiguration.MaxGoldAmount)
                 {
@@ -89,20 +90,17 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Type = SMemoType.Success,
                     Message = string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE, clientSession.Account.Language),
+                        Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
+                            clientSession.Account.Language),
                         inv.ItemInstance.Item.Name[clientSession.Account.Language],
                         sellPacket.Amount.Value
                     )
                 });
 
-                clientSession.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value, inv.ItemInstanceId);
+                clientSession.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value,
+                    inv.ItemInstanceId);
                 clientSession.SendPacket(clientSession.Character.GenerateGold());
-            }
-            else
-            {
-                //TODO sell skill
             }
         }
     }
-
 }

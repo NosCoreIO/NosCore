@@ -27,12 +27,14 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override void Execute(WearPacket wearPacket, ClientSession clientSession)
         {
-
-            clientSession.HandlePackets(new[] {new UseItemPacket
+            clientSession.HandlePackets(new[]
             {
-                Slot = wearPacket.InventorySlot,
-                Type = wearPacket.Type,
-            }});
+                new UseItemPacket
+                {
+                    Slot = wearPacket.InventorySlot,
+                    Type = wearPacket.Type
+                }
+            });
         }
     }
 }

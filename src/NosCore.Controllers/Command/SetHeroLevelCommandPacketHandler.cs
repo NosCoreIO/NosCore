@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -30,18 +32,18 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Collections.Generic;
-using System.Linq;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetHeroLevelCommandPacketHandler : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetHeroLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
+
+        public SetHeroLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+            IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
@@ -50,7 +52,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == session.Character.Name)
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
                 session.Character.SetHeroLevel(levelPacket.Level);
                 return;
@@ -59,7 +61,7 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateHeroLevel,
-                Character = new Character { Name = levelPacket.Name },
+                Character = new Character {Name = levelPacket.Name},
                 Data = levelPacket.Level
             };
 

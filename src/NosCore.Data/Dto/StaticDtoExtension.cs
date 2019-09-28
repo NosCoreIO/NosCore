@@ -1,9 +1,9 @@
-﻿using FastMember;
-using NosCore.Data.Enumerations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FastMember;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -42,6 +42,7 @@ namespace NosCore.Data.StaticEntities
                         }
                     }
                 }
+
                 accessor[staticDto, prop.Key.Name] = dic;
             }
         }

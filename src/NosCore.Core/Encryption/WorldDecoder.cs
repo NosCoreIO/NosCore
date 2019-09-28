@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using ChickenAPI.Packets;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
@@ -28,28 +32,26 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace NosCore.Core.Encryption
 {
     public class WorldDecoder : MessageToMessageDecoder<IByteBuffer>
     {
-        private RegionType _region;
-        private int _sessionId;
         private readonly IDeserializer _deserializer;
         private readonly ILogger _logger;
+        private RegionType _region;
+        private int _sessionId;
+
         public WorldDecoder(IDeserializer deserializer, ILogger logger)
         {
             _deserializer = deserializer;
             _logger = logger;
         }
+
         private string DecryptPrivate(string str)
         {
             var receiveData = new List<byte>();
-            char[] table = { ' ', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'n' };
+            char[] table = {' ', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'n'};
             int count;
             for (count = 0; count < str.Length; count++)
             {
@@ -63,7 +65,7 @@ namespace NosCore.Core.Encryption
 
                         try
                         {
-                            receiveData.Add(unchecked((byte)(str[count] ^ 0xFF)));
+                            receiveData.Add(unchecked((byte) (str[count] ^ 0xFF)));
                         }
                         catch
                         {
@@ -104,15 +106,15 @@ namespace NosCore.Core.Encryption
 
                         lowbyte &= 0x0F;
 
-                        if (highbyte != 0x0 && highbyte != 0xF)
+                        if ((highbyte != 0x0) && (highbyte != 0xF))
                         {
-                            receiveData.Add(unchecked((byte)table[highbyte - 1]));
+                            receiveData.Add(unchecked((byte) table[highbyte - 1]));
                             i++;
                         }
 
-                        if (lowbyte != 0x0 && lowbyte != 0xF)
+                        if ((lowbyte != 0x0) && (lowbyte != 0xF))
                         {
-                            receiveData.Add(unchecked((byte)table[lowbyte - 1]));
+                            receiveData.Add(unchecked((byte) table[lowbyte - 1]));
                         }
                     }
                 }
@@ -201,18 +203,21 @@ namespace NosCore.Core.Encryption
             var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
             _region = mapper.RegionType;
             _sessionId = mapper.SessionId;
-            var str = ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
+            var str = ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
             if (_sessionId == 0)
             {
-                var pack = _deserializer.Deserialize(DecryptCustomParameter(str, out var endofPacket)) as UnresolvedPacket;
+                var pack =
+                    _deserializer.Deserialize(DecryptCustomParameter(str, out var endofPacket)) as UnresolvedPacket;
 
                 if (!int.TryParse(pack.Header, out _sessionId))
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_SESSIONID));
                     return;
                 }
+
                 SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = _sessionId;
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), mapper.SessionId);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED),
+                    mapper.SessionId);
                 temp.Add(pack);
                 if (endofPacket.Length == 0)
                 {
@@ -225,67 +230,72 @@ namespace NosCore.Core.Encryption
             if (continueToDecode)
             {
                 var sessionKey = _sessionId & 0xFF;
-                var sessionNumber = unchecked((byte)(_sessionId >> 6));
+                var sessionNumber = unchecked((byte) (_sessionId >> 6));
                 sessionNumber &= 0xFF;
-                sessionNumber &= unchecked((byte)0x80000003);
+                sessionNumber &= unchecked((byte) 0x80000003);
 
                 switch (sessionNumber)
                 {
                     case 0:
                         encryptedString =
                             (from character in str
-                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                             select unchecked((byte)(character - firstbyte))).Aggregate(encryptedString,
-                                (current, highbyte) => current + (char)highbyte);
+                                let firstbyte = unchecked((byte) (sessionKey + 0x40))
+                                select unchecked((byte) (character - firstbyte))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char) highbyte);
                         break;
 
                     case 1:
                         encryptedString =
                             (from character in str
-                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                             select unchecked((byte)(character + firstbyte))).Aggregate(encryptedString,
-                                (current, highbyte) => current + (char)highbyte);
+                                let firstbyte = unchecked((byte) (sessionKey + 0x40))
+                                select unchecked((byte) (character + firstbyte))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char) highbyte);
                         break;
 
                     case 2:
                         encryptedString =
                             (from character in str
-                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                             select unchecked((byte)((character - firstbyte) ^ 0xC3))).Aggregate(encryptedString,
-                                (current, highbyte) => current + (char)highbyte);
+                                let firstbyte = unchecked((byte) (sessionKey + 0x40))
+                                select unchecked((byte) ((character - firstbyte) ^ 0xC3))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char) highbyte);
                         break;
 
                     case 3:
                         encryptedString =
                             (from character in str
-                             let firstbyte = unchecked((byte)(sessionKey + 0x40))
-                             select unchecked((byte)((character + firstbyte) ^ 0xC3))).Aggregate(encryptedString,
-                                (current, highbyte) => current + (char)highbyte);
+                                let firstbyte = unchecked((byte) (sessionKey + 0x40))
+                                select unchecked((byte) ((character + firstbyte) ^ 0xC3))).Aggregate(encryptedString,
+                                (current, highbyte) => current + (char) highbyte);
                         break;
 
                     default:
-                        encryptedString += (char)0xF;
+                        encryptedString += (char) 0xF;
                         break;
                 }
-                temp.AddRange(encryptedString.Split((char)0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p =>
+
+                temp.AddRange(encryptedString.Split((char) 0xFF, StringSplitOptions.RemoveEmptyEntries).Select(p =>
                 {
                     try
                     {
                         var packet = _deserializer.Deserialize(DecryptPrivate(p));
                         if (!packet.IsValid)
                         {
-                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
+                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
+                                packet);
                         }
+
                         return packet;
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), ex.Data["Packet"]);
-                        return new UnresolvedPacket { KeepAliveId = ushort.Parse((ex.Data["Packet"].ToString().Split(" ")[0])), Header = "0" };
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING),
+                            ex.Data["Packet"]);
+                        return new UnresolvedPacket
+                            {KeepAliveId = ushort.Parse(ex.Data["Packet"].ToString().Split(" ")[0]), Header = "0"};
                     }
-
                 }));
             }
+
             if (temp.Count > 0)
             {
                 output.Add(temp);

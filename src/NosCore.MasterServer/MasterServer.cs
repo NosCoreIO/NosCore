@@ -17,15 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Linq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Linq;
-using System.Reactive.Linq;
 
 namespace NosCore.MasterServer
 {
@@ -47,11 +48,11 @@ namespace NosCore.MasterServer
                 return;
             }
 
-            if (!System.Diagnostics.Debugger.IsAttached)
+            if (!Debugger.IsAttached)
             {
                 Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels
                     .Where(s =>
-                        s.LastPing.AddSeconds(10) < SystemTime.Now() && s.WebApi != null).Select(s => s.Id).ToList()
+                        (s.LastPing.AddSeconds(10) < SystemTime.Now()) && (s.WebApi != null)).Select(s => s.Id).ToList()
                     .ForEach(_id =>
                     {
                         _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),

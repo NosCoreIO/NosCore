@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using System;
 using System.Reactive.Subjects;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.Data.Dto;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
         public object Clone()
         {
-            return (SpecialistInstance)MemberwiseClone();
+            return (SpecialistInstance) MemberwiseClone();
         }
     }
 }

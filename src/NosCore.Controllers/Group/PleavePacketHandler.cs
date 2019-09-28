@@ -1,4 +1,6 @@
-﻿using ChickenAPI.Packets.ClientPackets.Groups;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Groups;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -10,8 +12,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Group
 {
@@ -19,7 +19,6 @@ namespace NosCore.PacketHandlers.Group
     {
         public override void Execute(PleavePacket bIPacket, ClientSession clientSession)
         {
-
             var group = clientSession.Character.Group;
 
             if (group.Count == 1)
@@ -44,7 +43,8 @@ namespace NosCore.PacketHandlers.Group
 
                     targetsession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER, clientSession.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
+                            clientSession.Account.Language)
                     });
                 }
 
@@ -60,14 +60,18 @@ namespace NosCore.PacketHandlers.Group
                     character.SendPacket(new MsgPacket
                     {
                         Message = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP, clientSession.Account.Language),
+                            Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
+                                clientSession.Account.Language),
                             clientSession.Character.Name)
                     });
                 }
 
                 clientSession.SendPacket(clientSession.Character.Group.GeneratePinit());
                 clientSession.SendPacket(new MsgPacket
-                { Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT, clientSession.Account.Language) });
+                {
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
+                        clientSession.Account.Language)
+                });
                 clientSession.Character.MapInstance.Sessions.SendPacket(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
@@ -89,7 +93,8 @@ namespace NosCore.PacketHandlers.Group
 
                     targetsession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED, targetsession.AccountLanguage),
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                            targetsession.AccountLanguage),
                         Type = MessageType.White
                     });
 

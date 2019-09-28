@@ -37,7 +37,7 @@ namespace NosCore.Core.Encryption
 
         public static string ToPbkdf2Hash(this string inputString, string salt)
         {
-            byte[] saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt)));
+            var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt)));
 
             using (var pbkdf2 = new Rfc2898DeriveBytes(
                 Encoding.Default.GetBytes(inputString),
@@ -47,6 +47,7 @@ namespace NosCore.Core.Encryption
             {
                 return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2")));
             }
+
             throw new ArgumentException();
         }
 

@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Net.Http;
+using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
-using System.Net.Http;
 
 namespace NosCore.Core.HttpClients.AuthHttpClient
 {
     public class AuthHttpClient : MasterServerHttpClient, IAuthHttpClient
     {
-        public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+        public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
+            IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/auth";
@@ -16,7 +17,8 @@ namespace NosCore.Core.HttpClients.AuthHttpClient
         public bool IsAwaitingConnection(string name, string packetPassword, int clientSessionSessionId)
         {
             var client = Connect();
-            var response = client.GetAsync($"{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
+            var response = client
+                .GetAsync($"{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);

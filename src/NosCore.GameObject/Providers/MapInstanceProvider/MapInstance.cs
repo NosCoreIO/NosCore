@@ -17,6 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.MiniMap;
 using DotNetty.Common.Concurrency;
@@ -32,28 +39,26 @@ using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
 using Serilog;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstance : IBroadcastable, IDisposable
     {
+        private readonly ILogger _logger;
+
+        private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
         private readonly IMapItemProvider _mapItemProvider;
         private bool _isSleeping;
         private bool _isSleepingRequest;
         private ConcurrentDictionary<int, MapMonster> _monsters;
 
         private ConcurrentDictionary<int, MapNpc> _npcs;
-        private readonly ILogger _logger;
+
+        public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects =
+            new ConcurrentDictionary<Guid, MapDesignObject>();
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-           IMapItemProvider mapItemProvider, ILogger logger, List<IMapInstanceEventHandler> mapInstanceEventHandler)
+            IMapItemProvider mapItemProvider, ILogger logger, List<IMapInstanceEventHandler> mapInstanceEventHandler)
         {
             XpRate = 1;
             DropRate = 1;
@@ -79,22 +84,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             }
         }
 
-        public void LoadHandlers()
-        {
-            _mapInstanceEventHandler.ForEach(handler =>
-            {
-                var type = handler.MapInstanceEventType;
-                Requests[type].Subscribe(handler.Execute);
-            });
-        }
-
         public DateTime LastUnregister { get; set; }
-
-        public void Kick() => Kick(o => o != null);
-        public void Kick(Func<ICharacterEntity, bool> filter)
-        {
-            Broadcaster.Instance.GetCharacters(filter).Where(s => !s.IsDisconnecting).ToList().ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
-        }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }
 
@@ -102,7 +92,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         {
             get
             {
-                if (!_isSleepingRequest || _isSleeping || LastUnregister.AddSeconds(30) >= SystemTime.Now())
+                if (!_isSleepingRequest || _isSleeping || (LastUnregister.AddSeconds(30) >= SystemTime.Now()))
                 {
                     return _isSleeping;
                 }
@@ -153,24 +143,47 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public int XpRate { get; set; }
 
         private IDisposable Life { get; set; }
-
-        public IChannelGroup Sessions { get; set; }
         public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
-        private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
-        public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new ConcurrentDictionary<Guid, MapDesignObject>();
+        public IChannelGroup Sessions { get; set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void LoadHandlers()
+        {
+            _mapInstanceEventHandler.ForEach(handler =>
+            {
+                var type = handler.MapInstanceEventType;
+                Requests[type].Subscribe(handler.Execute);
+            });
+        }
+
+        public void Kick()
+        {
+            Kick(o => o != null);
+        }
+
+        public void Kick(Func<ICharacterEntity, bool> filter)
+        {
+            Broadcaster.Instance.GetCharacters(filter).Where(s => !s.IsDisconnecting).ToList()
+                .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+        }
 
         public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
         {
-            Guid random2 = Guid.NewGuid();
+            var random2 = Guid.NewGuid();
             MapItem droppedItem = null;
-            List<MapCell> possibilities = new List<MapCell>();
+            var possibilities = new List<MapCell>();
 
             for (short x = -1; x < 2; x++)
             {
                 for (short y = -1; y < 2; y++)
                 {
-                    possibilities.Add(new MapCell { X = x, Y = y });
+                    possibilities.Add(new MapCell {X = x, Y = y});
                 }
             }
 
@@ -178,10 +191,10 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             short mapY = 0;
             var niceSpot = false;
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
-            for (var i = 0; i < orderedPossibilities.Count && !niceSpot; i++)
+            for (var i = 0; (i < orderedPossibilities.Count) && !niceSpot; i++)
             {
-                mapX = (short)(session.Character.PositionX + orderedPossibilities[i].X);
-                mapY = (short)(session.Character.PositionY + orderedPossibilities[i].Y);
+                mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
+                mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
                 if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
                 {
                     continue;
@@ -195,12 +208,12 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 return null;
             }
 
-            if (amount <= 0 || amount > inv.Amount)
+            if ((amount <= 0) || (amount > inv.Amount))
             {
                 return null;
             }
 
-            var newItemInstance = (IItemInstance)inv.Clone();
+            var newItemInstance = (IItemInstance) inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = _mapItemProvider.Create(this, newItemInstance, mapX, mapY);
@@ -217,12 +230,12 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public void LoadMonsters(List<MapMonster> monsters)
         {
             _monsters = new ConcurrentDictionary<int, MapMonster>(monsters.ToDictionary(x => x.MapMonsterId,
-            x =>
-            {
-                x.MapInstanceId = MapInstanceId;
-                x.MapInstance = this;
-                return x;
-            }));
+                x =>
+                {
+                    x.MapInstanceId = MapInstanceId;
+                    x.MapInstance = this;
+                    return x;
+                }));
         }
 
         public void LoadNpcs(List<MapNpc> npcs)
@@ -300,12 +313,6 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                     _logger.Error(e.Message, e);
                 }
             });
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)

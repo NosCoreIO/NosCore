@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -27,8 +31,10 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
@@ -39,13 +45,6 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Tests.Helpers;
 using Serilog;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.Dto;
-using NosCore.Data.StaticEntities;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests
 {
@@ -54,7 +53,7 @@ namespace NosCore.Tests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private IFriendHttpClient _friendHttpClient;
-        MapInstanceProvider _instanceProvider;
+        private MapInstanceProvider _instanceProvider;
         private ClientSession _session;
 
         [TestInitialize]
@@ -75,12 +74,13 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
@@ -95,12 +95,13 @@ namespace NosCore.Tests
             _session.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
             var shop = new Shop
             {
                 ShopItems = list
@@ -115,19 +116,20 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
@@ -138,19 +140,20 @@ namespace NosCore.Tests
             _session.Character.Reput = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
             };
             _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
         }
@@ -162,22 +165,29 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 999);
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
@@ -189,19 +199,26 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
@@ -215,19 +232,26 @@ namespace NosCore.Tests
 
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0 });
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0});
             var shop = new Shop
             {
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId), NoscorePocketType.Etc, 1);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId), NoscorePocketType.Etc, 2);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
 
             _session.Character.Buy(shop, 0, 998);
             Assert.IsTrue(_session.Character.Inventory.All(s => s.Value.ItemInstance.Amount == 999));
@@ -236,15 +260,16 @@ namespace NosCore.Tests
 
         private ClientSession PrepareSessionShop()
         {
-            var conf = new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 };
+            var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
             var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _friendHttpClient, null, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
-            var account = new AccountDto { Name = "AccountTest", Password = "test".ToSha512() };
+            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null, null, null, null, null, _logger, null, null, null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null,
+                null, null, null, null, _logger, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -261,22 +286,28 @@ namespace NosCore.Tests
             _session.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1},
+                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            var itemBuilder = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);
-            session2.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
-            list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
+            session2.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
+            list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999});
+            list.TryAdd(1, new ShopItem {Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500});
             session2.Character.Shop = new Shop
             {
                 Session = session2,
                 ShopItems = list
             };
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), NoscorePocketType.Etc, 0);
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId), NoscorePocketType.Etc, 1);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            _session.Character.Inventory.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
             return session2;
         }
 
@@ -324,7 +355,7 @@ namespace NosCore.Tests
             _session.Character.Buy(session2.Character.Shop, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.Inventory.CountItem(1) == 999);
-            var packet = (SMemoPacket)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
         }

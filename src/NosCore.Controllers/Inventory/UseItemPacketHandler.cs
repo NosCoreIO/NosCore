@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using System;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -30,8 +30,9 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
-            InventoryItemInstance inv =
-                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot, (NoscorePocketType)useItemPacket.Type);
+            var inv =
+                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot,
+                    (NoscorePocketType) useItemPacket.Type);
             if (inv?.ItemInstance.Requests == null)
             {
                 return;

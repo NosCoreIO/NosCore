@@ -30,9 +30,9 @@ namespace NosCore.PacketHandlers.Login
 {
     public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
-        private readonly ILoginService _loginService;
-        private readonly LoginConfiguration _loginConfiguration;
         private readonly ILogger _logger;
+        private readonly LoginConfiguration _loginConfiguration;
+        private readonly ILoginService _loginService;
 
         public NoS0575PacketHandler(ILoginService loginService, LoginConfiguration loginConfiguration, ILogger logger)
         {
@@ -43,12 +43,14 @@ namespace NosCore.PacketHandlers.Login
 
         public override void Execute(NoS0575Packet packet, ClientSession clientSession)
         {
-            if(_loginConfiguration.EnforceNewAuth)
+            if (_loginConfiguration.EnforceNewAuth)
             {
                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
                 return;
             }
-            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password, false);
+
+            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password,
+                false);
         }
     }
 }

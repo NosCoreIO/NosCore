@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,16 +11,15 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
-using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class PutPacketHandlerTests
     {
+        private IItemProvider _item;
         private PutPacketHandler _putPacketHandler;
         private ClientSession _session;
-        private IItemProvider _item;
 
         [TestCleanup]
         public void Cleanup()
@@ -47,8 +47,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Slot = 0,
                 Amount = 500
             }, _session);
-            Assert.IsTrue(_session.Character.Inventory.Count == 1 &&
-                _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount == 499);
+            Assert.IsTrue((_session.Character.Inventory.Count == 1) &&
+                (_session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount == 499));
         }
 
         [TestMethod]
@@ -61,9 +61,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
-                _session.Account.Language) && packet.Type == 0);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
 
@@ -93,9 +93,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                _session.Account.Language) && packet.Type == 0);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
 
@@ -111,9 +111,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                _session.Account.Language) && packet.Type == 0);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.Inventory.Count > 0);
         }
     }

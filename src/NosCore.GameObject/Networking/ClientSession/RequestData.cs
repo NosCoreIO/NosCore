@@ -39,5 +39,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         public ClientSession ClientSession { get; }
     }
 
-    public interface IRequestData { }
+    public interface IRequestData
+    {
+    }
 }

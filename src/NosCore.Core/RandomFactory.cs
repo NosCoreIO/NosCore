@@ -41,7 +41,10 @@ namespace NosCore.Core
             Dispose(true);
         }
 
-        public int RandomNumber() => RandomNumber(0, 100);
+        public int RandomNumber()
+        {
+            return RandomNumber(0, 100);
+        }
 
         public int RandomNumber(int min, int max)
         {

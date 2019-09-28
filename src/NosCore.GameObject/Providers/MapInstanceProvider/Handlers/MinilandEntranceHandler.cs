@@ -34,12 +34,12 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
     {
         private readonly IMinilandProvider _minilandProvider;
 
-        public MapInstanceEventType MapInstanceEventType => MapInstanceEventType.Entrance;
-
         public MinilandEntranceHandler(IMinilandProvider minilandProvider)
         {
             _minilandProvider = minilandProvider;
         }
+
+        public MapInstanceEventType MapInstanceEventType => MapInstanceEventType.Entrance;
 
         public void Execute(RequestData<MapInstance> requestData)
         {
@@ -60,11 +60,15 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 requestData.ClientSession.SendPacket(miniland.GenerateMlinfo());
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateMlobjlst());
             }
+
             //TODO add pets
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR, requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount), SayColorType.Yellow)
-                );
+                    string.Format(
+                        Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
+                            requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount),
+                    SayColorType.Yellow)
+            );
         }
     }
 }

@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using LogLanguageKey = NosCore.Data.Enumerations.I18N.LogLanguageKey;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Data.DataAttributes
 {

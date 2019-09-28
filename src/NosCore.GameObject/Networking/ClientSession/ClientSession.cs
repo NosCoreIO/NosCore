@@ -17,6 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.Attributes;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
@@ -39,40 +44,44 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession : NetworkClient, IClientSession
     {
+        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic =
+            new Dictionary<Type, PacketHeaderAttribute>();
+
         private readonly IExchangeProvider _exchangeProvider;
+        private readonly IFriendHttpClient _friendHttpClient;
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-        private readonly IEnumerable<IPacketHandler> _packetsHandlers;
-        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new Dictionary<Type, PacketHeaderAttribute>();
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IMinilandProvider _minilandProvider;
-        private readonly IFriendHttpClient _friendHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
+        private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
-            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, null) { }
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer,
+                packetHttpClient, null)
+        {
+        }
 
-        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider, IExchangeProvider exchangeProvider, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient, ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IMinilandProvider minilandProvider) : base(logger)
+        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider,
+            IExchangeProvider exchangeProvider, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            IMinilandProvider minilandProvider) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
@@ -113,7 +122,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             get
             {
-                if (_character != null && !HasSelectedCharacter)
+                if ((_character != null) && !HasSelectedCharacter)
                 {
                     // cant access an
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_NOT_INIT));
@@ -158,7 +167,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
-            if (Character == null || !Character.IsDisconnecting)
+            if ((Character == null) || !Character.IsDisconnecting)
             {
                 if (Character != null)
                 {
@@ -167,12 +176,14 @@ namespace NosCore.GameObject.Networking.ClientSession
                     {
                         Character.Hp = 1;
                     }
+
                     Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                     if (targetId.HasValue)
                     {
-                        var closeExchange = _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                        var closeExchange =
+                            _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
                         if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
                         {
                             target.SendPacket(closeExchange);
@@ -191,7 +202,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public void ChangeMap() => ChangeMap(null, null, null);
+        public void ChangeMap()
+        {
+            ChangeMap(null, null, null);
+        }
 
         public void ChangeMap(short? mapId, short? mapX, short? mapY)
         {
@@ -202,7 +216,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short) mapId);
             }
 
             try
@@ -217,11 +231,14 @@ namespace NosCore.GameObject.Networking.ClientSession
             ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
         }
 
-        public void ChangeMapInstance(Guid mapInstanceId) => ChangeMapInstance(mapInstanceId, null, null);
+        public void ChangeMapInstance(Guid mapInstanceId)
+        {
+            ChangeMapInstance(mapInstanceId, null, null);
+        }
 
         public void ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
         {
-            if (Character?.MapInstance == null || Character.IsChangingMapInstance)
+            if ((Character?.MapInstance == null) || Character.IsChangingMapInstance)
             {
                 return;
             }
@@ -253,17 +270,17 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
-                    if (mapX != null && mapY != null)
+                    if ((mapX != null) && (mapY != null))
                     {
-                        Character.MapX = (short)mapX;
-                        Character.MapY = (short)mapY;
+                        Character.MapX = (short) mapX;
+                        Character.MapY = (short) mapY;
                     }
                 }
 
-                if (mapX != null && mapY != null)
+                if ((mapX != null) && (mapY != null))
                 {
-                    Character.PositionX = (short)mapX;
-                    Character.PositionY = (short)mapY;
+                    Character.PositionX = (short) mapX;
+                    Character.PositionY = (short) mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -276,38 +293,40 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GeneratePairy(
-                    Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy,
+                    Character.Inventory.LoadBySlotAndType((byte) EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
                 SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 var minilandPortals = _minilandProvider
-                .GetMinilandPortals(Character.CharacterId)
-                .Where(s => s.SourceMapInstanceId == mapInstanceId)
-                .ToList();
+                    .GetMinilandPortals(Character.CharacterId)
+                    .Where(s => s.SourceMapInstanceId == mapInstanceId)
+                    .ToList();
 
                 if (minilandPortals.Count > 0)
                 {
                     SendPackets(minilandPortals.Select(s => s.GenerateGp()));
                 }
+
                 SendPacket(Character.Group.GeneratePinit());
                 if (!Character.Group.IsEmpty)
                 {
                     SendPackets(Character.Group.GeneratePst());
                 }
 
-                if (Character.Group.Type == GroupType.Group && Character.Group.Count > 1)
+                if ((Character.Group.Type == GroupType.Group) && (Character.Group.Count > 1))
                 {
                     Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
-                    s != Character && s.MapInstance.MapInstanceId == Character.MapInstanceId);
+                    (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
 
                 Parallel.ForEach(mapSessions, s =>
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]" : string.Empty));
+                        ? $"[{Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
+                        : string.Empty));
                     if (s.Shop != null)
                     {
                         SendPacket(s.GeneratePFlag());
@@ -327,7 +346,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapInstance.Sessions.Add(Channel);
                 }
 
-                Character.MapInstance.Requests[MapInstanceEventType.Entrance].OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
+                Character.MapInstance.Requests[MapInstanceEventType.Entrance]
+                    .OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
 
                 Character.IsChangingMapInstance = false;
             }
@@ -359,7 +379,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     if (contex != null)
                     {
-                        if (LastKeepAliveIdentity != 0 && packet.KeepAliveId != LastKeepAliveIdentity + 1)
+                        if ((LastKeepAliveIdentity != 0) && (packet.KeepAliveId != LastKeepAliveIdentity + 1))
                         {
                             _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
                                 ClientId);
@@ -367,14 +387,16 @@ namespace NosCore.GameObject.Networking.ClientSession
                             return;
                         }
 
-                        if (!_waitForPacketsAmount.HasValue && LastKeepAliveIdentity == 0)
+                        if (!_waitForPacketsAmount.HasValue && (LastKeepAliveIdentity == 0))
                         {
                             SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
-                            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED), SessionId);
+                            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
+                                SessionId);
                             _waitForPacketsAmount = 2;
                             continue;
                         }
-                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+
+                        LastKeepAliveIdentity = (ushort) packet.KeepAliveId;
 
                         if (packet.KeepAliveId == null)
                         {
@@ -388,7 +410,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
-                            LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                            LastKeepAliveIdentity = (ushort) packet.KeepAliveId;
                             continue;
                         }
 
@@ -410,14 +432,16 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (packet.Header != "0")
                     {
                         var packetHeader = packet.Header;
-                        if (string.IsNullOrWhiteSpace(packetHeader) && contex != null)
+                        if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
                         {
-                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), packet);
+                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
+                                packet);
                             Disconnect();
                             return;
                         }
 
-                        var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                        var handler = _packetsHandlers.FirstOrDefault(s =>
+                            s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
                         if (handler != null)
                         {
                             if (packet.IsValid)
@@ -425,20 +449,21 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 var attr = _attributeDic[packet.GetType()];
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
-                                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    _logger.Warning(
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
                                     continue;
                                 }
 
                                 //check for the correct authority
-                                if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader && (byte)commandHeader.Authority > (byte)Account.Authority)
+                                if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
+                                    ((byte) commandHeader.Authority > (byte) Account.Authority))
                                 {
                                     continue;
                                 }
 
                                 handler.Execute(packet, this);
                             }
-
                         }
                         else
                         {
@@ -456,7 +481,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    var handler = _packetsHandlers.FirstOrDefault(s => s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                    var handler = _packetsHandlers.FirstOrDefault(s =>
+                        s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
                     if (handler != null)
                     {
                         handler.Execute(packet, this);

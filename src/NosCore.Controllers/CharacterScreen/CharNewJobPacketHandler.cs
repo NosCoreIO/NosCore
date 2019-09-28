@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
         private readonly IGenericDao<CharacterDto> _characterDao;
+
         public CharNewJobPacketHandler(IGenericDao<CharacterDto> characterDao)
         {
             _characterDao = characterDao;
@@ -40,7 +41,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             //TODO add a flag on Account
             if (_characterDao.FirstOrDefault(s =>
-                s.Level >= 80 && s.AccountId == clientSession.Account.AccountId && s.State == CharacterState.Active) == null)
+                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) &&
+                (s.State == CharacterState.Active)) == null)
             {
                 //Needs at least a level 80 to create a martial artist
                 //TODO log
@@ -48,8 +50,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             if (_characterDao.FirstOrDefault(s =>
-                s.AccountId == clientSession.Account.AccountId &&
-                s.Class == CharacterClassType.MartialArtist && s.State == CharacterState.Active) != null)
+                (s.AccountId == clientSession.Account.AccountId) &&
+                (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)) != null)
             {
                 //If already a martial artist, can't create another
                 //TODO log
@@ -57,7 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             //todo add cooldown for recreate 30days
 
-            clientSession.HandlePackets(new[] { packet.Adapt<CharNewPacket>() });
+            clientSession.HandlePackets(new[] {packet.Adapt<CharNewPacket>()});
         }
     }
 }

@@ -1,13 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Data.Enumerations.I18N;
-using Polly;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -15,19 +6,28 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using NosCore.Data.Enumerations;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using NosCore.Core.Encryption;
+using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.I18N;
+using Polly;
+using Serilog;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
     public class ChannelHttpClient : IChannelHttpClient
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Channel _channel;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private string _token;
         private DateTime _lastUpdateToken;
+        private string _token;
 
         public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
         {
@@ -52,7 +52,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                         _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => client.PostAsync($"api/channel", content));
+                ).ExecuteAsync(() => client.PostAsync("api/channel", content));
 
             var result =
                 JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
@@ -80,9 +80,11 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
-            var content = new StringContent(JsonConvert.SerializeObject(SystemTime.Now()), Encoding.Default, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(SystemTime.Now()), Encoding.Default,
+                "application/json");
 
-            var postResponse = client.PatchAsync($"api/channel?id=" + MasterClientListSingleton.Instance.ChannelId ?? "", content).Result;
+            var postResponse = client
+                .PatchAsync("api/channel?id=" + MasterClientListSingleton.Instance.ChannelId ?? "", content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<HttpStatusCode>(postResponse.Content.ReadAsStringAsync().Result);
@@ -105,13 +107,15 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                         password = _channel.MasterCommunication.Password.ToBcrypt(_channel.MasterCommunication.Salt);
                         break;
                     case HashingType.Pbkdf2:
-                        password = _channel.MasterCommunication.Password.ToPbkdf2Hash(_channel.MasterCommunication.Salt);
+                        password = _channel.MasterCommunication.Password.ToPbkdf2Hash(_channel.MasterCommunication
+                            .Salt);
                         break;
                     case HashingType.Sha512:
                     default:
                         password = _channel.MasterCommunication.Password.ToSha512();
                         break;
                 }
+
                 var keyByteArray = Encoding.Default.GetBytes(password);
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
@@ -130,13 +134,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 _channel.Token = handler.WriteToken(securityToken);
                 var content = new StringContent(JsonConvert.SerializeObject(_channel),
                     Encoding.Default, "application/json");
-                var message = client.PutAsync($"api/channel", content);
+                var message = client.PutAsync("api/channel", content);
                 var result =
                     JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
                 _token = result.Token;
                 _lastUpdateToken = SystemTime.Now();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
             }
+
             return _token;
         }
 
@@ -147,12 +152,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             {
                 var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
 
-                var response = client.GetAsync($"api/channel").Result;
+                var response = client.GetAsync("api/channel").Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync().Result);
+                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync()
+                        .Result);
                 }
             }
 
@@ -166,12 +173,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             {
                 var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
 
                 var response = client.GetAsync($"api/channel?id={channelId}").Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync().Result);
+                    channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync()
+                        .Result);
                 }
             }
 

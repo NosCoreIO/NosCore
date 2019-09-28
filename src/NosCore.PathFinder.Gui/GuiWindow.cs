@@ -17,15 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database.DAL;
+using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
@@ -34,12 +40,9 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using NosCore.Data.Dto;
+using Map = NosCore.GameObject.Map.Map;
+using MapMonster = NosCore.Database.Entities.MapMonster;
+using MapNpc = NosCore.Database.Entities.MapNpc;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -48,17 +51,18 @@ namespace NosCore.PathFinder.Gui
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly byte _gridsize;
         private readonly Map _map;
-        private readonly List<MapMonster> _monsters;
-        private readonly List<MapNpc> _npcs;
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
+
+        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<MapNpc, MapNpcDto>(_logger);
+        private readonly List<GameObject.MapMonster> _monsters;
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto>(_logger);
+        private readonly List<GameObject.MapNpc> _npcs;
         private readonly int _originalHeight;
         private readonly int _originalWidth;
         private readonly List<Tuple<short, short, byte>> _walls = new List<Tuple<short, short, byte>>();
         private double _gridsizeX;
         private double _gridsizeY;
 
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<Database.Entities.MapNpc, MapNpcDto>(_logger);
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<Database.Entities.MapMonster, MapMonsterDto>(_logger);
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<Database.Entities.NpcMonster, NpcMonsterDto>(_logger);
         public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
             width * gridsize, height * gridsize, mode, title)
         {
@@ -69,7 +73,7 @@ namespace NosCore.PathFinder.Gui
             _gridsizeY = gridsize;
             _gridsize = gridsize;
             _monsters = _mapMonsterDao.Where(s => s.MapId == map.MapId)
-                .Adapt<List<MapMonster>>();
+                .Adapt<List<GameObject.MapMonster>>();
             var npcMonsters = _npcMonsterDao.LoadAll().ToList();
             var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
@@ -90,7 +94,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Cast<MapNpc>().ToList();
+            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Cast<GameObject.MapNpc>().ToList();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
@@ -124,8 +128,8 @@ namespace NosCore.PathFinder.Gui
 
             GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             foreach (var wall in _walls)

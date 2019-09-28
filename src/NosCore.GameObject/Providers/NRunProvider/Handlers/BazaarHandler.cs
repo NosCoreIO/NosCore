@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -24,15 +26,16 @@ using NosCore.Core;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using System;
-using System.Linq;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class BazaarHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.OpenNosBazaar
-            && item.Item1 is MapNpc;
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
+        {
+            return (item.Item2.Runner == NrunRunnerType.OpenNosBazaar)
+                && item.Item1 is MapNpc;
+        }
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
@@ -42,17 +45,19 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             }
 
             var medalBonus = requestData.ClientSession.Character.StaticBonusList
-                .FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            byte medal = medalBonus != null ? (medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver) : (byte)0;
-            int time = medalBonus != null ? (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours : 0;
+                .FirstOrDefault(s =>
+                    (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
+                    (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
+            var medal = medalBonus != null ? medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold
+                ? (byte) MedalType.Gold : (byte) MedalType.Silver : (byte) 0;
+            var time = medalBonus != null ? (int) (medalBonus.DateEnd - SystemTime.Now()).TotalHours : 0;
 
             requestData.ClientSession.SendPacket(new WopenPacket
             {
                 Type = WindowType.NosBazaar,
                 Unknown = medal,
-                Unknown2 = (byte)time
+                Unknown2 = (byte) time
             });
-
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
+//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -17,18 +17,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Families;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using System.Collections.Generic;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.Database.Entities.Base;
 
-namespace NosCore.PacketHandlers.NoAction
+namespace NosCore.Database.Entities
 {
-    public class FStashEndPackettHandler : PacketHandler<FStashEndPacket>, IWorldPacketHandler
+    public class Warehouse : SynchronizableBaseEntity
     {
-        public override void Execute(FStashEndPacket packet, ClientSession clientSession)
+        public Warehouse()
         {
-            //noaction
+            WarehouseItems = new HashSet<WarehouseItem>();
         }
-    }
 
+        public virtual Character Character { get; set; }
+
+        public long? CharacterId { get; set; }
+
+        public virtual Family Family { get; set; }
+
+        public long? FamilyId { get; set; }
+
+        public virtual ICollection<WarehouseItem> WarehouseItems { get; set; }
+
+        public WarehouseType Type { get; set; }
+    }
 }

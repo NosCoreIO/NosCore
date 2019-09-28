@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -24,7 +25,6 @@ using DotNetty.Transport.Channels.Sockets;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using System.Collections.Generic;
 
 namespace NosCore.GameObject.Networking
 {

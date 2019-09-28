@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Database.Entities
 {
@@ -29,6 +29,7 @@ namespace NosCore.Database.Entities
         {
             FamilyCharacters = new HashSet<FamilyCharacter>();
             FamilyLogs = new HashSet<FamilyLog>();
+            Warehouses = new HashSet<Warehouse>();
         }
 
         public virtual ICollection<FamilyCharacter> FamilyCharacters { get; set; }
@@ -69,5 +70,7 @@ namespace NosCore.Database.Entities
         public string Name { get; set; }
 
         public byte WarehouseSize { get; set; }
+
+        public virtual ICollection<Warehouse> Warehouses { get; set; }
     }
 }

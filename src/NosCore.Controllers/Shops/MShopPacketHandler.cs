@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Shop;
@@ -31,7 +32,6 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
-using System;
 
 namespace NosCore.PacketHandlers.Shops
 {
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            if (clientSession.Character.Group != null && clientSession.Character.Group?.Type != GroupType.Group)
+            if ((clientSession.Character.Group != null) && (clientSession.Character.Group?.Type != GroupType.Group))
             {
                 clientSession.SendPacket(new MsgPacket
                 {
@@ -94,7 +94,8 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot, (NoscorePocketType)item.Type);
+                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot,
+                            (NoscorePocketType) item.Type);
                         if (inv == null)
                         {
                             //log
@@ -107,9 +108,9 @@ namespace NosCore.PacketHandlers.Shops
                             return;
                         }
 
-                        if (!inv.ItemInstance.Item.IsTradable || inv.ItemInstance.BoundCharacterId != null)
+                        if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
-                            clientSession.SendPacket(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
+                            clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
                             clientSession.SendPacket(clientSession.Character.GenerateSay(
                                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     clientSession.Account.Language),
@@ -123,7 +124,7 @@ namespace NosCore.PacketHandlers.Shops
                             {
                                 Amount = item.Amount,
                                 Price = item.Price,
-                                Slot = (byte)shopSlot,
+                                Slot = (byte) shopSlot,
                                 Type = 0,
                                 ItemInstance = inv.ItemInstance
                             });
@@ -131,7 +132,7 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (clientSession.Character.Shop.ShopItems.Count == 0)
                     {
-                        clientSession.SendPacket(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
+                        clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
                             SayColorType.Yellow));
@@ -144,7 +145,8 @@ namespace NosCore.PacketHandlers.Shops
                     clientSession.Character.Shop.ShopId = 501;
                     clientSession.Character.Shop.Size = 60;
                     clientSession.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
-                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, clientSession.Account.Language) :
+                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP,
+                            clientSession.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
                     clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateShop());
@@ -155,7 +157,8 @@ namespace NosCore.PacketHandlers.Shops
                     });
 
                     clientSession.Character.Requests.Subscribe(data =>
-                        data.ClientSession.SendPacket(clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
+                        data.ClientSession.SendPacket(
+                            clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel.Id));
                     clientSession.Character.IsSitting = true;
@@ -175,5 +178,4 @@ namespace NosCore.PacketHandlers.Shops
             }
         }
     }
-
 }

@@ -28,7 +28,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 
-namespace NosCore.PacketHandlers.Inventory
+namespace NosCore.PacketHandlers.Miniland
 {
     public class RmvobjPacketHandler : PacketHandler<RmvobjPacket>, IWorldPacketHandler
     {
@@ -41,7 +41,8 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override void Execute(RmvobjPacket rmvobjPacket, ClientSession clientSession)
         {
-            var minilandobject = clientSession.Character.Inventory.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
+            var minilandobject =
+                clientSession.Character.Inventory.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
                 return;
@@ -51,7 +52,8 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK, clientSession.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
+                        clientSession.Account.Language)
                 });
                 return;
             }
@@ -67,9 +69,11 @@ namespace NosCore.PacketHandlers.Inventory
                 //todo warehouse
                 //clientSession.Character.WareHouseSize = 0;
             }
+
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             clientSession.SendPacket(minilandObject.GenerateEffect(true));
-            clientSession.SendPacket(new MinilandPointPacket { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
+            clientSession.SendPacket(new MinilandPointPacket
+                {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
             clientSession.SendPacket(minilandObject.GenerateMapDesignObject(true));
         }
     }

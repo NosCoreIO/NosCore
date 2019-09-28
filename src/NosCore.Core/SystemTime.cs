@@ -25,7 +25,10 @@ namespace NosCore.Core
     {
         public static Func<DateTime> Now = () => DateTime.UtcNow;
 
-        public static void Freeze() => Freeze(new DateTime(2000, 1, 1));
+        public static void Freeze()
+        {
+            Freeze(new DateTime(2000, 1, 1));
+        }
 
         public static void Freeze(DateTime time)
         {

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using System;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -53,9 +53,11 @@ namespace NosCore.WorldServer.Controllers
             if (data.ItemInstance != null)
             {
                 session.SendPacket(session.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage), data.ItemInstance.Amount), SayColorType.Green));
+                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage),
+                        data.ItemInstance.Amount), SayColorType.Green));
             }
-            session.GenerateMail(new[] { data });
+
+            session.GenerateMail(new[] {data});
             return Ok();
         }
 
@@ -78,7 +80,7 @@ namespace NosCore.WorldServer.Controllers
             {
                 Type = 2,
                 PostType = postType,
-                Id = mailId,
+                Id = mailId
             });
             return Ok();
         }

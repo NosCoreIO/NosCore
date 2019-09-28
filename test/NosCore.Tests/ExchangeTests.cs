@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.StaticEntities;
 
 namespace NosCore.Tests
 {
@@ -60,10 +60,11 @@ namespace NosCore.Tests
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012},
-                new Item {Type = NoscorePocketType.Main, VNum = 1013},
+                new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            _itemProvider = new ItemProvider(items, new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, _logger);
         }
 
@@ -77,7 +78,8 @@ namespace NosCore.Tests
             var data1 = _exchangeProvider.GetData(1);
             var data2 = _exchangeProvider.GetData(2);
 
-            Assert.IsTrue(data1.Gold == 1000 && data1.BankGold == 1000 && data2.Gold == 2000 && data2.BankGold == 2000);
+            Assert.IsTrue((data1.Gold == 1000) && (data1.BankGold == 1000) && (data2.Gold == 2000) &&
+                (data2.BankGold == 2000));
         }
 
         [TestMethod]
@@ -111,7 +113,8 @@ namespace NosCore.Tests
 
             var data1 = _exchangeProvider.GetData(1);
 
-            Assert.IsTrue(data1.ExchangeItems.Any(s => s.Key.ItemInstance.ItemVNum == 1012 && s.Key.ItemInstance.Amount == 1));
+            Assert.IsTrue(data1.ExchangeItems.Any(s =>
+                (s.Key.ItemInstance.ItemVNum == 1012) && (s.Key.ItemInstance.Amount == 1)));
         }
 
         [TestMethod]
@@ -133,7 +136,7 @@ namespace NosCore.Tests
 
             _exchangeProvider.OpenExchange(1, 2);
             var goodClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
-            Assert.IsTrue(goodClose != null && goodClose.Type == ExchangeResultType.Failure);
+            Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
         }
 
         [TestMethod]
@@ -157,19 +160,21 @@ namespace NosCore.Tests
         public void Test_Process_Exchange()
         {
             IInventoryService inventory1 =
-                new InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = NoscorePocketType.Main}},
                     _worldConfiguration, _logger);
             IInventoryService inventory2 =
-                new InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
+                new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = NoscorePocketType.Main}},
                     _worldConfiguration, _logger);
-            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0)).First();
-            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0)).First();
+            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0))
+                .First();
+            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))
+                .First();
 
             _exchangeProvider.OpenExchange(1, 2);
             _exchangeProvider.AddItems(1, item1, 1);
             _exchangeProvider.AddItems(2, item2, 1);
             var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
-            Assert.IsTrue(itemList.Count(s => s.Key == 1) == 2 && itemList.Count(s => s.Key == 2) == 2);
+            Assert.IsTrue((itemList.Count(s => s.Key == 1) == 2) && (itemList.Count(s => s.Key == 2) == 2));
         }
     }
 }

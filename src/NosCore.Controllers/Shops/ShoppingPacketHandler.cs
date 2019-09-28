@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Shops;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -27,7 +28,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
-using System;
 
 namespace NosCore.PacketHandlers.Shops
 {
@@ -57,7 +57,8 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 case VisualType.Npc:
                     shopRate = clientSession.Character.GenerateShopRates();
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
+                    aliveEntity =
+                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:
@@ -76,5 +77,4 @@ namespace NosCore.PacketHandlers.Shops
             clientSession.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
         }
     }
-
 }
