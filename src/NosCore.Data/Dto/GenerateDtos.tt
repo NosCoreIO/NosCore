@@ -10,6 +10,8 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #> 
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
+
 <#
 	foreach(var ns in GetNamespaceElements()) {
 		foreach(var cc in ns.Members.OfType<EnvDTE.CodeClass>()) {
@@ -133,7 +135,8 @@ namespace <#= classNamespace #>
 
 	IEnumerable<EnvDTE.CodeNamespace> GetNamespaceElements()
 	{
-		var visualStudio = (this.Host as IServiceProvider).GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+		var serviceProvider = (IServiceProvider)this.Host;
+		var visualStudio = (EnvDTE.DTE) serviceProvider.GetCOMService(typeof(EnvDTE.DTE));
 		var project = visualStudio.Solution.FindProjectItem(this.Host.ResolvePath("../../NosCore.Database/Entities/Account.cs"))
 			.ContainingProject as EnvDTE.Project;
 		var projItems = new List<EnvDTE.ProjectItem>();
