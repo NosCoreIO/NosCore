@@ -98,12 +98,6 @@ namespace NosCore.PacketHandlers.Miniland
                 }
             }
 
-            if (minilandobject.ItemInstance.Item.IsWarehouse)
-            {
-                //TODO add warehouse points
-                //clientSession.Character.WareHouseSize = minilandobject.ItemInstance.Item.MinilandObjectPoint;
-            }
-
             clientSession.SendPacket(minilandobj.GenerateEffect());
             clientSession.SendPacket(new MinilandPointPacket
                 {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
