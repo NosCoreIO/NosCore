@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Families;
+using ChickenAPI.Packets.ClientPackets.Warehouse;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.PacketHandlers.NoAction
+namespace NosCore.PacketHandlers.Warehouse
 {
     public class FStashEndPackettHandler : PacketHandler<FStashEndPacket>, IWorldPacketHandler
     {
