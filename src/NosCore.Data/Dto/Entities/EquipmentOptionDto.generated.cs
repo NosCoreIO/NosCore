@@ -1,4 +1,5 @@
  
+
 //  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
@@ -22,6 +23,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using Mapster;
 
 namespace NosCore.Data.Dto
 {
