@@ -42,6 +42,7 @@ namespace NosCore.Database.Entities
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
             Miniland = new HashSet<Miniland>();
+            Warehouses = new HashSet<Warehouse>();
         }
 
         public virtual Account Account { get; set; }
@@ -187,5 +188,6 @@ namespace NosCore.Database.Entities
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
+        public virtual ICollection<Warehouse> Warehouses { get; set; }
     }
 }

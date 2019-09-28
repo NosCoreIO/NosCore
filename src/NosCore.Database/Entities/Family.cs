@@ -29,6 +29,7 @@ namespace NosCore.Database.Entities
         {
             FamilyCharacters = new HashSet<FamilyCharacter>();
             FamilyLogs = new HashSet<FamilyLog>();
+            Warehouses = new HashSet<Warehouse>();
         }
 
         public virtual ICollection<FamilyCharacter> FamilyCharacters { get; set; }
@@ -69,5 +70,7 @@ namespace NosCore.Database.Entities
         public string Name { get; set; }
 
         public byte WarehouseSize { get; set; }
+
+        public virtual ICollection<Warehouse> Warehouses { get; set; }
     }
 }
