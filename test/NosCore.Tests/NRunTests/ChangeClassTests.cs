@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -34,9 +37,6 @@ using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.Tests.NRunTests
 {
@@ -46,8 +46,8 @@ namespace NosCore.Tests.NRunTests
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private IItemProvider _item;
-        private ClientSession _session;
         private NrunPacketHandler _nRunHandler;
+        private ClientSession _session;
 
         [TestInitialize]
         public void Setup()
@@ -71,12 +71,12 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             }, _session);
 
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language) && packet.Type == MessageType.White);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -91,12 +91,12 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             }, _session);
 
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language) && packet.Type == MessageType.White);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -111,12 +111,12 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)CharacterClassType.Swordman
+                Type = (byte) CharacterClassType.Swordman
             }, _session);
 
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language) && packet.Type == MessageType.White);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -131,11 +131,12 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             }, _session);
 
-            Assert.IsTrue(_session.Character.Class == CharacterClassType.Adventurer && _session.Character.Level == 15 &&
-                _session.Character.JobLevel == 20);
+            Assert.IsTrue((_session.Character.Class == CharacterClassType.Adventurer) &&
+                (_session.Character.Level == 15) &&
+                (_session.Character.JobLevel == 20));
         }
 
         [DataTestMethod]
@@ -151,11 +152,11 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             }, _session);
 
-            Assert.IsTrue(_session.Character.Class == characterClass && _session.Character.Level == 15 &&
-                _session.Character.JobLevel == 1);
+            Assert.IsTrue((_session.Character.Class == characterClass) && (_session.Character.Level == 15) &&
+                (_session.Character.JobLevel == 1));
         }
 
         [DataTestMethod]
@@ -174,12 +175,12 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)characterClass
+                Type = (byte) characterClass
             }, _session);
 
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language) && packet.Type == MessageType.White);
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
     }
 }

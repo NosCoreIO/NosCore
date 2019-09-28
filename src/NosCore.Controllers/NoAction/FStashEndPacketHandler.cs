@@ -30,5 +30,4 @@ namespace NosCore.PacketHandlers.NoAction
             //noaction
         }
     }
-
 }

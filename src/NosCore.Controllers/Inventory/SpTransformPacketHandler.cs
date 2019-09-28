@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Specialists;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -28,18 +29,16 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using System;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-
         public override void Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
-            SpecialistInstance specialistInstance =
-              clientSession.Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Sp,
-                  NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
+            var specialistInstance =
+                clientSession.Character.Inventory.LoadBySlotAndType((byte) EquipmentType.Sp,
+                    NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
 
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
@@ -72,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                double currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
+                var currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
 
                 if (clientSession.Character.UseSp)
                 {
@@ -81,7 +80,7 @@ namespace NosCore.PacketHandlers.Inventory
                 }
                 else
                 {
-                    if (clientSession.Character.SpPoint == 0 && clientSession.Character.SpAdditionPoint == 0)
+                    if ((clientSession.Character.SpPoint == 0) && (clientSession.Character.SpAdditionPoint == 0))
                     {
                         clientSession.SendPacket(new MsgPacket
                         {
@@ -103,9 +102,9 @@ namespace NosCore.PacketHandlers.Inventory
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
+                                Packet = new SpTransformPacket {Type = SlPacketType.WearSp}
                             });
-                            clientSession.Character.MapInstance.Sessions.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
+                            clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,
@@ -118,7 +117,8 @@ namespace NosCore.PacketHandlers.Inventory
                         clientSession.SendPacket(new MsgPacket
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                clientSession.Account.Language), clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                                    clientSession.Account.Language),
+                                clientSession.Character.SpCooldown - (int) Math.Round(currentRunningSeconds))
                         });
                     }
                 }

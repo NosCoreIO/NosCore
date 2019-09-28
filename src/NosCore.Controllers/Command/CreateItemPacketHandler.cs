@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
@@ -25,6 +26,7 @@ using NosCore.Data;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -32,19 +34,18 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using System.Collections.Generic;
-using NosCore.Data.StaticEntities;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class CreateItemPackettHandler : PacketHandler<CreateItemPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
+        private readonly ILogger _logger;
         private readonly WorldConfiguration _worldConfiguration;
 
-        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, WorldConfiguration worldConfiguration, IItemProvider itemProvider)
+        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, WorldConfiguration worldConfiguration,
+            IItemProvider itemProvider)
         {
             _logger = logger;
             _items = items;
@@ -75,15 +76,15 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            if (iteminfo.IsColored || iteminfo.Effect == ItemEffectType.BoxEffect)
+            if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))
             {
                 if (createItemPacket.DesignOrAmount.HasValue)
                 {
-                    design = (byte)createItemPacket.DesignOrAmount.Value;
+                    design = (byte) createItemPacket.DesignOrAmount.Value;
                 }
 
-                rare = createItemPacket.Upgrade.HasValue && iteminfo.Effect == ItemEffectType.BoxEffect
-                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
+                rare = createItemPacket.Upgrade.HasValue && (iteminfo.Effect == ItemEffectType.BoxEffect)
+                    ? (sbyte) createItemPacket.Upgrade.Value : rare;
             }
             else if (iteminfo.Type == NoscorePocketType.Equipment)
             {
@@ -98,8 +99,8 @@ namespace NosCore.PacketHandlers.Command
                         design = createItemPacket.Upgrade.Value;
                     }
 
-                    if (iteminfo.EquipmentSlot != EquipmentType.Sp && upgrade == 0
-                        && iteminfo.BasicUpgrade != 0)
+                    if ((iteminfo.EquipmentSlot != EquipmentType.Sp) && (upgrade == 0)
+                        && (iteminfo.BasicUpgrade != 0))
                     {
                         upgrade = iteminfo.BasicUpgrade;
                     }
@@ -109,11 +110,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                     {
-                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
+                        upgrade = (byte) createItemPacket.DesignOrAmount.Value;
                     }
                     else
                     {
-                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
+                        rare = (sbyte) createItemPacket.DesignOrAmount.Value;
                     }
                 }
             }
@@ -124,8 +125,9 @@ namespace NosCore.PacketHandlers.Command
                     ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(vnum,
-                amount: amount, rare: rare, upgrade: upgrade, design: design), session.Character.CharacterId));
+            var inv = session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(
+                vnum,
+                amount, rare, upgrade, design), session.Character.CharacterId));
 
             if (inv.Count <= 0)
             {
@@ -155,14 +157,15 @@ namespace NosCore.PacketHandlers.Command
                 else if (wearable.Item.EquipmentSlot is EquipmentType.Boots ||
                     wearable.Item.EquipmentSlot is EquipmentType.Gloves)
                 {
-                    wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
-                    wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
-                    wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
-                    wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                    wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
+                    wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
+                    wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
+                    wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
                 }
                 else
                 {
-                    _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                    _logger.Debug(
+                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
                 }
             }
 

@@ -17,11 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,27 +32,26 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
-using System;
-using System.Linq;
-using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         private readonly IAdapter _adapter;
-        private readonly ILogger _logger;
         private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IMapInstanceProvider _mapInstanceProvider;
-        private readonly IItemProvider _itemProvider;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
-        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IItemProvider _itemProvider;
+        private readonly ILogger _logger;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
+        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
 
-        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger, IItemProvider itemProvider,
+        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger,
+            IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
-            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao, IGenericDao<QuicklistEntryDto> quickListEntriesDao)
+            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
+            IGenericDao<QuicklistEntryDto> quickListEntriesDao)
         {
             _adapter = adapter;
             _characterDao = characterDao;
@@ -66,15 +68,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             try
             {
-                if (clientSession?.Account == null || clientSession.HasSelectedCharacter)
+                if ((clientSession?.Account == null) || clientSession.HasSelectedCharacter)
                 {
                     return;
                 }
 
                 var characterDto =
                     _characterDao.FirstOrDefault(s =>
-                        s.AccountId == clientSession.Account.AccountId && s.Slot == packet.Slot
-                        && s.State == CharacterState.Active);
+                        (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
+                        && (s.State == CharacterState.Active));
                 if (characterDto == null)
                 {
                     return;
@@ -96,7 +98,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
                 inventories.ForEach(k => character.Inventory[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)), character.CharacterId, k));
+                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)),
+                        character.CharacterId, k));
                 clientSession.SetCharacter(character);
 
 #pragma warning disable CS0618
@@ -105,24 +108,24 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SendPacket(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
-                    clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
+                    clientSession.Character.Hp = (int) clientSession.Character.HpLoad();
                 }
 
                 if (clientSession.Character.Mp > clientSession.Character.MpLoad())
                 {
-                    clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
+                    clientSession.Character.Mp = (int) clientSession.Character.MpLoad();
                 }
 
-                clientSession.Character.QuicklistEntries = _quickListEntriesDao.Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
-                clientSession.Character.StaticBonusList = _staticBonusDao.Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
+                clientSession.Character.QuicklistEntries = _quickListEntriesDao
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
+                clientSession.Character.StaticBonusList = _staticBonusDao
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.SendPacket(new OkPacket());
             }
             catch (Exception ex)
             {
                 _logger.Error("Select character failed.", ex);
             }
-
         }
     }
-
 }

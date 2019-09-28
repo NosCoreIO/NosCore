@@ -1,19 +1,19 @@
-﻿using ChickenAPI.Packets.Enumerations;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.MasterServer.DataHolders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.Dto;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -21,11 +21,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class BazaarController : Controller
     {
-        private readonly BazaarItemsHolder _holder;
         private readonly IGenericDao<BazaarItemDto> _bazaarItemDao;
+        private readonly BazaarItemsHolder _holder;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
-        public BazaarController(BazaarItemsHolder holder, IGenericDao<BazaarItemDto> bazaarItemDao, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public BazaarController(BazaarItemsHolder holder, IGenericDao<BazaarItemDto> bazaarItemDao,
+            IGenericDao<IItemInstanceDto> itemInstanceDao)
         {
             _bazaarItemDao = bazaarItemDao;
             _itemInstanceDao = itemInstanceDao;
@@ -33,9 +34,10 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? TypeFilter, byte? SubTypeFilter, byte? LevelFilter, byte? RareFilter, byte? UpgradeFilter, long? sellerFilter)
+        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? TypeFilter,
+            byte? SubTypeFilter, byte? LevelFilter, byte? RareFilter, byte? UpgradeFilter, long? sellerFilter)
         {
-            var bzlist = new List<Data.WebApi.BazaarLink>();
+            var bzlist = new List<BazaarLink>();
 
             var applyRareFilter = false;
             var applyUpgradeFilter = false;
@@ -52,7 +54,8 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem.SellerId == sellerFilter || sellerFilter == null);
+                bzlinks = _holder.BazaarItems.Values.Where(s =>
+                    (s.BazaarItem.SellerId == sellerFilter) || (sellerFilter == null));
             }
 
             foreach (var bz in bzlinks)
@@ -82,8 +85,9 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Equipment;
                         if (SubTypeFilter > 0)
                         {
-                            var equipmentTypeFilter = (BazaarEquipmentType)SubTypeFilter;
+                            var equipmentTypeFilter = (BazaarEquipmentType) SubTypeFilter;
                         }
+
                         applyLevelFilter = true;
                         break;
 
@@ -92,8 +96,9 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Equipment;
                         if (SubTypeFilter > 0)
                         {
-                            var jeweleryTypeFilter = (BazaarJeweleryType)SubTypeFilter;
+                            var jeweleryTypeFilter = (BazaarJeweleryType) SubTypeFilter;
                         }
+
                         applyLevelFilter = true;
                         break;
 
@@ -121,15 +126,16 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Main;
                         if (SubTypeFilter > 0)
                         {
-                            var mainTypeFilter = (BazaarMainType)SubTypeFilter;
+                            var mainTypeFilter = (BazaarMainType) SubTypeFilter;
                         }
+
                         break;
 
                     case BazaarListType.Usable:
                         pocketType = PocketType.Etc;
                         if (SubTypeFilter > 0)
                         {
-                            var bazaarTypeFilter = (BazaarUsableType)SubTypeFilter;
+                            var bazaarTypeFilter = (BazaarUsableType) SubTypeFilter;
                         }
 
                         break;
@@ -142,14 +148,13 @@ namespace NosCore.MasterServer.Controllers
                     case BazaarListType.Vehicle:
                         itemType = ItemType.Box;
                         break;
-
-                    default:
-                        break;
                 }
+
                 bzlist.Add(bz);
             }
+
             //todo this need to be move to the filter when done
-            return bzlist.Skip((int)(index ?? 0 * pageSize ?? 0)).Take((byte)(pageSize ?? bzlist.Count)).ToList();
+            return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte) (pageSize ?? bzlist.Count)).ToList();
         }
 
 
@@ -161,12 +166,13 @@ namespace NosCore.MasterServer.Controllers
             {
                 throw new ArgumentException();
             }
-            if (bzlink.ItemInstance.Amount - count < 0 || count < 0)
+
+            if ((bzlink.ItemInstance.Amount - count < 0) || (count < 0))
             {
                 return false;
             }
 
-            if (bzlink.ItemInstance.Amount == count && requestCharacterName == bzlink.SellerName)
+            if ((bzlink.ItemInstance.Amount == count) && (requestCharacterName == bzlink.SellerName))
             {
                 _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
                 _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
@@ -174,7 +180,7 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                var item = (IItemInstanceDto)bzlink.ItemInstance;
+                var item = (IItemInstanceDto) bzlink.ItemInstance;
                 item.Amount -= count;
                 _itemInstanceDao.InsertOrUpdate(ref item);
             }
@@ -192,7 +198,8 @@ namespace NosCore.MasterServer.Controllers
             }
 
             var item = _itemInstanceDao.FirstOrDefault(s => s.Id == bazaarRequest.ItemInstanceId);
-            if (item == null || item.Amount < bazaarRequest.Amount || bazaarRequest.Amount < 0 || bazaarRequest.Price < 0)
+            if ((item == null) || (item.Amount < bazaarRequest.Amount) || (bazaarRequest.Amount < 0) ||
+                (bazaarRequest.Price < 0))
             {
                 throw new ArgumentException();
             }
@@ -226,23 +233,27 @@ namespace NosCore.MasterServer.Controllers
             _bazaarItemDao.InsertOrUpdate(ref bazaarItem);
             _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
                 new BazaarLink
-                { BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName, ItemInstance = item.Adapt<ItemInstanceDto>() });
+                {
+                    BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName,
+                    ItemInstance = item.Adapt<ItemInstanceDto>()
+                });
 
             return LanguageKey.OBJECT_IN_BAZAAR;
         }
 
         [HttpPatch]
-        public BazaarLink ModifyBazaar(long id, [FromBody]JsonPatchDocument<BazaarLink> bzMod)
+        public BazaarLink ModifyBazaar(long id, [FromBody] JsonPatchDocument<BazaarLink> bzMod)
         {
             var item = _holder.BazaarItems.Values
                 .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
-            if (item != null && item.BazaarItem.Amount == item.ItemInstance.Amount)
+            if ((item != null) && (item.BazaarItem.Amount == item.ItemInstance.Amount))
             {
                 bzMod.ApplyTo(item);
                 var bz = item.BazaarItem;
                 _bazaarItemDao.InsertOrUpdate(ref bz);
                 return item;
             }
+
             return null;
         }
     }

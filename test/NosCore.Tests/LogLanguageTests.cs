@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,13 +25,18 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Tests
 {
     [TestClass]
     public class LogLanguageTests
     {
-        readonly Dictionary<string, int> _dict = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _dict = new Dictionary<string, int>();
 
         public LogLanguageTests()
         {
@@ -47,14 +47,14 @@ namespace NosCore.Tests
             foreach (var file in list)
             {
                 var content = File.ReadAllText(file);
-                Regex regex = new Regex(
+                var regex = new Regex(
                     @"string\.Format\([\ss0-9A-Za-z_]*Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\s\n\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[\s\n\.0-9A-Za-z_\[\]]*)*\)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                 var matches = regex.Matches(content);
                 foreach (Match match in matches)
                 {
-                    int param = match.Groups?.Values?.Where(s => s.Name == "parameter").Count() ?? 0;
-                    string key = match.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value;
+                    var param = match.Groups?.Values?.Where(s => s.Name == "parameter").Count() ?? 0;
+                    var key = match.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value;
                     if (_dict.ContainsKey(key))
                     {
                         if (_dict[key] != param)
@@ -119,7 +119,7 @@ namespace NosCore.Tests
             foreach (var file in list)
             {
                 var content = File.ReadAllText(file);
-                Regex regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
+                var regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
                 var matches = regex.Matches(content);
                 foreach (Match match in matches)
                 {
@@ -145,7 +145,7 @@ namespace NosCore.Tests
                 var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                 var attribute = attributes.FirstOrDefault();
 
-                if (dict.ContainsKey($"LanguageKey.{val}") == false && attribute == null)
+                if ((dict.ContainsKey($"LanguageKey.{val}") == false) && (attribute == null))
                 {
                     uselessKeys.Append("\nLanguageKey ").Append(val).Append(" is not used!");
                 }
@@ -159,7 +159,7 @@ namespace NosCore.Tests
                 var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                 var attribute = attributes.FirstOrDefault();
 
-                if (dict.ContainsKey($"LogLanguageKey.{val}") == false && attribute == null)
+                if ((dict.ContainsKey($"LogLanguageKey.{val}") == false) && (attribute == null))
                 {
                     uselessKeys.Append("\nLogLanguageKey ").Append(val).Append(" is not used!");
                 }
@@ -190,7 +190,7 @@ namespace NosCore.Tests
                 var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];
-                if (value != $"#<{val.ToString()}>" && expectedCount != paramCount)
+                if ((value != $"#<{val.ToString()}>") && (expectedCount != paramCount))
                 {
                     unfound.Append(val)
                         .Append(

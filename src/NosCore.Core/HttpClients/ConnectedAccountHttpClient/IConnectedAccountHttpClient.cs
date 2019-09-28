@@ -1,6 +1,6 @@
-﻿using NosCore.Configuration;
+﻿using System.Collections.Generic;
+using NosCore.Configuration;
 using NosCore.Data.WebApi;
-using System.Collections.Generic;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {

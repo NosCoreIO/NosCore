@@ -53,6 +53,6 @@ namespace NosCore.Data.Enumerations.Items
         PetBasketUpgrade = 1007,
         PetBackpackUpgrade = 1008,
         BuffPotions = 6600,
-        MarriageSeparation = 6969,
+        MarriageSeparation = 6969
     }
 }

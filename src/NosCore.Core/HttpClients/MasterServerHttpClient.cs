@@ -1,28 +1,29 @@
-﻿using Newtonsoft.Json;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.Core.HttpClients
 {
     public class MasterServerHttpClient
     {
-        protected readonly IHttpClientFactory _httpClientFactory;
         private readonly Channel _channel;
         private readonly IChannelHttpClient _channelHttpClient;
+        protected readonly IHttpClientFactory _httpClientFactory;
 
-        public virtual string ApiUrl { get; set; }
-        public virtual bool RequireConnection { get; set; }
-
-        protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+        protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
+            IChannelHttpClient channelHttpClient)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _channelHttpClient = channelHttpClient;
         }
+
+        public virtual string ApiUrl { get; set; }
+        public virtual bool RequireConnection { get; set; }
 
         public virtual HttpClient Connect()
         {
@@ -31,8 +32,10 @@ namespace NosCore.Core.HttpClients
 
             if (RequireConnection)
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
             }
+
             return client;
         }
 
@@ -44,6 +47,7 @@ namespace NosCore.Core.HttpClients
             {
                 return null;
             }
+
             client.BaseAddress = new Uri(channel.WebApi.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
             return client;
@@ -86,7 +90,10 @@ namespace NosCore.Core.HttpClients
             return client.PostAsync(ApiUrl, content);
         }
 
-        protected T Get<T>() => Get<T>(null);
+        protected T Get<T>()
+        {
+            return Get<T>(null);
+        }
 
         protected T Get<T>(object id)
         {

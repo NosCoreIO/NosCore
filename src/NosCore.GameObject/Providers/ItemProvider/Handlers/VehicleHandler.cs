@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -28,20 +29,22 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
 using Serilog;
-using System;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class VehicleEventHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
+
         public VehicleEventHandler(ILogger logger)
         {
             _logger = logger;
         }
 
-        public bool Condition(Item.Item item) =>
-            item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
+        public bool Condition(Item.Item item)
+        {
+            return (item.ItemType == ItemType.Special) && (item.Effect == ItemEffectType.Vehicle);
+        }
 
         public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
@@ -53,19 +56,20 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (packet.Mode == 1 && !requestData.ClientSession.Character.IsVehicled)
+            if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.SendPacket(new DelayPacket
                 {
                     Type = 3,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot,
+                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType) itemInstance.Type,
+                        itemInstance.Slot,
                         2, 0)
                 });
                 return;
             }
 
-            if (packet.Mode == 2 && !requestData.ClientSession.Character.IsVehicled)
+            if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.Character.IsVehicled = true;
                 requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
@@ -73,10 +77,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.MorphDesign = 0;
                 requestData.ClientSession.Character.Morph =
                     itemInstance.ItemInstance.Item.SecondMorph == 0 ?
-                    (short)((short)requestData.ClientSession.Character.Gender + itemInstance.ItemInstance.Item.Morph) :
-                    requestData.ClientSession.Character.Gender == GenderType.Male
-                        ? itemInstance.ItemInstance.Item.Morph
-                        : itemInstance.ItemInstance.Item.SecondMorph;
+                        (short) ((short) requestData.ClientSession.Character.Gender +
+                            itemInstance.ItemInstance.Item.Morph) :
+                        requestData.ClientSession.Character.Gender == GenderType.Male
+                            ? itemInstance.ItemInstance.Item.Morph
+                            : itemInstance.ItemInstance.Item.SecondMorph;
 
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196));

@@ -17,6 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
@@ -36,6 +44,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
@@ -50,28 +59,20 @@ using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
+using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.OpenApi.Models;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
     public class Startup
     {
-        private MasterConfiguration _configuration;
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
+        private MasterConfiguration _configuration;
 
         private MasterConfiguration InitializeConfiguration()
         {
@@ -81,7 +82,7 @@ namespace NosCore.MasterServer
             builder.AddJsonFile("master.json", false);
             builder.Build().Bind(masterConfiguration);
             Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
-                validateAllProperties: true);
+                true);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(masterConfiguration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
@@ -93,15 +94,17 @@ namespace NosCore.MasterServer
         {
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-            var assemblyDb = typeof(Database.Entities.Account).Assembly.GetTypes();
+            var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
+            assemblyDto.Where(p =>
+                    typeof(IDto).IsAssignableFrom(p) &&
+                    (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
                 .ToList()
                 .ForEach(t =>
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] { containerBuilder });
+                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] {containerBuilder});
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -110,7 +113,11 @@ namespace NosCore.MasterServer
                 {
                     var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
                     {
-                        { typeof(I18NItemDto), c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto)o)) },
+                        {
+                            typeof(I18NItemDto),
+                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
+                        }
                     };
 
                     var items = c.Resolve<IGenericDao<ItemDto>>().LoadAll().ToList();
@@ -118,16 +125,18 @@ namespace NosCore.MasterServer
 
                     var regions = Enum.GetValues(typeof(RegionType));
                     var accessors = TypeAccessor.Create(typeof(ItemDto));
-                    Parallel.ForEach(items, (s) => (s).InjectI18N(props, dic, regions, accessors));
-                    StaticMetaDataAttribute staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
+                    Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
+                    var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
                     if (items.Count != 0)
                     {
-                        c.Resolve<Serilog.ILogger>().Information(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                        c.Resolve<ILogger>().Information(
+                            LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
                             items.Count);
                     }
                     else
                     {
-                        c.Resolve<Serilog.ILogger>().Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
+                        c.Resolve<ILogger>()
+                            .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
                     }
 
                     return items;
@@ -151,7 +160,7 @@ namespace NosCore.MasterServer
                 MasterCommunication = _configuration.WebApi,
                 ClientName = "Master Server",
                 ClientType = ServerType.MasterServer,
-                WebApi = _configuration.WebApi,
+                WebApi = _configuration.WebApi
             });
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
@@ -177,10 +186,11 @@ namespace NosCore.MasterServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { _configuration.WebApi.ToString() }
+                Addresses = {_configuration.WebApi.ToString()}
             });
             LogLanguage.Language = _configuration.Language;
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
+            services.AddSwaggerGen(c =>
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "NosCore Master API", Version = "v1"}));
             string password;
             switch (_configuration.WebApi.HashingType)
             {
@@ -195,6 +205,7 @@ namespace NosCore.MasterServer
                     password = _configuration.WebApi.Password.ToSha512();
                     break;
             }
+
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             services.AddHttpClient();

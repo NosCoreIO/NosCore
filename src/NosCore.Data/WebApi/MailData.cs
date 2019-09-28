@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using ChickenAPI.Packets.ServerPackets.Visibility;
-using System;
 using NosCore.Data.Dto;
 
 namespace NosCore.Data.WebApi
@@ -40,8 +40,8 @@ namespace NosCore.Data.WebApi
             return new PostPacket
             {
                 Type = 5,
-                PostType = (byte)type,
-                Id = (short)MailId,
+                PostType = (byte) type,
+                Id = (short) MailId,
                 Unknown = 0,
                 PostSubPacket = new PostSubPacket
                 {
@@ -66,7 +66,7 @@ namespace NosCore.Data.WebApi
                 },
                 SenderName = SenderName,
                 Title = MailDto.Title,
-                Message = MailDto.Message,
+                Message = MailDto.Message
             };
         }
 
@@ -79,11 +79,11 @@ namespace NosCore.Data.WebApi
                     return new ParcelPacket
                     {
                         Type = 1,
-                        Unknown = type == 0 ? (byte)1 : (byte)2,
-                        Id = (short)MailId,
+                        Unknown = type == 0 ? (byte) 1 : (byte) 2,
+                        Id = (short) MailId,
                         ParcelAttachment = new ParcelAttachmentSubPacket
                         {
-                            TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
+                            TitleType = MailDto.Title == "NOSMALL" ? (byte) 1 : (byte) 4,
                             Unknown2 = 0,
                             Date = MailDto.Date.ToString("yyMMddHHmm"),
                             Title = MailDto.Title,
@@ -98,13 +98,13 @@ namespace NosCore.Data.WebApi
                     {
                         Type = 1,
                         PostType = type,
-                        Id = (short)MailId,
+                        Id = (short) MailId,
                         Unknown = 0,
                         IsOpened = MailDto.IsOpened,
                         DateTime = MailDto.Date.ToString("yyMMddHHmm"),
                         SenderName = type == 2 ? ReceiverName : SenderName,
                         Title = MailDto.Title,
-                        Message = MailDto.Message,
+                        Message = MailDto.Message
                     };
                 default:
                     throw new ArgumentException();

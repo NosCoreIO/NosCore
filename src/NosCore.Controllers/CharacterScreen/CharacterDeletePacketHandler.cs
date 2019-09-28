@@ -32,8 +32,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharacterDeletePacketHandler : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IGenericDao<CharacterDto> _characterDao;
 
         public CharacterDeletePacketHandler(IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao)
         {
@@ -55,11 +55,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (account.Password.ToLower() == packet.Password.ToSha512() || account.Name == packet.Password)
+            if ((account.Password.ToLower() == packet.Password.ToSha512()) || (account.Name == packet.Password))
             {
                 var character = _characterDao.FirstOrDefault(s =>
-                    s.AccountId == account.AccountId && s.Slot == packet.Slot
-                    && s.State == CharacterState.Active);
+                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot)
+                    && (s.State == CharacterState.Active));
                 if (character == null)
                 {
                     return;
@@ -68,11 +68,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                clientSession.HandlePackets(new[] { new EntryPointPacket {
-                     Header = "EntryPoint",
-                     Title = "EntryPoint",
-                     Name = account.Name,
-                } });
+                clientSession.HandlePackets(new[]
+                {
+                    new EntryPointPacket
+                    {
+                        Header = "EntryPoint",
+                        Title = "EntryPoint",
+                        Name = account.Name
+                    }
+                });
             }
             else
             {

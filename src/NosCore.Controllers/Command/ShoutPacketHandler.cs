@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Chats;
@@ -29,15 +30,15 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Collections.Generic;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class ShoutPacketHandler : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
-        private readonly ISerializer _packetSerializer;
         private readonly IPacketHttpClient _packetHttpClient;
+        private readonly ISerializer _packetSerializer;
+
         public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
         {
             _packetSerializer = packetSerializer;
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Command
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { sayPacket }),
+                Packet = _packetSerializer.Serialize(new[] {sayPacket}),
                 SenderCharacter = new Character
                 {
                     Name = session.Character.Name,
@@ -75,11 +76,11 @@ namespace NosCore.PacketHandlers.Command
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { msgPacket }),
+                Packet = _packetSerializer.Serialize(new[] {msgPacket}),
                 ReceiverType = ReceiverType.All
             };
 
-            _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket }));
+            _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
         }
     }
 }

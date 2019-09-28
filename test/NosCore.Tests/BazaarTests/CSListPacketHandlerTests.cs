@@ -9,9 +9,9 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CSListPacketHandlerTest
     {
+        private Mock<IBazaarHttpClient> _bazaarHttpClient;
         private CSListPacketHandler _cSListPacketHandler;
         private ClientSession _session;
-        private Mock<IBazaarHttpClient> _bazaarHttpClient;
 
         [TestInitialize]
         public void Setup()

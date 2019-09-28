@@ -1,21 +1,32 @@
-﻿using Mapster;
-using NosCore.Core;
-using NosCore.Data;
-using NosCore.Data.WebApi;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Mapster;
+using NosCore.Core;
+using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 
 namespace NosCore.MasterServer.DataHolders
 {
-    public class ParcelHolder : ConcurrentDictionary<long, ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>
+    public class ParcelHolder : ConcurrentDictionary<long,
+        ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>
     {
-        private readonly IGenericDao<MailDto> _mailDao;
-        private readonly List<ItemDto> _items;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly List<ItemDto> _items;
+        private readonly IGenericDao<MailDto> _mailDao;
+
+        public ParcelHolder(IGenericDao<CharacterDto> characterDao, IGenericDao<MailDto> mailDao, List<ItemDto> items,
+            IGenericDao<IItemInstanceDto> itemInstanceDao)
+        {
+            _mailDao = mailDao;
+            _items = items;
+            _characterDao = characterDao;
+            _itemInstanceDao = itemInstanceDao;
+            Initialize();
+        }
 
         public new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>> this[long characterId]
         {
@@ -25,19 +36,14 @@ namespace NosCore.MasterServer.DataHolders
                 if (!ContainsKey(characterId))
                 {
                     TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
-                    this.First(s => s.Key == characterId).Value.TryAdd(false, new ConcurrentDictionary<long, MailData>());
-                    this.First(s => s.Key == characterId).Value.TryAdd(true, new ConcurrentDictionary<long, MailData>());
+                    this.First(s => s.Key == characterId).Value
+                        .TryAdd(false, new ConcurrentDictionary<long, MailData>());
+                    this.First(s => s.Key == characterId).Value
+                        .TryAdd(true, new ConcurrentDictionary<long, MailData>());
                 }
+
                 return this.First(s => s.Key == characterId).Value;
             }
-        }
-        public ParcelHolder(IGenericDao<CharacterDto> characterDao, IGenericDao<MailDto> mailDao, List<ItemDto> items, IGenericDao<IItemInstanceDto> itemInstanceDao)
-        {
-            _mailDao = mailDao;
-            _items = items;
-            _characterDao = characterDao;
-            _itemInstanceDao = itemInstanceDao;
-            Initialize();
         }
 
         private void Initialize()
@@ -45,12 +51,14 @@ namespace NosCore.MasterServer.DataHolders
             var mails = _mailDao.LoadAll();
             var idcopy = 0;
             var idmail = 0;
-            var charactersIds = Enumerable.Union(mails.Select(s => s.ReceiverId), mails.Where(s => s.SenderId != null).Select(s => (long)s.SenderId));
+            var charactersIds = mails.Select(s => s.ReceiverId)
+                .Union(mails.Where(s => s.SenderId != null).Select(s => (long) s.SenderId));
             var characternames = new Dictionary<long, string>();
             foreach (var characterId in charactersIds)
             {
                 characternames.Add(characterId, _characterDao.FirstOrDefault(s => s.CharacterId == characterId).Name);
             }
+
             foreach (var mail in mails)
             {
                 var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
@@ -59,10 +67,11 @@ namespace NosCore.MasterServer.DataHolders
                 {
                     it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
                 }
-                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long)mail.SenderId];
+
+                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long) mail.SenderId];
                 var receiverName = characternames[mail.ReceiverId];
-                var mailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail;
-                this[mail.IsSenderCopy ? (long)mail.SenderId : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
+                var mailId = mail.IsSenderCopy ? (short) idcopy : (short) idmail;
+                this[mail.IsSenderCopy ? (long) mail.SenderId : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
                     new MailData
                     {
                         ItemInstance = itinst.Adapt<ItemInstanceDto>(),
@@ -70,7 +79,7 @@ namespace NosCore.MasterServer.DataHolders
                         ReceiverName = receiverName,
                         MailId = mailId,
                         MailDto = mail,
-                        ItemType = (short?)it?.ItemType ?? -1,
+                        ItemType = (short?) it?.ItemType ?? -1
                     });
                 if (mail.IsSenderCopy)
                 {

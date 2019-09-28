@@ -1,20 +1,22 @@
-﻿using Newtonsoft.Json;
-using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using NosCore.Configuration;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Data.Enumerations;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
     public class ConnectedAccountHttpClient : MasterServerHttpClient, IConnectedAccountHttpClient
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        public ConnectedAccountHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+
+        public ConnectedAccountHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
+            IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             _channelHttpClient = channelHttpClient;
@@ -31,8 +33,9 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         {
             foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
             {
-                List<ConnectedAccount> accounts = GetConnectedAccount(channel);
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == characterName || s.ConnectedCharacter.Id == characterId);
+                var accounts = GetConnectedAccount(channel);
+                var target = accounts.FirstOrDefault(s =>
+                    (s.ConnectedCharacter.Name == characterName) || (s.ConnectedCharacter.Id == characterId));
 
                 if (target != null)
                 {
@@ -49,10 +52,11 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             client.BaseAddress = new Uri(channel.WebApi.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
-            var response = client.GetAsync($"api/connectedAccount").Result;
+            var response = client.GetAsync("api/connectedAccount").Result;
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<List<ConnectedAccount>>(response.Content.ReadAsStringAsync().Result);
+                return JsonConvert.DeserializeObject<List<ConnectedAccount>>(
+                    response.Content.ReadAsStringAsync().Result);
             }
 
             return new List<ConnectedAccount>();

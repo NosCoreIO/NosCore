@@ -17,19 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using Mapster;
-using NosCore.Data;
-using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using Mapster;
+using NosCore.Data;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.ItemProvider
 {
@@ -75,16 +75,25 @@ namespace NosCore.GameObject.Providers.ItemProvider
             return item;
         }
 
-        public IItemInstance Create(short itemToCreateVNum) =>
-            Create(itemToCreateVNum, 1);
+        public IItemInstance Create(short itemToCreateVNum)
+        {
+            return Create(itemToCreateVNum, 1);
+        }
 
-        public IItemInstance Create(short itemToCreateVNum, short amount) =>
-            Create(itemToCreateVNum, amount, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount)
+        {
+            return Create(itemToCreateVNum, amount, 0);
+        }
 
-        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare) =>
-            Create(itemToCreateVNum, amount, rare, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare)
+        {
+            return Create(itemToCreateVNum, amount, rare, 0);
+        }
 
-        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade) => Create(itemToCreateVNum, amount, rare, upgrade, 0);
+        public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade)
+        {
+            return Create(itemToCreateVNum, amount, rare, upgrade, 0);
+        }
 
         public IItemInstance Create(short itemToCreateVNum, short amount, sbyte rare, byte upgrade,
             byte design)
@@ -110,7 +119,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
         public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade,
             byte design)
         {
-            Item.Item itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
+            var itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {
                 case NoscorePocketType.Miniland:
@@ -157,7 +166,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 default:
                     return new ItemInstance(itemToCreate)
                     {
-                        Amount = amount,
+                        Amount = amount
                     };
             }
         }

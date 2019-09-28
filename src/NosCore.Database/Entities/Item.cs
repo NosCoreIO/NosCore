@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
-using NosCore.Data;
-using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities

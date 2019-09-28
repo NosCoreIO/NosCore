@@ -46,7 +46,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Character> Character { get; set; }
 
         public byte[] Data { get; set; }
-       
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short MapId { get; set; }

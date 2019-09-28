@@ -27,7 +27,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -50,14 +49,14 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             var inventory =
-                clientSession.Character.Inventory.LoadBySlotAndType((short)removePacket.InventorySlot,
+                clientSession.Character.Inventory.LoadBySlotAndType((short) removePacket.InventorySlot,
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
                 return;
             }
 
-            var inv = clientSession.Character.Inventory.MoveInPocket((short)removePacket.InventorySlot,
+            var inv = clientSession.Character.Inventory.MoveInPocket((short) removePacket.InventorySlot,
                 NoscorePocketType.Wear, NoscorePocketType.Equipment);
 
             if (inv == null)
@@ -71,7 +70,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            clientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
 
             clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateEq());
             clientSession.SendPacket(clientSession.Character.GenerateEquipment());
@@ -79,7 +78,7 @@ namespace NosCore.PacketHandlers.Inventory
             if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 clientSession.Character.MapInstance.Sessions.SendPacket(
-                    clientSession.Character.GeneratePairy((WearableInstance)null));
+                    clientSession.Character.GeneratePairy(null));
             }
         }
     }

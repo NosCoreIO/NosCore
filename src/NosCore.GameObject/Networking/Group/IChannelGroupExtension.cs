@@ -17,20 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Interfaces;
-using DotNetty.Transport.Channels.Groups;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Interfaces;
+using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking.Group
 {
     public static class IChannelGroupExtension
     {
         public static void SendPacket(this IChannelGroup channelGroup, IPacket packet)
-            => channelGroup.SendPackets(new[] { packet });
+        {
+            channelGroup.SendPackets(new[] {packet});
+        }
 
         public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, IChannelMatcher matcher)
-            => channelGroup.SendPackets(new[] { packet }, matcher);
+        {
+            channelGroup.SendPackets(new[] {packet}, matcher);
+        }
 
 
         public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets,
@@ -53,7 +57,9 @@ namespace NosCore.GameObject.Networking.Group
         }
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets) =>
+        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets)
+        {
             channelGroup.SendPackets(packets, null);
+        }
     }
 }

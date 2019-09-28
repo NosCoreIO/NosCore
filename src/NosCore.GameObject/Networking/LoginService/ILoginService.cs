@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Networking.LoginService
 {
     public interface ILoginService
     {
-        void Login(string username, string md5String, ClientVersionSubPacket clientVersion, ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
+        void Login(string username, string md5String, ClientVersionSubPacket clientVersion,
+            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
     }
 }

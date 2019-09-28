@@ -73,7 +73,8 @@ namespace NosCore.PacketHandlers.Inventory
                         return;
                     }
 
-                    var item = clientSession.Character.Inventory.DeleteFromTypeAndSlot((NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
+                    var item = clientSession.Character.Inventory.DeleteFromTypeAndSlot(
+                        (NoscorePocketType) bIPacket.PocketType, bIPacket.Slot);
                     clientSession.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:

@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using RegionType = NosCore.Data.Enumerations.RegionType;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Data.WebApi
 {

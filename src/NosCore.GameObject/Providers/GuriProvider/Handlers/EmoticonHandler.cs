@@ -26,7 +26,10 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
     public class EmoticonEventHandler : IEventHandler<GuriPacket, GuriPacket>
     {
-        public bool Condition(GuriPacket packet) => packet.Type == 10 && packet.Data >= 973 && packet.Data <= 999;
+        public bool Condition(GuriPacket packet)
+        {
+            return (packet.Type == 10) && (packet.Data >= 973) && (packet.Data <= 999);
+        }
 
         public void Execute(RequestData<GuriPacket> requestData)
         {
@@ -38,7 +41,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff((int)requestData.Data.Data +
+                    requestData.ClientSession.Character.GenerateEff((int) requestData.Data.Data +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
         }

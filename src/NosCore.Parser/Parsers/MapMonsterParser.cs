@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -35,7 +35,8 @@ namespace NosCore.Parser.Parsers
         private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
         private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
 
-        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
+        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, IGenericDao<NpcMonsterDto> npcMonsterDao,
+            ILogger logger)
         {
             _mapMonsterDao = mapMonsterDao;
             _logger = logger;
@@ -60,13 +61,13 @@ namespace NosCore.Parser.Parsers
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("in") || o[0].Equals("at")))
             {
-                if (currentPacket.Length > 5 && currentPacket[0] == "at")
+                if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
                     map = short.Parse(currentPacket[2]);
                     continue;
                 }
 
-                if (currentPacket.Length <= 7 || currentPacket[0] != "in" || currentPacket[1] != "3")
+                if ((currentPacket.Length <= 7) || (currentPacket[0] != "in") || (currentPacket[1] != "3"))
                 {
                     continue;
                 }
@@ -78,14 +79,14 @@ namespace NosCore.Parser.Parsers
                     MapMonsterId = int.Parse(currentPacket[3]),
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
-                    Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
+                    Direction = (byte) (currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
                     IsDisabled = false
                 };
                 monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
-                if (npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null
-                    || mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null
-                    || monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0)
+                if ((npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null)
+                    || (mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
+                    || (monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0))
                 {
                     continue;
                 }

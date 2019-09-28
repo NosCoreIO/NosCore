@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
-using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using Newtonsoft.Json;
+using NosCore.Core;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Data.Enumerations;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
@@ -16,21 +16,11 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IHttpClientFactory _httpClientFactory;
+
         public PacketHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
         {
             _channelHttpClient = channelHttpClient;
             _httpClientFactory = httpClientFactory;
-        }
-
-        private void SendPacketToChannel(PostedPacket postedPacket, string channel)
-        {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(channel);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
-            var content = new StringContent(JsonConvert.SerializeObject(postedPacket),
-                Encoding.Default, "application/json");
-
-            client.PostAsync($"api/packet", content);
         }
 
         public void BroadcastPacket(PostedPacket packet, int channelId)
@@ -65,6 +55,18 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             {
                 BroadcastPacket(packet, channelId);
             }
+        }
+
+        private void SendPacketToChannel(PostedPacket postedPacket, string channel)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(channel);
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+            var content = new StringContent(JsonConvert.SerializeObject(postedPacket),
+                Encoding.Default, "application/json");
+
+            client.PostAsync("api/packet", content);
         }
     }
 }
