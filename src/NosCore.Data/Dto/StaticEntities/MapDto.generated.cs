@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using Mapster;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -40,6 +41,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	[I18NFrom(typeof(I18NMapIdDataDto))]
 		public I18NString Name { get; set; } = new I18NString();
+		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
 	 	public bool ShopAllowed { get; set; }

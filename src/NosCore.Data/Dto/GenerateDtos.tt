@@ -64,6 +64,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using Mapster;
 
 namespace <#= classNamespace #>
 {
@@ -100,6 +101,7 @@ namespace <#= classNamespace #>
 			 #>
 	[I18NFrom(<#= attrValue #>Dto))]
 		public I18NString <#= prop.Name #> { get; set; } = new I18NString();
+		[AdaptMember("<#= prop.Name #>")]
 		public <#= prop.Type.AsString #> <#= prop.Name #>I18NKey { get; set; }
 
 	 <#
