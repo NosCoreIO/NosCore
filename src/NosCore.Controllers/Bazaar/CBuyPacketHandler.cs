@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
@@ -32,19 +34,18 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
-using System;
-using System.Collections.Generic;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBuyPacketHandler : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
-        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger,
+            IGenericDao<IItemInstanceDto> itemInstanceDao)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _itemProvider = itemProvider;
@@ -58,10 +59,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
+
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
-            if (bz != null && bz.SellerName != clientSession.Character.Name && packet.Price == bz.BazaarItem.Price && bz.ItemInstance.Amount >= packet.Amount)
+            if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
+                (packet.Price == bz.BazaarItem.Price) && (bz.ItemInstance.Amount >= packet.Amount))
             {
-                if (bz.BazaarItem.IsPackage && bz.BazaarItem.Amount != packet.Amount)
+                if (bz.BazaarItem.IsPackage && (bz.BazaarItem.Amount != packet.Amount))
                 {
                     return;
                 }
@@ -77,13 +80,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
-                        var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                        var newInv =
+                            clientSession.Character.Inventory.AddItemToPocket(
+                                InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
 
-                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount, clientSession.Character.Name);
+                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
+                            clientSession.Character.Name);
                         if (remove)
                         {
-                            clientSession.HandlePackets(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } });
+                            clientSession.HandlePackets(new[]
+                                {new CBListPacket {Index = 0, ItemVNumFilter = new List<short>()}});
                             clientSession.SendPacket(new RCBuyPacket
                             {
                                 Type = VisualType.Player,
@@ -93,7 +100,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                                 Price = packet.Price,
                                 Unknown1 = 0,
                                 Unknown2 = 0,
-                                Unknown3 = 0,
+                                Unknown3 = 0
                             });
                             clientSession.SendPacket(clientSession.Character.GenerateSay(
                                 $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item.Name[clientSession.Account.Language]} x {packet.Amount}"
@@ -102,19 +109,19 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                             return;
                         }
-                        else
-                        {
-                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_BUY_ERROR));
-                        }
+
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_BUY_ERROR));
                     }
                     else
                     {
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language), SayColorType.Yellow
+                            Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                                clientSession.Account.Language), SayColorType.Yellow
                         ));
                         clientSession.SendPacket(new ModalPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
+                            Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                                clientSession.Account.Language),
                             Type = 1
                         });
                         return;
@@ -130,9 +137,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
             }
+
             clientSession.SendPacket(new ModalPacket
             {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, clientSession.Account.Language),
+                Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
+                    clientSession.Account.Language),
                 Type = 1
             });
         }

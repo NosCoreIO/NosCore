@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Command
     public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+
         public KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;

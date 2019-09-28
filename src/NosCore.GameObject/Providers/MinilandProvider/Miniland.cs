@@ -1,7 +1,7 @@
-﻿using ChickenAPI.Packets.ServerPackets.Miniland;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using System;
+﻿using System;
+using ChickenAPI.Packets.ServerPackets.Miniland;
 using NosCore.Data.Dto;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Providers.MinilandProvider
 {
@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 MinilandPoint = MinilandPoint,
                 MinilandState = State,
                 MinilandWelcomeMessage = MinilandMessage,
-                WelcomeMusicInfo = WelcomeMusicInfo,
+                WelcomeMusicInfo = WelcomeMusicInfo
             };
         }
     }

@@ -17,9 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -27,23 +34,16 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
-using NosCore.Data.Dto;
 
 namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
     {
+        private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
         private readonly List<NpcMonsterDto> _npcMonsters;
-        private readonly IGenericDao<ShopDto> _shops;
         private readonly IGenericDao<ShopItemDto> _shopItems;
-        private readonly IItemProvider _itemProvider;
+        private readonly IGenericDao<ShopDto> _shops;
 
         public MapNpc(IItemProvider itemProvider, IGenericDao<ShopDto> shops,
             IGenericDao<ShopItemDto> shopItems,
@@ -55,6 +55,8 @@ namespace NosCore.GameObject
             _itemProvider = itemProvider;
             _logger = logger;
         }
+
+        public IDisposable Life { get; private set; }
 
         public void Initialize()
         {
@@ -78,13 +80,12 @@ namespace NosCore.GameObject
                     shopItem.ItemInstance = _itemProvider.Create(shopItemGrouping.ItemVNum, -1);
                     shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
                 });
-                _shop = shopObj.Adapt<Shop>();
-                _shop.Session = null;
-                _shop.ShopItems = shopItemsList;
+                Shop = shopObj.Adapt<Shop>();
+                Shop.Session = null;
+                Shop.ShopItems = shopItemsList;
             }
         }
 
-        public IDisposable Life { get; private set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
@@ -115,8 +116,8 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        private Shop _shop;
-        public Shop Shop => _shop;
+        public Shop Shop { get; private set; }
+
         public Subject<RequestData> Requests { get; set; }
 
         private void ShowDialog(RequestData requestData)

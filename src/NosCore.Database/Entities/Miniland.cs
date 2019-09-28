@@ -1,15 +1,11 @@
-﻿using ChickenAPI.Packets.Enumerations;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Database.Entities
 {
     public class Miniland
     {
-        public Miniland()
-        {
-        }
-
         [MaxLength(255)]
         public string MinilandMessage { get; set; }
 

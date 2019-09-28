@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Bazaar;
@@ -25,6 +26,7 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -33,20 +35,19 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using System.Linq;
-using NosCore.Data.Dto;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CRegPacketHandler : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
-        private readonly WorldConfiguration _configuration;
         private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly WorldConfiguration _configuration;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
 
         public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
-            IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
+            IGenericDao<IItemInstanceDto> itemInstanceDao,
+            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
         {
             _configuration = configuration;
             _bazaarHttpClient = bazaarHttpClient;
@@ -61,13 +62,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+            var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
+                (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
+                (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
 
-            long price = cRegPacket.Price * cRegPacket.Amount;
-            long taxmax = price > 100000 ? price / 200 : 500;
-            long taxmin = price >= 4000 ? (60 + (price - 4000) / 2000 * 30 > 10000 ? 10000 : 60 + (price - 4000) / 2000 * 30) : 50;
-            long tax = medal == null ? taxmax : taxmin;
-            long maxGold = _configuration.MaxGoldAmount;
+            var price = cRegPacket.Price * cRegPacket.Amount;
+            var taxmax = price > 100000 ? price / 200 : 500;
+            var taxmin = price >= 4000 ? 60 + (price - 4000) / 2000 * 30 > 10000 ? 10000
+                : 60 + (price - 4000) / 2000 * 30 : 50;
+            var tax = medal == null ? taxmax : taxmin;
+            var maxGold = _configuration.MaxGoldAmount;
             if (clientSession.Character.Gold < tax)
             {
                 clientSession.SendPacket(new MsgPacket
@@ -77,12 +81,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 });
                 return;
             }
-            if (cRegPacket.Amount <= 0 || clientSession.Character.InExchangeOrShop)
+
+            if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop)
             {
                 return;
             }
-            var it = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot, cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType)cRegPacket.Inventory);
-            if (it == null || !it.ItemInstance.Item.IsSoldable || it.ItemInstance.BoundCharacterId != null || cRegPacket.Amount > it.ItemInstance.Amount)
+
+            var it = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot,
+                cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType) cRegPacket.Inventory);
+            if ((it == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
+                (cRegPacket.Amount > it.ItemInstance.Amount))
             {
                 return;
             }
@@ -97,7 +105,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (medal == null && cRegPacket.Durability > 1)
+            if ((medal == null) && (cRegPacket.Durability > 1))
             {
                 return;
             }
@@ -125,7 +133,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
             }
 
-            var bazar = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot, cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType)cRegPacket.Inventory);
+            var bazar = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot,
+                cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType) cRegPacket.Inventory);
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 
@@ -146,7 +155,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 case LanguageKey.LIMIT_EXCEEDED:
                     clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, clientSession.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
+                            clientSession.Account.Language)
                     });
                     break;
 
@@ -162,11 +172,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             bazar.ItemInstanceId);
                     }
 
-                    clientSession.SendPacket(((InventoryItemInstance)null).GeneratePocketChange(cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory, cRegPacket.Slot));
+                    clientSession.SendPacket(((InventoryItemInstance) null).GeneratePocketChange(
+                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
+                        cRegPacket.Slot));
                     clientSession.Character.Gold -= tax;
                     clientSession.SendPacket(clientSession.Character.GenerateGold());
 
-                    clientSession.SendPacket(clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
+                    clientSession.SendPacket(clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(
+                        LanguageKey.OBJECT_IN_BAZAAR,
                         clientSession.Account.Language), SayColorType.Yellow));
                     clientSession.SendPacket(new MsgPacket
                     {
@@ -174,7 +187,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             clientSession.Account.Language)
                     });
 
-                    clientSession.SendPacket(new RCRegPacket { Type = VisualType.Player });
+                    clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player});
                     break;
             }
         }

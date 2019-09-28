@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.IO;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
@@ -26,12 +29,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
-using NosCore.GameObject.Map;
+using NosCore.Database.Entities;
 using OpenTK.Graphics;
 using Serilog;
-using System;
-using System.IO;
-using System.Threading;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -43,7 +43,7 @@ namespace NosCore.PathFinder.Gui
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Database.Entities.Map, MapDto>(Logger);
+        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Map, MapDto>(Logger);
 
         private static void InitializeConfiguration()
         {
@@ -69,15 +69,15 @@ namespace NosCore.PathFinder.Gui
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
                     var input = Console.ReadLine();
-                    if (input == null || !int.TryParse(input, out var askMapId))
+                    if ((input == null) || !int.TryParse(input, out var askMapId))
                     {
                         Logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
                         continue;
                     }
 
-                    var map = (Map)_mapDao.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = (GameObject.Map.Map) _mapDao.FirstOrDefault(m => m.MapId == askMapId);
 
-                    if (map?.XLength > 0 && map.YLength > 0)
+                    if ((map?.XLength > 0) && (map.YLength > 0))
                     {
                         if (_guiWindow?.Exists ?? false)
                         {

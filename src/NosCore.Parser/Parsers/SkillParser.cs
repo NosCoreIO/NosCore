@@ -17,34 +17,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     public class SkillParser
     {
-        private readonly string _fileSkillId = "\\Skill.dat";
-        private readonly ILogger _logger;
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<ComboDto> _comboDao;
+        private readonly string _fileSkillId = "\\Skill.dat";
+        private readonly ILogger _logger;
         private readonly IGenericDao<SkillDto> _skillDao;
 
-        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao, IGenericDao<SkillDto> skillDao, ILogger logger)
+        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao,
+            IGenericDao<SkillDto> skillDao, ILogger logger)
         {
             _bCardDao = bCardDao;
             _comboDao = comboDao;
             _skillDao = skillDao;
             _logger = logger;
         }
+
         internal void InsertSkills(string folder)
         {
             var skilldb = _skillDao.LoadAll().ToList();
@@ -61,18 +63,18 @@ namespace NosCore.Parser.Parsers
                 {
                     var currentLine = line.Split('\t');
 
-                    if (currentLine.Length > 2 && currentLine[1] == "VNUM")
+                    if ((currentLine.Length > 2) && (currentLine[1] == "VNUM"))
                     {
                         skill = new SkillDto
                         {
                             SkillVNum = short.Parse(currentLine[2])
                         };
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "NAME")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "NAME"))
                     {
                         skill.NameI18NKey = currentLine[2];
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "TYPE")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "TYPE"))
                     {
                         skill.SkillType = byte.Parse(currentLine[2]);
                         skill.CastId = short.Parse(currentLine[3]);
@@ -80,7 +82,7 @@ namespace NosCore.Parser.Parsers
                         skill.Type = byte.Parse(currentLine[5]);
                         skill.Element = byte.Parse(currentLine[7]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "FCOMBO")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "FCOMBO"))
                     {
                         for (var i = 3; i < currentLine.Length - 4; i += 3)
                         {
@@ -92,7 +94,7 @@ namespace NosCore.Parser.Parsers
                                 Effect = short.Parse(currentLine[i + 2])
                             };
 
-                            if (comb.Hit == 0 && comb.Animation == 0 && comb.Effect == 0)
+                            if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
                             {
                                 continue;
                             }
@@ -105,18 +107,18 @@ namespace NosCore.Parser.Parsers
                             }
                         }
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "COST")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "COST"))
                     {
-                        skill.CpCost = currentLine[2] == "-1" ? (byte)0 : byte.Parse(currentLine[2]);
+                        skill.CpCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
                         skill.Price = int.Parse(currentLine[3]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "LEVEL")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "LEVEL"))
                     {
-                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte)0;
+                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte) 0;
                         if (skill.Class > 31)
                         {
                             var firstskill = skills.Find(s => s.Class == skill.Class);
-                            if (firstskill == null || skill.SkillVNum <= firstskill.SkillVNum + 10)
+                            if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                             {
                                 switch (skill.Class)
                                 {
@@ -231,26 +233,26 @@ namespace NosCore.Parser.Parsers
                             }
                         }
 
-                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte)0;
-                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte)0;
-                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte)0;
-                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte)0;
+                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte) 0;
+                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte) 0;
+                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte) 0;
+                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte) 0;
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "EFFECT")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "EFFECT"))
                     {
                         skill.CastEffect = short.Parse(currentLine[3]);
                         skill.CastAnimation = short.Parse(currentLine[4]);
                         skill.Effect = short.Parse(currentLine[5]);
                         skill.AttackAnimation = short.Parse(currentLine[6]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "TARGET")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "TARGET"))
                     {
                         skill.TargetType = byte.Parse(currentLine[2]);
                         skill.HitType = byte.Parse(currentLine[3]);
                         skill.Range = byte.Parse(currentLine[4]);
                         skill.TargetRange = byte.Parse(currentLine[5]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "DATA")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "DATA"))
                     {
                         skill.UpgradeSkill = short.Parse(currentLine[2]);
                         skill.UpgradeType = short.Parse(currentLine[3]);
@@ -259,10 +261,10 @@ namespace NosCore.Parser.Parsers
                         skill.MpCost = short.Parse(currentLine[10]);
                         skill.ItemVNum = short.Parse(currentLine[12]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "BASIC")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "BASIC"))
                     {
-                        var type = (byte)int.Parse(currentLine[3]);
-                        if (type == 0 || type == 255)
+                        var type = (byte) int.Parse(currentLine[3]);
+                        if ((type == 0) || (type == 255))
                         {
                             continue;
                         }
@@ -272,20 +274,20 @@ namespace NosCore.Parser.Parsers
                         {
                             SkillVNum = skill.SkillVNum,
                             Type = type,
-                            SubType = (byte)(((int.Parse(currentLine[4]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
-                            IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
-                            IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
-                            FirstData = (short)(first > 0 ? first : -first / 4),
-                            SecondData = (short)(int.Parse(currentLine[6]) / 4),
-                            ThirdData = (short)(int.Parse(currentLine[7]) / 4)
+                            SubType = (byte) ((int.Parse(currentLine[4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                            IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
+                            IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2,
+                            FirstData = (short) (first > 0 ? first : -first / 4),
+                            SecondData = (short) (int.Parse(currentLine[6]) / 4),
+                            ThirdData = (short) (int.Parse(currentLine[7]) / 4)
                         };
                         skillCards.Add(itemCard);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "CELL")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "CELL"))
                     {
                         // investigate
                     }
-                    else if (currentLine.Length > 1 && currentLine[1] == "Z_DESC")
+                    else if ((currentLine.Length > 1) && (currentLine[1] == "Z_DESC"))
                     {
                         // investigate
                         var skill1 = skill;

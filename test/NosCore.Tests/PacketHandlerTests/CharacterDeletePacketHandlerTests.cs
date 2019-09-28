@@ -11,14 +11,16 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharacterDeletePacketHandlerTests
     {
-        private ClientSession _session;
         private CharacterDeletePacketHandler _characterDeletePacketHandler;
+        private ClientSession _session;
+
         [TestInitialize]
         public void Setup()
         {
             new Mapper();
             _session = TestHelpers.Instance.GenerateSession();
-            _characterDeletePacketHandler = new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);
+            _characterDeletePacketHandler =
+                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);
         }
 
         [TestMethod]
@@ -32,7 +34,8 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s => s.AccountId == _session.Account.AccountId && s.State == CharacterState.Active));
+                    .FirstOrDefault(s =>
+                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
         }
 
         [TestMethod]
@@ -45,13 +48,13 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s => s.AccountId == _session.Account.AccountId && s.State == CharacterState.Active));
+                    .FirstOrDefault(s =>
+                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
         }
 
         [TestMethod]
         public void DeleteCharacter()
         {
-
             _session.Character.MapInstance = null;
             _characterDeletePacketHandler.Execute(new CharacterDeletePacket
             {
@@ -60,7 +63,8 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             Assert.IsNull(
                 TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s => s.AccountId == _session.Account.AccountId && s.State == CharacterState.Active));
+                    .FirstOrDefault(s =>
+                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
         }
     }
 }

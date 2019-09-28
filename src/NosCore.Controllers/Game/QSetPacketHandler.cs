@@ -1,16 +1,16 @@
-﻿using ChickenAPI.Packets.ClientPackets.Quicklist;
+﻿using System;
+using ChickenAPI.Packets.ClientPackets.Quicklist;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Quicklist;
+using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using System;
-using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class QSetPacketHandler : PacketHandler<QsetPacket>, IWorldPacketHandler
     {
-        void SendQSet(ClientSession session, short q1, short q2, QSetType type, short data1, short data2)
+        private void SendQSet(ClientSession session, short q1, short q2, QSetType type, short data1, short data2)
         {
             session.SendPacket(new QsetClientPacket
             {
@@ -30,20 +30,23 @@ namespace NosCore.PacketHandlers.Game
         {
             short data1 = 0, data2 = 0, q1 = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;
-            var morph = session.Character.UseSp ? session.Character.Morph : (short)0;
+            var morph = session.Character.UseSp ? session.Character.Morph : (short) 0;
             if (qSetPacket.FirstData.HasValue)
             {
                 data1 = qSetPacket.FirstData.Value;
             }
+
             if (qSetPacket.SecondData.HasValue)
             {
                 data2 = qSetPacket.SecondData.Value;
             }
+
             switch (type)
             {
                 case QSetType.Default:
                 case QSetType.Set:
-                    session.Character.QuicklistEntries.RemoveAll(n => n.Q1 == q1 && n.Q2 == q2 && n.Morph == morph);
+                    session.Character.QuicklistEntries.RemoveAll(
+                        n => (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
                     session.Character.QuicklistEntries.Add(new QuicklistEntryDto
                     {
                         Id = Guid.NewGuid(),
@@ -59,10 +62,12 @@ namespace NosCore.PacketHandlers.Game
                     break;
 
                 case QSetType.Move:
-                    var qlFrom = session.Character.QuicklistEntries.Find(n => n.Q1 == data1 && n.Q2 == data2 && n.Morph == morph);
+                    var qlFrom = session.Character.QuicklistEntries.Find(n =>
+                        (n.Q1 == data1) && (n.Q2 == data2) && (n.Morph == morph));
                     if (qlFrom != null)
                     {
-                        var qlTo = session.Character.QuicklistEntries.Find(n => n.Q1 == q1 && n.Q2 == q2 && n.Morph == morph);
+                        var qlTo = session.Character.QuicklistEntries.Find(n =>
+                            (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
 
                         qlFrom.Q1 = q1;
                         qlFrom.Q2 = q2;
@@ -80,10 +85,12 @@ namespace NosCore.PacketHandlers.Game
                             SendQSet(session, qlTo.Q1, qlTo.Q2, qlTo.Type, qlTo.Slot, qlTo.Pos);
                         }
                     }
+
                     break;
 
                 case QSetType.Remove:
-                    session.Character.QuicklistEntries.RemoveAll(n => n.Q1 == q1 && n.Q2 == q2 && n.Morph == morph);
+                    session.Character.QuicklistEntries.RemoveAll(
+                        n => (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
                     SendQSet(session, q1, q2, QSetType.Reset, 7, -1);
                     break;
 

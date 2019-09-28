@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            session.HandlePackets(new[] { fins });
+            session.HandlePackets(new[] {fins});
         }
     }
 }

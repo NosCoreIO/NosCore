@@ -17,21 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
-using NosCore.GameObject;
+using NosCore.Database.Entities;
 using NosCore.GameObject.Mapping;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using System.Collections.Generic;
-using NosCore.Data.Dto;
-using ItemInstance = NosCore.Database.Entities.ItemInstance;
+using BoxInstance = NosCore.GameObject.Providers.ItemProvider.Item.BoxInstance;
+using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
+using MapMonster = NosCore.GameObject.MapMonster;
+using SpecialistInstance = NosCore.GameObject.Providers.ItemProvider.Item.SpecialistInstance;
+using UsableInstance = NosCore.GameObject.Providers.ItemProvider.Item.UsableInstance;
+using WearableInstance = NosCore.GameObject.Providers.ItemProvider.Item.WearableInstance;
 
 namespace NosCore.Tests
 {
@@ -39,16 +43,19 @@ namespace NosCore.Tests
     public class MapperTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Database.Entities.Account, AccountDto>(_logger);
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Database.Entities.Character, CharacterDto>(_logger);
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto>(_logger);
         private readonly Adapter _adapter = new Adapter();
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Character, CharacterDto>(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
 
         [TestInitialize]
         public void Setup()
         {
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => new Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, _logger, null, null, null, null));
-            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig().ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
+            TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
+                new GameObject.Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, _logger,
+                    null, null, null, null));
+            TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
+                .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
         }
 

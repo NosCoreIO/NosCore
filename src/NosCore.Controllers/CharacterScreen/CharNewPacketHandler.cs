@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Text.RegularExpressions;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using System;
-using System.Text.RegularExpressions;
-using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var slot = packet.Slot;
             var characterName = packet.Name;
             if (_characterDao.FirstOrDefault(s =>
-                s.AccountId == accountId && s.Slot == slot && s.State == CharacterState.Active) != null)
+                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)) != null)
             {
                 return;
             }
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var character =
                     _characterDao.FirstOrDefault(s =>
-                        s.Name == characterName && s.State == CharacterState.Active);
+                        (s.Name == characterName) && (s.State == CharacterState.Active));
                 if (character == null)
                 {
                     var chara = new CharacterDto
@@ -77,10 +77,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         HairStyle = packet.HairStyle,
                         Hp = packet.IsMartialArtist ? 12965 : 221,
                         JobLevel = 1,
-                        Level = (byte)(packet.IsMartialArtist ? 81 : 1),
+                        Level = (byte) (packet.IsMartialArtist ? 81 : 1),
                         MapId = 1,
-                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
-                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
+                        MapX = (short) RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short) RandomFactory.Instance.RandomNumber(114, 118),
                         Mp = packet.IsMartialArtist ? 2369 : 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
@@ -101,7 +101,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = "Spring^Melody"
                     };
                     _minilandDao.InsertOrUpdate(ref miniland);
-                    clientSession.HandlePackets(new[] { new SelectPacket { Slot = chara.Slot } });
+                    clientSession.HandlePackets(new[] {new SelectPacket {Slot = chara.Slot}});
                 }
                 else
                 {

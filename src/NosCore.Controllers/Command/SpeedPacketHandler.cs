@@ -29,9 +29,9 @@ namespace NosCore.PacketHandlers.Command
     {
         public override void Execute(SpeedPacket speedPacket, ClientSession session)
         {
-            if (speedPacket.Speed > 0 && speedPacket.Speed < 60)
+            if ((speedPacket.Speed > 0) && (speedPacket.Speed < 60))
             {
-                session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
+                session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
                 session.SendPacket(session.Character.GenerateCond());
             }
             else

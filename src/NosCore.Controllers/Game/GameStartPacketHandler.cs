@@ -17,17 +17,19 @@ namespace NosCore.PacketHandlers.Game
 {
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
-        private readonly WorldConfiguration _worldConfiguration;
-        private readonly ISerializer _packetSerializer;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IFriendHttpClient _friendHttpClient;
         private readonly IMailHttpClient _mailHttpClient;
+        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly ISerializer _packetSerializer;
+        private readonly WorldConfiguration _worldConfiguration;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient, IPacketHttpClient packetHttpClient,
+        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient,
+            IChannelHttpClient channelHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
+            IPacketHttpClient packetHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient)
         {
             _worldConfiguration = worldConfiguration;
@@ -42,7 +44,6 @@ namespace NosCore.PacketHandlers.Game
 
         public override void Execute(GameStartPacket _, ClientSession session)
         {
-
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
                 // character should have been selected in SelectCharacter
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
             {
-                session.SendPacket(new ScenePacket { SceneId = 40 });
+                session.SendPacket(new ScenePacket {SceneId = 40});
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -144,7 +145,8 @@ namespace NosCore.PacketHandlers.Game
 
             session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
 
-            session.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
+            session.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                _connectedAccountHttpClient));
             session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);

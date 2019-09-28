@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace NosCore.Parser.Parsers
 
@@ -35,9 +35,9 @@ namespace NosCore.Parser.Parsers
     public class CardParser
     {
         private const string FileCardDat = "\\Card.dat";
+        private readonly IGenericDao<BCardDto> _bcardDao;
 
         private readonly IGenericDao<CardDto> _cardDao;
-        private readonly IGenericDao<BCardDto> _bcardDao;
         private readonly ILogger _logger;
         private readonly List<BCardDto> Bcards = new List<BCardDto>();
         private readonly List<CardDto> Cards = new List<CardDto>();
@@ -51,24 +51,25 @@ namespace NosCore.Parser.Parsers
             _bcardDao = bcardDao;
             _logger = logger;
         }
+
         public void AddFirstData(string[] currentLine)
         {
             for (var i = 0; i < 3; i++)
             {
-                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
+                if ((currentLine[2 + i * 6] == "-1") || (currentLine[2 + i * 6] == "0"))
                 {
                     continue;
                 }
 
-                var first = int.Parse(currentLine[(i * 6) + 6]);
+                var first = int.Parse(currentLine[i * 6 + 6]);
                 var bcard = new BCardDto
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + (i * 6)]),
-                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + i * 6]),
+                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
+                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + i * 6]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = Math.Abs(first % 4) == 2
                 };
@@ -80,22 +81,22 @@ namespace NosCore.Parser.Parsers
         {
             for (var i = 0; i < 2; i++)
             {
-                if (currentLine[2 + (i * 6)] == "-1" || currentLine[2 + (i * 6)] == "0")
+                if ((currentLine[2 + i * 6] == "-1") || (currentLine[2 + i * 6] == "0"))
                 {
                     continue;
                 }
 
-                var first = int.Parse(currentLine[(i * 6) + 6]);
+                var first = int.Parse(currentLine[i * 6 + 6]);
                 var bcard = new BCardDto
                 {
                     CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + (i * 6)]),
-                    SubType = (byte)(((Convert.ToByte(currentLine[3 + (i * 6)]) + 1) * 10) + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(currentLine[2 + i * 6]),
+                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + (i * 6)]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + (i * 6)]),
-                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
-                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2
+                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
+                    ThirdData = int.Parse(currentLine[5 + i * 6]),
+                    IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
+                    IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2
                 };
                 Bcards.Add(bcard);
             }
@@ -126,7 +127,7 @@ namespace NosCore.Parser.Parsers
                 {
                     var currentLine = _line.Split('\t');
 
-                    if (currentLine.Length > 2 && currentLine[1] == "VNUM")
+                    if ((currentLine.Length > 2) && (currentLine[1] == "VNUM"))
                     {
                         _card = new CardDto
                         {
@@ -134,7 +135,7 @@ namespace NosCore.Parser.Parsers
                         };
                         _itemAreaBegin = true;
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "GROUP")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "GROUP"))
                     {
                         if (!_itemAreaBegin)
                         {
@@ -143,30 +144,30 @@ namespace NosCore.Parser.Parsers
 
                         _card.Level = Convert.ToByte(currentLine[3]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "EFFECT")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "EFFECT"))
                     {
                         _card.EffectId = Convert.ToInt32(currentLine[2]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "STYLE")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "STYLE"))
                     {
-                        _card.BuffType = (BCardType.CardType)Convert.ToByte(currentLine[3]);
+                        _card.BuffType = (BCardType.CardType) Convert.ToByte(currentLine[3]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "TIME")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "TIME"))
                     {
                         _card.Duration = Convert.ToInt32(currentLine[2]);
                         _card.Delay = Convert.ToInt32(currentLine[3]);
                     }
                     else
                     {
-                        if (currentLine.Length > 3 && currentLine[1] == "1ST")
+                        if ((currentLine.Length > 3) && (currentLine[1] == "1ST"))
                         {
                             AddFirstData(currentLine);
                         }
-                        else if (currentLine.Length > 3 && currentLine[1] == "2ST")
+                        else if ((currentLine.Length > 3) && (currentLine[1] == "2ST"))
                         {
                             AddSecondData(currentLine);
                         }
-                        else if (currentLine.Length > 3 && currentLine[1] == "LAST")
+                        else if ((currentLine.Length > 3) && (currentLine[1] == "LAST"))
                         {
                             AddThirdData(currentLine, cardb);
                         }

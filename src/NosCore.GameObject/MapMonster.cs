@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using NosCore.Data.Dto;
 
 namespace NosCore.GameObject
 {
@@ -35,6 +35,7 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
+
         public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;
@@ -42,6 +43,18 @@ namespace NosCore.GameObject
         }
 
         public IDisposable Life { get; private set; }
+
+        public void Initialize()
+        {
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            Mp = NpcMonster?.MaxMp ?? 0;
+            Hp = NpcMonster?.MaxHp ?? 0;
+            Speed = NpcMonster?.Speed ?? 0;
+            PositionX = MapX;
+            PositionY = MapY;
+            IsAlive = true;
+        }
+
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;
@@ -77,17 +90,6 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-
-        public void Initialize()
-        {
-            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
-            Mp = NpcMonster?.MaxMp ?? 0;
-            Hp = NpcMonster?.MaxHp ?? 0;
-            Speed = NpcMonster?.Speed ?? 0;
-            PositionX = MapX;
-            PositionY = MapY;
-            IsAlive = true;
-        }
 
         internal void StopLife()
         {

@@ -1,7 +1,7 @@
-﻿using NosCore.Data.Enumerations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Core
 {

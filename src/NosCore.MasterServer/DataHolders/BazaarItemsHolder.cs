@@ -1,20 +1,19 @@
-﻿using Mapster;
-using NosCore.Core;
-using NosCore.Data;
-using NosCore.Data.WebApi;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Mapster;
+using NosCore.Core;
+using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 
 namespace NosCore.MasterServer.DataHolders
 {
     public class BazaarItemsHolder
     {
-        public ConcurrentDictionary<long, BazaarLink> BazaarItems { get; set; }
-
-        public BazaarItemsHolder(IGenericDao<BazaarItemDto> bazaarItemDao, IGenericDao<IItemInstanceDto> itemInstanceDao, List<ItemDto> items, IGenericDao<CharacterDto> characterDao)
+        public BazaarItemsHolder(IGenericDao<BazaarItemDto> bazaarItemDao,
+            IGenericDao<IItemInstanceDto> itemInstanceDao, List<ItemDto> items, IGenericDao<CharacterDto> characterDao)
         {
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();
@@ -22,7 +21,14 @@ namespace NosCore.MasterServer.DataHolders
             var itemInstancelist = itemInstanceDao.Where(s => bzItemInstanceIds.Contains(s.Id)).ToList();
             var characterList = characterDao.Where(s => bzCharacterIds.Contains(s.CharacterId)).ToList();
 
-            BazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId, x => new BazaarLink { ItemInstance = itemInstancelist.First(s => s.Id == x.ItemInstanceId).Adapt<ItemInstanceDto>(), BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name }));
+            BazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId,
+                x => new BazaarLink
+                {
+                    ItemInstance = itemInstancelist.First(s => s.Id == x.ItemInstanceId).Adapt<ItemInstanceDto>(),
+                    BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name
+                }));
         }
+
+        public ConcurrentDictionary<long, BazaarLink> BazaarItems { get; set; }
     }
 }

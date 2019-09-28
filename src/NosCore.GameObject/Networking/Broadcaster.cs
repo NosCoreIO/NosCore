@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.GameObject.Networking
 {
@@ -66,18 +66,21 @@ namespace NosCore.GameObject.Networking
             ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
-        public IEnumerable<ICharacterEntity> GetCharacters() => GetCharacters(null);
+        public IEnumerable<ICharacterEntity> GetCharacters()
+        {
+            return GetCharacters(null);
+        }
 
         public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool> func)
         {
-            return (func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character)
-                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func));
+            return func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character)
+                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func);
         }
 
         public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
         {
-            return (func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
-                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func));
+            return func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
+                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func);
         }
 
         public static void Reset()
@@ -94,7 +97,10 @@ namespace NosCore.GameObject.Networking
                     Language = s.Account.Language,
                     ChannelId = MasterClientListSingleton.Instance.ChannelId,
                     ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
-                    { Name = s.Character.Name, Id = s.Character.CharacterId, FriendRequestBlocked = s.Character.FriendRequestBlocked }
+                    {
+                        Name = s.Character.Name, Id = s.Character.CharacterId,
+                        FriendRequestBlocked = s.Character.FriendRequestBlocked
+                    }
                 }).ToList();
         }
     }

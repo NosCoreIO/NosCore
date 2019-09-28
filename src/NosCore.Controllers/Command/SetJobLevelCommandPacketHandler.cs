@@ -35,7 +35,9 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetJobLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IStatHttpClient statHttpClient)
+
+        public SetJobLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+            IStatHttpClient statHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _statHttpClient = statHttpClient;
@@ -43,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || levelPacket.Name == session.Character.Name)
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
                 session.Character.SetJobLevel(levelPacket.Level);
                 return;
@@ -52,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateJobLevel,
-                Character = new Character { Name = levelPacket.Name },
+                Character = new Character {Name = levelPacket.Name},
                 Data = levelPacket.Level
             };
 

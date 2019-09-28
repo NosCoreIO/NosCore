@@ -14,8 +14,8 @@ namespace NosCore.PacketHandlers.Parcel
 {
     public class PstClientPacketHandler : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
-        private readonly IMailHttpClient _mailHttpClient;
         private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IMailHttpClient _mailHttpClient;
 
         public PstClientPacketHandler(IMailHttpClient mailHttpClient, IGenericDao<CharacterDto> characterDao)
         {
@@ -34,6 +34,7 @@ namespace NosCore.PacketHandlers.Parcel
                     {
                         return;
                     }
+
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
                     _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
@@ -44,30 +45,39 @@ namespace NosCore.PacketHandlers.Parcel
                     {
                         return;
                     }
+
                     _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
                     clientSession.SendPacket(
-                        clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED, clientSession.Account.Language),
-                        SayColorType.Purple));
+                        clientSession.Character.GenerateSay(
+                            Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
+                                clientSession.Account.Language),
+                            SayColorType.Purple));
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
                     {
                         return;
                     }
+
                     var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
                     if (dest != null)
                     {
-                        _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text);
-                        clientSession.SendPacket(clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(
-                            LanguageKey.MAILED,
-                            clientSession.Account.Language), SayColorType.Yellow));
+                        _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
+                            pstClientPacket.Text);
+                        clientSession.SendPacket(clientSession.Character.GenerateSay(
+                            Language.Instance.GetMessageFromKey(
+                                LanguageKey.MAILED,
+                                clientSession.Account.Language), SayColorType.Yellow));
                     }
                     else
                     {
                         clientSession.SendPacket(
-                            clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND, clientSession.Account.Language),
-                            SayColorType.Yellow));
+                            clientSession.Character.GenerateSay(
+                                Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
+                                    clientSession.Account.Language),
+                                SayColorType.Yellow));
                     }
+
                     break;
                 default:
                     return;

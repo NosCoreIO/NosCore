@@ -1,4 +1,8 @@
-﻿using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,8 +11,10 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.DAL;
+using NosCore.Database.Entities;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -17,42 +23,41 @@ using NosCore.MasterServer.DataHolders;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using NosCore.Data.Dto;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class FDelPacketHandlerTests
     {
-        private FdelPacketHandler _fDelPacketHandler;
-        private Mock<IGenericDao<CharacterDto>> _characterDao;
-        private FriendController _friendController;
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private IGenericDao<CharacterRelationDto> _characterRelationDao;
-        private ClientSession _session;
         private Mock<IChannelHttpClient> _channelHttpClient;
+        private Mock<IGenericDao<CharacterDto>> _characterDao;
+        private IGenericDao<CharacterRelationDto> _characterRelationDao;
         private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
+        private FdelPacketHandler _fDelPacketHandler;
+        private FriendController _friendController;
         private Mock<IFriendHttpClient> _friendHttpClient;
+        private ClientSession _session;
 
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<NosCore.Database.Entities.CharacterRelation, CharacterRelationDto>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-            _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object);
+            _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
+                _connectedAccountHttpClient.Object);
             _characterDao = new Mock<IGenericDao<CharacterDto>>();
-            _friendController = new FriendController(_logger, _characterRelationDao, _characterDao.Object, new FriendRequestHolder(), _connectedAccountHttpClient.Object);
-            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns((long id) => _friendController.GetFriends(id));
-            _friendHttpClient.Setup(s => s.DeleteFriend(It.IsAny<Guid>())).Callback((Guid id) => _friendController.Delete(id));
+            _friendController = new FriendController(_logger, _characterRelationDao, _characterDao.Object,
+                new FriendRequestHolder(), _connectedAccountHttpClient.Object);
+            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
+                .Returns((long id) => _friendController.GetFriends(id));
+            _friendHttpClient.Setup(s => s.DeleteFriend(It.IsAny<Guid>()))
+                .Callback((Guid id) => _friendController.Delete(id));
         }
 
         [TestMethod]
@@ -60,13 +65,15 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
-            var list = new List<CharacterDto> {
+            var list = new List<CharacterDto>
+            {
                 _session.Character,
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>())).Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
             _characterRelationDao.InsertOrUpdate(new[]
-  {
+            {
                 new CharacterRelationDto
                 {
                     CharacterId = 2,
@@ -76,7 +83,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
                 new CharacterRelationDto
                 {
-                    RelatedCharacterId  = 2,
+                    RelatedCharacterId = 2,
                     CharacterRelationId = targetGuid,
                     CharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
@@ -98,11 +105,13 @@ namespace NosCore.Tests.PacketHandlerTests
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
-            var list = new List<CharacterDto> {
+            var list = new List<CharacterDto>
+            {
                 _session.Character,
-               targetSession.Character
+                targetSession.Character
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>())).Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
             _characterRelationDao.InsertOrUpdate(new[]
             {
                 new CharacterRelationDto
@@ -114,7 +123,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 },
                 new CharacterRelationDto
                 {
-                    RelatedCharacterId  = targetSession.Character.CharacterId,
+                    RelatedCharacterId = targetSession.Character.CharacterId,
                     CharacterRelationId = targetGuid,
                     CharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
@@ -136,11 +145,13 @@ namespace NosCore.Tests.PacketHandlerTests
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
-            var list = new List<CharacterDto> {
+            var list = new List<CharacterDto>
+            {
                 _session.Character,
-               targetSession.Character
+                targetSession.Character
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>())).Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
 
             var fdelPacket = new FdelPacket
             {
@@ -148,9 +159,9 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             _fDelPacketHandler.Execute(fdelPacket, _session);
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
-                        _session.Account.Language), lastpacket.Message);
+                _session.Account.Language), lastpacket.Message);
         }
     }
 }

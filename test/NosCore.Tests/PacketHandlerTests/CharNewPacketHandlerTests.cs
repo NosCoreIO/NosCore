@@ -1,4 +1,7 @@
-﻿using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
@@ -12,10 +15,6 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -23,9 +22,9 @@ namespace NosCore.Tests.PacketHandlerTests
     public class CharNewPacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private ClientSession _session;
         private Character _chara;
         private CharNewPacketHandler _charNewPacketHandler;
+        private ClientSession _session;
 
         [TestInitialize]
         public void Setup()
@@ -34,7 +33,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _chara = _session.Character;
             _session.SetCharacter(null);
-            _charNewPacketHandler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
+            _charNewPacketHandler =
+                new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace NosCore.Tests.PacketHandlerTests
             const string name = "Test Character";
             _charNewPacketHandler.Execute(new CharNewPacket
             {
-                Name = name,
+                Name = name
             }, _session);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
@@ -82,7 +82,7 @@ namespace NosCore.Tests.PacketHandlerTests
             const string name = "TestExistingCharacter";
             _charNewPacketHandler.Execute(new CharNewPacket
             {
-                Name = name,
+                Name = name
             }, _session);
             Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == name).Skip(1).Any());
         }

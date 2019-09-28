@@ -36,7 +36,9 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IStatHttpClient statHttpClient)
+
+        public SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+            IStatHttpClient statHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _statHttpClient = statHttpClient;
@@ -47,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name ?? session.Character.Name },
+                Character = new Character {Name = goldPacket.Name ?? session.Character.Name},
                 Data = goldPacket.Gold
             };
 

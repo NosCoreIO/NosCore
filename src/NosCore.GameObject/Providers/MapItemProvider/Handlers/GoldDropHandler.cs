@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -25,13 +26,15 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using System;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class GoldDropEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        public bool Condition(MapItem item) => item.VNum == 1046;
+        public bool Condition(MapItem item)
+        {
+            return item.VNum == 1046;
+        }
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
