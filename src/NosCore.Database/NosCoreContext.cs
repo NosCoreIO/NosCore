@@ -616,6 +616,30 @@ namespace NosCore.Database
                 .HasMany(e => e.ShopSkill)
                 .WithOne(e => e.Skill)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.Warehouses)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Family>()
+                .HasMany(e => e.Warehouses)
+                .WithOne(e => e.Family)
+                .HasForeignKey(e => e.FamilyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WarehouseItem>()
+                .HasOne(e => e.Warehouse)
+                .WithMany(e => e.WarehouseItems)
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WarehouseItem>()
+                .HasOne(e => e.ItemInstance)
+                .WithMany(e => e.WarehouseItems)
+                .HasForeignKey(e => e.ItemInstanceId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
