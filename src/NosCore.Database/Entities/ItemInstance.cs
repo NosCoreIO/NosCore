@@ -31,6 +31,7 @@ namespace NosCore.Database.Entities
             BazaarItem = new HashSet<BazaarItem>();
             InventoryItemInstance = new HashSet<InventoryItemInstance>();
             Mail = new HashSet<Mail>();
+            WarehouseItems = new HashSet<WarehouseItem>();
         }
 
         public short Amount { get; set; }
@@ -38,6 +39,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 
         public virtual ICollection<Mail> Mail { get; set; }
+
+        public virtual ICollection<WarehouseItem> WarehouseItems { get; }
 
         [ForeignKey(nameof(BoundCharacterId))]
         public virtual Character BoundCharacter { get; set; }
