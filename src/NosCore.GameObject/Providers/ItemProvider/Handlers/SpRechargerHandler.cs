@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -27,7 +28,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using System;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -40,17 +40,22 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             _worldConfiguration = worldConfiguration;
         }
 
-        public bool Condition(Item.Item item) => item.ItemType == ItemType.Special &&
-            item.Effect >= ItemEffectType.DroppedSpRecharger && item.Effect <= ItemEffectType.CraftedSpRecharger;
+        public bool Condition(Item.Item item)
+        {
+            return (item.ItemType == ItemType.Special) &&
+                (item.Effect >= ItemEffectType.DroppedSpRecharger) &&
+                (item.Effect <= ItemEffectType.CraftedSpRecharger);
+        }
 
         public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
+                    itemInstance.ItemInstanceId);
                 requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+                    itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
             }
             else

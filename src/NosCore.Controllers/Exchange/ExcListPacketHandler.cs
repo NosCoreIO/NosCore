@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Exchanges;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
@@ -29,7 +30,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using Serilog;
-using System.Collections.Generic;
 
 namespace NosCore.PacketHandlers.Exchange
 {
@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Exchange
 
         public override void Execute(ExcListPacket packet, ClientSession clientSession)
         {
-            if (packet.Gold > clientSession.Character.Gold || packet.BankGold > clientSession.Account.BankMoney)
+            if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
                 return;
@@ -55,21 +55,22 @@ namespace NosCore.PacketHandlers.Exchange
             var subPacketList = new List<ServerExcListSubPacket>();
 
             var target = Broadcaster.Instance.GetCharacter(s =>
-                s.VisualId == _exchangeProvider.GetTargetId(clientSession.Character.VisualId) &&
-                s.MapInstanceId == clientSession.Character.MapInstanceId) as Character;
+                (s.VisualId == _exchangeProvider.GetTargetId(clientSession.Character.VisualId)) &&
+                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
 
-            if (packet.SubPackets.Count > 0 && target != null)
+            if ((packet.SubPackets.Count > 0) && (target != null))
             {
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
                     var item = clientSession.Character.Inventory.LoadBySlotAndType(value.Slot,
-                        (NoscorePocketType)value.PocketType);
+                        (NoscorePocketType) value.PocketType);
 
-                    if (item == null || item.ItemInstance.Amount < value.Amount)
+                    if ((item == null) || (item.ItemInstance.Amount < value.Amount))
                     {
                         var closeExchange =
-                            _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure);
+                            _exchangeProvider.CloseExchange(clientSession.Character.VisualId,
+                                ExchangeResultType.Failure);
                         clientSession.SendPacket(closeExchange);
                         target.SendPacket(closeExchange);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
@@ -104,7 +105,7 @@ namespace NosCore.PacketHandlers.Exchange
             }
             else
             {
-                subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
+                subPacketList.Add(new ServerExcListSubPacket {ExchangeSlot = null});
             }
 
             _exchangeProvider.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
@@ -112,5 +113,4 @@ namespace NosCore.PacketHandlers.Exchange
                 clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
         }
     }
-
 }

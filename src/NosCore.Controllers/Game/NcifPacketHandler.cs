@@ -14,6 +14,7 @@ namespace NosCore.PacketHandlers.Game
     public class NcifPacketHandler : PacketHandler<NcifPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+
         public NcifPacketHandler(ILogger logger)
         {
             _logger = logger;
@@ -21,7 +22,6 @@ namespace NosCore.PacketHandlers.Game
 
         public override void Execute(NcifPacket ncifPacket, ClientSession session)
         {
-
             IAliveEntity entity;
 
             switch (ncifPacket.Type)

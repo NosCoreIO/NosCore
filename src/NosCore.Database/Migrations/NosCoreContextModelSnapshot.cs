@@ -2471,6 +2471,52 @@ namespace NosCore.Database.Migrations
                     b.ToTable("Teleporter");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("FamilyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("FamilyId");
+
+                    b.ToTable("Warehouse");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.WarehouseItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ItemInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("Slot")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemInstanceId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("WarehouseItem");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.UsableInstance", b =>
                 {
                     b.HasBaseType("NosCore.Database.Entities.ItemInstance");
@@ -3157,6 +3203,34 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.MapNpc", "MapNpc")
                         .WithMany("Teleporter")
                         .HasForeignKey("MapNpcId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NosCore.Database.Entities.Family", "Family")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("FamilyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.WarehouseItem", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
+                        .WithMany("WarehouseItems")
+                        .HasForeignKey("ItemInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NosCore.Database.Entities.Warehouse", "Warehouse")
+                        .WithMany("WarehouseItems")
+                        .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Inventory;
+﻿using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,16 +12,15 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
-using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class UseItemPacketHandlerTests
     {
-        private UseItemPacketHandler _useItemPacketHandler;
-        private ClientSession _session;
         private IItemProvider _item;
+        private ClientSession _session;
+        private UseItemPacketHandler _useItemPacketHandler;
 
         [TestCleanup]
         public void Cleanup()
@@ -42,11 +42,12 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Test_Binding()
         {
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _useItemPacketHandler.Execute(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 }, _session);
+            _useItemPacketHandler.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
+                _session);
 
             Assert.IsTrue(_session.Character.Inventory.Any(s =>
-                s.Value.ItemInstance.ItemVNum == 1 && s.Value.Type == NoscorePocketType.Wear &&
-                s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId));
+                (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
+                (s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId)));
         }
 
         [TestMethod]
@@ -59,12 +60,12 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType)item.Value.Type,
+                Type = (PocketType) item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
             }, _session);
-            Assert.IsTrue(_session.Character.SpAdditionPoint != 0 && !_session.LastPackets.Any(s => s is MsgPacket));
+            Assert.IsTrue((_session.Character.SpAdditionPoint != 0) && !_session.LastPackets.Any(s => s is MsgPacket));
         }
 
         [TestMethod]
@@ -77,15 +78,15 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType)item.Value.Type,
+                Type = (PocketType) item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
             }, _session);
-            var packet = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints &&
-                packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-                    _session.Character.Account.Language));
+            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
+                (packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
+                    _session.Character.Account.Language)));
         }
 
         [TestMethod]
@@ -98,14 +99,13 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType)item.Value.Type,
+                Type = (PocketType) item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
             }, _session);
-            Assert.IsTrue(_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints &&
-                 !_session.LastPackets.Any(s => s is MsgPacket));
+            Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
+                !_session.LastPackets.Any(s => s is MsgPacket));
         }
-
     }
 }

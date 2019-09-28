@@ -1,4 +1,7 @@
-﻿using ChickenAPI.Packets.ClientPackets.Login;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using NosCore.Configuration;
@@ -7,25 +10,23 @@ using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.Networking;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
     public class LoginService : ILoginService
     {
-        private readonly LoginConfiguration _loginConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly LoginConfiguration _loginConfiguration;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao, IAuthHttpClient authHttpClient,
+        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao,
+            IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _loginConfiguration = loginConfiguration;
@@ -35,11 +36,13 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Login(string username, string md5String, ClientVersionSubPacket clientVersion, ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
+        public void Login(string username, string md5String, ClientVersionSubPacket clientVersion,
+            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
         {
             try
             {
-                clientSession.SessionId = clientSession.Channel?.Id != null ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
+                clientSession.SessionId = clientSession.Channel?.Id != null
+                    ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
                 if (false) //TODO Maintenance
                 {
                     clientSession.SendPacket(new FailcPacket
@@ -50,8 +53,9 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
-                if ((_loginConfiguration.ClientVersion != null && clientVersion != _loginConfiguration.ClientVersion)
-                    || (_loginConfiguration.Md5String != null && md5String != _loginConfiguration.Md5String))
+                if (((_loginConfiguration.ClientVersion != null) &&
+                        (clientVersion != _loginConfiguration.ClientVersion))
+                    || ((_loginConfiguration.Md5String != null) && (md5String != _loginConfiguration.Md5String)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -63,7 +67,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());
 
-                if (acc != null && acc.Name != username)
+                if ((acc != null) && (acc.Name != username))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -73,9 +77,10 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
-                if (acc == null
+                if ((acc == null)
                     || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
-                    || (useApiAuth && !_authHttpClient.IsAwaitingConnection(username, passwordToken, clientSession.SessionId)))
+                    || (useApiAuth &&
+                        !_authHttpClient.IsAwaitingConnection(username, passwordToken, clientSession.SessionId)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -154,7 +159,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {
@@ -182,7 +187,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?)null
+                            Unknown = useApiAuth ? 2 : (int?) null
                         });
                         return;
                 }

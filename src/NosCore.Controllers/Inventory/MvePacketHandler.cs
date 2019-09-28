@@ -46,10 +46,13 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot, (NoscorePocketType)mvePacket.InventoryType,
-                (NoscorePocketType)mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
-            clientSession.SendPacket(((InventoryItemInstance)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot,
+                (NoscorePocketType) mvePacket.InventoryType,
+                (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
+            clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
+                mvePacket.DestinationSlot));
+            clientSession.SendPacket(
+                ((InventoryItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
     }
 }

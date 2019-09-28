@@ -15,6 +15,7 @@ namespace NosCore.PacketHandlers.Friend
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IBlacklistHttpClient _blacklistHttpClient;
+
         public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient)
         {
             _blacklistHttpClient = blacklistHttpClient;
@@ -22,7 +23,8 @@ namespace NosCore.PacketHandlers.Friend
 
         public override void Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
+            var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
+                {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket});
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:

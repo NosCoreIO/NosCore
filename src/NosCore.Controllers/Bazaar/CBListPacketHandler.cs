@@ -17,19 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Core;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.StaticEntities;
 using static ChickenAPI.Packets.ServerPackets.Auction.RcbListPacket;
 
-namespace NosCore.PacketHandlers.CharacterScreen
+namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBListPacketHandler : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
@@ -46,7 +46,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter, packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
+            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
             var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
@@ -54,23 +55,37 @@ namespace NosCore.PacketHandlers.CharacterScreen
             switch (packet.OrderFilter)
             {
                 case 0:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenBy(s => s.BazaarItem.Price).ToList();
+                    definitivelist = definitivelist
+                        .OrderBy(s =>
+                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                        .ThenBy(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 1:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenByDescending(s => s.BazaarItem.Price).ToList();
+                    definitivelist = definitivelist
+                        .OrderBy(s =>
+                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                        .ThenByDescending(s => s.BazaarItem.Price).ToList();
                     break;
 
                 case 2:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenBy(s => s.BazaarItem.Amount).ToList();
+                    definitivelist = definitivelist
+                        .OrderBy(s =>
+                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                        .ThenBy(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 case 3:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ThenByDescending(s => s.BazaarItem.Amount).ToList();
+                    definitivelist = definitivelist
+                        .OrderBy(s =>
+                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                        .ThenByDescending(s => s.BazaarItem.Amount).ToList();
                     break;
 
                 default:
-                    definitivelist = definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language]).ToList();
+                    definitivelist = definitivelist.OrderBy(s =>
+                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                        .ToList();
                     break;
             }
 
@@ -78,7 +93,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
-                    .Where(s => (s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes > 0 && s.ItemInstance.Amount > 0)
+                    .Where(s => ((s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now())
+                        .TotalMinutes > 0) && (s.ItemInstance.Amount > 0))
                     .Select(bzlink => new RcbListElementPacket
                     {
                         AuctionId = bzlink.BazaarItem.BazaarItemId,
@@ -88,12 +104,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Amount = bzlink.ItemInstance.Amount,
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,
-                        MinutesLeft = (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes,
+                        MinutesLeft =
+                            (long) (bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now())
+                            .TotalMinutes,
                         Unknown1 = false,
                         Unknown = 2,
                         Rarity = bzlink.ItemInstance.Rare,
                         Upgrade = bzlink.ItemInstance.Upgrade,
-                        EInfo = new EInfoPacket(),
+                        EInfo = new EInfoPacket()
                     }).ToList()
             });
         }

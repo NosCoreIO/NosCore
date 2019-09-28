@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ServerPackets.Parcel;
@@ -26,10 +30,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.GameObject
 {
@@ -49,7 +49,7 @@ namespace NosCore.GameObject
 
         public GroupType Type { get; set; }
 
-        public bool IsGroupFull => Count == (long)Type;
+        public bool IsGroupFull => Count == (long) Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
 
@@ -77,8 +77,8 @@ namespace NosCore.GameObject
                 Type = member.VisualType,
                 VisualId = member.VisualId,
                 GroupOrder = ++i,
-                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
-                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
+                HpLeft = (int) (member.Hp / (float) member.MaxHp * 100),
+                MpLeft = (int) (member.Mp / (float) member.MaxMp * 100),
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
                 Race = member.Race,
@@ -91,12 +91,12 @@ namespace NosCore.GameObject
         public bool IsGroupLeader(long visualId)
         {
             var leader = Values.OrderBy(s => s.Item1).FirstOrDefault(s => s.Item2.VisualType == VisualType.Player);
-            return Count > 1 && leader?.Item2.VisualId == visualId;
+            return (Count > 1) && (leader?.Item2.VisualId == visualId);
         }
 
         public void JoinGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
+            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
             {
                 Sessions.Add(characterEntity.Channel);
             }
@@ -107,7 +107,7 @@ namespace NosCore.GameObject
 
         public void LeaveGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity && characterEntity.Channel != null)
+            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
             {
                 Sessions.Remove(characterEntity.Channel);
             }

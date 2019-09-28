@@ -17,23 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     public class ShopParser
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<ShopDto> _shopDao;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
+        private readonly IGenericDao<ShopDto> _shopDao;
+
         public ShopParser(IGenericDao<ShopDto> shopDao, IGenericDao<MapNpcDto> mapNpcDao, ILogger logger)
         {
             _shopDao = shopDao;
@@ -43,22 +44,23 @@ namespace NosCore.Parser.Parsers
 
         public void InsertShops(List<string[]> packetList)
         {
-            int shopCounter = 0;
+            var shopCounter = 0;
             var shops = new List<ShopDto>();
             var mapnpcdb = _mapNpcDao.LoadAll().ToList();
             var shopdb = _shopDao.LoadAll().ToList();
-            foreach (var currentPacket in packetList.Where(o => o.Length > 6 && o[0].Equals("shop") && o[1].Equals("2"))
+            foreach (var currentPacket in packetList.Where(o =>
+                (o.Length > 6) && o[0].Equals("shop") && o[1].Equals("2"))
             )
             {
-                short npcid = short.Parse(currentPacket[2]);
+                var npcid = short.Parse(currentPacket[2]);
                 var npc = mapnpcdb.FirstOrDefault(s => s.MapNpcId == npcid);
                 if (npc == null)
                 {
                     continue;
                 }
 
-                StringBuilder name = new StringBuilder();
-                for (int j = 6; j < currentPacket.Length; j++)
+                var name = new StringBuilder();
+                for (var j = 6; j < currentPacket.Length; j++)
                 {
                     name.Append($"{currentPacket[j]}");
                     if (j != currentPacket.Length - 1)
@@ -75,7 +77,7 @@ namespace NosCore.Parser.Parsers
                     ShopType = byte.Parse(currentPacket[5])
                 };
 
-                if (shopdb.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null ||
+                if ((shopdb.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null) ||
                     shops.Any(s => s.MapNpcId == npc.MapNpcId))
                 {
                     continue;

@@ -1,5 +1,5 @@
-﻿using ChickenAPI.Packets.Enumerations;
-using System;
+﻿using System;
+using ChickenAPI.Packets.Enumerations;
 
 namespace NosCore.Data.WebApi
 {

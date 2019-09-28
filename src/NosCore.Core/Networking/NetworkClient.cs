@@ -17,24 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Interfaces;
-using DotNetty.Transport.Channels;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using ChickenAPI.Packets.Interfaces;
+using DotNetty.Transport.Channels;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using Serilog;
 
 namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
+        private const short maxPacketsBuffer = 50;
         private readonly ILogger _logger;
-        const short maxPacketsBuffer = 50;
+
         public NetworkClient(ILogger logger)
         {
             _logger = logger;
@@ -48,7 +49,7 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public ConcurrentQueue<IPacket> LastPackets { get; private set; }
+        public ConcurrentQueue<IPacket> LastPackets { get; }
 
         public long ClientId { get; set; }
 
@@ -61,7 +62,7 @@ namespace NosCore.Core.Networking
 
         public void SendPacket(IPacket packet)
         {
-            SendPackets(new[] { packet });
+            SendPackets(new[] {packet});
         }
 
         public void SendPackets(IEnumerable<IPacket> packets)
@@ -69,7 +70,7 @@ namespace NosCore.Core.Networking
             var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
             if (packetDefinitions.Any())
             {
-                Parallel.ForEach(packets, (packet) => LastPackets.Enqueue(packet));
+                Parallel.ForEach(packets, packet => LastPackets.Enqueue(packet));
                 Parallel.For(0, LastPackets.Count - maxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
                 Channel?.WriteAndFlushAsync(packetDefinitions);
             }

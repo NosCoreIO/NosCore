@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -25,16 +28,14 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NosCore.Core.Encryption
 {
     public class LoginDecoder : MessageToMessageDecoder<IByteBuffer>
     {
-        private readonly ILogger _logger;
         private readonly IDeserializer _deserializer;
+        private readonly ILogger _logger;
+
         public LoginDecoder(ILogger logger, IDeserializer deserializer)
         {
             _logger = logger;
@@ -49,19 +50,23 @@ namespace NosCore.Core.Encryption
                 var mapper = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()];
                 if (mapper.SessionId == 0)
                 {
-                    SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId = SessionFactory.Instance.GenerateSessionId();
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED), mapper.SessionId);
+                    SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].SessionId =
+                        SessionFactory.Instance.GenerateSessionId();
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_CONNECTED),
+                        mapper.SessionId);
                 }
 
-                foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes))
+                foreach (var character in ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes)
+                )
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
                         : Convert.ToChar((256 - (15 - character)) ^ 195));
                 }
+
                 var des = _deserializer.Deserialize(decryptedPacket.ToString());
-                if (des != null && des.IsValid)
+                if ((des != null) && des.IsValid)
                 {
-                    output.Add(new[] { des });
+                    output.Add(new[] {des});
                 }
                 else if (!des.IsValid)
                 {
@@ -69,7 +74,8 @@ namespace NosCore.Core.Encryption
                 }
                 else
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING, decryptedPacket.ToString()));
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING,
+                        decryptedPacket.ToString()));
                 }
             }
             catch

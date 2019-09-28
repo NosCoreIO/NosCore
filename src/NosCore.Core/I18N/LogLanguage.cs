@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Globalization;
+using System.Resources;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using System.Globalization;
-using System.Reflection;
-using System.Resources;
 
 namespace NosCore.Core.I18N
 {
@@ -35,7 +34,7 @@ namespace NosCore.Core.I18N
 
         private LogLanguage()
         {
-            Assembly assem = typeof(LogLanguageKey).Assembly;
+            var assem = typeof(LogLanguageKey).Assembly;
             if (assem != null)
             {
                 _manager = new ResourceManager(
@@ -48,12 +47,15 @@ namespace NosCore.Core.I18N
 
         public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
 
-        public string GetMessageFromKey(LogLanguageKey messageKey) => GetMessageFromKey(messageKey, null);
+        public string GetMessageFromKey(LogLanguageKey messageKey)
+        {
+            return GetMessageFromKey(messageKey, null);
+        }
 
         public string GetMessageFromKey(LogLanguageKey messageKey, string culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
-            var resourceMessage = _manager != null && messageKey.ToString() != null
+            var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
                 ? _manager.GetResourceSet(cult, true,
                         cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
                     ?.GetString(messageKey.ToString()) : string.Empty;
@@ -61,7 +63,10 @@ namespace NosCore.Core.I18N
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
         }
 
-        public ResourceSet GetRessourceSet() => GetRessourceSet(null);
+        public ResourceSet GetRessourceSet()
+        {
+            return GetRessourceSet(null);
+        }
 
         public ResourceSet GetRessourceSet(string culture)
         {

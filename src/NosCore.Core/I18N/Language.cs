@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Globalization;
+using System.Resources;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using System.Globalization;
-using System.Reflection;
-using System.Resources;
 
 namespace NosCore.Core.I18N
 {
@@ -32,7 +31,7 @@ namespace NosCore.Core.I18N
 
         private Language()
         {
-            Assembly assem = typeof(LanguageKey).Assembly;
+            var assem = typeof(LanguageKey).Assembly;
             if (assem != null)
             {
                 _manager = new ResourceManager(
@@ -46,7 +45,7 @@ namespace NosCore.Core.I18N
         public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
         {
             var cult = new CultureInfo(culture.ToString());
-            var resourceMessage = _manager != null && messageKey.ToString() != null
+            var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
                 ? _manager.GetResourceSet(cult, true,
                         cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
                     ?.GetString(messageKey.ToString()) : string.Empty;

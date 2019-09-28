@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Character;
@@ -24,8 +26,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.Group;
 using Serilog;
-using System.Collections.Concurrent;
-using System.Linq;
 
 namespace NosCore.Tests
 {
@@ -96,7 +96,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Leader_Change()
         {
-            for (var i = 0; i < (long)_group.Type; i++)
+            for (var i = 0; i < (long) _group.Type; i++)
             {
                 var entity = new Character(null, null, null, null, null, null, null, _logger, null, null, null, null)
                 {

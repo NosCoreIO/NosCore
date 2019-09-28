@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
-using System.Linq;
 
-namespace NosCore.PacketHandlers.Inventory
+namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class UseobjPacketHandler : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
@@ -39,31 +39,55 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(UseObjPacket useobjPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
-            var minilandObject = clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s => s.Slot == useobjPacket.ObjectId);
-            if (minilandObject != null && miniland != null)
+            var minilandObject =
+                clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
+                    s.Slot == useobjPacket.ObjectId);
+            if ((minilandObject != null) && (miniland != null))
             {
                 if (!minilandObject.InventoryItemInstance.ItemInstance.Item.IsWarehouse)
                 {
-                    byte game = (byte)(minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.MainWeapon
-                        ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
-                        : (int)minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
-                    bool full = false;
+                    var game = (byte) (minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
+                        EquipmentType.MainWeapon
+                            ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
+                            : (int) minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
+                    var full = false;
                     clientSession.SendPacket(new MloInfoPacket
                     {
                         IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
                         ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
-                        Slot = (byte)useobjPacket.ObjectId,
+                        Slot = (byte) useobjPacket.ObjectId,
                         MinilandPoints = miniland.MinilandPoint,
                         LawDurability = minilandObject.DurabilityPoint < 1000,
                         IsFull = full,
                         MinigamePoints = new MloInfoPacketSubPacket[6]
                         {
-                            new MloInfoPacketSubPacket { MinimumPoints = 0 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
-                            new MloInfoPacketSubPacket { MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]+1 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]},
-                            new MloInfoPacketSubPacket { MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]+1 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]},
-                            new MloInfoPacketSubPacket { MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]+1 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]},
-                            new MloInfoPacketSubPacket { MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]+1 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]},
-                            new MloInfoPacketSubPacket { MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]+1 , MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]},
+                            new MloInfoPacketSubPacket
+                                {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
+                            new MloInfoPacketSubPacket
+                            {
+                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0] + 1,
+                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]
+                            },
+                            new MloInfoPacketSubPacket
+                            {
+                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1] + 1,
+                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]
+                            },
+                            new MloInfoPacketSubPacket
+                            {
+                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2] + 1,
+                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]
+                            },
+                            new MloInfoPacketSubPacket
+                            {
+                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3] + 1,
+                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]
+                            },
+                            new MloInfoPacketSubPacket
+                            {
+                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4] + 1,
+                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
+                            }
                         }
                     });
                 }
@@ -72,7 +96,6 @@ namespace NosCore.PacketHandlers.Inventory
                     clientSession.SendPacket(new StashAllPacket());
                 }
             }
-
         }
     }
 }

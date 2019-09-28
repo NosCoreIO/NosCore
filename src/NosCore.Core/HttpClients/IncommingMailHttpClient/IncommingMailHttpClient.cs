@@ -1,16 +1,18 @@
-﻿using Newtonsoft.Json;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Data.WebApi;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
+using Newtonsoft.Json;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
     public class IncommingMailHttpClient : MasterServerHttpClient, IIncommingMailHttpClient
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        public IncommingMailHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IChannelHttpClient channelHttpClient)
+
+        public IncommingMailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
+            IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/incommingMail";
@@ -27,7 +29,8 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         public void NotifyIncommingMail(int channelId, MailData mailRequest)
         {
             var client = Connect(channelId);
-            var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default,
+                "application/json");
             client.PostAsync(ApiUrl, content).Wait();
         }
 

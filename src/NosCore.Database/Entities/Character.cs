@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
-using NosCore.Data.Enumerations.Character;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.Database.Entities
 {
@@ -42,6 +42,7 @@ namespace NosCore.Database.Entities
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
             Miniland = new HashSet<Miniland>();
+            Warehouses = new HashSet<Warehouse>();
         }
 
         public virtual Account Account { get; set; }
@@ -187,5 +188,6 @@ namespace NosCore.Database.Entities
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
+        public virtual ICollection<Warehouse> Warehouses { get; set; }
     }
 }

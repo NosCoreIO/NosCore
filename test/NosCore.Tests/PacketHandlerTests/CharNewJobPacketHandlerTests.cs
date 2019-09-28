@@ -2,20 +2,20 @@
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
+using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
-        private ClientSession _session;
         private Character _chara;
 
         private CharNewJobPacketHandler _charNewJobPacketHandler;
+        private ClientSession _session;
 
         [TestInitialize]
         public void Setup()
