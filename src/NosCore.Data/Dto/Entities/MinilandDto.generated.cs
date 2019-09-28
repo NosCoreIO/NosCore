@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using Mapster;
 
 namespace NosCore.Data.Dto
 {
