@@ -64,12 +64,6 @@ namespace NosCore.PacketHandlers.Miniland
             }
 
             var minilandObject = clientSession.Character.MapInstance.MapDesignObjects[minilandobject.Id];
-            if (minilandobject.ItemInstance.Item.IsWarehouse)
-            {
-                //todo warehouse
-                //clientSession.Character.WareHouseSize = 0;
-            }
-
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             clientSession.SendPacket(minilandObject.GenerateEffect(true));
             clientSession.SendPacket(new MinilandPointPacket
