@@ -33,9 +33,11 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ChangeClassPacketHandler : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
-        private readonly IStatHttpClient _statHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        public ChangeClassPacketHandler(IStatHttpClient statHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+        private readonly IStatHttpClient _statHttpClient;
+
+        public ChangeClassPacketHandler(IStatHttpClient statHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _statHttpClient = statHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
@@ -43,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(ChangeClassPacket changeClassPacket, ClientSession session)
         {
-            if (changeClassPacket.Name == session.Character.Name || string.IsNullOrEmpty(changeClassPacket.Name))
+            if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
                 session.Character.ChangeClass(changeClassPacket.ClassType);
                 return;
@@ -52,8 +54,8 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character { Name = changeClassPacket.Name },
-                Data = (byte)changeClassPacket.ClassType,
+                Character = new Character {Name = changeClassPacket.Name},
+                Data = (byte) changeClassPacket.ClassType
             };
 
             var receiver = _connectedAccountHttpClient.GetCharacter(null, changeClassPacket.Name);
@@ -71,5 +73,4 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient.ChangeStat(data, receiver.Item1);
         }
     }
-
 }

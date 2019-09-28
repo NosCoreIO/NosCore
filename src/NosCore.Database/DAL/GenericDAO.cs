@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
-using NosCore.Core;
-using NosCore.Data.Enumerations;
-using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +24,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Mapster;
+using NosCore.Core;
+using NosCore.Data.Enumerations;
+using Serilog;
 
 namespace NosCore.Database.DAL
 {
@@ -43,7 +43,7 @@ namespace NosCore.Database.DAL
             {
                 var pis = typeof(TDto).GetProperties();
                 var exit = false;
-                for (var index = 0; index < pis.Length && !exit; index++)
+                for (var index = 0; (index < pis.Length) && !exit; index++)
                 {
                     var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
@@ -131,7 +131,6 @@ namespace NosCore.Database.DAL
             context.SaveChanges();
 
             return SaveResult.Saved;
-
         }
 
         public TDto FirstOrDefault(Expression<Func<TDto, bool>> predicate)
@@ -147,7 +146,6 @@ namespace NosCore.Database.DAL
                 var dbset = context.Set<TEntity>();
                 var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<TDto, TEntity>());
                 return ent.Adapt<TDto>();
-
             }
             catch (Exception e)
             {
@@ -183,7 +181,7 @@ namespace NosCore.Database.DAL
                     context.SaveChanges();
                 }
 
-                if (value == null || entityfound == null)
+                if ((value == null) || (entityfound == null))
                 {
                     dbset.Add(entity);
                 }
@@ -192,7 +190,6 @@ namespace NosCore.Database.DAL
                 dto = entity.Adapt<TDto>();
 
                 return SaveResult.Saved;
-
             }
             catch (Exception e)
             {
@@ -217,6 +214,7 @@ namespace NosCore.Database.DAL
                 {
                     list.Add(new Tuple<TEntity, object>(dto.Adapt<TEntity>(), _primaryKey.GetValue(dto, null)));
                 }
+
                 var ids = list.Select(s => s.Item2).ToArray();
                 var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
                 var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
@@ -224,7 +222,8 @@ namespace NosCore.Database.DAL
                 foreach (var dto in list)
                 {
                     var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
-                    var entityfound = entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
+                    var entityfound =
+                        entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
@@ -256,7 +255,6 @@ namespace NosCore.Database.DAL
             {
                 yield return t.Adapt<TDto>();
             }
-
         }
 
         public IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate)

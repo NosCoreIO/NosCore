@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.Inventory;
@@ -30,10 +34,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using Serilog;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {
@@ -119,8 +119,12 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (!session.Character.Inventory.EnoughPlace(targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type) ||
-                !targetSession.Inventory.EnoughPlace(exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(), targetInfo.ExchangeItems.Keys.First().Type))
+            if (!session.Character.Inventory.EnoughPlace(
+                    targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
+                    targetInfo.ExchangeItems.Keys.First().Type) ||
+                !targetSession.Inventory.EnoughPlace(
+                    exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
+                    targetInfo.ExchangeItems.Keys.First().Type))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
@@ -167,12 +171,12 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
 
         public bool CheckExchange(long visualId)
         {
-            return _exchangeRequests.Any(k => k.Key == visualId || k.Value == visualId);
+            return _exchangeRequests.Any(k => (k.Key == visualId) || (k.Value == visualId));
         }
 
         public long? GetTargetId(long visualId)
         {
-            var id = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
+            var id = _exchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
             if (id.Equals(default(KeyValuePair<long, long>)))
             {
                 return null;
@@ -183,14 +187,14 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
 
         public bool CheckExchange(long visualId, long targetId)
         {
-            return _exchangeRequests.Any(k => k.Key == visualId && k.Value == visualId) ||
-                _exchangeRequests.Any(k => k.Key == targetId && k.Value == targetId);
+            return _exchangeRequests.Any(k => (k.Key == visualId) && (k.Value == visualId)) ||
+                _exchangeRequests.Any(k => (k.Key == targetId) && (k.Value == targetId));
         }
 
         public ExcClosePacket CloseExchange(long visualId, ExchangeResultType resultType)
         {
-            var data = _exchangeRequests.FirstOrDefault(k => k.Key == visualId || k.Value == visualId);
-            if (data.Key == 0 && data.Value == 0)
+            var data = _exchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
+            if ((data.Key == 0) && (data.Value == 0))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
                 return null;
@@ -230,7 +234,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         public List<KeyValuePair<long, IvnPacket>> ProcessExchange(long firstUser, long secondUser,
             IInventoryService sessionInventory, IInventoryService targetInventory)
         {
-            var usersArray = new[] { firstUser, secondUser };
+            var usersArray = new[] {firstUser, secondUser};
             var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
 
             foreach (var user in usersArray)
@@ -252,13 +256,15 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                         newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.ItemInstanceId);
                     }
 
-                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(item.Key.ItemInstance.ItemVNum,
-                        item.Key.ItemInstance.Amount, (sbyte)item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade, (byte)item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
+                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(
+                        item.Key.ItemInstance.ItemVNum,
+                        item.Key.ItemInstance.Amount, (sbyte) item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade,
+                        (byte) item.Key.ItemInstance.Design), targetId)).FirstOrDefault();
 
                     items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
-                        newItem.GeneratePocketChange((PocketType)item.Key.Type, item.Key.Slot)));
+                        newItem.GeneratePocketChange((PocketType) item.Key.Type, item.Key.Slot)));
                     items.Add(new KeyValuePair<long, IvnPacket>(targetId,
-                        item.Key.GeneratePocketChange((PocketType)inv.Type, inv.Slot)));
+                        item.Key.GeneratePocketChange((PocketType) inv.Type, inv.Slot)));
                 }
             }
 

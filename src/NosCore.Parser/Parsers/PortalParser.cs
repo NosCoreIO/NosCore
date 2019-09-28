@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.Parser.Parsers
 {
@@ -33,9 +33,9 @@ namespace NosCore.Parser.Parsers
     {
         private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
         private readonly ILogger _logger;
-        private List<PortalDto> _listPortals1 = new List<PortalDto>();
         private readonly IGenericDao<MapDto> _mapDao;
         private readonly IGenericDao<PortalDto> _portalDao;
+        private List<PortalDto> _listPortals1 = new List<PortalDto>();
 
         public PortalParser(ILogger logger, IGenericDao<MapDto> mapDao, IGenericDao<PortalDto> portalDao)
         {
@@ -129,13 +129,13 @@ namespace NosCore.Parser.Parsers
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
             {
-                if (currentPacket.Length > 5 && currentPacket[0] == "at")
+                if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
                     map = short.Parse(currentPacket[2]);
                     continue;
                 }
 
-                if (currentPacket.Length <= 4 || currentPacket[0] != "gp")
+                if ((currentPacket.Length <= 4) || (currentPacket[0] != "gp"))
                 {
                     continue;
                 }
@@ -146,15 +146,15 @@ namespace NosCore.Parser.Parsers
                     SourceX = short.Parse(currentPacket[1]),
                     SourceY = short.Parse(currentPacket[2]),
                     DestinationMapId = short.Parse(currentPacket[3]),
-                    Type = (PortalType)Enum.Parse(typeof(PortalType), currentPacket[4]),
+                    Type = (PortalType) Enum.Parse(typeof(PortalType), currentPacket[4]),
                     DestinationX = -1,
                     DestinationY = -1,
                     IsDisabled = false
                 };
 
                 if (_listPortals1.Any(s =>
-                        s.SourceMapId == map && s.SourceX == portal.SourceX && s.SourceY == portal.SourceY
-                        && s.DestinationMapId == portal.DestinationMapId)
+                        (s.SourceMapId == map) && (s.SourceX == portal.SourceX) && (s.SourceY == portal.SourceY)
+                        && (s.DestinationMapId == portal.DestinationMapId))
                     || _maps.All(s => s.MapId != portal.SourceMapId)
                     || _maps.All(s => s.MapId != portal.DestinationMapId))
                 {
@@ -170,7 +170,7 @@ namespace NosCore.Parser.Parsers
             foreach (var portal in _listPortals1)
             {
                 var p = _listPortals1.Except(_listPortals2).FirstOrDefault(s =>
-                    s.SourceMapId == portal.DestinationMapId && s.DestinationMapId == portal.SourceMapId);
+                    (s.SourceMapId == portal.DestinationMapId) && (s.DestinationMapId == portal.SourceMapId));
                 if (p == null)
                 {
                     continue;
@@ -187,14 +187,14 @@ namespace NosCore.Parser.Parsers
             // foreach portal in the new list of Portals where none (=> !Any()) are found in the existing
             portalCounter += _listPortals2.Count(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
-                    s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
-                        && s.SourceY == portal.SourceY));
+                    s => (s.DestinationMapId == portal.DestinationMapId) && (s.SourceX == portal.SourceX)
+                        && (s.SourceY == portal.SourceY)));
 
             // so this dude doesnt exist yet in DAOFactory -> insert it
             var portalsDtos = _listPortals2.Where(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
-                    s => s.DestinationMapId == portal.DestinationMapId && s.SourceX == portal.SourceX
-                        && s.SourceY == portal.SourceY));
+                    s => (s.DestinationMapId == portal.DestinationMapId) && (s.SourceX == portal.SourceX)
+                        && (s.SourceY == portal.SourceY)));
             _portalDao.InsertOrUpdate(portalsDtos);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PORTALS_PARSED),

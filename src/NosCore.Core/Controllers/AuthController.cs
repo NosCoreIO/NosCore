@@ -17,6 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -24,16 +30,10 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using NosCore.Data.Dto;
 
 namespace NosCore.Core.Controllers
 {
@@ -42,8 +42,8 @@ namespace NosCore.Core.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private readonly WebApiConfiguration _apiConfiguration;
         private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
 
         public AuthController(WebApiConfiguration apiConfiguration, IGenericDao<AccountDto> accountDao, ILogger logger)
@@ -66,16 +66,23 @@ namespace NosCore.Core.Controllers
             switch (_apiConfiguration.HashingType)
             {
                 case HashingType.BCrypt:
-                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToBcrypt(account.NewAuthSalt)) ?? false))
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default
+                            .GetString(Convert.FromBase64String(account?.NewAuthPassword))
+                            .ToBcrypt(account.NewAuthSalt)) ??
+                        false))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
+
                     break;
                 case HashingType.Pbkdf2:
-                    if (!(account?.NewAuthPassword.Equals(Encoding.Default.GetString(Convert.FromBase64String(account?.NewAuthPassword)).ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
+                    if (!(account?.NewAuthPassword.Equals(Encoding.Default
+                        .GetString(Convert.FromBase64String(account?.NewAuthPassword))
+                        .ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
+
                     break;
                 case HashingType.Sha512:
                 default:
@@ -83,9 +90,10 @@ namespace NosCore.Core.Controllers
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
+
                     break;
             }
-            
+
             account.Language = Enum.Parse<RegionType>(session.GfLang.ToUpper(CultureInfo.CurrentCulture));
             _accountDao.InsertOrUpdate(ref account);
             var platformGameAccountId = Guid.NewGuid();
@@ -93,7 +101,7 @@ namespace NosCore.Core.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, session.Identity),
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
-                new Claim(ClaimTypes.Role, account.Authority.ToString()),
+                new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
             string password;
             switch (_apiConfiguration.HashingType)
@@ -109,6 +117,7 @@ namespace NosCore.Core.Controllers
                     password = _apiConfiguration.Password.ToSha512();
                     break;
             }
+
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
@@ -119,7 +128,8 @@ namespace NosCore.Core.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS), session.Identity, platformGameAccountId, session.Locale);
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
+                session.Identity, platformGameAccountId, session.Locale);
             return Ok(new
             {
                 token = handler.WriteToken(securityToken),
@@ -130,15 +140,17 @@ namespace NosCore.Core.Controllers
         [HttpPost("codes")]
         public IActionResult GetAuthCode(ApiPlatformGameAccount platformGameAccount)
         {
-            var identity = (ClaimsIdentity)User.Identity;
-            if (!identity.Claims.Any(s => s.Type == ClaimTypes.Sid && s.Value == platformGameAccount.PlatformGameAccountId))
+            var identity = (ClaimsIdentity) User.Identity;
+            if (!identity.Claims.Any(s =>
+                (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
             var authCode = Guid.NewGuid();
-            SessionFactory.Instance.AuthCodes[identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value] = authCode.ToString();
-            return Ok(new { code = authCode });
+            SessionFactory.Instance.AuthCodes[identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value] =
+                authCode.ToString();
+            return Ok(new {code = authCode});
         }
 
 
@@ -147,26 +159,28 @@ namespace NosCore.Core.Controllers
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                if (token != "thisisgfmode" && SessionFactory.Instance.AuthCodes[id] == HexStringToString(token))
+                if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token)))
                 {
                     SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
                     return Ok(true);
                 }
 
-                if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) && sessionId == SessionFactory.Instance.ReadyForAuth[id])
+                if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
+                    (sessionId == SessionFactory.Instance.ReadyForAuth[id]))
                 {
                     return Ok(true);
                 }
             }
+
             return Ok(false);
         }
 
-        string HexStringToString(string hexString)
+        private string HexStringToString(string hexString)
         {
             var bb = Enumerable.Range(0, hexString.Length)
-                 .Where(x => x % 2 == 0)
-                 .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
-                 .ToArray();
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
+                .ToArray();
             return Encoding.UTF8.GetString(bb);
         }
     }

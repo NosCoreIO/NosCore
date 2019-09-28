@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
+using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
@@ -34,12 +34,14 @@ namespace NosCore.Parser.Parsers
         private readonly ILogger _logger;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
         private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
+
         public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
         {
             _mapNpcDao = mapNpcDao;
             _logger = logger;
             _npcMonsterDao = npcMonsterDao;
         }
+
         public void InsertMapNpcs(List<string[]> packetList)
         {
             var npcmonsterdb = _npcMonsterDao.LoadAll().ToList();
@@ -78,13 +80,13 @@ namespace NosCore.Parser.Parsers
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("in") || o[0].Equals("at")))
             {
-                if (currentPacket.Length > 5 && currentPacket[0] == "at")
+                if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
                     map = short.Parse(currentPacket[2]);
                     continue;
                 }
 
-                if (currentPacket.Length <= 7 || currentPacket[0] != "in" || currentPacket[1] != "2")
+                if ((currentPacket.Length <= 7) || (currentPacket[0] != "in") || (currentPacket[1] != "2"))
                 {
                     continue;
                 }
@@ -114,10 +116,10 @@ namespace NosCore.Parser.Parsers
                 npctest.IsSitting = currentPacket[13] != "1";
                 npctest.IsDisabled = false;
 
-                if (npcmonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null
-                    || mapnpcdb.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
-                    null
-                    || npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0)
+                if ((npcmonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null)
+                    || (mapnpcdb.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=
+                        null)
+                    || (npcs.Count(i => i.MapNpcId == npctest.MapNpcId) != 0))
                 {
                     continue;
                 }

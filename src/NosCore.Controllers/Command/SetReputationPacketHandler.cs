@@ -35,7 +35,9 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
-        public SetReputationPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IStatHttpClient statHttpClient)
+
+        public SetReputationPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+            IStatHttpClient statHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _statHttpClient = statHttpClient;
@@ -43,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override void Execute(SetReputationPacket setReputationPacket, ClientSession session)
         {
-            if (setReputationPacket.Name == session.Character.Name || string.IsNullOrEmpty(setReputationPacket.Name))
+            if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
                 session.Character.SetReputation(setReputationPacket.Reputation);
                 return;
@@ -52,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateReputation,
-                Character = new Character { Name = setReputationPacket.Name },
+                Character = new Character {Name = setReputationPacket.Name},
                 Data = setReputationPacket.Reputation
             };
 
@@ -71,5 +73,4 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient.ChangeStat(data, receiver.Item1);
         }
     }
-
 }

@@ -17,6 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.I18N;
@@ -24,21 +29,16 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Networking;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer
     {
+        private readonly IChannelHttpClient _channelHttpClient;
         private readonly List<IGlobalEvent> _events;
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
-        private readonly IChannelHttpClient _channelHttpClient;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
             IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient)

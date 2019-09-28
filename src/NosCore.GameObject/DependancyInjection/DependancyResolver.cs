@@ -32,7 +32,7 @@ namespace NosCore.GameObject.DependancyInjection
 
         public T Resolve<T>()
         {
-            return (T)Resolve(typeof(T));
+            return (T) Resolve(typeof(T));
         }
 
         public object Resolve(Type type)

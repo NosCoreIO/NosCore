@@ -23,10 +23,11 @@ namespace NosCore.Data.StaticEntities
 {
     public class I18NFromAttribute : Attribute
     {
-        public Type Type { get; set; }
         public I18NFromAttribute(Type type)
         {
             Type = type;
         }
+
+        public Type Type { get; set; }
     }
 }

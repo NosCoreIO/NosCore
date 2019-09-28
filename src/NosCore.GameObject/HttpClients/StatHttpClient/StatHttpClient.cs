@@ -1,19 +1,20 @@
-﻿using Newtonsoft.Json;
-using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Data.WebApi;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using Newtonsoft.Json;
+using NosCore.Configuration;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.StatHttpClient
 {
     public class StatHttpClient : IStatHttpClient
     {
+        private const string ApiUrl = "api/stat";
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IHttpClientFactory _httpClientFactory;
-        const string ApiUrl = "api/stat";
+
         public StatHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
         {
             _channelHttpClient = channelHttpClient;
@@ -24,7 +25,8 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(item1.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
 
             var content = new StringContent(JsonConvert.SerializeObject(data),
                 Encoding.Default, "application/json");

@@ -17,22 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.Encryption;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NosCore.Core;
+using NosCore.Core.Encryption;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Account;
+using NosCore.Parser.Parsers;
 
 namespace NosCore.Parser
 {
     public class ImportFactory
     {
-        private string password = "test".ToSha512();
-        private readonly List<string[]> _packetList = new List<string[]>();
-        private string _folder;
+        private readonly IGenericDao<AccountDto> _accountDao;
 
         private readonly CardParser _cardParser;
         private readonly DropParser _dropParser;
@@ -44,16 +42,22 @@ namespace NosCore.Parser
         private readonly MapTypeMapParser _mapTypeMapParser;
         private readonly MapTypeParser _mapTypeParser;
         private readonly NpcMonsterParser _npcMonsterParser;
+        private readonly List<string[]> _packetList = new List<string[]>();
         private readonly PortalParser _portalParser;
         private readonly RespawnMapTypeParser _respawnMapTypeParser;
         private readonly ShopItemParser _shopItemParser;
         private readonly ShopParser _shopParser;
         private readonly SkillParser _skillParser;
-        private readonly IGenericDao<AccountDto> _accountDao;
-        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser, MapMonsterParser mapMonsterParser,
-            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser, MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
+        private string _folder;
+        private readonly string password = "test".ToSha512();
+
+        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser,
+            MapMonsterParser mapMonsterParser,
+            MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
+            MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, IGenericDao<AccountDto> accountDao)
+            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser,
+            IGenericDao<AccountDto> accountDao)
         {
             _cardParser = cardParser;
             _dropParser = dropParser;

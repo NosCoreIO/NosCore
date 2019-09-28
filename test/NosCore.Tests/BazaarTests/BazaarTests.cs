@@ -1,30 +1,31 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
-using System;
-using System.Linq.Expressions;
-using NosCore.Data.Dto;
-using NosCore.Data.StaticEntities;
 
 namespace NosCore.Tests.BazaarTests
 {
     [TestClass]
     public class BazaarTests
     {
-        private BazaarItemsHolder _bazaarItemsHolder;
+        public delegate SaveResult DeleegateInsert(ref BazaarItemDto y);
+
         private BazaarController _bazaarController;
+        private BazaarItemsHolder _bazaarItemsHolder;
         private Guid _guid;
         private Mock<IGenericDao<BazaarItemDto>> _mockBzDao;
         private Mock<IGenericDao<IItemInstanceDto>> _mockItemDao;
-
-        public delegate SaveResult DeleegateInsert(ref BazaarItemDto y);
 
 
         [TestInitialize]
@@ -35,8 +36,9 @@ namespace NosCore.Tests.BazaarTests
             _mockItemDao = new Mock<IGenericDao<IItemInstanceDto>>();
 
             var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
-            var itemList = new System.Collections.Generic.List<ItemDto>();
-            _bazaarItemsHolder = new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);
+            var itemList = new List<ItemDto>();
+            _bazaarItemsHolder =
+                new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);
             _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);
         }
 
@@ -44,12 +46,12 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarAllStack()
         {
             _mockItemDao
-                      .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                      .Returns(new ItemInstanceDto
-                      {
-                          Id = _guid,
-                          Amount = 99
-                      });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             var add = _bazaarController.AddBazaar(
                 new BazaarRequest
                 {
@@ -71,14 +73,14 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarPartialStack()
         {
             _mockItemDao
-                      .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                      .Returns(new ItemInstanceDto
-                      {
-                          Id = _guid,
-                          Amount = 99
-                      });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             var add = _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = 50,
                     CharacterId = 1,
@@ -98,12 +100,12 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarNegativeAmount()
         {
             _mockItemDao
-                       .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                       .Returns(new ItemInstanceDto
-                       {
-                           Id = _guid,
-                           Amount = 99
-                       });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
                 new BazaarRequest
                 {
@@ -122,14 +124,14 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarNegativePrice()
         {
             _mockItemDao
-                       .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                       .Returns(new ItemInstanceDto
-                       {
-                           Id = _guid,
-                           Amount = 99
-                       });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = 50,
                     CharacterId = 1,
@@ -146,14 +148,14 @@ namespace NosCore.Tests.BazaarTests
         public void AddToBazaarMoreThanItem()
         {
             _mockItemDao
-               .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-               .Returns(new ItemInstanceDto
-               {
-                   Id = _guid,
-                   Amount = 99
-               });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             Assert.ThrowsException<ArgumentException>(() => _bazaarController.AddBazaar(
-                new Data.WebApi.BazaarRequest
+                new BazaarRequest
                 {
                     Amount = 100,
                     CharacterId = 1,
@@ -188,36 +190,35 @@ namespace NosCore.Tests.BazaarTests
         {
             var rand = new Random();
             _mockBzDao.Setup(m => m.InsertOrUpdate(ref It.Ref<BazaarItemDto>.IsAny))
-              .Returns((DeleegateInsert)((ref BazaarItemDto y) =>
-              {
-
-                  y.BazaarItemId = rand.Next(0, 9999999);
-                  return SaveResult.Saved;
-              }));
+                .Returns((DeleegateInsert) ((ref BazaarItemDto y) =>
+                {
+                    y.BazaarItemId = rand.Next(0, 9999999);
+                    return SaveResult.Saved;
+                }));
             LanguageKey? add = null;
             for (var i = 0; i < 12; i++)
             {
                 var guid = Guid.NewGuid();
                 _mockItemDao.Reset();
                 _mockItemDao
-                 .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                 .Returns(new ItemInstanceDto
-                 {
-                     Id = guid,
-                     Amount = 99
-                 });
+                    .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                    .Returns(new ItemInstanceDto
+                    {
+                        Id = guid,
+                        Amount = 99
+                    });
                 add = _bazaarController.AddBazaar(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = guid,
-                    Price = 50
-                });
+                    new BazaarRequest
+                    {
+                        Amount = 99,
+                        CharacterId = 1,
+                        CharacterName = "test",
+                        Duration = 3600,
+                        HasMedal = false,
+                        IsPackage = false,
+                        ItemInstanceId = guid,
+                        Price = 50
+                    });
             }
 
             Assert.AreEqual(10, _bazaarItemsHolder.BazaarItems.Count);
@@ -228,12 +229,12 @@ namespace NosCore.Tests.BazaarTests
         public void DeleteFromBazaarNegativeCount()
         {
             _mockItemDao
-                  .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                  .Returns(new ItemInstanceDto
-                  {
-                      Id = _guid,
-                      Amount = 99
-                  });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             var add = _bazaarController.AddBazaar(
                 new BazaarRequest
                 {
@@ -253,12 +254,12 @@ namespace NosCore.Tests.BazaarTests
         public void DeleteFromBazaarMoreThanRegistered()
         {
             _mockItemDao
-                   .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                   .Returns(new ItemInstanceDto
-                   {
-                       Id = _guid,
-                       Amount = 99
-                   });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             var add = _bazaarController.AddBazaar(
                 new BazaarRequest
                 {
@@ -306,12 +307,12 @@ namespace NosCore.Tests.BazaarTests
         public void DeleteFromUserBazaar()
         {
             _mockItemDao
-                 .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                 .Returns(new ItemInstanceDto
-                 {
-                     Id = _guid,
-                     Amount = 99
-                 });
+                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+                .Returns(new ItemInstanceDto
+                {
+                    Id = _guid,
+                    Amount = 99
+                });
             var add = _bazaarController.AddBazaar(
                 new BazaarRequest
                 {
@@ -398,6 +399,5 @@ namespace NosCore.Tests.BazaarTests
             Assert.IsNull(_bazaarController.ModifyBazaar(0, patch));
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Price);
         }
-
     }
 }

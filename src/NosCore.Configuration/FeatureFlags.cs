@@ -23,6 +23,6 @@ namespace NosCore.Configuration
 {
     public class FeatureFlags : Dictionary<FeatureFlag, bool>
     {
-        public new bool this[FeatureFlag key] => TryGetValue(key, out bool value) && value;
+        public new bool this[FeatureFlag key] => TryGetValue(key, out var value) && value;
     }
 }

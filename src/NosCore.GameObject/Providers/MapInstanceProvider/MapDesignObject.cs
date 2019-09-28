@@ -40,19 +40,28 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public InventoryItemInstance InventoryItemInstance { get; set; }
 
-        public GroundEffectPacket GenerateEffect() => GenerateEffect(false);
+        public GroundEffectPacket GenerateEffect()
+        {
+            return GenerateEffect(false);
+        }
+
         public GroundEffectPacket GenerateEffect(bool isRemoval)
         {
             return new GroundEffectPacket
             {
-                Effect = (ushort)Effect,
+                Effect = (ushort) Effect,
                 XYCoordinates = $"{MapX}{MapY.ToString("00")}",
-                MapX = (ushort)MapX,
-                MapY = (ushort)MapY,
+                MapX = (ushort) MapX,
+                MapY = (ushort) MapY,
                 IsRemoval = isRemoval
             };
         }
-        public MlobjPacket GenerateMapDesignObject() => GenerateMapDesignObject(false);
+
+        public MlobjPacket GenerateMapDesignObject()
+        {
+            return GenerateMapDesignObject(false);
+        }
+
         public MlobjPacket GenerateMapDesignObject(bool isRemoval)
         {
             return new MlobjPacket

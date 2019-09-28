@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using System;
+using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -11,16 +12,17 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using System;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
-        private readonly IFriendHttpClient _friendHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+        private readonly IFriendHttpClient _friendHttpClient;
+
+        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _friendHttpClient = friendHttpClient;
             _channelHttpClient = channelHttpClient;
@@ -32,7 +34,8 @@ namespace NosCore.PacketHandlers.Friend
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
             {
-                var result = _friendHttpClient.AddFriend(new FriendShipRequest { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
+                var result = _friendHttpClient.AddFriend(new FriendShipRequest
+                    {CharacterId = session.Character.CharacterId, FinsPacket = finsPacket});
 
                 switch (result)
                 {
@@ -56,7 +59,7 @@ namespace NosCore.PacketHandlers.Friend
                         session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
-                                    session.Character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         break;
 
@@ -64,7 +67,7 @@ namespace NosCore.PacketHandlers.Friend
                         session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
-                                    session.Character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         break;
 
@@ -72,17 +75,18 @@ namespace NosCore.PacketHandlers.Friend
                         session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
-                                    session.Character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         targetCharacter.SendPacket(new DlgPacket
                         {
                             Question = string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD, session.Character.AccountLanguage),
+                                Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD,
+                                    session.Character.AccountLanguage),
                                 session.Character.Name),
                             YesPacket = new FinsPacket
-                            { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
+                                {Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId},
                             NoPacket = new FinsPacket
-                            { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
+                                {Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId}
                         });
                         break;
 
@@ -90,7 +94,7 @@ namespace NosCore.PacketHandlers.Friend
                         session.Character.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
-                                    session.Character.AccountLanguage)
+                                session.Character.AccountLanguage)
                         });
                         targetCharacter.SendPacket(new InfoPacket
                         {
@@ -98,8 +102,10 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         });
 
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
-                        session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient, _connectedAccountHttpClient));
+                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                            _connectedAccountHttpClient));
+                        session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient,
+                            _channelHttpClient, _connectedAccountHttpClient));
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

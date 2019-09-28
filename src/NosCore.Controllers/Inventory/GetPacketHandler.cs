@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
@@ -28,7 +29,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
 using Serilog;
-using System;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -72,8 +72,8 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             //TODO add group drops
-            if (mapItem.OwnerId != null && mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now() &&
-                mapItem.OwnerId != clientSession.Character.CharacterId)
+            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now()) &&
+                (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),

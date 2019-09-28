@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Movement;
+﻿using System;
+using ChickenAPI.Packets.ClientPackets.Movement;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
@@ -7,7 +8,6 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
-using System;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -15,16 +15,17 @@ namespace NosCore.PacketHandlers.Movement
     {
         public override void Execute(WalkPacket walkPacket, ClientSession session)
         {
-            var distance = (int)Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
+            var distance = (int) Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(session.Character.PositionY - walkPacket.YCoordinate));
 
-            if ((session.Character.Speed < walkPacket.Speed
-                && session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now()) || distance > 60)
+            if (((session.Character.Speed < walkPacket.Speed)
+                && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))
             {
                 return;
             }
+
             //todo check speed and distance
-            if (((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3) % 2 != walkPacket.Unknown)
+            if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
             {
                 //todo log and disconnect
                 return;

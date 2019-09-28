@@ -17,16 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using System.Collections.Generic;
 
 namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
         private readonly IGenericDao<DropDto> _dropDao;
+
         public DropParser(IGenericDao<DropDto> dropDao)
         {
             _dropDao = dropDao;
@@ -42,7 +43,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -50,7 +51,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 12000,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -58,7 +59,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -66,7 +67,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -74,7 +75,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -82,7 +83,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
             drops.Add(new DropDto
             {
@@ -90,7 +91,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act1
+                MapTypeId = (short) MapTypeType.Act1
             });
 
             // Act2
@@ -100,7 +101,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -108,7 +109,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -116,7 +117,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 7000,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -124,7 +125,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -132,7 +133,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -140,7 +141,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -148,7 +149,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -156,7 +157,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -164,7 +165,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -172,7 +173,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -180,7 +181,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -188,7 +189,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -196,7 +197,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -204,7 +205,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -212,7 +213,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 900,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -220,7 +221,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 900,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -228,7 +229,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 900,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -236,7 +237,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 900,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -244,7 +245,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 900,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -252,7 +253,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -260,7 +261,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -268,7 +269,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -276,7 +277,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -284,7 +285,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -292,7 +293,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -300,7 +301,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -308,7 +309,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -316,7 +317,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 250,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -324,7 +325,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act2
+                MapTypeId = (short) MapTypeType.Act2
             });
             drops.Add(new DropDto
             {
@@ -332,7 +333,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 80,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -340,7 +341,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 80,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -348,7 +349,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 80,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
 
             // Act3
@@ -358,7 +359,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -366,7 +367,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -374,7 +375,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 8000,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -382,7 +383,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -390,7 +391,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -398,7 +399,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -406,7 +407,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -414,7 +415,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -422,7 +423,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -430,7 +431,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -438,7 +439,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -446,7 +447,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -454,7 +455,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -462,7 +463,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -470,7 +471,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -478,7 +479,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -486,7 +487,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -494,7 +495,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -502,7 +503,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -510,7 +511,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -518,7 +519,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -526,7 +527,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -534,7 +535,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -542,7 +543,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -550,7 +551,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -558,7 +559,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -566,7 +567,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -574,7 +575,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 4000,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -582,7 +583,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -590,7 +591,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 350,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -598,7 +599,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -606,7 +607,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -614,7 +615,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -622,7 +623,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -630,7 +631,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
             drops.Add(new DropDto
             {
@@ -638,7 +639,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act3
+                MapTypeId = (short) MapTypeType.Act3
             });
 
             // Act3.2 (Midgard)
@@ -648,7 +649,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -656,7 +657,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -664,7 +665,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 6000,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -672,7 +673,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -680,7 +681,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 250,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -688,7 +689,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -696,7 +697,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -704,7 +705,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -712,7 +713,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 20,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -720,7 +721,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -728,7 +729,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 20,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -736,7 +737,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -744,7 +745,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -752,7 +753,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 60,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -760,7 +761,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 40,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -768,7 +769,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 60,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -776,7 +777,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 40,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -784,7 +785,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -792,7 +793,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -800,7 +801,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -808,7 +809,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -816,7 +817,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -824,7 +825,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -832,7 +833,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -840,7 +841,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -848,7 +849,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -856,7 +857,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -864,7 +865,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 3500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -872,7 +873,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -880,7 +881,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -888,7 +889,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -896,7 +897,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -904,7 +905,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -912,7 +913,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -920,7 +921,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -928,7 +929,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -936,7 +937,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -944,7 +945,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
             drops.Add(new DropDto
             {
@@ -952,7 +953,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act32
+                MapTypeId = (short) MapTypeType.Act32
             });
 
 
@@ -963,7 +964,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -971,7 +972,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -979,7 +980,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 7000,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -987,7 +988,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -995,7 +996,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1003,7 +1004,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1011,7 +1012,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1019,7 +1020,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1027,7 +1028,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1035,7 +1036,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1043,7 +1044,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1051,7 +1052,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1059,7 +1060,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1067,7 +1068,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1075,7 +1076,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1083,7 +1084,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1091,7 +1092,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1099,7 +1100,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1107,7 +1108,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1115,7 +1116,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1123,7 +1124,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1131,7 +1132,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1139,7 +1140,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1147,7 +1148,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1155,7 +1156,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1163,7 +1164,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1171,7 +1172,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1179,7 +1180,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1187,7 +1188,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1195,7 +1196,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1203,7 +1204,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1211,7 +1212,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1219,7 +1220,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1227,7 +1228,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1235,7 +1236,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1243,7 +1244,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
             drops.Add(new DropDto
             {
@@ -1251,7 +1252,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Oasis
+                MapTypeId = (short) MapTypeType.Oasis
             });
 
             // Act4
@@ -1261,7 +1262,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1269,7 +1270,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1277,7 +1278,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1285,7 +1286,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 2,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1293,7 +1294,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1301,7 +1302,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1309,7 +1310,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1317,7 +1318,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1325,7 +1326,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1333,7 +1334,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1341,7 +1342,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1349,7 +1350,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
             drops.Add(new DropDto
             {
@@ -1357,7 +1358,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act4
+                MapTypeId = (short) MapTypeType.Act4
             });
 
             //Act4.2
@@ -1367,7 +1368,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1375,7 +1376,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1383,7 +1384,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1391,7 +1392,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 2,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1399,7 +1400,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1407,7 +1408,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 3,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1415,7 +1416,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1423,7 +1424,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1431,7 +1432,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1439,7 +1440,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1447,7 +1448,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1455,7 +1456,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1463,7 +1464,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1471,7 +1472,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1479,7 +1480,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1487,7 +1488,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1495,7 +1496,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1503,7 +1504,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
             drops.Add(new DropDto
             {
@@ -1511,7 +1512,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act42
+                MapTypeId = (short) MapTypeType.Act42
             });
 
 
@@ -1522,7 +1523,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1530,7 +1531,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1538,7 +1539,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 6000,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1546,7 +1547,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1554,7 +1555,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1562,7 +1563,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1570,7 +1571,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1578,7 +1579,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1586,7 +1587,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1594,7 +1595,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1602,7 +1603,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1610,7 +1611,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1618,7 +1619,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1626,7 +1627,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1634,7 +1635,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1642,7 +1643,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1650,7 +1651,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1658,7 +1659,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2500,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1666,7 +1667,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1674,7 +1675,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1682,7 +1683,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1690,7 +1691,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1698,7 +1699,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1000,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1706,7 +1707,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1714,7 +1715,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1722,7 +1723,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
             drops.Add(new DropDto
             {
@@ -1730,7 +1731,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act51
+                MapTypeId = (short) MapTypeType.Act51
             });
 
             // Act5.2
@@ -1740,7 +1741,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1748,7 +1749,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1756,7 +1757,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 5000,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1764,7 +1765,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1772,7 +1773,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1780,7 +1781,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1788,7 +1789,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1796,7 +1797,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1804,7 +1805,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1500,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1812,7 +1813,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1820,7 +1821,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1828,7 +1829,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1836,7 +1837,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1844,7 +1845,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1852,7 +1853,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1860,7 +1861,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1868,7 +1869,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 3000,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1876,7 +1877,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 6000,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
             drops.Add(new DropDto
             {
@@ -1884,7 +1885,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act52
+                MapTypeId = (short) MapTypeType.Act52
             });
 
             // Act6.1 Angel
@@ -1894,7 +1895,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1902,7 +1903,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1910,7 +1911,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1918,7 +1919,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 5000,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1926,7 +1927,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1934,7 +1935,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1942,7 +1943,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1950,7 +1951,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1958,7 +1959,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1966,7 +1967,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1974,7 +1975,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1982,7 +1983,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1990,7 +1991,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -1998,7 +1999,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2006,7 +2007,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2014,7 +2015,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2022,7 +2023,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2030,7 +2031,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2038,7 +2039,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2046,7 +2047,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2054,7 +2055,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2000,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2062,7 +2063,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2070,7 +2071,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2078,7 +2079,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2086,7 +2087,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2094,7 +2095,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2102,7 +2103,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2110,7 +2111,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2118,7 +2119,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2126,7 +2127,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2134,7 +2135,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2142,7 +2143,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2150,7 +2151,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2158,7 +2159,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2166,7 +2167,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2174,7 +2175,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
             drops.Add(new DropDto
             {
@@ -2182,7 +2183,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61A
+                MapTypeId = (short) MapTypeType.Act61A
             });
 
             // Act6.1 Demon
@@ -2192,7 +2193,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2200,7 +2201,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2208,7 +2209,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2216,7 +2217,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 5000,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2224,7 +2225,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2232,7 +2233,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2240,7 +2241,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2248,7 +2249,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2256,7 +2257,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2264,7 +2265,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2272,7 +2273,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2280,7 +2281,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2288,7 +2289,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2296,7 +2297,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2304,7 +2305,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2312,7 +2313,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2320,7 +2321,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2328,7 +2329,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2336,7 +2337,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2344,7 +2345,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2352,7 +2353,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2000,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2360,7 +2361,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2368,7 +2369,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2376,7 +2377,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2384,7 +2385,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2392,7 +2393,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2400,7 +2401,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2408,7 +2409,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 150,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2416,7 +2417,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2424,7 +2425,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2432,7 +2433,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2440,7 +2441,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2448,7 +2449,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2456,7 +2457,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2464,7 +2465,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2472,7 +2473,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
             drops.Add(new DropDto
             {
@@ -2480,7 +2481,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act61D
+                MapTypeId = (short) MapTypeType.Act61D
             });
 
             // Act6.2
@@ -2490,7 +2491,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2498,7 +2499,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2506,7 +2507,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act61
+                MapTypeId = (short) MapTypeType.Act61
             });
             drops.Add(new DropDto
             {
@@ -2514,7 +2515,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2522,7 +2523,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 6000,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2530,7 +2531,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2538,7 +2539,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2546,7 +2547,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2554,7 +2555,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2562,7 +2563,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2570,7 +2571,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2578,7 +2579,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2586,7 +2587,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2594,7 +2595,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2602,7 +2603,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2610,7 +2611,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2618,7 +2619,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2626,7 +2627,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2634,7 +2635,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2642,7 +2643,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2650,7 +2651,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2658,7 +2659,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2666,7 +2667,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2674,7 +2675,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2682,7 +2683,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2690,7 +2691,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2698,7 +2699,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2706,7 +2707,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2714,7 +2715,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2722,7 +2723,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2730,7 +2731,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2738,7 +2739,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2746,7 +2747,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 50,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
             drops.Add(new DropDto
             {
@@ -2754,7 +2755,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Act62
+                MapTypeId = (short) MapTypeType.Act62
             });
 
             // Comet plain
@@ -2764,7 +2765,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2772,7 +2773,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2780,7 +2781,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 7000,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2788,7 +2789,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2796,7 +2797,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2804,7 +2805,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2812,7 +2813,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2820,7 +2821,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2828,7 +2829,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2836,7 +2837,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2844,7 +2845,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2852,7 +2853,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2860,7 +2861,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2868,7 +2869,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2876,7 +2877,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2884,7 +2885,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2892,7 +2893,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2900,7 +2901,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
             drops.Add(new DropDto
             {
@@ -2908,7 +2909,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.CometPlain
+                MapTypeId = (short) MapTypeType.CometPlain
             });
 
             // Mine1
@@ -2918,7 +2919,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Mine1
+                MapTypeId = (short) MapTypeType.Mine1
             });
             drops.Add(new DropDto
             {
@@ -2926,7 +2927,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Mine1
+                MapTypeId = (short) MapTypeType.Mine1
             });
             drops.Add(new DropDto
             {
@@ -2934,7 +2935,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 11000,
-                MapTypeId = (short)MapTypeType.Mine1
+                MapTypeId = (short) MapTypeType.Mine1
             });
 
             // Mine2
@@ -2944,7 +2945,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2952,7 +2953,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2960,7 +2961,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 11000,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2968,7 +2969,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2976,7 +2977,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2984,7 +2985,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -2992,7 +2993,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -3000,7 +3001,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -3008,7 +3009,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -3016,7 +3017,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
             drops.Add(new DropDto
             {
@@ -3024,7 +3025,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Mine2
+                MapTypeId = (short) MapTypeType.Mine2
             });
 
             // MeadownOfMine
@@ -3034,7 +3035,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3042,7 +3043,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3050,7 +3051,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 10000,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3058,7 +3059,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3066,7 +3067,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3074,7 +3075,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3082,7 +3083,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3090,7 +3091,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
             drops.Add(new DropDto
             {
@@ -3098,7 +3099,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.MeadowOfMine
+                MapTypeId = (short) MapTypeType.MeadowOfMine
             });
 
             // SunnyPlain
@@ -3108,7 +3109,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3116,7 +3117,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3124,7 +3125,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 8000,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3132,7 +3133,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3140,7 +3141,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3148,7 +3149,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3156,7 +3157,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3164,7 +3165,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3172,7 +3173,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3180,7 +3181,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3188,7 +3189,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3196,7 +3197,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3204,7 +3205,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3212,7 +3213,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3220,7 +3221,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3228,7 +3229,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3236,7 +3237,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3244,7 +3245,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3252,7 +3253,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3260,7 +3261,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3268,7 +3269,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
             drops.Add(new DropDto
             {
@@ -3276,7 +3277,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.SunnyPlain
+                MapTypeId = (short) MapTypeType.SunnyPlain
             });
 
             // Fernon
@@ -3286,7 +3287,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3294,7 +3295,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3302,7 +3303,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 9000,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3310,7 +3311,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3318,7 +3319,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3326,7 +3327,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3334,7 +3335,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3342,7 +3343,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3350,7 +3351,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3358,7 +3359,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3366,7 +3367,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3374,7 +3375,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3382,7 +3383,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3390,7 +3391,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3398,7 +3399,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3406,7 +3407,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3414,7 +3415,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
             drops.Add(new DropDto
             {
@@ -3422,7 +3423,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Fernon
+                MapTypeId = (short) MapTypeType.Fernon
             });
 
             // FernonF
@@ -3432,7 +3433,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3440,7 +3441,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3448,7 +3449,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 9000,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3456,7 +3457,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3464,7 +3465,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3472,7 +3473,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3480,7 +3481,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3488,7 +3489,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 500,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3496,7 +3497,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3504,7 +3505,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3512,7 +3513,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3520,7 +3521,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3528,7 +3529,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 200,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3536,7 +3537,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3544,7 +3545,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3552,7 +3553,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3560,7 +3561,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 700,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3568,7 +3569,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3576,7 +3577,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3584,7 +3585,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3592,7 +3593,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3600,7 +3601,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
             drops.Add(new DropDto
             {
@@ -3608,7 +3609,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.FernonF
+                MapTypeId = (short) MapTypeType.FernonF
             });
 
             // Cliff
@@ -3618,7 +3619,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 8000,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3626,7 +3627,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3634,7 +3635,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3642,7 +3643,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3650,7 +3651,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3658,7 +3659,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3666,7 +3667,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
             drops.Add(new DropDto
             {
@@ -3674,7 +3675,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 30,
-                MapTypeId = (short)MapTypeType.Cliff
+                MapTypeId = (short) MapTypeType.Cliff
             });
 
             // LandOfTheDead
@@ -3684,7 +3685,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3692,7 +3693,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 800,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3700,7 +3701,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 8000,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3708,7 +3709,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3716,7 +3717,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3724,7 +3725,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3732,7 +3733,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 400,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3740,7 +3741,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 2000,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3748,7 +3749,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 1200,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3756,7 +3757,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 600,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3764,7 +3765,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 300,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3772,7 +3773,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 250,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
             drops.Add(new DropDto
             {
@@ -3780,7 +3781,7 @@ namespace NosCore.Parser.Parsers
                 Amount = 1,
                 MonsterVNum = null,
                 DropChance = 100,
-                MapTypeId = (short)MapTypeType.LandOfTheDead
+                MapTypeId = (short) MapTypeType.LandOfTheDead
             });
 
 

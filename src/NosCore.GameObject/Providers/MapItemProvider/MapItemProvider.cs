@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Drops;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using ChickenAPI.Packets.ClientPackets.Drops;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {

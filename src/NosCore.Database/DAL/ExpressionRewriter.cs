@@ -27,7 +27,7 @@ namespace NosCore.Database.DAL
         public static Expression<Func<TTo, bool>> ReplaceParameter<TFrom, TTo>(
             this Expression<Func<TFrom, bool>> target)
         {
-            return (Expression<Func<TTo, bool>>)new WhereReplacerVisitor<TFrom, TTo>().Visit(target);
+            return (Expression<Func<TTo, bool>>) new WhereReplacerVisitor<TFrom, TTo>().Visit(target);
         }
 
         private class WhereReplacerVisitor<TFrom, TTo> : ExpressionVisitor
@@ -43,7 +43,7 @@ namespace NosCore.Database.DAL
             protected override Expression VisitMember(MemberExpression node)
             {
                 // replace parameter member access with new type
-                if (node.Member.DeclaringType == typeof(TFrom) && node.Expression is ParameterExpression)
+                if ((node.Member.DeclaringType == typeof(TFrom)) && node.Expression is ParameterExpression)
                 {
                     return Expression.PropertyOrField(_parameter, node.Member.Name);
                 }

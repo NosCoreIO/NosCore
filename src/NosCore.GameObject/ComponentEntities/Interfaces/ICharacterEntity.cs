@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -65,8 +65,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
         UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
 
-        void GenerateMail(IEnumerable<MailData> data);
-
         UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         long Gold { get; }
@@ -76,6 +74,11 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         IInventoryService Inventory { get; }
 
         RegionType AccountLanguage { get; }
+
+        List<StaticBonusDto> StaticBonusList { get; set; }
+        bool IsDisconnecting { get; }
+
+        void GenerateMail(IEnumerable<MailData> data);
 
         void SendPacket(IPacket packetDefinition);
 
@@ -102,9 +105,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         void AddBankGold(long bankGold);
 
         void RemoveBankGold(long bankGold);
-
-        List<StaticBonusDto> StaticBonusList { get; set; }
-        bool IsDisconnecting { get; }
 
         void ChangeClass(CharacterClassType classType);
 

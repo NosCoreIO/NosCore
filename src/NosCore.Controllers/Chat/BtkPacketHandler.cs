@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Chat;
+﻿using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Chat;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -13,17 +14,18 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
-using System.Linq;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ISerializer _packetSerializer;
-        private readonly IFriendHttpClient _friendHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
+        private readonly ISerializer _packetSerializer;
+
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
             IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
@@ -75,15 +77,14 @@ namespace NosCore.PacketHandlers.Chat
 
             _packetHttpClient.BroadcastPacket(new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
-                ReceiverCharacter = new Data.WebApi.Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
-                SenderCharacter = new Data.WebApi.Character
-                { Name = session.Character.Name, Id = session.Character.CharacterId },
+                Packet = _packetSerializer.Serialize(new[] {session.Character.GenerateTalk(message)}),
+                ReceiverCharacter = new Character
+                    {Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name},
+                SenderCharacter = new Character
+                    {Name = session.Character.Name, Id = session.Character.CharacterId},
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId);
-
         }
     }
 }

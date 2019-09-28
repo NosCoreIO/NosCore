@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
-using NosCore.Core;
-using NosCore.Data;
-using NosCore.Data.Enumerations;
-using NosCore.Database.DAL;
-using NosCore.Database.Entities;
-using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,7 +24,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Mapster;
+using NosCore.Core;
+using NosCore.Data;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
+using NosCore.Database.DAL;
+using NosCore.Database.Entities;
+using Serilog;
 
 namespace NosCore.Database
 {
@@ -39,6 +39,7 @@ namespace NosCore.Database
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
+
         public ItemInstanceDao(ILogger logger)
         {
             _logger = logger;
@@ -46,7 +47,7 @@ namespace NosCore.Database
             {
                 var pis = typeof(IItemInstanceDto).GetProperties();
                 var exit = false;
-                for (var index = 0; index < pis.Length || !exit; index++)
+                for (var index = 0; (index < pis.Length) || !exit; index++)
                 {
                     var pi = pis[index];
                     var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
@@ -198,7 +199,7 @@ namespace NosCore.Database
                     context.SaveChanges();
                 }
 
-                if (value == null || entityfound == null)
+                if ((value == null) || (entityfound == null))
                 {
                     dbset.Add(newentity);
                 }
@@ -232,23 +233,30 @@ namespace NosCore.Database
 
                 foreach (var dto in dtos)
                 {
-                    list.Add(new Tuple<ItemInstance, object>(dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                    list.Add(new Tuple<ItemInstance, object>(dto.GetType().Name == "BoxInstance"
+                        ? dto.Adapt<BoxInstance>()
                         : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-                        : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-                        : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                        : dto.Adapt<ItemInstance>(), _primaryKey.GetValue(dto, null)));
+                            : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                                : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                                    : dto.Adapt<ItemInstance>(), _primaryKey.GetValue(dto, null)));
                 }
+
                 var ids = list.Select(s => s.Item2).ToArray();
                 var dbkey = typeof(ItemInstance).GetProperty(_primaryKey.Name);
                 var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
 
                 foreach (var dto in list)
                 {
-                    var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() : dto.Item1 is SpecialistInstance
-                            ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>() : dto.Item1 is WearableInstance
-                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() : dto.Item1 is UsableInstance
-                                    ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
-                    var entityfound = entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
+                    var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>()
+                        : dto.Item1 is SpecialistInstance
+                            ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
+                            : dto.Item1 is WearableInstance
+                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>()
+                                : dto.Item1 is UsableInstance
+                                    ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
+                                    : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+                    var entityfound =
+                        entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);

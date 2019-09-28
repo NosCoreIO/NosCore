@@ -1,4 +1,6 @@
-﻿using ChickenAPI.Packets.ClientPackets.Login;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Login;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Login;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,22 +18,21 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
 using Serilog;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class NoS0575PacketHandlerTests
     {
-        private LoginConfiguration _loginConfiguration;
-        private ClientSession _session;
-        private NoS0575PacketHandler _noS0575PacketHandler;
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IAuthHttpClient> _authHttpClient;
         private Mock<IChannelHttpClient> _channelHttpClient;
         private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
-        private string password = "test".ToSha512();
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private LoginConfiguration _loginConfiguration;
+        private NoS0575PacketHandler _noS0575PacketHandler;
+        private ClientSession _session;
+        private readonly string password = "test".ToSha512();
+
         [TestInitialize]
         public void Setup()
         {
@@ -41,21 +42,24 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _loginConfiguration = new LoginConfiguration();
-            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration, TestHelpers.Instance.AccountDao,
-                _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object), _loginConfiguration, _logger);
+            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
+                    TestHelpers.Instance.AccountDao,
+                    _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object),
+                _loginConfiguration, _logger);
         }
 
         [TestMethod]
         public void LoginOldClient()
         {
-            _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
+            _loginConfiguration.ClientVersion = new ClientVersionSubPacket {Major = 1};
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = password,
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.OldClient);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.OldClient);
         }
 
         [TestMethod]
@@ -80,7 +84,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = "noaccount"
             }, _session);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AccountOrPasswordWrong);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
@@ -92,7 +97,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name.ToUpperInvariant()
             }, _session);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.WrongCaps);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.WrongCaps);
         }
 
         [TestMethod]
@@ -104,13 +110,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name
             }, _session);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AccountOrPasswordWrong);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
         public void Login()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> {new ChannelInfo()});
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
             _noS0575PacketHandler.Execute(new NoS0575Packet
@@ -119,21 +126,23 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session.Account.Name
             }, _session);
 
-            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket) _session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>())).Returns(new List<ConnectedAccount>
-                {new ConnectedAccount {Name = _session.Account.Name}});
+            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> {new ChannelInfo()});
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>())).Returns(
+                new List<ConnectedAccount>
+                    {new ConnectedAccount {Name = _session.Account.Name}});
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = password,
                 Username = _session.Account.Name
             }, _session);
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.AlreadyConnected);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.AlreadyConnected);
         }
 
         [TestMethod]
@@ -148,7 +157,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = password,
                 Username = _session.Account.Name
             }, _session);
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.CantConnect);
+            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+                LoginFailType.CantConnect);
         }
 
         //[TestMethod]

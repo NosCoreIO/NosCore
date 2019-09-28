@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Reactive.Subjects;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Entities;
@@ -25,8 +27,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
-using System;
-using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {

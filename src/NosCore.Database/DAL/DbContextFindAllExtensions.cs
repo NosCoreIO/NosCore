@@ -1,20 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace NosCore.Database.DAL
 {
     public static class DbContextFindAllExtensions
     {
         private static readonly MethodInfo ContainsMethod = typeof(Enumerable).GetMethods()
-            .FirstOrDefault(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+            .FirstOrDefault(m => (m.Name == "Contains") && (m.GetParameters().Length == 2))
             .MakeGenericMethod(typeof(object));
 
-        public static IQueryable<T> FindAllAsync<T>(this DbSet<T> dbSet, PropertyInfo keyProperty, params object[] keyValues)
-            where T : class
+        public static IQueryable<T> FindAllAsync<T>(this DbSet<T> dbSet, PropertyInfo keyProperty,
+            params object[] keyValues)
+        where T : class
         {
             if (keyValues.Length == 0)
             {
