@@ -23,15 +23,11 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class DepositPacketHandler : PacketHandler<DepositPacket>, IWorldPacketHandler
+    public class StashEndPacketHandler : PacketHandler<StashEndPacket>, IWorldPacketHandler
     {
-        public DepositPacketHandler()
+        public override void Execute(StashEndPacket packet, ClientSession clientSession)
         {
-        }
-
-        public override void Execute(DepositPacket depositPacket, ClientSession clientSession)
-        {
-
+            //noaction
         }
     }
 }
