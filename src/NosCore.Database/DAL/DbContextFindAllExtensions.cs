@@ -17,10 +17,6 @@ namespace NosCore.Database.DAL
             params object[] keyValues)
         where T : class
         {
-            if (keyValues.Length == 0)
-            {
-                return Enumerable.Empty<T>().AsQueryable();
-            }
             // build lambda expression
             var parameter = Expression.Parameter(typeof(T), "e");
             var body = Expression.Call(null, ContainsMethod,

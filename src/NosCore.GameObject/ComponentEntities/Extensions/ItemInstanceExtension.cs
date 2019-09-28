@@ -23,11 +23,39 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IItemInstanceExtension
     {
+        public static IvnSubPacket GenerateIvnSubPacket(this IItemInstance itemInstance, PocketType type,
+            short slot)
+        {
+            if (itemInstance == null)
+            {
+                return new IvnSubPacket
+                {
+                    Slot = slot,
+                    VNum = -1,
+                    RareAmount = 0,
+                    UpgradeDesign = 0,
+                    SecondUpgrade = 0
+                };
+            }
+
+            return new IvnSubPacket
+            {
+                Slot = slot,
+                VNum = itemInstance.ItemVNum,
+                RareAmount =
+                    type != PocketType.Equipment ? itemInstance.Amount
+                        : itemInstance.Rare,
+                UpgradeDesign = itemInstance.Upgrade,
+                SecondUpgrade = 0
+            };
+        }
+
         public static IvnPacket GeneratePocketChange(this InventoryItemInstance itemInstance, PocketType type,
             short slot)
         {
@@ -36,17 +64,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket>
-                    {
-                        new IvnSubPacket
-                        {
-                            Slot = slot,
-                            VNum = -1,
-                            RareAmount = 0,
-                            UpgradeDesign = 0,
-                            SecondUpgrade = 0
-                        }
-                    }
+                    IvnSubPackets = new List<IvnSubPacket> { itemInstance.ItemInstance.GenerateIvnSubPacket(type, slot) }
                 };
             }
 
@@ -73,18 +91,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             if (itemInstance.Count > 0)
             {
+                var type = (PocketType) itemInstance[0].Type;
                 return new IvnPacket
                 {
-                    Type = (PocketType) itemInstance[0].Type,
-                    IvnSubPackets = itemInstance.Select(item => new IvnSubPacket
-                    {
-                        Slot = item.Slot,
-                        VNum = item.ItemInstance.ItemVNum,
-                        RareAmount = item.Type != NoscorePocketType.Equipment ? item.ItemInstance.Amount
-                            : item.ItemInstance.Rare,
-                        UpgradeDesign = item.ItemInstance.Upgrade,
-                        SecondUpgrade = 0
-                    }).ToList()
+                    Type = type,
+                    IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot)).ToList()
                 };
             }
 
