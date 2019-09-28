@@ -26,6 +26,7 @@ namespace NosCore.Database.Entities
     {
         [Key]
         public int I18NItemId { get; set; }
+
         public string Key { get; set; }
         public RegionType RegionType { get; set; }
         public string Text { get; set; }

@@ -1,4 +1,6 @@
-﻿using ChickenAPI.Packets.ClientPackets.Parcel;
+﻿using System;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Parcel;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -12,18 +14,17 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
-using System;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Parcel
 {
     public class PclPacketHandler : PacketHandler<PclPacket>, IWorldPacketHandler
     {
-        private readonly IMailHttpClient _mailHttpClient;
-        private readonly IItemProvider _itemProvider;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IItemProvider _itemProvider;
+        private readonly IMailHttpClient _mailHttpClient;
 
-        public PclPacketHandler(IMailHttpClient mailHttpClient, IItemProvider itemProvider, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public PclPacketHandler(IMailHttpClient mailHttpClient, IItemProvider itemProvider,
+            IGenericDao<IItemInstanceDto> itemInstanceDao)
         {
             _mailHttpClient = mailHttpClient;
             _itemProvider = itemProvider;
@@ -38,35 +39,40 @@ namespace NosCore.PacketHandlers.Parcel
             {
                 return;
             }
-            if (getGiftPacket.Type == 4 && mail.ItemInstance != null)
+
+            if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
                 var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstance.Id);
                 var item = _itemProvider.Convert(itemInstance);
                 item.Id = Guid.NewGuid();
-                var newInv = clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId)).FirstOrDefault();
+                var newInv = clientSession.Character.Inventory
+                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))
+                    .FirstOrDefault();
                 if (newInv != null)
                 {
                     clientSession.SendPacket(clientSession.Character.GenerateSay(
-                         string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED, clientSession.Account.Language),
-                             newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
-                    clientSession.SendPacket(new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId });
+                        string.Format(
+                            Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
+                                clientSession.Account.Language),
+                            newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
+                    clientSession.SendPacket(
+                        new ParcelPacket {Type = 2, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                     _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
                 }
                 else
                 {
-                    clientSession.SendPacket(new ParcelPacket { Type = 5, Unknown = 1, Id = 0 });
+                    clientSession.SendPacket(new ParcelPacket {Type = 5, Unknown = 1, Id = 0});
                     clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                             clientSession.Account.Language),
                         Type = 0
                     });
-                    return;
                 }
             }
             else if (getGiftPacket.Type == 5)
             {
-                clientSession.SendPacket(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId });
+                clientSession.SendPacket(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                 _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             }
         }

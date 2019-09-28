@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -24,14 +26,13 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Linq;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
     public static class MasterServerBootstrap
     {
-        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public static void Main()
         {

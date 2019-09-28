@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -28,24 +30,27 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
-using System;
-using System.Linq;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class DropEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
-        public bool Condition(MapItem item) => item.ItemInstance.Item.ItemType != ItemType.Map && item.VNum != 1046;
+        public bool Condition(MapItem item)
+        {
+            return (item.ItemInstance.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
+        }
 
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance, requestData.ClientSession.Character.CharacterId))
+            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(
+                    InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance,
+                        requestData.ClientSession.Character.CharacterId))
                 .FirstOrDefault();
 
             if (inv != null)
             {
-                requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(

@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.Enumerations;
@@ -33,10 +37,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -55,7 +55,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = namedEntity.VisualType,
                 VisualId = namedEntity.VisualId,
-                Direction = namedEntity.Direction,
+                Direction = namedEntity.Direction
             };
         }
 
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 Type = namedEntity.VisualType,
                 TargetId = namedEntity.VisualId,
-                Data = dialog,
+                Data = dialog
             };
         }
 
@@ -85,8 +85,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity) =>
-            playableEntity.GenerateSubPidx(false);
+        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity)
+        {
+            return playableEntity.GenerateSubPidx(false);
+        }
 
         public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
         {
@@ -105,8 +107,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
-                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                HpPercentage = (int) (aliveEntity.Hp / (float) aliveEntity.MaxHp * 100),
+                MpPercentage = (int) (aliveEntity.Mp / (float) aliveEntity.MaxMp * 100),
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
@@ -120,19 +122,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return;
             }
 
-            if (nonPlayableEntity.IsMoving && nonPlayableEntity.Speed > 0)
+            if (nonPlayableEntity.IsMoving && (nonPlayableEntity.Speed > 0))
             {
                 var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
 
                 if (time > RandomFactory.Instance.RandomNumber(400, 3200))
                 {
-                    short mapX = nonPlayableEntity.MapX;
-                    short mapY = nonPlayableEntity.MapY;
+                    var mapX = nonPlayableEntity.MapX;
+                    var mapY = nonPlayableEntity.MapY;
                     if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3),
+                        (byte) RandomFactory.Instance.RandomNumber(0, 3)))
                     {
-                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                        var distance = (int) Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
                             Math.Abs(nonPlayableEntity.PositionY - mapY));
                         var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
                         Observable.Timer(TimeSpan.FromMilliseconds(value))
@@ -190,7 +192,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 ShopId = visualEntity.Shop?.ShopId ?? 0,
                 MenuType = visualEntity.Shop?.MenuType ?? 0,
                 ShopType = visualEntity.Shop?.ShopType,
-                Name = visualEntity.Shop?.Name,
+                Name = visualEntity.Shop?.Name
             };
         }
 
@@ -210,7 +212,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance fairy)
         {
-            bool isBuffed = false; //TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
+            var isBuffed = false; //TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
             return new PairyPacket
             {
                 VisualType = aliveEntity.VisualType,
@@ -246,7 +248,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static MovePacket GenerateMove(this IAliveEntity aliveEntity) => aliveEntity.GenerateMove(null, null);
+        public static MovePacket GenerateMove(this IAliveEntity aliveEntity)
+        {
+            return aliveEntity.GenerateMove(null, null);
+        }
 
         public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX, short? mapY)
         {
@@ -327,13 +332,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Type = 0,
                         Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                        Price = (int) (item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment ? item.ItemInstance.Rare
+                        RareAmount = item.ItemInstance.Item.Type == (byte) NoscorePocketType.Equipment
+                            ? item.ItemInstance.Rare
                             : item.Amount,
-                        UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
-                            ? (item.ItemInstance.Item.IsColored
-                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade) : (short?)null,
+                        UpgradeDesign = item.ItemInstance.Item.Type == (byte) NoscorePocketType.Equipment
+                            ? item.ItemInstance.Item.IsColored
+                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade : (short?) null,
                         VNum = item.ItemInstance.Item.VNum
                     });
                 }

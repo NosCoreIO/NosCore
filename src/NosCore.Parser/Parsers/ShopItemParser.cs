@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.Parser.Parsers
 {
@@ -42,8 +42,8 @@ namespace NosCore.Parser.Parsers
 
         public void InsertShopItems(List<string[]> packetList)
         {
-            List<ShopItemDto> shopitems = new List<ShopItemDto>();
-            int itemCounter = 0;
+            var shopitems = new List<ShopItemDto>();
+            var itemCounter = 0;
             byte type = 0;
             var shopItemdb = _shopItemDao.LoadAll().ToList();
             var shopdb = _shopDao.LoadAll().ToList();
@@ -51,15 +51,15 @@ namespace NosCore.Parser.Parsers
             {
                 if (currentPacket[0].Equals("n_inv"))
                 {
-                    short npcid = short.Parse(currentPacket[2]);
+                    var npcid = short.Parse(currentPacket[2]);
                     if (shopdb.FirstOrDefault(s => s.MapNpcId == npcid) == null)
                     {
                         continue;
                     }
 
-                    for (int i = 5; i < currentPacket.Length; i++)
+                    for (var i = 5; i < currentPacket.Length; i++)
                     {
-                        string[] item = currentPacket[i].Split('.');
+                        var item = currentPacket[i].Split('.');
                         ShopItemDto sitem = null;
 
                         if (item.Length == 5)
@@ -88,7 +88,7 @@ namespace NosCore.Parser.Parsers
                             };
                         }
 
-                        if (sitem == null || shopitems.Any(s =>
+                        if ((sitem == null) || shopitems.Any(s =>
                                 s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
                             || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
                                 .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
@@ -110,7 +110,7 @@ namespace NosCore.Parser.Parsers
             }
 
             var groups = shopitems.GroupBy(s => s.ShopId);
-            List<ShopItemDto> shopListItemDtos = new List<ShopItemDto>();
+            var shopListItemDtos = new List<ShopItemDto>();
             foreach (var group in groups)
             {
                 var shopItemDtos = group.OrderBy(s => s.Slot).ToList();
@@ -118,6 +118,7 @@ namespace NosCore.Parser.Parsers
                 {
                     shopItemDtos.ElementAt(i).Slot = i;
                 }
+
                 shopListItemDtos.AddRange(shopItemDtos);
             }
 

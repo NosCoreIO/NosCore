@@ -17,19 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using ChickenAPI.Packets.ClientPackets.Npcs;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {
     public class NrunProvider : INrunProvider
     {
-        private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> _handlers;
+        private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
+            _handlers;
 
         public NrunProvider(
             IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)

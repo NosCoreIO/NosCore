@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
@@ -28,35 +31,32 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Data.Dto;
-using Character = NosCore.GameObject.Character;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
-        private readonly IAdapter _adapter;
-        private readonly ILogger _logger;
-        private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IGenericDao<MateDto> _mateDao;
+        private readonly IAdapter _adapter;
         private readonly IAuthHttpClient _authHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly ILogger _logger;
+        private readonly IGenericDao<MateDto> _mateDao;
 
-        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao,
-            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao,
+            IGenericDao<AccountDto> accountDao,
+            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient)
         {
             _adapter = adapter;
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var name = packet.Name;
                 foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
                 {
-                    List<ConnectedAccount> accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    var accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
                     var target = accounts.FirstOrDefault(s => s.Name == name);
 
                     if (target != null)
@@ -98,7 +98,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 if (account != null)
                 {
                     if (_authHttpClient.IsAwaitingConnection(name, packet.Password, clientSession.SessionId) ||
-                        (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) && !_authHttpClient.IsAwaitingConnection(name, "", clientSession.SessionId)))
+                        (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) &&
+                            !_authHttpClient.IsAwaitingConnection(name, "", clientSession.SessionId)))
                     {
                         var accountobject = new AccountDto
                         {
@@ -108,7 +109,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             Authority = account.Authority,
                             Language = account.Language
                         };
-                        SessionFactory.Instance.Sessions.FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
+                        SessionFactory.Instance.Sessions
+                            .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
                             .Value.RegionType = account.Language;
                         clientSession.InitializeAccount(accountobject);
                         //Send Account Connected
@@ -129,12 +131,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = _characterDao.Where(s =>
-                s.AccountId == clientSession.Account.AccountId && s.State == CharacterState.Active);
+                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active));
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                 clientSession.Account.Name);
 
             // load characterlist packet for each character in Character
-            clientSession.SendPacket(new ClistStartPacket { Type = 0 });
+            clientSession.SendPacket(new ClistStartPacket {Type = 0});
             foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
             {
                 var equipment = new WearableInstance[16];
@@ -194,8 +196,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte)EquipmentType.Hat]?.Item.IsColored ?? false
-                        ? equipment[(byte)EquipmentType.Hat].Design : 0,
+                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored ?? false
+                        ? equipment[(byte) EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });
             }

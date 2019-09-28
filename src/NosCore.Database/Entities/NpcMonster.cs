@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.Map;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities

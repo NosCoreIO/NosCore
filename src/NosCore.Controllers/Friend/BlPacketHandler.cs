@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Friend
                 CharacterId = target.VisualId
             };
 
-            session.HandlePackets(new[] { blinsPacket });
+            session.HandlePackets(new[] {blinsPacket});
         }
     }
 }

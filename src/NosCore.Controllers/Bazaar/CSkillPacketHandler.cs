@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
@@ -26,7 +27,6 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -39,28 +39,33 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
+                (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
+                (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
             if (medalBonus != null)
             {
-                byte medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                int time = (int)(medalBonus.DateEnd - SystemTime.Now()).TotalHours;
+                var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte) MedalType.Gold
+                    : (byte) MedalType.Silver;
+                var time = (int) (medalBonus.DateEnd - SystemTime.Now()).TotalHours;
                 clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, clientSession.Account.Language),
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
+                        clientSession.Account.Language),
                     Type = MessageType.Whisper
                 });
                 clientSession.SendPacket(new WopenPacket
                 {
                     Type = WindowType.NosBazaar,
                     Unknown = medal,
-                    Unknown2 = (byte)time
+                    Unknown2 = (byte) time
                 });
             }
             else
             {
                 clientSession.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, clientSession.Account.Language)
+                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
+                        clientSession.Account.Language)
                 });
             }
         }

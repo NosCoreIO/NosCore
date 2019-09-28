@@ -17,31 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace NosCore.Parser.Parsers
 {
     public class NpcMonsterParser
     {
         private const string FileNpcId = "\\monster.dat";
-        private readonly ILogger _logger;
-        private readonly IGenericDao<SkillDto> _skillDao;
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<DropDto> _dropDao;
-        private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao;
+        private readonly ILogger _logger;
         private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
+        private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao;
+        private readonly IGenericDao<SkillDto> _skillDao;
 
-        public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao, IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
+        public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao,
+            IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao,
+            IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
         {
             _skillDao = skillDao;
             _bCardDao = bCardDao;
@@ -50,6 +52,7 @@ namespace NosCore.Parser.Parsers
             _npcMonsterDao = npcMonsterDao;
             _logger = logger;
         }
+
         internal void InsertNpcMonsters(string folder)
         {
             var dropdb = _dropDao.LoadAll().ToList();
@@ -102,7 +105,7 @@ namespace NosCore.Parser.Parsers
             {
                 if (i % 10 == 1)
                 {
-                    basicPrimaryMp[i] += basicPrimaryMp[i - 1] + (primaryBasup * 2);
+                    basicPrimaryMp[i] += basicPrimaryMp[i - 1] + primaryBasup * 2;
                     continue;
                 }
 
@@ -156,7 +159,7 @@ namespace NosCore.Parser.Parsers
             {
                 if (i % 10 == 1)
                 {
-                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int)i + 10;
+                    basicSecondaryMp[i] += basicSecondaryMp[i - 1] + (int) i + 10;
                     continue;
                 }
 
@@ -204,7 +207,7 @@ namespace NosCore.Parser.Parsers
                 {
                     var currentLine = line.Split('\t');
 
-                    if (currentLine.Length > 2 && currentLine[1] == "VNUM")
+                    if ((currentLine.Length > 2) && (currentLine[1] == "VNUM"))
                     {
                         npc = new NpcMonsterDto
                         {
@@ -213,11 +216,11 @@ namespace NosCore.Parser.Parsers
                         itemAreaBegin = true;
                         unknownData = 0;
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "NAME")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "NAME"))
                     {
                         npc.NameI18NKey = currentLine[2];
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "LEVEL")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "LEVEL"))
                     {
                         if (!itemAreaBegin)
                         {
@@ -226,12 +229,12 @@ namespace NosCore.Parser.Parsers
 
                         npc.Level = Convert.ToByte(currentLine[2]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "RACE")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "RACE"))
                     {
                         npc.Race = Convert.ToByte(currentLine[2]);
                         npc.RaceType = Convert.ToByte(currentLine[3]);
                     }
-                    else if (currentLine.Length > 7 && currentLine[1] == "ATTRIB")
+                    else if ((currentLine.Length > 7) && (currentLine[1] == "ATTRIB"))
                     {
                         npc.Element = Convert.ToByte(currentLine[2]);
                         npc.ElementRate = Convert.ToInt16(currentLine[3]);
@@ -240,13 +243,13 @@ namespace NosCore.Parser.Parsers
                         npc.LightResistance = Convert.ToSByte(currentLine[6]);
                         npc.DarkResistance = Convert.ToSByte(currentLine[7]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "HP/MP")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "HP/MP"))
                     {
                         npc.MaxHp = Convert.ToInt32(currentLine[2]) + basicHp[npc.Level];
                         npc.MaxMp = Convert.ToInt32(currentLine[3]) + npc.Race == 0 ? basicPrimaryMp[npc.Level]
                             : basicSecondaryMp[npc.Level];
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "EXP")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "EXP"))
                     {
                         npc.Xp = Math.Abs(Convert.ToInt32(currentLine[2]) + basicXp[npc.Level]);
                         npc.JobXp = Convert.ToInt32(currentLine[3]) + basicJXp[npc.Level];
@@ -411,33 +414,33 @@ namespace NosCore.Parser.Parsers
                                 break;
                         }
                     }
-                    else if (currentLine.Length > 6 && currentLine[1] == "PREATT")
+                    else if ((currentLine.Length > 6) && (currentLine[1] == "PREATT"))
                     {
                         npc.IsHostile = currentLine[2] != "0";
                         npc.NoticeRange = Convert.ToByte(currentLine[4]);
                         npc.Speed = Convert.ToByte(currentLine[5]);
                         npc.RespawnTime = Convert.ToInt32(currentLine[6]);
                     }
-                    else if (currentLine.Length > 6 && currentLine[1] == "WEAPON")
+                    else if ((currentLine.Length > 6) && (currentLine[1] == "WEAPON"))
                     {
                         switch (currentLine[3])
                         {
                             case "1":
-                                npc.DamageMinimum = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 4) + 32
+                                npc.DamageMinimum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 4 + 32
                                     + Convert.ToInt16(currentLine[4])
                                     + Math.Round(Convert.ToDecimal((npc.Level - 1) / 5)));
-                                npc.DamageMaximum = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 6) + 40
+                                npc.DamageMaximum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 6 + 40
                                     + Convert.ToInt16(currentLine[5])
                                     - Math.Round(Convert.ToDecimal((npc.Level - 1) / 5)));
-                                npc.Concentrate = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 5) + 27
+                                npc.Concentrate = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 5 + 27
                                     + Convert.ToInt16(currentLine[6]));
                                 npc.CriticalChance = Convert.ToByte(4 + Convert.ToInt16(currentLine[7]));
                                 npc.CriticalRate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[8]));
                                 break;
                             case "2":
-                                npc.DamageMinimum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) * 6.5f) + 23
+                                npc.DamageMinimum = Convert.ToInt16(Convert.ToInt16(currentLine[2]) * 6.5f + 23
                                     + Convert.ToInt16(currentLine[4]));
-                                npc.DamageMaximum = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 8) + 38
+                                npc.DamageMaximum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 8 + 38
                                     + Convert.ToInt16(currentLine[5]));
                                 npc.Concentrate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[6]));
                                 break;
@@ -445,17 +448,17 @@ namespace NosCore.Parser.Parsers
                                 continue;
                         }
                     }
-                    else if (currentLine.Length > 6 && currentLine[1] == "ARMOR")
+                    else if ((currentLine.Length > 6) && (currentLine[1] == "ARMOR"))
                     {
-                        npc.CloseDefence = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 2) + 18);
-                        npc.DistanceDefence = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 3) + 17);
-                        npc.MagicDefence = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 2) + 13);
-                        npc.DefenceDodge = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 5) + 31);
-                        npc.DistanceDefenceDodge = Convert.ToInt16(((Convert.ToInt16(currentLine[2]) - 1) * 5) + 31);
+                        npc.CloseDefence = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 2 + 18);
+                        npc.DistanceDefence = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 3 + 17);
+                        npc.MagicDefence = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 2 + 13);
+                        npc.DefenceDodge = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 5 + 31);
+                        npc.DistanceDefenceDodge = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 5 + 31);
                     }
-                    else if (currentLine.Length > 7 && currentLine[1] == "ETC")
+                    else if ((currentLine.Length > 7) && (currentLine[1] == "ETC"))
                     {
-                        if (npc.NpcMonsterVNum >= 588 && npc.NpcMonsterVNum <= 607)
+                        if ((npc.NpcMonsterVNum >= 588) && (npc.NpcMonsterVNum <= 607))
                         {
                             npc.MonsterType = MonsterType.Elite;
                         }
@@ -469,13 +472,13 @@ namespace NosCore.Parser.Parsers
                             case -2147483616:
                             case -2147483647:
                             case -2147483646:
-                                npc.NoAggresiveIcon = (npc.Race == 8 && npc.RaceType == 0);
+                                npc.NoAggresiveIcon = (npc.Race == 8) && (npc.RaceType == 0);
                                 break;
                             default:
                                 continue;
                         }
                     }
-                    else if (currentLine.Length > 6 && currentLine[1] == "SETTING")
+                    else if ((currentLine.Length > 6) && (currentLine[1] == "SETTING"))
                     {
                         if (currentLine[4] == "0")
                         {
@@ -485,10 +488,10 @@ namespace NosCore.Parser.Parsers
                         npc.VNumRequired = Convert.ToInt16(currentLine[4]);
                         npc.AmountRequired = 1;
                     }
-                    else if (currentLine.Length > 4 && currentLine[1] == "PETINFO")
+                    else if ((currentLine.Length > 4) && (currentLine[1] == "PETINFO"))
                     {
-                        if (npc.VNumRequired != 0 || (unknownData != -2147481593 && unknownData != -2147481599
-                            && unknownData != -1610610681))
+                        if ((npc.VNumRequired != 0) || ((unknownData != -2147481593) && (unknownData != -2147481599)
+                            && (unknownData != -1610610681)))
                         {
                             continue;
                         }
@@ -496,40 +499,40 @@ namespace NosCore.Parser.Parsers
                         npc.VNumRequired = Convert.ToInt16(currentLine[2]);
                         npc.AmountRequired = Convert.ToByte(currentLine[3]);
                     }
-                    else if (currentLine.Length > 2 && currentLine[1] == "EFF")
+                    else if ((currentLine.Length > 2) && (currentLine[1] == "EFF"))
                     {
                         npc.BasicSkill = Convert.ToInt16(currentLine[2]);
                     }
-                    else if (currentLine.Length > 8 && currentLine[1] == "ZSKILL")
+                    else if ((currentLine.Length > 8) && (currentLine[1] == "ZSKILL"))
                     {
                         npc.AttackClass = Convert.ToByte(currentLine[2]);
                         npc.BasicRange = Convert.ToByte(currentLine[3]);
                         npc.BasicArea = Convert.ToByte(currentLine[5]);
                         npc.BasicCooldown = Convert.ToInt16(currentLine[6]);
                     }
-                    else if (currentLine.Length > 4 && currentLine[1] == "WINFO")
+                    else if ((currentLine.Length > 4) && (currentLine[1] == "WINFO"))
                     {
                         npc.AttackUpgrade = Convert.ToByte(unknownData == 1 ? currentLine[2] : currentLine[4]);
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "AINFO")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "AINFO"))
                     {
                         npc.DefenceUpgrade = Convert.ToByte(unknownData == 1 ? currentLine[2] : currentLine[3]);
                     }
-                    else if (currentLine.Length > 1 && currentLine[1] == "SKILL")
+                    else if ((currentLine.Length > 1) && (currentLine[1] == "SKILL"))
                     {
                         for (var i = 2; i < currentLine.Length - 3; i += 3)
                         {
                             var vnum = short.Parse(currentLine[i]);
-                            if (vnum == -1 || vnum == 0)
+                            if ((vnum == -1) || (vnum == 0))
                             {
                                 break;
                             }
 
-                            if (skilldb.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
-                                null
-                                || npcmonsterskilldb
+                            if ((skilldb.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
+                                    null)
+                                || (npcmonsterskilldb
                                     .Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
-                                    .Count(s => s.SkillVNum == vnum) != 0)
+                                    .Count(s => s.SkillVNum == vnum) != 0))
                             {
                                 continue;
                             }
@@ -542,52 +545,52 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    else if (currentLine.Length > 1 && currentLine[1] == "CARD")
+                    else if ((currentLine.Length > 1) && (currentLine[1] == "CARD"))
                     {
                         for (var i = 0; i < 4; i++)
                         {
-                            var type = (byte)int.Parse(currentLine[(5 * i) + 2]);
-                            if (type == 0 || type == 255)
+                            var type = (byte) int.Parse(currentLine[5 * i + 2]);
+                            if ((type == 0) || (type == 255))
                             {
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[(5 * i) + 3]);
+                            var first = int.Parse(currentLine[5 * i + 3]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
-                                SubType = (byte)(int.Parse(currentLine[(5 * i) + 5]) + (1 * 10) + 1
+                                SubType = (byte) (int.Parse(currentLine[5 * i + 5]) + 1 * 10 + 1
                                     + (first > 0 ? 0 : 1)),
                                 IsLevelScaled = Convert.ToBoolean(first % 4),
-                                IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
-                                FirstData = (short)((first > 0 ? first : -first) / 4),
-                                SecondData = (short)(int.Parse(currentLine[(5 * i) + 4]) / 4),
-                                ThirdData = (short)(int.Parse(currentLine[(5 * i) + 6]) / 4)
+                                IsLevelDivided = (uint) (first > 0 ? first : -first) % 4 == 2,
+                                FirstData = (short) ((first > 0 ? first : -first) / 4),
+                                SecondData = (short) (int.Parse(currentLine[5 * i + 4]) / 4),
+                                ThirdData = (short) (int.Parse(currentLine[5 * i + 6]) / 4)
                             };
                             monstercards.Add(itemCard);
                         }
                     }
-                    else if (currentLine.Length > 1 && currentLine[1] == "BASIC")
+                    else if ((currentLine.Length > 1) && (currentLine[1] == "BASIC"))
                     {
                         for (var i = 0; i < 4; i++)
                         {
-                            var type = (byte)int.Parse(currentLine[(5 * i) + 2]);
+                            var type = (byte) int.Parse(currentLine[5 * i + 2]);
                             if (type == 0)
                             {
                                 continue;
                             }
 
-                            var first = int.Parse(currentLine[(5 * i) + 5]);
+                            var first = int.Parse(currentLine[5 * i + 5]);
                             var itemCard = new BCardDto
                             {
                                 NpcMonsterVNum = npc.NpcMonsterVNum,
                                 Type = type,
                                 SubType =
-                                    (byte)(((int.Parse(currentLine[(5 * i) + 6]) + 1) * 10) + 1 + (first > 0 ? 0 : 1)),
-                                FirstData = (short)((first > 0 ? first : -first) / 4),
-                                SecondData = (short)(int.Parse(currentLine[(5 * i) + 4]) / 4),
-                                ThirdData = (short)(int.Parse(currentLine[(5 * i) + 3]) / 4),
+                                    (byte) ((int.Parse(currentLine[5 * i + 6]) + 1) * 10 + 1 + (first > 0 ? 0 : 1)),
+                                FirstData = (short) ((first > 0 ? first : -first) / 4),
+                                SecondData = (short) (int.Parse(currentLine[5 * i + 4]) / 4),
+                                ThirdData = (short) (int.Parse(currentLine[5 * i + 3]) / 4),
                                 CastType = 1,
                                 IsLevelScaled = false,
                                 IsLevelDivided = false
@@ -595,7 +598,7 @@ namespace NosCore.Parser.Parsers
                             monstercards.Add(itemCard);
                         }
                     }
-                    else if (currentLine.Length > 3 && currentLine[1] == "ITEM")
+                    else if ((currentLine.Length > 3) && (currentLine[1] == "ITEM"))
                     {
                         if (npcmonsterdb
                                 .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))

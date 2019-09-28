@@ -38,7 +38,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            Character targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id) as Character;
+            var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id) as Character;
             if (targetSession.Session == null)
             {
                 return Ok(); // TODO : Handle 404 in WebApi

@@ -17,6 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
@@ -26,7 +32,6 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
 using Mapster;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +46,7 @@ using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
@@ -55,22 +61,16 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Data.Dto;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
 {
     public static class LoginServerBootstrap
     {
-        private static readonly Serilog.ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
+        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static LoginConfiguration _loginConfiguration;
 
@@ -82,7 +82,7 @@ namespace NosCore.LoginServer
             builder.AddJsonFile("login.json", false);
             builder.Build().Bind(_loginConfiguration);
             Validator.ValidateObject(_loginConfiguration, new ValidationContext(_loginConfiguration),
-                validateAllProperties: true);
+                true);
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
@@ -95,7 +95,8 @@ namespace NosCore.LoginServer
         {
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_loginConfiguration).As<LoginConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>()
+                .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
@@ -129,7 +130,8 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => (p.Namespace == "ChickenAPI.Packets.ServerPackets.Login" || p.Namespace == "ChickenAPI.Packets.ClientPackets.Login")
+                .Where(p => ((p.Namespace == "ChickenAPI.Packets.ServerPackets.Login") ||
+                        (p.Namespace == "ChickenAPI.Packets.ClientPackets.Login"))
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
@@ -177,7 +179,8 @@ namespace NosCore.LoginServer
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
-                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>().AfterMapping(dest => Task.Run(() => dest.Initialize()));
+                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
+                        .AfterMapping(dest => Task.Run(() => dest.Initialize()));
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 

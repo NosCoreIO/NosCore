@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Exchanges;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
@@ -30,18 +32,17 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using Serilog;
-using System;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
-        private readonly IExchangeProvider _exchangeProvider;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IExchangeProvider _exchangeProvider;
         private readonly ILogger _logger;
 
-        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger, IBlacklistHttpClient blacklistHttpClient)
+        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger,
+            IBlacklistHttpClient blacklistHttpClient)
         {
             _exchangeProvider = exchangeProvider;
             _logger = logger;
@@ -51,11 +52,12 @@ namespace NosCore.PacketHandlers.Exchange
         public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
         {
             var target = Broadcaster.Instance.GetCharacter(s =>
-                s.VisualId == packet.VisualId && s.MapInstanceId == clientSession.Character.MapInstanceId) as Character;
+                (s.VisualId == packet.VisualId) &&
+                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
             ExcClosePacket closeExchange;
 
-            if (target != null && (packet.RequestType == RequestExchangeType.Confirmed ||
-                packet.RequestType == RequestExchangeType.Cancelled))
+            if ((target != null) && ((packet.RequestType == RequestExchangeType.Confirmed) ||
+                (packet.RequestType == RequestExchangeType.Cancelled)))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
                 return;
@@ -97,7 +99,7 @@ namespace NosCore.PacketHandlers.Exchange
                         clientSession.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                    clientSession.Account.Language)
+                                clientSession.Account.Language)
                         });
                         return;
                     }
@@ -124,9 +126,9 @@ namespace NosCore.PacketHandlers.Exchange
                     target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
+                            {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
                         NoPacket = new ExchangeRequestPacket
-                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
+                            {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
                         Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });
@@ -161,7 +163,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
 
                     var exchangeTarget = Broadcaster.Instance.GetCharacter(s =>
-                        s.VisualId == targetId.Value && s.MapInstance == clientSession.Character.MapInstance);
+                        (s.VisualId == targetId.Value) && (s.MapInstance == clientSession.Character.MapInstance));
 
                     if (exchangeTarget == null)
                     {
@@ -176,7 +178,7 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         clientSession.SendPacket(new InfoPacket
                         {
-                            Message = String.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
+                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
                                 clientSession.Account.Language), exchangeTarget.Name)
                         });
                         return;

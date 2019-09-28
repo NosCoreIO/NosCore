@@ -17,18 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IItemInstanceExtension
     {
-        public static IvnPacket GeneratePocketChange(this InventoryItemInstance itemInstance, PocketType type, short slot)
+        public static IvnPacket GeneratePocketChange(this InventoryItemInstance itemInstance, PocketType type,
+            short slot)
         {
             if (itemInstance == null)
             {
@@ -59,7 +60,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Slot = slot,
                         VNum = itemInstance.ItemInstance.ItemVNum,
                         RareAmount =
-                            itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount : itemInstance.ItemInstance.Rare,
+                            itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
+                                : itemInstance.ItemInstance.Rare,
                         UpgradeDesign = itemInstance.ItemInstance.Upgrade,
                         SecondUpgrade = 0
                     }
@@ -73,12 +75,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 return new IvnPacket
                 {
-                    Type = (PocketType)itemInstance[0].Type,
+                    Type = (PocketType) itemInstance[0].Type,
                     IvnSubPackets = itemInstance.Select(item => new IvnSubPacket
                     {
                         Slot = item.Slot,
                         VNum = item.ItemInstance.ItemVNum,
-                        RareAmount = item.Type != NoscorePocketType.Equipment ? item.ItemInstance.Amount : item.ItemInstance.Rare,
+                        RareAmount = item.Type != NoscorePocketType.Equipment ? item.ItemInstance.Amount
+                            : item.ItemInstance.Rare,
                         UpgradeDesign = item.ItemInstance.Upgrade,
                         SecondUpgrade = 0
                     }).ToList()

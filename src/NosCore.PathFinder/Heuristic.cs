@@ -29,7 +29,7 @@ namespace NosCore.PathFinder
         {
             var min = Math.Min(iDx, iDy);
             var max = Math.Max(iDx, iDy);
-            return (min * Sqrt2) + max - min;
+            return min * Sqrt2 + max - min;
         }
     }
 }

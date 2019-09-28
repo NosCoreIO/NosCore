@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using System;
 using System.Collections.Generic;
+using NosCore.Data;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.InventoryService
 {
@@ -30,7 +30,10 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
         List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);
-        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
+
+        List<InventoryItemInstance>
+            AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
+
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(NoscorePocketType inv);
@@ -39,7 +42,8 @@ namespace NosCore.GameObject.Providers.InventoryService
         InventoryItemInstance LoadByItemInstanceId(Guid id);
         InventoryItemInstance LoadBySlotAndType(short slot, NoscorePocketType type);
 
-        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType);
+        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType,
+            NoscorePocketType targetType);
 
         InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
             short? targetSlot, bool swap);

@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -6,7 +7,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Friend
                 session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
-                            session.Account.Language)
+                        session.Account.Language)
                 });
             }
         }

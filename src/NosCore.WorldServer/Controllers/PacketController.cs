@@ -36,8 +36,8 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
-        private readonly ILogger _logger;
         private readonly IDeserializer _deserializer;
+        private readonly ILogger _logger;
 
         public PacketController(ILogger logger, IDeserializer deserializer)
         {

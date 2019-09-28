@@ -13,7 +13,6 @@ namespace NosCore.PacketHandlers.Chat
     {
         public override void Execute(ClientSayPacket clientSayPacket, ClientSession session)
         {
-
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
             session.Character.MapInstance?.Sessions.SendPacket(session.Character.GenerateSay(new SayPacket

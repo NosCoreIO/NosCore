@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using ChickenAPI.Packets.ClientPackets.Npcs;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
@@ -25,28 +26,17 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using System;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
     public class TeleporterHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.Teleport
-            && item.Item1 is MapNpc mapNpc
-            && ((mapNpc.Dialog >= 439 && mapNpc.Dialog <= 441) || mapNpc.Dialog == 11 || mapNpc.Dialog == 16 || mapNpc.Dialog == 9768);
-
-        private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2, short y1, short y2)
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
-            if (clientSession.Character.Gold >= GoldToPay)
-            {
-                clientSession.Character.RemoveGold(GoldToPay);
-                clientSession.ChangeMap(
-                        mapId, (short)RandomFactory.Instance.RandomNumber(x1, x2), (short)RandomFactory.Instance.RandomNumber(y1, y2));
-                return;
-            }
-            clientSession.SendPacket(clientSession.Character.GenerateSay(
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language), SayColorType.Yellow
-                    ));
+            return (item.Item2.Runner == NrunRunnerType.Teleport)
+                && item.Item1 is MapNpc mapNpc
+                && (((mapNpc.Dialog >= 439) && (mapNpc.Dialog <= 441)) || (mapNpc.Dialog == 11) ||
+                    (mapNpc.Dialog == 16) || (mapNpc.Dialog == 9768));
         }
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
@@ -63,6 +53,24 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119);
                     break;
             }
+        }
+
+        private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
+            short y1, short y2)
+        {
+            if (clientSession.Character.Gold >= GoldToPay)
+            {
+                clientSession.Character.RemoveGold(GoldToPay);
+                clientSession.ChangeMap(
+                    mapId, (short) RandomFactory.Instance.RandomNumber(x1, x2),
+                    (short) RandomFactory.Instance.RandomNumber(y1, y2));
+                return;
+            }
+
+            clientSession.SendPacket(clientSession.Character.GenerateSay(
+                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
+                SayColorType.Yellow
+            ));
         }
     }
 }

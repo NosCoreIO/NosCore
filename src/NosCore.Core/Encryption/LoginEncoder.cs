@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -26,9 +29,6 @@ using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NosCore.Core.Encryption
 {
@@ -37,6 +37,7 @@ namespace NosCore.Core.Encryption
         private readonly ILogger _logger;
         private readonly LoginConfiguration _loginServerConfiguration;
         private readonly ISerializer _serializer;
+
         public LoginEncoder(LoginConfiguration loginServerConfiguration, ILogger logger, ISerializer serializer)
         {
             _loginServerConfiguration = loginServerConfiguration;
@@ -44,7 +45,8 @@ namespace NosCore.Core.Encryption
             _serializer = serializer;
         }
 
-        protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message, List<object> output)
+        protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message,
+            List<object> output)
         {
             try
             {
@@ -60,12 +62,11 @@ namespace NosCore.Core.Encryption
                     tmp[tmp.Length - 1] = 25;
                     if (tmp.Length == 0)
                     {
-                        return new byte[] { 0xFF };
+                        return new byte[] {0xFF};
                     }
 
                     return tmp;
                 }).ToArray()));
-
             }
             catch (Exception ex)
             {

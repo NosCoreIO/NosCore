@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using JetBrains.Annotations;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace NosCore.Data.Enumerations.I18N
 {

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Auction;
@@ -25,7 +26,6 @@ using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Collections.Generic;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -41,26 +41,31 @@ namespace NosCore.PacketHandlers.Bazaar
         public override void Execute(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket>();
-            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0, clientSession.Character.CharacterId);
+            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0,
+                clientSession.Character.CharacterId);
 
             foreach (var bz in bzlist)
             {
-                int soldedAmount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
+                var soldedAmount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
                 int amount = bz.BazaarItem.Amount;
-                bool isNosbazar = bz.BazaarItem.MedalUsed;
-                long price = bz.BazaarItem.Price;
-                long minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now()).TotalMinutes;
-                var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
+                var isNosbazar = bz.BazaarItem.MedalUsed;
+                var price = bz.BazaarItem.Price;
+                var minutesLeft = (long) (bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now())
+                    .TotalMinutes;
+                var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale
+                    : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
                 if (status == BazaarStatusType.DelayExpired)
                 {
-                    minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) - SystemTime.Now()).TotalMinutes;
+                    minutesLeft =
+                        (long) (bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) -
+                            SystemTime.Now()).TotalMinutes;
                 }
 
                 var info = new EInfoPacket();
 
-                if (packet.Filter == BazaarStatusType.Default || packet.Filter == status)
+                if ((packet.Filter == BazaarStatusType.Default) || (packet.Filter == status))
                 {
-                    list.Add(new RcsListPacket.RcsListElementPacket()
+                    list.Add(new RcsListPacket.RcsListElementPacket
                     {
                         AuctionId = bz.BazaarItem.BazaarItemId,
                         OwnerId = bz.BazaarItem.SellerId,

@@ -25,11 +25,12 @@ namespace NosCore.PacketHandlers.Miniland
             switch (mlEditPacket.Type)
             {
                 case 1:
-                    clientSession.SendPacket(new MlintroPacket { Intro = mlEditPacket.MinilandInfo.Replace(' ', '^') });
+                    clientSession.SendPacket(new MlintroPacket {Intro = mlEditPacket.MinilandInfo.Replace(' ', '^')});
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     clientSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED, clientSession.Account.Language)
+                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED,
+                            clientSession.Account.Language)
                     });
                     break;
 
@@ -39,7 +40,8 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Private:
                             clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE, clientSession.Account.Language)
+                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
+                                    clientSession.Account.Language)
                             });
                             _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
                             break;
@@ -47,7 +49,8 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Lock:
                             clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK, clientSession.Account.Language)
+                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
+                                    clientSession.Account.Language)
                             });
                             _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
                             break;
@@ -55,13 +58,15 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Open:
                             clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC, clientSession.Account.Language)
+                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
+                                    clientSession.Account.Language)
                             });
                             break;
 
                         default:
                             return;
                     }
+
                     break;
             }
         }
