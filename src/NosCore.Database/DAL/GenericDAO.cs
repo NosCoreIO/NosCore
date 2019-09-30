@@ -31,7 +31,7 @@ using Serilog;
 
 namespace NosCore.Database.DAL
 {
-    public class GenericDao<TEntity, TDto> : IGenericDao<TDto> where TEntity : class
+    public class GenericDao<TEntity, TDto, TPk> : IGenericDao<TDto> where TEntity : class
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
@@ -41,21 +41,7 @@ namespace NosCore.Database.DAL
             _logger = logger;
             try
             {
-                var pis = typeof(TDto).GetProperties();
-                var exit = false;
-                for (var index = 0; (index < pis.Length) && !exit; index++)
-                {
-                    var pi = pis[index];
-                    var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
-                    if (attrs.Length != 1)
-                    {
-                        continue;
-                    }
-
-                    exit = true;
-                    _primaryKey = pi;
-                }
-
+                _primaryKey = typeof(TDto).FindKey();
                 if (_primaryKey != null)
                 {
                     return;
@@ -212,11 +198,11 @@ namespace NosCore.Database.DAL
 
                     var dbset = context.Set<TEntity>();
                     var entitytoadd = new List<TEntity>();
-                    var list = new List<Tuple<TEntity, object>>();
+                    var list = new List<Tuple<TEntity, TPk>>();
 
                     foreach (var dto in dtos)
                     {
-                        list.Add(new Tuple<TEntity, object>(dto.Adapt<TEntity>(), _primaryKey.GetValue(dto, null)));
+                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk)_primaryKey.GetValue(dto, null)));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
@@ -227,7 +213,7 @@ namespace NosCore.Database.DAL
                     {
                         var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);

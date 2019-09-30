@@ -22,7 +22,6 @@ namespace NosCore.Database.DAL
             var predicateExpression = Expression.Lambda<Func<T, bool>>(body, parameter);
 
             // run query
-            Console.WriteLine(predicateExpression.ToString());
             return dbSet.Where(predicateExpression);
         }
     }

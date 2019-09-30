@@ -104,7 +104,8 @@ namespace NosCore.MasterServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null, new[] {containerBuilder});
+                    var typepk = type.FindKey();
+                    registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null, new[] {containerBuilder});
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -146,9 +147,9 @@ namespace NosCore.MasterServer
                 .AutoActivate();
         }
 
-        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder) where TDb : class
+        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder) where TDb : class
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
         }
 
         private ContainerBuilder InitializeContainer(IServiceCollection services)

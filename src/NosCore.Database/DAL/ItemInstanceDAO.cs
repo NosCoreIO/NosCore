@@ -45,21 +45,7 @@ namespace NosCore.Database
             _logger = logger;
             try
             {
-                var pis = typeof(IItemInstanceDto).GetProperties();
-                var exit = false;
-                for (var index = 0; (index < pis.Length) || !exit; index++)
-                {
-                    var pi = pis[index];
-                    var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
-                    if (attrs.Length != 1)
-                    {
-                        continue;
-                    }
-
-                    exit = true;
-                    _primaryKey = pi;
-                }
-
+                _primaryKey = typeof(IItemInstanceDto).FindKey();
                 if (_primaryKey != null)
                 {
                     return;
@@ -237,16 +223,16 @@ namespace NosCore.Database
 
                     var dbset = context.Set<ItemInstance>();
                     var entitytoadd = new List<ItemInstance>();
-                    var list = new List<Tuple<ItemInstance, object>>();
+                    var list = new List<Tuple<ItemInstance, Guid>>();
 
                     foreach (var dto in dtos)
                     {
-                        list.Add(new Tuple<ItemInstance, object>(dto.GetType().Name == "BoxInstance"
+                        list.Add(new Tuple<ItemInstance, Guid>(dto.GetType().Name == "BoxInstance"
                             ? dto.Adapt<BoxInstance>()
                             : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
                                 : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
                                     : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                                        : dto.Adapt<ItemInstance>(), _primaryKey.GetValue(dto, null)));
+                                        : dto.Adapt<ItemInstance>(), (Guid)_primaryKey.GetValue(dto, null)));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
