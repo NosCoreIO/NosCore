@@ -183,8 +183,7 @@ namespace NosCore.WorldServer
                 {
                     assemblyGo.Where(p => t.IsAssignableFrom(p)).ToList().ForEach(tgo =>
                     {
-                        var typepk = t.FindKey();
-                        registerMapper.MakeGenericMethod(tgo, t, typepk.PropertyType).Invoke(null, new[] {container});
+                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] {container});
                     });
                 });
         }
