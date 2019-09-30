@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Relations;
+﻿using System;
+using ChickenAPI.Packets.ClientPackets.Relations;
 using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,7 +26,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao =
-            new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
+            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
 
         private BlInsPackettHandler _blInsPacketHandler;
         private ClientSession _session;

@@ -45,21 +45,7 @@ namespace NosCore.Database
             _logger = logger;
             try
             {
-                var pis = typeof(IItemInstanceDto).GetProperties();
-                var exit = false;
-                for (var index = 0; (index < pis.Length) || !exit; index++)
-                {
-                    var pi = pis[index];
-                    var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
-                    if (attrs.Length != 1)
-                    {
-                        continue;
-                    }
-
-                    exit = true;
-                    _primaryKey = pi;
-                }
-
+                _primaryKey = typeof(IItemInstanceDto).FindKey();
                 if (_primaryKey != null)
                 {
                     return;
@@ -75,63 +61,65 @@ namespace NosCore.Database
 
         public SaveResult Delete(object dtokey)
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-            var dbset = context.Set<ItemInstance>();
-
-            if (dtokey is IEnumerable enumerable)
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                foreach (var dto in enumerable)
+                var dbset = context.Set<ItemInstance>();
+
+                if (dtokey is IEnumerable enumerable)
+                {
+                    foreach (var dto in enumerable)
+                    {
+                        object value;
+                        try
+                        {
+                            value = _primaryKey.GetValue(dto, null);
+                        }
+                        catch
+                        {
+                            value = dto;
+                        }
+
+                        ItemInstance entityfound = null;
+                        if (value is object[] objects)
+                        {
+                            entityfound = dbset.Find(objects);
+                        }
+                        else
+                        {
+                            entityfound = dbset.Find(value);
+                        }
+
+                        if (entityfound == null)
+                        {
+                            continue;
+                        }
+
+                        dbset.Remove(entityfound);
+                        context.SaveChanges();
+                    }
+                }
+                else
                 {
                     object value;
                     try
                     {
-                        value = _primaryKey.GetValue(dto, null);
+                        value = _primaryKey.GetValue(dtokey, null);
                     }
                     catch
                     {
-                        value = dto;
+                        value = dtokey;
                     }
 
-                    ItemInstance entityfound = null;
-                    if (value is object[] objects)
-                    {
-                        entityfound = dbset.Find(objects);
-                    }
-                    else
-                    {
-                        entityfound = dbset.Find(value);
-                    }
+                    var entityfound = dbset.Find(value);
 
-                    if (entityfound == null)
+                    if (entityfound != null)
                     {
-                        continue;
+                        dbset.Remove(entityfound);
                     }
-
-                    dbset.Remove(entityfound);
-                    context.SaveChanges();
                 }
+
+                context.SaveChanges();
             }
-            else
-            {
-                object value;
-                try
-                {
-                    value = _primaryKey.GetValue(dtokey, null);
-                }
-                catch
-                {
-                    value = dtokey;
-                }
-
-                var entityfound = dbset.Find(value);
-
-                if (entityfound != null)
-                {
-                    dbset.Remove(entityfound);
-                }
-            }
-
-            context.SaveChanges();
 
             return SaveResult.Saved;
         }
@@ -145,9 +133,12 @@ namespace NosCore.Database
                     return default;
                 }
 
-                var context = DataAccessHelper.Instance.CreateContext();
-                var dbset = context.Set<ItemInstance>();
-                var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+                ItemInstance ent;
+                using (var context = DataAccessHelper.Instance.CreateContext())
+                {
+                    var dbset = context.Set<ItemInstance>();
+                    ent = dbset.FirstOrDefault(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+                }
 
                 return ent is BoxInstance ? ent.Adapt<BoxInstanceDto>() :
                     ent is SpecialistInstance ? ent.Adapt<SpecialistInstanceDto>() :
@@ -166,50 +157,53 @@ namespace NosCore.Database
         {
             try
             {
-                var context = DataAccessHelper.Instance.CreateContext();
-                var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
-                    : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-                    : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-                    : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                    : dto.Adapt<ItemInstance>();
-
-                var dbset = context.Set<ItemInstance>();
-
-                var value = _primaryKey.GetValue(dto, null);
-                ItemInstance entityfound = null;
-                if (value is object[] objects)
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    entityfound = dbset.Find(objects);
-                }
-                else
-                {
-                    entityfound = dbset.Find(value);
-                }
+                    var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                        : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                        : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                        : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                        : dto.Adapt<ItemInstance>();
 
-                var newentity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
-                    entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
-                    :
-                    entity is WearableInstance ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
-                    entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() :
-                    entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+                    var dbset = context.Set<ItemInstance>();
 
-                if (entityfound != null)
-                {
-                    context.Entry(entityfound).CurrentValues.SetValues(newentity);
+                    var value = _primaryKey.GetValue(dto, null);
+                    ItemInstance entityfound = null;
+                    if (value is object[] objects)
+                    {
+                        entityfound = dbset.Find(objects);
+                    }
+                    else
+                    {
+                        entityfound = dbset.Find(value);
+                    }
+
+                    var newentity = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>().Adapt<BoxInstance>() :
+                        entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
+                        :
+                        entity is WearableInstance ? entity.Adapt<WearableInstanceDto>().Adapt<WearableInstance>() :
+                        entity is UsableInstance ? entity.Adapt<UsableInstanceDto>().Adapt<UsableInstance>() :
+                        entity.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+
+                    if (entityfound != null)
+                    {
+                        context.Entry(entityfound).CurrentValues.SetValues(newentity);
+                        context.SaveChanges();
+                    }
+
+                    if ((value == null) || (entityfound == null))
+                    {
+                        dbset.Add(newentity);
+                    }
+
                     context.SaveChanges();
+                    dto = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>() :
+                        entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>() :
+                        entity is WearableInstance ? entity.Adapt<WearableInstanceDto>() :
+                        entity is UsableInstance ? entity.Adapt<UsableInstanceDto>() :
+                        entity.Adapt<ItemInstanceDto>();
                 }
 
-                if ((value == null) || (entityfound == null))
-                {
-                    dbset.Add(newentity);
-                }
-
-                context.SaveChanges();
-                dto = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>() :
-                    entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>() :
-                    entity is WearableInstance ? entity.Adapt<WearableInstanceDto>() :
-                    entity is UsableInstance ? entity.Adapt<UsableInstanceDto>() :
-                    entity.Adapt<ItemInstanceDto>();
                 return SaveResult.Saved;
             }
             catch (Exception e)
@@ -223,53 +217,55 @@ namespace NosCore.Database
         {
             try
             {
-                var context = DataAccessHelper.Instance.CreateContext();
-
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                var dbset = context.Set<ItemInstance>();
-                var entitytoadd = new List<ItemInstance>();
-                var list = new List<Tuple<ItemInstance, object>>();
-
-                foreach (var dto in dtos)
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    list.Add(new Tuple<ItemInstance, object>(dto.GetType().Name == "BoxInstance"
-                        ? dto.Adapt<BoxInstance>()
-                        : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-                            : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-                                : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                                    : dto.Adapt<ItemInstance>(), _primaryKey.GetValue(dto, null)));
-                }
+                    context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var ids = list.Select(s => s.Item2).ToArray();
-                var dbkey = typeof(ItemInstance).GetProperty(_primaryKey.Name);
-                var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+                    var dbset = context.Set<ItemInstance>();
+                    var entitytoadd = new List<ItemInstance>();
+                    var list = new List<Tuple<ItemInstance, Guid>>();
 
-                foreach (var dto in list)
-                {
-                    var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>()
-                        : dto.Item1 is SpecialistInstance
-                            ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
-                            : dto.Item1 is WearableInstance
-                                ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>()
-                                : dto.Item1 is UsableInstance
-                                    ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
-                                    : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
-                    var entityfound =
-                        entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
-                    if (entityfound != null)
+                    foreach (var dto in dtos)
                     {
-                        context.Entry(entityfound).CurrentValues.SetValues(entity);
-                        continue;
+                        list.Add(new Tuple<ItemInstance, Guid>(dto.GetType().Name == "BoxInstance"
+                            ? dto.Adapt<BoxInstance>()
+                            : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                                : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                                    : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                                        : dto.Adapt<ItemInstance>(), (Guid)_primaryKey.GetValue(dto, null)));
                     }
 
-                    entitytoadd.Add(entity);
+                    var ids = list.Select(s => s.Item2).ToArray();
+                    var dbkey = typeof(ItemInstance).GetProperty(_primaryKey.Name);
+                    var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+
+                    foreach (var dto in list)
+                    {
+                        var entity = dto.Item1 is BoxInstance ? dto.Item1.Adapt<BoxInstanceDto>().Adapt<BoxInstance>()
+                            : dto.Item1 is SpecialistInstance
+                                ? dto.Item1.Adapt<SpecialistInstanceDto>().Adapt<SpecialistInstance>()
+                                : dto.Item1 is WearableInstance
+                                    ? dto.Item1.Adapt<WearableInstanceDto>().Adapt<WearableInstance>()
+                                    : dto.Item1 is UsableInstance
+                                        ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
+                                        : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
+                        var entityfound =
+                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
+                        if (entityfound != null)
+                        {
+                            context.Entry(entityfound).CurrentValues.SetValues(entity);
+                            continue;
+                        }
+
+                        entitytoadd.Add(entity);
+                    }
+
+                    dbset.AddRange(entitytoadd);
+
+                    context.ChangeTracker.AutoDetectChangesEnabled = true;
+                    context.SaveChanges();
                 }
 
-                dbset.AddRange(entitytoadd);
-
-                context.ChangeTracker.AutoDetectChangesEnabled = true;
-                context.SaveChanges();
                 return SaveResult.Saved;
             }
             catch (Exception e)
@@ -281,38 +277,42 @@ namespace NosCore.Database
 
         public IEnumerable<IItemInstanceDto> LoadAll()
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-            foreach (var t in context.Set<ItemInstance>())
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-                    t.Adapt<ItemInstanceDto>();
+                foreach (var t in context.Set<ItemInstance>())
+                {
+                    yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                        t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                        t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                        t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                        t.Adapt<ItemInstanceDto>();
+                }
             }
         }
 
         public IEnumerable<IItemInstanceDto> Where(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-            var dbset = context.Set<ItemInstance>();
-            var entities = Enumerable.Empty<ItemInstance>();
-            try
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message, e);
-            }
+                var dbset = context.Set<ItemInstance>();
+                var entities = Enumerable.Empty<ItemInstance>();
+                try
+                {
+                    entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e.Message, e);
+                }
 
-            foreach (var t in entities)
-            {
-                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-                    t.Adapt<ItemInstanceDto>();
+                foreach (var t in entities)
+                {
+                    yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                        t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                        t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                        t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                        t.Adapt<ItemInstanceDto>();
+                }
             }
         }
     }

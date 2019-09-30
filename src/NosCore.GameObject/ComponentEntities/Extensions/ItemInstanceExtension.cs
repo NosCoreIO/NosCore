@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using JetBrains.Annotations;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IItemInstanceExtension
     {
-        public static IvnSubPacket GenerateIvnSubPacket(this IItemInstance itemInstance, PocketType type,
+        public static IvnSubPacket GenerateIvnSubPacket([CanBeNull] this IItemInstance itemInstance, PocketType type,
             short slot)
         {
             if (itemInstance == null)
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static IvnPacket GeneratePocketChange(this InventoryItemInstance itemInstance, PocketType type,
+        public static IvnPacket GeneratePocketChange([CanBeNull]this InventoryItemInstance itemInstance, PocketType type,
             short slot)
         {
             if (itemInstance == null)
@@ -64,7 +65,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket> { itemInstance.ItemInstance.GenerateIvnSubPacket(type, slot) }
+                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance)null).GenerateIvnSubPacket(type, slot) }
                 };
             }
 

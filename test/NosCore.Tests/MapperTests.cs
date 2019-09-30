@@ -43,9 +43,9 @@ namespace NosCore.Tests
     public class MapperTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto>(_logger);
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(_logger);
         private readonly Adapter _adapter = new Adapter();
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Character, CharacterDto>(_logger);
+        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Character, CharacterDto, long>(_logger);
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
 
         [TestInitialize]
