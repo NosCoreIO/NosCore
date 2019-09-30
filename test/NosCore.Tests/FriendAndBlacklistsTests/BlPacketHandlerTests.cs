@@ -30,7 +30,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(_logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

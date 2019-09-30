@@ -53,7 +53,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
                 .Returns((new ServerConfiguration(),
