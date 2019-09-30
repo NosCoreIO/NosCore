@@ -64,10 +64,10 @@ namespace NosCore.Parser
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
         }
 
-        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder, bool isStatic)
+        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
             if (isStatic)
             {
                 containerBuilder.Register(c => c.Resolve<IGenericDao<TDto>>().LoadAll().ToList())
@@ -123,7 +123,8 @@ namespace NosCore.Parser
                         {
                             var type = assemblyDb.First(tgo =>
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                            registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null,
+                            var typepk = type.FindKey();
+                            registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                                 new[] {containerBuilder, (object) typeof(IStaticDto).IsAssignableFrom(t)});
                         });
 

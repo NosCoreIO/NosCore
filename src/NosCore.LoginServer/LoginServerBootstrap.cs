@@ -95,7 +95,7 @@ namespace NosCore.LoginServer
         {
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_loginConfiguration).As<LoginConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterType<GenericDao<Account, AccountDto>>().As<IGenericDao<AccountDto>>()
+            containerBuilder.RegisterType<GenericDao<Account, AccountDto, long>>().As<IGenericDao<AccountDto>>()
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();

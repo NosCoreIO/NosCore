@@ -86,17 +86,17 @@ namespace NosCore.Tests.Helpers
                 .Returns(new List<CharacterRelationStatus>());
             FriendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
                 .Returns(new List<CharacterRelationStatus>());
-            AccountDao = new GenericDao<Account, AccountDto>(_logger);
-            _portalDao = new GenericDao<Portal, PortalDto>(_logger);
-            _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto>(_logger);
-            _mapNpcDao = new GenericDao<MapNpc, MapNpcDto>(_logger);
-            MinilandDao = new GenericDao<Miniland, MinilandDto>(_logger);
-            _shopDao = new GenericDao<Shop, ShopDto>(_logger);
-            _shopItemDao = new GenericDao<ShopItem, ShopItemDto>(_logger);
-            CharacterDao = new GenericDao<Character, CharacterDto>(_logger);
+            AccountDao = new GenericDao<Account, AccountDto, long>(_logger);
+            _portalDao = new GenericDao<Portal, PortalDto, int>(_logger);
+            _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto, long>(_logger);
+            _mapNpcDao = new GenericDao<MapNpc, MapNpcDto, long>(_logger);
+            MinilandDao = new GenericDao<Miniland, MinilandDto, Guid>(_logger);
+            _shopDao = new GenericDao<Shop, ShopDto, int>(_logger);
+            _shopItemDao = new GenericDao<ShopItem, ShopItemDto, int>(_logger);
+            CharacterDao = new GenericDao<Character, CharacterDto, long>(_logger);
             _itemInstanceDao = new ItemInstanceDao(_logger);
-            _inventoryItemInstanceDao = new GenericDao<InventoryItemInstance, InventoryItemInstanceDto>(_logger);
-            _staticBonusDao = new GenericDao<StaticBonus, StaticBonusDto>(_logger);
+            _inventoryItemInstanceDao = new GenericDao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger);
+            _staticBonusDao = new GenericDao<StaticBonus, StaticBonusDto, long>(_logger);
             InitDatabase();
             MapInstanceProvider = GenerateMapInstanceProvider();
         }
