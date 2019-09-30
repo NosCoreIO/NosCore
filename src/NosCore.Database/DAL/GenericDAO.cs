@@ -31,7 +31,7 @@ using Serilog;
 
 namespace NosCore.Database.DAL
 {
-    public class GenericDao<TEntity, TDto> : IGenericDao<TDto> where TEntity : class
+    public class GenericDao<TEntity, TDto, TPk> : IGenericDao<TDto> where TEntity : class
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo _primaryKey;
@@ -41,21 +41,7 @@ namespace NosCore.Database.DAL
             _logger = logger;
             try
             {
-                var pis = typeof(TDto).GetProperties();
-                var exit = false;
-                for (var index = 0; (index < pis.Length) && !exit; index++)
-                {
-                    var pi = pis[index];
-                    var attrs = pi.GetCustomAttributes(typeof(KeyAttribute), false);
-                    if (attrs.Length != 1)
-                    {
-                        continue;
-                    }
-
-                    exit = true;
-                    _primaryKey = pi;
-                }
-
+                _primaryKey = typeof(TDto).FindKey();
                 if (_primaryKey != null)
                 {
                     return;
@@ -71,65 +57,65 @@ namespace NosCore.Database.DAL
 
         public SaveResult Delete(object dtokey)
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-
-            var dbset = context.Set<TEntity>();
-
-            if (dtokey is IEnumerable enumerable)
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                foreach (var dto in enumerable)
+                var dbset = context.Set<TEntity>();
+
+                if (dtokey is IEnumerable enumerable)
+                {
+                    foreach (var dto in enumerable)
+                    {
+                        object value;
+                        try
+                        {
+                            value = _primaryKey.GetValue(dto, null);
+                        }
+                        catch
+                        {
+                            value = dto;
+                        }
+
+                        TEntity entityfound = null;
+                        if (value is object[] objects)
+                        {
+                            entityfound = dbset.Find(objects);
+                        }
+                        else
+                        {
+                            entityfound = dbset.Find(value);
+                        }
+
+                        if (entityfound == null)
+                        {
+                            continue;
+                        }
+
+                        dbset.Remove(entityfound);
+                        context.SaveChanges();
+                    }
+                }
+                else
                 {
                     object value;
                     try
                     {
-                        value = _primaryKey.GetValue(dto, null);
+                        value = _primaryKey.GetValue(dtokey, null);
                     }
                     catch
                     {
-                        value = dto;
+                        value = dtokey;
                     }
 
-                    TEntity entityfound = null;
-                    if (value is object[] objects)
-                    {
-                        entityfound = dbset.Find(objects);
-                    }
-                    else
-                    {
-                        entityfound = dbset.Find(value);
-                    }
+                    var entityfound = dbset.Find(value);
 
-                    if (entityfound == null)
+                    if (entityfound != null)
                     {
-                        continue;
+                        dbset.Remove(entityfound);
                     }
-
-                    dbset.Remove(entityfound);
-                    context.SaveChanges();
                 }
+
+                context.SaveChanges();
             }
-            else
-            {
-                object value;
-                try
-                {
-                    value = _primaryKey.GetValue(dtokey, null);
-                }
-                catch
-                {
-                    value = dtokey;
-                }
-
-                var entityfound = dbset.Find(value);
-
-                if (entityfound != null)
-                {
-                    dbset.Remove(entityfound);
-                }
-            }
-
-            context.SaveChanges();
-
             return SaveResult.Saved;
         }
 
@@ -142,9 +128,13 @@ namespace NosCore.Database.DAL
                     return default;
                 }
 
-                var context = DataAccessHelper.Instance.CreateContext();
-                var dbset = context.Set<TEntity>();
-                var ent = dbset.FirstOrDefault(predicate.ReplaceParameter<TDto, TEntity>());
+                TEntity ent;
+                using (var context = DataAccessHelper.Instance.CreateContext())
+                {
+                    var dbset = context.Set<TEntity>();
+                    ent = dbset.FirstOrDefault(predicate.ReplaceParameter<TDto, TEntity>());
+                }
+
                 return ent.Adapt<TDto>();
             }
             catch (Exception e)
@@ -158,37 +148,37 @@ namespace NosCore.Database.DAL
         {
             try
             {
-                var context = DataAccessHelper.Instance.CreateContext();
-
-                var entity = dto.Adapt<TEntity>();
-                var dbset = context.Set<TEntity>();
-
-                var value = _primaryKey.GetValue(dto, null);
-                TEntity entityfound = null;
-                if (value is object[] objects)
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    entityfound = dbset.Find(objects);
-                }
-                else
-                {
-                    entityfound = dbset.Find(value);
-                }
+                    var entity = dto.Adapt<TEntity>();
+                    var dbset = context.Set<TEntity>();
 
-                entity = entity.Adapt<TDto>().Adapt<TEntity>();
-                if (entityfound != null)
-                {
-                    context.Entry(entityfound).CurrentValues.SetValues(entity);
+                    var value = _primaryKey.GetValue(dto, null);
+                    TEntity entityfound = null;
+                    if (value is object[] objects)
+                    {
+                        entityfound = dbset.Find(objects);
+                    }
+                    else
+                    {
+                        entityfound = dbset.Find(value);
+                    }
+
+                    entity = entity.Adapt<TDto>().Adapt<TEntity>();
+                    if (entityfound != null)
+                    {
+                        context.Entry(entityfound).CurrentValues.SetValues(entity);
+                        context.SaveChanges();
+                    }
+
+                    if ((value == null) || (entityfound == null))
+                    {
+                        dbset.Add(entity);
+                    }
+
                     context.SaveChanges();
+                    dto = entity.Adapt<TDto>();
                 }
-
-                if ((value == null) || (entityfound == null))
-                {
-                    dbset.Add(entity);
-                }
-
-                context.SaveChanges();
-                dto = entity.Adapt<TDto>();
-
                 return SaveResult.Saved;
             }
             catch (Exception e)
@@ -202,41 +192,43 @@ namespace NosCore.Database.DAL
         {
             try
             {
-                var context = DataAccessHelper.Instance.CreateContext();
-
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                var dbset = context.Set<TEntity>();
-                var entitytoadd = new List<TEntity>();
-                var list = new List<Tuple<TEntity, object>>();
-
-                foreach (var dto in dtos)
+                using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    list.Add(new Tuple<TEntity, object>(dto.Adapt<TEntity>(), _primaryKey.GetValue(dto, null)));
-                }
+                    context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var ids = list.Select(s => s.Item2).ToArray();
-                var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
-                var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+                    var dbset = context.Set<TEntity>();
+                    var entitytoadd = new List<TEntity>();
+                    var list = new List<Tuple<TEntity, TPk>>();
 
-                foreach (var dto in list)
-                {
-                    var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
-                    var entityfound =
-                        entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
-                    if (entityfound != null)
+                    foreach (var dto in dtos)
                     {
-                        context.Entry(entityfound).CurrentValues.SetValues(entity);
-                        continue;
+                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk)_primaryKey.GetValue(dto, null)));
                     }
 
-                    entitytoadd.Add(entity);
+                    var ids = list.Select(s => s.Item2).ToArray();
+                    var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
+                    var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+
+                    foreach (var dto in list)
+                    {
+                        var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
+                        var entityfound =
+                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == dto.Item2);
+                        if (entityfound != null)
+                        {
+                            context.Entry(entityfound).CurrentValues.SetValues(entity);
+                            continue;
+                        }
+
+                        entitytoadd.Add(entity);
+                    }
+
+                    dbset.AddRange(entitytoadd);
+
+                    context.ChangeTracker.AutoDetectChangesEnabled = true;
+                    context.SaveChanges();
                 }
 
-                dbset.AddRange(entitytoadd);
-
-                context.ChangeTracker.AutoDetectChangesEnabled = true;
-                context.SaveChanges();
                 return SaveResult.Saved;
             }
             catch (Exception e)
@@ -248,32 +240,34 @@ namespace NosCore.Database.DAL
 
         public IEnumerable<TDto> LoadAll()
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-
-
-            foreach (var t in context.Set<TEntity>())
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                yield return t.Adapt<TDto>();
+                foreach (var t in context.Set<TEntity>())
+                {
+                    yield return t.Adapt<TDto>();
+                }
             }
         }
 
         public IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate)
         {
-            var context = DataAccessHelper.Instance.CreateContext();
-            var dbset = context.Set<TEntity>();
-            var entities = Enumerable.Empty<TEntity>();
-            try
+            using (var context = DataAccessHelper.Instance.CreateContext())
             {
-                entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>());
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message, e);
-            }
+                var dbset = context.Set<TEntity>();
+                var entities = Enumerable.Empty<TEntity>();
+                try
+                {
+                    entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>());
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e.Message, e);
+                }
 
-            foreach (var t in entities)
-            {
-                yield return t.Adapt<TDto>();
+                foreach (var t in entities)
+                {
+                    yield return t.Adapt<TDto>();
+                }
             }
         }
     }

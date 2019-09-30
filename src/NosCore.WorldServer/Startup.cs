@@ -127,10 +127,10 @@ namespace NosCore.WorldServer
             TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
         }
 
-        public static void RegisterDatabaseObject<TDto, TDb>(ContainerBuilder containerBuilder, bool isStatic)
+        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
             if (isStatic)
             {
                 var staticMetaDataAttribute = typeof(TDto).GetCustomAttribute<StaticMetaDataAttribute>();
@@ -183,7 +183,8 @@ namespace NosCore.WorldServer
                 {
                     assemblyGo.Where(p => t.IsAssignableFrom(p)).ToList().ForEach(tgo =>
                     {
-                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] {container});
+                        var typepk = t.FindKey();
+                        registerMapper.MakeGenericMethod(tgo, t, typepk.PropertyType).Invoke(null, new[] {container});
                     });
                 });
         }
@@ -271,7 +272,8 @@ namespace NosCore.WorldServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    registerDatabaseObject.MakeGenericMethod(t, type).Invoke(null,
+                    var typepk = type.FindKey();
+                    registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                         new[] {containerBuilder, (object) typeof(IStaticDto).IsAssignableFrom(t)});
                 });
 

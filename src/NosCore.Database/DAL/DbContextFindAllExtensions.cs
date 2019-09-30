@@ -9,19 +9,16 @@ namespace NosCore.Database.DAL
 {
     public static class DbContextFindAllExtensions
     {
-        private static readonly MethodInfo ContainsMethod = typeof(Enumerable).GetMethods()
-            .FirstOrDefault(m => (m.Name == "Contains") && (m.GetParameters().Length == 2))
-            .MakeGenericMethod(typeof(object));
-
-        public static IQueryable<T> FindAllAsync<T>(this DbSet<T> dbSet, PropertyInfo keyProperty,
-            params object[] keyValues)
+        public static IQueryable<T> FindAllAsync<T, TKey>(this DbSet<T> dbSet, PropertyInfo keyProperty,
+            params TKey[] keyValues)
         where T : class
         {
+            var list = keyValues.ToList();
             // build lambda expression
             var parameter = Expression.Parameter(typeof(T), "e");
-            var body = Expression.Call(null, ContainsMethod,
-                Expression.Constant(keyValues),
-                Expression.Convert(Expression.MakeMemberAccess(parameter, keyProperty), typeof(object)));
+            var methodInfo = typeof(List<TKey>).GetMethod("Contains");
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var body = Expression.Call(Expression.Constant(list, typeof(List<TKey>)), methodInfo, Expression.MakeMemberAccess(parameter, keyProperty));
             var predicateExpression = Expression.Lambda<Func<T, bool>>(body, parameter);
 
             // run query
