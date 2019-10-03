@@ -84,8 +84,7 @@ namespace NosCore.PacketHandlers.Miniland
                 Level5BoxAmount = 0
             };
 
-            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
-
+            
             if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
             {
                 var min = clientSession.Character.MapInstance.MapDesignObjects
@@ -97,6 +96,8 @@ namespace NosCore.PacketHandlers.Miniland
                     clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
                 }
             }
+
+            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
             clientSession.SendPacket(minilandobj.GenerateEffect());
             clientSession.SendPacket(new MinilandPointPacket
