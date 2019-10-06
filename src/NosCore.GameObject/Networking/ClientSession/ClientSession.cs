@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -450,7 +450,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey
+                                            .PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
                                     continue;
                                 }

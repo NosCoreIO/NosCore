@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Miniland
                 Level5BoxAmount = 0
             };
 
-            
+
             if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
             {
                 var min = clientSession.Character.MapInstance.MapDesignObjects

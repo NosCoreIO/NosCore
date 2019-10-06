@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -45,7 +45,10 @@ namespace NosCore.Tests
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(_logger);
         private readonly Adapter _adapter = new Adapter();
-        private readonly IGenericDao<CharacterDto> _characterDao = new GenericDao<Character, CharacterDto, long>(_logger);
+
+        private readonly IGenericDao<CharacterDto> _characterDao =
+            new GenericDao<Character, CharacterDto, long>(_logger);
+
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
 
         [TestInitialize]

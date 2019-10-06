@@ -17,12 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations.Items
+using System;
+using System.Collections.Generic;
+using System.Text;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Miniland;
+
+namespace NosCore.Data.WebApi
 {
-    public enum UpgradeMode
+    public class WareHouseDepositRequest
     {
-        Normal,
-        Reduced,
-        Free
+        public long OwnerId { get; set; }
+        public WarehouseType WarehouseType { get; set; }
+        public ItemInstanceDto ItemInstance { get; set; }
+        public short Slot { get; set; }
     }
 }
