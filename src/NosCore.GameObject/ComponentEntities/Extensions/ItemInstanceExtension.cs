@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -57,7 +57,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static IvnPacket GeneratePocketChange([CanBeNull]this InventoryItemInstance itemInstance, PocketType type,
+        public static IvnPacket GeneratePocketChange([CanBeNull] this InventoryItemInstance itemInstance,
+            PocketType type,
             short slot)
         {
             if (itemInstance == null)
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance)null).GenerateIvnSubPacket(type, slot) }
+                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance) null).GenerateIvnSubPacket(type, slot)}
                 };
             }
 
@@ -96,7 +97,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot)).ToList()
+                    IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
+                        .ToList()
                 };
             }
 

@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -116,6 +116,7 @@ namespace NosCore.Database.DAL
 
                 context.SaveChanges();
             }
+
             return SaveResult.Saved;
         }
 
@@ -179,6 +180,7 @@ namespace NosCore.Database.DAL
                     context.SaveChanges();
                     dto = entity.Adapt<TDto>();
                 }
+
                 return SaveResult.Saved;
             }
             catch (Exception e)
@@ -202,7 +204,7 @@ namespace NosCore.Database.DAL
 
                     foreach (var dto in dtos)
                     {
-                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk)_primaryKey.GetValue(dto, null)));
+                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk) _primaryKey.GetValue(dto, null)));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
@@ -213,7 +215,7 @@ namespace NosCore.Database.DAL
                     {
                         var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
