@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -43,7 +43,8 @@ namespace NosCore.PacketHandlers.Warehouse
         {
             IItemInstance itemInstance = null;
             short slot = 0;
-            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character.CharacterId, WarehouseType.Warehouse, itemInstance, slot);
+            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character.CharacterId,
+                WarehouseType.Warehouse, itemInstance, slot);
         }
     }
 }

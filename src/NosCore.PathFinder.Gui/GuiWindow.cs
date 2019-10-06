@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -51,11 +51,16 @@ namespace NosCore.PathFinder.Gui
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly byte _gridsize;
         private readonly Map _map;
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto, long>(_logger);
+
+        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao =
+            new GenericDao<MapMonster, MapMonsterDto, long>(_logger);
 
         private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<MapNpc, MapNpcDto, long>(_logger);
         private readonly List<GameObject.MapMonster> _monsters;
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto, long>(_logger);
+
+        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao =
+            new GenericDao<NpcMonster, NpcMonsterDto, long>(_logger);
+
         private readonly List<GameObject.MapNpc> _npcs;
         private readonly int _originalHeight;
         private readonly int _originalWidth;

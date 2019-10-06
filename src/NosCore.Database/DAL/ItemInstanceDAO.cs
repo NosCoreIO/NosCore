@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -232,7 +232,7 @@ namespace NosCore.Database
                             : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
                                 : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
                                     : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                                        : dto.Adapt<ItemInstance>(), (Guid)_primaryKey.GetValue(dto, null)));
+                                        : dto.Adapt<ItemInstance>(), (Guid) _primaryKey.GetValue(dto, null)));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
@@ -250,7 +250,7 @@ namespace NosCore.Database
                                         ? dto.Item1.Adapt<UsableInstanceDto>().Adapt<UsableInstance>()
                                         : dto.Item1.Adapt<ItemInstanceDto>().Adapt<ItemInstance>();
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic)dbkey.GetValue(s, null) == (dynamic)dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
