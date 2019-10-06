@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -23,9 +23,11 @@ using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Miniland;
 using ChickenAPI.Packets.ServerPackets.Warehouse;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
+using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MinilandProvider;
@@ -35,10 +37,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
     public class UseobjPacketHandler : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
         private readonly IMinilandProvider _minilandProvider;
+        private readonly IWarehouseHttpClient _warehouseHttpClient;
 
-        public UseobjPacketHandler(IMinilandProvider minilandProvider)
+        public UseobjPacketHandler(IMinilandProvider minilandProvider, IWarehouseHttpClient warehouseHttpClient)
         {
             _minilandProvider = minilandProvider;
+            _warehouseHttpClient = warehouseHttpClient;
         }
 
         public override void Execute(UseObjPacket useobjPacket, ClientSession clientSession)
@@ -98,11 +102,15 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
                 else
                 {
-                    var warehouseItems = new List<WarehouseItem>();
+                    var warehouseItems = _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
+                        WarehouseType.Warehouse);
                     clientSession.SendPacket(new StashAllPacket
                     {
-                        WarehouseSize = (byte)miniland.MinilandPoint,
-                        IvnSubPackets = warehouseItems.Select(invItem => invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance.Item.Type, invItem.Slot)).ToList()
+                        WarehouseSize =
+                            (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
+                        IvnSubPackets = warehouseItems.Select(invItem =>
+                            invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance.Item.Type,
+                                invItem.Slot)).ToList()
                     });
                 }
             }

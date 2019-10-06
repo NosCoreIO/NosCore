@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -48,8 +48,8 @@ namespace NosCore.Parser
         private readonly ShopItemParser _shopItemParser;
         private readonly ShopParser _shopParser;
         private readonly SkillParser _skillParser;
-        private string _folder;
         private readonly string password = "test".ToSha512();
+        private string _folder;
 
         public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser,
             MapMonsterParser mapMonsterParser,
