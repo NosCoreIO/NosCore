@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -84,7 +84,6 @@ namespace NosCore.PacketHandlers.Miniland
                 Level5BoxAmount = 0
             };
 
-            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
             if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
             {
@@ -97,6 +96,8 @@ namespace NosCore.PacketHandlers.Miniland
                     clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
                 }
             }
+
+            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
             clientSession.SendPacket(minilandobj.GenerateEffect());
             clientSession.SendPacket(new MinilandPointPacket

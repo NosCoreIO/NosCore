@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -18,20 +18,33 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Warehouse;
+using NosCore.Data;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
     public class DepositPacketHandler : PacketHandler<DepositPacket>, IWorldPacketHandler
     {
-        public DepositPacketHandler()
+        private readonly IMinilandProvider _minilandProvider;
+        private readonly IWarehouseHttpClient _warehouseHttpClient;
+
+        public DepositPacketHandler(IMinilandProvider minilandProvider, IWarehouseHttpClient warehouseHttpClient)
         {
+            _minilandProvider = minilandProvider;
+            _warehouseHttpClient = warehouseHttpClient;
         }
 
         public override void Execute(DepositPacket depositPacket, ClientSession clientSession)
         {
-
+            IItemInstance itemInstance = null;
+            short slot = 0;
+            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character.CharacterId,
+                WarehouseType.Warehouse, itemInstance, slot);
         }
     }
 }
