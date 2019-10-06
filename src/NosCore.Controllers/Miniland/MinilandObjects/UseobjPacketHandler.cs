@@ -1,7 +1,7 @@
-﻿//  __  _  __    __   ___ __  ___ ___  
-// |  \| |/__\ /' _/ / _//__\| _ \ __| 
-// | | ' | \/ |`._`.| \_| \/ | v / _|  
-// |_|\__|\__/ |___/ \__/\__/|_|_\___| 
+﻿//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
 // 
 // Copyright (C) 2019 - NosCore
 // 
@@ -102,11 +102,15 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
                 else
                 {
-                    var warehouseItems = _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId, WarehouseType.Warehouse);
+                    var warehouseItems = _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
+                        WarehouseType.Warehouse);
                     clientSession.SendPacket(new StashAllPacket
                     {
-                        WarehouseSize = (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
-                        IvnSubPackets = warehouseItems.Select(invItem => invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance.Item.Type, invItem.Slot)).ToList()
+                        WarehouseSize =
+                            (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
+                        IvnSubPackets = warehouseItems.Select(invItem =>
+                            invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance.Item.Type,
+                                invItem.Slot)).ToList()
                     });
                 }
             }
