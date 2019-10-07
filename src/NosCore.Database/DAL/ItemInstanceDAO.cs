@@ -277,42 +277,38 @@ namespace NosCore.Database
 
         public IEnumerable<IItemInstanceDto> LoadAll()
         {
-            using (var context = DataAccessHelper.Instance.CreateContext())
+            using var context = DataAccessHelper.Instance.CreateContext();
+            foreach (var t in context.Set<ItemInstance>())
             {
-                foreach (var t in context.Set<ItemInstance>())
-                {
-                    yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-                        t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-                        t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-                        t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-                        t.Adapt<ItemInstanceDto>();
-                }
+                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                    t.Adapt<ItemInstanceDto>();
             }
         }
 
         public IEnumerable<IItemInstanceDto> Where(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
-            using (var context = DataAccessHelper.Instance.CreateContext())
+            using var context = DataAccessHelper.Instance.CreateContext();
+            var dbset = context.Set<ItemInstance>();
+            var entities = Enumerable.Empty<ItemInstance>();
+            try
             {
-                var dbset = context.Set<ItemInstance>();
-                var entities = Enumerable.Empty<ItemInstance>();
-                try
-                {
-                    entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
-                }
-                catch (Exception e)
-                {
-                    _logger.Error(e.Message, e);
-                }
+                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+            }
 
-                foreach (var t in entities)
-                {
-                    yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-                        t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-                        t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-                        t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-                        t.Adapt<ItemInstanceDto>();
-                }
+            foreach (var t in entities)
+            {
+                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                    t.Adapt<ItemInstanceDto>();
             }
         }
     }

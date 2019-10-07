@@ -28,11 +28,9 @@ namespace NosCore.Core.Encryption
     {
         public static string ToSha512(this string inputString)
         {
-            using (var hash = SHA512.Create())
-            {
-                return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
-                    .Select(item => item.ToString("x2")));
-            }
+            using var hash = SHA512.Create();
+            return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
+.Select(item => item.ToString("x2")));
         }
 
         public static string ToPbkdf2Hash(this string inputString, string salt)

@@ -24,6 +24,7 @@ using ChickenAPI.Packets.ServerPackets.Auction;
 using ChickenAPI.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
@@ -52,42 +53,32 @@ namespace NosCore.PacketHandlers.Bazaar
 
             //price up price down quantity up quantity down
             var definitivelist = itemssearch.Any() ? bzlistsearched : bzlist;
-            switch (packet.OrderFilter)
+            definitivelist = packet.OrderFilter switch
             {
-                case 0:
-                    definitivelist = definitivelist
-                        .OrderBy(s =>
-                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                        .ThenBy(s => s.BazaarItem.Price).ToList();
-                    break;
-
-                case 1:
-                    definitivelist = definitivelist
-                        .OrderBy(s =>
-                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                        .ThenByDescending(s => s.BazaarItem.Price).ToList();
-                    break;
-
-                case 2:
-                    definitivelist = definitivelist
-                        .OrderBy(s =>
-                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                        .ThenBy(s => s.BazaarItem.Amount).ToList();
-                    break;
-
-                case 3:
-                    definitivelist = definitivelist
-                        .OrderBy(s =>
-                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                        .ThenByDescending(s => s.BazaarItem.Amount).ToList();
-                    break;
-
-                default:
-                    definitivelist = definitivelist.OrderBy(s =>
-                            _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                        .ToList();
-                    break;
-            }
+                0 => Enumerable
+                    .OrderBy<BazaarLink, string>(definitivelist,
+                        s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenBy(s => s.BazaarItem.Price)
+                    .ToList(),
+                1 => Enumerable
+                    .OrderBy<BazaarLink, string>(definitivelist,
+                        s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenByDescending(s => s.BazaarItem.Price)
+                    .ToList(),
+                2 => Enumerable
+                    .OrderBy<BazaarLink, string>(definitivelist,
+                        s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenBy(s => s.BazaarItem.Amount)
+                    .ToList(),
+                3 => Enumerable
+                    .OrderBy<BazaarLink, string>(definitivelist,
+                        s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenByDescending(s => s.BazaarItem.Amount)
+                    .ToList(),
+                _ => Enumerable.OrderBy<BazaarLink, string>(definitivelist,
+                        s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                    .ToList()
+            };
 
             clientSession.SendPacket(new RcbListPacket
             {
