@@ -24,11 +24,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MinilandProvider;
 
-namespace NosCore.GameObject.Providers.GuriProvider.Handlers
+namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 {
     public class MinilandEntranceHandler : IMapInstanceEventHandler
     {
