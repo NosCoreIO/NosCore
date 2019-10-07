@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
                     }));
-            var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
+            using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
                 _characterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklist(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest

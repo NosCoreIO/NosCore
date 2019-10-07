@@ -80,7 +80,7 @@ namespace NosCore.PathFinder.Gui
             _monsters = _mapMonsterDao.Where(s => s.MapId == map.MapId)
                 .Adapt<List<GameObject.MapMonster>>();
             var npcMonsters = _npcMonsterDao.LoadAll().ToList();
-            var mapInstance =
+            using var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     _logger, new List<IMapInstanceEventHandler>())
