@@ -33,9 +33,9 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class WarehouseController : Controller
     {
-        private IGenericDao<IItemInstanceDto> _itemInstanceDao;
-        private IGenericDao<WarehouseDto> _warehouseDao;
-        private IGenericDao<WarehouseItemDto> _warehouseItemDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<WarehouseDto> _warehouseDao;
+        private readonly IGenericDao<WarehouseItemDto> _warehouseItemDao;
 
         public WarehouseController(IGenericDao<WarehouseItemDto> warehouseItemDao,
             IGenericDao<WarehouseDto> warehouseDao, IGenericDao<IItemInstanceDto> itemInstanceDao)
