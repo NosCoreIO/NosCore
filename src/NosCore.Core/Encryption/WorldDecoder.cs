@@ -123,9 +123,9 @@ namespace NosCore.Core.Encryption
             return _region.GetEncoding().GetString(receiveData.ToArray());
         }
 
-        public string DecryptCustomParameter(byte[] str, out byte[] endOfPacket)
+        private static string DecryptCustomParameter(byte[] str, out byte[] endOfPacket)
         {
-            endOfPacket = new byte[0];
+            endOfPacket = Array.Empty<byte>();
             try
             {
                 var encryptedStringBuilder = new StringBuilder();

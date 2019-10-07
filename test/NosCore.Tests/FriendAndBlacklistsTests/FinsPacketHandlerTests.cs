@@ -99,7 +99,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = FinsPacketType.Accepted
             };
 
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
@@ -116,7 +116,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
@@ -134,7 +134,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest

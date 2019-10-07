@@ -60,7 +60,7 @@ namespace NosCore.Core.HttpClients
 
         public HttpClient Connect(int channelId)
         {
-            var client = _httpClientFactory.CreateClient();
+            using var client = _httpClientFactory.CreateClient();
             var channel = _channelHttpClient.GetChannel(channelId);
             if (channel == null)
             {
@@ -75,7 +75,7 @@ namespace NosCore.Core.HttpClients
         protected T Post<T>(object objectToPost)
         {
             var client = Connect();
-            var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
                 Encoding.Default, "application/json");
             var response = client.PostAsync(ApiUrl, content).Result;
             if (response.IsSuccessStatusCode)
