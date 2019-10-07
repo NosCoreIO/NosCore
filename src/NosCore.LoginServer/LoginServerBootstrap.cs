@@ -153,7 +153,7 @@ namespace NosCore.LoginServer
             }
         }
 
-        private static IHost BuildHost(string[] args)
+        private static IHost BuildHost(string[] _)
         {
             return new HostBuilder()
                 .ConfigureLogging(logging =>

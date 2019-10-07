@@ -57,7 +57,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public void Connect()
         {
-            var client = _httpClientFactory.CreateClient();
+            using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
 
             var content = new StringContent(JsonConvert.SerializeObject(_channel),
@@ -96,7 +96,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
 
         public HttpStatusCode Ping()
         {
-            var client = _httpClientFactory.CreateClient();
+            using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
             var content = new StringContent(JsonConvert.SerializeObject(SystemTime.Now()), Encoding.Default,
@@ -116,7 +116,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         {
             if (_lastUpdateToken.AddMinutes(25) < SystemTime.Now())
             {
-                var client = _httpClientFactory.CreateClient();
+                using var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
                 string password;
@@ -169,7 +169,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             var channels = MasterClientListSingleton.Instance.Channels;
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
-                var client = _httpClientFactory.CreateClient();
+                using var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
@@ -190,7 +190,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             var channels = MasterClientListSingleton.Instance.Channels;
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
-                var client = _httpClientFactory.CreateClient();
+                using var client = _httpClientFactory.CreateClient();
                 client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());

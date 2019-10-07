@@ -51,10 +51,11 @@ namespace NosCore.MasterServer.Controllers
             _itemInstanceDao = itemInstanceDao;
             _holder = holder;
         }
-
+#pragma warning disable IDE0060 // Supprimer le paramètre inutilisé
         [HttpGet]
-        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? TypeFilter,
-            byte? SubTypeFilter, byte? LevelFilter, byte? RareFilter, byte? UpgradeFilter, long? sellerFilter)
+        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
+            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter)
+#pragma warning restore IDE0060 // Supprimer le paramètre inutilisé
         {
             var bzlist = new List<BazaarLink>();
 
@@ -79,7 +80,7 @@ namespace NosCore.MasterServer.Controllers
 
             foreach (var bz in bzlinks)
             {
-                switch (TypeFilter)
+                switch (typeFilter)
                 {
                     case BazaarListType.Weapon:
                         itemType = ItemType.Weapon;
@@ -102,9 +103,9 @@ namespace NosCore.MasterServer.Controllers
                     case BazaarListType.Equipment:
                         itemType = ItemType.Fashion;
                         pocketType = PocketType.Equipment;
-                        if (SubTypeFilter > 0)
+                        if (subTypeFilter > 0)
                         {
-                            var equipmentTypeFilter = (BazaarEquipmentType) SubTypeFilter;
+                            var equipmentTypeFilter = (BazaarEquipmentType) subTypeFilter;
                         }
 
                         applyLevelFilter = true;
@@ -113,9 +114,9 @@ namespace NosCore.MasterServer.Controllers
                     case BazaarListType.Jewelery:
                         itemType = ItemType.Jewelery;
                         pocketType = PocketType.Equipment;
-                        if (SubTypeFilter > 0)
+                        if (subTypeFilter > 0)
                         {
-                            var jeweleryTypeFilter = (BazaarJeweleryType) SubTypeFilter;
+                            var jeweleryTypeFilter = (BazaarJeweleryType) subTypeFilter;
                         }
 
                         applyLevelFilter = true;
@@ -133,9 +134,9 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Equipment;
                         itemType = ItemType.Shell;
                         applySpLevelFilter = true;
-                        if (SubTypeFilter > 0)
+                        if (subTypeFilter > 0)
                         {
-                            subtypeFilter = SubTypeFilter++;
+                            subtypeFilter = subTypeFilter++;
                             applyRareFilter = true;
                         }
 
@@ -143,18 +144,18 @@ namespace NosCore.MasterServer.Controllers
 
                     case BazaarListType.Main:
                         pocketType = PocketType.Main;
-                        if (SubTypeFilter > 0)
+                        if (subTypeFilter > 0)
                         {
-                            var mainTypeFilter = (BazaarMainType) SubTypeFilter;
+                            var mainTypeFilter = (BazaarMainType) subTypeFilter;
                         }
 
                         break;
 
                     case BazaarListType.Usable:
                         pocketType = PocketType.Etc;
-                        if (SubTypeFilter > 0)
+                        if (subTypeFilter > 0)
                         {
-                            var bazaarTypeFilter = (BazaarUsableType) SubTypeFilter;
+                            var bazaarTypeFilter = (BazaarUsableType) subTypeFilter;
                         }
 
                         break;
