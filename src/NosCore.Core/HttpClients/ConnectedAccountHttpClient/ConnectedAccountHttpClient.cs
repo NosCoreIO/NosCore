@@ -67,7 +67,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 
         public List<ConnectedAccount> GetConnectedAccount(ChannelInfo channel)
         {
-            var client = _httpClientFactory.CreateClient();
+            using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel.WebApi.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 

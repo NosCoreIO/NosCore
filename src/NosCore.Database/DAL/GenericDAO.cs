@@ -242,34 +242,30 @@ namespace NosCore.Database.DAL
 
         public IEnumerable<TDto> LoadAll()
         {
-            using (var context = DataAccessHelper.Instance.CreateContext())
+            using var context = DataAccessHelper.Instance.CreateContext();
+            foreach (var t in context.Set<TEntity>())
             {
-                foreach (var t in context.Set<TEntity>())
-                {
-                    yield return t.Adapt<TDto>();
-                }
+                yield return t.Adapt<TDto>();
             }
         }
 
         public IEnumerable<TDto> Where(Expression<Func<TDto, bool>> predicate)
         {
-            using (var context = DataAccessHelper.Instance.CreateContext())
+            using var context = DataAccessHelper.Instance.CreateContext();
+            var dbset = context.Set<TEntity>();
+            var entities = Enumerable.Empty<TEntity>();
+            try
             {
-                var dbset = context.Set<TEntity>();
-                var entities = Enumerable.Empty<TEntity>();
-                try
-                {
-                    entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>());
-                }
-                catch (Exception e)
-                {
-                    _logger.Error(e.Message, e);
-                }
+                entities = dbset.Where(predicate.ReplaceParameter<TDto, TEntity>());
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+            }
 
-                foreach (var t in entities)
-                {
-                    yield return t.Adapt<TDto>();
-                }
+            foreach (var t in entities)
+            {
+                yield return t.Adapt<TDto>();
             }
         }
     }

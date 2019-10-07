@@ -24,6 +24,7 @@ using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
+using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
@@ -42,7 +43,7 @@ namespace NosCore.Core.Encryption
             _deserializer = deserializer;
         }
 
-        protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
+        protected override void Decode(IChannelHandlerContext context, IByteBuffer message, [NotNull] List<object> output)
         {
             try
             {
