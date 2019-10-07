@@ -1167,21 +1167,15 @@ namespace NosCore.GameObject
 
             if (Reput >= 5000001)
             {
-                switch (IsReputHero())
+                return (IsReputHero()) switch
                 {
-                    case 1:
-                        return 28;
-                    case 2:
-                        return 29;
-                    case 3:
-                        return 30;
-                    case 4:
-                        return 31;
-                    case 5:
-                        return 32;
-                    default:
-                        return 27;
-                }
+                    1 => 28,
+                    2 => 29,
+                    3 => 30,
+                    4 => 31,
+                    5 => 32,
+                    _ => 27,
+                };
             }
 
             return 0;

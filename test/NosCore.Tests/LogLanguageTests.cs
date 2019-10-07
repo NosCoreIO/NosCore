@@ -48,7 +48,7 @@ namespace NosCore.Tests
             {
                 var content = File.ReadAllText(file);
                 var regex = new Regex(
-                    @"string\.Format\([\ss0-9A-Za-z_]*Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[0-9A-Za-z_]*)[\s]?,[\s]?[\s\n\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[\s\n\.0-9A-Za-z_\[\]]*)*\)",
+                    @"string\.Format\([\ss0-9A-Za-z_]*Language.Instance.GetMessageFromKey\((?<key>[\s]?LanguageKey\.[\s\r0-9A-Za-z_]*)[\s]?,[\s]?[\s\n\.0-9A-Za-z_]*\)(?<parameter>,[\s]?[\s\n\.0-9A-Za-z_\[\]]*)*\)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                 var matches = regex.Matches(content);
                 foreach (Match match in matches)

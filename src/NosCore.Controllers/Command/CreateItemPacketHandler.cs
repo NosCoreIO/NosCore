@@ -142,30 +142,28 @@ namespace NosCore.PacketHandlers.Command
 
             session.SendPacket(inv.GeneratePocketChange());
             var firstItem = inv[0];
-            var wearable =
-                session.Character.Inventory.LoadBySlotAndType(firstItem.Slot,
-                    firstItem.Type).ItemInstance as WearableInstance;
 
-            if (wearable != null)
+            if (session.Character.Inventory.LoadBySlotAndType(firstItem.Slot,
+                    firstItem.Type).ItemInstance is WearableInstance wearable)
             {
-                if (wearable.Item.EquipmentSlot is EquipmentType.Armor ||
-                    wearable.Item.EquipmentSlot is EquipmentType.MainWeapon ||
-                    wearable.Item.EquipmentSlot is EquipmentType.SecondaryWeapon)
+                switch (wearable.Item.EquipmentSlot)
                 {
-                    wearable.SetRarityPoint();
-                }
-                else if (wearable.Item.EquipmentSlot is EquipmentType.Boots ||
-                    wearable.Item.EquipmentSlot is EquipmentType.Gloves)
-                {
-                    wearable.FireResistance = (short) (wearable.Item.FireResistance * upgrade);
-                    wearable.DarkResistance = (short) (wearable.Item.DarkResistance * upgrade);
-                    wearable.LightResistance = (short) (wearable.Item.LightResistance * upgrade);
-                    wearable.WaterResistance = (short) (wearable.Item.WaterResistance * upgrade);
-                }
-                else
-                {
-                    _logger.Debug(
-                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                    case EquipmentType.Armor:
+                    case EquipmentType.MainWeapon:
+                    case EquipmentType.SecondaryWeapon:
+                        wearable.SetRarityPoint();
+                        break;
+                    case EquipmentType.Boots:
+                    case EquipmentType.Gloves:
+                        wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
+                        wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
+                        wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
+                        wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
+                        break;
+                    default:
+                        _logger.Debug(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                        break;
                 }
             }
 

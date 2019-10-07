@@ -54,7 +54,7 @@ namespace NosCore.Database.DAL
         public void Initialize(DbContextOptions option)
         {
             _option = option;
-            var context = CreateContext();
+            using var context = CreateContext();
             try
             {
                 context.Database.Migrate();

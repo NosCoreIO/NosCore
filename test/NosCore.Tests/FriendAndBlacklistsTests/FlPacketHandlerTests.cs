@@ -81,7 +81,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 .Returns((new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
-            var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest

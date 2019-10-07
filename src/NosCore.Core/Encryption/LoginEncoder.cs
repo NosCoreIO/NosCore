@@ -24,6 +24,7 @@ using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
+using JetBrains.Annotations;
 using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
@@ -46,7 +47,7 @@ namespace NosCore.Core.Encryption
         }
 
         protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message,
-            List<object> output)
+            [NotNull] List<object> output)
         {
             try
             {
@@ -59,13 +60,8 @@ namespace NosCore.Core.Encryption
                         tmp[i] = Convert.ToByte(tmp[i] + 15);
                     }
 
-                    tmp[tmp.Length - 1] = 25;
-                    if (tmp.Length == 0)
-                    {
-                        return new byte[] {0xFF};
-                    }
-
-                    return tmp;
+                    tmp[^1] = 25;
+                    return tmp.Length == 0 ? new byte[] {0xFF} : tmp;
                 }).ToArray()));
             }
             catch (Exception ex)
