@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
@@ -33,12 +32,12 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
-namespace NosCore.GameObject.HttpClients.FriendHttpClient
+namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public class MailHttpClient : MasterServerHttpClient, IMailHttpClient
     {
         public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient, ISerializer serializer)
+            IChannelHttpClient channelHttpClient)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/mail";

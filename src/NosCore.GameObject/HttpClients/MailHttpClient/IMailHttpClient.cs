@@ -24,7 +24,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
-namespace NosCore.GameObject.HttpClients.FriendHttpClient
+namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public interface IMailHttpClient
     {
