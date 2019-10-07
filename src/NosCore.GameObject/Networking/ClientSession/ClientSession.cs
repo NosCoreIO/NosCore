@@ -450,8 +450,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey
-                                            .PACKET_USED_WITHOUT_CHARACTER),
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
                                     continue;
                                 }

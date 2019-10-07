@@ -214,68 +214,29 @@ namespace NosCore.GameObject.Helper
 
         public static int LoadFamilyXpData(byte familyLevel)
         {
-            switch (familyLevel)
+            return familyLevel switch
             {
-                case 1:
-                    return 100000;
-
-                case 2:
-                    return 250000;
-
-                case 3:
-                    return 370000;
-
-                case 4:
-                    return 560000;
-
-                case 5:
-                    return 840000;
-
-                case 6:
-                    return 1260000;
-
-                case 7:
-                    return 1900000;
-
-                case 8:
-                    return 2850000;
-
-                case 9:
-                    return 3570000;
-
-                case 10:
-                    return 3830000;
-
-                case 11:
-                    return 4150000;
-
-                case 12:
-                    return 4750000;
-
-                case 13:
-                    return 5500000;
-
-                case 14:
-                    return 6500000;
-
-                case 15:
-                    return 7000000;
-
-                case 16:
-                    return 8500000;
-
-                case 17:
-                    return 9500000;
-
-                case 18:
-                    return 10000000;
-
-                case 19:
-                    return 17000000;
-
-                default:
-                    return 999999999;
-            }
+                1 => 100000,
+                2 => 250000,
+                3 => 370000,
+                4 => 560000,
+                5 => 840000,
+                6 => 1260000,
+                7 => 1900000,
+                8 => 2850000,
+                9 => 3570000,
+                10 => 3830000,
+                11 => 4150000,
+                12 => 4750000,
+                13 => 5500000,
+                14 => 6500000,
+                15 => 7000000,
+                16 => 8500000,
+                17 => 9500000,
+                18 => 10000000,
+                19 => 17000000,
+                _ => 999999999,
+            };
         }
 
         public int MagicalDefence(CharacterClassType @class, byte level)
@@ -305,50 +266,19 @@ namespace NosCore.GameObject.Helper
 
         public int RarityPoint(short rarity, short lvl)
         {
-            int p;
-            switch (rarity)
+            var p = rarity switch
             {
-                case 0:
-                    p = 0;
-                    break;
-
-                case 1:
-                    p = 1;
-                    break;
-
-                case 2:
-                    p = 2;
-                    break;
-
-                case 3:
-                    p = 3;
-                    break;
-
-                case 4:
-                    p = 4;
-                    break;
-
-                case 5:
-                    p = 5;
-                    break;
-
-                case 6:
-                    p = 7;
-                    break;
-
-                case 7:
-                    p = 10;
-                    break;
-
-                case 8:
-                    p = 15;
-                    break;
-
-                default:
-                    p = rarity * 2;
-                    break;
-            }
-
+                0 => 0,
+                1 => 1,
+                2 => 2,
+                3 => 3,
+                4 => 4,
+                5 => 5,
+                6 => 7,
+                7 => 10,
+                8 => 15,
+                _ => rarity * 2,
+            };
             return p * (lvl / 5 + 1);
         }
 
@@ -542,41 +472,25 @@ namespace NosCore.GameObject.Helper
         public int SpPoint(short spLevel, short upgrade)
         {
             var point = spLevel <= 20 ? 0 : (spLevel - 20) * 3;
-            switch (upgrade)
+            return upgrade switch
             {
-                case 1:
-                    return point + 5;
-                case 2:
-                    return point + 10;
-                case 3:
-                    return point + 15;
-                case 4:
-                    return point + 20;
-                case 5:
-                    return point + 28;
-                case 6:
-                    return point + 36;
-                case 7:
-                    return point + 46;
-                case 8:
-                    return point + 56;
-                case 9:
-                    return point + 68;
-                case 10:
-                    return point + 80;
-                case 11:
-                    return point + 95;
-                case 12:
-                    return point + 110;
-                case 13:
-                    return point + 128;
-                case 14:
-                    return point + 148;
-                case 15:
-                    return point + 173;
-                default:
-                    return upgrade > 15 ? point + 173 + 25 + 5 * (upgrade - 15) : point;
-            }
+                1 => point + 5,
+                2 => point + 10,
+                3 => point + 15,
+                4 => point + 20,
+                5 => point + 28,
+                6 => point + 36,
+                7 => point + 46,
+                8 => point + 56,
+                9 => point + 68,
+                10 => point + 80,
+                11 => point + 95,
+                12 => point + 110,
+                13 => point + 128,
+                14 => point + 148,
+                15 => point + 173,
+                _ => upgrade > 15 ? point + 173 + 25 + 5 * (upgrade - 15) : point,
+            };
         }
 
         internal int DarkResistance(CharacterClassType @class, byte level)
