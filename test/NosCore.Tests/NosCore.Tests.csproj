@@ -30,8 +30,4 @@
     <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ItemHandlerTests\" />
-  </ItemGroup>
-
 </Project>

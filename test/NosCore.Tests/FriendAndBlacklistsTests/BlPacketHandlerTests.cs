@@ -36,7 +36,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.FriendAndBlacklistsTests
 {
     [TestClass]
     public class BlPacketHandlerTests

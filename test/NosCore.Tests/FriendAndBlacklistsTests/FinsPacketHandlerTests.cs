@@ -44,7 +44,7 @@ using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.FriendAndBlacklistsTests
 {
     [TestClass]
     public class FinsPacketHandlerTests
