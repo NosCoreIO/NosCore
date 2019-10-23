@@ -18,91 +18,84 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class VehicleEventHandlerTests
+    public class VehicleEventHandlerTests : UseItemEventHandlerTests
     {
+        private Mock<ILogger> _logger;
+        private ItemProvider _itemProvider;
+
         [TestInitialize]
         public void Setup()
         {
+            _session = TestHelpers.Instance.GenerateSession();
+            _logger = new Mock<ILogger>();
+            _handler = new VehicleEventHandler(_logger.Object);
+            var items = new List<ItemDto>
+            {
+                new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon}
+            };
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
+
 
         [TestMethod]
         public void Test_Can_Not_Vehicle_In_Shop()
         {
-            //if (requestData.ClientSession.Character.InExchangeOrShop)
-            //{
-            //    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
-            //    return;
-            //}
-            Assert.Fail();
+            _session.Character.InShop = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+           _logger.Verify(s=>s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
         }
 
         [TestMethod]
         public void Test_Vehicle_GetDelayed()
         {
-            //if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
-            //{
-            //    requestData.ClientSession.SendPacket(new DelayPacket
-            //    {
-            //        Type = 3,
-            //        Delay = 3000,
-            //        Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
-            //            itemInstance.Slot,
-            //            2, 0)
-            //    });
-            //    return;
-            //}
-            Assert.Fail();
+            _useItem.Mode = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (DelayPacket)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
         public void Test_Vehicle()
         {
-            //if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
-            //{
-            //    requestData.ClientSession.Character.IsVehicled = true;
-            //    requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
-            //    requestData.ClientSession.Character.MorphUpgrade = 0;
-            //    requestData.ClientSession.Character.MorphDesign = 0;
-            //    requestData.ClientSession.Character.Morph =
-            //        itemInstance.ItemInstance.Item.SecondMorph == 0 ?
-            //            (short)((short)requestData.ClientSession.Character.Gender +
-            //                itemInstance.ItemInstance.Item.Morph) :
-            //            requestData.ClientSession.Character.Gender == GenderType.Male
-            //                ? itemInstance.ItemInstance.Item.Morph
-            //                : itemInstance.ItemInstance.Item.SecondMorph;
-
-            //    requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
-            //        requestData.ClientSession.Character.GenerateEff(196));
-            //    requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
-            //        .GenerateCMode());
-            //    requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
-            //    return;
-            //}
-
-            Assert.Fail();
+            _useItem.Mode = 2;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.IsTrue(_session.Character.IsVehicled);
         }
 
         [TestMethod]
         public void Test_Vehicle_Remove()
         {
-            //requestData.ClientSession.Character.RemoveVehicle();
-            Assert.Fail();
+            _session.Character.IsVehicled = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.IsFalse(_session.Character.IsVehicled);
         }
     }
 }

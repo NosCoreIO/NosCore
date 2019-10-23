@@ -18,54 +18,72 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NosCore.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapItemProvider.Handlers;
+using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class SpRechargerEventHandlerTests
+    public class SpRechargerEventHandlerTests : UseItemEventHandlerTests
     {
+        private ItemProvider _itemProvider;
+
         [TestInitialize]
         public void Setup()
         {
+            _session = TestHelpers.Instance.GenerateSession();
+            _handler = new SpRechargerEventHandler(new WorldConfiguration {MaxAdditionalSpPoints = 1});
+            var items = new List<ItemDto>
+            {
+                new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
+            };
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
-
         [TestMethod]
         public void Test_SpRecharger_When_Max()
         {
-            //else
-            //{
-            //    requestData.ClientSession.Character.SendPacket(new MsgPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-            //            requestData.ClientSession.Character.Account.Language),
-            //        Type = MessageType.White
-            //    });
-            //}
-            Assert.Fail();
+            _session.Character.SpAdditionPoint = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, _session.Character.Account.Language), lastpacket.Message);
+            Assert.AreEqual(1, _session.Character.SpAdditionPoint);
+            Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
         public void Test_SpRecharger()
         {
-            //if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
-            //{
-            //    var itemInstance = requestData.Data.Item1;
-            //    requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
-            //        itemInstance.ItemInstanceId);
-            //    requestData.ClientSession.SendPacket(
-            //        itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-            //    requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
-            //}
-            Assert.Fail();
+            _session.Character.SpAdditionPoint = 0;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(1, _session.Character.SpAdditionPoint);
+            Assert.AreEqual(0, _session.Character.Inventory.Count);
         }
     }
 }
