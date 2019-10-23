@@ -35,7 +35,7 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class WearEventHandlerTests
+    public class WearEventHandlerTests : UseItemEventHandlerTests
     {
         [TestInitialize]
         public void Setup()
