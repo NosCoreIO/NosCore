@@ -43,7 +43,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.FriendAndBlacklistsTests
 {
     [TestClass]
     public class FDelPacketHandlerTests

@@ -38,9 +38,10 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
+using NosCore.Tests.ItemHandlerTests;
 using Serilog;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class WearPacketHandlerTests

@@ -17,20 +17,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
+using System;
+using System.Linq;
+using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Data;
+using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 
-namespace NosCore.Tests.Helpers
+namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class SetupAssemblyInitializer
+    public class BazaarMedalsHandlerTests
     {
-        [AssemblyInitialize]
-        public static void AssemblyInit(TestContext _)
+        [TestInitialize]
+        public void Setup()
         {
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
-                .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
+        }
+
+
+        [TestMethod]
+        public void Test_AddMedal_AlreadyOne()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Test_AddMedal()
+        {
+            Assert.Fail();
         }
     }
 }
