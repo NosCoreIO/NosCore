@@ -38,7 +38,6 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
-using NosCore.Tests.ItemHandlerTests;
 using Serilog;
 
 namespace NosCore.Tests.InventoryTests
