@@ -22,9 +22,11 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
@@ -50,6 +52,7 @@ namespace NosCore.Tests.ItemHandlerTests
         public void Setup()
         {
             _logger = new Mock<ILogger>();
+            TestHelpers.Instance.WorldConfiguration.BackpackSize = 40;
             _session = TestHelpers.Instance.GenerateSession();
             _handler = new WearEventHandler(_logger.Object);
             var items = new List<ItemDto>
@@ -80,9 +83,26 @@ namespace NosCore.Tests.ItemHandlerTests
                     VNum = 4,
                     Type = NoscorePocketType.Equipment,
                     ItemType = ItemType.Specialist,
-                    ReputationMinimum = 2,
+                    EquipmentSlot = EquipmentType.Sp,
                     Element = ElementType.Fire
                 },
+                new Item
+                {
+                    VNum = 5,
+                    Type = NoscorePocketType.Equipment,
+                    ItemType = ItemType.Weapon,
+                    RequireBinding = true,
+                    Sex = 2
+                }, 
+                new Item
+                {
+                    VNum = 6,
+                    Type = NoscorePocketType.Equipment,
+                    ItemType = ItemType.Specialist,
+                    EquipmentSlot = EquipmentType.Sp,
+                    LevelJobMinimum = 2,
+                    Element = ElementType.Fire
+                }
             };
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
@@ -101,6 +121,7 @@ namespace NosCore.Tests.ItemHandlerTests
         public void Test_BoundCharacter_Question()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.AreEqual(_session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket.Question);
@@ -109,135 +130,123 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public void Test_BoundCharacter()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
             _useItem.Mode = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
             Assert.AreEqual(_session.Character.CharacterId, itemInstance.ItemInstance.BoundCharacterId);
         }
 
         [TestMethod]
         public void Test_BadEquipment()
         {
-            Assert.Fail();
-            //if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
-            //        ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level))
-            //    || ((itemInstance.ItemInstance.Item.Sex != 0) &&
-            //        (((itemInstance.ItemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) !=
-            //            1))
-            //    || ((itemInstance.ItemInstance.Item.Class != 0) &&
-            //        (((itemInstance.ItemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) !=
-            //            1)))
-            //{
-            //    requestData.ClientSession.SendPacket(
-            //        requestData.ClientSession.Character.GenerateSay(
-            //            requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
-            //            SayColorType.Yellow));
-            //    return;
-            //}
+            _useItem.Mode = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(5), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.AreEqual(_session.Character.CharacterId, itemInstance.ItemInstance.BoundCharacterId);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(_session.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT), lastpacket.Message);
         }
 
         [TestMethod]
         public void Test_BadFairy()
         {
-            Assert.Fail();
-            //if (requestData.ClientSession.Character.UseSp &&
-            //    (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy))
-            //{
-            //    var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-            //        (byte)EquipmentType.Sp, NoscorePocketType.Wear);
-
-            //    if ((sp != null) && (sp.ItemInstance.Item.Element != 0) &&
-            //        (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
-            //        (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
-            //    {
-            //        requestData.ClientSession.SendPacket(new MsgPacket
-            //        {
-            //            Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-            //                requestData.ClientSession.Account.Language)
-            //        });
-            //        return;
-            //    }
-            //}
+            _useItem.Mode = 1;
+            _session.Character.UseSp = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(sp, NoscorePocketType.Wear);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                    _session.Account.Language),
+                _session.Character.SpCooldown), lastpacket.Message);
         }
 
         [TestMethod]
         public void Test_SpLoading()
-        {
-            Assert.Fail();
-            //var timeSpanSinceLastSpUsage =
-            //    (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
-            //var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-            //    (byte)EquipmentType.Sp, NoscorePocketType.Wear);
-            //if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
-            //{
-            //    requestData.ClientSession.SendPacket(new MsgPacket
-            //    {
-            //        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-            //                requestData.ClientSession.Account.Language),
-            //            requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
-            //    });
-            //    return;
-            //}
+        { 
+            _useItem.Mode = 1;
+            SystemTime.Freeze();
+            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.SpCooldown = 300;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(sp, NoscorePocketType.Wear);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                    _session.Account.Language),
+                _session.Character.SpCooldown), lastpacket.Message);
         }
 
         [TestMethod]
         public void Test_UseSp()
         {
-            Assert.Fail();
-            //if (requestData.ClientSession.Character.UseSp)
-            //{
-            //    requestData.ClientSession.SendPacket(
-            //        requestData.ClientSession.Character.GenerateSay(
-            //            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED),
-            //            SayColorType.Yellow));
-            //    return;
-            //}
+            _useItem.Mode = 1;
+            _session.Character.UseSp = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(sp, NoscorePocketType.Wear);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
+                    _session.Account.Language),
+                _session.Character.SpCooldown), lastpacket.Message);
         }
 
         [TestMethod]
         public void Test_UseDestroyedSp()
         {
-            Assert.Fail();
-            //requestData.ClientSession.SendPacket(new MsgPacket
-            //{
-            //    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
-            //        requestData.ClientSession.Account.Language)
-            //});
-            //return;
+            _useItem.Mode = 1;
+            SystemTime.Freeze();
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            itemInstance.ItemInstance.Rare = -2;
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+                    _session.Account.Language),
+                _session.Character.SpCooldown), lastpacket.Message);
         }
 
+        [TestMethod]
         public void Test_Use_BadJobLevel()
         {
-            Assert.Fail();
-            //if (requestData.ClientSession.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
-            //{
-            //    requestData.ClientSession.SendPacket(
-            //        requestData.ClientSession.Character.GenerateSay(
-            //            requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
-            //            SayColorType.Yellow));
-            //    return;
-            //}
+            _useItem.Mode = 1;
+            SystemTime.Freeze();
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(6), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+                    _session.Account.Language),
+                _session.Character.SpCooldown), lastpacket.Message);
         }
 
+        [TestMethod]
         public void Test_Use_SP()
         {
             Assert.Fail();
         }
 
+        [TestMethod]
         public void Test_Use_Fairy()
         {
             Assert.Fail();
         }
 
+        [TestMethod]
         public void Test_Use_Amulet()
         {
             Assert.Fail();
         }
 
-        public void Test_Binding()
-        {
-            Assert.Fail();
-        }
+        [TestMethod]
         public void Test_ItemValidTime()
         {
             Assert.Fail();
