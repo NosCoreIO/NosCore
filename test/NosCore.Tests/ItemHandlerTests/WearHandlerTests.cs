@@ -18,69 +18,101 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
     public class WearEventHandlerTests : UseItemEventHandlerTests
     {
+        private ItemProvider _itemProvider;
+        private Mock<ILogger> _logger;
+
         [TestInitialize]
         public void Setup()
         {
+            _logger = new Mock<ILogger>();
+            _session = TestHelpers.Instance.GenerateSession();
+            _handler = new WearEventHandler(_logger.Object);
+            var items = new List<ItemDto>
+            {
+                new Item
+                {
+                    VNum = 1,
+                    Type = NoscorePocketType.Equipment, 
+                    ItemType = ItemType.Weapon,
+                    RequireBinding = true
+                },
+                new Item
+                { 
+                    VNum = 2,
+                    Type = NoscorePocketType.Equipment, 
+                    EquipmentSlot = EquipmentType.Fairy,
+                    Element = ElementType.Water
+                },
+                new Item
+                {  
+                    VNum = 3,
+                    Type = NoscorePocketType.Equipment,
+                    EquipmentSlot = EquipmentType.Fairy,
+                    Element = ElementType.Fire
+                },
+                new Item
+                { 
+                    VNum = 4,
+                    Type = NoscorePocketType.Equipment,
+                    ItemType = ItemType.Specialist,
+                    ReputationMinimum = 2,
+                    Element = ElementType.Fire
+                },
+            };
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
 
         [TestMethod]
         public void Test_Can_Not_Use_WearEvent_In_Shop()
         {
-            Assert.Fail();
-            //_logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
+            _session.Character.InShop = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            _logger.Verify(s => s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
         }
 
         [TestMethod]
         public void Test_BoundCharacter_Question()
         {
-            Assert.Fail();
-            //if (itemInstance.ItemInstance.BoundCharacterId == null)
-            //{
-            //    if ((packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
-            //    {
-            //        requestData.ClientSession.SendPacket(
-            //            new QnaPacket
-            //            {
-            //                YesPacket = requestData.ClientSession.Character.GenerateUseItem(
-            //                    (PocketType)itemInstance.Type,
-            //                    itemInstance.Slot, 1, (byte)packet.Parameter),
-            //                Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
-            //            });
-            //        return;
-            //    }
-            //}
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            Assert.AreEqual(_session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket.Question);
         }
 
         [TestMethod]
         public void Test_BoundCharacter()
         {
-            Assert.Fail();
-            //if (itemInstance.ItemInstance.BoundCharacterId == null)
-            //{
-            //    if (packet.Mode != 0)
-            //    {
-            //        itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
-            //    }
-            //}
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            _useItem.Mode = 1;
+            Assert.AreEqual(_session.Character.CharacterId, itemInstance.ItemInstance.BoundCharacterId);
         }
 
         [TestMethod]

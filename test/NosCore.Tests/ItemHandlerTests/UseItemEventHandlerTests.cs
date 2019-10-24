@@ -20,7 +20,6 @@
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using System;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ItemProvider.Item;
