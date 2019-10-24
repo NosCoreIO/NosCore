@@ -46,7 +46,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Tests.Helpers;
 using Serilog;
 
-namespace NosCore.Tests
+namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class ShopTests

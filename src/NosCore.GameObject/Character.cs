@@ -424,8 +424,8 @@ namespace NosCore.GameObject
             Mp = MaxMp;
             SendPacket(GenerateTit());
             SendPacket(GenerateStat());
-            MapInstance.Sessions.SendPacket(GenerateEq());
-            MapInstance.Sessions.SendPacket(this.GenerateEff(8));
+            MapInstance.SendPacket(GenerateEq());
+            MapInstance.SendPacket(this.GenerateEff(8));
             //TODO: Faction
             SendPacket(this.GenerateCond());
             SendPacket(GenerateLev());
@@ -449,10 +449,10 @@ namespace NosCore.GameObject
                 }
             };
 
-            MapInstance.Sessions.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
-            MapInstance.Sessions.SendPacket(Group.GeneratePidx(this));
-            MapInstance.Sessions.SendPacket(this.GenerateEff(6));
-            MapInstance.Sessions.SendPacket(this.GenerateEff(198));
+            MapInstance.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
+            MapInstance.SendPacket(Group.GeneratePidx(this));
+            MapInstance.SendPacket(this.GenerateEff(6));
+            MapInstance.SendPacket(this.GenerateEff(198));
         }
 
         public void AddGold(long gold)
@@ -538,13 +538,13 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            MapInstance.Sessions.SendPacket(this.GenerateShop());
-            MapInstance.Sessions.SendPacket(this.GeneratePFlag());
+            MapInstance.SendPacket(this.GenerateShop());
+            MapInstance.SendPacket(this.GeneratePFlag());
 
             IsSitting = false;
             LoadSpeed();
             SendPacket(this.GenerateCond());
-            MapInstance.Sessions.SendPacket(this.GenerateRest());
+            MapInstance.SendPacket(this.GenerateRest());
         }
 
         public RsfiPacket GenerateRsfi()
@@ -1364,8 +1364,8 @@ namespace NosCore.GameObject
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
             SendPacket(new SdPacket {Cooldown = SpCooldown});
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
-            MapInstance.Sessions.SendPacket(new GuriPacket
+            MapInstance.SendPacket(this.GenerateCMode());
+            MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1420,10 +1420,10 @@ namespace NosCore.GameObject
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.SendPacket(this.GenerateCMode());
             SendPacket(GenerateLev());
-            MapInstance.Sessions.SendPacket(this.GenerateEff(196));
-            MapInstance.Sessions.SendPacket(new GuriPacket
+            MapInstance.SendPacket(this.GenerateEff(196));
+            MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1460,7 +1460,7 @@ namespace NosCore.GameObject
             IsVehicled = false;
             VehicleSpeed = 0;
             SendPacket(this.GenerateCond());
-            MapInstance.Sessions.SendPacket(this.GenerateCMode());
+            MapInstance.SendPacket(this.GenerateCMode());
         }
 
         public MlobjlstPacket GenerateMlobjlst()

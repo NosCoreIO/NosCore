@@ -65,34 +65,26 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (itemInstance.ItemInstance.BoundCharacterId == null)
+            if (itemInstance.ItemInstance.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
             {
-                if ((packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
-                {
-                    requestData.ClientSession.SendPacket(
-                        new QnaPacket
-                        {
-                            YesPacket = requestData.ClientSession.Character.GenerateUseItem(
-                                (PocketType) itemInstance.Type,
-                                itemInstance.Slot, 1, (byte) packet.Parameter),
-                            Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
-                        });
-                    return;
-                }
-
-                if (packet.Mode != 0)
-                {
-                    itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
-                }
+                requestData.ClientSession.SendPacket(
+                    new QnaPacket
+                    {
+                        YesPacket = requestData.ClientSession.Character.GenerateUseItem(
+                            (PocketType)itemInstance.Type,
+                            itemInstance.Slot, 1, (byte)packet.Parameter),
+                        Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
+                    });
+                return;
             }
 
             if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
                     ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level))
                 || ((itemInstance.ItemInstance.Item.Sex != 0) &&
-                    (((itemInstance.ItemInstance.Item.Sex >> (byte) requestData.ClientSession.Character.Gender) & 1) !=
+                    (((itemInstance.ItemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) !=
                         1))
                 || ((itemInstance.ItemInstance.Item.Class != 0) &&
-                    (((itemInstance.ItemInstance.Item.Class >> (byte) requestData.ClientSession.Character.Class) & 1) !=
+                    (((itemInstance.ItemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) !=
                         1)))
             {
                 requestData.ClientSession.SendPacket(
@@ -106,7 +98,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy))
             {
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-                    (byte) EquipmentType.Sp, NoscorePocketType.Wear);
+                    (byte)EquipmentType.Sp, NoscorePocketType.Wear);
 
                 if ((sp != null) && (sp.ItemInstance.Item.Element != 0) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
@@ -126,14 +118,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 var timeSpanSinceLastSpUsage =
                     (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
                 var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
-                    (byte) EquipmentType.Sp, NoscorePocketType.Wear);
+                    (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
                 {
                     requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                 requestData.ClientSession.Account.Language),
-                            requestData.ClientSession.Character.SpCooldown - (int) Math.Round(timeSpanSinceLastSpUsage))
+                            requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
                     return;
                 }
@@ -142,8 +134,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
-                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED),
-                            SayColorType.Yellow));
+                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow));
                     return;
                 }
 
@@ -167,16 +158,16 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, (NoscorePocketType) packet.Type,
+            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
                 NoscorePocketType.Wear,
-                (short) itemInstance.ItemInstance.Item.EquipmentSlot, true);
+                (short)itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem =
                 requestData.ClientSession.Character.Inventory
-                    .LoadBySlotAndType(packet.Slot, (NoscorePocketType) packet.Type);
+                    .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
-            requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(requestData.ClientSession.Character
+            requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
                 .GenerateEq());
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
@@ -187,7 +178,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
             }
 
@@ -196,17 +187,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
             }
 
+            itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
 
             if ((itemInstance.ItemInstance.Item.ItemValidTime > 0) &&
                 (itemInstance.ItemInstance.BoundCharacterId != null))
             {
                 itemInstance.ItemInstance.ItemDeleteTime =
                     SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime);
-            }
-
-            if (itemInstance.ItemInstance.Item.RequireBinding)
-            {
-                itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
             }
         }
     }

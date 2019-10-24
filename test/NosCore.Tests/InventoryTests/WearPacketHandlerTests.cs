@@ -40,7 +40,7 @@ using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
 using Serilog;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class WearPacketHandlerTests

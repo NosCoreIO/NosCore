@@ -32,7 +32,6 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
-using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
 

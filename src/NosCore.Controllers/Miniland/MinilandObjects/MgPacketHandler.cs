@@ -333,7 +333,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         private void ShowBoxLevels(byte game)
         {
             _miniland.CurrentMinigame = 0;
-            _clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+            _clientSession.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -361,7 +361,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         private void BroadcastEffect()
         {
             _miniland.CurrentMinigame = 0;
-            _clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+            _clientSession.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -399,7 +399,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            _clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+            _clientSession.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow,
                 Value = 1,

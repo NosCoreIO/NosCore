@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Command
     {
         public override void Execute(EffectCommandPacket effectCommandpacket, ClientSession session)
         {
-            session.Character.MapInstance.Sessions.SendPacket(
+            session.Character.MapInstance.SendPacket(
                 session.Character.GenerateEff(effectCommandpacket.EffectId));
         }
     }

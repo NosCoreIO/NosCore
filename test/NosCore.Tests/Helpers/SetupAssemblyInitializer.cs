@@ -21,7 +21,7 @@ using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data;
 
-namespace NosCore.Tests
+namespace NosCore.Tests.Helpers
 {
     [TestClass]
     public class SetupAssemblyInitializer

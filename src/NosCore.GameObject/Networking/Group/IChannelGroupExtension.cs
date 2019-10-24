@@ -19,45 +19,49 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking.Group
 {
-    public static class IChannelGroupExtension
+    public static class IBroadcastableExtension
     {
-        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet)
+        private const short maxPacketsBuffer = 250;
+
+        public static void SendPacket(this IBroadcastable channelGroup, IPacket packet)
         {
-            channelGroup.SendPackets(new[] {packet});
+            channelGroup.SendPackets(new[] { packet });
         }
 
-        public static void SendPacket(this IChannelGroup channelGroup, IPacket packet, IChannelMatcher matcher)
+        public static void SendPacket(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
         {
-            channelGroup.SendPackets(new[] {packet}, matcher);
+            channelGroup.SendPackets(new[] { packet }, matcher);
         }
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets,
+        public static void SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
             IChannelMatcher matcher)
         {
-            var packetDefinitions = packets as IPacket[] ?? packets.ToArray();
-            if (packetDefinitions.Length == 0)
+            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
+            if (packetDefinitions.Any())
             {
-                return;
-            }
-
-            if (matcher == null)
-            {
-                channelGroup?.WriteAndFlushAsync(packetDefinitions);
-            }
-            else
-            {
-                channelGroup?.WriteAndFlushAsync(packetDefinitions, matcher);
+                Parallel.ForEach(packets, packet => channelGroup.LastPackets.Enqueue(packet));
+                Parallel.For(0, channelGroup.LastPackets.Count - maxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
+                channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions);
+                if (matcher == null)
+                {
+                    channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions);
+                }
+                else
+                {
+                    channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions, matcher);
+                }
             }
         }
 
 
-        public static void SendPackets(this IChannelGroup channelGroup, IEnumerable<IPacket> packets)
+        public static void SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets)
         {
             channelGroup.SendPackets(packets, null);
         }

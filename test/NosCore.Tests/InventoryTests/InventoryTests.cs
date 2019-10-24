@@ -34,7 +34,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
-namespace NosCore.Tests
+namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class InventoryTests
