@@ -443,7 +443,7 @@ namespace NosCore.Parser.Parsers
                         {
                             var currentLine = _line.Split('\t');
                             if ((skilllist.Find(s => (s.Key == currentLine[0]) && (s.RegionType == region))
-                                == null) && !skilldtos.Exists(s => s.Key == currentLine[0]))
+                                == null) && (currentLine.Length > 1) && !skilldtos.Exists(s => s.Key == currentLine[0]))
                             {
                                 skilldtos.Add(new I18NSkillDto
                                 {
