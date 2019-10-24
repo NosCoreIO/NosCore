@@ -17,12 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking
 {
-    internal interface IBroadcastable
+    public interface IBroadcastable
     {
         IChannelGroup Sessions { get; set; }
+        ConcurrentQueue<IPacket> LastPackets { get; }
     }
 }

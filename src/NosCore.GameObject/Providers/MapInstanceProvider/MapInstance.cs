@@ -44,6 +44,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstance : IBroadcastable, IDisposable
     {
+        private const short maxPacketsBuffer = 250;
         private readonly ILogger _logger;
 
         private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
@@ -60,6 +61,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemProvider mapItemProvider, ILogger logger, List<IMapInstanceEventHandler> mapInstanceEventHandler)
         {
+            LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
             DropRate = 1;
             ShopAllowed = shopAllowed;
@@ -146,6 +148,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
         public IChannelGroup Sessions { get; set; }
+
+        public ConcurrentQueue<IPacket> LastPackets { get; }
 
         public void Dispose()
         {

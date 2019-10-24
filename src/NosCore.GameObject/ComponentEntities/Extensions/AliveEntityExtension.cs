@@ -45,7 +45,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
-            aliveEntity.MapInstance.Sessions.SendPacket(
+            aliveEntity.MapInstance.SendPacket(
                 aliveEntity.GenerateChangeDir());
         }
 
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.Sessions.SendPacket(
+                        nonPlayableEntity.MapInstance.SendPacket(
                             nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
@@ -156,7 +156,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static void Rest(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
-            aliveEntity.MapInstance.Sessions.SendPacket(
+            aliveEntity.MapInstance.SendPacket(
                 aliveEntity.GenerateRest());
         }
 

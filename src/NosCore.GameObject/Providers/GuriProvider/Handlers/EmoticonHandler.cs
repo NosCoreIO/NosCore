@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
-                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateEff((int) requestData.Data.Data +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }

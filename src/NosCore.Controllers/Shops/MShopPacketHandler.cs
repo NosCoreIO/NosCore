@@ -149,7 +149,7 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
-                    clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateShop());
+                    clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateShop());
                     clientSession.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
@@ -159,12 +159,12 @@ namespace NosCore.PacketHandlers.Shops
                     clientSession.Character.Requests.Subscribe(data =>
                         data.ClientSession.SendPacket(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
-                    clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GeneratePFlag(),
+                    clientSession.Character.MapInstance.SendPacket(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel.Id));
                     clientSession.Character.IsSitting = true;
                     clientSession.Character.LoadSpeed();
                     clientSession.SendPacket(clientSession.Character.GenerateCond());
-                    clientSession.Character.MapInstance.Sessions.SendPacket(clientSession.Character.GenerateRest());
+                    clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateRest());
                     break;
                 case CreateShopPacketType.Close:
                     clientSession.Character.CloseShop();

@@ -59,7 +59,7 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    Broadcaster.Instance.Sessions.SendPacket(message);
+                    Broadcaster.Instance.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
                     ICharacterEntity receiverSession;

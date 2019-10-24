@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Interfaces;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core.Networking;
@@ -45,6 +46,8 @@ namespace NosCore.GameObject.Networking
         public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
 
         public IChannelGroup Sessions { get; set; }
+
+        public ConcurrentQueue<IPacket> LastPackets { get; } = new ConcurrentQueue<IPacket>();
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {

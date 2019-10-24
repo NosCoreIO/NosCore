@@ -22,6 +22,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ServerPackets.Parcel;
 using DotNetty.Common.Concurrency;
@@ -39,11 +40,14 @@ namespace NosCore.GameObject
 
         public Group(GroupType type)
         {
+            LastPackets = new ConcurrentQueue<IPacket>();
             Type = type;
             GroupId = -1;
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
         }
+
+        public ConcurrentQueue<IPacket> LastPackets { get; }
 
         public long GroupId { get; set; }
 
