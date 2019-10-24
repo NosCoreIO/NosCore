@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Delay = 5000,
                                 Packet = new SpTransformPacket {Type = SlPacketType.WearSp}
                             });
-                            clientSession.Character.MapInstance.Sessions.SendPacket(new GuriPacket
+                            clientSession.Character.MapInstance.SendPacket(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,

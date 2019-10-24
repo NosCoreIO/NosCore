@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Command
         {
             session.Character.Camouflage = !session.Character.Camouflage;
             session.Character.Invisible = !session.Character.Invisible;
-            session.Character.MapInstance.Sessions.SendPacket(session.Character.GenerateInvisible());
+            session.Character.MapInstance.SendPacket(session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }
     }

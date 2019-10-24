@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Inventory
                         invitem = clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType) putPacket.PocketType);
                         clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                        clientSession.Character.MapInstance.Sessions.SendPacket(droppedItem.GenerateDrop());
+                        clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop());
                     }
                     else
                     {

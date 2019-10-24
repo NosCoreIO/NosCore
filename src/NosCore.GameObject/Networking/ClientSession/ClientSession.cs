@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
 
                     Character.LeaveGroup();
-                    Character.MapInstance?.Sessions.SendPacket(Character.GenerateOut());
+                    Character.MapInstance?.SendPacket(Character.GenerateOut());
                     Character.Save();
 
                     _minilandProvider.DeleteMiniland(Character.CharacterId);
@@ -316,7 +316,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if ((Character.Group.Type == GroupType.Group) && (Character.Group.Count > 1))
                 {
-                    Character.MapInstance.Sessions.SendPacket(Character.Group.GeneratePidx(Character));
+                    Character.MapInstance.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
@@ -361,7 +361,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private void LeaveMap()
         {
             SendPacket(new MapOutPacket());
-            Character.MapInstance.Sessions.SendPacket(Character.GenerateOut(),
+            Character.MapInstance.SendPacket(Character.GenerateOut(),
                 new EveryoneBut(Channel.Id));
         }
 

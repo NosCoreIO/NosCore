@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
 
-            session.Character.MapInstance?.Sessions.SendPacket(session.Character.GenerateMove(),
+            session.Character.MapInstance?.SendPacket(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel.Id));
             session.Character.LastMove = SystemTime.Now();
         }
