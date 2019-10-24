@@ -17,28 +17,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Chat;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Providers.InventoryService;
+using System;
+using NosCore.GameObject;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
-namespace NosCore.PacketHandlers.Group
+namespace NosCore.Tests.ItemHandlerTests
 {
-    public class GroupTalkPacketHandler : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
+    public abstract class UseItemEventHandlerTests
     {
-        public override void Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
-        {
-            if (clientSession.Character.Group.Count == 1)
-            {
-                return;
-            }
+        protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>> _handler;
+        protected ClientSession _session;
+        protected readonly UseItemPacket _useItem = new UseItemPacket();
 
-            clientSession.Character.Group.SendPacket(
-                clientSession.Character.GenerateSpk(new SpeakPacket
-                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
+        protected void ExecuteInventoryItemInstanceEventHandler(InventoryItemInstance item)
+        {
+            _handler.Execute(
+                new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(
+                    _session,
+                    new Tuple<InventoryItemInstance, UseItemPacket>(
+                        item, _useItem
+                    )));
         }
     }
 }

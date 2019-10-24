@@ -38,7 +38,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class SellPacketHandlerTests

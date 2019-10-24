@@ -267,7 +267,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
-                    clientSession.Character.MapInstance?.Sessions.SendPacket(
+                    clientSession.Character.MapInstance?.SendPacket(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character));
 
                     break;

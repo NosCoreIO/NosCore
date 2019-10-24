@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Chat
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
-            session.Character.MapInstance?.Sessions.SendPacket(session.Character.GenerateSay(new SayPacket
+            session.Character.MapInstance?.SendPacket(session.Character.GenerateSay(new SayPacket
             {
                 Message = clientSayPacket.Message,
                 Type = type

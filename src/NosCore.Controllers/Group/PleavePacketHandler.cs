@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Group
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 });
-                clientSession.Character.MapInstance.Sessions.SendPacket(
+                clientSession.Character.MapInstance.SendPacket(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
             else
@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Group
 
                     targetsession.LeaveGroup();
                     targetsession.SendPacket(targetsession.Group.GeneratePinit());
-                    Broadcaster.Instance.Sessions.SendPacket(targetsession.Group.GeneratePidx(targetsession));
+                    Broadcaster.Instance.SendPacket(targetsession.Group.GeneratePidx(targetsession));
                 }
 
                 GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);

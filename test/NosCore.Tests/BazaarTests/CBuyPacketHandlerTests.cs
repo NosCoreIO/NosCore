@@ -37,7 +37,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
-using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
 using Serilog;
 

@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
-                requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     var name = string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
-                    requestData.ClientSession.Character.MapInstance.Sessions.SendPacket(
+                    requestData.ClientSession.Character.MapInstance.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             $"{name}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
                             SayColorType.Yellow));
