@@ -1097,6 +1097,7 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Garden:
                             case ItemType.Minigame:
                             case ItemType.Terrace:
+                            case ItemType.Title:
                             case ItemType.MinilandTheme:
                                 break;
                             default:
