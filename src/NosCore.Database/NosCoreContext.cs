@@ -263,6 +263,12 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()
+                .HasMany(e => e.Title)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
                 .HasMany(e => e.CharacterRelation1)
                 .WithOne(e => e.Character1)
                 .HasForeignKey(e => e.CharacterId)

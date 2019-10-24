@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 {
     public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>
     {
-        bool IsExpanded { get; set; }
+        Dictionary<NoscorePocketType, byte> Expensions { get; set; }
 
         List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
         List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);

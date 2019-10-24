@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Event
             {
                 Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session =>
                 {
-                    if (session.StaticBonusList.RemoveAll(s => s.DateEnd < SystemTime.Now()) > 0)
+                    if (session.StaticBonusList.RemoveAll(s => s.DateEnd!= null && s.DateEnd < SystemTime.Now()) > 0)
                     {
                         session.SendPacket(session.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),

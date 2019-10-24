@@ -20,20 +20,20 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class StaticBonus
+    public class Title : SynchronizableBaseEntity
     {
         public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
-        public DateTime? DateEnd { get; set; }
+        public bool Active { get; set; }
 
-        [Key]
-        public long StaticBonusId { get; set; }
+        public bool Visible { get; set; }
 
-        public StaticBonusType StaticBonusType { get; set; }
+        public short TitleType { get; set; }
     }
 }

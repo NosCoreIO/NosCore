@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Bazaar;
 using ChickenAPI.Packets.Enumerations;
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte) MedalType.Gold
                     : (byte) MedalType.Silver;
-                var time = (int) (medalBonus.DateEnd - SystemTime.Now()).TotalHours;
+                var time = (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours);
                 clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
