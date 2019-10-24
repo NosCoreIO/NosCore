@@ -18,92 +18,99 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class MinilandBellHandlerTests
+    public class MinilandBellHandlerTests : UseItemEventHandlerTests
     {
+        private ItemProvider _itemProvider;
+        private Mock<IMinilandProvider> _minilandProvider;
+
         [TestInitialize]
         public void Setup()
         {
+            _minilandProvider = new Mock<IMinilandProvider>();
+            _session = TestHelpers.Instance.GenerateSession();
+            _minilandProvider.Setup(s => s.GetMiniland(_session.Character.CharacterId))
+                .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
+            _handler = new MinilandBellHandler(_minilandProvider.Object);
+            var items = new List<ItemDto>
+            {
+                new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
+            };
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
 
         [TestMethod]
         public void Test_Miniland_On_Instance()
         {
-            //if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
-            //{
-            //    requestData.ClientSession.Character.SendPacket(new SayPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
-            //            requestData.ClientSession.Character.Account.Language),
-            //        Type = SayColorType.Yellow
-            //    });
-            //    return;
-            //}
-
-            Assert.Fail();
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, _session.Character.Account.Language), lastpacket.Message);
+            Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
         public void Test_Miniland_On_Vehicle()
         {
-            //if (requestData.ClientSession.Character.IsVehicled)
-            //{
-            //    requestData.ClientSession.Character.SendPacket(new SayPacket
-            //    {
-            //        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
-            //            requestData.ClientSession.Character.Account.Language),
-            //        Type = SayColorType.Yellow
-            //    });
-            //    return;
-            //}
-
-            Assert.Fail();
+            _session.Character.IsVehicled = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, _session.Character.Account.Language), lastpacket.Message);
+            Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
         public void Test_Miniland_Delay()
         {
-            //if (packet.Mode == 0)
-            //{
-            //    requestData.ClientSession.SendPacket(new DelayPacket
-            //    {
-            //        Type = 3,
-            //        Delay = 5000,
-            //        Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
-            //            itemInstance.Slot,
-            //            2, 0)
-            //    });
-            //    return;
-            //}
-
-            Assert.Fail();
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (DelayPacket)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            Assert.IsNotNull(lastpacket);
+            Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
         public void Test_Miniland()
         {
-        //    requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-        //    requestData.ClientSession.SendPacket(
-        //        itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-        //    var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-        //    requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
-
-            Assert.Fail();
+            _useItem.Mode = 2;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.AreEqual(MapInstanceType.NormalInstance, _session.Character.MapInstance.MapInstanceType);
+            Assert.AreEqual(0, _session.Character.Inventory.Count);
         }
     }
 }
