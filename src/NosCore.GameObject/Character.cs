@@ -76,14 +76,15 @@ namespace NosCore.GameObject
         private readonly IMinilandProvider _minilandProvider;
         private readonly IGenericDao<QuicklistEntryDto> _quicklistEntriesDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
+        private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
 
-        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider
-            , IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
+        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
+            IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao,
             ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao,
-            IMinilandProvider minilandProvider)
+            IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao)
         {
             Inventory = inventory;
             ExchangeProvider = exchangeProvider;
@@ -97,6 +98,7 @@ namespace NosCore.GameObject
             _logger = logger;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
             _staticBonusDao = staticBonusDao;
+            _titleDao = titleDao;
             QuicklistEntries = new List<QuicklistEntryDto>();
             _quicklistEntriesDao = quicklistEntriesDao;
             _minilandDao = minilandDao;
@@ -335,6 +337,8 @@ namespace NosCore.GameObject
                 _staticBonusDao.Delete(staticBonusToDelete);
                 _staticBonusDao.InsertOrUpdate(StaticBonusList);
 
+                _titleDao.InsertOrUpdate(Titles);
+
                 var minilandDto = (MinilandDto) _minilandProvider.GetMiniland(CharacterId);
                 _minilandDao.InsertOrUpdate(ref minilandDto);
             }
@@ -396,6 +400,7 @@ namespace NosCore.GameObject
         }
 
         public List<StaticBonusDto> StaticBonusList { get; set; }
+        public List<TitleDto> Titles { get; set; }
         public bool IsDisconnecting { get; internal set; }
 
         public void ChangeClass(CharacterClassType classType)
@@ -494,7 +499,6 @@ namespace NosCore.GameObject
                 Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
                 SayColorType.Purple));
         }
-
         public void GenerateMail(IEnumerable<MailData> mails)
         {
             foreach (var mail in mails)
