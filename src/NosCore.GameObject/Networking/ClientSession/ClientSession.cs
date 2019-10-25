@@ -334,7 +334,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                 });
 
-                Character.MapInstance.SendPacket(Character.GenerateTitle());
+                Character.MapInstance.SendPacket(Character.GenerateTitInfo());
                 Character.MapInstance.IsSleeping = false;
                 if (Channel.Id != null)
                 {

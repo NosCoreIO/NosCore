@@ -79,7 +79,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             var data = visualEntity.Titles.Select(s => new TitleSubPacket
             {
                 TitleId = (short)(s.TitleType - 9300),
-                TitleStatus = 1
+                TitleStatus = (byte)((s.Visible ? 2 : 0) + (s.Active ? 4 : 0) + 1)
             }).ToList();
             return new TitlePacket
             {
