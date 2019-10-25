@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Providers.GuriProvider
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
         {
-            var handlersRequest = new Subject<RequestData<GuriPacket>>();
+            using var handlersRequest = new Subject<RequestData<GuriPacket>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))

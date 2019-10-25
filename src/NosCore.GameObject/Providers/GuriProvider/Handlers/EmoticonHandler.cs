@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.UI;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -28,7 +29,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
     {
         public bool Condition(GuriPacket packet)
         {
-            return (packet.Type == 10) && (packet.Data >= 973) && (packet.Data <= 999);
+            return (packet.Type == GuriPacketType.Effect) && (packet.Data >= 973) && (packet.Data <= 999);
         }
 
         public void Execute(RequestData<GuriPacket> requestData)

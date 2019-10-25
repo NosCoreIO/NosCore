@@ -294,6 +294,10 @@ namespace NosCore.Data.Enumerations.I18N
         MAILED,
         CANT_USE,
         CANT_USE_IN_VEHICLE,
-        NOT_IN_FRIENDLIST
+        NOT_IN_FRIENDLIST,
+        WANT_ENABLE_TITLE,
+        WEAR_NEW_TITLE,
+        TITLE_VISIBILITY_CHANGED,
+        TITLE_EFFECT_CHANGED
     }
 }

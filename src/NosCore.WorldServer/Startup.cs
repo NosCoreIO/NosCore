@@ -384,8 +384,10 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>)
+                    .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
@@ -397,8 +399,10 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
-                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>)
+                    .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }
@@ -474,7 +478,11 @@ namespace NosCore.WorldServer
                 .AddControllersAsServices();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
+            TypeAdapterConfig.GlobalSettings
+                .ForDestinationType<I18NString>()
+                .BeforeMapping(s => s.Clear());
+            TypeAdapterConfig.GlobalSettings
+                .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                 .AfterMapping(dest => Task.Run(() => dest.Initialize()));

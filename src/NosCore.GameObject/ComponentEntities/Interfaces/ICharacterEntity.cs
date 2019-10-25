@@ -76,6 +76,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         RegionType AccountLanguage { get; }
 
         List<StaticBonusDto> StaticBonusList { get; set; }
+
+        List<TitleDto> Titles { get; set; }
+
         bool IsDisconnecting { get; }
 
         void GenerateMail(IEnumerable<MailData> data);

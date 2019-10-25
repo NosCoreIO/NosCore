@@ -23,12 +23,15 @@ using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
 using ChickenAPI.Packets.ServerPackets.Inventory;
+using ChickenAPI.Packets.ServerPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ServerPackets.Visibility;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Interaction;
@@ -44,7 +47,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
     {
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
-            return new GoldPacket {Gold = characterEntity.Gold};
+            return new GoldPacket { Gold = characterEntity.Gold };
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
@@ -57,6 +60,42 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Gold = gold,
                 SubPackets = subPackets,
                 BankGold = bankGold
+            };
+        }
+
+        public static TitleInfoPacket GenerateTitInfo(this ICharacterEntity visualEntity)
+        {
+            var visibleTitle = visualEntity.Titles.FirstOrDefault(s => s.Visible)?.TitleType;
+            var effectiveTitle = visualEntity.Titles.FirstOrDefault(s => s.Active)?.TitleType;
+            return new TitleInfoPacket
+            {
+                VisualId = visualEntity.VisualId,
+                EffectiveTitle = effectiveTitle ?? 0,
+                VisualType = visualEntity.VisualType,
+                VisibleTitle = visibleTitle ?? 0,
+            };
+        }
+
+        public static TitlePacket GenerateTitle(this ICharacterEntity visualEntity)
+        {
+            var data = visualEntity.Titles.Select(s => new TitleSubPacket
+            {
+                TitleId = (short)(s.TitleType - 9300),
+                TitleStatus = (byte)((s.Visible ? 2 : 0) + (s.Active ? 4 : 0) + 1)
+            }).ToList();
+            return new TitlePacket
+            {
+                Data = data.Any() ? data : null
+            };
+        }
+
+        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity, WorldConfiguration conf)
+        {
+            return new ExtsPacket
+            {
+                EquipmentExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
+                MainExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
+                EtcExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
             };
         }
 
@@ -89,7 +128,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new BlinitPacket {SubPackets = subpackets};
+            return new BlinitPacket { SubPackets = subpackets };
         }
 
         public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
@@ -122,7 +161,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new FinitPacket {SubPackets = subpackets};
+            return new FinitPacket { SubPackets = subpackets };
         }
 
         public static void SendFinfo(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
@@ -148,7 +187,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         }
                     }),
                     ReceiverType = ReceiverType.OnlySomeone,
-                    SenderCharacter = new Data.WebApi.Character {Id = visualEntity.VisualId, Name = visualEntity.Name},
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
                     ReceiverCharacter = new Data.WebApi.Character
                     {
                         Id = friend.CharacterId,
@@ -208,7 +247,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = (byte) visualEntity.Authority, //todo change chickenapi to short
+                    Authority = (byte)visualEntity.Authority, //todo change chickenapi to short
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
@@ -216,8 +255,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Equipment = visualEntity.Equipment,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = (int) (visualEntity.Hp / (float) visualEntity.MaxHp * 100),
-                        Mp = (int) (visualEntity.Mp / (float) visualEntity.MaxMp * 100)
+                        Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
+                        Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     GroupId = visualEntity.Group.GroupId,
@@ -231,7 +270,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = null,
-                    ReputIco = (short) (visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
+                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
                         : -visualEntity.DignityIcon),
                     Invisible = false,
                     MorphUpgrade = 0,
@@ -239,9 +278,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     MorphUpgrade2 = 0,
                     Level = visualEntity.Level,
                     FamilyLevel = 0,
-                    FamilyIcons = new List<bool> {false, false, false},
+                    FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
-                    Compliment = (short) (visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }

@@ -787,6 +787,25 @@ namespace NosCore.Parser.Parsers
                                         item.EffectValue = 60;
                                         break;
 
+                                    case 9123:
+                                    case 5675:
+                                        item.Effect = ItemEffectType.InventoryUpgrade;
+                                        item.EffectValue = 0;
+                                        break;
+
+                                    case 5795:
+                                        item.Effect = ItemEffectType.InventoryTicketUpgrade;
+                                        item.EffectValue = 30;
+                                        break;
+                                    case 5796:
+                                        item.Effect = ItemEffectType.InventoryTicketUpgrade;
+                                        item.EffectValue = 60;
+                                        break;
+                                    case 5797:
+                                        item.Effect = ItemEffectType.InventoryTicketUpgrade;
+                                        item.EffectValue = 0;
+                                        break;
+
                                     case 1279:
                                     case 9029:
                                         item.Effect = ItemEffectType.PetBasketUpgrade;
@@ -1097,6 +1116,7 @@ namespace NosCore.Parser.Parsers
                             case ItemType.Garden:
                             case ItemType.Minigame:
                             case ItemType.Terrace:
+                            case ItemType.Title:
                             case ItemType.MinilandTheme:
                                 break;
                             default:
