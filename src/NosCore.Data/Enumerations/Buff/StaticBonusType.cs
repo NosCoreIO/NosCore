@@ -25,6 +25,7 @@ namespace NosCore.Data.Enumerations.Buff
         BazaarMedalSilver = 1,
         BackPack = 2,
         PetBasket = 3,
-        PetBackPack = 4
+        PetBackPack = 4,
+        InventoryTicketUpgrade = 5
     }
 }
