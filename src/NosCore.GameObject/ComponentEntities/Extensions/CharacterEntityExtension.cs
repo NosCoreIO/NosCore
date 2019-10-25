@@ -27,6 +27,7 @@ using ChickenAPI.Packets.ServerPackets.Player;
 using ChickenAPI.Packets.ServerPackets.Relations;
 using ChickenAPI.Packets.ServerPackets.UI;
 using ChickenAPI.Packets.ServerPackets.Visibility;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -88,13 +89,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity)
+        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity, WorldConfiguration conf)
         {
             return new ExtsPacket
             {
-                EquipmentExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + 48,
-                MainExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Main] + 48,
-                EtcExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + 48
+                EquipmentExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
+                MainExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
+                EtcExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
             };
         }
 

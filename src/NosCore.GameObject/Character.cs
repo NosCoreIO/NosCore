@@ -288,7 +288,6 @@ namespace NosCore.GameObject
             Inventory.Expensions[NoscorePocketType.Main] += expension;
             Inventory.Expensions[NoscorePocketType.Equipment] += expension;
             Inventory.Expensions[NoscorePocketType.Etc] += expension;
-            SendPacket(this.GenerateExts());
         }
 
         public void LeaveGroup()
