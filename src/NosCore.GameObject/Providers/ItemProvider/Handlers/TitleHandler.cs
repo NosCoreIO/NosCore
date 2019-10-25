@@ -32,7 +32,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using Serilog;
-using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -54,8 +53,8 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 YesPacket = new GuriPacket
                 {
                     Type = GuriPacketType.Title,
-                    Argument = requestData.Data.Item1.ItemInstance.ItemVNum,
-                    Data = 38
+                    Unknown = (uint)requestData.Data.Item1.ItemInstance.ItemVNum,
+                    EntityId = requestData.Data.Item1.Slot
                 },
                 Question = Language.Instance.GetMessageFromKey(LanguageKey.WANT_ENABLE_TITLE,
                     requestData.ClientSession.Account.Language)

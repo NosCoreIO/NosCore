@@ -216,7 +216,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short) mapId);
+                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
@@ -272,15 +272,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if ((mapX != null) && (mapY != null))
                     {
-                        Character.MapX = (short) mapX;
-                        Character.MapY = (short) mapY;
+                        Character.MapX = (short)mapX;
+                        Character.MapY = (short)mapY;
                     }
                 }
 
                 if ((mapX != null) && (mapY != null))
                 {
-                    Character.PositionX = (short) mapX;
-                    Character.PositionY = (short) mapY;
+                    Character.PositionX = (short)mapX;
+                    Character.PositionY = (short)mapY;
                 }
 
                 SendPacket(Character.GenerateCInfo());
@@ -293,7 +293,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 SendPacket(Character.GenerateCond());
                 SendPacket(Character.MapInstance.GenerateCMap());
                 SendPacket(Character.GeneratePairy(
-                    Character.Inventory.LoadBySlotAndType((byte) EquipmentType.Fairy,
+                    Character.Inventory.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 SendPackets(Character.MapInstance.GetMapItems());
                 SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
@@ -332,17 +332,19 @@ namespace NosCore.GameObject.Networking.ClientSession
                         SendPacket(s.GeneratePFlag());
                         SendPacket(s.GenerateShop());
                     }
-
-                    if (!Character.Invisible)
-                    {
-                        s.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
-                            ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty));
-                    }
                 });
 
+                Character.MapInstance.SendPacket(Character.GenerateTitle());
                 Character.MapInstance.IsSleeping = false;
                 if (Channel.Id != null)
                 {
+                    if (!Character.Invisible)
+                    {
+                        Character.MapInstance.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
+                                ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
+                            new EveryoneBut(Character.Channel.Id));
+                    }
+
                     Character.MapInstance.Sessions.Add(Channel);
                 }
 
@@ -396,7 +398,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             continue;
                         }
 
-                        LastKeepAliveIdentity = (ushort) packet.KeepAliveId;
+                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
 
                         if (packet.KeepAliveId == null)
                         {
@@ -410,7 +412,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
-                            LastKeepAliveIdentity = (ushort) packet.KeepAliveId;
+                            LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
                             continue;
                         }
 
@@ -457,7 +459,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                                 //check for the correct authority
                                 if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
-                                    ((byte) commandHeader.Authority > (byte) Account.Authority))
+                                    ((byte)commandHeader.Authority > (byte)Account.Authority))
                                 {
                                     continue;
                                 }

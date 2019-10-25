@@ -295,6 +295,7 @@ namespace NosCore.Data.Enumerations.I18N
         CANT_USE,
         CANT_USE_IN_VEHICLE,
         NOT_IN_FRIENDLIST,
-        WANT_ENABLE_TITLE
+        WANT_ENABLE_TITLE,
+        WEAR_NEW_TITLE
     }
 }

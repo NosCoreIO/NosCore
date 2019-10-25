@@ -384,8 +384,10 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
+                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>)
+                    .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
@@ -397,8 +399,10 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
-                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>).IsAssignableFrom(t))
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
+                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>)
+                    .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }
