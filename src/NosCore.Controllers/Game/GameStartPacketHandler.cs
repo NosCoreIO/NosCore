@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
-            //            Session.SendPacket(Session.Character.GenerateExts());
+            session.Character.LoadExpensions();
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
             session.SendPacket(new PclearPacket());
 

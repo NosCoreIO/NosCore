@@ -30,6 +30,7 @@ using ChickenAPI.Packets.ServerPackets.Visibility;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Interaction;
@@ -84,6 +85,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new TitlePacket
             {
                 Data = data.Any() ? data : null
+            };
+        }
+
+        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity)
+        {
+            return new ExtsPacket
+            {
+                EquipmentExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + 48,
+                MainExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Main] + 48,
+                EtcExtension = visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + 48
             };
         }
 
