@@ -203,6 +203,10 @@ namespace NosCore.Database
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
 
+            modelBuilder.Entity<Title>()
+                .HasIndex(e => new { e.CharacterId, e.TitleType })
+                .IsUnique();
+
             modelBuilder.Entity<Map>()
                 .HasMany(e => e.MapTypeMap)
                 .WithOne(e => e.Map)
@@ -258,6 +262,12 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.StaticBonus)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.Title)
                 .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);

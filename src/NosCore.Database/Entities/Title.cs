@@ -17,38 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations.Items
+using System;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Database.Entities.Base;
+
+namespace NosCore.Database.Entities
 {
-    public enum ItemType : byte
+    public class Title : SynchronizableBaseEntity
     {
-        Weapon = 0,
-        Armor = 1,
-        Fashion = 2,
-        Jewelery = 3,
-        Specialist = 4,
-        Box = 5,
-        Shell = 6,
-        Main = 10,
-        Upgrade = 11,
-        Production = 12,
-        Map = 13,
-        Special = 14,
-        Potion = 15,
-        Event = 16,
-        Title = 17,
-        Quest1 = 18,
-        Sell = 20,
-        Food = 21,
-        Snack = 22,
-        Magical = 24,
-        Part = 25,
-        Teacher = 26,
-        Ammo = 27,
-        Quest2 = 28,
-        House = 30,
-        Garden = 31,
-        Minigame = 32,
-        Terrace = 33,
-        MinilandTheme = 34
+        public virtual Character Character { get; set; }
+
+        public long CharacterId { get; set; }
+
+        public bool Active { get; set; }
+
+        public bool Visible { get; set; }
+
+        public short TitleType { get; set; }
     }
 }

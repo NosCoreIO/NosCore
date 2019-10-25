@@ -29,7 +29,7 @@ namespace NosCore.Database.Entities
 
         public long CharacterId { get; set; }
 
-        public DateTime DateEnd { get; set; }
+        public DateTime? DateEnd { get; set; }
 
         [Key]
         public long StaticBonusId { get; set; }

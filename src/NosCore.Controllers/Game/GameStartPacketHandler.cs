@@ -132,7 +132,8 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
-            //            Session.SendPacket(Session.Character.GenerateExts());
+            session.Character.LoadExpensions();
+            session.SendPacket(session.Character.GenerateExts(_worldConfiguration));
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
             session.SendPacket(new PclearPacket());
 
@@ -203,6 +204,8 @@ namespace NosCore.PacketHandlers.Game
             //            // finfo - friends info
             var mails = _mailHttpClient.GetGifts(session.Character.CharacterId);
             session.Character.GenerateMail(mails);
+
+            session.SendPacket(session.Character.GenerateTitle());
             //            int giftcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum != null && !mail.IsOpened);
             //            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
             //            if (giftcount > 0)

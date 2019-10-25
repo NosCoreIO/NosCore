@@ -32,6 +32,7 @@ namespace NosCore.Database.Entities
             CharacterRelation1 = new HashSet<CharacterRelation>();
             CharacterRelation2 = new HashSet<CharacterRelation>();
             StaticBonus = new HashSet<StaticBonus>();
+            Title = new HashSet<Title>();
             StaticBuff = new HashSet<StaticBuff>();
             BazaarItem = new HashSet<BazaarItem>();
             Inventory = new HashSet<InventoryItemInstance>();
@@ -178,7 +179,7 @@ namespace NosCore.Database.Entities
         public CharacterState State { get; set; }
 
         public virtual ICollection<StaticBonus> StaticBonus { get; set; }
-
+        public virtual ICollection<Title> Title { get; set; }
         public virtual ICollection<StaticBuff> StaticBuff { get; set; }
 
         public int TalentLose { get; set; }
