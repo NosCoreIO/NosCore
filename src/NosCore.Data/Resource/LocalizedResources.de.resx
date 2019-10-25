@@ -452,7 +452,7 @@
     <value>Du kannst das Item nicht tauschen!</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Item erhalten!</value>
+    <value>Du hast {0} erhalten.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item ist nicht mehr benutzbar.</value>
