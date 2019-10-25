@@ -68,10 +68,10 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             requestData.ClientSession.Account.Language),
                         itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
                     SayColorType.Green));
-                requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
+                requestData.ClientSession.SendPacket(
+                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
 
                 requestData.ClientSession.Character.LoadExpensions();
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));

@@ -282,7 +282,7 @@ namespace NosCore.GameObject
         public void LoadExpensions()
         {
             var backpack = StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
-            var backpackticket = StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
+            var backpackticket = StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade);
             var expension = (byte)((backpack ? 12 : 0) + (backpackticket ? 60 : 0));
 
             Inventory.Expensions[NoscorePocketType.Main] += expension;
