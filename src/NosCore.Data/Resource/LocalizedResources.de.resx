@@ -324,6 +324,9 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
   </data>
+  <data name="GIFT_SENT" xml:space="preserve">
+    <value>Das Geschenk wurde versendet.</value>
+  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Gruppeneinladungs Typ</value>
     <comment>insert missing type data</comment>
@@ -448,6 +451,9 @@
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Du kannst das Item nicht tauschen!</value>
   </data>
+  <data name="ITEM_RECEIVED" xml:space="preserve">
+    <value>Item erhalten!</value>
+  </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item ist nicht mehr benutzbar.</value>
   </data>
@@ -482,6 +488,9 @@
   <data name="MAGICIAN" xml:space="preserve">
     <value>Magier</value>
   </data>
+  <data name="MAIL_DELETED" xml:space="preserve">
+    <value>Mail wurde gelöscht!</value>
+  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters geladen!</value>
   </data>
@@ -515,6 +524,18 @@
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Maximale Menage an Gold erreicht!</value>
   </data>
+  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
+    <value>Miniland Beschreibung geändert!</value>
+  </data>
+  <data name="MINILAND_LOCK" xml:space="preserve">
+    <value>Miniland wurde gesperrt!</value>
+  </data>
+  <data name="MINILAND_PRIVATE" xml:space="preserve">
+    <value>Dein Miniland ist nun Privat.</value>
+  </data>
+  <data name="MINILAND_PUBLIC" xml:space="preserve">
+    <value>Dein Miniland ist nun Öffentlich.</value>
+  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
@@ -538,6 +559,9 @@
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Dieser Spieler ist nicht auf deiner Blacklist.</value>
+  </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>Nutzer ist nicht in der Freundschaftsliste!</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Das Item gehört dir nicht!</value>
@@ -741,6 +765,9 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Schwertkämpfer</value>
   </data>
+  <data name="TOKEN_UPDATED" xml:space="preserve">
+    <value>Token aktualisiert.</value>
+  </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Dein Level ist zu niedrig!</value>
   </data>
@@ -776,6 +803,9 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Benutzer ist nicht verbunden!</value>
+  </data>
+  <data name="USER_NOT_FOUND" xml:space="preserve">
+    <value>Benutzer wurde nicht gefunden</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Benutzer ist nicht am tauschen!</value>
