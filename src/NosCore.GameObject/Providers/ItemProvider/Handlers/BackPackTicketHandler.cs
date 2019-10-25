@@ -21,6 +21,7 @@ using System;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
@@ -37,12 +38,12 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
     public class BackPackTicketHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
         private readonly ILogger _logger;
-
-        public BackPackTicketHandler(ILogger logger)
+        private readonly WorldConfiguration _conf;
+        public BackPackTicketHandler(ILogger logger, WorldConfiguration conf)
         {
             _logger = logger;
+            _conf = conf;
         }
-
 
         public bool Condition(Item.Item item)
         {
@@ -73,6 +74,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     itemInstance.ItemInstanceId);
 
                 requestData.ClientSession.Character.LoadExpensions();
+                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));
             }
         }
     }
