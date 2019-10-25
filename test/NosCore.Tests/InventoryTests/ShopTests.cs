@@ -269,7 +269,7 @@ namespace NosCore.Tests.InventoryTests
             session2.SessionId = 1;
 
             session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null,
-                null, null, null, null, _logger, null, null, null, null)
+                null, null, null, null, _logger, null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",

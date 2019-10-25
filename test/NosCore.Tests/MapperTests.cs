@@ -56,7 +56,7 @@ namespace NosCore.Tests
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
                 new GameObject.Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, _logger,
-                    null, null, null, null));
+                    null, null, null, null, null));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
                 .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
             new Mapper();
