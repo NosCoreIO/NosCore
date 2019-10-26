@@ -49,35 +49,44 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public bool Condition(Item.Item item)
         {
-            return (item.Effect == ItemEffectType.InventoryUpgrade);
+            return (item.Effect == ItemEffectType.InventoryUpgrade || item.Effect == ItemEffectType.InventoryTicketUpgrade);
         }
 
         public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.StaticBonusList.All(s => s.StaticBonusType != StaticBonusType.BackPack))
+            var itemInstance = requestData.Data.Item1;
+
+            if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryUpgrade 
+                && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
-                var itemInstance = requestData.Data.Item1;
-
-                requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
-                {
-                    CharacterId = requestData.ClientSession.Character.CharacterId,
-                    DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (DateTime?)null : DateTime.Now.AddDays(itemInstance.ItemInstance.Item.EffectValue),
-                    StaticBonusType = StaticBonusType.BackPack
-                });
-
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
-                            requestData.ClientSession.Account.Language),
-                        itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
-                    SayColorType.Green));
-                requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
-                    itemInstance.ItemInstanceId);
-
-                requestData.ClientSession.Character.LoadExpensions();
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));
+                return;
             }
+
+            if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade
+                && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade))
+            {
+                return;
+            }
+
+            requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                CharacterId = requestData.ClientSession.Character.CharacterId,
+                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (DateTime?)null : DateTime.Now.AddDays(itemInstance.ItemInstance.Item.EffectValue),
+                StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
+            });
+
+            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(
+                    Language.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
+                        requestData.ClientSession.Account.Language),
+                    itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
+                SayColorType.Green));
+            requestData.ClientSession.SendPacket(
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
+                itemInstance.ItemInstanceId);
+
+            requestData.ClientSession.Character.LoadExpensions();
+            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));
         }
     }
 }
