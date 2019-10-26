@@ -33,7 +33,7 @@ namespace NosCore.Tests.GuriHandlerTests
         protected ClientSession _session;
         protected readonly UseItemPacket _useItem = new UseItemPacket();
 
-        protected void ExecuteInventoryItemInstanceEventHandler(GuriPacket guriPacket)
+        protected void ExecuteGuriEventHandler(GuriPacket guriPacket)
         {
             _handler.Execute(
                 new RequestData<GuriPacket>(
