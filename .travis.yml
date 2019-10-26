@@ -15,7 +15,11 @@ script:
     - dotnet --version
     - dotnet restore
     - dotnet build
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='./tools/'
+after_success:
+    - pip install --user codecov
+    - cd tools
+    - codecov
 after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory=OPTIONAL-TEST
     - pip install --user awscli
