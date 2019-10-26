@@ -21,9 +21,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
@@ -34,23 +39,69 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
+using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.Tests.GuriHandlerTests
 {
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
+        private IItemProvider _itemProvider;
+
         [TestInitialize]
         public void Setup()
         {
+            var items = new List<ItemDto>
+            {
+                new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
+            };
+            _itemProvider = new ItemProvider(items,
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+
             _session = TestHelpers.Instance.GenerateSession();
             _handler = new TitleGuriHandler();
         }
 
         [TestMethod]
-        public void Test_TitleItemHandler()
+        public void Test_TitleGuriHandler()
         {
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            ExecuteGuriEventHandler(new GuriPacket
+            {
+                Type = GuriPacketType.Title
+            });
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreNotEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+                _session.Account.Language), lastpacket.Message);
+            Assert.AreEqual(0, _session.Character.Titles.Count);
+        }
 
+        [TestMethod]
+        public void Test_TitleGuriHandlerWhenDuplicate()
+        {
+            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            _session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 0 } };
+            ExecuteGuriEventHandler(new GuriPacket
+            {
+                Type = GuriPacketType.Title
+            });
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreNotEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+                _session.Account.Language), lastpacket.Message);
+            Assert.AreEqual(1, _session.Character.Titles.Count);
+        }
+
+        [TestMethod]
+        public void Test_TitleGuriHandlerWhenNoTitleItem()
+        {
+            ExecuteGuriEventHandler(new GuriPacket
+            {
+                Type = GuriPacketType.Title
+            });
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+                _session.Account.Language), lastpacket.Message);
+            Assert.AreEqual(1, _session.Character.Titles.Count);
         }
     }
 }
