@@ -44,7 +44,7 @@ using Serilog;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class BackPackHandlerTests : UseItemEventHandlerTests
+    public class BackPackHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
         private Mock<ILogger> _logger;

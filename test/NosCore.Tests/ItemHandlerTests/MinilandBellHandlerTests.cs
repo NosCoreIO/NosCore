@@ -41,7 +41,7 @@ using NosCore.Tests.Helpers;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class MinilandBellHandlerTests : UseItemEventHandlerTests
+    public class MinilandBellHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
         private Mock<IMinilandProvider> _minilandProvider;

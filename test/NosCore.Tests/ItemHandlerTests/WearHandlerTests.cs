@@ -46,7 +46,7 @@ using Serilog;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class WearEventHandlerTests : UseItemEventHandlerTests
+    public class WearEventHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
         private Mock<ILogger> _logger;
