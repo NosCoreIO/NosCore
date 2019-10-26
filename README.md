@@ -6,7 +6,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/78d6f89d028f4b9eb0349e37eb10fbac)](https://www.codacy.com/app/NosCoreIO/NosCore?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NosCoreIO/NosCore&amp;utm_campaign=Badge_Grade)
 [![Travis build status](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.org/NosCoreIO/NosCore)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/NosCoreIO/NosCore.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/NosCoreIO/NosCore/alerts/)
-[![Coverage Status](https://coveralls.io/repos/github/NosCoreIO/NosCore/badge.svg?branch=master)](https://coveralls.io/github/NosCoreIO/NosCore?branch=master)
+[![codecov](https://codecov.io/gh/NosCoreIO/NosCore/branch/master/graph/badge.svg)](https://codecov.io/gh/NosCoreIO/NosCore)
 
 ## You want to contribute ? ##
 [![Discord](https://i.gyazo.com/2115a3ecb258220f5b1a8ebd8c50eb8f.png)](https://discord.gg/Eu3ETSw)
