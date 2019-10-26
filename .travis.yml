@@ -16,8 +16,9 @@ script:
     - dotnet restore
     - dotnet build
     - dotnet tool install coveralls.net --version 1.0.0 --tool-path tools
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-    - ./tools/csmacnz.Coveralls.exe --opencover -i ../coverage.xml --useRelativePaths
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='./tools/'
+    - cd tools
+    - csmacnz.Coveralls.exe --opencover -i coverage.xml --useRelativePaths
 after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory=OPTIONAL-TEST
     - pip install --user awscli
