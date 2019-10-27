@@ -27,6 +27,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -53,7 +54,7 @@ namespace NosCore.Tests.GuriHandlerTests
         {
             var items = new List<ItemDto>
             {
-                new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
+                new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
@@ -68,26 +69,27 @@ namespace NosCore.Tests.GuriHandlerTests
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             ExecuteGuriEventHandler(new GuriPacket
             {
-                Type = GuriPacketType.Title
+                Type = GuriPacketType.Title,
+                VisualId = 0
             });
             var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreNotEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
                 _session.Account.Language), lastpacket.Message);
-            Assert.AreEqual(0, _session.Character.Titles.Count);
+            Assert.AreEqual(1, _session.Character.Titles.Count);
         }
 
         [TestMethod]
         public void Test_TitleGuriHandlerWhenDuplicate()
         {
             _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            _session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 0 } };
+            _session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
             ExecuteGuriEventHandler(new GuriPacket
             {
-                Type = GuriPacketType.Title
+                Type = GuriPacketType.Title,
+                VisualId = 0
             });
             var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreNotEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
-                _session.Account.Language), lastpacket.Message);
+            Assert.IsNull(lastpacket);
             Assert.AreEqual(1, _session.Character.Titles.Count);
         }
 
@@ -96,12 +98,12 @@ namespace NosCore.Tests.GuriHandlerTests
         {
             ExecuteGuriEventHandler(new GuriPacket
             {
-                Type = GuriPacketType.Title
+                Type = GuriPacketType.Title,
+                VisualId = 0
             });
             var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
-                _session.Account.Language), lastpacket.Message);
-            Assert.AreEqual(1, _session.Character.Titles.Count);
+            Assert.IsNull(lastpacket);
+            Assert.AreEqual(0, _session.Character.Titles.Count);
         }
     }
 }
