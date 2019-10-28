@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
-    <PackageReference Include="AutofacSerilogIntegration" Version="2.0.1-dev-00031" />
+    <PackageReference Include="AutofacSerilogIntegration" Version="2.1.0" />
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageReference Include="DotNetty.Buffers" Version="0.6.0" />
     <PackageReference Include="DotNetty.Codecs" Version="0.6.0" />
