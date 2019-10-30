@@ -15,16 +15,17 @@ namespace NosCore.Parser.Parsers.Generic
         private string _fileAddress;
         private string _endPattern;
         private TypeAccessor _typeAccessor;
-        private Dictionary<string, List<Func<Dictionary<string, string[]>, object>>> _actionList;
+        private Dictionary<string, Func<Dictionary<string, string[]>, object>> _actionList;
         private int _firstIndex;
-        public GenericParser(string fileAddress, string endPattern) => new GenericParser<T>(fileAddress, endPattern, 1);
+        public GenericParser(string fileAddress, string endPattern, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList) => new GenericParser<T>(fileAddress, endPattern, 1, actionList);
 
-        public GenericParser(string fileAddress, string endPattern, int firstIndex)
+        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList)
         {
             _fileAddress = fileAddress;
             _endPattern = endPattern;
             _firstIndex = firstIndex;
             _typeAccessor = TypeAccessor.Create(typeof(T));
+            _actionList = actionList;
         }
 
         private IEnumerable<string> ParseTextFromFile()
@@ -47,15 +48,12 @@ namespace NosCore.Parser.Parsers.Generic
                 {
                     var parsedItem = new T();
                     var lines = item.Split(Environment.NewLine.ToCharArray())
-                        .Select(s=>s.Split("   ")).ToDictionary(x=> x[_firstIndex], y =>y);
+                        .Select(s => s.Split("   ")).ToDictionary(x => x[_firstIndex], y => y);
                     foreach (var actionOnKey in _actionList.Keys)
                     {
-                        foreach (var action in _actionList[actionOnKey])
-                        {
-                            _typeAccessor[parsedItem, "propertyName"] = action.Invoke(lines);
-                        }
+                        _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
                     }
-                   
+
                     resultCollection.Add(parsedItem);
                 }
                 catch
