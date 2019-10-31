@@ -6,26 +6,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FastMember;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using Serilog;
 
 namespace NosCore.Parser.Parsers.Generic
 {
 
     public class GenericParser<T> where T : new()
     {
-        private string _fileAddress;
-        private string _endPattern;
-        private TypeAccessor _typeAccessor;
+        private readonly ILogger _logger;
+        private readonly string _fileAddress;
+        private readonly string _endPattern;
+        private readonly TypeAccessor _typeAccessor;
         private Dictionary<string, Func<Dictionary<string, string[]>, object>> _actionList;
-        private int _firstIndex;
-        public GenericParser(string fileAddress, string endPattern, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList) => new GenericParser<T>(fileAddress, endPattern, 1, actionList);
+        private readonly int _firstIndex;
 
-        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList)
+        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList, ILogger logger)
         {
             _fileAddress = fileAddress;
             _endPattern = endPattern;
             _firstIndex = firstIndex;
             _typeAccessor = TypeAccessor.Create(typeof(T));
             _actionList = actionList;
+            _logger = logger;
         }
 
         private IEnumerable<string> ParseTextFromFile()
@@ -37,29 +41,38 @@ namespace NosCore.Parser.Parsers.Generic
             }
         }
 
-
         public List<T> GetDtos()
         {
             var items = ParseTextFromFile();
             ConcurrentBag<T> resultCollection = new ConcurrentBag<T>();
             Parallel.ForEach(items, item =>
             {
+                var lines = item.Split(Environment.NewLine.ToCharArray())
+                    .Select(s => s.Split("\t"))
+                    .Where(s=>s.Length> _firstIndex)
+                    .GroupBy(x => x[_firstIndex])
+                    .ToDictionary(x => x.Key, y => y.First());
                 try
                 {
                     var parsedItem = new T();
-                    var lines = item.Split(Environment.NewLine.ToCharArray())
-                        .Select(s => s.Split("   ")).ToDictionary(x => x[_firstIndex], y => y);
                     foreach (var actionOnKey in _actionList.Keys)
                     {
-                        _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
+                        try
+                        {
+                            _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
+                        }
+                        catch(Exception ex)
+                        {
+                            ex.Data.Add("actionKey", actionOnKey);
+                            throw new Exception(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), ex);
+                        }
                     }
 
                     resultCollection.Add(parsedItem);
                 }
                 catch
                 {
-                    //log
-                    throw new InvalidDataException("Format of the parsed chunks invalid");
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), lines);
                 }
             });
             return resultCollection.ToList();
