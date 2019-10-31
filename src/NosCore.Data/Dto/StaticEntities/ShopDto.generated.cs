@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -32,7 +34,9 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
 	public class ShopDto : IStaticDto
 	{
-		public int MapNpcId { get; set; }
+		public MapNpcDto MapNpc { get; set; }
+
+	 	public int MapNpcId { get; set; }
 
 	 	public byte MenuType { get; set; }
 
@@ -40,6 +44,10 @@ namespace NosCore.Data.StaticEntities
 
 	 	[Key]
 		public int ShopId { get; set; }
+
+	 	public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
+
+	 	public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
 
 	 	public byte ShopType { get; set; }
 

@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -34,9 +36,13 @@ namespace NosCore.Data.StaticEntities
 	{
 		public byte Color { get; set; }
 
+	 	public ItemDto Item { get; set; }
+
 	 	public short ItemVNum { get; set; }
 
 	 	public short Rare { get; set; }
+
+	 	public ShopDto Shop { get; set; }
 
 	 	public int ShopId { get; set; }
 

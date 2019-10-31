@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -33,12 +35,18 @@ namespace NosCore.Data.StaticEntities
 	{
 		public byte Amount { get; set; }
 
+	 	public ItemDto Item { get; set; }
+
 	 	public short ItemVNum { get; set; }
+
+	 	public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
 	 	[Key]
 		public short RecipeId { get; set; }
+
+	 	public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
 
 	 }
 }

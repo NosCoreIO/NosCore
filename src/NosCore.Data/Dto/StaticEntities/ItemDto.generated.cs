@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -78,6 +80,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DistanceDefenceDodge { get; set; }
 
+	 	public System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
+
 	 	public NosCore.Data.Enumerations.Items.ItemEffectType Effect { get; set; }
 
 	 	public int EffectValue { get; set; }
@@ -118,6 +122,10 @@ namespace NosCore.Data.StaticEntities
 
 	 	public bool IsTradable { get; set; }
 
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+
+	 	public System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstances { get; set; }
+
 	 	public byte ItemSubType { get; set; }
 
 	 	public NosCore.Data.Enumerations.Items.ItemType ItemType { get; set; }
@@ -133,6 +141,10 @@ namespace NosCore.Data.StaticEntities
 	 	public short LightResistance { get; set; }
 
 	 	public short MagicDefence { get; set; }
+
+	 	public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem { get; set; }
+
+	 	public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2 { get; set; }
 
 	 	public byte MaxCellon { get; set; }
 
@@ -167,6 +179,10 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte PvpStrength { get; set; }
 
+	 	public System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+
+	 	public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
+
 	 	public short ReduceOposantResistance { get; set; }
 
 	 	public byte ReputationMinimum { get; set; }
@@ -176,6 +192,8 @@ namespace NosCore.Data.StaticEntities
 	 	public ChickenAPI.Packets.Enumerations.ElementType SecondaryElement { get; set; }
 
 	 	public byte Sex { get; set; }
+
+	 	public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
 
 	 	public byte Speed { get; set; }
 

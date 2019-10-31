@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,14 +33,22 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class MapTypeDto : IStaticDto
 	{
-		[Key]
+		public System.Collections.Generic.ICollection<DropDto> Drops { get; set; }
+
+	 	[Key]
 		public short MapTypeId { get; set; }
+
+	 	public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMap { get; set; }
 
 	 	public string MapTypeName { get; set; }
 
 	 	public short PotionDelay { get; set; }
 
+	 	public RespawnMapTypeDto RespawnMapType { get; set; }
+
 	 	public long? RespawnMapTypeId { get; set; }
+
+	 	public RespawnMapTypeDto ReturnMapType { get; set; }
 
 	 	public long? ReturnMapTypeId { get; set; }
 

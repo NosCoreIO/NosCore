@@ -62,6 +62,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -91,9 +93,6 @@ namespace <#= classNamespace #>
 	<#
 
 			foreach(var prop in GetMembersRecursive(cc)) {
-				 if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
-					continue;
-				 }
 				 var i18nStr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "I18NString");
 				 if(i18nStr!=null)
 				 {
@@ -106,6 +105,10 @@ namespace <#= classNamespace #>
 
 	 <#
 				} else {
+					var isDto = false;
+					if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
+						isDto = true;
+					}
 					var attr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Key");
 					if(attr!=null)
 					{
@@ -115,7 +118,7 @@ namespace <#= classNamespace #>
 	<#
 					}
 #>
-	public <#= prop.Type.AsString #> <#= prop.Name #> { get; set; }
+	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #> <#= prop.Name #> { get; set; }
 
 	 <#
 			}
@@ -183,6 +186,13 @@ namespace <#= classNamespace #>
         // Flush generation
         this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
     }
+
+	string ConvertToDtoName(string name)
+	{
+		string dtoName = name.Replace("NosCore.Database.Entities.","");
+		 dtoName = dtoName.Insert(dtoName.EndsWith(">") ? dtoName.Length - 1 : dtoName.Length, "Dto");
+		return dtoName;
+	}
 
 	List<EnvDTE80.CodeProperty2> GetMembersRecursive(EnvDTE.CodeClass cc) {
 		var members = cc.Members.OfType<EnvDTE80.CodeProperty2>().ToList();

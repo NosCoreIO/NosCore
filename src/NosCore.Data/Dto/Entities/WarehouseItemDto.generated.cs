@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class WarehouseItemDto : IDto
 	{
-		public System.Guid WarehouseId { get; set; }
+		public WarehouseDto Warehouse { get; set; }
+
+	 	public System.Guid WarehouseId { get; set; }
+
+	 	public ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 

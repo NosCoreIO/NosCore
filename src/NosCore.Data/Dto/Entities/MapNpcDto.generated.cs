@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -44,6 +46,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsSitting { get; set; }
 
+	 	public MapDto Map { get; set; }
+
 	 	public short MapId { get; set; }
 
 	 	[Key]
@@ -53,9 +57,17 @@ namespace NosCore.Data.Dto
 
 	 	public short MapY { get; set; }
 
+	 	public NpcMonsterDto NpcMonster { get; set; }
+
 	 	public short VNum { get; set; }
 
 	 	public byte Direction { get; set; }
+
+	 	public System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+
+	 	public System.Collections.Generic.ICollection<ShopDto> Shop { get; set; }
+
+	 	public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
 
 	 }
 }

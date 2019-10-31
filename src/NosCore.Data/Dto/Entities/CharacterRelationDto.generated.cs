@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterRelationDto : IDto
 	{
-		public long CharacterId { get; set; }
+		public CharacterDto Character1 { get; set; }
+
+	 	public CharacterDto Character2 { get; set; }
+
+	 	public long CharacterId { get; set; }
 
 	 	[Key]
 		public System.Guid CharacterRelationId { get; set; }

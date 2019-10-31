@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -38,11 +40,17 @@ namespace NosCore.Data.StaticEntities
 	 	[Key]
 		public short DropId { get; set; }
 
+	 	public ItemDto Item { get; set; }
+
 	 	public short VNum { get; set; }
+
+	 	public MapTypeDto MapType { get; set; }
 
 	 	public short? MapTypeId { get; set; }
 
 	 	public short? MonsterVNum { get; set; }
+
+	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 }
 }
