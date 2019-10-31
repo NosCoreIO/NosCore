@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class FamilyDto : IDto
 	{
-		public int FamilyExperience { get; set; }
+		public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacters { get; set; }
+
+	 	public int FamilyExperience { get; set; }
 
 	 	public ChickenAPI.Packets.Enumerations.GenderType FamilyHeadGender { get; set; }
 
@@ -41,6 +45,8 @@ namespace NosCore.Data.Dto
 	 	public byte FamilyLevel { get; set; }
 
 	 	public byte FamilyFaction { get; set; }
+
+	 	public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogs { get; set; }
 
 	 	public string FamilyMessage { get; set; }
 
@@ -63,6 +69,8 @@ namespace NosCore.Data.Dto
 	 	public string Name { get; set; }
 
 	 	public byte WarehouseSize { get; set; }
+
+	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
 
 	 }
 }

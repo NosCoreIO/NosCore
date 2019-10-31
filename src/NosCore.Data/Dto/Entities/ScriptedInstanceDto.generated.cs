@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class ScriptedInstanceDto : IDto
 	{
-		public short MapId { get; set; }
+		public MapDto Map { get; set; }
+
+	 	public short MapId { get; set; }
 
 	 	public short PositionX { get; set; }
 

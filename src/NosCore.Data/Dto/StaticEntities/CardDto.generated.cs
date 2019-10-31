@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -54,6 +56,10 @@ namespace NosCore.Data.StaticEntities
 	 	public NosCore.Data.Enumerations.Buff.BCardType.CardType BuffType { get; set; }
 
 	 	public byte Propability { get; set; }
+
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+
+	 	public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
 
 	 }
 }

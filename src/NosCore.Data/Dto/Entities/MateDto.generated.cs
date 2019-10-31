@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -34,6 +36,8 @@ namespace NosCore.Data.Dto
 		public byte Attack { get; set; }
 
 	 	public bool CanPickUp { get; set; }
+
+	 	public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
@@ -65,6 +69,8 @@ namespace NosCore.Data.Dto
 	 	public int Mp { get; set; }
 
 	 	public string Name { get; set; }
+
+	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public short VNum { get; set; }
 
