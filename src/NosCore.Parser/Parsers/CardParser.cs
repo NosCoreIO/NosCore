@@ -19,10 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
@@ -69,14 +65,15 @@ namespace NosCore.Parser.Parsers
             var actionList = new Dictionary<string, Func<Dictionary<string, string[]>, object>>
             {
                 {"CardId", chunk => Convert.ToInt16(chunk["VNUM"][2])},
+                {"Name", chunk => chunk["Name"][2]},
                 {"Level", chunk => Convert.ToByte(chunk["GROUP"][3])},
                 {"EffectId", chunk => Convert.ToInt32(chunk["EFFECT"][2])},
                 {"BuffType", chunk => (BCardType.CardType) Convert.ToByte(chunk["STYLE"][3])},
                 {"Duration", chunk => Convert.ToInt32(chunk["TIME"][2])},
                 {"Delay", chunk => Convert.ToInt32(chunk["TIME"][3])},
                 {"BCards", AddBCards},
-                {"TimeoutBuff", chunk => short.Parse(chunk["LAST"][2])},
-                {"TimeoutBuffChance", chunk => short.Parse(chunk["LAST"][3])}
+                {"TimeoutBuff", chunk => Convert.ToInt16(chunk["LAST"][2])},
+                {"TimeoutBuffChance", chunk => Convert.ToByte(chunk["LAST"][3])}
             };
             var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
                 "#========================================================", 1, actionList, _logger);
@@ -91,7 +88,7 @@ namespace NosCore.Parser.Parsers
             var list = new List<BCardDto>();
             for (var j = 0; j < 5; j++)
             {
-                var key = (j > 2) ? "2ND" : "1ST";
+                var key = (j > 2) ? "2ST" : "1ST";
                 var i = (j > 2) ? j - 3 : j;
 
                 if ((chunks[key][2 + i * 6] == "-1") || (chunks[key][2 + i * 6] == "0"))
