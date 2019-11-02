@@ -45,7 +45,10 @@ namespace NosCore.Parser.Parsers.Generic
         {
             var items = ParseTextFromFile();
             ConcurrentBag<T> resultCollection = new ConcurrentBag<T>();
-            Parallel.ForEach(items, item =>
+            Parallel.ForEach(items, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = System.Diagnostics.Debugger.IsAttached ? 1 : -1
+            }, item =>
             {
                 var lines = item.Split(Environment.NewLine.ToCharArray())
                     .Select(s => s.Split("\t"))
@@ -64,7 +67,7 @@ namespace NosCore.Parser.Parsers.Generic
                         catch(Exception ex)
                         {
                             ex.Data.Add("actionKey", actionOnKey);
-                            throw new Exception(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), ex);
+                            _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), ex);
                         }
                     }
 
