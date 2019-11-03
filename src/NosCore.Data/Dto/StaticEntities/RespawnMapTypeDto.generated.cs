@@ -39,15 +39,19 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DefaultY { get; set; }
 
-	 	public MapDto Map { get; set; }
+	 	[AdaptIgnore]
+		public MapDto Map { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MapTypeDto> MapTypes { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<MapTypeDto> MapTypes { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MapTypeDto> MapTypes1 { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<MapTypeDto> MapTypes1 { get; set; }
 
 	 	public string Name { get; set; }
 
-	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
 	 	[Key]
 		public long RespawnMapTypeId { get; set; }

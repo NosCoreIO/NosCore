@@ -33,9 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterRelationDto : IDto
 	{
+		[AdaptIgnore]
 		public CharacterDto Character1 { get; set; }
 
-	 	public CharacterDto Character2 { get; set; }
+	 	[AdaptIgnore]
+		public CharacterDto Character2 { get; set; }
 
 	 	public long CharacterId { get; set; }
 

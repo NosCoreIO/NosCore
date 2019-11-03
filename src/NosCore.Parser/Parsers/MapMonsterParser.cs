@@ -47,7 +47,7 @@ namespace NosCore.Parser.Parsers
         {
             short map = 0;
             var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
-                .Select(currentPacket=>Convert.ToInt32(currentPacket[2])).Distinct();
+                .Select(currentPacket=>Convert.ToInt32(currentPacket[2])).Distinct().ToList();
             var monsters = new List<MapMonsterDto>();
             var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
             var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();

@@ -20,10 +20,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Miniland
+    public class Miniland : IEntity
     {
         [MaxLength(255)]
         public string MinilandMessage { get; set; }

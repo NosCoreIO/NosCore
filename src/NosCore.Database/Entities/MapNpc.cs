@@ -22,11 +22,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
     [StaticMetaData(LoadedMessage = LogLanguageKey.MAPNPCS_LOADED)]
-    public class MapNpc
+    public class MapNpc : IEntity
     {
         public MapNpc()
         {

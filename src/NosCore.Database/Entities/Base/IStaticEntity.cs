@@ -19,7 +19,7 @@
 
 namespace NosCore.Database.Entities.Base
 {
-    public interface IStaticEntity
+    public interface IStaticEntity : IEntity
     {
     }
 }

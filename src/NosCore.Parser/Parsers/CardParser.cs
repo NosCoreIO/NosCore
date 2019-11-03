@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
@@ -47,13 +48,14 @@ namespace NosCore.Parser.Parsers
         //#========================================================
         private const string FileCardDat = "\\Card.dat";
 
-
         private readonly IGenericDao<CardDto> _cardDao;
+        private readonly IGenericDao<BCardDto> _bcardDao;
         private readonly ILogger _logger;
 
-        public CardParser(IGenericDao<CardDto> cardDao, ILogger logger)
+        public CardParser(IGenericDao<CardDto> cardDao, IGenericDao<BCardDto> bcardDao, ILogger logger)
         {
             _cardDao = cardDao;
+            _bcardDao = bcardDao;
             _logger = logger;
         }
 
@@ -62,7 +64,7 @@ namespace NosCore.Parser.Parsers
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
                 {nameof(CardDto.CardId), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(CardDto.NameI18NKey), chunk => chunk["Name"][0][2]},
+                {nameof(CardDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
                 {nameof(CardDto.Level), chunk => Convert.ToByte(chunk["GROUP"][0][3])},
                 {nameof(CardDto.EffectId), chunk => Convert.ToInt32(chunk["EFFECT"][0][2])},
                 {nameof(CardDto.BuffType), chunk => (BCardType.CardType) Convert.ToByte(chunk["STYLE"][0][3])},
@@ -74,8 +76,9 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
                 "#========================================================", 1, actionList, _logger);
-            var cards = genericParser.GetDtos();
+            var cards = genericParser.GetDtos().GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             _cardDao.InsertOrUpdate(cards);
+            _bcardDao.InsertOrUpdate(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), cards.Count);
         }

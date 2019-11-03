@@ -50,7 +50,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short QuestId { get; set; }
 
-	 	public QuestDto Quest { get; set; }
+	 	[AdaptIgnore]
+		public QuestDto Quest { get; set; }
 
 	 }
 }

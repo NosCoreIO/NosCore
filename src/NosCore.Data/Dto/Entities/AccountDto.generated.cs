@@ -38,7 +38,8 @@ namespace NosCore.Data.Dto
 
 	 	public NosCore.Data.Enumerations.Account.AuthorityType Authority { get; set; }
 
-	 	public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
 
 	 	public string Email { get; set; }
 
@@ -50,7 +51,8 @@ namespace NosCore.Data.Dto
 
 	 	public string NewAuthSalt { get; set; }
 
-	 	public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
 
 	 	public string RegistrationIp { get; set; }
 

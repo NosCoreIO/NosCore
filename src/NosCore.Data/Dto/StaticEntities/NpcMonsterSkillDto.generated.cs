@@ -33,6 +33,7 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class NpcMonsterSkillDto : IStaticDto
 	{
+		[AdaptIgnore]
 		public NpcMonsterDto NpcMonster { get; set; }
 
 	 	[Key]
@@ -42,7 +43,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short Rate { get; set; }
 
-	 	public SkillDto Skill { get; set; }
+	 	[AdaptIgnore]
+		public SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

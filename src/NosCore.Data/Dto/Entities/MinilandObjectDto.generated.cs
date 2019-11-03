@@ -33,6 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class MinilandObjectDto : IDto
 	{
+		[AdaptIgnore]
 		public InventoryItemInstanceDto InventoryItemInstance { get; set; }
 
 	 	public System.Guid? InventoryItemInstanceId { get; set; }

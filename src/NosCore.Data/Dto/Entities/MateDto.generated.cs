@@ -37,7 +37,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool CanPickUp { get; set; }
 
-	 	public CharacterDto Character { get; set; }
+	 	[AdaptIgnore]
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
@@ -70,7 +71,8 @@ namespace NosCore.Data.Dto
 
 	 	public string Name { get; set; }
 
-	 	public NpcMonsterDto NpcMonster { get; set; }
+	 	[AdaptIgnore]
+		public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public short VNum { get; set; }
 

@@ -38,7 +38,8 @@ namespace NosCore.Data.Dto
 
 	 	public short OriginalItemDesign { get; set; }
 
-	 	public ItemDto OriginalItem { get; set; }
+	 	[AdaptIgnore]
+		public ItemDto OriginalItem { get; set; }
 
 	 	public short OriginalItemVNum { get; set; }
 
@@ -56,7 +57,8 @@ namespace NosCore.Data.Dto
 
 	 	public short MaximumOriginalItemRare { get; set; }
 
-	 	public ItemDto ItemGenerated { get; set; }
+	 	[AdaptIgnore]
+		public ItemDto ItemGenerated { get; set; }
 
 	 	public bool IsSuperReward { get; set; }
 

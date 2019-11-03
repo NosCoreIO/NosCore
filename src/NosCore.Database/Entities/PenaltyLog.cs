@@ -20,10 +20,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class PenaltyLog
+    public class PenaltyLog : IEntity
     {
         public virtual Account Account { get; set; }
 

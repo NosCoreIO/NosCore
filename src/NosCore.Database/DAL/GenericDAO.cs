@@ -155,17 +155,7 @@ namespace NosCore.Database.DAL
                     var dbset = context.Set<TEntity>();
 
                     var value = _primaryKey.GetValue(dto, null);
-                    TEntity entityfound = null;
-                    if (value is object[] objects)
-                    {
-                        entityfound = dbset.Find(objects);
-                    }
-                    else
-                    {
-                        entityfound = dbset.Find(value);
-                    }
-
-                    entity = entity.Adapt<TDto>().Adapt<TEntity>();
+                    TEntity entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
                     if (entityfound != null)
                     {
                         context.Entry(entityfound).CurrentValues.SetValues(entity);
@@ -213,7 +203,7 @@ namespace NosCore.Database.DAL
 
                     foreach (var dto in list)
                     {
-                        var entity = dto.Item1.Adapt<TDto>().Adapt<TEntity>();
+                        var entity = dto.Item1;
                         var entityfound =
                             entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == dto.Item2);
                         if (entityfound != null)
