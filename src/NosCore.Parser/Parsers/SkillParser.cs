@@ -19,300 +19,192 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Parser.Parsers.Generic;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
     public class SkillParser
     {
-        private readonly IGenericDao<BCardDto> _bCardDao;
-        private readonly IGenericDao<ComboDto> _comboDao;
-        private readonly string _fileSkillId = "\\Skill.dat";
-        private readonly ILogger _logger;
-        private readonly IGenericDao<SkillDto> _skillDao;
+        //  VNUM    {VNum}  
+        //	NAME    {Name}
 
-        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao,
-            IGenericDao<SkillDto> skillDao, ILogger logger)
+        //  TYPE	0	0	0	0	0	0
+        //	COST	0	0	0
+        //	LEVEL	0	0	0	0	0
+        //	EFFECT	0	0	0	0	0	0	0	0	0
+        //	TARGET	0	0	0	0	0
+        //	DATA	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+        //	BASIC	0	0	0	0	0	0
+        //	BASIC	1	0	0	0	0	0
+        //	BASIC	2	0	0	0	0	0
+        //	BASIC	3	0	0	0	0	0
+        //	BASIC	4	0	0	0	0	0
+        //	FCOMBO	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+        //	CELL	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+        //	Z_DESC	0
+
+        //#=========================================================
+        private const string FileCardDat = "\\Skill.dat";
+
+        private readonly IGenericDao<SkillDto> _skillDao;
+        private readonly ILogger _logger;
+
+        public SkillParser(IGenericDao<SkillDto> skillDao, ILogger logger)
         {
-            _bCardDao = bCardDao;
-            _comboDao = comboDao;
             _skillDao = skillDao;
             _logger = logger;
         }
 
-        internal void InsertSkills(string folder)
+        public void InsertSkills(string folder)
         {
-            var skilldb = _skillDao.LoadAll().ToList();
-            var combodb = _comboDao.LoadAll().ToList();
-            var skills = new List<SkillDto>();
-            var skill = new SkillDto();
-            var combo = new List<ComboDto>();
-            var skillCards = new List<BCardDto>();
-            var counter = 0;
-            using (var skillIdStream = new StreamReader(folder + _fileSkillId, Encoding.Default))
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
-                string line;
-                while ((line = skillIdStream.ReadLine()) != null)
+                {nameof(SkillDto.SkillVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
+                {nameof(SkillDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
+                {nameof(SkillDto.SkillType), chunk => Convert.ToByte(chunk["TYPE"][0][2])},
+                {nameof(SkillDto.CastId), chunk => Convert.ToInt16(chunk["TYPE"][0][3])},
+                {nameof(SkillDto.Class), chunk => Convert.ToByte(chunk["TYPE"][0][4])},
+                {nameof(SkillDto.Type), chunk => Convert.ToByte(chunk["TYPE"][0][5])},
+                {nameof(SkillDto.Element), chunk => Convert.ToByte(chunk["TYPE"][0][7])},
+                {nameof(SkillDto.Combo), AddCombos},
+                {nameof(SkillDto.CpCost), chunk => chunk["Cost"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["Cost"][0][2])},
+                {nameof(SkillDto.Price), chunk => Convert.ToInt32(chunk["Cost"][0][3])},
+                {nameof(SkillDto.CastEffect), chunk => Convert.ToInt16(chunk["EFFECT"][0][3])},
+                {nameof(SkillDto.CastAnimation), chunk => Convert.ToInt16(chunk["EFFECT"][0][4])},
+                {nameof(SkillDto.Effect), chunk => Convert.ToInt16(chunk["EFFECT"][0][5])},
+                {nameof(SkillDto.AttackAnimation), chunk => Convert.ToInt16(chunk["EFFECT"][0][6])},
+                {nameof(SkillDto.TargetType), chunk => Convert.ToByte(chunk["TARGET"][0][2])},
+                {nameof(SkillDto.HitType), chunk => Convert.ToByte(chunk["TARGET"][0][3])},
+                {nameof(SkillDto.Range), chunk => Convert.ToByte(chunk["TARGET"][0][4])},
+                {nameof(SkillDto.TargetRange), chunk => Convert.ToByte(chunk["TARGET"][0][5])},
+                {nameof(SkillDto.UpgradeSkill), chunk => Convert.ToInt16(chunk["DATA"][0][2])},
+                {nameof(SkillDto.UpgradeType), chunk => Convert.ToInt16(chunk["DATA"][0][3])},
+                {nameof(SkillDto.CastTime), chunk => Convert.ToInt16(chunk["DATA"][0][6])},
+                {nameof(SkillDto.Cooldown), chunk => Convert.ToInt16(chunk["DATA"][0][7])},
+                {nameof(SkillDto.MpCost), chunk => Convert.ToInt16(chunk["DATA"][0][10])},
+                {nameof(SkillDto.ItemVNum), chunk => Convert.ToInt16(chunk["DATA"][0][12])},
+                {nameof(SkillDto.BCards), AddBCards},
+                {nameof(SkillDto.MinimumAdventurerLevel), chunk => chunk["LEVEL"][0][3] != "-1" ? byte.Parse(chunk["LEVEL"][0][3]) : (byte)0},
+                {nameof(SkillDto.MinimumSwordmanLevel), chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0},
+                {nameof(SkillDto.MinimumArcherLevel), chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0},
+                {nameof(SkillDto.MinimumMagicianLevel), chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0},
+                {nameof(SkillDto.LevelMinimum), chunk => chunk["Level"][0][2] != "-1" ? byte.Parse(chunk["Level"][0][2]) : (byte)0 },
+            };
+            var genericParser = new GenericParser<SkillDto>(folder + FileCardDat,
+                "#=========================================================", 1, actionList, _logger);
+            var skills = genericParser.GetDtos();
+
+            foreach (var skill in skills.Where(s => s.Class > 31))
+            {
+                var firstskill = skills.Find(s => s.Class == skill.Class);
+                var skillscount = skills.Count(s => s.Class == skill.Class);
+                if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                 {
-                    var currentLine = line.Split('\t');
+                    switch (skill.Class)
+                    {
+                        case 8:
+                            skill.LevelMinimum = (byte)(skillscount - 1 * 10);
+                            break;
 
-                    if ((currentLine.Length > 2) && (currentLine[1] == "VNUM"))
-                    {
-                        skill = new SkillDto
-                        {
-                            SkillVNum = short.Parse(currentLine[2])
-                        };
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "NAME"))
-                    {
-                        skill.NameI18NKey = currentLine[2];
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "TYPE"))
-                    {
-                        skill.SkillType = byte.Parse(currentLine[2]);
-                        skill.CastId = short.Parse(currentLine[3]);
-                        skill.Class = byte.Parse(currentLine[4]);
-                        skill.Type = byte.Parse(currentLine[5]);
-                        skill.Element = byte.Parse(currentLine[7]);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "FCOMBO"))
-                    {
-                        for (var i = 3; i < currentLine.Length - 4; i += 3)
-                        {
-                            var comb = new ComboDto
-                            {
-                                SkillVNum = skill.SkillVNum,
-                                Hit = short.Parse(currentLine[i]),
-                                Animation = short.Parse(currentLine[i + 1]),
-                                Effect = short.Parse(currentLine[i + 2])
-                            };
+                        case 9:
+                            skill.LevelMinimum = (byte)(skillscount - 4 * 4);
+                            break;
 
-                            if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
+                        case 16:
+                            switch (skillscount)
                             {
-                                continue;
+                                case 6:
+                                    skill.LevelMinimum = 20;
+                                    break;
+
+                                case 5:
+                                    skill.LevelMinimum = 15;
+                                    break;
+
+                                case 4:
+                                    skill.LevelMinimum = 10;
+                                    break;
+
+                                case 3:
+                                    skill.LevelMinimum = 5;
+                                    break;
+
+                                case 2:
+                                    skill.LevelMinimum = 3;
+                                    break;
+
+                                default:
+                                    skill.LevelMinimum = 0;
+                                    break;
                             }
 
-                            if (combodb.FirstOrDefault(s =>
-                                s.SkillVNum.Equals(comb.SkillVNum) && s.Hit.Equals(comb.Hit)
-                                && s.Effect.Equals(comb.Effect)) == null)
-                            {
-                                combo.Add(comb);
-                            }
-                        }
-                    }
-                    else if ((currentLine.Length > 3) && (currentLine[1] == "COST"))
-                    {
-                        skill.CpCost = currentLine[2] == "-1" ? (byte) 0 : byte.Parse(currentLine[2]);
-                        skill.Price = int.Parse(currentLine[3]);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "LEVEL"))
-                    {
-                        skill.LevelMinimum = currentLine[2] != "-1" ? byte.Parse(currentLine[2]) : (byte) 0;
-                        if (skill.Class > 31)
-                        {
-                            var firstskill = skills.Find(s => s.Class == skill.Class);
-                            if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
-                            {
-                                switch (skill.Class)
-                                {
-                                    case 8:
-                                        switch (skills.Count(s => s.Class == skill.Class))
-                                        {
-                                            case 3:
-                                                skill.LevelMinimum = 20;
-                                                break;
+                            break;
 
-                                            case 2:
-                                                skill.LevelMinimum = 10;
-                                                break;
-
-                                            default:
-                                                skill.LevelMinimum = 0;
-                                                break;
-                                        }
-
-                                        break;
-
-                                    case 9:
-                                        switch (skills.Count(s => s.Class == skill.Class))
-                                        {
-                                            case 9:
-                                                skill.LevelMinimum = 20;
-                                                break;
-
-                                            case 8:
-                                                skill.LevelMinimum = 16;
-                                                break;
-
-                                            case 7:
-                                                skill.LevelMinimum = 12;
-                                                break;
-
-                                            case 6:
-                                                skill.LevelMinimum = 8;
-                                                break;
-
-                                            case 5:
-                                                skill.LevelMinimum = 4;
-                                                break;
-
-                                            default:
-                                                skill.LevelMinimum = 0;
-                                                break;
-                                        }
-
-                                        break;
-
-                                    case 16:
-                                        switch (skills.Count(s => s.Class == skill.Class))
-                                        {
-                                            case 6:
-                                                skill.LevelMinimum = 20;
-                                                break;
-
-                                            case 5:
-                                                skill.LevelMinimum = 15;
-                                                break;
-
-                                            case 4:
-                                                skill.LevelMinimum = 10;
-                                                break;
-
-                                            case 3:
-                                                skill.LevelMinimum = 5;
-                                                break;
-
-                                            case 2:
-                                                skill.LevelMinimum = 3;
-                                                break;
-
-                                            default:
-                                                skill.LevelMinimum = 0;
-                                                break;
-                                        }
-
-                                        break;
-
-                                    default:
-                                        switch (skills.Count(s => s.Class == skill.Class))
-                                        {
-                                            case 10:
-                                                skill.LevelMinimum = 20;
-                                                break;
-
-                                            case 9:
-                                                skill.LevelMinimum = 16;
-                                                break;
-
-                                            case 8:
-                                                skill.LevelMinimum = 12;
-                                                break;
-
-                                            case 7:
-                                                skill.LevelMinimum = 8;
-                                                break;
-
-                                            case 6:
-                                                skill.LevelMinimum = 4;
-                                                break;
-
-                                            default:
-                                                skill.LevelMinimum = 0;
-                                                break;
-                                        }
-
-                                        break;
-                                }
-                            }
-                        }
-
-                        skill.MinimumAdventurerLevel = currentLine[3] != "-1" ? byte.Parse(currentLine[3]) : (byte) 0;
-                        skill.MinimumSwordmanLevel = currentLine[4] != "-1" ? byte.Parse(currentLine[4]) : (byte) 0;
-                        skill.MinimumArcherLevel = currentLine[5] != "-1" ? byte.Parse(currentLine[5]) : (byte) 0;
-                        skill.MinimumMagicianLevel = currentLine[6] != "-1" ? byte.Parse(currentLine[6]) : (byte) 0;
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "EFFECT"))
-                    {
-                        skill.CastEffect = short.Parse(currentLine[3]);
-                        skill.CastAnimation = short.Parse(currentLine[4]);
-                        skill.Effect = short.Parse(currentLine[5]);
-                        skill.AttackAnimation = short.Parse(currentLine[6]);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "TARGET"))
-                    {
-                        skill.TargetType = byte.Parse(currentLine[2]);
-                        skill.HitType = byte.Parse(currentLine[3]);
-                        skill.Range = byte.Parse(currentLine[4]);
-                        skill.TargetRange = byte.Parse(currentLine[5]);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "DATA"))
-                    {
-                        skill.UpgradeSkill = short.Parse(currentLine[2]);
-                        skill.UpgradeType = short.Parse(currentLine[3]);
-                        skill.CastTime = short.Parse(currentLine[6]);
-                        skill.Cooldown = short.Parse(currentLine[7]);
-                        skill.MpCost = short.Parse(currentLine[10]);
-                        skill.ItemVNum = short.Parse(currentLine[12]);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "BASIC"))
-                    {
-                        var type = (byte) int.Parse(currentLine[3]);
-                        if ((type == 0) || (type == 255))
-                        {
-                            continue;
-                        }
-
-                        var first = int.Parse(currentLine[5]);
-                        var itemCard = new BCardDto
-                        {
-                            SkillVNum = skill.SkillVNum,
-                            Type = type,
-                            SubType = (byte) ((int.Parse(currentLine[4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
-                            IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
-                            IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2,
-                            FirstData = (short) (first > 0 ? first : -first / 4),
-                            SecondData = (short) (int.Parse(currentLine[6]) / 4),
-                            ThirdData = (short) (int.Parse(currentLine[7]) / 4)
-                        };
-                        skillCards.Add(itemCard);
-                    }
-                    else if ((currentLine.Length > 2) && (currentLine[1] == "CELL"))
-                    {
-                        // investigate
-                    }
-                    else if ((currentLine.Length > 1) && (currentLine[1] == "Z_DESC"))
-                    {
-                        // investigate
-                        var skill1 = skill;
-                        if (skilldb
-                            .FirstOrDefault(s => s.SkillVNum.Equals(skill1.SkillVNum)) != null)
-                        {
-                            continue;
-                        }
-
-                        skills.Add(skill);
-                        counter++;
+                        default:
+                            skill.LevelMinimum = (byte)(skillscount - 5 * 4);
+                            break;
                     }
                 }
+                _skillDao.InsertOrUpdate(skills);
 
-                IEnumerable<SkillDto> skillDtos = skills;
-                IEnumerable<ComboDto> comboDtos = combo;
-                IEnumerable<BCardDto> bCardDtos = skillCards;
-
-                _skillDao.InsertOrUpdate(skillDtos);
-                _comboDao.InsertOrUpdate(comboDtos);
-                _bCardDao.InsertOrUpdate(bCardDtos);
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED),
-                    counter);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
             }
+        }
+
+        private List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)
+        {
+            var list = new List<BCardDto>();
+            for (var j = 0; j < chunks["BASIC"].Length; j++)
+            {
+                var type = (byte)int.Parse(chunks["BASIC"][j][3]);
+                if ((type == 0) || (type == 255))
+                {
+                    continue;
+                }
+
+                var first = int.Parse(chunks["BASIC"][j][5]);
+                var comb = new BCardDto
+                {
+                    SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
+                    Type = type,
+                    SubType = (byte)((int.Parse(chunks["BASIC"][j][4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
+                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
+                    FirstData = (short)(first > 0 ? first : -first / 4),
+                    SecondData = (short)(int.Parse(chunks["BASIC"][j][6]) / 4),
+                    ThirdData = (short)(int.Parse(chunks["BASIC"][j][7]) / 4)
+                };
+                list.Add(comb);
+            };
+            return list;
+        }
+
+        private List<ComboDto> AddCombos(Dictionary<string, string[][]> chunks)
+        {
+            var list = new List<ComboDto>();
+            for (var j = 0; j < 5; j++)
+            {
+                var comb = new ComboDto
+                {
+                    SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
+                    Hit = short.Parse(chunks["FCOMBO"][0][j * 3]),
+                    Animation = short.Parse(chunks["FCOMBO"][0][j * 3 + 1]),
+                    Effect = short.Parse(chunks["FCOMBO"][0][j * 3 + 2])
+                };
+                if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
+                {
+                    continue;
+                }
+                list.Add(comb);
+            };
+            return list;
         }
     }
 }
