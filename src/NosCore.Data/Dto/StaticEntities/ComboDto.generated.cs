@@ -42,7 +42,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short Hit { get; set; }
 
-	 	public SkillDto Skill { get; set; }
+	 	[AdaptIgnore]
+		public SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

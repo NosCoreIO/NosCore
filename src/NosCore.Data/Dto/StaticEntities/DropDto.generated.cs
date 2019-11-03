@@ -40,17 +40,20 @@ namespace NosCore.Data.StaticEntities
 	 	[Key]
 		public short DropId { get; set; }
 
-	 	public ItemDto Item { get; set; }
+	 	[AdaptIgnore]
+		public ItemDto Item { get; set; }
 
 	 	public short VNum { get; set; }
 
-	 	public MapTypeDto MapType { get; set; }
+	 	[AdaptIgnore]
+		public MapTypeDto MapType { get; set; }
 
 	 	public short? MapTypeId { get; set; }
 
 	 	public short? MonsterVNum { get; set; }
 
-	 	public NpcMonsterDto NpcMonster { get; set; }
+	 	[AdaptIgnore]
+		public NpcMonsterDto NpcMonster { get; set; }
 
 	 }
 }

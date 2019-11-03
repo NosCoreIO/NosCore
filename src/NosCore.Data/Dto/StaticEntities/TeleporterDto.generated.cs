@@ -37,11 +37,13 @@ namespace NosCore.Data.StaticEntities
 
 	 	public NosCore.Data.Enumerations.Interaction.TeleporterType Type { get; set; }
 
-	 	public MapDto Map { get; set; }
+	 	[AdaptIgnore]
+		public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
-	 	public MapNpcDto MapNpc { get; set; }
+	 	[AdaptIgnore]
+		public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 

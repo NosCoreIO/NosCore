@@ -33,6 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class FamilyLogDto : IDto
 	{
+		[AdaptIgnore]
 		public FamilyDto Family { get; set; }
 
 	 	public long FamilyId { get; set; }

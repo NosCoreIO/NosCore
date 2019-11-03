@@ -20,10 +20,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Family
+    public class Family : IEntity
     {
         public Family()
         {

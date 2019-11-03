@@ -20,10 +20,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class StaticBonus
+    public class StaticBonus : IEntity
     {
         public virtual Character Character { get; set; }
 

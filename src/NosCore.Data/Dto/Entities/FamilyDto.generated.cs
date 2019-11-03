@@ -33,6 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class FamilyDto : IDto
 	{
+		[AdaptIgnore]
 		public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacters { get; set; }
 
 	 	public int FamilyExperience { get; set; }
@@ -46,7 +47,8 @@ namespace NosCore.Data.Dto
 
 	 	public byte FamilyFaction { get; set; }
 
-	 	public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogs { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogs { get; set; }
 
 	 	public string FamilyMessage { get; set; }
 
@@ -70,7 +72,8 @@ namespace NosCore.Data.Dto
 
 	 	public byte WarehouseSize { get; set; }
 
-	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
 
 	 }
 }

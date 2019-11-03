@@ -19,10 +19,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class I18NBCard
+    public class I18NBCard : IEntity
     {
         [Key]
         public int I18NbCardId { get; set; }

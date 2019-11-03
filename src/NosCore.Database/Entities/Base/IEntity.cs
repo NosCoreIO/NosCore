@@ -17,19 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations;
-using NosCore.Database.Entities.Base;
-
-namespace NosCore.Database.Entities
+namespace NosCore.Database.Entities.Base
 {
-    public class I18NNpcMonsterTalk : IEntity
+    public interface IEntity
     {
-        [Key]
-        public int I18NNpcMonsterTalkId { get; set; }
-
-        public string Key { get; set; }
-        public RegionType RegionType { get; set; }
-        public string Text { get; set; }
     }
 }

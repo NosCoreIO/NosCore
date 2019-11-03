@@ -20,10 +20,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class CharacterRelation
+    public class CharacterRelation : IEntity
     {
         public virtual Character Character1 { get; set; }
 

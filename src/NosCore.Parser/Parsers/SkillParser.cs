@@ -52,12 +52,16 @@ namespace NosCore.Parser.Parsers
 
         //#=========================================================
         private const string FileCardDat = "\\Skill.dat";
-
+        private readonly IGenericDao<BCardDto> _bCardDao;
+        private readonly IGenericDao<ComboDto> _comboDao;
         private readonly IGenericDao<SkillDto> _skillDao;
         private readonly ILogger _logger;
 
-        public SkillParser(IGenericDao<SkillDto> skillDao, ILogger logger)
+        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao,
+            IGenericDao<SkillDto> skillDao, ILogger logger)
         {
+            _bCardDao = bCardDao;
+            _comboDao = comboDao;
             _skillDao = skillDao;
             _logger = logger;
         }
@@ -74,8 +78,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.Type), chunk => Convert.ToByte(chunk["TYPE"][0][5])},
                 {nameof(SkillDto.Element), chunk => Convert.ToByte(chunk["TYPE"][0][7])},
                 {nameof(SkillDto.Combo), AddCombos},
-                {nameof(SkillDto.CpCost), chunk => chunk["Cost"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["Cost"][0][2])},
-                {nameof(SkillDto.Price), chunk => Convert.ToInt32(chunk["Cost"][0][3])},
+                {nameof(SkillDto.CpCost), chunk => chunk["COST"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["COST"][0][2])},
+                {nameof(SkillDto.Price), chunk => Convert.ToInt32(chunk["COST"][0][3])},
                 {nameof(SkillDto.CastEffect), chunk => Convert.ToInt16(chunk["EFFECT"][0][3])},
                 {nameof(SkillDto.CastAnimation), chunk => Convert.ToInt16(chunk["EFFECT"][0][4])},
                 {nameof(SkillDto.Effect), chunk => Convert.ToInt16(chunk["EFFECT"][0][5])},
@@ -95,7 +99,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.MinimumSwordmanLevel), chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0},
                 {nameof(SkillDto.MinimumArcherLevel), chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0},
                 {nameof(SkillDto.MinimumMagicianLevel), chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0},
-                {nameof(SkillDto.LevelMinimum), chunk => chunk["Level"][0][2] != "-1" ? byte.Parse(chunk["Level"][0][2]) : (byte)0 },
+                {nameof(SkillDto.LevelMinimum), chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0 },
             };
             var genericParser = new GenericParser<SkillDto>(folder + FileCardDat,
                 "#=========================================================", 1, actionList, _logger);
@@ -152,10 +156,13 @@ namespace NosCore.Parser.Parsers
                             break;
                     }
                 }
-                _skillDao.InsertOrUpdate(skills);
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
             }
+
+            _skillDao.InsertOrUpdate(skills);
+            _comboDao.InsertOrUpdate(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
+            _bCardDao.InsertOrUpdate(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
         }
 
         private List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)
@@ -194,9 +201,9 @@ namespace NosCore.Parser.Parsers
                 var comb = new ComboDto
                 {
                     SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Hit = short.Parse(chunks["FCOMBO"][0][j * 3]),
-                    Animation = short.Parse(chunks["FCOMBO"][0][j * 3 + 1]),
-                    Effect = short.Parse(chunks["FCOMBO"][0][j * 3 + 2])
+                    Hit = short.Parse(chunks["FCOMBO"][0][j * 3 + 2]),
+                    Animation = short.Parse(chunks["FCOMBO"][0][j * 3 + 3]),
+                    Effect = short.Parse(chunks["FCOMBO"][0][j * 3 + 4])
                 };
                 if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
                 {

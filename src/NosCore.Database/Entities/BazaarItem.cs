@@ -17,12 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Database.Entities.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
-    public class BazaarItem
+    public class BazaarItem : IEntity
     {
         public virtual Character Seller { get; set; }
 

@@ -46,12 +46,14 @@ using NosCore.Core.HttpClients.AuthHttpClient;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
+using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
@@ -180,7 +182,7 @@ namespace NosCore.LoginServer
                     var container = containerBuilder.Build();
 
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                        .AfterMapping(dest => Task.Run(() => dest.Initialize()));
+                       .AfterMapping(dest => Task.Run(() => dest.Initialize()));
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 

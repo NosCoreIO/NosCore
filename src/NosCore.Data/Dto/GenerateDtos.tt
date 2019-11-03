@@ -108,6 +108,8 @@ namespace <#= classNamespace #>
 					var isDto = false;
 					if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
 						isDto = true;
+#>	[AdaptIgnore]
+	<#
 					}
 					var attr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Key");
 					if(attr!=null)

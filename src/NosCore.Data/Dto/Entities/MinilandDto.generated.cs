@@ -37,7 +37,8 @@ namespace NosCore.Data.Dto
 
 	 	public long MinilandPoint { get; set; }
 
-	 	public CharacterDto Owner { get; set; }
+	 	[AdaptIgnore]
+		public CharacterDto Owner { get; set; }
 
 	 	[Key]
 		public System.Guid MinilandId { get; set; }

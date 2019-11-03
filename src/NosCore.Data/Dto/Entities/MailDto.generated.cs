@@ -59,7 +59,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsSenderCopy { get; set; }
 
-	 	public ItemInstanceDto ItemInstance { get; set; }
+	 	[AdaptIgnore]
+		public ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid? ItemInstanceId { get; set; }
 
@@ -68,11 +69,13 @@ namespace NosCore.Data.Dto
 
 	 	public string Message { get; set; }
 
-	 	public CharacterDto Receiver { get; set; }
+	 	[AdaptIgnore]
+		public CharacterDto Receiver { get; set; }
 
 	 	public long ReceiverId { get; set; }
 
-	 	public CharacterDto Sender { get; set; }
+	 	[AdaptIgnore]
+		public CharacterDto Sender { get; set; }
 
 	 	public long? SenderId { get; set; }
 
