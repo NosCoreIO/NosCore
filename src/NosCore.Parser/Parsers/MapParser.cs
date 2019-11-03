@@ -33,13 +33,14 @@ namespace NosCore.Parser.Parsers
 {
     public class MapParser
     {
+        //{ID} {ID} {MapPoint} {MapPoint} {Name}
+        //DATA 0
+
         private readonly string _fileMapIdDat = "\\MapIDData.dat";
         private readonly string _folderMap = "\\map";
         private readonly ILogger _logger;
         private readonly IGenericDao<MapDto> _mapDao;
 
-        //{ID} {ID} {MapPoint} {MapPoint} {Name}
-        //DATA 0
 
         public MapParser(IGenericDao<MapDto> mapDao, ILogger logger)
         {
@@ -49,7 +50,6 @@ namespace NosCore.Parser.Parsers
 
         public List<MapDto> ParseDat(string folder)
         {
-            var dictionaryId = new Dictionary<int, string>();
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
                 {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
