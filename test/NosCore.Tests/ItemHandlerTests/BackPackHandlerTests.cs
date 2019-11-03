@@ -21,90 +21,109 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Chats;
+using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
-using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class MinilandBellHandlerTests : UseItemEventHandlerTestsBase
+    public class BackPackHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
-        private Mock<IMinilandProvider> _minilandProvider;
+        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _minilandProvider = new Mock<IMinilandProvider>();
+            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
-            _minilandProvider.Setup(s => s.GetMiniland(_session.Character.CharacterId))
-                .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
-            _handler = new MinilandBellHandler(_minilandProvider.Object);
+            _handler = new BackPackHandler(_logger.Object, new WorldConfiguration { MaxAdditionalSpPoints = 1 });
             var items = new List<ItemDto>
             {
-                new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
+                new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},
+                new Item {VNum = 2, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryUpgrade, EffectValue = 0},
             };
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
-
         [TestMethod]
-        public void Test_Miniland_On_Instance()
+        public void Test_Can_Not_Stack()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId);
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                CharacterId = _session.Character.CharacterId,
+                DateEnd = null,
+                StaticBonusType = StaticBonusType.BackPack
+            });
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
             _session.Character.Inventory.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, _session.Character.Account.Language), lastpacket.Message);
+
+            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
-        public void Test_Miniland_On_Vehicle()
+        public void Test_BackPack()
         {
-            _session.Character.IsVehicled = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
             _session.Character.Inventory.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, _session.Character.Account.Language), lastpacket.Message);
-            Assert.AreEqual(1, _session.Character.Inventory.Count);
-        }
-
-        [TestMethod]
-        public void Test_Miniland_Delay()
-        {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (DelayPacket)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            var lastpacket = (ExtsPacket)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
+            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
+            Assert.AreEqual(12, _session.Character.Inventory.Expensions[NoscorePocketType.Etc]);
+            Assert.AreEqual(12, _session.Character.Inventory.Expensions[NoscorePocketType.Equipment]);
+            Assert.AreEqual(12, _session.Character.Inventory.Expensions[NoscorePocketType.Main]);
+            Assert.AreEqual(0, _session.Character.Inventory.Count);
+        }
+
+        [TestMethod]
+        public void Test_Can_Not_StackTicket()
+        {
+            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                CharacterId = _session.Character.CharacterId,
+                DateEnd = null,
+                StaticBonusType = StaticBonusType.InventoryTicketUpgrade
+            });
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
+            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+
+            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, _session.Character.Inventory.Count);
         }
 
         [TestMethod]
-        public void Test_Miniland()
+        public void Test_BackPackTicket()
         {
-            _useItem.Mode = 2;
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.Inventory.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(MapInstanceType.NormalInstance, _session.Character.MapInstance.MapInstanceType);
+            var lastpacket = (ExtsPacket)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
+            Assert.IsNotNull(lastpacket);
+            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
+            Assert.AreEqual(60, _session.Character.Inventory.Expensions[NoscorePocketType.Etc]);
+            Assert.AreEqual(60, _session.Character.Inventory.Expensions[NoscorePocketType.Equipment]);
+            Assert.AreEqual(60, _session.Character.Inventory.Expensions[NoscorePocketType.Main]);
             Assert.AreEqual(0, _session.Character.Inventory.Count);
         }
     }

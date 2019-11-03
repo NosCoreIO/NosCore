@@ -290,7 +290,8 @@ namespace NosCore.Tests.Helpers
                 State = CharacterState.Active,
                 Level = 1,
                 JobLevel = 1,
-                StaticBonusList = new List<StaticBonusDto>()
+                StaticBonusList = new List<StaticBonusDto>(),
+                Titles = new List<TitleDto>()
             };
             var charaDto = chara.Adapt<CharacterDto>();
             CharacterDao.InsertOrUpdate(ref charaDto);

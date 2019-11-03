@@ -26,7 +26,7 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
-    public abstract class UseItemEventHandlerTests
+    public abstract class UseItemEventHandlerTestsBase
     {
         protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>> _handler;
         protected ClientSession _session;
