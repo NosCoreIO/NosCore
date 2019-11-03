@@ -299,6 +299,9 @@ namespace NosCore.Data.Enumerations.I18N
         WANT_ENABLE_TITLE,
         WEAR_NEW_TITLE,
         TITLE_VISIBILITY_CHANGED,
-        TITLE_EFFECT_CHANGED
+        TITLE_EFFECT_CHANGED,
+        LOGIN_MEDAL,
+        GIFTED,
+        NEW_MAIL
     }
 }
